@@ -238,8 +238,8 @@ class MainWindow(QtGui.QMainWindow):
         hboxLcd = QtGui.QHBoxLayout()
         
         
-        pixmapWhite = QtGui.QPixmap("../whiteClock.png")
-        pixmapBlack = QtGui.QPixmap("../blackClock.png")
+        pixmapWhite = QtGui.QPixmap("../res/icons/whiteClock.png")
+        pixmapBlack = QtGui.QPixmap("../res/icons/blackClock.png")
         
         labelWhite = QtGui.QLabel()
         labelWhite.setPixmap(pixmapWhite)
