@@ -16,11 +16,11 @@ from PyQt4.QtSvg import *
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
-class Chessboard():
+class GameState():
     
     # PBNRKQ pbnrkq
     def __init__(self): 
-        self.board = [['e' for x in range(9)] for x in range(9)]
+        self.board = [['e' for x in range(8)] for x in range(8)]
         self.castleWhiteShort = False
         self.castleBlackShort = False
         self.castleWhiteLong = False
@@ -31,32 +31,62 @@ class Chessboard():
 
     def setInitPos(self):
         #pawns
-        for x in range(1,9):
-            self.board[x][2] = 'P'
-            self.board[x][7] = 'p'
+        for x in range(0,8):
+            self.board[x][1] = 'P'
+            self.board[x][6] = 'p'
         #knights
-        self.board[2][1] = 'N'
-        self.board[7][1] = 'N'
-        self.board[2][8] = 'n'
-        self.board[7][8] = 'n'
+        self.board[1][0] = 'N'
+        self.board[6][0] = 'N'
+        self.board[1][7] = 'n'
+        self.board[6][7] = 'n'
         #bishops
-        self.board[3][1] = 'B'
-        self.board[6][1] = 'B'
-        self.board[3][8] = 'b'
-        self.board[6][8] = 'b'
+        self.board[2][0] = 'B'
+        self.board[5][0] = 'B'
+        self.board[2][7] = 'b'
+        self.board[5][7] = 'b'
         #rooks
-        self.board[1][1] = 'R'
-        self.board[8][1] = 'R'
-        self.board[1][8] = 'r'
-        self.board[8][8] = 'r'
+        self.board[0][0] = 'R'
+        self.board[7][0] = 'R'
+        self.board[0][7] = 'r'
+        self.board[7][7] = 'r'
         #queens
-        self.board[4][1] = 'Q'
-        self.board[4][8] = 'q'
+        self.board[3][0] = 'Q'
+        self.board[3][7] = 'q'
         #kings
-        self.board[5][1] = 'K'
-        self.board[5][8] = 'k'
-        
+        self.board[4][0] = 'K'
+        self.board[4][7] = 'k'
 
+class PieceImages:
+    def __init__(self):
+        self.pieces = {'P': {} , 'R':{},'N':{},'B':{},'Q':{},'K':{},
+                       'p':{},'r':{},'n':{},'b':{},'q':{},'k':{}}
+        self.rens = {}
+        renWp = QSvgRenderer()
+        wb = ["w","b"]
+        pcs = ["p","r","b","n","q","k"]
+        for fst in wb:
+            for snd in pcs:
+                ren = QSvgRenderer()
+                QSvgRenderer.load(ren,"../res/pieces/"+fst+snd+".svg")
+                if fst == "w":
+                    self.rens[snd] = ren
+                else:
+                    self.rens[snd.upper()] = ren
+        print("piece images")
+                 
+    def getWp(self, piece, size):
+        imgs = self.pieces[piece]
+        if size in imgs:
+            return imgs[size]
+        else:
+            img = QImage(int(size), int(size), QImage.Format_ARGB32) 
+            img.fill(QColor(1,1,1,1))
+            painter = QPainter()
+            painter.begin(img)
+            self.rens[piece].render(painter)
+            painter.end()
+            imgs[size] = img
+            return img
 
 class ChessboardView(QtGui.QWidget):
     
@@ -65,15 +95,11 @@ class ChessboardView(QtGui.QWidget):
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         #policy.setHeightForWidth(True)
         self.setSizePolicy(policy)
-        self.board = Chessboard()
-        self.chessFont = QtGui.QFontDatabase.addApplicationFont("../MERIFONT.TTF")
-        self.chessFontFamily = QtGui.QFontDatabase.applicationFontFamilies(self.chessFont)[0]
- 
+        self.board = GameState()
+        self.pieceImages = PieceImages()
         self.initUI()
         
     def initUI(self):      
-
-        self.text = "abcdefg"
         self.show()
     
     def getBoard(self):
@@ -119,7 +145,7 @@ class ChessboardView(QtGui.QWidget):
         # draw Board
 
 
-        qp.setFont(QtGui.QFont(self.chessFontFamily,80))
+        #qp.setFont(QtGui.QFont(self.chessFontFamily,80))
         #qp.setFont(QtGui.QFont('Decorative',40))
         
         for i in range(0,8):
@@ -134,74 +160,31 @@ class ChessboardView(QtGui.QWidget):
                 qp.drawRect(x,y,squareSize,squareSize)
                 #qp.drawText(50,50,'♙')
                 #draw Piece
-                if(self.getBoard().get(i,j) == 'B'):
-                    qp.setPen(black)
-                    qp.setBrush(black)
-                    #qp.drawText(x,y,'a')
-                    print("board is B")
-                    char = u'\uE100'
-                    qp.drawText(x,y,'P')
-                    #qp.drawText(x,y,'')
-                    
-                    #qp.drawText(x,y,'AAAAAA')
-                
-        
+                piece = self.getBoard().get(i,j)
+                if(piece in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
+                    qp.drawImage(x,y,self.pieceImages.getWp(piece, squareSize))
+
         qp.setPen(darkWhite)
-        qp.setFont(QtGui.QFont('Decorative'))
-        data = """... (my valid svg) ..."""
-
-        ren0 = QSvgRenderer()
-        QSvgRenderer.load(ren0,"../wn.svg")
-        #svg = QSvgRenderer(QByteArray(data))
+        qp.setFont(QtGui.QFont('Decorative',8))
         
-        qim = QImage(int(60), int(60), QImage.Format_ARGB32) 
-        qim.fill(QColor(1,1,1,1))
-        #qim.setAlphaChannel(QColor(1,1,1,1))                                                                                                                                                                                
-        painter = QPainter()
-
-        painter.begin(qim)
-        ren0.render(painter)
-        painter.end()
-        
-        qim2 = QImage("../wb.png")
-        #painter.begin(qim2)
-        
-        #painter.end()
-        #ren0.render(qp) #####very imoprtant riesig
-        #qp.drawImage(svgPawn)
-        #qim = QtGui.QImage(int(2000), int(1000), QtGui.QImage.Format_ARGB32)                                                                                                                                                                                 
-        #painter = QtGui.QPainter()
-        #painter.begin(qim)
-        #svgPawn.render(painter)
-        #painter.end()
-        #qim.save("test.png")
-        #qim2 = QImage()
-        
-        #for i in range(0,8):
-        #    idx = str(chr(65+i))
-        #    qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
-        #                boardOffsetY+(8*squareSize)+(borderWidth-3),idx)
-        #    qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
-
-        #reader     = QImageReader("blackClock")
-        #img = reader.read()
-        
-        qp.drawImage(100,100,qim)
-        qp.drawImage(140,100,qim2)
-        #qp.drawImage(QRect(200, 50, 100, 100),img)
+        for i in range(0,8):
+            idx = str(chr(65+i))
+            qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
+                        boardOffsetY+(8*squareSize)+(borderWidth-3),idx)
+            qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
 
         
     def drawText(self, event, qp):
-      
-        qp.setPen(QtGui.QColor(168, 34, 3))
-        qp.setFont(QtGui.QFont('Decorative', 10))
-        qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)   
+        x = 5
+        #qp.setPen(QtGui.QColor(168, 34, 3))
+        #qp.setFont(QtGui.QFont('Decorative', 10))
+        #qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)   
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
-        test = Chessboard()
+        test = GameState()
 
         self.resize(640, 480)
         self.setWindowTitle('menubar')
