@@ -8,6 +8,7 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
+import GameState
 
 #!/usr/bin/python
 
@@ -16,45 +17,6 @@ from PyQt4.QtSvg import *
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
-class GameState():
-    
-    # PBNRKQ pbnrkq
-    def __init__(self): 
-        self.board = [['e' for x in range(8)] for x in range(8)]
-        self.castleWhiteShort = False
-        self.castleBlackShort = False
-        self.castleWhiteLong = False
-        self.castleBlackLong = False
-
-    def get(self,x,y):
-        return self.board[x][y]
-
-    def setInitPos(self):
-        #pawns
-        for x in range(0,8):
-            self.board[x][1] = 'P'
-            self.board[x][6] = 'p'
-        #knights
-        self.board[1][0] = 'N'
-        self.board[6][0] = 'N'
-        self.board[1][7] = 'n'
-        self.board[6][7] = 'n'
-        #bishops
-        self.board[2][0] = 'B'
-        self.board[5][0] = 'B'
-        self.board[2][7] = 'b'
-        self.board[5][7] = 'b'
-        #rooks
-        self.board[0][0] = 'R'
-        self.board[7][0] = 'R'
-        self.board[0][7] = 'r'
-        self.board[7][7] = 'r'
-        #queens
-        self.board[3][0] = 'Q'
-        self.board[3][7] = 'q'
-        #kings
-        self.board[4][0] = 'K'
-        self.board[4][7] = 'k'
 
 class PieceImages:
     def __init__(self):
@@ -80,6 +42,7 @@ class PieceImages:
             return imgs[size]
         else:
             img = QImage(int(size), int(size), QImage.Format_ARGB32) 
+            #img.fill(QColor(1,1,1,1))
             img.fill(QColor(1,1,1,1))
             painter = QPainter()
             painter.begin(img)
@@ -95,7 +58,7 @@ class ChessboardView(QtGui.QWidget):
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         #policy.setHeightForWidth(True)
         self.setSizePolicy(policy)
-        self.board = GameState()
+        self.board = GameState.State()
         self.pieceImages = PieceImages()
         self.initUI()
         
@@ -184,7 +147,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
-        test = GameState()
+        test = GameState.State()
 
         self.resize(640, 480)
         self.setWindowTitle('menubar')
