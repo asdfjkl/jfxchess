@@ -65,6 +65,7 @@ class ChessboardView(QtGui.QWidget):
         self.grabbedX = None
         self.grabbedY = None
         self.drawGrabbedPiece = False
+        self.oldPiece = None
         
         self.initUI()
         
@@ -109,12 +110,11 @@ class ChessboardView(QtGui.QWidget):
         
         
     def executeMove(self, x, y):
-        self.getState().set(self.moveSrc[0],self.moveSrc[1],'e')
+        self.getState().executeMove(self.moveSrc,(x,y),self.grabbedPiece)
         self.moveSrc = None 
-        self.getState().set(x,y, self.grabbedPiece)
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
-        self.getState().toFen()
+        self.getState().toFen(self.getState().board)
     
     def resetMove(self):
         self.getState().set(self.moveSrc[0],self.moveSrc[1],self.grabbedPiece)
@@ -244,7 +244,7 @@ class MainWindow(QtGui.QMainWindow):
 
         test = GameState.State()
         #test.test()
-        test.toFen()
+        #test.toFen()
 
         self.resize(640, 480)
         self.setWindowTitle('menubar')

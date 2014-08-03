@@ -20,9 +20,7 @@ class State():
         self.whiteInCheck = False
         self.blackInCheck = False
         self.whiteToMove = True
-        self.chessnutGame = Game()
         self.setInitPos()
-        #self.chessnutGame.set_fen(self.toFen())
     
     def get(self,x,y):
         return self.board[x][y]
@@ -31,18 +29,15 @@ class State():
         self.board[x][y] = piece
         
     def xyToStr(self,x,y):
-        """
-        Convert a board index to algebraic notation.
-        """
         return chr(97 + x % 8) + str(y+1)    
     
-    def toFen(self):
+    def toFen(self,board):
         fen =""
-        print("4 1 "+ self.board[4][1])
+        print("4 1 "+ board[4][1])
         for y in range(7,-1,-1):
             cnt = 0
             for x in range(0,8):
-                piece = self.board[x][y]
+                piece = board[x][y]
                 if(piece != 'e'):
                     if(cnt != 0):
                         fen = fen + str(cnt)
@@ -81,19 +76,70 @@ class State():
         fen = fen + " 0 1" 
         print(fen)
         return fen           
-            
+
+    def isCastleWhiteShort(self,src,dst,piece):
+        if(piece == 'K' and src[0]==4 and src[1]==0 and dst[0]==6):
+            print("castle white short")
+            return True
+        else:
+            return False
+
+    def isCastleWhiteLong(self,src,dst,piece):
+        if(piece == 'K' and src[0]==4 and src[1]==0 and dst[0]==2):
+            print("castle white long")
+            return True
+        else:
+            return False
+
+    def isCastleBlackShort(self,src,dst,piece):
+        if(piece == 'k' and src[0]==4 and src[1]==7 and dst[0]==6):
+            print("castle black short")
+            return True
+        else:
+            return False
+    
+    def isCastleBlackLong(self,src,dst,piece):
+        if(piece == 'k' and src[0]==4 and src[1]==7 and dst[0]==2):
+            print("castle black long")
+            return True
+        else:
+            return False
+
+
+    def executeMove(self,src,dst,piece):
+        self.board[src[0]][src[1]] = 'e'
+        self.board[dst[0]][dst[1]] = piece
+        if(self.whiteToMove):
+            self.whiteToMove = False
+        else:
+            self.whiteToMove = True
+        if(self.isCastleWhiteShort(src,dst,piece)):
+            self.castleWhiteShort = False
+        if(self.isCastleWhiteLong(src,dst,piece)):
+            self.castleWhiteLong = False
+        if(self.isCastleBlackShort(src,dst,piece)):
+            self.castleBlackShort = False
+        if(self.isCastleBlackLong(src,dst,piece)):
+            self.castleBlackLong = False
+        
                 
     def validMove(self, src, dst, piece):
-        for mv in self.chessnutGame.get_moves():
+        board_copy = [row[:] for row in self.board]
+        #revert grabbed piece
+        board_copy[src[0]][src[1]] = piece
+        #print("self to fen:"+self.toFen(board_copy))
+        g = Game(self.toFen(board_copy))
+        for mv in g.get_moves():
             print(str(mv))
         srcStr = self.xyToStr(src[0],src[1])
         dstStr = self.xyToStr(dst[0],dst[1])
-        print(srcStr+dstStr)
+        print("src dest"+srcStr+dstStr)
         try:
-            self.chessnutGame.apply_move(srcStr+dstStr)
+            g.apply_move(srcStr+dstStr)
             return True
         #except Exception as e: 
         except InvalidMove:
+            print("exception raised")
             return False
         
     def test(self):
