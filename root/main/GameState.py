@@ -31,9 +31,8 @@ class State():
     def xyToStr(self,x,y):
         return chr(97 + x % 8) + str(y+1)    
     
-    def toFen(self,board):
+    def boardToFen(self,board):
         fen =""
-        print("4 1 "+ board[4][1])
         for y in range(7,-1,-1):
             cnt = 0
             for x in range(0,8):
@@ -49,6 +48,10 @@ class State():
                         fen = fen + str(cnt)
             if(y>0):
                 fen = fen+"/"
+        return fen
+    
+    def configToFen(self):
+        fen = ""
         if(self.whiteToMove):
             fen = fen + " w"
         else:
@@ -74,7 +77,6 @@ class State():
         
         #todo half+fullmoves
         fen = fen + " 0 1" 
-        print(fen)
         return fen           
 
     def isCastleWhiteShort(self,src,dst,piece):
@@ -127,10 +129,10 @@ class State():
         board_copy = [row[:] for row in self.board]
         #revert grabbed piece
         board_copy[src[0]][src[1]] = piece
-        #print("self to fen:"+self.toFen(board_copy))
-        g = Game(self.toFen(board_copy))
-        for mv in g.get_moves():
-            print(str(mv))
+        print("self to fen:"+self.boardToFen(board_copy)+self.configToFen())
+        g = Game(self.boardToFen(board_copy)+self.configToFen())
+        #for mv in g.get_moves():
+        #    print(str(mv))
         srcStr = self.xyToStr(src[0],src[1])
         dstStr = self.xyToStr(dst[0],dst[1])
         print("src dest"+srcStr+dstStr)
