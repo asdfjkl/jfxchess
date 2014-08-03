@@ -23,7 +23,6 @@ class PieceImages:
         self.pieces = {'P': {} , 'R':{},'N':{},'B':{},'Q':{},'K':{},
                        'p':{},'r':{},'n':{},'b':{},'q':{},'k':{}}
         self.rens = {}
-        renWp = QSvgRenderer()
         wb = ["w","b"]
         pcs = ["p","r","b","n","q","k"]
         for fst in wb:
@@ -31,9 +30,9 @@ class PieceImages:
                 ren = QSvgRenderer()
                 QSvgRenderer.load(ren,"../res/pieces/"+fst+snd+".svg")
                 if fst == "w":
-                    self.rens[snd] = ren
-                else:
                     self.rens[snd.upper()] = ren
+                else:
+                    self.rens[snd] = ren
         print("piece images")
                  
     def getWp(self, piece, size):
@@ -42,7 +41,6 @@ class PieceImages:
             return imgs[size]
         else:
             img = QImage(int(size), int(size), QImage.Format_ARGB32) 
-            #img.fill(QColor(1,1,1,1))
             img.fill(QColor(1,1,1,1))
             painter = QPainter()
             painter.begin(img)
@@ -56,17 +54,25 @@ class ChessboardView(QtGui.QWidget):
     def __init__(self):
         super(ChessboardView, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
-        #policy.setHeightForWidth(True)
         self.setSizePolicy(policy)
-        self.board = GameState.State()
+        self.state = GameState.State()
         self.pieceImages = PieceImages()
+        
+        self.borderWidth = 12
+        
+        self.moveSrc = None
+        self.grabbedPiece = None
+        self.grabbedX = None
+        self.grabbedY = None
+        self.drawGrabbedPiece = False
+        
         self.initUI()
         
     def initUI(self):      
         self.show()
     
-    def getBoard(self):
-        return self.board
+    def getState(self):
+        return self.state
         
     def heightForWidth(self, width):
         return width    
@@ -78,54 +84,148 @@ class ChessboardView(QtGui.QWidget):
 
         qp = QtGui.QPainter()
         qp.begin(self)
-        #self.drawText(event, qp)
-        self.drawPoints(event, qp)
+        self.drawBoard(event, qp)
         qp.end()
     
-    def drawPoints(self, event, qp):
+    def getBoardPosition(self,x,y):
+        (boardSize,squareSize) = self.calculateBoardSize()
+        # check if x,y are actually on the board
+        if(x > self.borderWidth and y > self.borderWidth 
+           and x < (boardSize - self.borderWidth) 
+           and y < (boardSize - self.borderWidth)):
+            x = x - self.borderWidth
+            y = y - self.borderWidth
+            x = x // squareSize
+            y = 7 - (y // squareSize)
+            return (x,y)
+        return None
+    
+    def touchPiece(self, x, y):
+        self.moveSrc = (x,y)
+        piece = self.getState().get(x,y)
+        self.grabbedPiece = piece
+        print("grabbed "+str(piece))
+        self.getState().set(x,y,'e')
+        
+        
+    def executeMove(self, x, y):
+        self.getState().set(self.moveSrc[0],self.moveSrc[1],'e')
+        self.moveSrc = None 
+        self.getState().set(x,y, self.grabbedPiece)
+        self.grabbedPiece = None
+        self.drawGrabbedPiece = False
+        self.getState().toFen()
+    
+    def resetMove(self):
+        self.getState().set(self.moveSrc[0],self.moveSrc[1],self.grabbedPiece)
+        self.moveSrc = None
+        self.grabbedPiece = None
+        self.drawGrabbedPiece = False    
+            
+    def mousePressEvent(self, mouseEvent):
+        x = mouseEvent.x()
+        y = mouseEvent.y()
+        pos = self.getBoardPosition(x, y)
+        if(pos):
+            i = pos[0]
+            j = pos[1]
+            if(self.grabbedPiece):
+                if(pos == self.moveSrc):
+                    self.resetMove()
+                else:
+                    if(self.getState().validMove(self.moveSrc, (i,j), self.grabbedPiece)):
+                        self.executeMove(i, j)
+                    else:
+                        self.resetMove()
+                        if(self.getState().get(i,j) != 'e'):
+                            self.touchPiece(i,j)
+            else:
+                if(self.getState().get(i,j) != 'e'):
+                    self.touchPiece(i,j)
+                    self.grabbedX = mouseEvent.x()
+                    self.grabbedY = mouseEvent.y()
+                    self.drawGrabbedPiece = True
+        self.update()
 
+    
+    def mouseMoveEvent(self, mouseEvent):
+        button = mouseEvent.button()
+        if(button == 0 and (not self.grabbedPiece == None)):
+            self.grabbedX = mouseEvent.x()
+            self.grabbedY = mouseEvent.y()
+            self.drawGrabbedPiece = True
+            self.update()
+        
+    def mouseReleaseEvent(self, mouseEvent):
+        self.drawGrabbedPiece = False
+        x = mouseEvent.x()
+        y = mouseEvent.y()
+        pos = self.getBoardPosition(x, y)
+        if(pos): 
+            i = pos[0]
+            j = pos[1]
+            if(self.grabbedPiece != None):
+                if(pos != self.moveSrc):
+                    if(self.getState().validMove(self.moveSrc, (i,j), self.grabbedPiece)):
+                        self.executeMove(i, j)
+                    else:
+                        self.resetMove()
+                else:
+                    self.getState().set(self.moveSrc[0],self.moveSrc[1],self.grabbedPiece)
+        self.update()
+        
+        
+
+    def calculateBoardSize(self):
+        size = self.size()
+        boardSize = min(size.width(), size.height())
+        squareSize = (boardSize-(2*self.borderWidth))//8
+        boardSize = 8 * squareSize + 2 * self.borderWidth
+        return (boardSize,squareSize)
+            
+    def drawBoard(self, event, qp):
         penZero = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.NoPen)
         qp.setPen(penZero)
 
-        black = QtGui.QColor(0,0,0)
         darkBlue = QtGui.QColor(56,66,91)
-        lightBlue = QtGui.QColor(111,132,181)
-        darkWhite = QtGui.QColor(239,239,239) 
+        #Fritz 13
+        #lightBlue = QtGui.QColor(111,132,181)
+        #darkWhite = QtGui.QColor(239,239,239)
+        #Fritz 6
+        lightBlue = QtGui.QColor(90,106,173) 
+        lightBlue2 = QtGui.QColor(166,188,231)
+        darkWhite = QtGui.QColor(239,239,239)
         
         qp.setBrush(darkBlue)
         
-        size = self.size()
-        borderWidth = 12        
-        boardSize = min(size.width(), size.height())
-        squareSize = (boardSize-(2*borderWidth))//8
-        boardSize = 8 * squareSize + 2 * borderWidth
+        (boardSize,squareSize) = self.calculateBoardSize()
         
         qp.drawRect(1,1,boardSize,boardSize)
         
-        boardOffsetX = borderWidth;
-        boardOffsetY = borderWidth;
+        boardOffsetX = self.borderWidth;
+        boardOffsetY = self.borderWidth;
         
-        # draw Board
-
-
-        #qp.setFont(QtGui.QFont(self.chessFontFamily,80))
-        #qp.setFont(QtGui.QFont('Decorative',40))
+        # draw Board     
         
         for i in range(0,8):
             for j in range(0,8):
                 if((j%2 == 0 and i%2 ==1) or (j%2 == 1 and i%2 ==0)):
                     qp.setBrush(lightBlue)
                 else:
-                    qp.setBrush(darkWhite)        
+                    qp.setBrush(lightBlue2)        
                 #draw Square
                 x = boardOffsetX+(i*squareSize)
                 y = boardOffsetY+(j*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
-                #qp.drawText(50,50,'♙')
                 #draw Piece
-                piece = self.getBoard().get(i,j)
+                piece = self.getState().get(i,7-j)
                 if(piece in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     qp.drawImage(x,y,self.pieceImages.getWp(piece, squareSize))
+
+        if(self.drawGrabbedPiece):
+            offset = squareSize // 2          
+            qp.drawImage(self.grabbedX-offset,self.grabbedY-offset,self.pieceImages.getWp(self.grabbedPiece, squareSize))
+
 
         qp.setPen(darkWhite)
         qp.setFont(QtGui.QFont('Decorative',8))
@@ -133,21 +233,18 @@ class ChessboardView(QtGui.QWidget):
         for i in range(0,8):
             idx = str(chr(65+i))
             qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
-                        boardOffsetY+(8*squareSize)+(borderWidth-3),idx)
+                        boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
             qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
 
-        
-    def drawText(self, event, qp):
-        x = 5
-        #qp.setPen(QtGui.QColor(168, 34, 3))
-        #qp.setFont(QtGui.QFont('Decorative', 10))
-        #qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)   
+         
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
         test = GameState.State()
+        #test.test()
+        test.toFen()
 
         self.resize(640, 480)
         self.setWindowTitle('menubar')
@@ -162,29 +259,22 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
         board = ChessboardView()
-        board.getBoard().setInitPos()
+        board.getState().setInitPos()
         
-        #board.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         spLeft = QtGui.QSizePolicy();
         spLeft.setHorizontalStretch(1);
-        # board.setSizePolicy(spLeft)
+
         ok = QtGui.QPushButton("OK")
         cancel = QtGui.QPushButton("Cancel")
 
         mainWidget = QtGui.QWidget()
 
         hbox = QtGui.QHBoxLayout()
-        #hbox.addStretch(3)
-        #hbox.addStretch(1)
         hbox.addWidget(board)
         
         spRight = QtGui.QSizePolicy();
         spRight.setHorizontalStretch(2);
-        # ok.setSizePolicy(spRight)
-        #hbox.addStretch(2)
-        #hbox.addWidget(ok)
-        #hbox.addWidget(cancel)
-
+ 
         lcd1 = QtGui.QLCDNumber(self)
         
         lcd1.setSegmentStyle(QtGui.QLCDNumber.Flat)
@@ -211,20 +301,10 @@ class MainWindow(QtGui.QMainWindow):
         labelBlack = QtGui.QLabel()
         labelBlack.setPixmap(pixmapBlack)
         labelBlack.setAlignment(QtCore.Qt.AlignRight)
-        #label.setAutoFillBackground(True)
-        #palette = QtGui.QPalette()
-        #palette.setColor(QtGui.QPalette.Foreground,black)
-        #palette.setColor(QtGui.QPalette.Background,black)
-        #label.setPalette(palette)
         
         spacerLcd = QtGui.QSpacerItem(20,10)
-        #icon = QtGui.QIcon()
-        #checkBox = QtGui.QCheckBox()
-        #checkBox.setPalette(palette)
         
         hboxLcd.addWidget(labelWhite)
-        #hboxLcd.addWidget(checkBox)
-        #hboxLcd.addWidget(toolButtonWhite)
         hboxLcd.addWidget(lcd1)
         hboxLcd.addItem(spacerLcd)
         hboxLcd.addWidget(labelBlack)
