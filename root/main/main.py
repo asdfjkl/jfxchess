@@ -8,7 +8,8 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
-import GameState
+#import GameState
+from GameState import *
 #!/usr/bin/python
 
 # menubar.py 
@@ -54,10 +55,10 @@ class ChessboardView(QtGui.QWidget):
         super(ChessboardView, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
-        self.state = GameState.State()
+        self.state = State()
         self.pieceImages = PieceImages()
         
-        hf = GameState.HalfMove(4,1)
+        hf = HalfMove(4,1)
         print(hf.to_str())
         
         self.borderWidth = 12
@@ -104,7 +105,7 @@ class ChessboardView(QtGui.QWidget):
     
     def touchPiece(self, x, y):
         print("to create from"+str(x)+str(y))
-        self.moveSrc = GameState.HalfMove(x,y)
+        self.moveSrc = HalfMove(x,y)
         print(self.moveSrc.to_str())
         piece = self.getState().board().get_at(x,y)
         self.grabbedPiece = piece
@@ -113,14 +114,14 @@ class ChessboardView(QtGui.QWidget):
         
         
     def executeMove(self, x, y):
-        m = GameState.Move(self.moveSrc,GameState.HalfMove(x,y),self.grabbedPiece)
+        m = Move(self.moveSrc,HalfMove(x,y),self.grabbedPiece)
         self.getState().execute_move(m)
         self.moveSrc = None 
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
         
     def resetMove(self):
-        self.getState().board().set_at(self.moveSrc[0],self.moveSrc[1],self.grabbedPiece)
+        self.getState().board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False    
@@ -132,17 +133,17 @@ class ChessboardView(QtGui.QWidget):
         if(pos):
             i = pos[0]
             j = pos[1]
-            hi = GameState.HalfMove(i,j)
+            hi = HalfMove(i,j)
             if(self.grabbedPiece):
-                if(hi == self.moveSrc):
+                if(hi.x() == self.moveSrc.x() and hi.y() == self.moveSrc.y()):
                     self.resetMove()
                 else:
-                    m = GameState.HalfMove(i,j)
-                    if(self.getState().is_valid_move(GameState.Move(self.moveSrc, m, self.grabbedPiece))):
+                    m = HalfMove(i,j)
+                    if(self.getState().is_valid_move(Move(self.moveSrc, m, self.grabbedPiece))):
                         self.executeMove(i, j)
                     else:
                         self.resetMove()
-                        if(self.getState().get(i,j) != 'e'):
+                        if(self.getState().board().get_at(i,j) != 'e'):
                             self.touchPiece(i,j)
             else:
                 print("else")
@@ -172,11 +173,11 @@ class ChessboardView(QtGui.QWidget):
         if(pos): 
             i = pos[0]
             j = pos[1]
-            pos1 = GameState.HalfMove(i,j)
+            pos1 = HalfMove(i,j)
             if(self.grabbedPiece != None):
-                if(pos1 != self.moveSrc):
-                    h = GameState.HalfMove(i,j)
-                    m = GameState.Move(self.moveSrc, h, self.grabbedPiece)
+                if(pos1.x() != self.moveSrc.x() or pos1.y() != self.moveSrc.y()):
+                    h = HalfMove(i,j)
+                    m = Move(self.moveSrc, h, self.grabbedPiece)
                     print("self:"+self.moveSrc.to_str())
                     print("h"+h.to_str())
                     print(m.to_str())
@@ -185,7 +186,7 @@ class ChessboardView(QtGui.QWidget):
                     else:
                         self.resetMove()
                 else:
-                    self.getState().board().set_at(self.moveSrc[0],self.moveSrc[1],self.grabbedPiece)
+                    self.getState().board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         self.update()
         
         
@@ -256,7 +257,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
-        test = GameState.State()
+        test = State()
         #test.test()
         #test.toFen()
 
