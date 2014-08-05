@@ -11,7 +11,7 @@ from Chessnut.game import InvalidMove
 def idx_to_str(x):
     return chr(97 + x % 8) 
 
-class HalfMove():
+class Point():
     def __init__(self,x,y):
         self.hm = [x,y]
         
@@ -29,6 +29,12 @@ class HalfMove():
         
     def to_str(self):
         return idx_to_str(self.x()) + str(self.y()+1)
+    
+    def __eq__(self, other):
+        return self.x() == other.x() and self.y() == other.y()
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
         
 class Move():
     def __init__(self,src,dst,piece):
@@ -133,6 +139,8 @@ class Config():
         self.whiteInCheck = False
         self.blackInCheck = False
         self.whiteToMove = True
+        self.blackEnPassant = None
+        self.whiteEnPassant = None       
         
     def deep_copy(self):
         c = Config()
@@ -168,7 +176,13 @@ class Config():
                 fen = fen + "q"
         
         #todo en passent
-        fen = fen + " -"
+        fen = fen + " "
+        if(self.blackEnPassant):
+            fen = fen + self.blackEnPassant.to_str()
+        elif(self.whiteEnPassant):
+            fen = fen + self.whiteEnPassant.to_str()
+        else:   
+            fen = fen + "-"    
         
         #todo half+fullmoves
         fen = fen + " 0 1" 
@@ -221,9 +235,39 @@ class State():
         else:
             return False
 
-
+    def black_pawn_2_steps(self,move):
+        if(move.piece() == 'p' and move.src().y()==6 and move.dst().y()==4):
+            return True
+        else:
+            return False
+    
+    def white_pawn_2_steps(self,move):
+        if(move.piece() == 'P' and move.src().y()==1 and move.dst().y()==3):
+            return True
+        else:
+            return False
+    
+    def black_takes_en_passant(self,move):
+        if(move.piece() == 'p' and move.src().x() != move.dst().x() 
+           and self.board().get_at(move.dst().x(),move.dst().y()) == 'e'):
+            return True
+        else:
+            return False
+    
+    def white_takes_en_passant(self,move):
+        if(move.piece() == 'P' and move.src().x() != move.dst().x() 
+           and self.board().get_at(move.dst().x(),move.dst().y()) == 'e'):
+            return True
+        else:
+            return False
+    
     def execute_move(self,move):
-        #put sliding piece back on origin
+        self.cfg.blackEnPassant = None
+        self.cfg.whiteEnPassant = None
+        if(self.white_takes_en_passant(move)):
+            self.board().set_at(move.dst().x(),move.dst().y()-1,'e')
+        if(self.black_takes_en_passant(move)):
+            self.board().set_at(move.dst().x(),move.dst().y()+1,'e')     
         self.brd.set_at(move.src().x(),move.src().y(),'e')
         self.brd.set_at(move.dst().x(),move.dst().y(),move.piece())
         if(self.cfg.whiteToMove):
@@ -245,7 +289,15 @@ class State():
         if(self.is_castle_black_long(move)):
             self.cfg.castleBlackLong = False
             self.brd.set_at(0, 7, 'e')
-            self.brd.set_at(3, 7, 'r')        
+            self.brd.set_at(3, 7, 'r')   
+        if(self.black_pawn_2_steps(move)):
+            self.cfg.blackEnPassant = Point(move.src().x(),move.src().y()-1)
+            print("ep recorded"+self.cfg.blackEnPassant.to_str())
+        if(self.white_pawn_2_steps(move)):
+            self.cfg.whiteEnPassant = Point(move.src().x(),move.src().y()+1)
+            print("ep recorded"+self.cfg.whiteEnPassant.to_str())
+        
+        
                 
     def is_valid_move(self, move):
         board_copy = self.brd.deep_copy()

@@ -58,7 +58,7 @@ class ChessboardView(QtGui.QWidget):
         self.state = State()
         self.pieceImages = PieceImages()
         
-        hf = HalfMove(4,1)
+        hf = Point(4,1)
         print(hf.to_str())
         
         self.borderWidth = 12
@@ -100,21 +100,17 @@ class ChessboardView(QtGui.QWidget):
             y = y - self.borderWidth
             x = x // squareSize
             y = 7 - (y // squareSize)
-            return (x,y)
+            return Point(x,y)
         return None
     
     def touchPiece(self, x, y):
-        print("to create from"+str(x)+str(y))
-        self.moveSrc = HalfMove(x,y)
-        print(self.moveSrc.to_str())
+        self.moveSrc = Point(x,y)
         piece = self.getState().board().get_at(x,y)
         self.grabbedPiece = piece
-        print("grabbed "+str(piece))
-        self.getState().board().set_at(x,y,'e')
-        
+        self.getState().board().set_at(x,y,'e')        
         
     def executeMove(self, x, y):
-        m = Move(self.moveSrc,HalfMove(x,y),self.grabbedPiece)
+        m = Move(self.moveSrc,Point(x,y),self.grabbedPiece)
         self.getState().execute_move(m)
         self.moveSrc = None 
         self.grabbedPiece = None
@@ -127,30 +123,24 @@ class ChessboardView(QtGui.QWidget):
         self.drawGrabbedPiece = False    
             
     def mousePressEvent(self, mouseEvent):
-        x = mouseEvent.x()
-        y = mouseEvent.y()
-        pos = self.getBoardPosition(x, y)
+        pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos):
-            i = pos[0]
-            j = pos[1]
-            hi = HalfMove(i,j)
+            i = pos.x()
+            j = pos.y()
             if(self.grabbedPiece):
-                if(hi.x() == self.moveSrc.x() and hi.y() == self.moveSrc.y()):
-                    self.resetMove()
+                #m = Point(i,j)
+                if(self.getState().is_valid_move(Move(self.moveSrc, pos, self.grabbedPiece))):
+                    self.executeMove(i, j)
                 else:
-                    m = HalfMove(i,j)
-                    if(self.getState().is_valid_move(Move(self.moveSrc, m, self.grabbedPiece))):
-                        self.executeMove(i, j)
-                    else:
-                        self.resetMove()
-                        if(self.getState().board().get_at(i,j) != 'e'):
-                            self.touchPiece(i,j)
+                    self.resetMove()
+                    if(self.getState().board().get_at(i,j) != 'e'):
+                        self.touchPiece(i,j)
+                        self.grabbedX = mouseEvent.x()
+                        self.grabbedY = mouseEvent.y()
+                        self.drawGrabbedPiece = True
             else:
-                print("else")
                 if(self.getState().board().get_at(i,j) != 'e'):
-                    print("to touch piece")
                     self.touchPiece(i,j)
-                    print("after tp"+self.moveSrc.to_str())
                     self.grabbedX = mouseEvent.x()
                     self.grabbedY = mouseEvent.y()
                     self.drawGrabbedPiece = True
@@ -167,20 +157,13 @@ class ChessboardView(QtGui.QWidget):
         
     def mouseReleaseEvent(self, mouseEvent):
         self.drawGrabbedPiece = False
-        x = mouseEvent.x()
-        y = mouseEvent.y()
-        pos = self.getBoardPosition(x, y)
+        pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos): 
-            i = pos[0]
-            j = pos[1]
-            pos1 = HalfMove(i,j)
+            i = pos.x()
+            j = pos.y()
             if(self.grabbedPiece != None):
-                if(pos1.x() != self.moveSrc.x() or pos1.y() != self.moveSrc.y()):
-                    h = HalfMove(i,j)
-                    m = Move(self.moveSrc, h, self.grabbedPiece)
-                    print("self:"+self.moveSrc.to_str())
-                    print("h"+h.to_str())
-                    print(m.to_str())
+                if(pos != self.moveSrc):
+                    m = Move(self.moveSrc, pos, self.grabbedPiece)
                     if(self.getState().is_valid_move(m)):
                         self.executeMove(i, j)
                     else:
