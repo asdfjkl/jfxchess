@@ -57,12 +57,11 @@ class Move():
     
     def to_str(self):
         return self.mv[0].to_str() + self.mv[1].to_str()
-       
-class GameTree():
+
+
+ 
+        
     
-    def __init__(self):
-        self.state = State()
-        self.moves = []
 
 class Board():
     def __init__(self):
@@ -144,7 +143,7 @@ class Config():
         
     def deep_copy(self):
         c = Config()
-        c.castleWhiteShort = self.castleWhiteShorte
+        c.castleWhiteShort = self.castleWhiteShort
         c.castleBlackShort = self.castleBlackShort
         c.castleWhiteLong = self.castleWhiteLong
         c.castleBlackLong = self.castleBlackLong
@@ -196,9 +195,17 @@ class State():
     def __init__(self): 
         self.brd = Board()
         self.cfg = Config()
+        self.childs = []
+        self.parent = None
         
     def board(self):
         return self.brd
+    
+    def deep_copy(self):
+        c = State()
+        c.brd = self.brd.deep_copy()
+        c.cfg = self.cfg.deep_copy()
+        return c
     
     def to_fen(self):
         return self.brd().to_fen() + self.cfg.to_fen()
@@ -304,6 +311,7 @@ class State():
         board_copy.set_at(move.src().x(), move.src().y(), move.piece())
         print("self to fen:"+board_copy.to_fen())
         g = Game(board_copy.to_fen() + self.cfg.to_fen())
+        print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
         #    print(str(mv))
         print("trying: "+move.to_str())
@@ -322,4 +330,38 @@ class State():
        chessgame.apply_move('e2e4')  # succeeds!
        print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
        chessgame.apply_move('e2e4')  # fails! (raises InvalidMove exception)  
-           
+
+class Child():
+    def __init__(self,mv,st):
+        self.move = mv
+        self.state = st
+              
+          
+class GameTree():
+    def __init__(self):
+        self.root = State()
+        self.current = self.root
+    
+    #checks if applying the move in
+    #current state is valid
+    def is_valid_move(self,move):
+        if(self.current.is_valid_move(move)):
+            return True
+        else:
+            return False
+    
+    def execute_move(self,move):
+        c = self.current.deep_copy()
+        c.execute_move(move)
+        self.current.childs.append(Child(move,c))
+        c.parent = self.current
+        self.current = c
+        self.to_str()
+    
+    def to_str(self):
+        str = ""
+        tmp = self.root
+        while(tmp.childs != []):
+            str = str + " " + tmp.childs[0].move.to_str()
+            tmp = tmp.childs[0].state
+        print(str)

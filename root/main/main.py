@@ -55,7 +55,7 @@ class ChessboardView(QtGui.QWidget):
         super(ChessboardView, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
-        self.state = State()
+        self.gt = GameTree()
         self.pieceImages = PieceImages()
         
         hf = Point(4,1)
@@ -73,9 +73,6 @@ class ChessboardView(QtGui.QWidget):
         
     def initUI(self):      
         self.show()
-    
-    def getState(self):
-        return self.state
         
     def heightForWidth(self, width):
         return width    
@@ -105,19 +102,19 @@ class ChessboardView(QtGui.QWidget):
     
     def touchPiece(self, x, y):
         self.moveSrc = Point(x,y)
-        piece = self.getState().board().get_at(x,y)
+        piece = self.gt.current.board().get_at(x,y)
         self.grabbedPiece = piece
-        self.getState().board().set_at(x,y,'e')        
+        self.gt.current.board().set_at(x,y,'e')        
         
     def executeMove(self, x, y):
         m = Move(self.moveSrc,Point(x,y),self.grabbedPiece)
-        self.getState().execute_move(m)
+        self.gt.execute_move(m)
         self.moveSrc = None 
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
         
     def resetMove(self):
-        self.getState().board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
+        self.gt.current.board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False    
@@ -129,17 +126,17 @@ class ChessboardView(QtGui.QWidget):
             j = pos.y()
             if(self.grabbedPiece):
                 #m = Point(i,j)
-                if(self.getState().is_valid_move(Move(self.moveSrc, pos, self.grabbedPiece))):
+                if(self.gt.is_valid_move(Move(self.moveSrc, pos, self.grabbedPiece))):
                     self.executeMove(i, j)
                 else:
                     self.resetMove()
-                    if(self.getState().board().get_at(i,j) != 'e'):
+                    if(self.gt.current.board().get_at(i,j) != 'e'):
                         self.touchPiece(i,j)
                         self.grabbedX = mouseEvent.x()
                         self.grabbedY = mouseEvent.y()
                         self.drawGrabbedPiece = True
             else:
-                if(self.getState().board().get_at(i,j) != 'e'):
+                if(self.gt.current.board().get_at(i,j) != 'e'):
                     self.touchPiece(i,j)
                     self.grabbedX = mouseEvent.x()
                     self.grabbedY = mouseEvent.y()
@@ -164,12 +161,12 @@ class ChessboardView(QtGui.QWidget):
             if(self.grabbedPiece != None):
                 if(pos != self.moveSrc):
                     m = Move(self.moveSrc, pos, self.grabbedPiece)
-                    if(self.getState().is_valid_move(m)):
+                    if(self.gt.is_valid_move(m)):
                         self.executeMove(i, j)
                     else:
                         self.resetMove()
                 else:
-                    self.getState().board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
+                    self.gt.current.board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         self.update()
         
         
@@ -216,7 +213,7 @@ class ChessboardView(QtGui.QWidget):
                 y = boardOffsetY+(j*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
                 #draw Piece
-                piece = self.getState().board().get_at(i,7-j)
+                piece = self.gt.current.board().get_at(i,7-j)
                 if(piece in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     qp.drawImage(x,y,self.pieceImages.getWp(piece, squareSize))
 
