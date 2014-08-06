@@ -359,9 +359,9 @@ class GameTree():
         self.to_str()
     
     def to_str(self):
-        str = ""
+        game = ""
         tmp = self.root
         while(tmp.childs != []):
-            str = str + " " + tmp.childs[0].move.to_str()
+            game = game + " " + tmp.childs[0].move.to_str()
             tmp = tmp.childs[0].state
-        print(str)
+        print(game)
