@@ -13,55 +13,27 @@ def idx_to_str(x):
 
 class Point():
     def __init__(self,x,y):
-        self.hm = [x,y]
-        
-    def x(self):
-        return self.hm[0]
-    
-    def y(self):
-        return self.hm[1]
-    
-    def set_x(self,x):
-        self.hm[0] = x
-    
-    def set_y(self,y):
-        self.hm[1] = y 
+        self.x = x
+        self.y = y
         
     def to_str(self):
-        return idx_to_str(self.x()) + str(self.y()+1)
+        return idx_to_str(self.x) + str(self.y+1)
     
     def __eq__(self, other):
-        return self.x() == other.x() and self.y() == other.y()
+        return self.x == other.x and self.y == other.y
     
     def __ne__(self, other):
         return not self.__eq__(other)
         
 class Move():
     def __init__(self,src,dst,piece):
-        self.mv = [src,dst,piece]
-        
-    def src(self):
-        return self.mv[0]
-    
-    def dst(self):
-        return self.mv[1]
-    
-    def piece(self):
-        return self.mv[2]
-    
-    def set_src(self,src):
-        self.mv[0] = src
-        
-    def set_dst(self,dst):
-        self.mv[1] = dst
+        self.src = src
+        self.dst = dst
+        self.piece = piece
     
     def to_str(self):
-        return self.mv[0].to_str() + self.mv[1].to_str()
+        return self.src.to_str() + self.dst.to_str()
 
-
- 
-        
-    
 
 class Board():
     def __init__(self):
@@ -193,124 +165,121 @@ class State():
     
     # PBNRKQ pbnrkq
     def __init__(self): 
-        self.brd = Board()
-        self.cfg = Config()
+        self.board = Board()
+        self.config = Config()
         self.childs = []
         self.parent = None
-        
-    def board(self):
-        return self.brd
     
     def deep_copy(self):
         c = State()
-        c.brd = self.brd.deep_copy()
-        c.cfg = self.cfg.deep_copy()
+        c.board = self.board.deep_copy()
+        c.config = self.config.deep_copy()
         return c
     
     def to_fen(self):
-        return self.brd().to_fen() + self.cfg.to_fen()
+        return self.board.to_fen() + self.config.to_fen()
     
     def is_castle_white_short(self,move):
-        if(move.piece() == 'K' and move.src().x()==4 
-           and move.src().y()==0 and move.dst().x()==6):
+        if(move.piece == 'K' and move.src.x==4 
+           and move.src.y==0 and move.dst.x==6):
             print("castle white short")
             return True
         else:
             return False
 
     def is_castle_white_long(self,move):
-        if(move.piece() == 'K' and move.src().x()==4 
-           and move.src().y()==0 and move.dst().x()==2):
+        if(move.piece == 'K' and move.src.x==4 
+           and move.src.y==0 and move.dst.x==2):
             print("castle white long")
             return True
         else:
             return False
 
     def is_castle_black_short(self,move):
-        if(move.piece() == 'k' and move.src().x()==4 
-           and move.src().y()==7 and move.dst().x()==6):
+        if(move.piece == 'k' and move.src.x==4 
+           and move.src.y==7 and move.dst.x==6):
             print("castle black short")
             return True
         else:
             return False
     
     def is_castle_black_long(self,move):
-        if(move.piece() == 'k' and move.src().x()==4 
-           and move.src().y()==7 and move.dst().x()==2):
+        if(move.piece == 'k' and move.src.x==4 
+           and move.src.y==7 and move.dst.x==2):
             print("castle black long")
             return True
         else:
             return False
 
     def black_pawn_2_steps(self,move):
-        if(move.piece() == 'p' and move.src().y()==6 and move.dst().y()==4):
+        if(move.piece == 'p' and move.src.y==6 and move.dst.y==4):
             return True
         else:
             return False
     
     def white_pawn_2_steps(self,move):
-        if(move.piece() == 'P' and move.src().y()==1 and move.dst().y()==3):
+        if(move.piece == 'P' and move.src.y==1 and move.dst.y==3):
             return True
         else:
             return False
     
     def black_takes_en_passant(self,move):
-        if(move.piece() == 'p' and move.src().x() != move.dst().x() 
-           and self.board().get_at(move.dst().x(),move.dst().y()) == 'e'):
+        if(move.piece == 'p' and move.src.x != move.dst.x 
+           and self.board().get_at(move.dst.x,move.dst.y) == 'e'):
             return True
         else:
             return False
     
     def white_takes_en_passant(self,move):
-        if(move.piece() == 'P' and move.src().x() != move.dst().x() 
-           and self.board().get_at(move.dst().x(),move.dst().y()) == 'e'):
+        if(move.piece == 'P' and move.src.x != move.dst.x
+           and self.board().get_at(move.dst.x,move.dst.y) == 'e'):
             return True
         else:
             return False
     
     def execute_move(self,move):
-        self.cfg.blackEnPassant = None
-        self.cfg.whiteEnPassant = None
+        self.config.blackEnPassant = None
+        self.config.whiteEnPassant = None
         if(self.white_takes_en_passant(move)):
-            self.board().set_at(move.dst().x(),move.dst().y()-1,'e')
+            self.board().set_at(move.dst.x,move.dst.y-1,'e')
         if(self.black_takes_en_passant(move)):
-            self.board().set_at(move.dst().x(),move.dst().y()+1,'e')     
-        self.brd.set_at(move.src().x(),move.src().y(),'e')
-        self.brd.set_at(move.dst().x(),move.dst().y(),move.piece())
-        if(self.cfg.whiteToMove):
-            self.cfg.whiteToMove = False
+            self.board().set_at(move.dst.x,move.dst.y+1,'e')     
+        self.board.set_at(move.src.x,move.src.y,'e')
+        self.board.set_at(move.dst.x,move.dst.y,move.piece)
+        if(self.config.whiteToMove):
+            self.config.whiteToMove = False
         else:
-            self.cfg.whiteToMove = True
+            self.config.whiteToMove = True
         if(self.is_castle_white_short(move)):
-            self.cfg.castleWhiteShort = False
-            self.brd.set_at(7, 0, 'e')
-            self.brd.set_at(5, 0, 'R')
+            self.config.castleWhiteShort = False
+            self.board.set_at(7, 0, 'e')
+            self.board.set_at(5, 0, 'R')
         if(self.is_castle_white_long(move)):
-            self.cfg.castleWhiteLong = False
-            self.brd.set_at(0, 0, 'e')
-            self.brd.set_at(3, 0, 'R')
+            self.config.castleWhiteLong = False
+            self.board.set_at(0, 0, 'e')
+            self.board.set_at(3, 0, 'R')
         if(self.is_castle_black_short(move)):
-            self.cfg.castleBlackShort = False
-            self.brd.set_at(7, 7, 'e')
-            self.brd.set_at(5, 7, 'r')
+            self.config.castleBlackShort = False
+            self.board.set_at(7, 7, 'e')
+            self.board.set_at(5, 7, 'r')
         if(self.is_castle_black_long(move)):
-            self.cfg.castleBlackLong = False
-            self.brd.set_at(0, 7, 'e')
-            self.brd.set_at(3, 7, 'r')   
+            self.config.castleBlackLong = False
+            self.board.set_at(0, 7, 'e')
+            self.board.set_at(3, 7, 'r')   
         if(self.black_pawn_2_steps(move)):
-            self.cfg.blackEnPassant = Point(move.src().x(),move.src().y()-1)
-            print("ep recorded"+self.cfg.blackEnPassant.to_str())
+            self.config.blackEnPassant = Point(move.src.x,move.src.y-1)
+            print("ep recorded"+self.config.blackEnPassant.to_str())
         if(self.white_pawn_2_steps(move)):
-            self.cfg.whiteEnPassant = Point(move.src().x(),move.src().y()+1)
-            print("ep recorded"+self.cfg.whiteEnPassant.to_str())
+            self.config.whiteEnPassant = Point(move.src.x,move.src.y+1)
+            print("ep recorded"+self.config.whiteEnPassant.to_str())
         
         
                 
     def is_valid_move(self, move):
-        board_copy = self.brd.deep_copy()
-        board_copy.set_at(move.src().x(), move.src().y(), move.piece())
+        board_copy = self.board.deep_copy()
+        board_copy.set_at(move.src.x, move.src.y, move.piece)
         print("self to fen:"+board_copy.to_fen())
-        g = Game(board_copy.to_fen() + self.cfg.to_fen())
+        g = Game(board_copy.to_fen() + self.config.to_fen())
         print("is checkmate "+str(g.is_checkmate()))
         print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
@@ -354,17 +323,17 @@ class GameTree():
     def execute_move(self,move):
         c = self.current.deep_copy()
         c.execute_move(move)
-        print("self: "+self.current.board().to_fen())
+        print("self: "+self.current.board.to_fen())
 
         self.current.childs.append(Child(move,c))
         c.parent = self.current
         self.current = c
-        print("recorded: "+c.parent.board().to_fen())
+        print("recorded: "+c.parent.board.to_fen())
         
     def prev(self):
         if(self.current.parent != None):
             self.current = self.current.parent
-            print(self.current.board().to_fen())
+            print(self.current.board.to_fen())
             
     def next(self):
         print("len: "+str(len(self.current.childs)))
