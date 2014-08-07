@@ -185,6 +185,18 @@ class Game(object):
 
         # state update must happen after castling
         self.set_fen(' '.join(str(x) for x in [self.board] + list(fields)))
+        
+    def is_checkmate(self):
+        test_board = Game(fen=str(self), validate=False)
+        k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
+        op_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
+        c1 = Game.i2xy(test_board.board.find_piece(k_sym)) in op_moves
+        c2 = self.get_moves() == []
+        print("c1 "+str(c1))
+        print(op_moves)
+        print("c2 "+str(c2))
+        return c1 and c2
+     
 
     def get_moves(self, player=None, idx_list=range(64)):
         """

@@ -107,6 +107,8 @@ class ChessboardView(QtGui.QWidget):
         self.gt.current.board().set_at(x,y,'e')        
         
     def executeMove(self, x, y):
+        # put the grabbed piece to where it was before executing
+        self.gt.current.board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         m = Move(self.moveSrc,Point(x,y),self.grabbedPiece)
         self.gt.execute_move(m)
         self.moveSrc = None 
@@ -117,8 +119,8 @@ class ChessboardView(QtGui.QWidget):
         self.gt.current.board().set_at(self.moveSrc.x(),self.moveSrc.y(),self.grabbedPiece)
         self.moveSrc = None
         self.grabbedPiece = None
-        self.drawGrabbedPiece = False    
-            
+        self.drawGrabbedPiece = False
+                
     def mousePressEvent(self, mouseEvent):
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos):
@@ -231,6 +233,21 @@ class ChessboardView(QtGui.QWidget):
                         boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
             qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
+class MovesEdit(QtGui.QTextEdit):
+    
+    def __init__(self,chessboardView):
+        super(QtGui.QTextEdit, self).__init__()
+        self.bv = chessboardView
+        
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key == QtCore.Qt.Key_Left: 
+            print("left pressed")
+            self.bv.gt.prev()
+            self.bv.update()
+        elif key == QtCore.Qt.Key_Right:
+            self.bv.gt.next()
+            self.bv.update()
          
 
 class MainWindow(QtGui.QMainWindow):
@@ -243,8 +260,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.resize(640, 480)
         self.setWindowTitle('menubar')
-        
-        
+                
         #qp.drawImage(10,10,qim,0,0,0,0)
         
 
@@ -309,7 +325,7 @@ class MainWindow(QtGui.QMainWindow):
         vbox = QtGui.QVBoxLayout();
         vbox.addLayout(hboxLcd)
         
-        movesEdit = QtGui.QPlainTextEdit()
+        movesEdit = MovesEdit(board)
         vbox.addWidget(movesEdit)
 
         engineOutput = QtGui.QPlainTextEdit()

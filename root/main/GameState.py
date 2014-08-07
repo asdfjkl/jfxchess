@@ -311,6 +311,7 @@ class State():
         board_copy.set_at(move.src().x(), move.src().y(), move.piece())
         print("self to fen:"+board_copy.to_fen())
         g = Game(board_copy.to_fen() + self.cfg.to_fen())
+        print("is checkmate "+str(g.is_checkmate()))
         print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
         #    print(str(mv))
@@ -353,10 +354,22 @@ class GameTree():
     def execute_move(self,move):
         c = self.current.deep_copy()
         c.execute_move(move)
+        print("self: "+self.current.board().to_fen())
+
         self.current.childs.append(Child(move,c))
         c.parent = self.current
         self.current = c
-        self.to_str()
+        print("recorded: "+c.parent.board().to_fen())
+        
+    def prev(self):
+        if(self.current.parent != None):
+            self.current = self.current.parent
+            print(self.current.board().to_fen())
+            
+    def next(self):
+        print("len: "+str(len(self.current.childs)))
+        if(len(self.current.childs) > 0):
+            self.current = self.current.childs[0].state
     
     def to_str(self):
         game = ""
