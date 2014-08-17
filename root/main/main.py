@@ -49,14 +49,78 @@ class PieceImages:
             imgs[size] = img
             return img
 
+class DialogWithListView(QDialog):
+ 
+    def __init__(self, moveList, parent=None):
+        super(DialogWithListView, self).__init__(parent) 
+
+        self.resize(20, 40)
+        
+        for mv in moveList :
+            print(mv)
+
+        self.selected_idx = 0
+ 
+        self.listWidget = QListWidget()
+        
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        
+        self.okButton = QPushButton("&OK")
+        cancelButton = QPushButton("Cancel")
+        
+        buttonLayout = QHBoxLayout() 
+        buttonLayout.addStretch() 
+        buttonLayout.addWidget(self.okButton) 
+        buttonLayout.addWidget(cancelButton)
+        layout = QGridLayout()
+        layout.addWidget(self.listWidget,0,1)
+        #layout.addLayout(buttonLayout, 2, 0, 1, 3)
+        layout.addWidget(buttonBox, 3, 0, 1, 3)
+        self.setLayout(layout)
+        self.listWidget.addItems(moveList)
+        self.listWidget.item(0).setSelected(True)
+
+        self.connect(buttonBox, SIGNAL("accepted()"),
+                 self, SLOT("accept()"))
+        self.connect(buttonBox, SIGNAL("rejected()"),
+                 self, SLOT("reject()"))
+        
+        #self.connect(self.okButton, SIGNAL("clicked()"),
+        #         self, SLOT("accept()"))
+
+        self.connect(self,SIGNAL("rightclick()"), SLOT("accept()") )
+        self.connect(self,SIGNAL("leftclick()"), SLOT("reject()") )
+        #self.connect(self.listWidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem *)"), SLOT("accept()"))   
+            
+        #self.connect(self.listWidget, SIGNAL("itemDoubleClicked()"), SLOT("accept()"))
+        self.listWidget.itemDoubleClicked.connect(self.accept)
+        self.listWidget.currentItemChanged.connect(self.on_item_changed)
+    
+    def on_item_changed(self):
+        self.selected_idx = self.listWidget.currentRow()    
+        
+    def keyPressEvent(self, event):
+        key = event.key()
+        print("CURRENT ROW:" + str(self.listWidget.currentRow()))
+        if key == QtCore.Qt.Key_Left or key == QtCore.Qt.Key_Escape: 
+            print("left key or esc pressed")
+            self.emit(SIGNAL("leftclick()"))
+        elif key == QtCore.Qt.Key_Right or key == QtCore.Qt.Key_Return :
+            print("right key or return pressed")
+            self.emit(SIGNAL("rightclick()"))
+ 
+
 class ChessboardView(QtGui.QWidget):
     
     def __init__(self):
-        super(ChessboardView, self).__init__()
+        #super(ChessboardView, self).__init__()
+        super(QtGui.QWidget, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
         self.gt = GameTree()
         self.pieceImages = PieceImages()
+        
+        self.movesEdit = None
         
         hf = Point(4,1)
         print(hf.to_str())
@@ -68,6 +132,8 @@ class ChessboardView(QtGui.QWidget):
         self.grabbedX = None
         self.grabbedY = None
         self.drawGrabbedPiece = False
+        
+        self.flippedBoard = False
         
         self.initUI()
         
@@ -97,8 +163,20 @@ class ChessboardView(QtGui.QWidget):
             y = y - self.borderWidth
             x = x // squareSize
             y = 7 - (y // squareSize)
-            return Point(x,y)
+            if(self.flippedBoard):
+                return Point(7-x,7-y)
+            else:
+                return Point(x,y)
         return None
+    
+    @pyqtSlot()
+    def flip_board(self):
+        print("flipping board")
+        if(self.flippedBoard):
+            self.flippedBoard = False
+        else:
+            self.flippedBoard = True
+        self.update()
     
     def touchPiece(self, x, y):
         self.moveSrc = Point(x,y)
@@ -114,6 +192,10 @@ class ChessboardView(QtGui.QWidget):
         self.moveSrc = None 
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
+        text = self.gt.to_san()
+        print("moves:"+text)
+        self.movesEdit.setHtml(text)
+        self.movesEdit.update()
         
     def resetMove(self):
         self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
@@ -215,7 +297,11 @@ class ChessboardView(QtGui.QWidget):
                 y = boardOffsetY+(j*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
                 #draw Piece
-                piece = self.gt.current.board.get_at(i,7-j)
+                piece = None
+                if(self.flippedBoard):
+                    piece = self.gt.current.board.get_at(7-i,j)
+                else:
+                    piece = self.gt.current.board.get_at(i,7-j)
                 if(piece in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     qp.drawImage(x,y,self.pieceImages.getWp(piece, squareSize))
 
@@ -228,10 +314,16 @@ class ChessboardView(QtGui.QWidget):
         qp.setFont(QtGui.QFont('Decorative',8))
         
         for i in range(0,8):
-            idx = str(chr(65+i))
-            qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
-                        boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
-            qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
+            if(self.flippedBoard):
+                idx = str(chr(65+(7-i)))
+                qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
+                            boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
+                qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
+            else:    
+                idx = str(chr(65+i))
+                qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
+                            boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
+                qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
 class MovesEdit(QtGui.QTextEdit):
     
@@ -246,9 +338,20 @@ class MovesEdit(QtGui.QTextEdit):
             self.bv.gt.prev()
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
-            self.bv.gt.next()
+            print("message ok")
+            if(self.bv.gt.exist_variants()):
+                dialog = DialogWithListView(self.bv.gt.move_list())
+                dialog.setWindowTitle("Next Move")
+                dialog.listWidget.setFocus()
+                answer = dialog.exec_()
+                if answer == True:
+                    print("message ok")
+                    idx = dialog.selected_idx
+                    print("selected idx via dialog"+str(idx))
+                    self.bv.gt.next(idx)
+            else:
+                self.bv.gt.next()
             self.bv.update()
-         
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -259,7 +362,7 @@ class MainWindow(QtGui.QMainWindow):
         #test.toFen()
 
         self.resize(640, 480)
-        self.setWindowTitle('menubar')
+        self.setWindowTitle('Jerry - Chess')
                 
         #qp.drawImage(10,10,qim,0,0,0,0)
         
@@ -327,6 +430,7 @@ class MainWindow(QtGui.QMainWindow):
         
         movesEdit = MovesEdit(board)
         vbox.addWidget(movesEdit)
+        board.movesEdit = movesEdit
 
         engineOutput = QtGui.QPlainTextEdit()
         vbox.addWidget(engineOutput)
@@ -341,10 +445,18 @@ class MainWindow(QtGui.QMainWindow):
         statusbar.showMessage('Ready')
 
         menu = self.menuBar().addMenu('File')
-        action = menu.addAction('Change File Path')
+        action1 = menu.addAction('Change File Path')
+        
+        menu = self.menuBar().addMenu('Edit ')
+        flipAction = QtGui.QAction('Flip Board', self)
+        flipAction.triggered.connect(board.flip_board)
+        menu.addAction(flipAction)
+        # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
+
         
 
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
+app.setActiveWindow(main)
 main.show()
 sys.exit(app.exec_())

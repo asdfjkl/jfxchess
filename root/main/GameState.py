@@ -31,9 +31,20 @@ class Move():
         self.dst = dst
         self.piece = piece
     
+    def __eq__(self, other):
+        return self.src == other.src and self.dst == other.dst and self.piece == other.piece
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
     def to_str(self):
         return self.src.to_str() + self.dst.to_str()
-
+    
+    def to_san(self):
+        if(self.piece == 'p' or self.piece == 'P'):
+            return self.src.to_str() +"-"+ self.dst.to_str()
+        else:
+            return self.piece.upper() + self.src.to_str()+"-"+self.dst.to_str()
 
 class Board():
     def __init__(self):
@@ -225,14 +236,14 @@ class State():
     
     def black_takes_en_passant(self,move):
         if(move.piece == 'p' and move.src.x != move.dst.x 
-           and self.board().get_at(move.dst.x,move.dst.y) == 'e'):
+           and self.board.get_at(move.dst.x,move.dst.y) == 'e'):
             return True
         else:
             return False
     
     def white_takes_en_passant(self,move):
         if(move.piece == 'P' and move.src.x != move.dst.x
-           and self.board().get_at(move.dst.x,move.dst.y) == 'e'):
+           and self.board.get_at(move.dst.x,move.dst.y) == 'e'):
             return True
         else:
             return False
@@ -241,9 +252,9 @@ class State():
         self.config.blackEnPassant = None
         self.config.whiteEnPassant = None
         if(self.white_takes_en_passant(move)):
-            self.board().set_at(move.dst.x,move.dst.y-1,'e')
+            self.board.set_at(move.dst.x,move.dst.y-1,'e')
         if(self.black_takes_en_passant(move)):
-            self.board().set_at(move.dst.x,move.dst.y+1,'e')     
+            self.board.set_at(move.dst.x,move.dst.y+1,'e')     
         self.board.set_at(move.src.x,move.src.y,'e')
         self.board.set_at(move.dst.x,move.dst.y,move.piece)
         if(self.config.whiteToMove):
@@ -320,25 +331,87 @@ class GameTree():
         else:
             return False
     
+    def exist_move(self,move):
+        for mv_st in self.current.childs:
+            mv = mv_st.move
+            print("comparing" + mv.to_str() + move.to_str())
+            if(move == mv):
+                return self.current.childs.index(mv_st)
+        return None
+    
     def execute_move(self,move):
-        c = self.current.deep_copy()
-        c.execute_move(move)
-        print("self: "+self.current.board.to_fen())
+        idx = self.exist_move(move)
+        if(idx != None):
+            self.next(idx)
+        else:
+            c = self.current.deep_copy()
+            c.execute_move(move)
+            print("self: "+self.current.board.to_fen())
 
-        self.current.childs.append(Child(move,c))
-        c.parent = self.current
-        self.current = c
-        print("recorded: "+c.parent.board.to_fen())
+            self.current.childs.append(Child(move,c))
+            c.parent = self.current
+            self.current = c
+            print("recorded: "+c.parent.board.to_fen())
         
     def prev(self):
         if(self.current.parent != None):
             self.current = self.current.parent
             print(self.current.board.to_fen())
             
-    def next(self):
-        print("len: "+str(len(self.current.childs)))
-        if(len(self.current.childs) > 0):
+    def next(self, idx = None):
+        print("supplied idx:" + str(idx))
+        print("len: "+str(len(self.current.childs)))        
+        if(idx != None and idx < len(self.current.childs)):
+            self.current = self.current.childs[idx].state
+        elif(len(self.current.childs)>0):
             self.current = self.current.childs[0].state
+            
+    def move_list(self):
+        mvs = []
+        for ch in self.current.childs:
+            mvs.append(ch.move.to_str())
+        return mvs
+    
+    def exist_variants(self):
+        return len(self.current.childs) > 1
+    
+    def to_san(self, node = None, moveNo = None, depth = True):
+        game = ""
+        temp = node
+        if(node == None):
+            temp = self.root
+        if(moveNo == None):
+            moveNo = 1
+        print("in to_san")
+        if(temp != None):
+            if(not temp.config.whiteToMove):
+                moveNo = moveNo + 1
+            len_temp = len(temp.childs)
+            game = game + " "
+            if(temp.config.whiteToMove):
+                game = game + str(moveNo) + "."
+            if(len_temp > 0):
+                # print first move
+                game = game + temp.childs[0].move.to_san()
+                # print all alternatives
+                for i in range(1,len_temp):
+                    if(depth):
+                        game = game + '<dd><em><span style="color:gray">'
+                    game = game + "["
+                    game = game + str(moveNo-1)+"."
+                    if(not temp.config.whiteToMove):
+                        game = game + " ... "
+                    game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + "]"
+                    game = game + "</dd></em></span>"
+                # continue
+                if(len_temp > 1 and (temp.config.whiteToMove)):
+                    game = game + str(moveNo) + ". ..."
+                game = game + self.to_san(temp.childs[0].state,moveNo, True)
+            elif(temp.childs != []):
+                # just print current move
+                game = game + temp.childs[0].move.to_san()+" " + self.to_san(temp.childs[0].state,moveNo, True)
+        return game
+            
     
     def to_str(self):
         game = ""
