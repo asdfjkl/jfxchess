@@ -392,7 +392,11 @@ class GameTree():
                 if(temp.config.whiteToMove):
                     game = game + str(moveNo) + "."
                 # print first move
+                if(True):
+                    game = game + '<span style="color:red">'
                 game = game + temp.childs[0].move.to_san()
+                if(temp == self.current):
+                    game = game + '</span>'
                 # print all alternatives
                 for i in range(1,len_temp):
                     if(depth):
