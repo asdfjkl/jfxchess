@@ -42,9 +42,9 @@ class Move():
     
     def to_san(self):
         if(self.piece == 'p' or self.piece == 'P'):
-            return self.src.to_str() +"-"+ self.dst.to_str()
+            return self.dst.to_str()
         else:
-            return self.piece.upper() + self.src.to_str()+"-"+self.dst.to_str()
+            return self.piece.upper() +self.dst.to_str()
 
 class Board():
     def __init__(self):
@@ -388,28 +388,37 @@ class GameTree():
                 moveNo = moveNo + 1
             len_temp = len(temp.childs)
             game = game + " "
-            if(temp.config.whiteToMove):
-                game = game + str(moveNo) + "."
             if(len_temp > 0):
+                if(temp.config.whiteToMove):
+                    game = game + str(moveNo) + "."
                 # print first move
                 game = game + temp.childs[0].move.to_san()
                 # print all alternatives
                 for i in range(1,len_temp):
                     if(depth):
                         game = game + '<dd><em><span style="color:gray">'
-                    game = game + "["
-                    game = game + str(moveNo-1)+"."
-                    if(not temp.config.whiteToMove):
-                        game = game + " ... "
-                    game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + "]"
-                    game = game + "</dd></em></span>"
+                        game = game + "["
+                        if(temp.config.whiteToMove):
+                            game = game + str(moveNo)+"."
+                        else:
+                            game = game + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            game = game + " ... "
+                        game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + "]"
+                        game = game + "</dd></em></span>"
+                    else:
+                        game = game + " ("
+                        game = game + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            game = game + " ... "
+                        game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + ") "
                 # continue
-                if(len_temp > 1 and (temp.config.whiteToMove)):
+                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
                     game = game + str(moveNo) + ". ..."
-                game = game + self.to_san(temp.childs[0].state,moveNo, True)
+                game = game + self.to_san(temp.childs[0].state,moveNo, depth)
             elif(temp.childs != []):
                 # just print current move
-                game = game + temp.childs[0].move.to_san()+" " + self.to_san(temp.childs[0].state,moveNo, True)
+                game = game + temp.childs[0].move.to_san()+" " + self.to_san(temp.childs[0].state,moveNo, depth)
         return game
             
     
