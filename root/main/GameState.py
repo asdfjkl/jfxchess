@@ -6,6 +6,8 @@ Created on 31.07.2014
 
 from Chessnut.game import Game
 from Chessnut.game import InvalidMove
+from PyQt4 import QtGui
+
 #from Chessnut import InvalidMove
 
 def idx_to_str(x):
@@ -322,6 +324,9 @@ class GameTree():
     def __init__(self):
         self.root = State()
         self.current = self.root
+        self.offset_table = []
+        self.dummy_textwidget = QtGui.QTextEdit()
+        print("self.current == self.root:"+str(self.current == self.root))
     
     #checks if applying the move in
     #current state is valid
@@ -375,6 +380,16 @@ class GameTree():
     def exist_variants(self):
         return len(self.current.childs) > 1
     
+    def print_formatted(self, node):
+        string = ""
+        if(self.current == node.state):
+            string = string + '<span style="color:darkgoldenrod">'
+            string = string + node.move.to_san()
+            string = string + '</span>'
+        else:
+            string = string + node.move.to_san()
+        return string
+    
     def to_san(self, node = None, moveNo = None, depth = True):
         game = ""
         temp = node
@@ -382,7 +397,6 @@ class GameTree():
             temp = self.root
         if(moveNo == None):
             moveNo = 1
-        print("in to_san")
         if(temp != None):
             if(not temp.config.whiteToMove):
                 moveNo = moveNo + 1
@@ -392,37 +406,38 @@ class GameTree():
                 if(temp.config.whiteToMove):
                     game = game + str(moveNo) + "."
                 # print first move
-                if(True):
-                    game = game + '<span style="color:red">'
-                game = game + temp.childs[0].move.to_san()
-                if(temp == self.current):
+                game = game + self.print_formatted(temp.childs[0])
+                if(temp.childs[0].state == self.current):
                     game = game + '</span>'
                 # print all alternatives
                 for i in range(1,len_temp):
                     if(depth):
                         game = game + '<dd><em><span style="color:gray">'
-                        game = game + "["
+                        game = game + "[ "
                         if(temp.config.whiteToMove):
                             game = game + str(moveNo)+"."
                         else:
                             game = game + str(moveNo-1)+"."
                         if(not temp.config.whiteToMove):
                             game = game + " ... "
-                        game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + "]"
+                        game = game + self.print_formatted(temp.childs[i])
+                        game = game + '<span style="color:gray">'
+                        game = game + self.to_san(temp.childs[i].state,moveNo,False) + "]"
                         game = game + "</dd></em></span>"
                     else:
                         game = game + " ("
                         game = game + str(moveNo-1)+"."
                         if(not temp.config.whiteToMove):
                             game = game + " ... "
-                        game = game + temp.childs[i].move.to_san() + self.to_san(temp.childs[i].state,moveNo,False) + ") "
+                        game = game + self.print_formatted(temp.childs[i])
+                        game = game + self.to_san(temp.childs[i].state,moveNo,False) + ")"
                 # continue
                 if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
                     game = game + str(moveNo) + ". ..."
                 game = game + self.to_san(temp.childs[0].state,moveNo, depth)
             elif(temp.childs != []):
-                # just print current move
-                game = game + temp.childs[0].move.to_san()+" " + self.to_san(temp.childs[0].state,moveNo, depth)
+                game = game + self.print_formatted(temp.childs[0])
+                game = game + self.to_san(temp.childs[0].state,moveNo, depth)
         return game
             
     

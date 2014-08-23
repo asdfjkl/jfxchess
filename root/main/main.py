@@ -330,12 +330,14 @@ class MovesEdit(QtGui.QTextEdit):
     def __init__(self,chessboardView):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
+        self.viewport().setCursor(Qt.ArrowCursor)
         
     def keyPressEvent(self, event):
         key = event.key()
         if key == QtCore.Qt.Key_Left: 
             print("left pressed")
             self.bv.gt.prev()
+            self.setHtml(self.bv.gt.to_san())
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
@@ -351,6 +353,9 @@ class MovesEdit(QtGui.QTextEdit):
                     self.bv.gt.next(idx)
             else:
                 self.bv.gt.next()
+            self.setHtml(self.bv.gt.to_san())
+            print(self.toPlainText())
+            print(str(self.bv.gt.offset_table))
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):
