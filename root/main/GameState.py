@@ -192,6 +192,14 @@ class State():
     def to_fen(self):
         return self.board.to_fen() + self.config.to_fen()
     
+    def to_console(self):
+        string = ""
+        for i in range(0,8):
+            for j in range(0,8):
+                string = string + self.board.board[j][i]
+            string = string + "\n"
+        return string
+        
     def is_castle_white_short(self,move):
         if(move.piece == 'K' and move.src.x==4 
            and move.src.y==0 and move.dst.x==6):
@@ -325,8 +333,7 @@ class GameTree():
         self.root = State()
         self.current = self.root
         self.offset_table = []
-        self.dummy_textwidget = QtGui.QTextEdit()
-        print("self.current == self.root:"+str(self.current == self.root))
+        self.san_plain = ""
     
     #checks if applying the move in
     #current state is valid
@@ -379,6 +386,124 @@ class GameTree():
     
     def exist_variants(self):
         return len(self.current.childs) > 1
+    
+    def rec_san_plain(self, node = None, moveNo = None, depth = True):
+        temp = node
+        if(node == None):
+            temp = self.root
+        if(moveNo == None):
+            moveNo = 1
+        if(temp != None):
+            if(not temp.config.whiteToMove):
+                moveNo = moveNo + 1
+            len_temp = len(temp.childs)
+            self.san_plain = self.san_plain + " "
+            if(len_temp > 0):
+                if(temp.config.whiteToMove):
+                    self.san_plain = self.san_plain + str(moveNo) + "."
+                # print first move
+                self.offset_table.append((len(self.san_plain),len(self.san_plain)+len(temp.childs[0].move.to_san()),temp.childs[0].state))
+                print("added " + str(len(self.san_plain))+" "+str(len(self.san_plain)+len(temp.childs[0].move.to_san())) + temp.childs[0].move.to_san())
+                self.san_plain = self.san_plain + temp.childs[0].move.to_san()
+                # print all alternatives
+                for i in range(1,len_temp):
+                    if(depth):
+                        self.san_plain = self.san_plain + "[ "
+                        if(temp.config.whiteToMove):
+                            self.san_plain = self.san_plain + str(moveNo)+"."
+                        else:
+                            self.san_plain = self.san_plain + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            self.san_plain = self.san_plain + " ... "
+                        self.offset_table.append((len(self.san_plain),len(self.san_plain)+len(temp.childs[i].move.to_san()),temp.childs[i].state))
+                        print("added " + str(len(self.san_plain))+" "+str(len(self.san_plain)+len(temp.childs[i].move.to_san())) + temp.childs[i].move.to_san())
+                
+                        self.san_plain = self.san_plain + temp.childs[i].move.to_san()
+                        self.rec_san_plain(temp.childs[i].state,moveNo,False)
+                        self.san_plain = self.san_plain + "]"
+                    else:
+                        self.san_plain = self.san_plain + " ("
+                        self.san_plain = self.san_plain + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            self.san_plain = self.san_plain + " ... "
+                        self.offset_table.append((len(self.san_plain),len(self.san_plain)+len(temp.childs[i].move.to_san()),temp.childs[i].state))
+                        print("added " + str(len(self.san_plain))+" "+str(len(self.san_plain)+len(temp.childs[i].move.to_san())) + temp.childs[i].move.to_san())
+                
+                        self.san_plain = self.san_plain + temp.childs[i].move.to_san()
+                        self.rec_san_plain(temp.childs[i].state,moveNo,False)
+                        self.san_plain = self.san_plain + ") "
+                # continue
+                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
+                    self.san_plain = self.san_plain + str(moveNo) + ". ..."
+                self.rec_san_plain(temp.childs[0].state,moveNo, depth)
+            elif(temp.childs != []):
+                self.offset_table.append((len(self.san_plain),len(self.san_plain)+len(temp.childs[0].move.to_san()),temp.childs[0].state))
+                print("added " + str(len(self.san_plain))+" "+str(len(self.san_plain)+len(temp.childs[0].move.to_san())) + temp.childs[0].move.to_san())
+                
+                self.san_plain = self.san_plain + temp.childs[0].move.to_san()
+                self.rec_san_plain(temp.childs[0].state,moveNo, depth)
+
+    def get_san_plain(self, node = None, moveNo = None, depth = True):
+        self.san_plain = ""
+        self.rec_san_plain(node, moveNo, depth)
+        return self.san_plain
+
+        
+    def to_san_plain(self, node = None, moveNo = None, depth = True, offset = None):
+        if(offset == None):
+            offset = 0
+        game = ""
+        temp = node
+        if(node == None):
+            temp = self.root
+        if(moveNo == None):
+            moveNo = 1
+        if(temp != None):
+            if(not temp.config.whiteToMove):
+                moveNo = moveNo + 1
+            len_temp = len(temp.childs)
+            game = game + " "
+            if(len_temp > 0):
+                if(temp.config.whiteToMove):
+                    game = game + str(moveNo) + "."
+                # print first move
+                self.offset_table.append((offset+len(temp.childs[0].move.to_san()), temp.childs[0].state))
+                game = game + temp.childs[0].move.to_san()
+                # print all alternatives
+                for i in range(1,len_temp):
+                    if(depth):
+                        game = game + "[ "
+                        if(temp.config.whiteToMove):
+                            game = game + str(moveNo)+"."
+                        else:
+                            game = game + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            game = game + " ... "
+                        offset = offset + len(game)
+                        self.offset_table.append((offset+len(temp.childs[i].move.to_san()), temp.childs[i].state))
+    
+                        game = game + temp.childs[i].move.to_san()
+                        game = game + self.to_san_plain(temp.childs[i].state,moveNo,False,offset+len(game)) + "]"
+                    else:
+                        game = game + " ("
+                        game = game + str(moveNo-1)+"."
+                        if(not temp.config.whiteToMove):
+                            game = game + " ... "
+                        self.offset_table.append((offset+len(temp.childs[i].move.to_san()), temp.childs[i].state))
+    
+                        game = game + temp.childs[i].move.to_san()
+                        game = game + self.to_san_plain(temp.childs[i].state,moveNo,False,offset+len(game)) + ")"
+                # continue
+                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
+                    game = game + str(moveNo) + ". ..."
+                game = game + self.to_san_plain(temp.childs[0].state,moveNo, depth,offset+len(game))
+            elif(temp.childs != []):
+                self.offset_table.append((offset+len(temp.childs[0].move.to_san()), temp.childs[0].state))
+                
+                game = game + temp.childs[0].move.to_san()
+                game = game + self.to_san_plain(temp.childs[0].state,moveNo, depth,offset+len(game))
+        return game
+
     
     def print_formatted(self, node):
         string = ""

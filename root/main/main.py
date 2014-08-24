@@ -330,7 +330,47 @@ class MovesEdit(QtGui.QTextEdit):
     def __init__(self,chessboardView):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
+        self.old_cursor_pos = 0
+        self.setCursorWidth(0)
         self.viewport().setCursor(Qt.ArrowCursor)
+        self.cursorPositionChanged.connect(self.gotopos)
+    
+    #def mousePressEvent(self, mouseEvent):
+    #    if mouseEvent.button() == Qt.LeftButton:
+    #        moves_string = self.toHtml()
+    #        x = self.textCursor().position()
+    #        y = self.cursorRect().y()
+    #        print("left pressed, pos"+str(x)+" and "+str(y))
+    
+    def print_stuff(self,offset_table):
+        string = ""
+        for i in range(0,len(offset_table)):
+            string = string + "(" + str(offset_table[i][0]) + "," + str(offset_table[i][1]) +","+ offset_table[i][2].to_console()+ ") "
+        return string
+    
+    def gotopos(self):
+        offset = self.textCursor().position()
+        if(offset != self.old_cursor_pos):
+            self.old_cursor_pos = offset
+            self.bv.gt.offset_table=[]
+            text = self.bv.gt.get_san_plain()
+            ot = self.bv.gt.offset_table
+            print("coming fro to_san_plain "+text)
+            print("is in text widget "+self.toPlainText())
+            #print("offset_table "+str(len(ot)))
+            print("offset: "+str(offset))
+            j = 0
+            #print(self.print_stuff(ot))
+            for i in range(0,len(ot)):
+                if(offset>= ot[i][0] and offset<= ot[i][1]):
+                    j = i
+            print("taking index "+str(j))
+            self.bv.gt.current = ot[j][2]
+            self.bv.update()
+            self.old_cursor_pos = 0
+
+            self.setHtml(self.bv.gt.to_san())
+            
         
     def keyPressEvent(self, event):
         key = event.key()
@@ -354,8 +394,6 @@ class MovesEdit(QtGui.QTextEdit):
             else:
                 self.bv.gt.next()
             self.setHtml(self.bv.gt.to_san())
-            print(self.toPlainText())
-            print(str(self.bv.gt.offset_table))
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):
