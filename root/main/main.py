@@ -192,7 +192,7 @@ class ChessboardView(QtGui.QWidget):
         self.moveSrc = None 
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
-        text = self.gt.to_san()
+        text = self.gt.to_san_html()
         print("moves:"+text)
         self.movesEdit.setHtml(text)
         self.movesEdit.update()
@@ -331,45 +331,65 @@ class MovesEdit(QtGui.QTextEdit):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
         self.old_cursor_pos = 0
-        self.setCursorWidth(0)
+        self.setCursorWidth(2)
         self.viewport().setCursor(Qt.ArrowCursor)
-        self.cursorPositionChanged.connect(self.gotopos)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.cursorPositionChanged.connect(self.go_to_pos)
+        self.customContextMenuRequested.connect(self.context_menu)
     
-    #def mousePressEvent(self, mouseEvent):
-    #    if mouseEvent.button() == Qt.LeftButton:
-    #        moves_string = self.toHtml()
-    #        x = self.textCursor().position()
-    #        y = self.cursorRect().y()
-    #        print("left pressed, pos"+str(x)+" and "+str(y))
-    
-    def print_stuff(self,offset_table):
-        string = ""
-        for i in range(0,len(offset_table)):
-            string = string + "(" + str(offset_table[i][0]) + "," + str(offset_table[i][1]) +","+ offset_table[i][2].to_console()+ ") "
-        return string
-    
-    def gotopos(self):
-        offset = self.textCursor().position()
-        if(offset != self.old_cursor_pos):
-            self.old_cursor_pos = offset
-            self.bv.gt.offset_table=[]
-            text = self.bv.gt.get_san_plain()
-            ot = self.bv.gt.offset_table
-            print("coming fro to_san_plain "+text)
-            print("is in text widget "+self.toPlainText())
-            #print("offset_table "+str(len(ot)))
-            print("offset: "+str(offset))
-            j = 0
-            #print(self.print_stuff(ot))
-            for i in range(0,len(ot)):
-                if(offset>= ot[i][0] and offset<= ot[i][1]):
-                    j = i
-            print("taking index "+str(j))
-            self.bv.gt.current = ot[j][2]
-            self.bv.update()
-            self.old_cursor_pos = 0
+    def context_menu(self):
+        menu = QMenu(self)
+        sub_move_annotation = QtGui.QMenu(menu)
+        sub_move_annotation.setTitle("Move Annotation")
+        sub_move_annotation.addAction("?? Blunder")
+        sub_move_annotation.addAction("? Mistake")
+        sub_move_annotation.addAction("?! Dubious Move")
+        sub_move_annotation.addAction("! Good Move")
+        sub_move_annotation.addAction("!! Brilliant Move")
+        
+        sub_pos_annotation = QtGui.QMenu(menu)
+        sub_pos_annotation.setTitle("Position Annotation")
+        sub_pos_annotation.addAction("∞ Unclear")
+        sub_pos_annotation.addAction("=/∞ With Compensation for White")
+        sub_pos_annotation.addAction("∞/= With Compensation for Black")
+        sub_pos_annotation.addAction("+/- White Slightly Better")
+        sub_pos_annotation.addAction("-/+ Black Slightly Better")
+        sub_pos_annotation.addAction("+- White Much Better")
+        sub_pos_annotation.addAction("-+ Black Much Better")
+                
+        menu.addAction("Add/Edit Comment")
+        menu.addMenu(sub_move_annotation)
+        menu.addMenu(sub_pos_annotation)
+        menu.addSeparator()
+        variant_up = menu.addAction("Move Variant Up")
+        variant_up.triggered.connect(self.variant_up)
+        menu.addAction("Move Variant Down")
+        menu.addAction("Delete Variant")
+        menu.addAction("Delete From Here")
+        menu.addSeparator()
+        menu.addAction("Delete All Comments")
+        menu.addAction("Delete All Variants")
+        menu.exec_(QCursor.pos())
 
-            self.setHtml(self.bv.gt.to_san())
+    def variant_up(self):
+        offset = self.old_cursor_pos
+        print("cursor_offset "+str(offset))
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        self.bv.gt.variant_up(selected_state)
+        self.bv.update()
+        self.setHtml(self.bv.gt.to_san_html())
+        
+    def go_to_pos(self):
+        offset = self.textCursor().position()
+        print("triggered with "+str(offset))
+        if(offset > 0):
+        #if(offset != self.old_cursor_pos):
+            self.old_cursor_pos = offset
+            selected_state = self.bv.gt.get_state_from_offset(offset)
+            self.bv.gt.current = selected_state
+            self.bv.update()
+            #self.old_cursor_pos = 0
+            self.setHtml(self.bv.gt.to_san_html())
             
         
     def keyPressEvent(self, event):
@@ -377,7 +397,7 @@ class MovesEdit(QtGui.QTextEdit):
         if key == QtCore.Qt.Key_Left: 
             print("left pressed")
             self.bv.gt.prev()
-            self.setHtml(self.bv.gt.to_san())
+            self.setHtml(self.bv.gt.to_san_html())
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
@@ -393,7 +413,7 @@ class MovesEdit(QtGui.QTextEdit):
                     self.bv.gt.next(idx)
             else:
                 self.bv.gt.next()
-            self.setHtml(self.bv.gt.to_san())
+            self.setHtml(self.bv.gt.to_san_html())
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):
