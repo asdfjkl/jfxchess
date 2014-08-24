@@ -334,7 +334,7 @@ class MovesEdit(QtGui.QTextEdit):
         self.setCursorWidth(2)
         self.viewport().setCursor(Qt.ArrowCursor)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.cursorPositionChanged.connect(self.go_to_pos)
+        #self.cursorPositionChanged.connect(self.go_to_pos)
         self.customContextMenuRequested.connect(self.context_menu)
     
     def context_menu(self):
@@ -370,6 +370,11 @@ class MovesEdit(QtGui.QTextEdit):
         menu.addAction("Delete All Comments")
         menu.addAction("Delete All Variants")
         menu.exec_(QCursor.pos())
+        
+    def mousePressEvent(self, mouseEvent):
+        cursor = self.cursorForPosition(mouseEvent.pos())
+        cursor_pos = cursor.position()
+        self.go_to_pos(cursor_pos)
 
     def variant_up(self):
         offset = self.old_cursor_pos
@@ -379,13 +384,13 @@ class MovesEdit(QtGui.QTextEdit):
         self.bv.update()
         self.setHtml(self.bv.gt.to_san_html())
         
-    def go_to_pos(self):
-        offset = self.textCursor().position()
-        print("triggered with "+str(offset))
-        if(offset > 0):
+    def go_to_pos(self,cursor_pos):
+        #offset = self.textCursor().position()
+        print("triggered with "+str(cursor_pos))
+        if(cursor_pos > 0):
         #if(offset != self.old_cursor_pos):
-            self.old_cursor_pos = offset
-            selected_state = self.bv.gt.get_state_from_offset(offset)
+            #self.old_cursor_pos = offset
+            selected_state = self.bv.gt.get_state_from_offset(cursor_pos)
             self.bv.gt.current = selected_state
             self.bv.update()
             #self.old_cursor_pos = 0
