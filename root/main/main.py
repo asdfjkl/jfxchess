@@ -375,6 +375,7 @@ class MovesEdit(QtGui.QTextEdit):
         cursor = self.cursorForPosition(mouseEvent.pos())
         cursor_pos = cursor.position()
         self.go_to_pos(cursor_pos)
+        self.old_cursor_pos = cursor_pos
 
     def variant_up(self):
         offset = self.old_cursor_pos
