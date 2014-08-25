@@ -545,7 +545,8 @@ class GameTree():
         if(parent != None):
             states = [x.state for x in parent.childs]
             idx = states.index(variant_root)
-            del(parent.childs[idx])   
+            del(parent.childs[idx])
+            self.current = parent   
     
     def variant_down(self, state):
         variant_root = state
