@@ -363,7 +363,8 @@ class MovesEdit(QtGui.QTextEdit):
         menu.addSeparator()
         variant_up = menu.addAction("Move Variant Up")
         variant_up.triggered.connect(self.variant_up)
-        menu.addAction("Move Variant Down")
+        variant_down = menu.addAction("Move Variant Down")
+        variant_down.triggered.connect(self.variant_down)
         menu.addAction("Delete Variant")
         menu.addAction("Delete From Here")
         menu.addSeparator()
@@ -382,6 +383,13 @@ class MovesEdit(QtGui.QTextEdit):
         print("cursor_offset "+str(offset))
         selected_state = self.bv.gt.get_state_from_offset(offset)
         self.bv.gt.variant_up(selected_state)
+        self.bv.update()
+        self.setHtml(self.bv.gt.to_san_html())
+
+    def variant_down(self):
+        offset = self.old_cursor_pos
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        self.bv.gt.variant_down(selected_state)
         self.bv.update()
         self.setHtml(self.bv.gt.to_san_html())
         

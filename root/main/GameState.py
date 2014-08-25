@@ -536,21 +536,33 @@ class GameTree():
             if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
                 j = i
         return offset_index[j][2]
-
+    
+    def variant_down(self, state):
+        variant_root = state
+        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+            variant_root = variant_root.parent
+        parent = variant_root.parent
+        if(parent != None):
+            states = [x.state for x in parent.childs]
+            idx = states.index(variant_root)
+            if(idx < len(states) -1):
+                temp = parent.childs[idx +1]
+                parent.childs[idx+1] = parent.childs[idx]
+                parent.childs[idx] = temp    
+    
+    
     def variant_up(self, state):
         variant_root = state
-        print("received: "+variant_root.childs[0].move.to_san())
-
-        while(variant_root.parent != None 
-              and variant_root.parent.childs[0] == variant_root):
+        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
             variant_root = variant_root.parent
-        print("submove: "+variant_root.childs[0].move.to_san())
         parent = variant_root.parent
-        idx = parent.childs.index(variant_root)
-        if(idx > 0):
-            temp = parent.childs[idx -1]
-            parent.childs[idx-1] = variant_root
-            parent.childs[idx] = temp    
+        if(parent != None):
+            states = [x.state for x in parent.childs]
+            idx = states.index(variant_root)
+            if(idx > 0):
+                temp = parent.childs[idx -1]
+                parent.childs[idx-1] = parent.childs[idx]
+                parent.childs[idx] = temp    
     
     def print_formatted(self, node):
         string = ""
