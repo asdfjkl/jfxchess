@@ -537,6 +537,16 @@ class GameTree():
                 j = i
         return offset_index[j][2]
     
+    def delete_variant(self, state):
+        variant_root = state
+        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+            variant_root = variant_root.parent
+        parent = variant_root.parent
+        if(parent != None):
+            states = [x.state for x in parent.childs]
+            idx = states.index(variant_root)
+            del(parent.childs[idx])   
+    
     def variant_down(self, state):
         variant_root = state
         while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
