@@ -47,9 +47,9 @@ class Move():
     
     def to_san(self):
         if(self.piece == 'p' or self.piece == 'P'):
-            return self.dst.to_str()
+            return self.dst.to_str() + self.comment
         else:
-            return self.piece.upper() +self.dst.to_str()
+            return self.piece.upper() +self.dst.to_str() + self.comment
 
 class Board():
     def __init__(self):
@@ -184,6 +184,7 @@ class State():
         self.board = Board()
         self.config = Config()
         self.childs = []
+        self.move = None
         self.parent = None
     
     def deep_copy(self):
@@ -493,7 +494,7 @@ class GameTree():
             c = self.current.deep_copy()
             c.execute_move(move)
             print("self: "+self.current.board.to_fen())
-
+            c.move = move
             self.current.childs.append(Child(move,c))
             c.parent = self.current
             self.current = c
@@ -535,7 +536,10 @@ class GameTree():
         for i in range(0,len(offset_index)):
             if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
                 j = i
-        return offset_index[j][2]
+        try:
+            return offset_index[j][2]
+        except IndexError:
+            return None
     
     def delete_variant(self, state):
         variant_root = state

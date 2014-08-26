@@ -370,6 +370,7 @@ class MovesEdit(QtGui.QTextEdit):
         sub_move_annotation.addAction("!? Interesting Move")
         sub_move_annotation.addAction("! Good Move")
         sub_move_annotation.addAction("!! Brilliant Move")
+        sub_move_annotation.addAction("No Annotation")
         
         sub_pos_annotation = QtGui.QMenu(menu)
         sub_pos_annotation.setTitle("Position Annotation")
@@ -380,6 +381,7 @@ class MovesEdit(QtGui.QTextEdit):
         sub_pos_annotation.addAction("-/+ Black Slightly Better")
         sub_pos_annotation.addAction("+- White Much Better")
         sub_pos_annotation.addAction("-+ Black Much Better")
+        sub_pos_annotation.addAction("No Annotation")
                 
         add_comment = menu.addAction("Add/Edit Comment")
         add_comment.triggered.connect(self.add_comment)
@@ -407,52 +409,61 @@ class MovesEdit(QtGui.QTextEdit):
         self.old_cursor_pos = cursor_pos
         
     def add_comment(self):
-        dialog = DialogWithPlainText()
-        dialog.setWindowTitle("Add/Edit Comment")
-        answer = dialog.exec_()
-        if answer == True:
-            print("message ok")
-            typed_text = dialog.saved_text
-            print("this was entered "+typed_text)
-
-        
+        offset = self.old_cursor_pos
+        print("cursor_offset "+str(offset))
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        if(selected_state != None):
+            dialog = DialogWithPlainText()
+            dialog.setWindowTitle("Add/Edit Comment")
+            dialog.plainTextEdit.setPlainText(selected_state.move.comment)
+            answer = dialog.exec_()
+            if answer == True:
+                print("message ok")
+                typed_text = dialog.saved_text
+                selected_state.move.comment = typed_text
+                self.setHtml(self.bv.gt.to_san_html())        
 
     def variant_up(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
         selected_state = self.bv.gt.get_state_from_offset(offset)
-        self.bv.gt.variant_up(selected_state)
-        self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        if(selected_state != None):
+            self.bv.gt.variant_up(selected_state)
+            self.bv.update()
+            self.setHtml(self.bv.gt.to_san_html())
         
     def delete_from_here(self):
         offset = self.old_cursor_pos
         selected_state = self.bv.gt.get_state_from_offset(offset)
-        self.bv.gt.delete_from_here(selected_state)
-        self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        if(selected_state != None):
+            self.bv.gt.delete_from_here(selected_state)
+            self.bv.update()
+            self.setHtml(self.bv.gt.to_san_html())
 
     def delete_variant(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
         selected_state = self.bv.gt.get_state_from_offset(offset)
-        self.bv.gt.delete_variant(selected_state)
-        self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        if(selected_state != None):
+            self.bv.gt.delete_variant(selected_state)
+            self.bv.update()
+            self.setHtml(self.bv.gt.to_san_html())
 
     def variant_down(self):
         offset = self.old_cursor_pos
         selected_state = self.bv.gt.get_state_from_offset(offset)
-        self.bv.gt.variant_down(selected_state)
-        self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        if(selected_state != None):
+            self.bv.gt.variant_down(selected_state)
+            self.bv.update()
+            self.setHtml(self.bv.gt.to_san_html())
     
     def delete_all_variants(self):
         offset = self.old_cursor_pos
         selected_state = self.bv.gt.get_state_from_offset(offset)
-        self.bv.gt.delete_all_variants(selected_state)
-        self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        if(selected_state != None):
+            self.bv.gt.delete_all_variants(selected_state)
+            self.bv.update()
+            self.setHtml(self.bv.gt.to_san_html())
         
     def go_to_pos(self,cursor_pos):
         #offset = self.textCursor().position()
