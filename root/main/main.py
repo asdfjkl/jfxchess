@@ -367,10 +367,12 @@ class MovesEdit(QtGui.QTextEdit):
         variant_down.triggered.connect(self.variant_down)
         delete_variant = menu.addAction("Delete Variant")
         delete_variant.triggered.connect(self.delete_variant)
-        menu.addAction("Delete From Here")
+        delete_here = menu.addAction("Delete From Here")
+        delete_here.triggered.connect(self.delete_from_here)
         menu.addSeparator()
         menu.addAction("Delete All Comments")
-        menu.addAction("Delete All Variants")
+        delete_all_variants = menu.addAction("Delete All Variants")
+        delete_all_variants.triggered.connect(self.delete_all_variants)
         menu.exec_(QCursor.pos())
         
     def mousePressEvent(self, mouseEvent):
@@ -386,6 +388,13 @@ class MovesEdit(QtGui.QTextEdit):
         self.bv.gt.variant_up(selected_state)
         self.bv.update()
         self.setHtml(self.bv.gt.to_san_html())
+        
+    def delete_from_here(self):
+        offset = self.old_cursor_pos
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        self.bv.gt.delete_from_here(selected_state)
+        self.bv.update()
+        self.setHtml(self.bv.gt.to_san_html())
 
     def delete_variant(self):
         offset = self.old_cursor_pos
@@ -399,6 +408,13 @@ class MovesEdit(QtGui.QTextEdit):
         offset = self.old_cursor_pos
         selected_state = self.bv.gt.get_state_from_offset(offset)
         self.bv.gt.variant_down(selected_state)
+        self.bv.update()
+        self.setHtml(self.bv.gt.to_san_html())
+    
+    def delete_all_variants(self):
+        offset = self.old_cursor_pos
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        self.bv.gt.delete_all_variants(selected_state)
         self.bv.update()
         self.setHtml(self.bv.gt.to_san_html())
         

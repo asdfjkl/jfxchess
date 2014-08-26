@@ -546,7 +546,39 @@ class GameTree():
             states = [x.state for x in parent.childs]
             idx = states.index(variant_root)
             del(parent.childs[idx])
-            self.current = parent   
+            self.current = parent
+            
+    def delete_all_variants(self, state):
+        # get root and check if we are currently
+        # on a variant
+        variant_root = state
+        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+            variant_root = variant_root.parent
+        parent = variant_root.parent
+        if(parent != None):
+            states = [x.state for x in parent.childs]
+            idx = states.index(variant_root)
+            if(idx > 0):
+                # we are on a variant
+                self.current = parent
+        # now delete
+        temp = self.root
+        while(temp.childs != []):
+            new_childs = []
+            new_childs.append(temp.childs[0])
+            temp.childs = new_childs
+            temp = temp.childs[0].state
+    
+    def delete_from_here(self, state):
+        if(state.parent == None):
+            self.current = self.root
+            self.root.childs = []
+        else:
+            parent = state.parent
+            self.current = parent
+            states = [x.state for x in parent.childs]
+            idx = states.index(state)
+            del(parent.childs[idx])
     
     def variant_down(self, state):
         variant_root = state
