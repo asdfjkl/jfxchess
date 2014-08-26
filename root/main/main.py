@@ -48,6 +48,29 @@ class PieceImages:
             painter.end()
             imgs[size] = img
             return img
+        
+class DialogWithPlainText(QDialog):
+    def __init__(self, parent=None):
+        super(DialogWithPlainText, self).__init__(parent) 
+        
+        self.plainTextEdit = QtGui.QPlainTextEdit()
+        self.saved_text = ""
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        layout = QGridLayout()
+        layout.addWidget(self.plainTextEdit,0,1)
+        layout.addWidget(buttonBox, 3, 0, 1, 3)
+        self.setLayout(layout)
+        self.plainTextEdit.setPlainText("foo")
+        self.saved_text = "foo"
+        self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
+        self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
+        self.plainTextEdit.textChanged.connect(self.update_text)
+        self.resize(300, 150)
+        
+    def update_text(self):
+        temp = self.plainTextEdit.toPlainText()
+        self.saved_text = temp.replace('\n', ' ').replace('\r', '')
+
 
 class DialogWithListView(QDialog):
  
@@ -344,6 +367,7 @@ class MovesEdit(QtGui.QTextEdit):
         sub_move_annotation.addAction("?? Blunder")
         sub_move_annotation.addAction("? Mistake")
         sub_move_annotation.addAction("?! Dubious Move")
+        sub_move_annotation.addAction("!? Interesting Move")
         sub_move_annotation.addAction("! Good Move")
         sub_move_annotation.addAction("!! Brilliant Move")
         
@@ -357,7 +381,8 @@ class MovesEdit(QtGui.QTextEdit):
         sub_pos_annotation.addAction("+- White Much Better")
         sub_pos_annotation.addAction("-+ Black Much Better")
                 
-        menu.addAction("Add/Edit Comment")
+        add_comment = menu.addAction("Add/Edit Comment")
+        add_comment.triggered.connect(self.add_comment)
         menu.addMenu(sub_move_annotation)
         menu.addMenu(sub_pos_annotation)
         menu.addSeparator()
@@ -380,6 +405,17 @@ class MovesEdit(QtGui.QTextEdit):
         cursor_pos = cursor.position()
         self.go_to_pos(cursor_pos)
         self.old_cursor_pos = cursor_pos
+        
+    def add_comment(self):
+        dialog = DialogWithPlainText()
+        dialog.setWindowTitle("Add/Edit Comment")
+        answer = dialog.exec_()
+        if answer == True:
+            print("message ok")
+            typed_text = dialog.saved_text
+            print("this was entered "+typed_text)
+
+        
 
     def variant_up(self):
         offset = self.old_cursor_pos
@@ -554,6 +590,7 @@ class MainWindow(QtGui.QMainWindow):
         flipAction.triggered.connect(board.flip_board)
         menu.addAction(flipAction)
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
+
 
         
 
