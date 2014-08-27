@@ -364,24 +364,44 @@ class MovesEdit(QtGui.QTextEdit):
         menu = QMenu(self)
         sub_move_annotation = QtGui.QMenu(menu)
         sub_move_annotation.setTitle("Move Annotation")
-        sub_move_annotation.addAction("?? Blunder")
-        sub_move_annotation.addAction("? Mistake")
-        sub_move_annotation.addAction("?! Dubious Move")
-        sub_move_annotation.addAction("!? Interesting Move")
-        sub_move_annotation.addAction("! Good Move")
-        sub_move_annotation.addAction("!! Brilliant Move")
-        sub_move_annotation.addAction("No Annotation")
+        ann_blunder = sub_move_annotation.addAction("?? Blunder")
+        ann_blunder.triggered.connect(lambda: self.move_annotation("??"))
+        ann_mistake = sub_move_annotation.addAction("? Mistake")
+        ann_mistake.triggered.connect(lambda: self.move_annotation("?"))
+        ann_dubious = sub_move_annotation.addAction("?! Dubious Move")
+        ann_dubious.triggered.connect(lambda: self.move_annotation("?!"))
+        ann_interesting = sub_move_annotation.addAction("!? Interesting Move")
+        ann_interesting.triggered.connect(lambda: self.move_annotation("!?"))
+        ann_good = sub_move_annotation.addAction("! Good Move")
+        ann_good.triggered.connect(lambda: self.move_annotation("!"))
+        ann_brilliant = sub_move_annotation.addAction("!! Brilliant Move")
+        ann_brilliant.triggered.connect(lambda: self.move_annotation("!!"))
+        ann_empty = sub_move_annotation.addAction("No Annotation")
+        ann_empty.triggered.connect(lambda: self.move_annotation(""))
         
         sub_pos_annotation = QtGui.QMenu(menu)
         sub_pos_annotation.setTitle("Position Annotation")
-        sub_pos_annotation.addAction("∞ Unclear")
-        sub_pos_annotation.addAction("=/∞ With Compensation for White")
-        sub_pos_annotation.addAction("∞/= With Compensation for Black")
-        sub_pos_annotation.addAction("+/- White Slightly Better")
-        sub_pos_annotation.addAction("-/+ Black Slightly Better")
-        sub_pos_annotation.addAction("+- White Much Better")
-        sub_pos_annotation.addAction("-+ Black Much Better")
-        sub_pos_annotation.addAction("No Annotation")
+        pos_unclear = sub_pos_annotation.addAction("∞ Unclear")
+        pos_unclear.triggered.connect(lambda: self.pos_annotation("∞"))
+        pos_comp_w = sub_pos_annotation.addAction("=/∞ With Compensation for White")
+        pos_comp_w.triggered.connect(lambda: self.pos_annotation("=/∞"))
+        pos_comp_b =sub_pos_annotation.addAction("∞/= With Compensation for Black")
+        pos_comp_b.triggered.connect(lambda: self.pos_annotation("∞/="))
+        pos_wsb = sub_pos_annotation.addAction("+/= White Slightly Better")
+        pos_wsb.triggered.connect(lambda: self.pos_annotation("+/="))
+        pos_bsb = sub_pos_annotation.addAction("=/+ Black Slightly Better")
+        pos_bsb.triggered.connect(lambda: self.pos_annotation("=/+"))
+        pos_wb = sub_pos_annotation.addAction("+/- White Better")
+        pos_wb.triggered.connect(lambda: self.pos_annotation("+/-"))
+        pos_bb = sub_pos_annotation.addAction("-/+ Black Better")
+        pos_bb.triggered.connect(lambda: self.pos_annotation("-/+"))
+        pos_wmb = sub_pos_annotation.addAction("+- White Much Better")
+        pos_wmb.triggered.connect(lambda: self.pos_annotation("+-"))
+        pos_bmb = sub_pos_annotation.addAction("-+ Black Much Better")
+        pos_bmb.triggered.connect(lambda: self.pos_annotation("-+"))
+        pos_none = sub_pos_annotation.addAction("No Annotation")
+        pos_none.triggered.connect(lambda: self.pos_annotation(""))
+
                 
         add_comment = menu.addAction("Add/Edit Comment")
         add_comment.triggered.connect(self.add_comment)
@@ -409,6 +429,20 @@ class MovesEdit(QtGui.QTextEdit):
         self.go_to_pos(cursor_pos)
         self.old_cursor_pos = cursor_pos
         
+    def move_annotation(self,string):
+        offset = self.old_cursor_pos
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        if(selected_state != None):
+            selected_state.move.move_annotation = string
+        self.setHtml(self.bv.gt.to_san_html())
+        
+    def pos_annotation(self, string):
+        offset = self.old_cursor_pos
+        selected_state = self.bv.gt.get_state_from_offset(offset)
+        if(selected_state != None):
+            selected_state.move.pos_annotation = string
+        self.setHtml(self.bv.gt.to_san_html())
+                
     def delete_all_comments(self):
         self.bv.gt.delete_all_comments()
         self.bv.update()

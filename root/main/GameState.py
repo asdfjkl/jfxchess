@@ -49,9 +49,9 @@ class Move():
     
     def to_san(self):
         if(self.piece == 'p' or self.piece == 'P'):
-            return self.dst.to_str() + self.comment
+            return self.dst.to_str() + self.move_annotation + self.pos_annotation + self.comment
         else:
-            return self.piece.upper() +self.dst.to_str() + self.comment
+            return self.piece.upper() +self.dst.to_str() + self.move_annotation + self.pos_annotation + self.comment
 
 class Board():
     def __init__(self):
