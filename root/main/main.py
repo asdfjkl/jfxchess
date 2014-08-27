@@ -397,7 +397,8 @@ class MovesEdit(QtGui.QTextEdit):
         delete_here = menu.addAction("Delete From Here")
         delete_here.triggered.connect(self.delete_from_here)
         menu.addSeparator()
-        menu.addAction("Delete All Comments")
+        delete_all_comments = menu.addAction("Delete All Comments")
+        delete_all_comments.triggered.connect(self.delete_all_comments)
         delete_all_variants = menu.addAction("Delete All Variants")
         delete_all_variants.triggered.connect(self.delete_all_variants)
         menu.exec_(QCursor.pos())
@@ -407,6 +408,11 @@ class MovesEdit(QtGui.QTextEdit):
         cursor_pos = cursor.position()
         self.go_to_pos(cursor_pos)
         self.old_cursor_pos = cursor_pos
+        
+    def delete_all_comments(self):
+        self.bv.gt.delete_all_comments()
+        self.bv.update()
+        self.setHtml(self.bv.gt.to_san_html())
         
     def add_comment(self):
         offset = self.old_cursor_pos

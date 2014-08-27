@@ -34,6 +34,8 @@ class Move():
         self.piece = piece
         self.takes_piece = False
         self.comment = ""
+        self.pos_annotation = ""
+        self.move_annotation = ""
         self.san_src_marker = ""
     
     def __eq__(self, other):
@@ -551,6 +553,14 @@ class GameTree():
             idx = states.index(variant_root)
             del(parent.childs[idx])
             self.current = parent
+    
+    def delete_all_comments(self, state = None):
+        temp = state
+        if(temp == None):
+            temp = self.root
+        for i in range(0,len(temp.childs)):
+            temp.childs[i].state.move.comment = ""
+            self.delete_all_comments(temp.childs[i].state)
             
     def delete_all_variants(self, state):
         # get root and check if we are currently
