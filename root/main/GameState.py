@@ -35,6 +35,7 @@ class Move():
         self.takes_piece = False
         self.comment = ""
         self.pos_annotation = ""
+        self.en_passant = False
         self.move_annotation = ""
         self.san_src_marker = ""
     
@@ -48,11 +49,25 @@ class Move():
         return self.src.to_str() + self.dst.to_str()
     
     def to_san(self):
+        ret_str = ""
         if(self.piece == 'p' or self.piece == 'P'):
-            return self.dst.to_str() + self.move_annotation + self.pos_annotation + self.comment
+            ret_str = self.dst.to_str()
+            if(self.takes_piece):
+                ret_str = idx_to_str(self.src.x) + "x" + self.dst.to_str()
+            if(self.en_passant):
+                ret_str = idx_to_str(self.src.x) + "x" + self.dst.to_str()+ " e.p."
         else:
-            return self.piece.upper() +self.dst.to_str() + self.move_annotation + self.pos_annotation + self.comment
-
+            ret_str = self.piece.upper() + self.san_src_marker
+            if(self.takes_piece):
+                ret_str = ret_str + "x"
+            ret_str = ret_str + self.dst.to_str()
+        ret_str = ret_str + self.move_annotation
+        if(self.pos_annotation != ""):
+            ret_str = ret_str + " " + self.pos_annotation
+        if(self.comment != ""):
+            ret_str = ret_str + " { " + self.comment + " } "
+        return ret_str
+        
 class Board():
     def __init__(self):
         self.board = [['e' for x in range(8)] for x in range(8)]
@@ -269,8 +284,13 @@ class State():
         self.config.whiteEnPassant = None
         if(self.white_takes_en_passant(move)):
             self.board.set_at(move.dst.x,move.dst.y-1,'e')
+            move.en_passant = True
         if(self.black_takes_en_passant(move)):
-            self.board.set_at(move.dst.x,move.dst.y+1,'e')     
+            self.board.set_at(move.dst.x,move.dst.y+1,'e')
+            move.en_passant = True
+        #check if move takes another piece
+        if(self.board.get_at(move.dst.x, move.dst.y) != 'e'):
+            move.takes_piece = True
         self.board.set_at(move.src.x,move.src.y,'e')
         self.board.set_at(move.dst.x,move.dst.y,move.piece)
         if(self.config.whiteToMove):
