@@ -337,8 +337,8 @@ class GamePrinter():
     def __init__(self, game_tree):
         self.gt = game_tree
         self.san_html = ""
-        self.san_plain = ""
         self.offset_table = []
+        self.qtextedit = QtGui.QTextEdit()
         
     def variant_start(self, node, child, moveNo):    
         if(node.config.whiteToMove):
@@ -350,55 +350,13 @@ class GamePrinter():
         self.san_plain = self.san_plain + child.move.to_san()
     
     def add_to_offset_table(self,node):
-        offset_end = len(self.san_plain)
-        offset_start = offset_end - len(node.move.to_san())
+        self.qtextedit.setHtml(self.san_html)
+        plain_san = self.qtextedit.toPlainText()
+        offset_end = len(plain_san)
+        self.qtextedit.setHtml(node.move.to_san())
+        plain_move = self.qtextedit.toPlainText()
+        offset_start = offset_end - len(plain_move)
         self.offset_table.append((offset_start,offset_end,node.state))
-
-    def rec_san_plain(self, node = None, moveNo = None, depth = True):
-        temp = node
-        if(node == None):
-            temp = self.gt.root
-        if(moveNo == None):
-            moveNo = 1
-        if(temp != None):
-            if(not temp.config.whiteToMove):
-                moveNo = moveNo + 1
-            len_temp = len(temp.childs)
-            self.san_plain = self.san_plain + " "
-            if(len_temp > 0):
-                if(temp.config.whiteToMove):
-                    self.san_plain = self.san_plain + str(moveNo) + "."
-                # print first move
-                self.san_plain = self.san_plain + temp.childs[0].move.to_san()
-                self.add_to_offset_table(temp.childs[0])
-                # print all alternatives
-                for i in range(1,len_temp):
-                    if(depth):
-                        self.san_plain = self.san_plain + "[ "
-                        self.variant_start(temp, temp.childs[i], moveNo)
-                        self.add_to_offset_table(temp.childs[i])
-                        self.rec_san_plain(temp.childs[i].state,moveNo,False)
-                        self.san_plain = self.san_plain + "]"
-                    else:
-                        self.san_plain = self.san_plain + " ("
-                        self.variant_start(temp, temp.childs[i], moveNo)
-                        self.add_to_offset_table(temp.childs[i])
-                        self.rec_san_plain(temp.childs[i].state,moveNo,False)
-                        self.san_plain = self.san_plain + ") "
-                # continue
-                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
-                    self.san_plain = self.san_plain + str(moveNo) + ". ..."
-                self.rec_san_plain(temp.childs[0].state,moveNo, depth)
-            elif(temp.childs != []):
-                self.san_plain = self.san_plain + temp.childs[0].move.to_san()
-                self.add_to_offset_table(temp.childs[0])
-                self.rec_san_plain(temp.childs[0].state,moveNo, depth)
-
-    def to_san_plain(self, node = None, moveNo = None, depth = True):
-        self.san_plain = ""
-        self.offset_table = []
-        self.rec_san_plain(node, moveNo, depth)
-        return self.san_plain
     
     def print_highlighted(self, node):
         string = ""
@@ -435,12 +393,14 @@ class GamePrinter():
                     self.san_html = self.san_html + str(moveNo) + "."
                 # print first move
                 self.san_html = self.san_html + self.print_highlighted(temp.childs[0])
+                self.add_to_offset_table(temp.childs[0])
                 # print all alternatives
                 for i in range(1,len_temp):
                     if(depth):
                         self.san_html = self.san_html + '<dd><em><span style="color:gray">'
                         self.san_html = self.san_html + "[ "
                         self.variant_start_highlighted(temp, temp.childs[i], moveNo)
+                        self.add_to_offset_table(temp.childs[i])
                         self.san_html = self.san_html + '</span><span style="color:gray">'
                         self.rec_san_html(temp.childs[i].state,moveNo,False)
                         self.san_html = self.san_html + "]"
@@ -448,6 +408,7 @@ class GamePrinter():
                     else:
                         self.san_html = self.san_html + " ("
                         self.variant_start_highlighted(temp, temp.childs[i], moveNo)
+                        self.add_to_offset_table(temp.childs[i])
                         self.rec_san_html(temp.childs[i].state,moveNo,False)
                         self.san_html = self.san_html + ") "
                 # continue
@@ -456,6 +417,7 @@ class GamePrinter():
                 self.rec_san_html(temp.childs[0].state,moveNo, depth)
             elif(temp.childs != []):
                 self.san_html = self.san_html + temp.childs[0].move.to_san()
+                self.add_to_offset_table(temp.childs[0])                
                 self.rec_san_html(temp.childs[0].state,moveNo, depth)
 
     
@@ -532,7 +494,8 @@ class GameTree():
     
     def get_state_from_offset(self, offset):
         # next is to update to current status
-        text = self.printer.to_san_plain()
+        text = self.printer.to_san_html()
+        print(str(self.printer.offset_table))
         offset_index = self.printer.offset_table
         j = 0
         for i in range(0,len(offset_index)):
