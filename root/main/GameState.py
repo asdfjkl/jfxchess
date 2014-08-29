@@ -341,17 +341,12 @@ class State():
             return False
         
     def test(self):
-       chessgame = Game()
-       print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-       print(chessgame.get_moves())
-       chessgame.apply_move('e2e4')  # succeeds!
-       print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
-       chessgame.apply_move('e2e4')  # fails! (raises InvalidMove exception)  
-
-class Child():
-    def __init__(self,mv,st):
-        self.move = mv
-        self.state = st
+        chessgame = Game()
+        print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        print(chessgame.get_moves())
+        chessgame.apply_move('e2e4')  # succeeds!
+        print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        chessgame.apply_move('e2e4')  # fails! (raises InvalidMove exception)  
 
 class GamePrinter(): 
     def __init__(self, game_tree):
@@ -376,11 +371,11 @@ class GamePrinter():
         self.qtextedit.setHtml(node.move.to_san())
         plain_move = self.qtextedit.toPlainText()
         offset_start = offset_end - len(plain_move)
-        self.offset_table.append((offset_start,offset_end,node.state))
+        self.offset_table.append((offset_start,offset_end,node))
     
     def print_highlighted(self, node):
         string = ""
-        if(self.gt.current == node.state):
+        if(self.gt.current == node):
             string = string + '<span style="color:darkgoldenrod">'
             string = string + node.move.to_san()
             string = string + '</span>'
@@ -422,23 +417,23 @@ class GamePrinter():
                         self.variant_start_highlighted(temp, temp.childs[i], moveNo)
                         self.add_to_offset_table(temp.childs[i])
                         self.san_html = self.san_html + '</span><span style="color:gray">'
-                        self.rec_san_html(temp.childs[i].state,moveNo,False)
+                        self.rec_san_html(temp.childs[i],moveNo,False)
                         self.san_html = self.san_html + "]"
                         self.san_html = self.san_html + "</dd></em></span>"
                     else:
                         self.san_html = self.san_html + " ("
                         self.variant_start_highlighted(temp, temp.childs[i], moveNo)
                         self.add_to_offset_table(temp.childs[i])
-                        self.rec_san_html(temp.childs[i].state,moveNo,False)
+                        self.rec_san_html(temp.childs[i],moveNo,False)
                         self.san_html = self.san_html + ") "
                 # continue
-                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].state.childs != []):
+                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].childs != []):
                     self.san_html = self.san_html + str(moveNo) + ". ..."
-                self.rec_san_html(temp.childs[0].state,moveNo, depth)
+                self.rec_san_html(temp.childs[0],moveNo, depth)
             elif(temp.childs != []):
                 self.san_html = self.san_html + temp.childs[0].move.to_san()
                 self.add_to_offset_table(temp.childs[0])                
-                self.rec_san_html(temp.childs[0].state,moveNo, depth)
+                self.rec_san_html(temp.childs[0],moveNo, depth)
 
     
     def to_san_html(self, node = None, moveNo = None, depth = True):
@@ -463,11 +458,11 @@ class GameTree():
             return False
     
     def exist_move(self,move):
-        for mv_st in self.current.childs:
-            mv = mv_st.move
+        for state in self.current.childs:
+            mv = state.move
             print("comparing" + mv.to_str() + move.to_str())
             if(move == mv):
-                return self.current.childs.index(mv_st)
+                return self.current.childs.index(state)
         return None
     
     def execute_move(self,move):
@@ -479,7 +474,7 @@ class GameTree():
             c.execute_move(move)
             print("self: "+self.current.board.to_fen())
             c.move = move
-            self.current.childs.append(Child(move,c))
+            self.current.childs.append(c)
             c.parent = self.current
             self.current = c
             print("recorded: "+c.parent.board.to_fen())
@@ -493,9 +488,9 @@ class GameTree():
         print("supplied idx:" + str(idx))
         print("len: "+str(len(self.current.childs)))        
         if(idx != None and idx < len(self.current.childs)):
-            self.current = self.current.childs[idx].state
+            self.current = self.current.childs[idx]
         elif(len(self.current.childs)>0):
-            self.current = self.current.childs[0].state
+            self.current = self.current.childs[0]
             
     def move_list(self):
         mvs = []
@@ -528,12 +523,11 @@ class GameTree():
     
     def delete_variant(self, state):
         variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
             variant_root = variant_root.parent
         parent = variant_root.parent
         if(parent != None):
-            states = [x.state for x in parent.childs]
-            idx = states.index(variant_root)
+            idx = parent.childs.index(variant_root)
             del(parent.childs[idx])
             self.current = parent
     
@@ -542,19 +536,18 @@ class GameTree():
         if(temp == None):
             temp = self.root
         for i in range(0,len(temp.childs)):
-            temp.childs[i].state.move.comment = ""
-            self.delete_all_comments(temp.childs[i].state)
+            temp.childs[i].move.comment = ""
+            self.delete_all_comments(temp.childs[i])
             
     def delete_all_variants(self, state):
         # get root and check if we are currently
         # on a variant
         variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
             variant_root = variant_root.parent
         parent = variant_root.parent
         if(parent != None):
-            states = [x.state for x in parent.childs]
-            idx = states.index(variant_root)
+            idx = parent.childs.index(variant_root)
             if(idx > 0):
                 # we are on a variant
                 self.current = parent
@@ -564,7 +557,7 @@ class GameTree():
             new_childs = []
             new_childs.append(temp.childs[0])
             temp.childs = new_childs
-            temp = temp.childs[0].state
+            temp = temp.childs[0]
     
     def delete_from_here(self, state):
         if(state.parent == None):
@@ -573,19 +566,17 @@ class GameTree():
         else:
             parent = state.parent
             self.current = parent
-            states = [x.state for x in parent.childs]
-            idx = states.index(state)
+            idx = parent.childs.index(state)
             del(parent.childs[idx])
     
     def variant_down(self, state):
         variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
             variant_root = variant_root.parent
         parent = variant_root.parent
         if(parent != None):
-            states = [x.state for x in parent.childs]
-            idx = states.index(variant_root)
-            if(idx < len(states) -1):
+            idx = parent.childs.index(variant_root)
+            if(idx < len(parent.childs) -1):
                 temp = parent.childs[idx +1]
                 parent.childs[idx+1] = parent.childs[idx]
                 parent.childs[idx] = temp    
@@ -593,12 +584,11 @@ class GameTree():
     
     def variant_up(self, state):
         variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0].state == variant_root):
+        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
             variant_root = variant_root.parent
         parent = variant_root.parent
         if(parent != None):
-            states = [x.state for x in parent.childs]
-            idx = states.index(variant_root)
+            idx = parent.childs.index(variant_root)
             if(idx > 0):
                 temp = parent.childs[idx -1]
                 parent.childs[idx-1] = parent.childs[idx]
