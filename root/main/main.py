@@ -10,6 +10,7 @@ from PyQt4.QtSvg import *
 
 #import GameState
 from GameState import *
+from GameTree import *
 #!/usr/bin/python
 
 # menubar.py 
@@ -216,7 +217,7 @@ class ChessboardView(QtGui.QWidget):
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
         text = self.gt.to_san_html()
-        print("moves:"+text)
+        # print("moves:"+text)
         self.movesEdit.setHtml(text)
         self.movesEdit.update()
         

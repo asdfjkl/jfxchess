@@ -189,6 +189,7 @@ class Game(object):
     def is_checkmate(self):
         test_board = Game(fen=str(self), validate=False)
         k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
+        print("k_sym"+str(k_sym))
         op_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
         c1 = Game.i2xy(test_board.board.find_piece(k_sym)) in op_moves
         c2 = self.get_moves() == []

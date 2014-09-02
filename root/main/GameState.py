@@ -6,7 +6,7 @@ Created on 31.07.2014
 
 from Chessnut.game import Game
 from Chessnut.game import InvalidMove
-from PyQt4 import QtGui
+from GamePrinter import *
 
 #from Chessnut import InvalidMove
 
@@ -203,7 +203,7 @@ class State():
         self.childs = []
         self.move = None
         self.parent = None
-    
+            
     def deep_copy(self):
         c = State()
         c.board = self.board.deep_copy()
@@ -315,10 +315,10 @@ class State():
             self.board.set_at(3, 7, 'r')   
         if(self.black_pawn_2_steps(move)):
             self.config.blackEnPassant = Point(move.src.x,move.src.y-1)
-            print("ep recorded"+self.config.blackEnPassant.to_str())
+            # print("ep recorded"+self.config.blackEnPassant.to_str())
         if(self.white_pawn_2_steps(move)):
             self.config.whiteEnPassant = Point(move.src.x,move.src.y+1)
-            print("ep recorded"+self.config.whiteEnPassant.to_str())
+            # print("ep recorded"+self.config.whiteEnPassant.to_str())
         
         
                 
@@ -328,16 +328,16 @@ class State():
         print("self to fen:"+board_copy.to_fen())
         g = Game(board_copy.to_fen() + self.config.to_fen())
         print("is checkmate "+str(g.is_checkmate()))
-        print("possible moves "+str(g.get_moves()))
+        # print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
         #    print(str(mv))
-        print("trying: "+move.to_str())
+        # print("trying: "+move.to_str())
         try:
             g.apply_move(move.to_str())
             return True
         #except Exception as e: 
         except InvalidMove:
-            print("exception raised")
+            # print("exception raised")
             return False
         
     def test(self):
@@ -348,269 +348,6 @@ class State():
         print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
         chessgame.apply_move('e2e4')  # fails! (raises InvalidMove exception)  
 
-class GamePrinter(): 
-    def __init__(self, game_tree):
-        self.gt = game_tree
-        self.san_html = ""
-        self.offset_table = []
-        self.qtextedit = QtGui.QTextEdit()
-        
-    def variant_start(self, node, child, moveNo):    
-        if(node.config.whiteToMove):
-            self.san_plain = self.san_plain + str(moveNo)+"."
-        else:
-            self.san_plain = self.san_plain + str(moveNo-1)+"."
-        if(not node.config.whiteToMove):
-            self.san_plain = self.san_plain + " ... "
-        self.san_plain = self.san_plain + child.move.to_san()
-    
-    def add_to_offset_table(self,node):
-        self.qtextedit.setHtml(self.san_html)
-        plain_san = self.qtextedit.toPlainText()
-        offset_end = len(plain_san)
-        self.qtextedit.setHtml(node.move.to_san())
-        plain_move = self.qtextedit.toPlainText()
-        offset_start = offset_end - len(plain_move)
-        self.offset_table.append((offset_start,offset_end,node))
-    
-    def print_highlighted(self, node):
-        string = ""
-        if(self.gt.current == node):
-            string = string + '<span style="color:darkgoldenrod">'
-            string = string + node.move.to_san()
-            string = string + '</span>'
-        else:
-            string = string + node.move.to_san()
-        return string
-    
-    def variant_start_highlighted(self, node, child, moveNo):    
-        if(node.config.whiteToMove):
-            self.san_html = self.san_html + str(moveNo)+"."
-        else:
-            self.san_html = self.san_html + str(moveNo-1)+"."
-        if(not node.config.whiteToMove):
-            self.san_html = self.san_html + " ... "
-        self.san_html = self.san_html + self.print_highlighted(child)
-    
-    def rec_san_html(self, node = None, moveNo = None, depth = True):
-        temp = node
-        if(node == None):
-            temp = self.gt.root
-        if(moveNo == None):
-            moveNo = 1
-        if(temp != None):
-            if(not temp.config.whiteToMove):
-                moveNo = moveNo + 1
-            len_temp = len(temp.childs)
-            self.san_html = self.san_html + " "
-            if(len_temp > 0):
-                if(temp.config.whiteToMove):
-                    self.san_html = self.san_html + str(moveNo) + "."
-                # print first move
-                self.san_html = self.san_html + self.print_highlighted(temp.childs[0])
-                self.add_to_offset_table(temp.childs[0])
-                # print all alternatives
-                for i in range(1,len_temp):
-                    if(depth):
-                        self.san_html = self.san_html + '<dd><em><span style="color:gray">'
-                        self.san_html = self.san_html + "[ "
-                        self.variant_start_highlighted(temp, temp.childs[i], moveNo)
-                        self.add_to_offset_table(temp.childs[i])
-                        self.san_html = self.san_html + '</span><span style="color:gray">'
-                        self.rec_san_html(temp.childs[i],moveNo,False)
-                        self.san_html = self.san_html + "]"
-                        self.san_html = self.san_html + "</dd></em></span>"
-                    else:
-                        self.san_html = self.san_html + " ("
-                        self.variant_start_highlighted(temp, temp.childs[i], moveNo)
-                        self.add_to_offset_table(temp.childs[i])
-                        self.rec_san_html(temp.childs[i],moveNo,False)
-                        self.san_html = self.san_html + ") "
-                # continue
-                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].childs != []):
-                    self.san_html = self.san_html + str(moveNo) + ". ..."
-                self.rec_san_html(temp.childs[0],moveNo, depth)
-            elif(temp.childs != []):
-                self.san_html = self.san_html + temp.childs[0].move.to_san()
-                self.add_to_offset_table(temp.childs[0])                
-                self.rec_san_html(temp.childs[0],moveNo, depth)
-
-    
-    def to_san_html(self, node = None, moveNo = None, depth = True):
-        self.san_html = ""
-        self.rec_san_html(node, moveNo, depth)
-        return self.san_html
     
     
           
-class GameTree():
-    def __init__(self):
-        self.root = State()
-        self.current = self.root
-        self.printer = GamePrinter(self)
-    
-    #checks if applying the move in
-    #current state is valid
-    def is_valid_move(self,move):
-        if(self.current.is_valid_move(move)):
-            return True
-        else:
-            return False
-    
-    def exist_move(self,move):
-        for state in self.current.childs:
-            mv = state.move
-            print("comparing" + mv.to_str() + move.to_str())
-            if(move == mv):
-                return self.current.childs.index(state)
-        return None
-    
-    def execute_move(self,move):
-        idx = self.exist_move(move)
-        if(idx != None):
-            self.next(idx)
-        else:
-            c = self.current.deep_copy()
-            c.execute_move(move)
-            print("self: "+self.current.board.to_fen())
-            c.move = move
-            self.current.childs.append(c)
-            c.parent = self.current
-            self.current = c
-            print("recorded: "+c.parent.board.to_fen())
-        
-    def prev(self):
-        if(self.current.parent != None):
-            self.current = self.current.parent
-            print(self.current.board.to_fen())
-            
-    def next(self, idx = None):
-        print("supplied idx:" + str(idx))
-        print("len: "+str(len(self.current.childs)))        
-        if(idx != None and idx < len(self.current.childs)):
-            self.current = self.current.childs[idx]
-        elif(len(self.current.childs)>0):
-            self.current = self.current.childs[0]
-            
-    def move_list(self):
-        mvs = []
-        for ch in self.current.childs:
-            mvs.append(ch.move.to_str())
-        return mvs
-    
-    def exist_variants(self):
-        return len(self.current.childs) > 1
-        
-    def to_san_plain(self, node = None, moveNo = None, depth = True, offset = None):
-        return self.printer.to_san_plain(node, moveNo, depth)
-
-    def get_offset_table(self):
-        return self.printer.offset_table
-    
-    def get_state_from_offset(self, offset):
-        # next is to update to current status
-        text = self.printer.to_san_html()
-        print(str(self.printer.offset_table))
-        offset_index = self.printer.offset_table
-        j = 0
-        for i in range(0,len(offset_index)):
-            if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
-                j = i
-        try:
-            return offset_index[j][2]
-        except IndexError:
-            return None
-    
-    def delete_variant(self, state):
-        variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
-            variant_root = variant_root.parent
-        parent = variant_root.parent
-        if(parent != None):
-            idx = parent.childs.index(variant_root)
-            del(parent.childs[idx])
-            self.current = parent
-    
-    def delete_all_comments(self, state = None):
-        temp = state
-        if(temp == None):
-            temp = self.root
-        for i in range(0,len(temp.childs)):
-            temp.childs[i].move.comment = ""
-            self.delete_all_comments(temp.childs[i])
-            
-    def delete_all_variants(self, state):
-        # get root and check if we are currently
-        # on a variant
-        variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
-            variant_root = variant_root.parent
-        parent = variant_root.parent
-        if(parent != None):
-            idx = parent.childs.index(variant_root)
-            if(idx > 0):
-                # we are on a variant
-                self.current = parent
-        # now delete
-        temp = self.root
-        while(temp.childs != []):
-            new_childs = []
-            new_childs.append(temp.childs[0])
-            temp.childs = new_childs
-            temp = temp.childs[0]
-    
-    def delete_from_here(self, state):
-        if(state.parent == None):
-            self.current = self.root
-            self.root.childs = []
-        else:
-            parent = state.parent
-            self.current = parent
-            idx = parent.childs.index(state)
-            del(parent.childs[idx])
-    
-    def variant_down(self, state):
-        variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
-            variant_root = variant_root.parent
-        parent = variant_root.parent
-        if(parent != None):
-            idx = parent.childs.index(variant_root)
-            if(idx < len(parent.childs) -1):
-                temp = parent.childs[idx +1]
-                parent.childs[idx+1] = parent.childs[idx]
-                parent.childs[idx] = temp    
-    
-    
-    def variant_up(self, state):
-        variant_root = state
-        while(variant_root.parent != None and variant_root.parent.childs[0] == variant_root):
-            variant_root = variant_root.parent
-        parent = variant_root.parent
-        if(parent != None):
-            idx = parent.childs.index(variant_root)
-            if(idx > 0):
-                temp = parent.childs[idx -1]
-                parent.childs[idx-1] = parent.childs[idx]
-                parent.childs[idx] = temp    
-    
-    def print_formatted(self, node):
-        string = ""
-        if(self.current == node.state):
-            string = string + '<span style="color:darkgoldenrod">'
-            string = string + node.move.to_san()
-            string = string + '</span>'
-        else:
-            string = string + node.move.to_san()
-        return string
-    
-    def to_san_html(self, node = None, moveNo = None, depth = True):
-        return self.printer.to_san_html(node, moveNo, depth)            
-    
-    def to_str(self):
-        game = ""
-        tmp = self.root
-        while(tmp.childs != []):
-            game = game + " " + tmp.childs[0].move.to_str()
-            tmp = tmp.childs[0].state
-        print(game)
