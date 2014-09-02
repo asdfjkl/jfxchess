@@ -327,13 +327,13 @@ class State():
         board_copy.set_at(move.src.x, move.src.y, move.piece)
         print("self to fen:"+board_copy.to_fen())
         g = Game(board_copy.to_fen() + self.config.to_fen())
-        print("is checkmate "+str(g.is_checkmate()))
         # print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
         #    print(str(mv))
         # print("trying: "+move.to_str())
         try:
             g.apply_move(move.to_str())
+            print("is checkmate "+str(g.is_checkmate()))
             return True
         #except Exception as e: 
         except InvalidMove:

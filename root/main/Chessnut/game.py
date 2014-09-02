@@ -187,16 +187,28 @@ class Game(object):
         self.set_fen(' '.join(str(x) for x in [self.board] + list(fields)))
         
     def is_checkmate(self):
-        test_board = Game(fen=str(self), validate=False)
+        # king is checkmate if
+        # a) list of legal moves is empty
+        # b) he is in check
+        fen = ""
+        if(self.state.player == 'w'):
+            fen = str(self).replace(' w ', ' b ')
+        else:
+            fen = str(self).replace(' b ', ' w ')
+        test_board = Game(fen, validate=False)
         k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
         print("k_sym"+str(k_sym))
+        print("op:"+str(opp))
         op_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
+        # op_moves = test_board._all_moves(player=opp)
+        # print(str(self.state.player))
+       # op_moves1 = test_board.get_moves()
         c1 = Game.i2xy(test_board.board.find_piece(k_sym)) in op_moves
         c2 = self.get_moves() == []
         print("c1 "+str(c1))
-        print(op_moves)
+        # print("op_moves:" + str(op_moves))
         print("c2 "+str(c2))
-        return c1 and c2
+        #return c1 and c2
      
 
     def get_moves(self, player=None, idx_list=range(64)):
@@ -266,9 +278,10 @@ class Game(object):
             for ray in rays[start]:
                 # Trace each of the 8 (or fewer) possible directions that a
                 # piece at the given starting index could move
-
+                #print(str(piece)+"could go to"+str(self._trace_ray(start, piece, ray)))
                 res_moves.extend(self._trace_ray(start, piece, ray))
 
+        #print("res_moves after"+str(res_moves))
         return res_moves
 
     def _trace_ray(self, start, piece, ray):
@@ -294,10 +307,12 @@ class Game(object):
             move = [Game.i2xy(start) + Game.i2xy(end)]
             tgt_owner = self.board.get_owner(end)
 
+            # print("calc ray of "+str(sym)+"to" +str(move))
+            #print(str(piece)+"could go to"+str(move))
             # Abort if the current player owns the piece at the end point
             if tgt_owner == self.state.player:
                 break
-
+            
             # Test castling exception for king
             if sym == 'k' and del_x == 2:
                 gap_owner = self.board.get_owner((start + end) // 2)
