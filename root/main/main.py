@@ -548,7 +548,7 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
 
         test = State()
-        #test.test()
+        test.test()
         #test.toFen()
 
         self.resize(640, 480)
@@ -674,6 +674,7 @@ class MainWindow(QtGui.QMainWindow):
         about.triggered.connect(board.flip_board)  
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
+        
 
 
         

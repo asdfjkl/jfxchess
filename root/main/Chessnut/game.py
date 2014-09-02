@@ -186,10 +186,10 @@ class Game(object):
         # state update must happen after castling
         self.set_fen(' '.join(str(x) for x in [self.board] + list(fields)))
         
-    def is_checkmate(self):
-        # king is checkmate if
-        # a) list of legal moves is empty
-        # b) he is in check
+    def is_stalemate(self):
+        # king is stalemate if a) he is _not_ in check 
+        # and b) his list of legal moves is empty
+        # first switch player state
         fen = ""
         if(self.state.player == 'w'):
             fen = str(self).replace(' w ', ' b ')
@@ -197,18 +197,30 @@ class Game(object):
             fen = str(self).replace(' b ', ' w ')
         test_board = Game(fen, validate=False)
         k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
-        print("k_sym"+str(k_sym))
-        print("op:"+str(opp))
-        op_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
-        # op_moves = test_board._all_moves(player=opp)
-        # print(str(self.state.player))
-       # op_moves1 = test_board.get_moves()
-        c1 = Game.i2xy(test_board.board.find_piece(k_sym)) in op_moves
-        c2 = self.get_moves() == []
-        print("c1 "+str(c1))
-        # print("op_moves:" + str(op_moves))
-        print("c2 "+str(c2))
-        #return c1 and c2
+        opp_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
+        # condition a) list of opp moves includes moving to (taking) players king
+        a = Game.i2xy(test_board.board.find_piece(k_sym)) in opp_moves
+        # condition b): no moves for current player
+        b = self.get_moves() == []
+        return (not a) and b
+    
+    def is_checkmate(self):
+        # king is checkmate if a) he is in check 
+        # and b) his list of legal moves is empty
+        # first switch player state
+        fen = ""
+        if(self.state.player == 'w'):
+            fen = str(self).replace(' w ', ' b ')
+        else:
+            fen = str(self).replace(' b ', ' w ')
+        test_board = Game(fen, validate=False)
+        k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
+        opp_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
+        # condition a) list of opp moves includes moving to (taking) players king
+        a = Game.i2xy(test_board.board.find_piece(k_sym)) in opp_moves
+        # condition b): no moves for current player
+        b = self.get_moves() == []
+        return a and b
      
 
     def get_moves(self, player=None, idx_list=range(64)):
@@ -278,10 +290,8 @@ class Game(object):
             for ray in rays[start]:
                 # Trace each of the 8 (or fewer) possible directions that a
                 # piece at the given starting index could move
-                #print(str(piece)+"could go to"+str(self._trace_ray(start, piece, ray)))
                 res_moves.extend(self._trace_ray(start, piece, ray))
 
-        #print("res_moves after"+str(res_moves))
         return res_moves
 
     def _trace_ray(self, start, piece, ray):
@@ -307,8 +317,6 @@ class Game(object):
             move = [Game.i2xy(start) + Game.i2xy(end)]
             tgt_owner = self.board.get_owner(end)
 
-            # print("calc ray of "+str(sym)+"to" +str(move))
-            #print(str(piece)+"could go to"+str(move))
             # Abort if the current player owns the piece at the end point
             if tgt_owner == self.state.player:
                 break
