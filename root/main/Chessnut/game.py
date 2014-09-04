@@ -186,6 +186,22 @@ class Game(object):
         # state update must happen after castling
         self.set_fen(' '.join(str(x) for x in [self.board] + list(fields)))
         
+    def is_check(self):
+        # king is in check, if any piece of 
+        # player who just moved (not his turn) could
+        # take the king
+        fen = ""
+        if(self.state.player == 'w'):
+            fen = str(self).replace(' w ', ' b ')
+        else:
+            fen = str(self).replace(' b ', ' w ')
+        test_board = Game(fen, validate=False)
+        k_sym, opp = {'w': ('K', 'b'), 'b': ('k', 'w')}.get(self.state.player)
+        opp_moves = set([m[2:4] for m in test_board._all_moves(player=opp)])
+        # condition a) list of opp moves includes moving to (taking) players king
+        a = Game.i2xy(test_board.board.find_piece(k_sym)) in opp_moves
+        return a 
+        
     def is_stalemate(self):
         # king is stalemate if a) he is _not_ in check 
         # and b) his list of legal moves is empty

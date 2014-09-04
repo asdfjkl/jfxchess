@@ -334,6 +334,8 @@ class State():
         try:
             g.apply_move(move.to_str())
             print("is checkmate "+str(g.is_checkmate()))
+            print("is stalemate "+str(g.is_stalemate()))
+            print("is check "+str(g.is_check()))
             return True
         #except Exception as e: 
         except InvalidMove:
