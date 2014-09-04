@@ -553,6 +553,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.resize(640, 480)
         self.setWindowTitle('Jerry - Chess')
+        self.centerOnScreen()
                 
         #qp.drawImage(10,10,qim,0,0,0,0)
         
@@ -675,6 +676,14 @@ class MainWindow(QtGui.QMainWindow):
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
         
+        
+    def centerOnScreen (self):
+        '''centerOnScreen()
+           Centers (vertically in the upper third) the window on the screen.'''
+        resolution = QtGui.QDesktopWidget().screenGeometry()
+        self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
+                  (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
+
 
 
         
