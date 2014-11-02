@@ -38,6 +38,7 @@ class Move():
         self.en_passant = False
         self.move_annotation = ""
         self.san_src_marker = ""
+        self.promoteTo = None
     
     def __eq__(self, other):
         return self.src == other.src and self.dst == other.dst and self.piece == other.piece
@@ -144,7 +145,7 @@ class Config():
         self.blackInCheck = False
         self.whiteToMove = True
         self.blackEnPassant = None
-        self.whiteEnPassant = None       
+        self.whiteEnPassant = None  
         
     def deep_copy(self):
         c = Config()
@@ -279,6 +280,10 @@ class State():
         else:
             return False
     
+    # does _not_ check validity of move
+    # assumes its always a correct move
+    # and if promoteTo != None, then 
+    # move must be valid promotions!
     def execute_move(self,move):
         self.config.blackEnPassant = None
         self.config.whiteEnPassant = None
@@ -290,9 +295,12 @@ class State():
             move.en_passant = True
         #check if move takes another piece
         if(self.board.get_at(move.dst.x, move.dst.y) != 'e'):
-            move.takes_piece = True
+            move.takes_piece = True    
         self.board.set_at(move.src.x,move.src.y,'e')
-        self.board.set_at(move.dst.x,move.dst.y,move.piece)
+        if(not move.promoteTo == None):
+            self.board.set_at(move.dst.x,move.dst.y,move.promoteTo)
+        else:
+            self.board.set_at(move.dst.x,move.dst.y,move.piece)
         if(self.config.whiteToMove):
             self.config.whiteToMove = False
         else:
@@ -320,7 +328,30 @@ class State():
             self.config.whiteEnPassant = Point(move.src.x,move.src.y+1)
             # print("ep recorded"+self.config.whiteEnPassant.to_str())
         
-        
+    # returns true if move is a pawn promotion
+    # and if that move is valid
+    def is_valid_and_promotes(self, move):
+        if(move.src.y == 6 and move.piece == "P" and self.config.whiteToMove):
+            board_copy = self.board.deep_copy()
+            board_copy.set_at(move.src.x, move.src.y, move.piece)
+            g = Game(board_copy.to_fen() + self.config.to_fen())
+            try:
+                # if prmotion to queen works, underpromotions work, too
+                g.apply_move(move.to_str()+"q")
+                return True
+            except InvalidMove:
+                return False         
+        if(move.src.y == 1 and move.piece == "p" and (not self.config.whiteToMove)):
+            board_copy = self.board.deep_copy()
+            board_copy.set_at(move.src.x, move.src.y, move.piece)
+            g = Game(board_copy.to_fen() + self.config.to_fen())
+            try:
+                g.apply_move(move.to_str()+"q")
+                return True
+            except InvalidMove:
+                return False 
+        else:
+            return False
                 
     def is_valid_move(self, move):
         board_copy = self.board.deep_copy()
@@ -343,7 +374,7 @@ class State():
             return False
         
     def test(self):
-        chessgame = Game()
+        chessgame = Game("8/1P6/8/8/7k/8/7K/8 w - - 0 1")
         print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
         print(chessgame.get_moves())
         # chessgame.apply_move('e2e4')  # succeeds!

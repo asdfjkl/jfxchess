@@ -14,6 +14,12 @@ class GameTree():
             return True
         else:
             return False
+        
+    def is_valid_and_promotes(self,move):
+        if(self.current.is_valid_and_promotes(move)):
+            return True
+        else:
+            return False
     
     def exist_move(self,move):
         for state in self.current.childs:
