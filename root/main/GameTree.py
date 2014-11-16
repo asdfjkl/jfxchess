@@ -162,10 +162,7 @@ class GameTree():
         else:
             string = string + node.move.to_san()
         return string
-    
-    def to_san_html(self, node = None, moveNo = None, depth = True):
-        return self.printer.to_san_html(node, moveNo, depth)            
-    
+
     def to_str(self):
         game = ""
         tmp = self.root

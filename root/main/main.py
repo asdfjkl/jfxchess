@@ -231,6 +231,7 @@ class ChessboardView(QtGui.QWidget):
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
         self.gt = GameTree()
+        self.printer = GamePrinter(self.gt)
         self.pieceImages = PieceImages()
         
         self.movesEdit = None
@@ -307,7 +308,7 @@ class ChessboardView(QtGui.QWidget):
         self.moveSrc = None 
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
-        text = self.gt.to_san_html()
+        text = self.printer.to_san_html()
         # print("moves:"+text)
         self.movesEdit.setHtml(text)
         self.movesEdit.update()
@@ -455,6 +456,7 @@ class MovesEdit(QtGui.QTextEdit):
     def __init__(self,chessboardView):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
+        self.printer = self.bv.printer
         self.old_cursor_pos = 0
         self.setCursorWidth(2)
         self.viewport().setCursor(Qt.ArrowCursor)
@@ -536,19 +538,19 @@ class MovesEdit(QtGui.QTextEdit):
         selected_state = self.bv.gt.get_state_from_offset(offset)
         if(selected_state != None):
             selected_state.move.move_annotation = string
-        self.setHtml(self.bv.gt.to_san_html())
+        self.setHtml(self.printer.to_san_html())
         
     def pos_annotation(self, string):
         offset = self.old_cursor_pos
         selected_state = self.bv.gt.get_state_from_offset(offset)
         if(selected_state != None):
             selected_state.move.pos_annotation = string
-        self.setHtml(self.bv.gt.to_san_html())
+        self.setHtml(self.printer.to_san_html())
                 
     def delete_all_comments(self):
         self.bv.gt.delete_all_comments()
         self.bv.update()
-        self.setHtml(self.bv.gt.to_san_html())
+        self.setHtml(self.printer.to_san_html())
         
     def add_comment(self):
         offset = self.old_cursor_pos
@@ -563,7 +565,7 @@ class MovesEdit(QtGui.QTextEdit):
                 print("message ok")
                 typed_text = dialog.saved_text
                 selected_state.move.comment = typed_text
-                self.setHtml(self.bv.gt.to_san_html())        
+                self.setHtml(self.printer.to_san_html())
 
     def variant_up(self):
         offset = self.old_cursor_pos
@@ -572,7 +574,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(selected_state != None):
             self.bv.gt.variant_up(selected_state)
             self.bv.update()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
         
     def delete_from_here(self):
         offset = self.old_cursor_pos
@@ -580,7 +582,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(selected_state != None):
             self.bv.gt.delete_from_here(selected_state)
             self.bv.update()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
 
     def delete_variant(self):
         offset = self.old_cursor_pos
@@ -589,7 +591,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(selected_state != None):
             self.bv.gt.delete_variant(selected_state)
             self.bv.update()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
 
     def variant_down(self):
         offset = self.old_cursor_pos
@@ -597,7 +599,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(selected_state != None):
             self.bv.gt.variant_down(selected_state)
             self.bv.update()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
     
     def delete_all_variants(self):
         offset = self.old_cursor_pos
@@ -605,7 +607,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(selected_state != None):
             self.bv.gt.delete_all_variants(selected_state)
             self.bv.update()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
         
     def go_to_pos(self,cursor_pos):
         #offset = self.textCursor().position()
@@ -617,7 +619,7 @@ class MovesEdit(QtGui.QTextEdit):
             self.bv.gt.current = selected_state
             self.bv.update()
             #self.old_cursor_pos = 0
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
             
         
     def keyPressEvent(self, event):
@@ -625,7 +627,7 @@ class MovesEdit(QtGui.QTextEdit):
         if key == QtCore.Qt.Key_Left: 
             print("left pressed")
             self.bv.gt.prev()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
@@ -641,7 +643,7 @@ class MovesEdit(QtGui.QTextEdit):
                     self.bv.gt.next(idx)
             else:
                 self.bv.gt.next()
-            self.setHtml(self.bv.gt.to_san_html())
+            self.setHtml(self.printer.to_san_html())
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):

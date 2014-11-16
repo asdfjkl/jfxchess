@@ -11,7 +11,7 @@ from GamePrinter import *
 #from Chessnut import InvalidMove
 
 def idx_to_str(x):
-    return chr(97 + x % 8) 
+    return chr(97 + x % 8)
 
 class Point():
     def __init__(self,x,y):
@@ -47,7 +47,10 @@ class Move():
         return not self.__eq__(other)
     
     def to_str(self):
-        return self.src.to_str() + self.dst.to_str()
+        if(self.promoteTo == None):
+            return self.src.to_str() + self.dst.to_str()
+        else:
+            return self.src.to_str() + self.dst.to_str() + self.promoteTo
     
     def to_san(self):
         ret_str = ""
@@ -213,7 +216,47 @@ class State():
     
     def to_fen(self):
         return self.board.to_fen() + self.config.to_fen()
-    
+
+    def ambiguous_move_list(self,move):
+        g = Game(self.board.to_fen() + self.config.to_fen())
+        all_moves = g.get_moves()
+        moves_to = move.to_str()[2:]
+        move_str = move.to_str()
+        ambiguous_moves = []
+        for mv in all_moves:
+            mv_i = mv[2:]
+            # if dest is same, but moves (and thus source) are different
+            if(mv_i == moves_to and (mv != move_str)):
+                # check if src is same kind of piece
+                src_x = ord(mv[0]) - 97
+                src_y = int(mv[1]) - 1
+                src_piece_a = self.board.get_at(src_x,src_y)
+                src_piece_b = self.board.get_at(move.src.x, move.src.y)
+                if src_piece_a == src_piece_b:
+                    ambiguous_moves.append(mv)
+        return ambiguous_moves
+
+    def is_ambiguous(self,move):
+        mvl = self.ambiguous_move_list(move)
+        return mvl != []
+
+    def resolve_ambiguity(self,move):
+        move_str = move.to_str()
+        ambiguous_moves = self.ambiguous_move_list(move)
+        resolve_by_letter = True
+        resolve_by_number = True
+        for amv in ambiguous_moves:
+            if amv[0] == move_str[0]:
+                resolve_by_letter = False
+            if amv[1] == move_str[1]:
+                resolve_by_number = False
+        if resolve_by_letter:
+            return move_str[0]
+        elif resolve_by_number:
+            return move_str[1]
+        else:
+            raise ValueError("cannot resolve ambiguity for move" + move_str + "among" + ambiguous_moves)
+
     def to_console(self):
         string = ""
         for i in range(0,8):
@@ -285,6 +328,11 @@ class State():
     # and if promoteTo != None, then 
     # move must be valid promotions!
     def execute_move(self,move):
+        print("checking ambig")
+        if(self.is_ambiguous(move)):
+            print("is ambig")
+            move.san_src_marker = self.resolve_ambiguity(move)
+            print("san_sr_marker "+move.san_src_marker)
         self.config.blackEnPassant = None
         self.config.whiteEnPassant = None
         if(self.white_takes_en_passant(move)):
@@ -327,7 +375,7 @@ class State():
         if(self.white_pawn_2_steps(move)):
             self.config.whiteEnPassant = Point(move.src.x,move.src.y+1)
             # print("ep recorded"+self.config.whiteEnPassant.to_str())
-        
+
     # returns true if move is a pawn promotion
     # and if that move is valid
     def is_valid_and_promotes(self, move):
@@ -358,7 +406,7 @@ class State():
         board_copy.set_at(move.src.x, move.src.y, move.piece)
         print("self to fen:"+board_copy.to_fen())
         g = Game(board_copy.to_fen() + self.config.to_fen())
-        # print("possible moves "+str(g.get_moves()))
+        print("possible moves "+str(g.get_moves()))
         #for mv in g.get_moves():
         #    print(str(mv))
         # print("trying: "+move.to_str())
