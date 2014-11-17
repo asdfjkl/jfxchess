@@ -312,6 +312,7 @@ class ChessboardView(QtGui.QWidget):
         # print("moves:"+text)
         self.movesEdit.setHtml(text)
         self.movesEdit.update()
+        print(self.printer.to_pgn())
         
     def resetMove(self):
         self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)

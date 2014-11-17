@@ -29,6 +29,8 @@ class Point():
         
 class Move():
     def __init__(self,src,dst,piece):
+        self.castles_short = False
+        self.castles_long = False
         self.src = src
         self.dst = dst
         self.piece = piece
@@ -39,6 +41,8 @@ class Move():
         self.move_annotation = ""
         self.san_src_marker = ""
         self.promoteTo = None
+        self.checks = False
+        self.checkmates = False
     
     def __eq__(self, other):
         return self.src == other.src and self.dst == other.dst and self.piece == other.piece
@@ -51,7 +55,29 @@ class Move():
             return self.src.to_str() + self.dst.to_str()
         else:
             return self.src.to_str() + self.dst.to_str() + self.promoteTo
-    
+
+    def to_pgn(self):
+        ret_str = ""
+        if(self.castles_short):
+            return "O-O"
+        if(self.castles_long):
+            return "O-O-O"
+        if(self.piece != 'p' and self.piece != 'P'):
+            ret_str = ret_str + self.piece.upper()
+        ret_str = ret_str + self.san_src_marker
+        if(self.takes_piece):
+            if(self.piece =='p' or self.piece == 'P'):
+                ret_str = ret_str + idx_to_str(self.src.x)
+            ret_str = ret_str + "x"
+        ret_str = ret_str + self.dst.to_str()
+        if(self.promoteTo != None):
+            ret_str = ret_str + "=" + self.promoteTo
+        if(self.checks):
+            ret_str = ret_str + "+"
+        if(self.checkmates):
+            ret_str = ret_str + "#"
+        return ret_str
+
     def to_san(self):
         ret_str = ""
         if(self.piece == 'p' or self.piece == 'P'):
@@ -357,24 +383,34 @@ class State():
             self.config.castleWhiteShort = False
             self.board.set_at(7, 0, 'e')
             self.board.set_at(5, 0, 'R')
+            move.castles_short = True
         if(self.is_castle_white_long(move)):
             self.config.castleWhiteLong = False
             self.board.set_at(0, 0, 'e')
             self.board.set_at(3, 0, 'R')
+            move.castles_long = True
         if(self.is_castle_black_short(move)):
             self.config.castleBlackShort = False
             self.board.set_at(7, 7, 'e')
             self.board.set_at(5, 7, 'r')
+            move.castles_short = True
         if(self.is_castle_black_long(move)):
             self.config.castleBlackLong = False
             self.board.set_at(0, 7, 'e')
-            self.board.set_at(3, 7, 'r')   
+            self.board.set_at(3, 7, 'r')
+            move.castles_short = True
         if(self.black_pawn_2_steps(move)):
             self.config.blackEnPassant = Point(move.src.x,move.src.y-1)
             # print("ep recorded"+self.config.blackEnPassant.to_str())
         if(self.white_pawn_2_steps(move)):
             self.config.whiteEnPassant = Point(move.src.x,move.src.y+1)
             # print("ep recorded"+self.config.whiteEnPassant.to_str())
+        # check for check and checkmate
+        g = Game(self.board.to_fen()+self.config.to_fen())
+        if(g.is_checkmate()):
+            move.checkmates = True
+        if(g.is_check()):
+            move.checks = True
 
     # returns true if move is a pawn promotion
     # and if that move is valid

@@ -1,11 +1,20 @@
 from GameState import *
 from GamePrinter import *
+import time
 
 class GameTree():
     def __init__(self):
         self.root = State()
         self.current = self.root
-        self.printer = GamePrinter(self)
+        #self.printer = GamePrinter(self)
+        self.event = ""
+        self.site = ""
+        self.date = time.strftime("%Y.%m.%d")
+        self.round = ""
+        self.white_player = "N.N."
+        self.black_player = "Jerry (PC)"
+        self.eco = ""
+        self.result = "*"
     
     #checks if applying the move in
     #current state is valid

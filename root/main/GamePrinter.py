@@ -4,6 +4,7 @@ class GamePrinter():
     def __init__(self, game_tree):
         self.gt = game_tree
         self.san_html = ""
+        self.pgn_string = ""
         self.offset_table = []
         self.qtextedit = QtGui.QTextEdit()
         
@@ -93,3 +94,61 @@ class GamePrinter():
         self.rec_san_html(node, moveNo, depth)
         return self.san_html
 
+    def rec_pgn(self, node = None, moveNo = None):
+        temp = node
+        if(node == None):
+            temp = self.gt.root
+        if(moveNo == None):
+            moveNo = 1
+        # check line length
+        ls = self.pgn_string.splitlines()
+        if(len(ls) > 0 and len(ls[len(ls)-1]) > 79):
+            self.pgn_string = self.pgn_string + "\n"
+        if(temp != None):
+            if(not temp.config.whiteToMove):
+                moveNo = moveNo + 1
+            len_temp = len(temp.childs)
+            # add space before next move (but not for the first)
+            if(moveNo > 1 or not temp.config.whiteToMove):
+                self.pgn_string = self.pgn_string + " "
+            if(len_temp > 0):
+                if(temp.config.whiteToMove):
+                    self.pgn_string = self.pgn_string + str(moveNo) + ". "
+                # print first (main) move
+                self.pgn_string = self.pgn_string + temp.childs[0].move.to_pgn()
+                # print all alternatives (variants)
+                for i in range(1,len_temp):
+                    self.pgn_string = self.pgn_string + " ("
+                    self.variant_start_highlighted(temp, temp.childs[i], moveNo)
+
+                    if(node.config.whiteToMove):
+                        self.pgn_string = self.pgn_string + str(moveNo)+". "
+                    else:
+                        self.pgn_string = self.pgn_string + str(moveNo-1)+". "
+                    if(not node.config.whiteToMove):
+                        self.pgn_string = self.pgn_string + " ... "
+                        self.pgn_string = self.pgn_string + child.move.to_pgn()
+                    self.rec_pgn(temp.childs[i],moveNo)
+                    self.pgn_string = self.pgn_string + ") "
+                # continue
+                if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].childs != []):
+                    self.pgn_string = self.pgn_string + str(moveNo) + ". ..."
+                self.rec_pgn(temp.childs[0],moveNo)
+            elif(temp.childs != []):
+                self.pgn_string = self.pgn_string + temp.childs[0].move.to_pgn()
+                self.rec_pgn(temp.childs[0],moveNo)
+
+    def to_pgn(self, node = None, moveNo = None):
+
+        self.pgn_string = ""
+        self.pgn_string += '[Event "' + self.gt.event +'"]\n'
+        self.pgn_string += '[Site "' + self.gt.site + '"]\n'
+        self.pgn_string += '[Date "' + self.gt.date + '"]\n'
+        self.pgn_string += '[Round "' + self.gt.round + '"]\n'
+        self.pgn_string += '[White "' + self.gt.white_player + '"]\n'
+        self.pgn_string += '[Black "' + self.gt.black_player + '"]\n'
+        self.pgn_string += '[ECO "' + self.gt.eco + '"]\n'
+        self.pgn_string += '[Result "' + self.gt.result + '"]\n'
+        self.rec_pgn(node, moveNo)
+        self.pgn_string += self.gt.result
+        return self.pgn_string
