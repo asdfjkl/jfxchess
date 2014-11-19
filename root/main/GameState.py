@@ -13,6 +13,41 @@ from GamePrinter import *
 def idx_to_str(x):
     return chr(97 + x % 8)
 
+def nag_from_str(x):
+    if(x == "!"):
+        return "$1"
+    elif(x == "?"):
+        return "$2"
+    elif(x == "!!"):
+        return "$3"
+    elif(x == "??"):
+        return "$4"
+    elif(x == "!?"):
+        return "$5"
+    elif(x == "?!"):
+        return "$6"
+    elif(x == "∞"):
+        return "$13"
+    elif(x == "+/="):
+        return "$14"
+    elif(x == "=/+"):
+        return "$15"
+    elif(x == "+/-"):
+        return "$16"
+    elif(x == "-/+"):
+        return "$17"
+    elif(x == "+-"):
+        return "$18"
+    elif(x == "-+"):
+        return "$19"
+    elif(x == "=/∞"):
+        return "$44"
+    elif(x == "∞/="):
+        return "$45"
+    else:
+        return x
+
+
 class Point():
     def __init__(self,x,y):
         self.x = x
@@ -76,6 +111,12 @@ class Move():
             ret_str = ret_str + "+"
         if(self.checkmates):
             ret_str = ret_str + "#"
+        if(self.move_annotation != ""):
+            ret_str += " "+nag_from_str(self.move_annotation)
+        if(self.pos_annotation != ""):
+            ret_str += " "+nag_from_str(self.pos_annotation)
+        if(self.comment != ""):
+            ret_str += " {"+self.comment+"}"
         return ret_str
 
     def to_san(self):

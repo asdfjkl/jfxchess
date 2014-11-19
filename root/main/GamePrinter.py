@@ -109,7 +109,7 @@ class GamePrinter():
                 moveNo = moveNo + 1
             len_temp = len(temp.childs)
             # add space before next move (but not for the first)
-            if(moveNo > 1 or not temp.config.whiteToMove):
+            if((moveNo > 1 or not temp.config.whiteToMove) and temp.childs !=[]):
                 self.pgn_string = self.pgn_string + " "
             if(len_temp > 0):
                 if(temp.config.whiteToMove):
@@ -120,16 +120,15 @@ class GamePrinter():
                 for i in range(1,len_temp):
                     self.pgn_string = self.pgn_string + " ("
                     self.variant_start_highlighted(temp, temp.childs[i], moveNo)
-
                     if(node.config.whiteToMove):
                         self.pgn_string = self.pgn_string + str(moveNo)+". "
                     else:
                         self.pgn_string = self.pgn_string + str(moveNo-1)+". "
                     if(not node.config.whiteToMove):
-                        self.pgn_string = self.pgn_string + " ... "
-                        self.pgn_string = self.pgn_string + child.move.to_pgn()
+                        self.pgn_string = self.pgn_string + "... "
+                    self.pgn_string = self.pgn_string + temp.childs[i].move.to_pgn()
                     self.rec_pgn(temp.childs[i],moveNo)
-                    self.pgn_string = self.pgn_string + ") "
+                    self.pgn_string = self.pgn_string + ")"
                 # continue
                 if(len_temp > 1 and (temp.config.whiteToMove) and temp.childs[0].childs != []):
                     self.pgn_string = self.pgn_string + str(moveNo) + ". ..."
@@ -150,5 +149,5 @@ class GamePrinter():
         self.pgn_string += '[ECO "' + self.gt.eco + '"]\n'
         self.pgn_string += '[Result "' + self.gt.result + '"]\n'
         self.rec_pgn(node, moveNo)
-        self.pgn_string += self.gt.result
+        self.pgn_string += " "+self.gt.result
         return self.pgn_string

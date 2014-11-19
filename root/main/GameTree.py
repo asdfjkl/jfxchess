@@ -75,11 +75,11 @@ class GameTree():
     def get_offset_table(self):
         return self.printer.offset_table
     
-    def get_state_from_offset(self, offset):
+    def get_state_from_offset(self, offset, printer):
         # next is to update to current status
-        text = self.printer.to_san_html()
+        text = printer.to_san_html()
         # print(str(self.printer.offset_table))
-        offset_index = self.printer.offset_table
+        offset_index = printer.offset_table
         j = 0
         for i in range(0,len(offset_index)):
             if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):

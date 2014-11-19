@@ -536,14 +536,14 @@ class MovesEdit(QtGui.QTextEdit):
         
     def move_annotation(self,string):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             selected_state.move.move_annotation = string
         self.setHtml(self.printer.to_san_html())
         
     def pos_annotation(self, string):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             selected_state.move.pos_annotation = string
         self.setHtml(self.printer.to_san_html())
@@ -556,7 +556,7 @@ class MovesEdit(QtGui.QTextEdit):
     def add_comment(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             dialog = DialogWithPlainText()
             dialog.setWindowTitle("Add/Edit Comment")
@@ -571,7 +571,7 @@ class MovesEdit(QtGui.QTextEdit):
     def variant_up(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             self.bv.gt.variant_up(selected_state)
             self.bv.update()
@@ -579,7 +579,7 @@ class MovesEdit(QtGui.QTextEdit):
         
     def delete_from_here(self):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             self.bv.gt.delete_from_here(selected_state)
             self.bv.update()
@@ -588,7 +588,7 @@ class MovesEdit(QtGui.QTextEdit):
     def delete_variant(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             self.bv.gt.delete_variant(selected_state)
             self.bv.update()
@@ -596,7 +596,7 @@ class MovesEdit(QtGui.QTextEdit):
 
     def variant_down(self):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             self.bv.gt.variant_down(selected_state)
             self.bv.update()
@@ -604,7 +604,7 @@ class MovesEdit(QtGui.QTextEdit):
     
     def delete_all_variants(self):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset)
+        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
         if(selected_state != None):
             self.bv.gt.delete_all_variants(selected_state)
             self.bv.update()
@@ -616,7 +616,7 @@ class MovesEdit(QtGui.QTextEdit):
         if(cursor_pos > 0):
         #if(offset != self.old_cursor_pos):
             #self.old_cursor_pos = offset
-            selected_state = self.bv.gt.get_state_from_offset(cursor_pos)
+            selected_state = self.bv.gt.get_state_from_offset(cursor_pos,self.printer)
             self.bv.gt.current = selected_state
             self.bv.update()
             #self.old_cursor_pos = 0
