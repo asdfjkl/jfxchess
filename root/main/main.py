@@ -272,6 +272,14 @@ class ChessboardView(QtGui.QWidget):
             pgn_string = self.printer.to_pgn()
             f.write(pgn_string)
             f.close()
+
+    def game_to_clipboard(self):
+        clipboard = QtGui.QApplication.clipboard()
+        clipboard.setText(self.printer.to_pgn())
+
+    def pos_to_clipboard(self):
+        clipboard = QtGui.QApplication.clipboard()
+        clipboard.setText(self.gt.current.to_fen())
         
     def heightForWidth(self, width):
         return width    
@@ -772,7 +780,9 @@ class MainWindow(QtGui.QMainWindow):
         print_pos = m_file.addAction("Print Position")
         m_edit = self.menuBar().addMenu('Edit ')
         copy_game = m_edit.addAction("Copy Game")
+        copy_game.triggered.connect(board.game_to_clipboard)
         copy_pos = m_edit.addAction("Copy Position")
+        copy_pos.triggered.connect(board.pos_to_clipboard)
         paste = m_edit.addAction("Paste")
         m_edit.addSeparator()
         setup_pos = m_edit.addAction("Setup Position")
