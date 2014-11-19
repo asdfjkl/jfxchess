@@ -149,5 +149,5 @@ class GamePrinter():
         self.pgn_string += '[ECO "' + self.gt.eco + '"]\n'
         self.pgn_string += '[Result "' + self.gt.result + '"]\n'
         self.rec_pgn(node, moveNo)
-        self.pgn_string += " "+self.gt.result
+        self.pgn_string += " "+self.gt.result+"\n\n"
         return self.pgn_string

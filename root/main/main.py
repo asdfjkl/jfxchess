@@ -253,6 +253,25 @@ class ChessboardView(QtGui.QWidget):
         
     def initUI(self):      
         self.show()
+
+    def append_to_pgn(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn', None, QFileDialog.DontConfirmOverwrite)
+        if(filename):
+            f = open(filename, 'a')
+            pgn_string = self.printer.to_pgn()
+            f.write(pgn_string)
+            f.close()
+
+    def save_to_pgn(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None)
+        if(filename):
+            # Append extension if not there yet
+            if not filename.endswith(".pgn"):
+                filename += ".pgn"
+            f = open(filename, 'w')
+            pgn_string = self.printer.to_pgn()
+            f.write(pgn_string)
+            f.close()
         
     def heightForWidth(self, width):
         return width    
@@ -743,8 +762,11 @@ class MainWindow(QtGui.QMainWindow):
         new_game_white = m_file.addAction('New Game (White)')
         new_game_black = m_file.addAction("New Game (Black)")
         m_file.addSeparator()
-        load_game = m_file.addAction("Load Game")
-        save_game = m_file.addAction("Save Game")
+        load_game = m_file.addAction("Load PGN")
+        save_game = m_file.addAction("Save PGN")
+        save_game.triggered.connect(board.save_to_pgn)
+        append_game = m_file.addAction("Append to PGN")
+        append_game.triggered.connect(board.append_to_pgn)
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
         print_pos = m_file.addAction("Print Position")
