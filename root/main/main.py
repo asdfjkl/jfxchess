@@ -907,7 +907,6 @@ class MainWindow(QtGui.QMainWindow):
         m_file.addSeparator()
         exit_item = m_file.addAction("Quit")
         exit_item.triggered.connect(QApplication.quit)
-
         m_edit = self.menuBar().addMenu('Edit ')
         copy_game = m_edit.addAction("Copy Game")
         copy_game.triggered.connect(board.game_to_clipboard)
