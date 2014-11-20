@@ -72,6 +72,109 @@ class DialogWithPlainText(QDialog):
         temp = self.plainTextEdit.toPlainText()
         self.saved_text = temp.replace('\n', ' ').replace('\r', '')
 
+class DialogEditGameData(QDialog):
+
+    def __init__(self, gameTree, parent=None):
+        super(DialogEditGameData,self).__init__(parent)
+        self.setWindowTitle("Edit Game Data")
+
+        self.ed_event = QLineEdit()
+        self.ed_event.setText(gameTree.event)
+        self.lbl_event = QLabel("Event")
+        self.lbl_event.setBuddy(self.ed_event)
+
+        self.ed_site = QLineEdit()
+        self.ed_site.setText(gameTree.site)
+        self.lbl_site = QLabel("Site")
+        self.lbl_site.setBuddy(self.ed_site)
+
+        self.ed_date = QLineEdit()
+        self.ed_date.setText(gameTree.date)
+        self.lbl_date = QLabel("Date")
+        self.lbl_date.setBuddy(self.ed_date)
+
+        self.ed_round = QLineEdit()
+        self.ed_round.setText(gameTree.round)
+        self.lbl_round = QLabel("Round")
+        self.lbl_round.setBuddy(self.ed_round)
+
+        self.ed_white = QLineEdit()
+        self.ed_white.setText(gameTree.white_player)
+        self.lbl_white = QLabel("White")
+        self.lbl_white.setBuddy(self.ed_white)
+
+        self.ed_black = QLineEdit()
+        self.ed_black.setText(gameTree.black_player)
+        self.lbl_black = QLabel("Black")
+        self.lbl_black.setBuddy(self.ed_black)
+
+        self.ed_eco = QLineEdit()
+        self.ed_eco.setText(gameTree.eco)
+        self.lbl_eco = QLabel("ECO")
+        self.lbl_eco.setBuddy(self.ed_eco)
+
+        self.rb_ww = QRadioButton("1-0")
+        self.rb_bw = QRadioButton("0-1")
+        self.rb_draw = QRadioButton("½-½")
+        self.rb_unclear = QRadioButton("*")
+        self.lbl_result = QLabel("Result")
+
+        if(gameTree.result=="1-0"):
+            self.rb_ww.setChecked(True)
+        elif(gameTree.result=="0-1"):
+            self.rb_bw.setChecked(True)
+        elif(gameTree.result=="1/2-1/2"):
+            self.rb_draw.setChecked(True)
+        elif(gameTree.result=="*"):
+            self.rb_unclear.setChecked(True)
+
+        grpBox = QGroupBox("Result")
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.rb_ww)
+        hbox.addWidget(self.rb_draw)
+        hbox.addWidget(self.rb_bw)
+        hbox.addWidget(self.rb_unclear)
+        hbox.addStretch(1)
+        grpBox.setLayout(hbox)
+
+        #self.plainTextEdit = QtGui.QPlainTextEdit()
+        self.saved_text = ""
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        layout = QGridLayout()
+        layout.addWidget(self.lbl_event,0,0)
+        layout.addWidget(self.ed_event,0,1,1,2)
+
+        layout.addWidget(self.lbl_site,1,0)
+        layout.addWidget(self.ed_site,1,1,1,2)
+
+        layout.addWidget(self.lbl_date,2,0)
+        layout.addWidget(self.ed_date,2,1,1,1)
+
+        layout.addWidget(self.lbl_round,3,0)
+        layout.addWidget(self.ed_round,3,1)
+
+        layout.addWidget(self.lbl_white,4,0)
+        layout.addWidget(self.ed_white,4,1,1,2)
+
+        layout.addWidget(self.lbl_black,5,0)
+        layout.addWidget(self.ed_black,5,1,1,2)
+
+        layout.addWidget(self.lbl_eco,6,0)
+        layout.addWidget(self.ed_eco,6,1)
+
+        layout.addWidget(grpBox,7,0,1,3)
+
+        layout.addWidget(buttonBox, 8, 2, 1, 1)
+        self.setLayout(layout)
+        self.ed_eco.setText("D42")
+        self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
+        self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
+        # self.ed_eco.textChanged.connect(self.update_text)
+        self.resize(370, 150)
+
+    def update_text(self):
+        print("text changed")
+
 class DialogPromotion(QDialog):
  
     def __init__(self, whitePromotes, parent=None):
@@ -255,7 +358,8 @@ class ChessboardView(QtGui.QWidget):
         self.show()
 
     def append_to_pgn(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn', None, QFileDialog.DontConfirmOverwrite)
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
+                                                     None, QFileDialog.DontConfirmOverwrite)
         if(filename):
             f = open(filename, 'a')
             pgn_string = self.printer.to_pgn()
@@ -272,6 +376,26 @@ class ChessboardView(QtGui.QWidget):
             pgn_string = self.printer.to_pgn()
             f.write(pgn_string)
             f.close()
+
+    def editGameData(self):
+        ed = DialogEditGameData(self.gt)
+        answer = ed.exec_()
+        if(answer):
+            self.gt.event = ed.ed_white.text()
+            self.gt.site = ed.ed_site.text()
+            self.gt.date = ed.ed_date.text()
+            self.gt.round = ed.ed_round.text()
+            self.gt.white_player = ed.ed_white.text()
+            self.gt.black_player = ed.ed_black.text()
+            self.gt.eco = ed.ed_eco.text()
+            if(ed.rb_ww.isChecked()):
+                self.gt.result = "1-0"
+            elif(ed.rb_bw.isChecked()):
+                self.gt.result = "0-1"
+            elif(ed.rb_draw.isChecked()):
+                self.gt.result = "1/2-1/2"
+            elif(ed.rb_unclear.isChecked()):
+                self.gt.result = "*"
 
     def game_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
@@ -766,7 +890,9 @@ class MainWindow(QtGui.QMainWindow):
         statusbar = self.statusBar()
         statusbar.showMessage('Ready')
 
-        m_file = self.menuBar().addMenu('File')
+        self.menubar = self.menuBar()
+
+        m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
         new_game_black = m_file.addAction("New Game (Black)")
         m_file.addSeparator()
@@ -778,6 +904,10 @@ class MainWindow(QtGui.QMainWindow):
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
         print_pos = m_file.addAction("Print Position")
+        m_file.addSeparator()
+        exit_item = m_file.addAction("Quit")
+        exit_item.triggered.connect(QApplication.quit)
+
         m_edit = self.menuBar().addMenu('Edit ')
         copy_game = m_edit.addAction("Copy Game")
         copy_game.triggered.connect(board.game_to_clipboard)
@@ -785,9 +915,10 @@ class MainWindow(QtGui.QMainWindow):
         copy_pos.triggered.connect(board.pos_to_clipboard)
         paste = m_edit.addAction("Paste")
         m_edit.addSeparator()
-        setup_pos = m_edit.addAction("Setup Position")
+        enter_pos = m_edit.addAction("Enter Position")
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
+        edit_game_data.triggered.connect(board.editGameData)
         flip = m_edit.addAction("Flip Board")
         flip.triggered.connect(board.flip_board)
         m_edit.addSeparator()
