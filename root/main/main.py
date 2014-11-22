@@ -18,6 +18,8 @@ from GameTree import *
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
+from PGNParser import *
+
 
 class PieceImages:
     def __init__(self):
@@ -376,6 +378,16 @@ class ChessboardView(QtGui.QWidget):
             pgn_string = self.printer.to_pgn()
             f.write(pgn_string)
             f.close()
+
+    def open_pgn(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)')
+        if(filename):
+            with open(filename) as f:
+                content = f.readlines()
+                print("tried to open "+str(filename))
+                gt = GameTree()
+                parse(content[0],content[1:],gt)
+                self.gt = gt
 
     def editGameData(self):
         ed = DialogEditGameData(self.gt)
@@ -897,6 +909,7 @@ class MainWindow(QtGui.QMainWindow):
         new_game_black = m_file.addAction("New Game (Black)")
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
+        load_game.triggered.connect(board.open_pgn)
         save_game = m_file.addAction("Save PGN")
         save_game.triggered.connect(board.save_to_pgn)
         append_game = m_file.addAction("Append to PGN")
