@@ -388,6 +388,11 @@ class ChessboardView(QtGui.QWidget):
                 gt = GameTree()
                 parse(content[0],content[1:],gt)
                 self.gt = gt
+                self.printer = GamePrinter(gt)
+                self.movesEdit.gt = gt
+                self.movesEdit.printer = self.printer
+                self.movesEdit.update_san()
+                self.update()
 
     def editGameData(self):
         ed = DialogEditGameData(self.gt)
@@ -416,6 +421,19 @@ class ChessboardView(QtGui.QWidget):
     def pos_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
         clipboard.setText(self.gt.current.to_fen())
+
+    def game_from_clipboard(self):
+        clipboard = QtGui.QApplication.clipboard()
+        pgn = clipboard.text().split("\n")
+        print("pgn retrieved "+str(pgn))
+        gt = GameTree()
+        parse(pgn[0],pgn[1:],gt)
+        self.gt = gt
+        self.printer = GamePrinter(gt)
+        self.movesEdit.gt = gt
+        self.movesEdit.printer = self.printer
+        self.movesEdit.update_san()
+        self.update()
         
     def heightForWidth(self, width):
         return width    
@@ -473,6 +491,7 @@ class ChessboardView(QtGui.QWidget):
         self.drawGrabbedPiece = False
         text = self.printer.to_san_html()
         # print("moves:"+text)
+        self.movesEdit = MovesEdit(self)
         self.movesEdit.setHtml(text)
         self.movesEdit.update()
         print(self.printer.to_pgn())
@@ -784,14 +803,17 @@ class MovesEdit(QtGui.QTextEdit):
             self.bv.update()
             #self.old_cursor_pos = 0
             self.setHtml(self.printer.to_san_html())
-            
-        
+
+    def update_san(self):
+        self.setHtml(self.printer.to_san_html())
+
     def keyPressEvent(self, event):
         key = event.key()
         if key == QtCore.Qt.Key_Left: 
             print("left pressed")
             self.bv.gt.prev()
             self.setHtml(self.printer.to_san_html())
+            print("received from printer "+self.printer.to_pgn())
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
@@ -926,6 +948,7 @@ class MainWindow(QtGui.QMainWindow):
         copy_pos = m_edit.addAction("Copy Position")
         copy_pos.triggered.connect(board.pos_to_clipboard)
         paste = m_edit.addAction("Paste")
+        paste.triggered.connect(board.game_from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("Enter Position")
         m_edit.addSeparator()

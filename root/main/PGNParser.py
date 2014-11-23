@@ -17,14 +17,18 @@ p_takes = re.compile("x")
 
 def parse(line, lines, gt):
     gp = GamePrinter(gt)
-    print("current game " + gp.to_pgn())
+    print("at line "+line)
+    #print("current game " + gp.to_pgn())
     if(len(line) == 0):
         print("len line is zero")
         if(len(lines) == 0):
+            print("lines also, so returnging gt")
             return gt
         else:
+            print("rec call")
             parse(lines[0],lines[1:],gt)
-    if(line[0] == '['):
+    elif(line[0] == '['):
+        print("retrieving "+line)
         extract_tag(line,gt)
         parse(lines[0],lines[1:],gt)
     elif(line[0] == ' '):
