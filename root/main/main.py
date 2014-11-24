@@ -375,14 +375,14 @@ class ChessboardView(QtGui.QWidget):
             print("append saver")
 
     def save_to_pgn(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None)
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None, QFileDialog.DontUseNativeDialog)
         if(filename):
             f = open(filename,'w')
             print(self.current.root(), file=f, end="\n\n")
             print("pgn saver")
 
     def open_pgn(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)')
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
         if(filename):
             pgn = open(filename)
             first_game = chess.pgn.read_game(pgn)
