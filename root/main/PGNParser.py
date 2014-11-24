@@ -1,8 +1,6 @@
 import re
 from GameTree import GameTree
 from GameState import State,Move,Point
-from Chessnut.game import Game
-from Chessnut.game import InvalidMove
 from GamePrinter import GamePrinter
 
 p_draw = re.compile("1/2-1/2..")

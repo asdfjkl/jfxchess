@@ -80,44 +80,44 @@ class DialogWithPlainText(QDialog):
 
 class DialogEditGameData(QDialog):
 
-    def __init__(self, gameTree, parent=None):
+    def __init__(self, root, parent=None):
         super(DialogEditGameData,self).__init__(parent)
         self.setWindowTitle("Edit Game Data")
 
         self.ed_event = QLineEdit()
-        self.ed_event.setText(gameTree.event)
+        self.ed_event.setText(root.headers["Event"])
         self.lbl_event = QLabel("Event")
         self.lbl_event.setBuddy(self.ed_event)
 
         self.ed_site = QLineEdit()
-        self.ed_site.setText(gameTree.site)
+        self.ed_site.setText(root.headers["Site"])
         self.lbl_site = QLabel("Site")
         self.lbl_site.setBuddy(self.ed_site)
 
         self.ed_date = QLineEdit()
-        self.ed_date.setText(gameTree.date)
+        self.ed_date.setText(root.headers["Date"])
         self.lbl_date = QLabel("Date")
         self.lbl_date.setBuddy(self.ed_date)
 
         self.ed_round = QLineEdit()
-        self.ed_round.setText(gameTree.round)
+        self.ed_round.setText(root.headers["Round"])
         self.lbl_round = QLabel("Round")
         self.lbl_round.setBuddy(self.ed_round)
 
         self.ed_white = QLineEdit()
-        self.ed_white.setText(gameTree.white_player)
+        self.ed_white.setText(root.headers["White"])
         self.lbl_white = QLabel("White")
         self.lbl_white.setBuddy(self.ed_white)
 
         self.ed_black = QLineEdit()
-        self.ed_black.setText(gameTree.black_player)
+        self.ed_black.setText(root.headers["Black"])
         self.lbl_black = QLabel("Black")
         self.lbl_black.setBuddy(self.ed_black)
 
-        self.ed_eco = QLineEdit()
-        self.ed_eco.setText(gameTree.eco)
-        self.lbl_eco = QLabel("ECO")
-        self.lbl_eco.setBuddy(self.ed_eco)
+        #self.ed_eco = QLineEdit()
+        #self.ed_eco.setText(root.headers["ECO"])
+        #self.lbl_eco = QLabel("ECO")
+        #self.lbl_eco.setBuddy(self.ed_eco)
 
         self.rb_ww = QRadioButton("1-0")
         self.rb_bw = QRadioButton("0-1")
@@ -125,13 +125,13 @@ class DialogEditGameData(QDialog):
         self.rb_unclear = QRadioButton("*")
         self.lbl_result = QLabel("Result")
 
-        if(gameTree.result=="1-0"):
+        if(root.headers["Result"]=="1-0"):
             self.rb_ww.setChecked(True)
-        elif(gameTree.result=="0-1"):
+        elif(root.headers["Result"]=="0-1"):
             self.rb_bw.setChecked(True)
-        elif(gameTree.result=="1/2-1/2"):
+        elif(root.headers["Result"]=="1/2-1/2"):
             self.rb_draw.setChecked(True)
-        elif(gameTree.result=="*"):
+        else:
             self.rb_unclear.setChecked(True)
 
         grpBox = QGroupBox("Result")
@@ -165,14 +165,14 @@ class DialogEditGameData(QDialog):
         layout.addWidget(self.lbl_black,5,0)
         layout.addWidget(self.ed_black,5,1,1,2)
 
-        layout.addWidget(self.lbl_eco,6,0)
-        layout.addWidget(self.ed_eco,6,1)
+        #layout.addWidget(self.lbl_eco,6,0)
+        #layout.addWidget(self.ed_eco,6,1)
 
         layout.addWidget(grpBox,7,0,1,3)
 
         layout.addWidget(buttonBox, 8, 2, 1, 1)
         self.setLayout(layout)
-        self.ed_eco.setText("D42")
+        #self.ed_eco.setText("D42")
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
         # self.ed_eco.textChanged.connect(self.update_text)
@@ -339,9 +339,16 @@ class ChessboardView(QtGui.QWidget):
         super(QtGui.QWidget, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
-        self.gt = chess.pgn.Game()
-        self.current = self.gt
-        #self.printer = GamePrinter(self.gt)
+        self.current = chess.pgn.Game()
+
+        self.current.headers["Event"] = ""
+        self.current.headers["Site"] = ""
+        self.current.headers["Date"] = time.strftime("%Y.%m.%d")
+        self.current.headers["Round"] = ""
+        self.current.headers["White"] = "N.N."
+        self.current.headers["Black"] = "Jerry (PC)"
+        self.current.headers["Result"] = "*"
+
         self.pieceImages = PieceImages()
         
         self.movesEdit = None
@@ -350,13 +357,12 @@ class ChessboardView(QtGui.QWidget):
         
         self.moveSrc = None
         self.grabbedPiece = None
-        self.pickedUpAt = None
         self.grabbedX = None
         self.grabbedY = None
         self.drawGrabbedPiece = False
         
         self.flippedBoard = False
-        
+
         self.initUI()
         
     def initUI(self):      
@@ -371,32 +377,44 @@ class ChessboardView(QtGui.QWidget):
     def save_to_pgn(self):
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None)
         if(filename):
+            f = open(filename,'w')
+            print(self.current.root(), file=f, end="\n\n")
             print("pgn saver")
 
     def open_pgn(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)')
         if(filename):
+            pgn = open(filename)
+            first_game = chess.pgn.read_game(pgn)
+            self.current = first_game
+            self.update()
+            self.movesEdit.bv = self
+
+            self.movesEdit.update_san()
+            self.movesEdit.setFocus()
+
             print("open pgn dummy")
 
     def editGameData(self):
-        ed = DialogEditGameData(self.gt)
+        ed = DialogEditGameData(self.current.root())
         answer = ed.exec_()
         if(answer):
-            self.gt.event = ed.ed_white.text()
-            self.gt.site = ed.ed_site.text()
-            self.gt.date = ed.ed_date.text()
-            self.gt.round = ed.ed_round.text()
-            self.gt.white_player = ed.ed_white.text()
-            self.gt.black_player = ed.ed_black.text()
-            self.gt.eco = ed.ed_eco.text()
+            root = self.current.root()
+            root.headers["Event"] = ed.ed_white.text()
+            root.headers["Site"] = ed.ed_site.text()
+            root.headers["Date"] = ed.ed_date.text()
+            root.headers["Round"] = ed.ed_round.text()
+            root.headers["White"] = ed.ed_white.text()
+            root.headers["Black"] = ed.ed_black.text()
+            #root.headers["ECO"] = ed.ed_eco.text()
             if(ed.rb_ww.isChecked()):
-                self.gt.result = "1-0"
+                root.headers["Result"] = "1-0"
             elif(ed.rb_bw.isChecked()):
-                self.gt.result = "0-1"
+                root.headers["Result"] = "0-1"
             elif(ed.rb_draw.isChecked()):
-                self.gt.result = "1/2-1/2"
+                root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
-                self.gt.result = "*"
+                root.headers["Result"] = "*"
 
     def game_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
@@ -413,8 +431,8 @@ class ChessboardView(QtGui.QWidget):
         gt = GameTree()
         g = Game(gt.root.board.to_fen()+gt.root.config.to_fen())
         parse1(pgn,gt,g)
-        self.gt = gt
-        self.printer = GamePrinter(gt)
+        self.gt = chess.pgn.Game()
+        self.printer = GamePrinter(self.gt)
         self.movesEdit.gt = gt
         self.movesEdit.printer = self.printer
         self.movesEdit.update_san()
@@ -458,49 +476,55 @@ class ChessboardView(QtGui.QWidget):
             self.flippedBoard = True
         self.update()
     
-    def touchPiece(self, x, y):
+    def touchPiece(self, x, y, mouse_x, mouse_y):
         self.moveSrc = Point(x,y)
         piece = self.current.board().piece_at(y*8+x).symbol()
         self.grabbedPiece = piece
+        self.grabbedX = mouse_x
+        self.grabbedY = mouse_y
+        self.drawGrabbedPiece = True
+
+
         #self.gt.current.board.set_at(x,y,'e')
+
+    def _make_uci(self,point_src,point_dst,promote_to=None):
+        uci = point_src.to_str() + point_dst.to_str()
+        if(promote_to != None):
+            uci += promote_to
+        return uci
         
-    def executeMove(self, x, y, promoteTo = None):
-        # put the grabbed piece to where it was before executing
-        self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
-        m = Move(self.moveSrc,Point(x,y),self.grabbedPiece)  
-        if(not promoteTo == None):
-            m.promoteTo = promoteTo
-        self.gt.execute_move(m)
-        self.moveSrc = None 
+    def executeMove(self, uci):
+        print(uci)
+        temp = self.current
+        move = chess.Move.from_uci(uci)
+        self.current.add_variation(move)
+        #new_node = chess.pgn.GameNode()
+        #new_node.parent = temp
+        #new_node.move = chess.Move.from_uci(uci)
+        self.current = self.current.variation(move)
+        self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
-        text = self.printer.to_san_html()
-        # print("moves:"+text)
-        self.movesEdit = MovesEdit(self)
-        self.movesEdit.setHtml(text)
-        self.movesEdit.update()
-        print(self.printer.to_pgn())
+        #self.movesEdit = MovesEdit(self)
+        self.movesEdit.update_san()
+        print(self.current.root())
         
     def resetMove(self):
-        self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
+        #self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
         self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
 
-    def _is_valid_and_promotes(self,move):
-        legal_moves = self.current.board().legal_moves()
+    def _is_valid_and_promotes(self,uci):
+        legal_moves = self.current.board().legal_moves
         for lm in legal_moves:
-            if(move == lm.uci()[0:4] and len(lm.uci())==5):
+            if(uci == lm.uci()[0:4] and len(lm.uci())==5):
                 return True
         return False
 
-    def _is_valid(self,move):
-        legal_moves = self.current.board().legal_moves()
-        return ([x for x in legal_moves if x.uci() == move] > 0)
-
-    def _point_to_move(self,move):
-        return chr(97 + move.Src.x % 8) + str(move.Src.y) + \
-               chr(97 + move.Dst.x % 8) + str(move.Dst.y)
+    def _is_valid(self,uci):
+        legal_moves = self.current.board().legal_moves
+        return (len([x for x in legal_moves if x.uci() == uci]) > 0)
 
     def mousePressEvent(self, mouseEvent):
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
@@ -509,28 +533,22 @@ class ChessboardView(QtGui.QWidget):
             j = pos.y
             if(self.grabbedPiece):
                 #m = Point(i,j)
-                uci = self._point_to_move(self.move)
+                uci = self._make_uci(self.moveSrc,pos)
                 if(self._is_valid_and_promotes(uci)):
-                    promDialog = DialogPromotion(self.gt.current.config.whiteToMove)
+                    promDialog = DialogPromotion(self.current.board().turn == chess.WHITE)
                     answer = promDialog.exec_()
                     if(answer):
-                        self.executeMove(i,j,promDialog.final_piece)
-                elif(self.gt.is_valid_move(Move(self.moveSrc, pos, self.grabbedPiece))):
-                    self.executeMove(i, j)
+                        uci += promDialog.final_piece.lower()
+                        self.executeMove(uci)
+                elif(self._is_valid(uci)):
+                    self.executeMove(uci)
                 else:
                     self.resetMove()
-                    if(self.gt.current.board.get_at(i,j) != 'e'):
-                        self.touchPiece(i,j)
-                        self.grabbedX = mouseEvent.x()
-                        self.grabbedY = mouseEvent.y()
-                        self.drawGrabbedPiece = True
+                    if(self.current.board().piece_at(j*8+i) != None):
+                        self.touchPiece(i,j,mouseEvent.x(),mouseEvent.y())
             else:
                 if(self.current.board().piece_at(j*8+i) != None):
-                    self.touchPiece(i,j)
-                    self.grabbedX = mouseEvent.x()
-                    self.grabbedY = mouseEvent.y()
-                    self.drawGrabbedPiece = True
-                    self.pickedUpAt = Point(i,j)
+                    self.touchPiece(i,j,mouseEvent.x(),mouseEvent.y())
                     print("set picked up at: "+str(i) + str(j))
         self.update()
     
@@ -545,23 +563,19 @@ class ChessboardView(QtGui.QWidget):
     def mouseReleaseEvent(self, mouseEvent):
         self.drawGrabbedPiece = False
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
-        if(pos): 
-            i = pos.x
-            j = pos.y
-            if(self.grabbedPiece != None):
-                if(pos != self.moveSrc):
-                    m = Move(self.moveSrc, pos, self.grabbedPiece)
-                    if(self.gt.is_valid_and_promotes(m)):
-                        promDialog = DialogPromotion(self.gt.current.config.whiteToMove)
-                        answer = promDialog.exec_()
-                        if(answer):
-                            self.executeMove(i,j,promDialog.final_piece)
-                    elif(self.gt.is_valid_move(m)):
-                        self.executeMove(i, j)
-                    else:
-                        self.resetMove()
+        if(pos and self.grabbedPiece != None):
+            if(pos != self.moveSrc):
+                uci = self._make_uci(self.moveSrc, pos)
+                if(self._is_valid_and_promotes(uci)):
+                    promDialog = DialogPromotion(self.current.board().turn == chess.WHITE)
+                    answer = promDialog.exec_()
+                    if(answer):
+                        uci += promDialog.final_piece.lower()
+                        self.executeMove(uci)
+                elif(self._is_valid(uci)):
+                    self.executeMove(uci)
                 else:
-                    self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
+                    self.resetMove()
         self.update()
         
         
@@ -618,10 +632,10 @@ class ChessboardView(QtGui.QWidget):
                 if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     # skip piece that is currently picked up
                     if(not self.flippedBoard):
-                        if(not (self.drawGrabbedPiece and i == self.pickedUpAt.x and j == self.pickedUpAt.y)):
+                        if(not (self.drawGrabbedPiece and i == self.moveSrc.x and j == self.moveSrc.y)):
                             qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
                     else:
-                        if(not (self.drawGrabbedPiece and (7-i) == self.pickedUpAt.x and (7-j) == self.pickedUpAt.y)):
+                        if(not (self.drawGrabbedPiece and (7-i) == self.moveSrc.x and (7-j) == self.moveSrc.y)):
                             qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
 
         if(self.drawGrabbedPiece):
@@ -650,6 +664,7 @@ class MovesEdit(QtGui.QTextEdit):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
         #self.printer = self.bv.printer
+        self.printer = GamePrinter(self.bv.current)
         self.old_cursor_pos = 0
         self.setCursorWidth(2)
         self.viewport().setCursor(Qt.ArrowCursor)
@@ -801,34 +816,52 @@ class MovesEdit(QtGui.QTextEdit):
             self.bv.gt.delete_all_variants(selected_state)
             self.bv.update()
             self.setHtml(self.printer.to_san_html())
-        
+
+    def _get_state_from_offset(self, offset):
+        # next is to update to current status
+        text = self.printer.to_san_html(self.bv.current)
+        # print(str(self.printer.offset_table))
+        offset_index = self.printer.offset_table
+        j = 0
+        for i in range(0,len(offset_index)):
+            if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
+                j = i
+        try:
+            return offset_index[j][2]
+        except IndexError:
+            return None
+
     def go_to_pos(self,cursor_pos):
         #offset = self.textCursor().position()
         print("triggered with "+str(cursor_pos))
         if(cursor_pos > 0):
         #if(offset != self.old_cursor_pos):
             #self.old_cursor_pos = offset
-            selected_state = self.bv.gt.get_state_from_offset(cursor_pos,self.printer)
-            self.bv.gt.current = selected_state
+            selected_state = self._get_state_from_offset(cursor_pos)
+            self.bv.current = selected_state
             self.bv.update()
             #self.old_cursor_pos = 0
-            self.setHtml(self.printer.to_san_html())
+            self.setHtml(self.printer.to_san_html(self.bv.current))
 
     def update_san(self):
-        self.setHtml(self.printer.to_san_html())
+        self.setHtml(self.printer.to_san_html(self.bv.current))
 
     def keyPressEvent(self, event):
         key = event.key()
         if key == QtCore.Qt.Key_Left: 
             print("left pressed")
-            self.bv.gt.prev()
-            self.setHtml(self.printer.to_san_html())
-            print("received from printer "+self.printer.to_pgn())
+            if(self.bv.current.parent):
+                self.bv.current = self.bv.current.parent
+            self.setHtml(self.printer.to_san_html(self.bv.current))
+            #print("received from printer "+self.printer.to_pgn())
             self.bv.update()
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
-            if(self.bv.gt.exist_variants()):
-                dialog = DialogWithListView(self.bv.gt.move_list())
+            variations = self.bv.current.variations
+            if(len(variations) > 1):
+                move_list = [ self.bv.current.board().san(x.move)
+                              for x in self.bv.current.variations ]
+                dialog = DialogWithListView(move_list)
                 dialog.setWindowTitle("Next Move")
                 dialog.listWidget.setFocus()
                 answer = dialog.exec_()
@@ -836,10 +869,10 @@ class MovesEdit(QtGui.QTextEdit):
                     print("message ok")
                     idx = dialog.selected_idx
                     print("selected idx via dialog"+str(idx))
-                    self.bv.gt.next(idx)
-            else:
-                self.bv.gt.next()
-            self.setHtml(self.printer.to_san_html())
+                    self.bv.current = self.bv.current.variation(idx)
+            elif(len(variations) == 1):
+                self.bv.current = self.bv.current.variation(0)
+            #self.setHtml(self.printer.to_san_html())
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):
@@ -853,9 +886,8 @@ class MainWindow(QtGui.QMainWindow):
         self.resize(640, 480)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
-                
+
         #qp.drawImage(10,10,qim,0,0,0,0)
-        
 
         exit = QtGui.QAction(QtGui.QIcon('icons/exit.png'), 'Exit', self)
         exit.setShortcut('Ctrl+Q')

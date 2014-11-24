@@ -4,8 +4,6 @@ Created on 31.07.2014
 @author: user
 '''
 
-from Chessnut.game import Game
-from Chessnut.game import InvalidMove
 from GamePrinter import *
 
 #from Chessnut import InvalidMove
@@ -499,15 +497,15 @@ class State():
             return False
         
     def test(self):
-        chessgame = Game("8/1P6/8/8/7k/8/7K/8 w - - 0 1")
-        print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-        print(chessgame.get_moves())
+        #chessgame = Game("8/1P6/8/8/7k/8/7K/8 w - - 0 1")
+        #print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        #print(chessgame.get_moves())
         # chessgame.apply_move('e2e4')  # succeeds!
-        print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        #print(chessgame)  # 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
         # chessgame.apply_move('e2e4')  # fails! (raises InvalidMove exception)  
-        g = Game("5bnr/4p1pq/4Qpkr/7p/2P4P/8/PP1PPPP1/RNB1KBNR b KQ - 0 10")
-        print("is stalemate: "+ str(g.is_stalemate()))
-
+        #g = Game("5bnr/4p1pq/4Qpkr/7p/2P4P/8/PP1PPPP1/RNB1KBNR b KQ - 0 10")
+        #print("is stalemate: "+ str(g.is_stalemate()))
+        print("test")
     
     
           
