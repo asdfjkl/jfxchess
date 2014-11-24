@@ -618,7 +618,10 @@ class ChessboardView(QtGui.QWidget):
                 else:
                     qp.setBrush(lightBlue2)        
                 #draw Square
-                x = boardOffsetX+(i*squareSize)
+                if(self.flippedBoard):
+                    x = boardOffsetX+((7-i)*squareSize)
+                else:
+                    x = boardOffsetX+(i*squareSize)
                 # drawing coordinates are from top left
                 # whereas chess coords are from bottom left
                 y = boardOffsetY+((7-j)*squareSize)
@@ -635,7 +638,7 @@ class ChessboardView(QtGui.QWidget):
                         if(not (self.drawGrabbedPiece and i == self.moveSrc.x and j == self.moveSrc.y)):
                             qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
                     else:
-                        if(not (self.drawGrabbedPiece and (7-i) == self.moveSrc.x and (7-j) == self.moveSrc.y)):
+                        if(not (self.drawGrabbedPiece and i == self.moveSrc.x and (7-j) == self.moveSrc.y)):
                             qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
 
         if(self.drawGrabbedPiece):
