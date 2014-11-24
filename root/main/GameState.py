@@ -396,10 +396,10 @@ class State():
     # move must be valid promotions!
     def execute_move(self,move):
         print("checking ambig")
-        if(self.is_ambiguous(move)):
-            print("is ambig")
-            move.san_src_marker = self.resolve_ambiguity(move)
-            print("san_sr_marker "+move.san_src_marker)
+        #if(self.is_ambiguous(move)):
+        #    print("is ambig")
+        #    move.san_src_marker = self.resolve_ambiguity(move)
+        #    print("san_sr_marker "+move.san_src_marker)
         self.config.blackEnPassant = None
         self.config.whiteEnPassant = None
         if(self.white_takes_en_passant(move)):

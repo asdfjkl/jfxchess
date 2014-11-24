@@ -15,25 +15,47 @@ p_tag = re.compile("\[\S+")
 p_quotes = re.compile('"([A-Za-z0-9_\./\\-\s\*,?]*)"')
 p_takes = re.compile("x")
 
-def parse(line, lines, gt):
-    gp = GamePrinter(gt)
+def parse1(lines,gt,g):
+    for line in lines:
+        lline = line.split(' ')
+        for token in lline:
+            if(token[0] == '['):
+                print("ignoring tags for now")
+            elif(p_draw.match(line)):
+                gt.result = "1/2-1/2"
+            elif(p_ww.match(token)):
+                gt.result = "1-0"
+                return gt
+            elif(p_bw.match(token)):
+                gt.result = "0-1"
+                return gt
+            elif(p_unclear.match(token)):
+                gt.result = "*"
+                return gt
+            elif(p_move_number.match(token)):
+                res = p_move_number.match(token)
+            elif(p_move.match(token)):
+                res = p_move.match(token)
+                extract_move(token,gt,g)
+
+def parse(line, lines, gt, g):
+    # gp = GamePrinter(gt)
     print("at line "+line)
     #print("current game " + gp.to_pgn())
     if(len(line) == 0):
         print("len line is zero")
         if(len(lines) == 0):
             print("lines also, so returnging gt")
-            return gt
         else:
             print("rec call")
-            parse(lines[0],lines[1:],gt)
+            parse(lines[0],lines[1:],gt,g)
     elif(line[0] == '['):
         print("retrieving "+line)
         extract_tag(line,gt)
-        parse(lines[0],lines[1:],gt)
+        parse(lines[0],lines[1:],gt,g)
     elif(line[0] == ' '):
         print("enc space")
-        parse(line[1:], lines, gt)
+        parse(line[1:], lines, gt,g)
     elif(p_draw.match(line)):
         gt.result = "1/2-1/2"
         return gt
@@ -48,16 +70,16 @@ def parse(line, lines, gt):
         return gt
     elif(p_move_number.match(line)):
         res = p_move_number.match(line)
-        parse(line[res.end():],lines,gt)
+        parse(line[res.end():],lines,gt,g)
     elif(p_move.match(line)):
         res = p_move.match(line)
-        extract_move(line,gt)
-        parse(line[res.end():],lines,gt)
+        extract_move(line,gt,g)
+        parse(line[res.end():],lines,gt,g)
     elif(line[0] == ";"):
         gt.current.move.comment = line[1:]
-        parse("",lines,gt)
+        parse("",lines,gt,g)
     elif(line[0] == "\n"):
-        parse(lines[0],lines[1:],gt)
+        parse(lines[0],lines[1:],gt,g)
 
 
 def extract_tag(line,gt):
@@ -85,7 +107,7 @@ def extract_tag(line,gt):
         print("parsing result: "+val)
         gt.result = val
 
-def extract_move(line,gt):
+def extract_move(line,gt,g):
     m = p_move.match(line)
     san = m.group()
     print("parsing "+san)
@@ -109,42 +131,34 @@ def extract_move(line,gt):
             move.src = Point(4,0)
             move.dst = Point(6,0)
             move.piece = "K"
-            if(gt.is_valid_move(move)):
-                gt.execute_move(move)
-            else:
-                raise ValueError("can't apply O-O here")
+            gt.execute_move(move)
+            g.apply_move("e1g1")
         else:
             print("black to move")
             move.src = Point(4,7)
             move.dst = Point(6,7)
             move.piece = "k"
-            if(gt.is_valid_move(move)):
-                gt.execute_move(move)
-            else:
-                raise ValueError("can't apply O-O here")
+            gt.execute_move(move)
+            g.apply_move("e8g8")
     elif(san == "O-O-O"):
         move.castles_short = True
         if(gt.current.config.whiteToMove):
             move.src = Point(4,0)
             move.dst = Point(2,0)
             move.piece = "K"
-            if(gt.is_valid_move(move)):
-                gt.execute_move(move)
-            else:
-                raise ValueError("can't apply O-O-O here")
+            gt.execute_move(move)
+            g.apply_move("e1c1")
         else:
             move.src = Point(4,7)
             move.dst = Point(2,7)
             move.piece = "k"
-            if(gt.is_valid_move(move)):
-                gt.execute_move(move)
-            else:
-                raise ValueError("can't apply O-O-O here")
+            gt.execute_move(move)
+            g.apply_move("e8c8")
     else:
         print("san "+san)
         dst_x = ord(san[-2])-97
         dst_y = int(san[-1])-1
-        g = Game(gt.current.board.to_fen()+gt.current.config.to_fen())
+        # g = Game(gt.current.board.to_fen()+gt.current.config.to_fen())
         move_list = g.get_moves()
         print("Move List for move " + san + " ml: "+str(move_list))
         print("san-3" + san[-3:])
@@ -176,11 +190,9 @@ def extract_move(line,gt):
             src_y = int(ml_dsts_piece[0][1])-1
             move.src = Point(src_x,src_y)
             move.dst = Point(dst_x,dst_y)
-            if(gt.is_valid_move(move)):
-                gt.execute_move(move)
-                print("succ applied "+san)
-            else:
-                raise ValueError("can't apply move")
+            gt.execute_move(move)
+            g.apply_move(ml_dsts_piece[0])
+            print("succ applied "+san)
         if(len(ml_dsts_piece) > 1):
             print("case of two options left")
             # case if piece is pawn
@@ -191,11 +203,9 @@ def extract_move(line,gt):
                 src_y = int(ls[0][1])-1
                 move.src = Point(src_x,src_y)
                 move.dst = Point(dst_x,dst_y)
-                if(gt.is_valid_move(move)):
-                    gt.execute_move(move)
-                    print("succ applied "+san)
-                else:
-                    raise ValueError("can't apply move")
+                gt.execute_move(move)
+                g.apply_move(ls[0])
+                print("succ applied "+san)
             else: #case if piece is full piece
                 print("two options piece")
                 src_marker = san[1]
@@ -210,5 +220,5 @@ def extract_move(line,gt):
                 src_y = int(ls[0][1:2])-1
                 move.src = Point(src_x,src_y)
                 move.dst = Point(dst_x,dst_y)
-                if(gt.is_valid_move(move)):
-                    gt.execute_move(move)
+                gt.execute_move(move)
+                g.apply_move(ls[0])

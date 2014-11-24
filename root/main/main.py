@@ -13,12 +13,16 @@ from GameState import *
 from GameTree import *
 #!/usr/bin/python
 
+from chess.pgn import *
+from chess.polyglot import *
+
 # menubar.py 
 
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
 from PGNParser import *
+from GameState import Point
 
 
 class PieceImages:
@@ -335,19 +339,18 @@ class ChessboardView(QtGui.QWidget):
         super(QtGui.QWidget, self).__init__()
         policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         self.setSizePolicy(policy)
-        self.gt = GameTree()
-        self.printer = GamePrinter(self.gt)
+        self.gt = chess.pgn.Game()
+        self.current = self.gt
+        #self.printer = GamePrinter(self.gt)
         self.pieceImages = PieceImages()
         
         self.movesEdit = None
-        
-        hf = Point(4,1)
-        print(hf.to_str())
-        
+
         self.borderWidth = 12
         
         self.moveSrc = None
         self.grabbedPiece = None
+        self.pickedUpAt = None
         self.grabbedX = None
         self.grabbedY = None
         self.drawGrabbedPiece = False
@@ -363,36 +366,17 @@ class ChessboardView(QtGui.QWidget):
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
                                                      None, QFileDialog.DontConfirmOverwrite)
         if(filename):
-            f = open(filename, 'a')
-            pgn_string = self.printer.to_pgn()
-            f.write(pgn_string)
-            f.close()
+            print("append saver")
 
     def save_to_pgn(self):
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None)
         if(filename):
-            # Append extension if not there yet
-            if not filename.endswith(".pgn"):
-                filename += ".pgn"
-            f = open(filename, 'w')
-            pgn_string = self.printer.to_pgn()
-            f.write(pgn_string)
-            f.close()
+            print("pgn saver")
 
     def open_pgn(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)')
         if(filename):
-            with open(filename) as f:
-                content = f.readlines()
-                print("tried to open "+str(filename))
-                gt = GameTree()
-                parse(content[0],content[1:],gt)
-                self.gt = gt
-                self.printer = GamePrinter(gt)
-                self.movesEdit.gt = gt
-                self.movesEdit.printer = self.printer
-                self.movesEdit.update_san()
-                self.update()
+            print("open pgn dummy")
 
     def editGameData(self):
         ed = DialogEditGameData(self.gt)
@@ -427,14 +411,15 @@ class ChessboardView(QtGui.QWidget):
         pgn = clipboard.text().split("\n")
         print("pgn retrieved "+str(pgn))
         gt = GameTree()
-        parse(pgn[0],pgn[1:],gt)
+        g = Game(gt.root.board.to_fen()+gt.root.config.to_fen())
+        parse1(pgn,gt,g)
         self.gt = gt
         self.printer = GamePrinter(gt)
         self.movesEdit.gt = gt
         self.movesEdit.printer = self.printer
         self.movesEdit.update_san()
         self.update()
-        
+
     def heightForWidth(self, width):
         return width    
 
@@ -475,9 +460,9 @@ class ChessboardView(QtGui.QWidget):
     
     def touchPiece(self, x, y):
         self.moveSrc = Point(x,y)
-        piece = self.gt.current.board.get_at(x,y)
+        piece = self.current.board().piece_at(y*8+x).symbol()
         self.grabbedPiece = piece
-        self.gt.current.board.set_at(x,y,'e')        
+        #self.gt.current.board.set_at(x,y,'e')
         
     def executeMove(self, x, y, promoteTo = None):
         # put the grabbed piece to where it was before executing
@@ -501,7 +486,22 @@ class ChessboardView(QtGui.QWidget):
         self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
-                
+
+    def _is_valid_and_promotes(self,move):
+        legal_moves = self.current.board().legal_moves()
+        for lm in legal_moves:
+            if(move == lm.uci()[0:4] and len(lm.uci())==5):
+                return True
+        return False
+
+    def _is_valid(self,move):
+        legal_moves = self.current.board().legal_moves()
+        return ([x for x in legal_moves if x.uci() == move] > 0)
+
+    def _point_to_move(self,move):
+        return chr(97 + move.Src.x % 8) + str(move.Src.y) + \
+               chr(97 + move.Dst.x % 8) + str(move.Dst.y)
+
     def mousePressEvent(self, mouseEvent):
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos):
@@ -509,7 +509,8 @@ class ChessboardView(QtGui.QWidget):
             j = pos.y
             if(self.grabbedPiece):
                 #m = Point(i,j)
-                if(self.gt.is_valid_and_promotes(Move(self.moveSrc, pos, self.grabbedPiece))):
+                uci = self._point_to_move(self.move)
+                if(self._is_valid_and_promotes(uci)):
                     promDialog = DialogPromotion(self.gt.current.config.whiteToMove)
                     answer = promDialog.exec_()
                     if(answer):
@@ -524,13 +525,14 @@ class ChessboardView(QtGui.QWidget):
                         self.grabbedY = mouseEvent.y()
                         self.drawGrabbedPiece = True
             else:
-                if(self.gt.current.board.get_at(i,j) != 'e'):
+                if(self.current.board().piece_at(j*8+i) != None):
                     self.touchPiece(i,j)
                     self.grabbedX = mouseEvent.x()
                     self.grabbedY = mouseEvent.y()
                     self.drawGrabbedPiece = True
+                    self.pickedUpAt = Point(i,j)
+                    print("set picked up at: "+str(i) + str(j))
         self.update()
-
     
     def mouseMoveEvent(self, mouseEvent):
         button = mouseEvent.button()
@@ -603,16 +605,24 @@ class ChessboardView(QtGui.QWidget):
                     qp.setBrush(lightBlue2)        
                 #draw Square
                 x = boardOffsetX+(i*squareSize)
-                y = boardOffsetY+(j*squareSize)
+                # drawing coordinates are from top left
+                # whereas chess coords are from bottom left
+                y = boardOffsetY+((7-j)*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
                 #draw Piece
                 piece = None
                 if(self.flippedBoard):
-                    piece = self.gt.current.board.get_at(7-i,j)
+                    piece = self.current.board().piece_at((7-j)*8+i)
                 else:
-                    piece = self.gt.current.board.get_at(i,7-j)
-                if(piece in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
-                    qp.drawImage(x,y,self.pieceImages.getWp(piece, squareSize))
+                    piece = self.current.board().piece_at(j*8+i)
+                if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
+                    # skip piece that is currently picked up
+                    if(not self.flippedBoard):
+                        if(not (self.drawGrabbedPiece and i == self.pickedUpAt.x and j == self.pickedUpAt.y)):
+                            qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
+                    else:
+                        if(not (self.drawGrabbedPiece and (7-i) == self.pickedUpAt.x and (7-j) == self.pickedUpAt.y)):
+                            qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
 
         if(self.drawGrabbedPiece):
             offset = squareSize // 2          
@@ -639,7 +649,7 @@ class MovesEdit(QtGui.QTextEdit):
     def __init__(self,chessboardView):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
-        self.printer = self.bv.printer
+        #self.printer = self.bv.printer
         self.old_cursor_pos = 0
         self.setCursorWidth(2)
         self.viewport().setCursor(Qt.ArrowCursor)
