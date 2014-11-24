@@ -15,7 +15,7 @@ from GameTree import *
 
 from chess.pgn import *
 from chess.polyglot import *
-
+import io
 # menubar.py 
 
 import sys, random, time
@@ -418,7 +418,10 @@ class ChessboardView(QtGui.QWidget):
 
     def game_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
-        clipboard.setText(self.printer.to_pgn())
+        exporter = chess.pgn.StringExporter()
+        self.current.root().export(exporter, headers=True, variations=True, comments=True)
+        pgn_string = str(exporter)
+        clipboard.setText(pgn_string)
 
     def pos_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
@@ -426,17 +429,14 @@ class ChessboardView(QtGui.QWidget):
 
     def game_from_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
-        pgn = clipboard.text().split("\n")
-        print("pgn retrieved "+str(pgn))
-        gt = GameTree()
-        g = Game(gt.root.board.to_fen()+gt.root.config.to_fen())
-        parse1(pgn,gt,g)
-        self.gt = chess.pgn.Game()
-        self.printer = GamePrinter(self.gt)
-        self.movesEdit.gt = gt
-        self.movesEdit.printer = self.printer
-        self.movesEdit.update_san()
+        pgn = io.StringIO(clipboard.text())
+        first_game = chess.pgn.read_game(pgn)
+        self.current = first_game
         self.update()
+        self.movesEdit.bv = self
+
+        self.movesEdit.update_san()
+        self.movesEdit.setFocus()
 
     def heightForWidth(self, width):
         return width    
