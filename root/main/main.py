@@ -840,14 +840,19 @@ class MovesEdit(QtGui.QTextEdit):
         if(cursor_pos > 0):
         #if(offset != self.old_cursor_pos):
             #self.old_cursor_pos = offset
-            selected_state = self._get_state_from_offset(cursor_pos)
+            #selected_state = self._get_state_from_offset(cursor_pos)
+            selected_state = self.bv.current
             self.bv.current = selected_state
             self.bv.update()
             #self.old_cursor_pos = 0
             self.setHtml(self.printer.to_san_html(self.bv.current))
+            #exporter = chess.pgn.StringExporter()
+            #self.bv.current.root().export(exporter, headers=True, variations=True, comments=True)
+            #pgn_string = str(exporter)
+            #self.setHtml(pgn_string)
 
     def update_san(self):
-        self.setHtml(self.printer.to_san_html(self.bv.current))
+        self.setHtml(self.printer.to_san_html(self.bv.current.root()))
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -855,9 +860,16 @@ class MovesEdit(QtGui.QTextEdit):
             print("left pressed")
             if(self.bv.current.parent):
                 self.bv.current = self.bv.current.parent
+            print("after if")
             self.setHtml(self.printer.to_san_html(self.bv.current))
+            #exporter = chess.pgn.StringExporter()
+            #self.bv.current.root().export(exporter, headers=True, variations=True, comments=True)
+            #pgn_string = str(exporter)
+            #self.setHtml(pgn_string)
+            print("after set html")
             #print("received from printer "+self.printer.to_pgn())
             self.bv.update()
+            print("after bv update")
         elif key == QtCore.Qt.Key_Right:
             print("message ok")
             variations = self.bv.current.variations

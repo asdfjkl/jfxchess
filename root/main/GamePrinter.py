@@ -5,11 +5,15 @@ class GamePrinter():
     def __init__(self,current):
         self.current = current
         self.san_html = ""
+        self.sans = []
         self.offset_table = []
         self.qtextedit = QtGui.QTextEdit()
+        self.cache = {}
 
-    def node_to_san(self,node):
-        return node.parent.board().san(node.move)
+    def node_to_san(self,parent_board,node):
+        #return "a"
+        #return move.uci()
+        return parent_board.san(node.move)
         
     def variant_start(self, node, child, moveNo):    
         if(node.config.whiteToMove):
@@ -44,6 +48,39 @@ class GamePrinter():
             self.san_html += str(moveNo-1)+"."
             self.san_html = self.san_html + " ... "
         self.san_html += self.print_highlighted(child)
+
+    def print_san(self,node,move_no):
+        if(node in self.cache):
+            board = self.cache[node]
+        else:
+            board = node.board()
+            self.cache.update({node:board})
+        if(board.turn == chess.WHITE):
+            move_no += 1
+        self.sans.append(" ")
+        len_var = len(node.variations)
+        if(board.turn == chess.BLACK):
+            self.sans.append(str(move_no) + ".")
+        # print first move
+        if(node.parent):
+            if(node.parent in self.cache):
+                parent_board = self.cache[node.parent]
+            else:
+                parent_board = node.parent.board()
+                self.cache.update({node.parent:parent_board})
+            if(self.current == node):
+                self.sans.append('<span style="color:darkgoldenrod">')
+                self.sans.append(self.node_to_san(parent_board,node))
+                self.sans.append('</span>')
+            else:
+                self.sans.append(self.node_to_san(parent_board,node))
+        for i in range(1,len(node.variations)):
+            self.sans.append("(")
+            self.print_san(node.variation(i),move_no)
+            self.sans.append(")")
+        if(node.variations):
+            self.print_san(node.variation(0),move_no)
+
     
     def rec_san_html(self, node, moveNo, mainVariant = True):
         if(node.board().turn == chess.BLACK):
@@ -87,5 +124,7 @@ class GamePrinter():
     def to_san_html(self,current):
         self.current = current
         self.san_html = ""
-        self.rec_san_html(self.current.root(), 1, True)
-        return self.san_html
+        self.sans = []
+        #self.rec_san_html(self.current.root(), 1, True)
+        self.print_san(current.root(),0)
+        return "".join(self.sans)
