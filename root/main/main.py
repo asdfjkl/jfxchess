@@ -425,7 +425,7 @@ class ChessboardView(QtGui.QWidget):
 
     def pos_to_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
-        clipboard.setText(self.gt.current.to_fen())
+        clipboard.setText(self.current.board().fen())
 
     def game_from_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()

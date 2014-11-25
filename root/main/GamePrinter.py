@@ -115,7 +115,7 @@ class GamePrinter():
                 if(not inner_variant):
                     self.san_html += "]</dd></em></span>"
                 else:
-                    self.san_html += ") "
+                    self.san_html += ")"
 
             # if variations exist, the move was by black, and
             # the main variation itself has variations, then
