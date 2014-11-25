@@ -677,7 +677,8 @@ class MovesEdit(QtGui.QTextEdit):
         #self.printer = self.bv.printer
         self.printer = GamePrinter(self.bv.current)
         self.old_cursor_pos = 0
-        self.setCursorWidth(2)
+        # setting below to zero removes blinking cursor
+        self.setCursorWidth(0)
         self.viewport().setCursor(Qt.ArrowCursor)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         #self.cursorPositionChanged.connect(self.go_to_pos)
@@ -843,17 +844,17 @@ class MovesEdit(QtGui.QTextEdit):
             return None
 
     def go_to_pos(self,cursor_pos):
-        #offset = self.textCursor().position()
+        offset = self.textCursor().position()
         print("triggered with "+str(cursor_pos))
         if(cursor_pos > 0):
-        #if(offset != self.old_cursor_pos):
-            #self.old_cursor_pos = offset
-            #selected_state = self._get_state_from_offset(cursor_pos)
-            selected_state = self.bv.current
-            self.bv.current = selected_state
-            self.bv.update()
+            if(offset != self.old_cursor_pos):
+                self.old_cursor_pos = offset
+                selected_state = self._get_state_from_offset(cursor_pos)
+            #selected_state = self.bv.current
+                self.bv.current = selected_state
+                self.bv.update()
             #self.old_cursor_pos = 0
-            self.setHtml(self.printer.to_san_html(self.bv.current))
+                self.setHtml(self.printer.to_san_html(self.bv.current))
             #exporter = chess.pgn.StringExporter()
             #self.bv.current.root().export(exporter, headers=True, variations=True, comments=True)
             #pgn_string = str(exporter)

@@ -24,13 +24,13 @@ class GamePrinter():
             self.san_plain = self.san_plain + " ... "
         self.san_plain = self.san_plain + child.move.to_san()
     
-    def add_to_offset_table(self,node):
+    def add_to_offset_table(self,node,san):
         self.qtextedit.setHtml(self.san_html)
         plain_san = self.qtextedit.toPlainText()
         offset_end = len(plain_san)
-        self.qtextedit.setHtml(self.node_to_san(node))
+        self.qtextedit.setHtml(san)
         plain_move = self.qtextedit.toPlainText()
-        offset_start = offset_end - len(plain_move)
+        offset_start = offset_end - len(plain_move) - 1
         self.offset_table.append((offset_start,offset_end,node))
     
     def print_highlighted(self, node):
@@ -58,13 +58,15 @@ class GamePrinter():
             return board
 
     def print_move(self,node,child):
+        move_san = ""
         board = self.get_board(node)
         if(self.current == child):
-            self.san_html += '<span style="color:darkgoldenrod">'
-            self.san_html += self.node_to_san(board,child)
-            self.san_html += '</span>'
+            move_san += '<span style="color:darkgoldenrod">'
+            move_san += self.node_to_san(board,child)
+            move_san += '</span>'
         else:
-            self.san_html += self.node_to_san(board,child)
+            move_san += self.node_to_san(board,child)
+        return move_san
 
     def print_san(self,node,move_no,inner_variant = False):
 
@@ -84,7 +86,9 @@ class GamePrinter():
                 self.san_html += str(move_no) + "."
 
             # print move of main variation
-            self.print_move(node,node.variation(0))
+            move_san = self.print_move(node,node.variation(0))
+            self.san_html += move_san
+            self.add_to_offset_table(node.variation(0),move_san)
 
             # print all other variations
             for i in range(1,len(node.variations)):
@@ -102,7 +106,9 @@ class GamePrinter():
                 else:
                     self.san_html += str(move_no-1)+"."
                     self.san_html += " ... "
-                self.print_move(node,nodei)
+                move_san = self.print_move(node,nodei)
+                self.san_html += move_san
+                self.add_to_offset_table(nodei,move_san)
                 self.print_san(nodei,move_no, True)
 
                 self.san_html = self.san_html[:-1]
