@@ -683,6 +683,11 @@ class MovesEdit(QtGui.QTextEdit):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         #self.cursorPositionChanged.connect(self.go_to_pos)
         self.customContextMenuRequested.connect(self.context_menu)
+        #f = QFont("Times")
+        #f.setStyleHint(QFont.Times)
+        #self.setFont(f)
+
+
     
     def context_menu(self):
         menu = QMenu(self)
