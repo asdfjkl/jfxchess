@@ -49,37 +49,76 @@ class GamePrinter():
             self.san_html = self.san_html + " ... "
         self.san_html += self.print_highlighted(child)
 
-    def print_san(self,node,move_no):
+    def get_board(self,node):
         if(node in self.cache):
-            board = self.cache[node]
+            return self.cache[node]
         else:
             board = node.board()
             self.cache.update({node:board})
-        if(board.turn == chess.WHITE):
-            move_no += 1
-        self.sans.append(" ")
-        len_var = len(node.variations)
+            return board
+
+    def print_move(self,node,child):
+        board = self.get_board(node)
+        if(self.current == child):
+            self.san_html += '<span style="color:darkgoldenrod">'
+            self.san_html += self.node_to_san(board,child)
+            self.san_html += '</span>'
+        else:
+            self.san_html += self.node_to_san(board,child)
+
+    def print_san(self,node,move_no,inner_variant = False):
+
+        board = self.get_board(node)
+        # after a move by black,
+        # increase move counter
         if(board.turn == chess.BLACK):
-            self.sans.append(str(move_no) + ".")
-        # print first move
-        if(node.parent):
-            if(node.parent in self.cache):
-                parent_board = self.cache[node.parent]
-            else:
-                parent_board = node.parent.board()
-                self.cache.update({node.parent:parent_board})
-            if(self.current == node):
-                self.sans.append('<span style="color:darkgoldenrod">')
-                self.sans.append(self.node_to_san(parent_board,node))
-                self.sans.append('</span>')
-            else:
-                self.sans.append(self.node_to_san(parent_board,node))
-        for i in range(1,len(node.variations)):
-            self.sans.append("(")
-            self.print_san(node.variation(i),move_no)
-            self.sans.append(")")
-        if(node.variations):
-            self.print_san(node.variation(0),move_no)
+            move_no += 1
+
+        # add space before each move
+        self.san_html += " "
+
+        if(len(node.variations) > 0):
+
+            # if the next move is by white, print
+            if(board.turn == chess.WHITE):
+                self.san_html += str(move_no) + "."
+
+            # print move of main variation
+            self.print_move(node,node.variation(0))
+
+            # print all other variations
+            for i in range(1,len(node.variations)):
+
+                nodei = node.variation(i)
+                boardi= self.get_board(node)
+
+                # if we are in the main variation
+                if(not inner_variant):
+                    self.san_html += '<dd><em><span style="color:gray">['
+                else:
+                    self.san_html += " ("
+                if(boardi.turn == chess.WHITE):
+                    self.san_html += str(move_no)+"."
+                else:
+                    self.san_html += str(move_no-1)+"."
+                    self.san_html += " ... "
+                self.print_move(node,nodei)
+                self.print_san(nodei,move_no, True)
+
+                self.san_html = self.san_html[:-1]
+                if(not inner_variant):
+                    self.san_html += "]</dd></em></span>"
+                else:
+                    self.san_html += ") "
+
+            # if variations exist, the move was by black, and
+            # the main variation itself has variations, then
+            # add some spacer
+            if(len(node.variations) > 1 and (board.turn == chess.WHITE) and node.variation(0).variations != None):
+                self.san_html += str(move_no) + ". ..."
+
+            # continue
+            self.print_san(node.variation(0),move_no, inner_variant)
 
     
     def rec_san_html(self, node, moveNo, mainVariant = True):
@@ -126,5 +165,5 @@ class GamePrinter():
         self.san_html = ""
         self.sans = []
         #self.rec_san_html(self.current.root(), 1, True)
-        self.print_san(current.root(),0)
-        return "".join(self.sans)
+        self.print_san(current.root(),1)
+        return self.san_html

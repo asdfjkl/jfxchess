@@ -497,11 +497,19 @@ class ChessboardView(QtGui.QWidget):
         print(uci)
         temp = self.current
         move = chess.Move.from_uci(uci)
-        self.current.add_variation(move)
+        # check if move already exists
+        variation_moves = [ x.move for x in self.current.variations ]
+        if(move in variation_moves):
+            for node in self.current.variations:
+                if(node.move == move):
+                    self.current = node
+        # otherwise create a new node
+        else:
+            self.current.add_variation(move)
+            self.current = self.current.variation(move)
         #new_node = chess.pgn.GameNode()
         #new_node.parent = temp
         #new_node.move = chess.Move.from_uci(uci)
-        self.current = self.current.variation(move)
         self.moveSrc = None
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
@@ -852,7 +860,7 @@ class MovesEdit(QtGui.QTextEdit):
             #self.setHtml(pgn_string)
 
     def update_san(self):
-        self.setHtml(self.printer.to_san_html(self.bv.current.root()))
+        self.setHtml(self.printer.to_san_html(self.bv.current))
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -887,7 +895,7 @@ class MovesEdit(QtGui.QTextEdit):
                     self.bv.current = self.bv.current.variation(idx)
             elif(len(variations) == 1):
                 self.bv.current = self.bv.current.variation(0)
-            #self.setHtml(self.printer.to_san_html())
+            self.setHtml(self.printer.to_san_html(self.bv.current))
             self.bv.update()
 
 class MainWindow(QtGui.QMainWindow):
