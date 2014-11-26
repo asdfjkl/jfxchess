@@ -1,29 +1,38 @@
+#!/usr/bin/python
+
 import sys
 from PyQt4 import QtGui
-
-#!/usr/bin/python
 
 # boxlayout.py
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
-#import GameState
-from GameState import *
-from GameTree import *
-#!/usr/bin/python
-
 from chess.pgn import *
 from chess.polyglot import *
 import io
-# menubar.py 
 
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
-from PGNParser import *
-from GameState import Point
+from GUIPrinter import GUIPrinter
 
+def idx_to_str(x):
+    return chr(97 + x % 8)
+
+class Point():
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
+    def to_str(self):
+        return idx_to_str(self.x) + str(self.y+1)
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class PieceImages:
     def __init__(self):
@@ -330,7 +339,6 @@ class DialogWithListView(QDialog):
         elif key == QtCore.Qt.Key_Right or key == QtCore.Qt.Key_Return :
             print("right key or return pressed")
             self.emit(SIGNAL("rightclick()"))
- 
 
 class ChessboardView(QtGui.QWidget):
     
@@ -341,13 +349,7 @@ class ChessboardView(QtGui.QWidget):
         self.setSizePolicy(policy)
         self.current = chess.pgn.Game()
 
-        self.current.headers["Event"] = ""
-        self.current.headers["Site"] = ""
-        self.current.headers["Date"] = time.strftime("%Y.%m.%d")
-        self.current.headers["Round"] = ""
-        self.current.headers["White"] = "N.N."
-        self.current.headers["Black"] = "Jerry (PC)"
-        self.current.headers["Result"] = "*"
+        self.setup_headers(self.current)
 
         self.pieceImages = PieceImages()
         
@@ -367,6 +369,15 @@ class ChessboardView(QtGui.QWidget):
         
     def initUI(self):      
         self.show()
+
+    def setup_headers(self,game):
+        game.headers["Event"] = ""
+        game.headers["Site"] = ""
+        game.headers["Date"] = time.strftime("%Y.%m.%d")
+        game.headers["Round"] = ""
+        game.headers["White"] = "N.N."
+        game.headers["Black"] = "Jerry (PC)"
+        game.headers["Result"] = "*"
 
     def append_to_pgn(self):
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
@@ -427,11 +438,21 @@ class ChessboardView(QtGui.QWidget):
         clipboard = QtGui.QApplication.clipboard()
         clipboard.setText(self.current.board().fen())
 
-    def game_from_clipboard(self):
+    def from_clipboard(self):
         clipboard = QtGui.QApplication.clipboard()
-        pgn = io.StringIO(clipboard.text())
-        first_game = chess.pgn.read_game(pgn)
-        self.current = first_game
+        try:
+            root = chess.pgn.Game()
+            self.setup_headers(root)
+            root.headers["FEN"] = ""
+            root.headers["SetUp"] = ""
+            board = chess.Bitboard(clipboard.text())
+            root.setup(board)
+            self.current = root
+        except ValueError:
+            pgn = io.StringIO(clipboard.text())
+            first_game = chess.pgn.read_game(pgn)
+            self.current = first_game
+
         self.update()
         self.movesEdit.bv = self
 
@@ -675,7 +696,7 @@ class MovesEdit(QtGui.QTextEdit):
         super(QtGui.QTextEdit, self).__init__()
         self.bv = chessboardView
         #self.printer = self.bv.printer
-        self.printer = GamePrinter(self.bv.current)
+        self.printer = GUIPrinter(self.bv.current)
         self.old_cursor_pos = 0
         # setting below to zero removes blinking cursor
         self.setCursorWidth(0)
@@ -908,10 +929,6 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
-        test = State()
-        test.test()
-        #test.toFen()
-
         self.resize(640, 480)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
@@ -1019,7 +1036,7 @@ class MainWindow(QtGui.QMainWindow):
         copy_pos = m_edit.addAction("Copy Position")
         copy_pos.triggered.connect(board.pos_to_clipboard)
         paste = m_edit.addAction("Paste")
-        paste.triggered.connect(board.game_from_clipboard)
+        paste.triggered.connect(board.from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("Enter Position")
         m_edit.addSeparator()
