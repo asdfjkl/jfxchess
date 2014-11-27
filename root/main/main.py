@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+# reorganization:
+from GUI.GUIPrinter import GUIPrinter
+from dialogs.DialogEditGameData import DialogEditGameData
+from 
+
+#
+
 import sys
 from PyQt4 import QtGui
 
@@ -15,7 +22,6 @@ import io
 import sys, random, time
 from PyQt4 import QtGui, QtCore, QtSvg
 
-from GUI.GUIPrinter import GUIPrinter
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -33,10 +39,6 @@ class Point():
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-
-
-
 
 
 class ChessboardView(QtGui.QWidget):
