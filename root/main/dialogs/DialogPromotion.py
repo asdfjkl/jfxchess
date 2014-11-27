@@ -26,26 +26,14 @@ class DialogPromotion(QDialog):
         w = (self.size().width()-(2*self.border))/4
         self.ps = min(h,w)
         s = self.ps
-        print("size is: "+str(s))
-        
+
         lightBlue2 = QColor(166,188,231)
         qp.setBrush(lightBlue2)
         for i in range(0,4):
             if self.sel_idx == i:
                 qp.drawRect(self.border+i*s,self.border,s,s)
             qp.drawImage(self.border+i*s,self.border,self.pieceImages.getWp(self.piece_by_idx(i),s))
-        
-        #lightBlue = QtGui.QColor(90,106,173) 
-        #lightBlue2 = QtGui.QColor(166,188,231)
-        #darkWhite = QtGui.QColor(239,239,239)
-        #boardOffsetX = self.borderWidth;
-        #boardOffsetY = self.borderWidth;
-        # qp.setBrush(darkBlue)
-        # qp.drawImage(0,0,self.pieceImages.getWp("Q", 40))
-        # (boardSize,squareSize) = self.calculateBoardSize()
-        
-        # qp.drawRect(1,1,boardSize,boardSize)
-        
+
         qp.end()
     
     def piece_by_idx(self,idx):
@@ -69,14 +57,11 @@ class DialogPromotion(QDialog):
                 return "n"    
         
     def mousePressEvent(self, mouseEvent):
-        print("mouse x:"+str(mouseEvent.x())+"y:"+str(mouseEvent.y()))
         sel_idx = mouseEvent.x() // self.ps
-        print("sel idx: "+str(sel_idx))
         self.sel_idx = sel_idx
         self.update()
     
     def mouseReleaseEvent(self, mouseEvent):
-        print("mouse release event")
         self.final_piece = self.piece_by_idx(self.sel_idx);
         self.done(True)
                 

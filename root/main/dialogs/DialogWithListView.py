@@ -26,7 +26,6 @@ class DialogWithListView(QDialog):
         buttonLayout.addWidget(cancelButton)
         layout = QGridLayout()
         layout.addWidget(self.listWidget,0,1)
-        #layout.addLayout(buttonLayout, 2, 0, 1, 3)
         layout.addWidget(buttonBox, 3, 0, 1, 3)
         self.setLayout(layout)
         self.listWidget.addItems(moveList)
@@ -36,15 +35,10 @@ class DialogWithListView(QDialog):
                  self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),
                  self, SLOT("reject()"))
-        
-        #self.connect(self.okButton, SIGNAL("clicked()"),
-        #         self, SLOT("accept()"))
 
         self.connect(self,SIGNAL("rightclick()"), SLOT("accept()") )
         self.connect(self,SIGNAL("leftclick()"), SLOT("reject()") )
-        #self.connect(self.listWidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem *)"), SLOT("accept()"))   
-            
-        #self.connect(self.listWidget, SIGNAL("itemDoubleClicked()"), SLOT("accept()"))
+
         self.listWidget.itemDoubleClicked.connect(self.accept)
         self.listWidget.currentItemChanged.connect(self.on_item_changed)
     
@@ -53,10 +47,7 @@ class DialogWithListView(QDialog):
         
     def keyPressEvent(self, event):
         key = event.key()
-        print("CURRENT ROW:" + str(self.listWidget.currentRow()))
         if key == Qt.Key_Left or key == Qt.Key_Escape:
-            print("left key or esc pressed")
             self.emit(SIGNAL("leftclick()"))
         elif key == Qt.Key_Right or key == Qt.Key_Return:
-            print("right key or return pressed")
             self.emit(SIGNAL("rightclick()"))
