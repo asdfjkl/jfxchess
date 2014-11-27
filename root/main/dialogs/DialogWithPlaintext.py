@@ -1,8 +1,11 @@
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
 class DialogWithPlainText(QDialog):
     def __init__(self, parent=None):
         super(DialogWithPlainText, self).__init__(parent) 
         
-        self.plainTextEdit = QtGui.QPlainTextEdit()
+        self.plainTextEdit = QPlainTextEdit()
         self.saved_text = ""
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
         layout = QGridLayout()

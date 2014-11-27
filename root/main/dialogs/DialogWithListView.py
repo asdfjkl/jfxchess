@@ -1,3 +1,6 @@
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
 class DialogWithListView(QDialog):
  
     def __init__(self, moveList, parent=None):
@@ -51,9 +54,9 @@ class DialogWithListView(QDialog):
     def keyPressEvent(self, event):
         key = event.key()
         print("CURRENT ROW:" + str(self.listWidget.currentRow()))
-        if key == QtCore.Qt.Key_Left or key == QtCore.Qt.Key_Escape: 
+        if key == Qt.Key_Left or key == Qt.Key_Escape:
             print("left key or esc pressed")
             self.emit(SIGNAL("leftclick()"))
-        elif key == QtCore.Qt.Key_Right or key == QtCore.Qt.Key_Return :
+        elif key == Qt.Key_Right or key == Qt.Key_Return:
             print("right key or return pressed")
             self.emit(SIGNAL("rightclick()"))

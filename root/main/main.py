@@ -1,27 +1,21 @@
 #!/usr/bin/python
 
-# reorganization:
+# classes from Jerry:
 from GUI.GUIPrinter import GUIPrinter
+from GUI.PieceImages import PieceImages
 from dialogs.DialogEditGameData import DialogEditGameData
-from 
+from dialogs.DialogPromotion import DialogPromotion
+from dialogs.DialogWithListView import DialogWithListView
+from dialogs.DialogWithPlaintext import DialogWithPlainText
 
-#
+# python chess
+from chess.polyglot import *
 
-import sys
-from PyQt4 import QtGui
-
-# boxlayout.py
+# PyQt and python system functions
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-from PyQt4.QtSvg import *
-
-from chess.pgn import *
-from chess.polyglot import *
 import io
-
 import sys, random, time
-from PyQt4 import QtGui, QtCore, QtSvg
-
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -41,12 +35,12 @@ class Point():
         return not self.__eq__(other)
 
 
-class ChessboardView(QtGui.QWidget):
+class ChessboardView(QWidget):
     
     def __init__(self):
         #super(ChessboardView, self).__init__()
-        super(QtGui.QWidget, self).__init__()
-        policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        super(QWidget, self).__init__()
+        policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setSizePolicy(policy)
         self.current = chess.pgn.Game()
 
@@ -81,20 +75,20 @@ class ChessboardView(QtGui.QWidget):
         game.headers["Result"] = "*"
 
     def append_to_pgn(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
+        filename = QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
                                                      None, QFileDialog.DontConfirmOverwrite)
         if(filename):
             print("append saver")
 
     def save_to_pgn(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None, QFileDialog.DontUseNativeDialog)
+        filename = QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None, QFileDialog.DontUseNativeDialog)
         if(filename):
             f = open(filename,'w')
             print(self.current.root(), file=f, end="\n\n")
             print("pgn saver")
 
     def open_pgn(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
+        filename = QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
         if(filename):
             pgn = open(filename)
             first_game = chess.pgn.read_game(pgn)
@@ -129,18 +123,18 @@ class ChessboardView(QtGui.QWidget):
                 root.headers["Result"] = "*"
 
     def game_to_clipboard(self):
-        clipboard = QtGui.QApplication.clipboard()
+        clipboard = QApplication.clipboard()
         exporter = chess.pgn.StringExporter()
         self.current.root().export(exporter, headers=True, variations=True, comments=True)
         pgn_string = str(exporter)
         clipboard.setText(pgn_string)
 
     def pos_to_clipboard(self):
-        clipboard = QtGui.QApplication.clipboard()
+        clipboard = QApplication.clipboard()
         clipboard.setText(self.current.board().fen())
 
     def from_clipboard(self):
-        clipboard = QtGui.QApplication.clipboard()
+        clipboard = QApplication.clipboard()
         try:
             root = chess.pgn.Game()
             self.setup_headers(root)
@@ -168,7 +162,7 @@ class ChessboardView(QtGui.QWidget):
 
     def paintEvent(self, event):
 
-        qp = QtGui.QPainter()
+        qp = QPainter()
         qp.begin(self)
         self.drawBoard(event, qp)
         qp.end()
@@ -318,17 +312,17 @@ class ChessboardView(QtGui.QWidget):
         return (boardSize,squareSize)
             
     def drawBoard(self, event, qp):
-        penZero = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.NoPen)
+        penZero = QPen(Qt.black, 1, Qt.NoPen)
         qp.setPen(penZero)
 
-        darkBlue = QtGui.QColor(56,66,91)
+        darkBlue = QColor(56,66,91)
         #Fritz 13
         #lightBlue = QtGui.QColor(111,132,181)
         #darkWhite = QtGui.QColor(239,239,239)
         #Fritz 6
-        lightBlue = QtGui.QColor(90,106,173) 
-        lightBlue2 = QtGui.QColor(166,188,231)
-        darkWhite = QtGui.QColor(239,239,239)
+        lightBlue = QColor(90,106,173)
+        lightBlue2 = QColor(166,188,231)
+        darkWhite = QColor(239,239,239)
         
         qp.setBrush(darkBlue)
         
@@ -377,7 +371,7 @@ class ChessboardView(QtGui.QWidget):
 
 
         qp.setPen(darkWhite)
-        qp.setFont(QtGui.QFont('Decorative',8))
+        qp.setFont(QFont('Decorative',8))
         
         for i in range(0,8):
             if(self.flippedBoard):
@@ -391,10 +385,10 @@ class ChessboardView(QtGui.QWidget):
                             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
                 qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
-class MovesEdit(QtGui.QTextEdit):
+class MovesEdit(QTextEdit):
     
     def __init__(self,chessboardView):
-        super(QtGui.QTextEdit, self).__init__()
+        super(QTextEdit, self).__init__()
         self.bv = chessboardView
         #self.printer = self.bv.printer
         self.printer = GUIPrinter(self.bv.current)
@@ -413,7 +407,7 @@ class MovesEdit(QtGui.QTextEdit):
     
     def context_menu(self):
         menu = QMenu(self)
-        sub_move_annotation = QtGui.QMenu(menu)
+        sub_move_annotation = QMenu(menu)
         sub_move_annotation.setTitle("Move Annotation")
         ann_blunder = sub_move_annotation.addAction("?? Blunder")
         ann_blunder.triggered.connect(lambda: self.move_annotation("??"))
@@ -430,7 +424,7 @@ class MovesEdit(QtGui.QTextEdit):
         ann_empty = sub_move_annotation.addAction("No Annotation")
         ann_empty.triggered.connect(lambda: self.move_annotation(""))
         
-        sub_pos_annotation = QtGui.QMenu(menu)
+        sub_pos_annotation = QMenu(menu)
         sub_pos_annotation.setTitle("Position Annotation")
         pos_unclear = sub_pos_annotation.addAction("∞ Unclear")
         pos_unclear.triggered.connect(lambda: self.pos_annotation("∞"))
@@ -592,7 +586,7 @@ class MovesEdit(QtGui.QTextEdit):
 
     def keyPressEvent(self, event):
         key = event.key()
-        if key == QtCore.Qt.Key_Left: 
+        if key == Qt.Key_Left:
             print("left pressed")
             if(self.bv.current.parent):
                 self.bv.current = self.bv.current.parent
@@ -606,7 +600,7 @@ class MovesEdit(QtGui.QTextEdit):
             #print("received from printer "+self.printer.to_pgn())
             self.bv.update()
             print("after bv update")
-        elif key == QtCore.Qt.Key_Right:
+        elif key == Qt.Key_Right:
             print("message ok")
             variations = self.bv.current.variations
             if(len(variations) > 1):
@@ -626,9 +620,9 @@ class MovesEdit(QtGui.QTextEdit):
             self.setHtml(self.printer.to_san_html(self.bv.current))
             self.bv.update()
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
-        QtGui.QMainWindow.__init__(self)
+        QMainWindow.__init__(self)
 
         self.resize(640, 480)
         self.setWindowTitle('Jerry - Chess')
@@ -636,56 +630,56 @@ class MainWindow(QtGui.QMainWindow):
 
         #qp.drawImage(10,10,qim,0,0,0,0)
 
-        exit = QtGui.QAction(QtGui.QIcon('icons/exit.png'), 'Exit', self)
+        exit = QAction(QIcon('icons/exit.png'), 'Exit', self)
         exit.setShortcut('Ctrl+Q')
         exit.setStatusTip('Exit application')
-        self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+        self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
         board = ChessboardView()
         #board.getState().setInitPos()
         
-        spLeft = QtGui.QSizePolicy();
+        spLeft = QSizePolicy();
         spLeft.setHorizontalStretch(1);
 
-        ok = QtGui.QPushButton("OK")
-        cancel = QtGui.QPushButton("Cancel")
+        ok = QPushButton("OK")
+        cancel = QPushButton("Cancel")
 
-        mainWidget = QtGui.QWidget()
+        mainWidget = QWidget()
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QHBoxLayout()
         hbox.addWidget(board)
         
-        spRight = QtGui.QSizePolicy();
+        spRight = QSizePolicy();
         spRight.setHorizontalStretch(2);
  
-        lcd1 = QtGui.QLCDNumber(self)
+        lcd1 = QLCDNumber(self)
         
-        lcd1.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        lcd1.setSegmentStyle(QLCDNumber.Flat)
         lcd1.display(time.strftime("%H"+":"+"%M"))
-        lcd1.setFrameStyle(QtGui.QFrame.NoFrame)
+        lcd1.setFrameStyle(QFrame.NoFrame)
         
-        lcd2 = QtGui.QLCDNumber(self)
-        lcd2.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        lcd2 = QLCDNumber(self)
+        lcd2.setSegmentStyle(QLCDNumber.Flat)
         lcd2.display(time.strftime("%H"+":"+"%M"))
 
-        lcd2.setFrameStyle(QtGui.QFrame.NoFrame)
+        lcd2.setFrameStyle(QFrame.NoFrame)
 
         
-        hboxLcd = QtGui.QHBoxLayout()
+        hboxLcd = QHBoxLayout()
         
         
-        pixmapWhite = QtGui.QPixmap("../res/icons/whiteClock.png")
-        pixmapBlack = QtGui.QPixmap("../res/icons/blackClock.png")
+        pixmapWhite = QPixmap("../res/icons/whiteClock.png")
+        pixmapBlack = QPixmap("../res/icons/blackClock.png")
         
-        labelWhite = QtGui.QLabel()
+        labelWhite = QLabel()
         labelWhite.setPixmap(pixmapWhite)
-        labelWhite.setAlignment(QtCore.Qt.AlignRight)
+        labelWhite.setAlignment(Qt.AlignRight)
         
-        labelBlack = QtGui.QLabel()
+        labelBlack = QLabel()
         labelBlack.setPixmap(pixmapBlack)
-        labelBlack.setAlignment(QtCore.Qt.AlignRight)
+        labelBlack.setAlignment(Qt.AlignRight)
         
-        spacerLcd = QtGui.QSpacerItem(20,10)
+        spacerLcd = QSpacerItem(20,10)
         
         hboxLcd.addWidget(labelWhite)
         hboxLcd.addWidget(lcd1)
@@ -694,14 +688,14 @@ class MainWindow(QtGui.QMainWindow):
         hboxLcd.addWidget(lcd2)
         
         
-        vbox = QtGui.QVBoxLayout();
+        vbox = QVBoxLayout();
         vbox.addLayout(hboxLcd)
         
         movesEdit = MovesEdit(board)
         vbox.addWidget(movesEdit)
         board.movesEdit = movesEdit
 
-        engineOutput = QtGui.QPlainTextEdit()
+        engineOutput = QPlainTextEdit()
         vbox.addWidget(engineOutput)
         
         hbox.addLayout(vbox)
@@ -771,7 +765,7 @@ class MainWindow(QtGui.QMainWindow):
     def centerOnScreen (self):
         '''centerOnScreen()
            Centers (vertically in the upper third) the window on the screen.'''
-        resolution = QtGui.QDesktopWidget().screenGeometry()
+        resolution = QDesktopWidget().screenGeometry()
         self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
                   (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
 
@@ -779,7 +773,7 @@ class MainWindow(QtGui.QMainWindow):
 
         
 
-app = QtGui.QApplication(sys.argv)
+app = QApplication(sys.argv)
 main = MainWindow()
 app.setActiveWindow(main)
 main.show()

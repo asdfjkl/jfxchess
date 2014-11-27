@@ -1,3 +1,7 @@
+from GUI.PieceImages import PieceImages
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
 class DialogPromotion(QDialog):
  
     def __init__(self, whitePromotes, parent=None):
@@ -24,7 +28,7 @@ class DialogPromotion(QDialog):
         s = self.ps
         print("size is: "+str(s))
         
-        lightBlue2 = QtGui.QColor(166,188,231)
+        lightBlue2 = QColor(166,188,231)
         qp.setBrush(lightBlue2)
         for i in range(0,4):
             if self.sel_idx == i:
@@ -78,12 +82,12 @@ class DialogPromotion(QDialog):
                 
     def keyPressEvent(self, event):
         key = event.key()
-        if key == QtCore.Qt.Key_Left:
+        if key == Qt.Key_Left:
             self.sel_idx = max(self.sel_idx-1,0)
             self.update()
-        elif key == QtCore.Qt.Key_Right:
+        elif key == Qt.Key_Right:
             self.sel_idx = min(self.sel_idx+1,3)
             self.update()
-        elif key == QtCore.Qt.Key_Return :
+        elif key == Qt.Key_Return :
             self.final_piece = self.piece_by_idx(self.sel_idx);
             self.done(True)

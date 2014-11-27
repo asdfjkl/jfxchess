@@ -1,3 +1,6 @@
+from PyQt4.QtSvg import *
+from  PyQt4.QtGui import *
+
 class PieceImages:
     def __init__(self):
         self.pieces = {'P': {} , 'R':{},'N':{},'B':{},'Q':{},'K':{},

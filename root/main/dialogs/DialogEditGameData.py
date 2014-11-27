@@ -1,3 +1,6 @@
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
 class DialogEditGameData(QDialog):
 
     def __init__(self, root, parent=None):
