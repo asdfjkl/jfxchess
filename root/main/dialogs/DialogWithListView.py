@@ -4,7 +4,9 @@ from PyQt4.QtCore import *
 class DialogWithListView(QDialog):
  
     def __init__(self, moveList, parent=None):
-        super(DialogWithListView, self).__init__(parent) 
+        super(DialogWithListView, self).__init__(parent)
+
+        self.setWindowTitle("Next Move")
 
         self.resize(20, 40)
         

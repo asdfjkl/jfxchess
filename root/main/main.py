@@ -7,6 +7,7 @@ from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
+from dialogs.DialogEnterPosition import DialogEnterPosition
 
 # python chess
 from chess.polyglot import *
@@ -185,13 +186,17 @@ class ChessboardView(QWidget):
     
     @pyqtSlot()
     def flip_board(self):
-        print("flipping board")
         if(self.flippedBoard):
             self.flippedBoard = False
         else:
             self.flippedBoard = True
         self.update()
-    
+
+    def enter_position(self):
+        dialog = DialogEnterPosition()
+        dialog.exec_()
+
+
     def touchPiece(self, x, y, mouse_x, mouse_y):
         self.moveSrc = Point(x,y)
         piece = self.current.board().piece_at(y*8+x).symbol()
@@ -734,6 +739,7 @@ class MainWindow(QMainWindow):
         paste.triggered.connect(board.from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("Enter Position")
+        enter_pos.triggered.connect(board.enter_position)
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
         edit_game_data.triggered.connect(board.editGameData)

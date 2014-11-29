@@ -3,8 +3,10 @@ from PyQt4.QtCore import *
 
 class DialogWithPlainText(QDialog):
     def __init__(self, parent=None):
-        super(DialogWithPlainText, self).__init__(parent) 
-        
+        super(DialogWithPlainText, self).__init__(parent)
+
+        self.setWindowTitle("Edit Comment")
+
         self.plainTextEdit = QPlainTextEdit()
         self.saved_text = ""
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
