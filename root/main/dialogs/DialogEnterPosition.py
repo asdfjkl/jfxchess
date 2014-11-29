@@ -18,6 +18,8 @@ class DisplayBoard(QWidget):
         self.borderWidth = 12
         self.pieceImages = PieceImages()
 
+        self.selected = (0,1)
+
         self.initUI()
 
 
@@ -33,7 +35,7 @@ class DisplayBoard(QWidget):
         return (boardSize,squareSize)
 
     def resizeEvent(self, e):
-        self.setMinimumWidth(self.height())
+        self.setMinimumWidth(self.height()*1.35)
 
     def paintEvent(self, event):
 
@@ -59,7 +61,11 @@ class DisplayBoard(QWidget):
 
         (boardSize,squareSize) = self.calculateBoardSize()
 
+        #draw rect (i.e. border) around board
         qp.drawRect(1,1,boardSize,boardSize)
+
+        #draw rect (i.e. border) around pick up fields
+        qp.drawRect(9*squareSize,1,2*squareSize+2*self.borderWidth,5 * squareSize + 2 * self.borderWidth)
 
         boardOffsetX = self.borderWidth;
         boardOffsetY = self.borderWidth;
@@ -83,6 +89,21 @@ class DisplayBoard(QWidget):
                 if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
 
+        pcs = [['P','R','B','Q','K'],['p','r','b','q','k']]
+        for i in range(0,5):
+            for j in range(0,2):
+                qp.setBrush(lightBlue2)
+                if(self.selected == (i,j)):
+                    qp.setBrush(lightBlue)
+                #draw Square
+                x = boardOffsetX+((9+j)*squareSize)
+                # drawing coordinates are from top left
+                # whereas chess coords are from bottom left
+                y = boardOffsetY+(i*squareSize)
+                qp.drawRect(x,y,squareSize,squareSize)
+                #draw Piece
+                qp.drawImage(x,y,self.pieceImages.getWp(pcs[j][i], squareSize))
+
         qp.setPen(darkWhite)
         qp.setFont(QFont('Decorative',8))
 
@@ -97,7 +118,7 @@ class DialogEnterPosition(QDialog):
 
     def __init__(self, node=None, parent=None):
         super(DialogEnterPosition, self).__init__(parent)
-        self.resize(300, 90)
+        #self.resize(600, 400)
 
         self.setWindowTitle("Enter Position")
 
