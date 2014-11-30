@@ -39,6 +39,8 @@ class GUIPrinter():
             move_san += '</span>'
         else:
             move_san += self.node_to_san(board,child)
+        for el in child.nags:
+            move_san += " "+str(el)
         return move_san
 
     def print_san(self,node,move_no,inner_variant = False):
