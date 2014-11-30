@@ -514,8 +514,13 @@ class MovesEdit(QTextEdit):
         self.update_san()
                 
     def delete_all_comments(self):
-        self.bv.gt.delete_all_comments()
+        self._rec_delete_comments(self.bv.current.root())
         self.update_san()
+
+    def _rec_delete_comments(self,node):
+        node.comment = ""
+        for child in node.variations:
+            self._rec_delete_comments(child)
 
     def delete_comment(self):
         offset = self.old_cursor_pos
@@ -574,15 +579,14 @@ class MovesEdit(QTextEdit):
             self.bv.gt.variant_down(selected_state)
             self.bv.update()
             self.setHtml(self.printer.to_san_html())
-    
-    def delete_all_variants(self):
-        offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
-        if(selected_state != None):
-            self.bv.gt.delete_all_variants(selected_state)
-            self.bv.update()
-            self.setHtml(self.printer.to_san_html())
 
+    def delete_all_variants(self):
+        node = self.bv.current.root()
+        while(node.variations != []):
+            node.variations = [node.variations[0]]
+            node = node.variations[0]
+        self.update_san()
+        
     def _get_state_from_offset(self, offset):
         # next is to update to current status
         text = self.printer.to_san_html(self.bv.current)
