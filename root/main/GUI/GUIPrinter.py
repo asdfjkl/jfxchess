@@ -58,6 +58,11 @@ class GUIPrinter():
             if(board.turn == chess.WHITE):
                 self.san_html += str(move_no) + "."
 
+            # if we are at a setup position where
+            # starts moving, also print the move no plus ...
+            if(node.parent == None and board.turn == chess.BLACK):
+                self.san_html += str(move_no-1) + ". ... "
+
             # print move of main variation
             move_san = self.print_move(node,node.variation(0))
             self.san_html += move_san

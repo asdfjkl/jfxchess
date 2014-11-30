@@ -143,7 +143,8 @@ class ChessboardView(QWidget):
             root.headers["SetUp"] = ""
             board = chess.Bitboard(clipboard.text())
             root.setup(board)
-            self.current = root
+            if(root.board().status() == 0):
+                self.current = root
         except ValueError:
             pgn = io.StringIO(clipboard.text())
             first_game = chess.pgn.read_game(pgn)
@@ -193,8 +194,16 @@ class ChessboardView(QWidget):
         self.update()
 
     def enter_position(self):
-        dialog = DialogEnterPosition()
-        dialog.exec_()
+        dialog = DialogEnterPosition(self.current.board())
+        answer = dialog.exec_()
+        if(answer):
+            root = chess.pgn.Game()
+            root.headers["FEN"] = ""
+            root.headers["SetUp"] = ""
+            root.setup(dialog.displayBoard.board)
+            self.current = root
+            self.movesEdit.update_san()
+            self.update()
 
 
     def touchPiece(self, x, y, mouse_x, mouse_y):
@@ -237,6 +246,7 @@ class ChessboardView(QWidget):
         #self.movesEdit = MovesEdit(self)
         self.movesEdit.update_san()
         print(self.current.root())
+        print("castling rights: "+str(self.current.board().castling_rights))
         
     def resetMove(self):
         #self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)

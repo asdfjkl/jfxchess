@@ -2,23 +2,31 @@ from GUI.PieceImages import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode
+from chess import Piece, Bitboard, WHITE, BLACK
+from chess import CASTLING, CASTLING_BLACK_KINGSIDE, CASTLING_BLACK_QUEENSIDE, \
+    CASTLING_WHITE_KINGSIDE, CASTLING_WHITE_QUEENSIDE, CASTLING_NONE
 
 class DisplayBoard(QWidget):
 
-    def __init__(self, node = None):
+    def __init__(self, board = None, parent = None):
         super(QWidget, self).__init__()
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setSizePolicy(policy)
 
-        if(node == None):
-            node = Game()
+        if(board == None):
+            board = Bitboard()
+            board.castling_rights = CASTLING_NONE
 
-        self.current = node
+        self.board = board
+
+        self.parent = parent
 
         self.borderWidth = 12
         self.pieceImages = PieceImages()
 
-        self.selected = (0,1)
+        self.selected_xy = None
+        self.pcs = [['P','R','B','N','Q','K'],['p','r','b','n','q','k']]
+
 
         self.initUI()
 
@@ -44,6 +52,32 @@ class DisplayBoard(QWidget):
         self.drawBoard(event, qp)
         qp.end()
 
+    def mousePressEvent(self, mouseEvent):
+        pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
+        print(str(pos))
+
+    def getBoardPosition(self,x,y):
+        (boardSize,squareSize) = self.calculateBoardSize()
+        # check if x,y are actually on the board
+        if(x > self.borderWidth and y > self.borderWidth
+           and x < (boardSize - self.borderWidth)
+           and y < (boardSize - self.borderWidth)):
+            x = x - self.borderWidth
+            y = y - self.borderWidth
+            x = x // squareSize
+            y = 7 - (y // squareSize)
+            return (x,y)
+        # check if x,y are on place where pieces
+        # are selected
+        if(x > self.borderWidth + 9*squareSize and x < self.borderWidth + 11*squareSize
+            and y > self.borderWidth and y < self.borderWidth + 6*squareSize):
+            x = x - (self.borderWidth + 9*squareSize)
+            y = y - self.borderWidth
+            x = (x // squareSize)+8
+            y = y//squareSize
+            return (x,y)
+        return None
+
     def drawBoard(self, event, qp):
         penZero = QPen(Qt.black, 1, Qt.NoPen)
         qp.setPen(penZero)
@@ -65,7 +99,7 @@ class DisplayBoard(QWidget):
         qp.drawRect(1,1,boardSize,boardSize)
 
         #draw rect (i.e. border) around pick up fields
-        qp.drawRect(9*squareSize,1,2*squareSize+2*self.borderWidth,5 * squareSize + 2 * self.borderWidth)
+        qp.drawRect(9*squareSize,1,2*squareSize+2*self.borderWidth,6 * squareSize + 2 * self.borderWidth)
 
         boardOffsetX = self.borderWidth;
         boardOffsetY = self.borderWidth;
@@ -85,15 +119,14 @@ class DisplayBoard(QWidget):
                 y = boardOffsetY+((7-j)*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
                 #draw Piece
-                piece = self.current.board().piece_at(j*8+i)
+                piece = self.board.piece_at(j*8+i)
                 if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     qp.drawImage(x,y,self.pieceImages.getWp(piece.symbol(), squareSize))
 
-        pcs = [['P','R','B','Q','K'],['p','r','b','q','k']]
-        for i in range(0,5):
+        for i in range(0,6):
             for j in range(0,2):
                 qp.setBrush(lightBlue2)
-                if(self.selected == (i,j)):
+                if(self.selected_xy != None and self.selected_xy == (j,i)):
                     qp.setBrush(lightBlue)
                 #draw Square
                 x = boardOffsetX+((9+j)*squareSize)
@@ -102,7 +135,7 @@ class DisplayBoard(QWidget):
                 y = boardOffsetY+(i*squareSize)
                 qp.drawRect(x,y,squareSize,squareSize)
                 #draw Piece
-                qp.drawImage(x,y,self.pieceImages.getWp(pcs[j][i], squareSize))
+                qp.drawImage(x,y,self.pieceImages.getWp(self.pcs[j][i], squareSize))
 
         qp.setPen(darkWhite)
         qp.setFont(QFont('Decorative',8))
@@ -113,17 +146,52 @@ class DisplayBoard(QWidget):
                             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
             qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
+    def mousePressEvent(self, mouseEvent):
+        pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
+        if(pos):
+            x = pos[0]
+            y = pos[1]
+            if(x > 7):
+                self.selected_xy = (x-8,y)
+                print("selected xy at"+str(x-8)+str(y))
+            else:
+                if(self.selected_xy != None):
+                    (i,j) = self.selected_xy
+                    piece = self.pcs[i][j]
+                    square = y*8+x
+                    current_piece = self.board.piece_at(square)
+                    print("setting at square: "+str(square) + "the piece "+ str(piece))
+                    if(current_piece and current_piece.symbol() == piece):
+                        self.board.remove_piece_at(square)
+                    else:
+                        self.board.set_piece_at(square,Piece.from_symbol(piece))
+                    if(self.board.status() == 0):
+                        print("valid pos")
+                        self.parent.enable_ok_button()
+                    else:
+                        print("invalid pos")
+                        self.parent.disable_ok_button()
+        self.update()
+
+
+
 
 class DialogEnterPosition(QDialog):
 
-    def __init__(self, node=None, parent=None):
+    def __init__(self, board=None, parent=None):
         super(DialogEnterPosition, self).__init__(parent)
         #self.resize(600, 400)
 
         self.setWindowTitle("Enter Position")
 
-        self.displayBoard = DisplayBoard(node)
+        self.displayBoard = DisplayBoard(self.deep_copy_board_pos(board),self)
 
+        # create a copy of the current board
+        if(board):
+            # create a deepcopy of current board
+            self.current = self.deep_copy_board_pos(board)
+        else:
+            self.current = Bitboard()
 
         self.cbWhiteShort = QCheckBox("White O-O")
         self.cbWhiteLong = QCheckBox("White O-O-O")
@@ -165,7 +233,103 @@ class DialogEnterPosition(QDialog):
 
         vbox = QVBoxLayout()
         vbox.addLayout(hbox)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
-        vbox.addWidget(buttonBox)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        vbox.addWidget(self.buttonBox)
 
         self.setLayout(vbox)
+
+        self.connect(self.buttonBox, SIGNAL("accepted()"),
+                 self, SLOT("accept()"))
+        self.connect(self.buttonBox, SIGNAL("rejected()"),
+                 self, SLOT("reject()"))
+
+        self.cbWhiteShort.toggled.connect(self.set_castling_rights)
+        self.cbWhiteLong.toggled.connect(self.set_castling_rights)
+        self.cbBlackShort.toggled.connect(self.set_castling_rights)
+        self.cbBlackLong.toggled.connect(self.set_castling_rights)
+
+        self.rbWhite.toggle()
+        self.rbWhite.toggled.connect(self.set_turn)
+        self.rbBlack.toggled.connect(self.set_turn)
+
+        self.buttonInit.clicked.connect(self.initial_position)
+        self.buttonClear.clicked.connect(self.clear_board)
+        self.buttonCurrent.clicked.connect(self.set_current)
+
+    def set_castling_rights(self):
+        self.displayBoard.board.castling_rights = CASTLING
+        #if(not self.cbWhiteShort.isChecked() or not self.cbWhiteLong.isChecked()):
+        #    self.displayBoard.board.castling_rights &= ~CASTLING_WHITE
+        #if(not self.cbBlackShort.isChecked() or not self.cbBlackLong.isChecked()):
+        #    self.displayBoard.board.castling_rights &= ~CASTLING_BLACK
+        if(not self.cbWhiteShort.isChecked()):
+            self.displayBoard.board.castling_rights &= ~CASTLING_WHITE_KINGSIDE
+        if(not self.cbWhiteLong.isChecked()):
+            self.displayBoard.board.castling_rights &= ~CASTLING_WHITE_QUEENSIDE
+        if(not self.cbBlackShort.isChecked()):
+            self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_KINGSIDE
+        if(not self.cbBlackLong.isChecked()):
+            self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
+        print("setting castling rights")
+        if(self.displayBoard.board.status() == 0):
+            self.enable_ok_button()
+            print("valid position")
+        else:
+            self.disable_ok_button()
+
+    def set_turn(self):
+        if(self.rbWhite.isChecked()):
+            self.displayBoard.board.turn = WHITE
+        else:
+            self.displayBoard.board.turn = BLACK
+        print(str(self.displayBoard.board.status()))
+        if(self.displayBoard.board.status() == 0):
+            self.enable_ok_button()
+            print("valid position")
+        else:
+            self.disable_ok_button()
+        print("setting turn")
+
+    def clear_board(self):
+        self.displayBoard.board.clear()
+        self.set_castling_rights()
+        self.set_turn()
+        self.update()
+
+    def initial_position(self):
+        print("setting initial position")
+        self.displayBoard.board.reset()
+        self.set_castling_rights()
+        self.set_turn()
+        self.update()
+
+    def set_current(self):
+        fen = self.current.fen()
+        board = Bitboard(fen)
+        self.displayBoard.board = board
+        self.set_castling_rights()
+        self.set_turn()
+        self.update()
+
+    # creates a deep copy of the given
+    # board into a clean new board, resetting
+    # all move histories, castling rights, etc.
+    def deep_copy_board_pos(self,board):
+        fresh = Bitboard()
+        for i in range(0,8):
+            for j in range(0,8):
+                piece = board.piece_at(j*8+i)
+                if(piece):
+                    sym = piece.symbol()
+                    fresh.set_piece_at(j*8+i,Piece.from_symbol(sym))
+                else:
+                    fresh.remove_piece_at(j*8+i)
+        return fresh
+
+    def enable_ok_button(self):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+        self.update()
+
+    def disable_ok_button(self):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        self.update()
