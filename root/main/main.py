@@ -491,10 +491,10 @@ class MovesEdit(QTextEdit):
         
     def move_annotation(self,string):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
+        selected_state = self._get_state_from_offset(offset)
         if(selected_state != None):
-            selected_state.move.move_annotation = string
-        self.setHtml(self.printer.to_san_html())
+            selected_state.nags.add(4)
+        self.update_san()
         
     def pos_annotation(self, string):
         offset = self.old_cursor_pos
