@@ -30,17 +30,55 @@ class GUIPrinter():
             self.cache.update({node:board})
             return board
 
+    def pgn_code_to_txt(self,nag):
+        if(nag == 1):
+            return "!"
+        elif(nag==2):
+            return "?"
+        elif(nag==3):
+            return "!!"
+        elif(nag==4):
+            return "??"
+        elif(nag==5):
+            return "!?"
+        elif(nag==6):
+            return "?!"
+        elif(nag==13):
+            return "∞"
+        elif(nag==14):
+            return "+/="
+        elif(nag==15):
+            return "=/+"
+        elif(nag==16):
+            return "+/−"
+        elif(nag==17):
+            return "-/+"
+        elif(nag==18):
+            return "+-"
+        elif(nag==19):
+            return "-+"
+        elif(nag==44):
+            return "=/∞"
+        elif(nag==45):
+            return "∞/="
+
     def print_move(self,node,child):
         move_san = ""
         board = self.get_board(node)
         if(self.current == child):
             move_san += '<span style="color:darkgoldenrod">'
             move_san += self.node_to_san(board,child)
+            for nag in sorted(list(child.nags)):
+                move_san += self.pgn_code_to_txt(nag)
             move_san += '</span>'
         else:
             move_san += self.node_to_san(board,child)
-        for el in child.nags:
-            move_san += " "+str(el)
+            for nag in sorted(list(child.nags)):
+                move_san += self.pgn_code_to_txt(nag)
+        if(child.comment != ""):
+            move_san += '<span style="color:darkblue">'
+            move_san += " "+child.comment+" "
+            move_san += '</span>'
         return move_san
 
     def print_san(self,node,move_no,inner_variant = False):
