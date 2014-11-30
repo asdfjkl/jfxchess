@@ -549,36 +549,49 @@ class MovesEdit(QTextEdit):
     def variant_up(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
-        if(selected_state != None):
-            self.bv.gt.variant_up(selected_state)
-            self.bv.update()
-            self.setHtml(self.printer.to_san_html())
+        selected_state = self._get_state_from_offset(offset)
+        if(selected_state != None and selected_state.parent != None):
+            variations = selected_state.parent.variations
+            idx = variations.index(selected_state)
+            if(idx < len(variations)-1):
+                temp = variations[idx-1]
+                variations[idx] = temp
+                variations[idx-1] = selected_state
+        self.update_san()
+
+    def variant_down(self):
+        offset = self.old_cursor_pos
+        print("cursor_offset "+str(offset))
+        selected_state = self._get_state_from_offset(offset)
+        if(selected_state != None and selected_state.parent != None):
+            variations = selected_state.parent.variations
+            idx = variations.index(selected_state)
+            if(idx > 0):
+                temp = variations[idx+1]
+                variations[idx] = temp
+                variations[idx+1] = selected_state
+        self.update_san()
         
     def delete_from_here(self):
         offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
+        print("cursor_offset "+str(offset))
+        selected_state = self._get_state_from_offset(offset)
         if(selected_state != None):
-            self.bv.gt.delete_from_here(selected_state)
-            self.bv.update()
-            self.setHtml(self.printer.to_san_html())
+            selected_state.variations = []
+        self.update_san()
 
     def delete_variant(self):
         offset = self.old_cursor_pos
         print("cursor_offset "+str(offset))
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
+        selected_state = self._get_state_from_offset(offset)
         if(selected_state != None):
-            self.bv.gt.delete_variant(selected_state)
-            self.bv.update()
-            self.setHtml(self.printer.to_san_html())
-
-    def variant_down(self):
-        offset = self.old_cursor_pos
-        selected_state = self.bv.gt.get_state_from_offset(offset,self.printer)
-        if(selected_state != None):
-            self.bv.gt.variant_down(selected_state)
-            self.bv.update()
-            self.setHtml(self.printer.to_san_html())
+            temp = selected_state
+            idx = 0
+            while(temp.parent != None and len(temp.parent.variations) <= 1):
+                temp = temp.parent
+            if(temp.parent != None):
+                temp.parent.variations.remove(temp)
+        self.update_san()
 
     def delete_all_variants(self):
         node = self.bv.current.root()
@@ -586,7 +599,7 @@ class MovesEdit(QTextEdit):
             node.variations = [node.variations[0]]
             node = node.variations[0]
         self.update_san()
-        
+
     def _get_state_from_offset(self, offset):
         # next is to update to current status
         text = self.printer.to_san_html(self.bv.current)
