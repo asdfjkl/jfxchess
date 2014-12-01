@@ -84,6 +84,13 @@ class ChessboardView(QWidget):
             painter.drawPixmap(dst, p)
             del painter
 
+    def save_image(self):
+        filename = QFileDialog.getSaveFileName(self, 'Save Image', None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
+        if(filename):
+            p = QPixmap.grabWindow(self.winId())
+            p.save(filename,'jpg')
+
+
     def setup_headers(self,game):
         game.headers["Event"] = ""
         game.headers["Site"] = ""
@@ -94,13 +101,13 @@ class ChessboardView(QWidget):
         game.headers["Result"] = "*"
 
     def append_to_pgn(self):
-        filename = QFileDialog.getSaveFileName(self, 'Append to PGN', '*.pgn',
-                                                     None, QFileDialog.DontConfirmOverwrite)
+        filename = QFileDialog.getSaveFileName(self, 'Append to PGN', None,
+                                                     'PGN (*.pgn)', QFileDialog.DontConfirmOverwrite)
         if(filename):
             print("append saver")
 
     def save_to_pgn(self):
-        filename = QFileDialog.getSaveFileName(self, 'Save PGN', 'PGN (*.pgn)', None, QFileDialog.DontUseNativeDialog)
+        filename = QFileDialog.getSaveFileName(self, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if(filename):
             f = open(filename,'w')
             print(self.current.root(), file=f, end="\n\n")
@@ -787,6 +794,9 @@ class MainWindow(QMainWindow):
         save_game.triggered.connect(board.save_to_pgn)
         append_game = m_file.addAction("Append to PGN")
         append_game.triggered.connect(board.append_to_pgn)
+        m_file.addSeparator()
+        save_diag = m_file.addAction("Save Position as Image")
+        save_diag.triggered.connect(board.save_image)
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
         print_game.triggered.connect(board.print_game)
