@@ -66,6 +66,13 @@ class ChessboardView(QWidget):
     def initUI(self):      
         self.show()
 
+    def show_about(self):
+        QMessageBox.about(self, "Jerry - Chess",
+                          "Jerry - Chess\n\n"
+                          "(c) 2014,2015 Dominik Klein\n "+
+                          "licensed under GNU GPL 3\n "+
+                          "using python-chess 0.6 licensed under GNU GPL 3")
+
     def print_game(self):
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted:
@@ -838,7 +845,7 @@ class MainWindow(QMainWindow):
         play_out_pos = m_mode.addAction("Play out Position")
         m_help = self.menuBar().addMenu("Help")
         about = m_help.addAction("About")
-        about.triggered.connect(board.flip_board)  
+        about.triggered.connect(board.show_about)
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
         
