@@ -66,6 +66,24 @@ class ChessboardView(QWidget):
     def initUI(self):      
         self.show()
 
+    def print_game(self):
+        dialog = QPrintDialog()
+        if dialog.exec_() == QDialog.Accepted:
+            exporter = chess.pgn.StringExporter()
+            self.current.root().export(exporter, headers=True, variations=True, comments=True)
+            pgn = str(exporter)
+            QPgn = QPlainTextEdit(pgn)
+            QPgn.print_(dialog.printer())
+
+    def print_position(self):
+        dialog = QPrintDialog()
+        if dialog.exec_() == QDialog.Accepted:
+            p = QPixmap.grabWindow(self.winId())
+            painter = QPainter(dialog.printer())
+            dst = QRect(0,0,200,200)
+            painter.drawPixmap(dst, p)
+            del painter
+
     def setup_headers(self,game):
         game.headers["Event"] = ""
         game.headers["Site"] = ""
@@ -771,7 +789,9 @@ class MainWindow(QMainWindow):
         append_game.triggered.connect(board.append_to_pgn)
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
+        print_game.triggered.connect(board.print_game)
         print_pos = m_file.addAction("Print Position")
+        print_pos.triggered.connect(board.print_position)
         m_file.addSeparator()
         exit_item = m_file.addAction("Quit")
         exit_item.triggered.connect(QApplication.quit)
