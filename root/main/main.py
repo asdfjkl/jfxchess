@@ -8,6 +8,7 @@ from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
 from dialogs.DialogEnterPosition import DialogEnterPosition
+from dialogs.DialogAbout import DialogAbout
 
 # python chess
 from chess.polyglot import *
@@ -65,13 +66,6 @@ class ChessboardView(QWidget):
         
     def initUI(self):      
         self.show()
-
-    def show_about(self):
-        QMessageBox.about(self, "Jerry - Chess",
-                          "Jerry - Chess\n\n"
-                          "(c) 2014,2015 Dominik Klein\n "+
-                          "licensed under GNU GPL 3\n "+
-                          "using python-chess 0.6 licensed under GNU GPL 3")
 
     def print_game(self):
         dialog = QPrintDialog()
@@ -154,6 +148,10 @@ class ChessboardView(QWidget):
                 root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
                 root.headers["Result"] = "*"
+
+    def show_about(self):
+        d = DialogAbout()
+        d.exec_()
 
     def game_to_clipboard(self):
         clipboard = QApplication.clipboard()
@@ -439,7 +437,7 @@ class MovesEdit(QTextEdit):
         self.bv = chessboardView
         #self.printer = self.bv.printer
         self.printer = GUIPrinter(self.bv.current)
-        self.old_cursor_pos = 0
+        self.old_cursor_pos = -1
         # setting below to zero removes blinking cursor
         self.setCursorWidth(0)
         self.viewport().setCursor(Qt.ArrowCursor)
