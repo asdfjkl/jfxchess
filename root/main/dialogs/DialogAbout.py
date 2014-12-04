@@ -23,7 +23,7 @@ class DialogAbout(QDialog):
                         "Version 0.8<br><br>"+
                         "Copyright © 2014 Dominik Klein<br>"+
                         "licensed under GNU GPL<br><br>"+
-                        "uses Python-chess library<br>"+
+                        "uses the python-chess library<br>"+
                         "licensed under GNU GPL<br><br>"+
                         "uses Merida piece images<br>"+
                         "licensed under GNU GPL")
