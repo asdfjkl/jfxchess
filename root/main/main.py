@@ -94,7 +94,7 @@ class ChessboardView(QWidget):
 
     def setup_headers(self,game):
         game.headers["Event"] = ""
-        game.headers["Site"] = ""
+        game.headers["Site"] = "MyTown"
         game.headers["Date"] = time.strftime("%Y.%m.%d")
         game.headers["Round"] = ""
         game.headers["White"] = "N.N."
@@ -759,23 +759,27 @@ class MainWindow(QMainWindow):
         labelBlack.setPixmap(pixmapBlack)
         labelBlack.setAlignment(Qt.AlignRight)
         
-        spacerLcd = QSpacerItem(20,10)
-        
         hboxLcd.addWidget(labelWhite)
         hboxLcd.addWidget(lcd1)
-        hboxLcd.addItem(spacerLcd)
+        hboxLcd.addStretch(1)
         hboxLcd.addWidget(labelBlack)
         hboxLcd.addWidget(lcd2)
-        
-        
+
         vbox = QVBoxLayout();
         vbox.addLayout(hboxLcd)
-        
+
+        self.name = QLabel()
+        self.name.setAlignment(Qt.AlignCenter)
+
         movesEdit = MovesEdit(board)
+        self.name.setBuddy(movesEdit)
+        vbox.addWidget(self.name)
+
         vbox.addWidget(movesEdit)
         board.movesEdit = movesEdit
 
         engineOutput = QPlainTextEdit()
+
         vbox.addWidget(engineOutput)
         
         hbox.addLayout(vbox)
@@ -788,6 +792,8 @@ class MainWindow(QMainWindow):
         statusbar.showMessage('Ready')
 
         self.menubar = self.menuBar()
+
+        self.setLabels(board)
 
         m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
@@ -856,8 +862,13 @@ class MainWindow(QMainWindow):
                   (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
 
 
+    def setLabels(self,board):
+        self.name.setText("<b>"+board.current.headers["White"]+
+                      " - "+
+                      board.current.headers["Black"]+"</b><br>"+
+                      board.current.headers["Site"]+ " "+
+                      board.current.headers["Date"])
 
-        
 
 app = QApplication(sys.argv)
 main = MainWindow()
