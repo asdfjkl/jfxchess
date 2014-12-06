@@ -39,7 +39,7 @@ class Point():
 
 class ChessboardView(QWidget):
     
-    def __init__(self):
+    def __init__(self,mainWindow=None):
         #super(ChessboardView, self).__init__()
         super(QWidget, self).__init__()
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -51,6 +51,7 @@ class ChessboardView(QWidget):
         self.pieceImages = PieceImages()
         
         self.movesEdit = None
+        self.mainWindow = mainWindow
 
         self.borderWidth = 12
         
@@ -148,6 +149,7 @@ class ChessboardView(QWidget):
                 root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
                 root.headers["Result"] = "*"
+        self.mainWindow.setLabels(self.current)
 
     def show_about(self):
         d = DialogAbout()
@@ -184,6 +186,7 @@ class ChessboardView(QWidget):
         self.movesEdit.bv = self
 
         self.movesEdit.update_san()
+        self.mainWindow.setLabels(self.current)
         self.movesEdit.setFocus()
 
     def heightForWidth(self, width):
@@ -234,6 +237,8 @@ class ChessboardView(QWidget):
             self.current = root
             #self.movesEdit.current = root
             self.movesEdit.update_san()
+            self.setup_headers(self.current)
+            self.mainWindow.setLabels(self.current)
             self.update()
 
 
@@ -716,7 +721,7 @@ class MainWindow(QMainWindow):
         exit.setStatusTip('Exit application')
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        board = ChessboardView()
+        board = ChessboardView(self)
         #board.getState().setInitPos()
         
         spLeft = QSizePolicy();
@@ -794,7 +799,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(board)
+        self.setLabels(board.current)
 
         m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
@@ -863,12 +868,12 @@ class MainWindow(QMainWindow):
                   (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
 
 
-    def setLabels(self,board):
-        self.name.setText("<b>"+board.current.headers["White"]+
+    def setLabels(self,game):
+        self.name.setText("<b>"+game.headers["White"]+
                       " - "+
-                      board.current.headers["Black"]+"</b><br>"+
-                      board.current.headers["Site"]+ " "+
-                      board.current.headers["Date"])
+                      game.headers["Black"]+"</b><br>"+
+                      game.headers["Site"]+ " "+
+                      game.headers["Date"])
 
 
 app = QApplication(sys.argv)
