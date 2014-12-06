@@ -232,6 +232,7 @@ class ChessboardView(QWidget):
             root.headers["SetUp"] = ""
             root.setup(dialog.displayBoard.board)
             self.current = root
+            #self.movesEdit.current = root
             self.movesEdit.update_san()
             self.update()
 
@@ -704,7 +705,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        self.resize(640, 480)
+        self.resize(800, 500)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
 

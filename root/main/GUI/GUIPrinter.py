@@ -145,6 +145,7 @@ class GUIPrinter():
             self.print_san(node.variation(0),move_no, inner_variant)
     
     def to_san_html(self,current):
+        self.offset_table = []
         self.current = current
         self.san_html = ""
         self.print_san(current.root(),1)
