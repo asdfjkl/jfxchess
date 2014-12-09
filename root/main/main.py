@@ -39,7 +39,7 @@ class Point():
 
 class ChessboardView(QWidget):
     
-    def __init__(self,mainWindow=None):
+    def __init__(self):
         #super(ChessboardView, self).__init__()
         super(QWidget, self).__init__()
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -51,7 +51,7 @@ class ChessboardView(QWidget):
         self.pieceImages = PieceImages()
         
         self.movesEdit = None
-        self.mainWindow = mainWindow
+        self.mainWindow = None
 
         self.borderWidth = 12
         
@@ -436,11 +436,12 @@ class ChessboardView(QWidget):
                             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
                 qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
+
 class MovesEdit(QTextEdit):
     
-    def __init__(self,chessboardView):
+    def __init__(self,boardView):
         super(QTextEdit, self).__init__()
-        self.bv = chessboardView
+        self.bv = boardView
         #self.printer = self.bv.printer
         self.printer = GUIPrinter(self.bv.current)
         self.old_cursor_pos = -1
@@ -721,7 +722,13 @@ class MainWindow(QMainWindow):
         exit.setStatusTip('Exit application')
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        board = ChessboardView(self)
+        board = ChessboardView()
+        board.mainWindow = self
+
+        movesEdit = MovesEdit(board)
+        board.movesEdit = movesEdit
+
+
         #board.getState().setInitPos()
         
         spLeft = QSizePolicy();
@@ -777,7 +784,6 @@ class MainWindow(QMainWindow):
         self.name = QLabel()
         self.name.setAlignment(Qt.AlignCenter)
 
-        movesEdit = MovesEdit(board)
         self.name.setBuddy(movesEdit)
         vbox.addWidget(self.name)
 
