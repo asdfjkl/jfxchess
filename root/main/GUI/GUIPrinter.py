@@ -9,6 +9,7 @@ class GUIPrinter():
         self.offset_table = []
         self.qtextedit = QtGui.QTextEdit()
         self.cache = {}
+        self.uci = ""
 
     def node_to_san(self,parent_board,node):
         return parent_board.san(node.move)
@@ -143,6 +144,17 @@ class GUIPrinter():
 
             # continue
             self.print_san(node.variation(0),move_no, inner_variant)
+
+    def to_uci(self,current):
+        rev_moves = []
+        node = current
+        while(node.parent):
+            rev_moves.append(node.move.uci())
+            node = node.parent
+        moves = " ".join(reversed(rev_moves))
+        fen = node.board().fen()
+        uci = "position fen "+fen+" moves "+moves
+        return uci
     
     def to_san_html(self,current):
         self.offset_table = []

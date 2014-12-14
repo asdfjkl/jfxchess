@@ -9,6 +9,7 @@ from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
 from dialogs.DialogEnterPosition import DialogEnterPosition
 from dialogs.DialogAbout import DialogAbout
+from uci.uci_controller import Uci_controller
 
 # python chess
 from chess.polyglot import *
@@ -52,6 +53,8 @@ class ChessboardView(QWidget):
         
         self.movesEdit = None
         self.mainWindow = None
+        self.engineWindow = None
+        self.engine = None
 
         self.borderWidth = 12
         
@@ -67,6 +70,15 @@ class ChessboardView(QWidget):
         
     def initUI(self):      
         self.show()
+
+    def init_engine(self):
+        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineWindow.setPlainText)
+        self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
+        self.engine.uci_newgame()
+        self.engine.uci_ok()
+
+    def mooh(self,msg):
+        print("mooh received "+msg)
 
     def print_game(self):
         dialog = QPrintDialog()
@@ -283,6 +295,10 @@ class ChessboardView(QWidget):
         self.movesEdit.update_san()
         print(self.current.root())
         print("castling rights: "+str(self.current.board().castling_rights))
+        uci_string = self.movesEdit.printer.to_uci(self.current)
+        self.engine.uci_send_position(uci_string)
+        self.engine.uci_go_infinite()
+
         
     def resetMove(self):
         #self.gt.current.board.set_at(self.moveSrc.x,self.moveSrc.y,self.grabbedPiece)
@@ -722,11 +738,11 @@ class MainWindow(QMainWindow):
         exit.setStatusTip('Exit application')
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        board = ChessboardView()
-        board.mainWindow = self
+        self.board = ChessboardView()
+        self.board.mainWindow = self
 
-        movesEdit = MovesEdit(board)
-        board.movesEdit = movesEdit
+        movesEdit = MovesEdit(self.board)
+        self.board.movesEdit = movesEdit
 
 
         #board.getState().setInitPos()
@@ -740,7 +756,7 @@ class MainWindow(QMainWindow):
         mainWidget = QWidget()
 
         hbox = QHBoxLayout()
-        hbox.addWidget(board)
+        hbox.addWidget(self.board)
         
         spRight = QSizePolicy();
         spRight.setHorizontalStretch(2);
@@ -788,7 +804,7 @@ class MainWindow(QMainWindow):
         vbox.addWidget(self.name)
 
         vbox.addWidget(movesEdit)
-        board.movesEdit = movesEdit
+        self.board.movesEdit = movesEdit
 
         engineOutput = QPlainTextEdit()
 
@@ -805,44 +821,44 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(board.current)
+        self.setLabels(self.board.current)
 
         m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
         new_game_black = m_file.addAction("New Game (Black)")
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
-        load_game.triggered.connect(board.open_pgn)
+        load_game.triggered.connect(self.board.open_pgn)
         save_game = m_file.addAction("Save PGN")
-        save_game.triggered.connect(board.save_to_pgn)
+        save_game.triggered.connect(self.board.save_to_pgn)
         append_game = m_file.addAction("Append to PGN")
-        append_game.triggered.connect(board.append_to_pgn)
+        append_game.triggered.connect(self.board.append_to_pgn)
         m_file.addSeparator()
         save_diag = m_file.addAction("Save Position as Image")
-        save_diag.triggered.connect(board.save_image)
+        save_diag.triggered.connect(self.board.save_image)
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
-        print_game.triggered.connect(board.print_game)
+        print_game.triggered.connect(self.board.print_game)
         print_pos = m_file.addAction("Print Position")
-        print_pos.triggered.connect(board.print_position)
+        print_pos.triggered.connect(self.board.print_position)
         m_file.addSeparator()
         exit_item = m_file.addAction("Quit")
         exit_item.triggered.connect(QApplication.quit)
         m_edit = self.menuBar().addMenu('Edit ')
         copy_game = m_edit.addAction("Copy Game")
-        copy_game.triggered.connect(board.game_to_clipboard)
+        copy_game.triggered.connect(self.board.game_to_clipboard)
         copy_pos = m_edit.addAction("Copy Position")
-        copy_pos.triggered.connect(board.pos_to_clipboard)
+        copy_pos.triggered.connect(self.board.pos_to_clipboard)
         paste = m_edit.addAction("Paste")
-        paste.triggered.connect(board.from_clipboard)
+        paste.triggered.connect(self.board.from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("Enter Position")
-        enter_pos.triggered.connect(board.enter_position)
+        enter_pos.triggered.connect(self.board.enter_position)
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
-        edit_game_data.triggered.connect(board.editGameData)
+        edit_game_data.triggered.connect(self.board.editGameData)
         flip = m_edit.addAction("Flip Board")
-        flip.triggered.connect(board.flip_board)
+        flip.triggered.connect(self.board.flip_board)
         m_edit.addSeparator()
         offer_draw = m_edit.addAction("Offer Draw")
         give_up = m_edit.addAction("Give Up")
@@ -861,9 +877,14 @@ class MainWindow(QMainWindow):
         play_out_pos = m_mode.addAction("Play out Position")
         m_help = self.menuBar().addMenu("Help")
         about = m_help.addAction("About")
-        about.triggered.connect(board.show_about)
+        about.triggered.connect(self.board.show_about)
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
+
+        self.board.engineWindow = engineOutput
+        controller = Uci_controller()
+        self.board.engine = controller
+        self.board.init_engine()
         
         
     def centerOnScreen (self):
@@ -880,6 +901,11 @@ class MainWindow(QMainWindow):
                       game.headers["Black"]+"</b><br>"+
                       game.headers["Site"]+ " "+
                       game.headers["Date"])
+
+    def closeEvent(self, event):
+        self.board.engine.stop_engine()
+        print ("inside the close")
+
 
 
 app = QApplication(sys.argv)
