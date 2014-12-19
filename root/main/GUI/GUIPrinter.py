@@ -2,8 +2,8 @@ from PyQt4 import QtGui
 from chess.pgn import *
 
 class GUIPrinter():
-    def __init__(self,current):
-        self.current = current
+    def __init__(self):
+        self.current = None
         self.san_html = ""
         self.sans = []
         self.offset_table = []
@@ -146,6 +146,7 @@ class GUIPrinter():
             self.print_san(node.variation(0),move_no, inner_variant)
 
     def to_uci(self,current):
+        self.current = current
         rev_moves = []
         node = current
         while(node.parent):
@@ -157,8 +158,8 @@ class GUIPrinter():
         return uci
     
     def to_san_html(self,current):
-        self.offset_table = []
         self.current = current
+        self.offset_table = []
         self.san_html = ""
         self.print_san(current.root(),1)
         return self.san_html

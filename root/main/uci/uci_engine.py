@@ -10,6 +10,7 @@ class EngineInfo(object):
         self.mate = None
         self.currmovenumber = None
         self.currmove = None
+        self.no_game_halfmoves = None
         self.nps = None
         self.pv = None
 
@@ -46,6 +47,7 @@ class Uci_engine(QThread):
     BESTMOVE = re.compile('bestmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
     PV = re.compile('pv(\s[a-z]\d[a-z]\d[a-z]{0,1})+')
     IDNAME = re.compile('id\sname\s(\w|\s)+')
+    MOVE = re.compile('\s[a-z]\d[a-z]\d[a-z]{0,1}\s')
 
     def __init__(self, engine_path, parent=None):
         super(Uci_engine, self).__init__(parent)
@@ -69,6 +71,11 @@ class Uci_engine(QThread):
         # get top of commands to execute from queue
         msg = self.command_queue.get(False)
         print("executing in send_to_stdin "+msg)
+        # first check if this is a position command
+        # if so, count the number of halfmoves that
+        # have been played so far, and update self.no_game_halfmoves
+        self.info.no_game_halfmoves = 1
+
         # if the engine is in infinite mode,
         # first send a stop command
         if(self.sent_go_infinite):
@@ -155,6 +162,10 @@ class Uci_engine(QThread):
                 if(pv):
                     moves = pv.group()[3:]
                     self.info.pv = moves
+                    # if this a pv line, modify to include
+                    # moves numbers
+                    if(self.info.no_game_halfmoves):
+                        self.info.pv = self.add_move_numbers_to_info()
                     emit_info = True
                 id = self.IDNAME.search(line)
                 if(id):
@@ -169,6 +180,23 @@ class Uci_engine(QThread):
                     move = bm.group()[9:]
                     self.emit(SIGNAL("bestmove(QString)"),move)
 
+
+    def add_move_numbers_to_info(self):
+        replaced_all = False
+        s = self.info.pv
+        while(replaced_all == False):
+            mv = self.MOVE.search(s)
+            if(mv):
+                replaced_all = True
+                idx = mv.start()
+                l = len(mv.group())-2
+                print(str(idx-l))
+                s = s[:(idx-l)] + str(self.info.no_game_halfmoves) + \
+                                           s[(idx-l):]
+                print("found match: "+s+" "+mv.group())
+            else:
+                replaced_all = True
+        return s
 
     def on_err_out(self):
         output = str(self.process.readLineStderr(),"utf-8")

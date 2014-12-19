@@ -3,22 +3,27 @@
 # classes from Jerry:
 from GUI.GUIPrinter import GUIPrinter
 from GUI.PieceImages import PieceImages
+from GUI.MovesEdit import MovesEdit
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
-from dialogs.DialogWithListView import DialogWithListView
-from dialogs.DialogWithPlaintext import DialogWithPlainText
 from dialogs.DialogEnterPosition import DialogEnterPosition
 from dialogs.DialogAbout import DialogAbout
 from uci.uci_controller import Uci_controller
 
 # python chess
 from chess.polyglot import *
+from chess.pgn import Game
 
 # PyQt and python system functions
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 import io
 import sys, random, time
+
+MODE_ENTER_MOVES = 0
+MODE_PLAY_BLACK = 1
+MODE_PLAY_WHITE = 2
+MODE_ANALYSIS = 3
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -37,24 +42,28 @@ class Point():
     def __ne__(self, other):
         return not self.__eq__(other)
 
+class GameState(Game):
+
+    def __init__(self):
+        super(GameState, self).__init__()
+        self.current = self.root()
+        self.mode = MODE_ENTER_MOVES
+        self.printer = GUIPrinter()
 
 class ChessboardView(QWidget):
     
-    def __init__(self):
-        #super(ChessboardView, self).__init__()
-        super(QWidget, self).__init__()
+    def __init__(self,gamestate,engine):
+        super(ChessboardView, self).__init__()
+        #super(QWidget, self).__init__()
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setSizePolicy(policy)
-        self.current = chess.pgn.Game()
 
-        self.setup_headers(self.current)
+        self.gs = gamestate
+        self.engine = engine
+
+        self.setup_headers(self.gs.current)
 
         self.pieceImages = PieceImages()
-        
-        self.movesEdit = None
-        self.mainWindow = None
-        self.engineWindow = None
-        self.engine = None
 
         self.borderWidth = 12
         
@@ -71,20 +80,11 @@ class ChessboardView(QWidget):
     def initUI(self):      
         self.show()
 
-    def init_engine(self):
-        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineWindow.setPlainText)
-        self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
-        self.engine.uci_newgame()
-        self.engine.uci_ok()
-
-    def mooh(self,msg):
-        print("mooh received "+msg)
-
     def print_game(self):
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted:
             exporter = chess.pgn.StringExporter()
-            self.current.root().export(exporter, headers=True, variations=True, comments=True)
+            self.gs.current.root().export(exporter, headers=True, variations=True, comments=True)
             pgn = str(exporter)
             QPgn = QPlainTextEdit(pgn)
             QPgn.print_(dialog.printer())
@@ -124,7 +124,7 @@ class ChessboardView(QWidget):
         filename = QFileDialog.getSaveFileName(self, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if(filename):
             f = open(filename,'w')
-            print(self.current.root(), file=f, end="\n\n")
+            print(self.gs.current.root(), file=f, end="\n\n")
             print("pgn saver")
 
     def open_pgn(self):
@@ -132,20 +132,21 @@ class ChessboardView(QWidget):
         if(filename):
             pgn = open(filename)
             first_game = chess.pgn.read_game(pgn)
-            self.current = first_game
+            self.gs.current = first_game
             self.update()
-            self.movesEdit.bv = self
+            self.emit(SIGNAL("statechanged()"))
+            #self.movesEdit.bv = self
 
-            self.movesEdit.update_san()
-            self.movesEdit.setFocus()
+            #self.movesEdit.update_san()
+            #self.movesEdit.setFocus()
 
             print("open pgn dummy")
 
     def editGameData(self):
-        ed = DialogEditGameData(self.current.root())
+        ed = DialogEditGameData(self.gs.current.root())
         answer = ed.exec_()
         if(answer):
-            root = self.current.root()
+            root = self.gs.current.root()
             root.headers["Event"] = ed.ed_white.text()
             root.headers["Site"] = ed.ed_site.text()
             root.headers["Date"] = ed.ed_date.text()
@@ -161,7 +162,7 @@ class ChessboardView(QWidget):
                 root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
                 root.headers["Result"] = "*"
-        self.mainWindow.setLabels(self.current)
+        self.mainWindow.setLabels(self.gs.current)
 
     def show_about(self):
         d = DialogAbout()
@@ -170,13 +171,13 @@ class ChessboardView(QWidget):
     def game_to_clipboard(self):
         clipboard = QApplication.clipboard()
         exporter = chess.pgn.StringExporter()
-        self.current.root().export(exporter, headers=True, variations=True, comments=True)
+        self.gs.current.root().export(exporter, headers=True, variations=True, comments=True)
         pgn_string = str(exporter)
         clipboard.setText(pgn_string)
 
     def pos_to_clipboard(self):
         clipboard = QApplication.clipboard()
-        clipboard.setText(self.current.board().fen())
+        clipboard.setText(self.gs.current.board().fen())
 
     def from_clipboard(self):
         clipboard = QApplication.clipboard()
@@ -188,18 +189,19 @@ class ChessboardView(QWidget):
             board = chess.Bitboard(clipboard.text())
             root.setup(board)
             if(root.board().status() == 0):
-                self.current = root
+                self.gs.current = root
         except ValueError:
             pgn = io.StringIO(clipboard.text())
             first_game = chess.pgn.read_game(pgn)
-            self.current = first_game
+            self.gs.current = first_game
 
         self.update()
-        self.movesEdit.bv = self
+        self.emit(SIGNAL("statechanged()"))
+        #self.movesEdit.bv = self
 
-        self.movesEdit.update_san()
-        self.mainWindow.setLabels(self.current)
-        self.movesEdit.setFocus()
+        #self.movesEdit.update_san()
+        #self.mainWindow.setLabels(self.gs.current)
+        #self.movesEdit.setFocus()
 
     def heightForWidth(self, width):
         return width    
@@ -239,24 +241,25 @@ class ChessboardView(QWidget):
         self.update()
 
     def enter_position(self):
-        dialog = DialogEnterPosition(self.current.board())
+        dialog = DialogEnterPosition(self.gs.current.board())
         answer = dialog.exec_()
         if(answer):
             root = chess.pgn.Game()
             root.headers["FEN"] = ""
             root.headers["SetUp"] = ""
             root.setup(dialog.displayBoard.board)
-            self.current = root
+            self.gs.current = root
             #self.movesEdit.current = root
-            self.movesEdit.update_san()
-            self.setup_headers(self.current)
-            self.mainWindow.setLabels(self.current)
+            #self.movesEdit.update_san()
+            self.emit(SIGNAL("statechanged()"))
+            self.setup_headers(self.gs.current)
+            self.mainWindow.setLabels(self.gs.current)
             self.update()
 
 
     def touchPiece(self, x, y, mouse_x, mouse_y):
         self.moveSrc = Point(x,y)
-        piece = self.current.board().piece_at(y*8+x).symbol()
+        piece = self.gs.current.board().piece_at(y*8+x).symbol()
         self.grabbedPiece = piece
         self.grabbedX = mouse_x
         self.grabbedY = mouse_y
@@ -273,18 +276,18 @@ class ChessboardView(QWidget):
         
     def executeMove(self, uci):
         print(uci)
-        temp = self.current
+        temp = self.gs.current
         move = chess.Move.from_uci(uci)
         # check if move already exists
-        variation_moves = [ x.move for x in self.current.variations ]
+        variation_moves = [ x.move for x in self.gs.current.variations ]
         if(move in variation_moves):
-            for node in self.current.variations:
+            for node in self.gs.current.variations:
                 if(node.move == move):
-                    self.current = node
+                    self.gs.current = node
         # otherwise create a new node
         else:
-            self.current.add_variation(move)
-            self.current = self.current.variation(move)
+            self.gs.current.add_variation(move)
+            self.gs.current = self.gs.current.variation(move)
         #new_node = chess.pgn.GameNode()
         #new_node.parent = temp
         #new_node.move = chess.Move.from_uci(uci)
@@ -292,10 +295,11 @@ class ChessboardView(QWidget):
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
         #self.movesEdit = MovesEdit(self)
-        self.movesEdit.update_san()
-        print(self.current.root())
-        print("castling rights: "+str(self.current.board().castling_rights))
-        uci_string = self.movesEdit.printer.to_uci(self.current)
+        #self.movesEdit.update_san()
+        self.emit(SIGNAL("statechanged()"))
+        print(self.gs.current.root())
+        print("castling rights: "+str(self.gs.current.board().castling_rights))
+        uci_string = self.gs.printer.to_uci(self.gs.current)
         self.engine.uci_send_position(uci_string)
         self.engine.uci_go_infinite()
 
@@ -307,14 +311,14 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
 
     def _is_valid_and_promotes(self,uci):
-        legal_moves = self.current.board().legal_moves
+        legal_moves = self.gs.current.board().legal_moves
         for lm in legal_moves:
             if(uci == lm.uci()[0:4] and len(lm.uci())==5):
                 return True
         return False
 
     def _is_valid(self,uci):
-        legal_moves = self.current.board().legal_moves
+        legal_moves = self.gs.current.board().legal_moves
         return (len([x for x in legal_moves if x.uci() == uci]) > 0)
 
     def mousePressEvent(self, mouseEvent):
@@ -326,7 +330,7 @@ class ChessboardView(QWidget):
                 #m = Point(i,j)
                 uci = self._make_uci(self.moveSrc,pos)
                 if(self._is_valid_and_promotes(uci)):
-                    promDialog = DialogPromotion(self.current.board().turn == chess.WHITE)
+                    promDialog = DialogPromotion(self.gs.current.board().turn == chess.WHITE)
                     answer = promDialog.exec_()
                     if(answer):
                         uci += promDialog.final_piece.lower()
@@ -335,10 +339,10 @@ class ChessboardView(QWidget):
                     self.executeMove(uci)
                 else:
                     self.resetMove()
-                    if(self.current.board().piece_at(j*8+i) != None):
+                    if(self.gs.current.board().piece_at(j*8+i) != None):
                         self.touchPiece(i,j,mouseEvent.x(),mouseEvent.y())
             else:
-                if(self.current.board().piece_at(j*8+i) != None):
+                if(self.gs.current.board().piece_at(j*8+i) != None):
                     self.touchPiece(i,j,mouseEvent.x(),mouseEvent.y())
                     print("set picked up at: "+str(i) + str(j))
         self.update()
@@ -358,7 +362,7 @@ class ChessboardView(QWidget):
             if(pos != self.moveSrc):
                 uci = self._make_uci(self.moveSrc, pos)
                 if(self._is_valid_and_promotes(uci)):
-                    promDialog = DialogPromotion(self.current.board().turn == chess.WHITE)
+                    promDialog = DialogPromotion(self.gs.current.board().turn == chess.WHITE)
                     answer = promDialog.exec_()
                     if(answer):
                         uci += promDialog.final_piece.lower()
@@ -377,7 +381,10 @@ class ChessboardView(QWidget):
         squareSize = (boardSize-(2*self.borderWidth))//8
         boardSize = 8 * squareSize + 2 * self.borderWidth
         return (boardSize,squareSize)
-            
+
+    def on_statechanged(self):
+        self.update()
+
     def drawBoard(self, event, qp):
         penZero = QPen(Qt.black, 1, Qt.NoPen)
         qp.setPen(penZero)
@@ -420,9 +427,9 @@ class ChessboardView(QWidget):
                 #draw Piece
                 piece = None
                 if(self.flippedBoard):
-                    piece = self.current.board().piece_at((7-j)*8+i)
+                    piece = self.gs.current.board().piece_at((7-j)*8+i)
                 else:
-                    piece = self.current.board().piece_at(j*8+i)
+                    piece = self.gs.current.board().piece_at(j*8+i)
                 if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     # skip piece that is currently picked up
                     if(not self.flippedBoard):
@@ -453,275 +460,6 @@ class ChessboardView(QWidget):
                 qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
 
-class MovesEdit(QTextEdit):
-    
-    def __init__(self,boardView):
-        super(QTextEdit, self).__init__()
-        self.bv = boardView
-        #self.printer = self.bv.printer
-        self.printer = GUIPrinter(self.bv.current)
-        self.old_cursor_pos = -1
-        # setting below to zero removes blinking cursor
-        self.setCursorWidth(0)
-        self.viewport().setCursor(Qt.ArrowCursor)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        #self.cursorPositionChanged.connect(self.go_to_pos)
-        self.customContextMenuRequested.connect(self.context_menu)
-        #f = QFont("Times")
-        #f.setStyleHint(QFont.Times)
-        #self.setFont(f)
-
-
-    
-    def context_menu(self):
-        menu = QMenu(self)
-        sub_move_annotation = QMenu(menu)
-        sub_move_annotation.setTitle("Move Annotation")
-        ann_blunder = sub_move_annotation.addAction("?? Blunder")
-        ann_blunder.triggered.connect(lambda: self.move_annotation(4))
-        ann_mistake = sub_move_annotation.addAction("? Mistake")
-        ann_mistake.triggered.connect(lambda: self.move_annotation(2))
-        ann_dubious = sub_move_annotation.addAction("?! Dubious Move")
-        ann_dubious.triggered.connect(lambda: self.move_annotation(6))
-        ann_interesting = sub_move_annotation.addAction("!? Interesting Move")
-        ann_interesting.triggered.connect(lambda: self.move_annotation(5))
-        ann_good = sub_move_annotation.addAction("! Good Move")
-        ann_good.triggered.connect(lambda: self.move_annotation(1))
-        ann_brilliant = sub_move_annotation.addAction("!! Brilliant Move")
-        ann_brilliant.triggered.connect(lambda: self.move_annotation(3))
-        ann_empty = sub_move_annotation.addAction("No Annotation")
-        ann_empty.triggered.connect(lambda: self.move_annotation(None))
-        
-        sub_pos_annotation = QMenu(menu)
-        sub_pos_annotation.setTitle("Position Annotation")
-        pos_unclear = sub_pos_annotation.addAction("∞ Unclear")
-        pos_unclear.triggered.connect(lambda: self.pos_annotation(13))
-        pos_comp_w = sub_pos_annotation.addAction("=/∞ With Compensation for White")
-        pos_comp_w.triggered.connect(lambda: self.pos_annotation(44))
-        pos_comp_b =sub_pos_annotation.addAction("∞/= With Compensation for Black")
-        pos_comp_b.triggered.connect(lambda: self.pos_annotation(45))
-        pos_wsb = sub_pos_annotation.addAction("+/= White Slightly Better")
-        pos_wsb.triggered.connect(lambda: self.pos_annotation(14))
-        pos_bsb = sub_pos_annotation.addAction("=/+ Black Slightly Better")
-        pos_bsb.triggered.connect(lambda: self.pos_annotation(15))
-        pos_wb = sub_pos_annotation.addAction("+/- White Better")
-        pos_wb.triggered.connect(lambda: self.pos_annotation(16))
-        pos_bb = sub_pos_annotation.addAction("-/+ Black Better")
-        pos_bb.triggered.connect(lambda: self.pos_annotation(17))
-        pos_wmb = sub_pos_annotation.addAction("+- White Much Better")
-        pos_wmb.triggered.connect(lambda: self.pos_annotation(18))
-        pos_bmb = sub_pos_annotation.addAction("-+ Black Much Better")
-        pos_bmb.triggered.connect(lambda: self.pos_annotation(19))
-        pos_none = sub_pos_annotation.addAction("No Annotation")
-        pos_none.triggered.connect(lambda: self.pos_annotation(None))
-
-                
-        add_comment = menu.addAction("Add/Edit Comment")
-        add_comment.triggered.connect(self.add_comment)
-        delete_comment = menu.addAction("Delete Comment")
-        delete_comment.triggered.connect(self.delete_comment)
-        menu.addMenu(sub_move_annotation)
-        menu.addMenu(sub_pos_annotation)
-        menu.addSeparator()
-        variant_up = menu.addAction("Move Variant Up")
-        variant_up.triggered.connect(self.variant_up)
-        variant_down = menu.addAction("Move Variant Down")
-        variant_down.triggered.connect(self.variant_down)
-        delete_variant = menu.addAction("Delete Variant")
-        delete_variant.triggered.connect(self.delete_variant)
-        delete_here = menu.addAction("Delete From Here")
-        delete_here.triggered.connect(self.delete_from_here)
-        menu.addSeparator()
-        delete_all_comments = menu.addAction("Delete All Comments")
-        delete_all_comments.triggered.connect(self.delete_all_comments)
-        delete_all_variants = menu.addAction("Delete All Variants")
-        delete_all_variants.triggered.connect(self.delete_all_variants)
-        menu.exec_(QCursor.pos())
-        
-    def mousePressEvent(self, mouseEvent):
-        cursor = self.cursorForPosition(mouseEvent.pos())
-        cursor_pos = cursor.position()
-        self.go_to_pos(cursor_pos)
-        self.old_cursor_pos = cursor_pos
-        
-    def move_annotation(self,nag):
-        offset = self.old_cursor_pos
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            # 0...9 are move annotations according to the pgn standard
-            # first remove them, then set new
-            selected_state.nags = selected_state.nags - set(range(0,10))
-            if(nag != None):
-                selected_state.nags.add(nag)
-        self.update_san()
-        
-    def pos_annotation(self, nag):
-        offset = self.old_cursor_pos
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            # 10...135 are position annotations according to the
-            # pgn standard. first remove them, then add the supplied one
-            selected_state.nags = selected_state.nags - set(range(10,136))
-            if(nag != None):
-                selected_state.nags.add(nag)
-        self.update_san()
-                
-    def delete_all_comments(self):
-        self._rec_delete_comments(self.bv.current.root())
-        self.update_san()
-
-    def _rec_delete_comments(self,node):
-        node.comment = ""
-        for child in node.variations:
-            self._rec_delete_comments(child)
-
-    def delete_comment(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            selected_state.comment = ""
-        self.update_san()
-        
-    def add_comment(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            dialog = DialogWithPlainText()
-            dialog.setWindowTitle("Add/Edit Comment")
-            dialog.plainTextEdit.setPlainText(selected_state.comment)
-            answer = dialog.exec_()
-            if answer == True:
-                print("message ok")
-                typed_text = dialog.saved_text
-                selected_state.comment = typed_text
-                self.update_san()
-
-
-    def variant_up(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None and selected_state.parent != None):
-            variations = selected_state.parent.variations
-            idx = variations.index(selected_state)
-            if(idx < len(variations)-1):
-                temp = variations[idx-1]
-                variations[idx] = temp
-                variations[idx-1] = selected_state
-        self.update_san()
-
-    def variant_down(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None and selected_state.parent != None):
-            variations = selected_state.parent.variations
-            idx = variations.index(selected_state)
-            if(idx > 0):
-                temp = variations[idx+1]
-                variations[idx] = temp
-                variations[idx+1] = selected_state
-        self.update_san()
-        
-    def delete_from_here(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            selected_state.variations = []
-        self.update_san()
-
-    def delete_variant(self):
-        offset = self.old_cursor_pos
-        print("cursor_offset "+str(offset))
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            temp = selected_state
-            idx = 0
-            while(temp.parent != None and len(temp.parent.variations) <= 1):
-                temp = temp.parent
-            if(temp.parent != None):
-                temp.parent.variations.remove(temp)
-        self.update_san()
-
-    def delete_all_variants(self):
-        node = self.bv.current.root()
-        while(node.variations != []):
-            node.variations = [node.variations[0]]
-            node = node.variations[0]
-        self.update_san()
-
-    def _get_state_from_offset(self, offset):
-        # next is to update to current status
-        text = self.printer.to_san_html(self.bv.current)
-        # print(str(self.printer.offset_table))
-        offset_index = self.printer.offset_table
-        j = 0
-        for i in range(0,len(offset_index)):
-            if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
-                j = i
-        try:
-            return offset_index[j][2]
-        except IndexError:
-            return None
-
-    def go_to_pos(self,cursor_pos):
-        offset = self.textCursor().position()
-        print("triggered with "+str(cursor_pos))
-        if(cursor_pos > 0):
-            if(offset != self.old_cursor_pos):
-                self.old_cursor_pos = offset
-                selected_state = self._get_state_from_offset(cursor_pos)
-            #selected_state = self.bv.current
-                self.bv.current = selected_state
-                self.bv.update()
-            #self.old_cursor_pos = 0
-                self.setHtml(self.printer.to_san_html(self.bv.current))
-            #exporter = chess.pgn.StringExporter()
-            #self.bv.current.root().export(exporter, headers=True, variations=True, comments=True)
-            #pgn_string = str(exporter)
-            #self.setHtml(pgn_string)
-
-    def update_san(self):
-        self.setHtml(self.printer.to_san_html(self.bv.current))
-
-    def keyPressEvent(self, event):
-        key = event.key()
-        if key == Qt.Key_Left:
-            print("left pressed")
-            if(self.bv.current.parent):
-                self.bv.current = self.bv.current.parent
-            print("after if")
-            self.setHtml(self.printer.to_san_html(self.bv.current))
-            #exporter = chess.pgn.StringExporter()
-            #self.bv.current.root().export(exporter, headers=True, variations=True, comments=True)
-            #pgn_string = str(exporter)
-            #self.setHtml(pgn_string)
-            print("after set html")
-            #print("received from printer "+self.printer.to_pgn())
-            self.bv.update()
-            print("after bv update")
-        elif key == Qt.Key_Right:
-            print("message ok")
-            variations = self.bv.current.variations
-            if(len(variations) > 1):
-                move_list = [ self.bv.current.board().san(x.move)
-                              for x in self.bv.current.variations ]
-                dialog = DialogWithListView(move_list)
-                dialog.setWindowTitle("Next Move")
-                dialog.listWidget.setFocus()
-                answer = dialog.exec_()
-                if answer == True:
-                    print("message ok")
-                    idx = dialog.selected_idx
-                    print("selected idx via dialog"+str(idx))
-                    self.bv.current = self.bv.current.variation(idx)
-            elif(len(variations) == 1):
-                self.bv.current = self.bv.current.variation(0)
-            self.setHtml(self.printer.to_san_html(self.bv.current))
-            self.bv.update()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -731,19 +469,21 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
 
-        #qp.drawImage(10,10,qim,0,0,0,0)
-
         exit = QAction(QIcon('icons/exit.png'), 'Exit', self)
         exit.setShortcut('Ctrl+Q')
         exit.setStatusTip('Exit application')
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        self.board = ChessboardView()
-        self.board.mainWindow = self
+        gs = GameState()
+        engine = Uci_controller()
 
-        movesEdit = MovesEdit(self.board)
-        self.board.movesEdit = movesEdit
+        engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
+        engine.uci_newgame()
+        engine.uci_ok()
 
+        self.board = ChessboardView(gs,engine)
+
+        movesEdit = MovesEdit(gs)
 
         #board.getState().setInitPos()
         
@@ -821,7 +561,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(self.board.current)
+        self.setLabels(gs.current)
 
         m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
@@ -884,10 +624,11 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.board.engineWindow = engineOutput
-        controller = Uci_controller()
-        self.board.engine = controller
-        self.board.init_engine()
+        self.connect(engine, SIGNAL("updateinfo(QString)"),engineOutput.setPlainText)
+        self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
+        self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
+
+
         
         
     def centerOnScreen (self):
