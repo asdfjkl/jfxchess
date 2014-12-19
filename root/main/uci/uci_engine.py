@@ -28,7 +28,7 @@ class EngineInfo(object):
             outstr += str(self.currmove)
         outstr += "     "
         if(self.nps):
-            outstr += str(self.nps)
+            outstr += str(self.nps)+" kn/s"
         outstr += "\n"
         if(self.pv):
             outstr += self.pv
@@ -46,8 +46,10 @@ class Uci_engine(QThread):
     CURRMOVE = re.compile('currmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
     BESTMOVE = re.compile('bestmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
     PV = re.compile('pv(\s[a-z]\d[a-z]\d[a-z]{0,1})+')
+    POS = re.compile('position\s')
     IDNAME = re.compile('id\sname\s(\w|\s)+')
-    MOVE = re.compile('\s[a-z]\d[a-z]\d[a-z]{0,1}\s')
+    MOVE = re.compile('\s[a-z]\d[a-z]\d([a-z]{0,1})\s')
+    MOVES = re.compile('\s[a-z]\d[a-z]\d([a-z]{0,1})')
 
     def __init__(self, engine_path, parent=None):
         super(Uci_engine, self).__init__(parent)
@@ -74,8 +76,10 @@ class Uci_engine(QThread):
         # first check if this is a position command
         # if so, count the number of halfmoves that
         # have been played so far, and update self.no_game_halfmoves
-        self.info.no_game_halfmoves = 1
-
+        print("SENDING: "+str(msg))
+        if(re.search(self.POS,msg)):
+            self.info.no_game_halfmoves = len(re.findall(self.MOVES,msg))
+            print("no: "+str(self.info.no_game_halfmoves))
         # if the engine is in infinite mode,
         # first send a stop command
         if(self.sent_go_infinite):
@@ -134,7 +138,7 @@ class Uci_engine(QThread):
                     emit_info = True
                 nps = self.NPS.search(line)
                 if(nps):
-                    knps = float(nps.group()[4:])/1000.0
+                    knps = int(nps.group()[4:])//1000
                     self.info.nps = knps
                     emit_info = True
                 depth = self.DEPTH.search(line)
@@ -183,19 +187,30 @@ class Uci_engine(QThread):
 
     def add_move_numbers_to_info(self):
         replaced_all = False
-        s = self.info.pv
+        move_no = (self.info.no_game_halfmoves//2)+1
+        white_moves = True
+        s = ""
+        if(self.info.no_game_halfmoves % 2 == 1):
+            s += str(move_no)+". ...?"+self.info.pv[:]
+            move_no += 1
+        else:
+            white_moves = False
+            s += str(move_no) +"."+self.info.pv[:]
         while(replaced_all == False):
             mv = self.MOVE.search(s)
             if(mv):
-                replaced_all = True
                 idx = mv.start()
-                l = len(mv.group())-2
-                print(str(idx-l))
-                s = s[:(idx-l)] + str(self.info.no_game_halfmoves) + \
-                                           s[(idx-l):]
-                print("found match: "+s+" "+mv.group())
+                if(white_moves):
+                    s = s[:(idx)] + " "+str(move_no) + "."+ s[(idx+1):]
+                else:
+                    move_no += 1
+                    s = s[:(idx)] + "?"+\
+                                           s[(idx+1):]
+                white_moves = not white_moves
             else:
                 replaced_all = True
+        print(s)
+        s = s.replace('?',' ')
         return s
 
     def on_err_out(self):
