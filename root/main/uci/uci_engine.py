@@ -15,23 +15,30 @@ class EngineInfo(object):
         self.pv = None
 
     def __str__(self):
-        outstr = ""
+        outstr = '<table width="100%"><tr>'
         if(self.id):
-            outstr = self.id+"\n"
+            outstr += '<th colspan="3" align="left">'+self.id+"</th>"
+        outstr += '</tr><tr></tr><tr><td width="33%">'
         if(self.mate):
-            outstr += "#"+str(self.mate)+"     "
+            outstr += "#"+str(self.mate)
         elif(self.score):
-            outstr += str(self.score)+"      "
+            outstr += str(self.score)
+        outstr += '</td><td width="33%">'
         if(self.currmovenumber):
-            outstr += str(self.currmovenumber)
+            sum = self.currmovenumber + self.no_game_halfmoves
+            if(sum % 2 == 0):
+                outstr += str(sum // 2)+"."
+            else:
+                outstr += str(sum // 2)+". ..."
         if(self.currmove):
             outstr += str(self.currmove)
-        outstr += "     "
+        outstr += "</td><td>"
         if(self.nps):
             outstr += str(self.nps)+" kn/s"
-        outstr += "\n"
+        outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
             outstr += self.pv
+        outstr += '</td></tr></table>'
         return outstr
 
 

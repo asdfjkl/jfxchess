@@ -546,7 +546,7 @@ class MainWindow(QMainWindow):
         vbox.addWidget(movesEdit)
         self.board.movesEdit = movesEdit
 
-        engineOutput = QPlainTextEdit()
+        engineOutput = QTextEdit()
 
         vbox.addWidget(engineOutput)
         
@@ -624,7 +624,7 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(engine, SIGNAL("updateinfo(QString)"),engineOutput.setPlainText)
+        self.connect(engine, SIGNAL("updateinfo(QString)"),engineOutput.setHtml)
         self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
 
