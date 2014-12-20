@@ -23,14 +23,15 @@ class EngineInfo(object):
             outstr += "#"+str(self.mate)
         elif(self.score):
             outstr += '%.2f' % self.score
-        outstr += '</td><td width="33%">'
-        if(self.currmovenumber):
-            sum = self.currmovenumber + self.no_game_halfmoves
-            if(sum % 2 == 0):
-                outstr += str(sum // 2)+"."
+        outstr += '</td><td width="36%">'
+        if(self.currmovenumber and self.currmove):
+            halfmoves = self.currmovenumber + self.no_game_halfmoves
+            move_no = ((self.currmovenumber + (self.no_game_halfmoves-1))//2)+1
+            if(halfmoves % 2 == 0):
+                outstr += str(move_no)+". ..."
             else:
-                outstr += str(sum // 2)+". ..."
-        if(self.currmove):
+                outstr += str(move_no) +"."
+            #outstr += str(move_no)+"."
             outstr += str(self.currmove)
         outstr += "</td><td>"
         if(self.nps):
@@ -86,6 +87,7 @@ class Uci_engine(QThread):
         print("SENDING: "+str(msg))
         if(re.search(self.POS,msg)):
             self.info.no_game_halfmoves = len(re.findall(self.MOVES,msg))
+            self.info.currmove = None
             print("no: "+str(self.info.no_game_halfmoves))
         # if the engine is in infinite mode,
         # first send a stop command
