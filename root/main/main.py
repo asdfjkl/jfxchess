@@ -13,6 +13,7 @@ from uci.uci_controller import Uci_controller
 # python chess
 from chess.polyglot import *
 from chess.pgn import Game
+import chess
 
 # PyQt and python system functions
 from  PyQt4.QtGui import *
@@ -299,9 +300,10 @@ class ChessboardView(QWidget):
         self.emit(SIGNAL("statechanged()"))
         print(self.gs.current.root())
         print("castling rights: "+str(self.gs.current.board().castling_rights))
-        uci_string = self.gs.printer.to_uci(self.gs.current)
-        self.engine.uci_send_position(uci_string)
-        self.engine.uci_go_infinite()
+        if(self.gs.mode == MODE_ANALYSIS):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_infinite()
 
         
     def resetMove(self):
@@ -310,7 +312,16 @@ class ChessboardView(QWidget):
         self.grabbedPiece = None
         self.drawGrabbedPiece = False
 
+    def __players_turn(self):
+        if(self.gs.mode == MODE_PLAY_BLACK and self.current.board().turn == chess.WHITE):
+            return False
+        if(self.gs.mode == MODE_PLAY_WHITE and self.current.board().turn == chess.BLACK):
+            return False
+        return True
+
     def _is_valid_and_promotes(self,uci):
+        if(not self.__players_turn()):
+            return False
         legal_moves = self.gs.current.board().legal_moves
         for lm in legal_moves:
             if(uci == lm.uci()[0:4] and len(lm.uci())==5):
@@ -318,6 +329,8 @@ class ChessboardView(QWidget):
         return False
 
     def _is_valid(self,uci):
+        if(not self.__players_turn()):
+            return False
         legal_moves = self.gs.current.board().legal_moves
         return (len([x for x in legal_moves if x.uci() == uci]) > 0)
 
@@ -474,16 +487,17 @@ class MainWindow(QMainWindow):
         exit.setStatusTip('Exit application')
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        gs = GameState()
-        engine = Uci_controller()
+        self.gs = GameState()
+        self.gs.mode = MODE_ENTER_MOVES
+        self.engine = Uci_controller()
 
-        engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
-        engine.uci_newgame()
-        engine.uci_ok()
+        #self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
+        #self.engine.uci_newgame()
+        #self.engine.uci_ok()
 
-        self.board = ChessboardView(gs,engine)
+        self.board = ChessboardView(self.gs,self.engine)
 
-        movesEdit = MovesEdit(gs)
+        movesEdit = MovesEdit(self.gs)
 
         #board.getState().setInitPos()
         
@@ -546,9 +560,9 @@ class MainWindow(QMainWindow):
         vbox.addWidget(movesEdit)
         self.board.movesEdit = movesEdit
 
-        engineOutput = QTextEdit()
+        self.engineOutput = QTextEdit()
 
-        vbox.addWidget(engineOutput)
+        vbox.addWidget(self.engineOutput)
         
         hbox.addLayout(vbox)
         
@@ -561,7 +575,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(gs.current)
+        self.setLabels(self.gs.current)
 
         m_file = self.menuBar().addMenu('File ')
         new_game_white = m_file.addAction('New Game (White)')
@@ -607,12 +621,18 @@ class MainWindow(QMainWindow):
         setup_clock = m_edit.addAction("Setup Clock")
         m_mode = self.menuBar().addMenu("Mode")
         ag = QActionGroup(self, exclusive=True)
-        analysis = m_mode.addAction(ag.addAction(QAction("Analysis Mode",m_mode,checkable=True)))
-        play_white = m_mode.addAction(ag.addAction(QAction("Play as White",m_mode,checkable=True)))
-        play_black = m_mode.addAction(ag.addAction(QAction("Play as Black",m_mode,checkable=True)))
-        a = QAction("Enter Moves",m_mode,checkable=True)
-        enter_moves = m_mode.addAction(ag.addAction(a))
-        a.setChecked(True)
+        analysis = QAction("Analysis Mode",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(analysis))
+        analysis.triggered.connect(self.on_analysis_mode)
+        play_white = QAction("Play as White",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(play_white))
+        play_black = QAction("Play as Black",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(play_black))
+
+        enter_moves = QAction("Enter Moves",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(enter_moves))
+        enter_moves.triggered.connect(self.on_enter_moves_mode)
+        enter_moves.setChecked(True)
         m_mode.addSeparator()
         set_strength = m_mode.addAction("Strength Level")
         m_mode.addSeparator()
@@ -624,11 +644,35 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()    
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(engine, SIGNAL("updateinfo(QString)"),engineOutput.setHtml)
+        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
         self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
+        self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
 
+    def on_statechanged(self):
+        if(self.gs.mode == MODE_ANALYSIS):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_infinite()
 
+    def on_analysis_mode(self):
+        self.engine.start_engine("mooh")
+        self.engine.uci_ok()
+        self.engine.uci_newgame()
+        uci_string = self.gs.printer.to_uci(self.gs.current)
+        self.engine.uci_send_position(uci_string)
+        self.engine.uci_go_infinite()
+        self.gs.mode = MODE_ANALYSIS
+
+    def on_enter_moves_mode(self):
+        # stop any engine
+        self.engine.stop_engine()
+        self.engineOutput.setHtml("")
+        self.gs.mode = MODE_ENTER_MOVES
+
+    def on_play_as_black(self): pass
+
+    def on_play_as_white(self): pass
         
         
     def centerOnScreen (self):

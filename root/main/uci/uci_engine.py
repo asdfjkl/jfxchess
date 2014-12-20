@@ -22,7 +22,7 @@ class EngineInfo(object):
         if(self.mate):
             outstr += "#"+str(self.mate)
         elif(self.score):
-            outstr += str(self.score)
+            outstr += '%.2f' % self.score
         outstr += '</td><td width="33%">'
         if(self.currmovenumber):
             sum = self.currmovenumber + self.no_game_halfmoves
@@ -181,9 +181,11 @@ class Uci_engine(QThread):
                 id = self.IDNAME.search(line)
                 if(id):
                     engine_name = id.group()[8:]
+                    print("rec: "+engine_name)
                     self.info.id = engine_name
                     emit_info = True
                 if(emit_info):
+                    print("emitting: "+str(self.info))
                     self.emit(SIGNAL("newinfo(QString)"),str(self.info))
 
                 bm = self.BESTMOVE.search(line)
