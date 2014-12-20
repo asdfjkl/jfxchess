@@ -419,15 +419,24 @@ class ChessboardView(QWidget):
         
         boardOffsetX = self.borderWidth;
         boardOffsetY = self.borderWidth;
-        
-        # draw Board     
-        
+
+        # if the board is flipped, also
+        # flip colors so that the board
+        # loop works without any change/additional
+        # if-checks
+        dark = lightBlue2
+        light = lightBlue
+        if(self.flippedBoard):
+            dark = lightBlue
+            light = lightBlue2
+
+        # draw Board
         for i in range(0,8):
             for j in range(0,8):
                 if((j%2 == 0 and i%2 ==1) or (j%2 == 1 and i%2 ==0)):
-                    qp.setBrush(lightBlue)
+                    qp.setBrush(dark)
                 else:
-                    qp.setBrush(lightBlue2)        
+                    qp.setBrush(light)
                 #draw Square
                 if(self.flippedBoard):
                     x = boardOffsetX+((7-i)*squareSize)
