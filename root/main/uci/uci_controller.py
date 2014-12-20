@@ -19,8 +19,9 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("updateinfo(QString)"),msg)
 
     def stop_engine(self):
-        self.engine.quit()
-        self.engine.wait()
+        if(self.engine):
+            self.engine.quit()
+            self.engine.wait()
 
     def start_engine(self,path):
         self.engine = uci_engine.Uci_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64",self)
