@@ -46,7 +46,7 @@ class Uci_controller(QObject):
 
     def uci_go_movetime(self,ms):
         self.engine.command_queue.put("go movetime "+str(ms))
-        self.engine.pring_engine()
+        self.engine.ping_engine()
 
     def uci_go_infinite(self):
         self.engine.command_queue.put("go infinite")

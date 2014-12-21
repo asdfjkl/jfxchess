@@ -141,6 +141,7 @@ class Uci_engine(QThread):
                 emit_info = False
                 cp = self.SCORECP.search(line)
                 if(cp):
+                    print(cp.group())
                     score = float(cp.group()[9:])/100.0
                     self.info.score = score
                     emit_info = True
@@ -157,7 +158,8 @@ class Uci_engine(QThread):
                     emit_info = True
                 mate = self.MATE.search(line)
                 if(mate):
-                    m = int(mate.group()[6:])
+                    print(str(mate.group()))
+                    m = int(mate.group()[11:])
                     self.info.mate = m
                     emit_info = True
                 cmn = self.CURRMOVENUMBER.search(line)

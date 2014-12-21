@@ -67,6 +67,8 @@ class ChessboardView(QWidget):
         self.pieceImages = PieceImages()
 
         self.borderWidth = 12
+
+        self.think_time = 2000
         
         self.moveSrc = None
         self.grabbedPiece = None
@@ -305,6 +307,12 @@ class ChessboardView(QWidget):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
+        self.update()
+        if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
+            (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_movetime(self.think_time)
         print("Now its this turn: "+str(self.gs.current.board().turn))
 
         
@@ -644,6 +652,7 @@ class MainWindow(QMainWindow):
 
         play_black = QAction("Play as Black",m_mode,checkable=True)
         m_mode.addAction(ag.addAction(play_black))
+        play_black.triggered.connect(self.on_play_as_black)
 
         enter_moves = QAction("Enter Moves",m_mode,checkable=True)
         m_mode.addAction(ag.addAction(enter_moves))
@@ -687,7 +696,18 @@ class MainWindow(QMainWindow):
         self.engineOutput.setHtml("")
         self.gs.mode = MODE_ENTER_MOVES
 
-    def on_play_as_black(self): pass
+    def on_play_as_black(self):
+        self.gs.mode = MODE_PLAY_BLACK
+        self.engine.stop_engine()
+        self.engineOutput.setHtml("")
+        self.engine.start_engine("mooh")
+        self.engine.uci_ok()
+        self.engine.uci_newgame()
+        print("MOVE : "+str(self.gs.board().turn))
+        if(self.gs.current.board().turn == chess.WHITE):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_movetime(self.board.think_time)
 
     def on_play_as_white(self):
         self.gs.mode = MODE_PLAY_WHITE
@@ -700,7 +720,7 @@ class MainWindow(QMainWindow):
         if(self.gs.current.board().turn == chess.BLACK):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(3000)
+            self.engine.uci_go_movetime(self.board.think_time)
 
         
     def centerOnScreen (self):
