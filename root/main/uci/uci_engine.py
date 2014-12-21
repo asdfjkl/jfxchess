@@ -13,6 +13,7 @@ class EngineInfo(object):
         self.no_game_halfmoves = None
         self.nps = None
         self.pv = None
+        self.flip_eval = False
 
     def __str__(self):
         outstr = '<table width="100%"><tr>'
@@ -22,7 +23,12 @@ class EngineInfo(object):
         if(self.mate):
             outstr += "#"+str(self.mate)
         elif(self.score):
-            outstr += '%.2f' % self.score
+            if(self.flip_eval):
+                print("NOT FLIP EVAL")
+                outstr += '%.2f' % (-self.score)
+            else:
+                print("OTHER FLIP EVAL")
+                outstr += '%.2f' % self.score
         outstr += '</td><td width="36%">'
         if(self.currmovenumber and self.currmove):
             halfmoves = self.currmovenumber + self.no_game_halfmoves

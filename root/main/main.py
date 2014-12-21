@@ -682,6 +682,7 @@ class MainWindow(QMainWindow):
             self.engine.uci_go_infinite()
 
     def on_analysis_mode(self):
+        self.engine.flip_eval(False)
         self.engine.start_engine("mooh")
         self.engine.uci_ok()
         self.engine.uci_newgame()
@@ -701,6 +702,7 @@ class MainWindow(QMainWindow):
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
         self.engine.start_engine("mooh")
+        self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         print("MOVE : "+str(self.gs.board().turn))
@@ -714,6 +716,7 @@ class MainWindow(QMainWindow):
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
         self.engine.start_engine("mooh")
+        self.engine.flip_eval(True)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         print("MOVE : "+str(self.gs.board().turn))
