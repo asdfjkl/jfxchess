@@ -47,6 +47,7 @@ class GameState(Game):
         self.current = self.root()
         self.mode = MODE_ENTER_MOVES
         self.printer = GUIPrinter()
+        self.think_time = 1000
 
 class ChessboardView(QWidget):
 
@@ -64,8 +65,6 @@ class ChessboardView(QWidget):
         self.pieceImages = PieceImages()
 
         self.borderWidth = 12
-
-        self.think_time = 2000
 
         self.moveSrc = None
         self.grabbedPiece = None
@@ -297,20 +296,20 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
         #self.movesEdit = MovesEdit(self)
         #self.movesEdit.update_san()
-        self.emit(SIGNAL("statechanged()"))
         print(self.gs.current.root())
         print("castling rights: "+str(self.gs.current.board().castling_rights))
         if(self.gs.mode == MODE_ANALYSIS):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
-        self.update()
+        #self.update()
         if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.think_time)
+            self.engine.uci_go_movetime(self.gs.think_time)
         print("Now its this turn: "+str(self.gs.current.board().turn))
+        self.emit(SIGNAL("statechanged()"))
 
 
     def resetMove(self):
@@ -490,5 +489,9 @@ class ChessboardView(QWidget):
 
     def on_bestmove(self,move):
         print("bestmvoe received: "+str(move))
-        self.executeMove(move)
-        self.update()
+        # execute only if engine plays
+        if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
+            or
+            (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
+            self.executeMove(move)
+            self.update()

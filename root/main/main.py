@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         movesEdit = MovesEdit(self.gs)
 
         #board.getState().setInitPos()
-        
+
         spLeft = QSizePolicy();
         spLeft.setHorizontalStretch(1);
 
@@ -62,37 +62,37 @@ class MainWindow(QMainWindow):
 
         hbox = QHBoxLayout()
         hbox.addWidget(self.board)
-        
+
         spRight = QSizePolicy();
         spRight.setHorizontalStretch(2);
- 
+
         lcd1 = QLCDNumber(self)
-        
+
         lcd1.setSegmentStyle(QLCDNumber.Flat)
         lcd1.display(time.strftime("%H"+":"+"%M"))
         lcd1.setFrameStyle(QFrame.NoFrame)
-        
+
         lcd2 = QLCDNumber(self)
         lcd2.setSegmentStyle(QLCDNumber.Flat)
         lcd2.display(time.strftime("%H"+":"+"%M"))
 
         lcd2.setFrameStyle(QFrame.NoFrame)
 
-        
+
         hboxLcd = QHBoxLayout()
-        
-        
+
+
         pixmapWhite = QPixmap("../res/icons/whiteClock.png")
         pixmapBlack = QPixmap("../res/icons/blackClock.png")
-        
+
         labelWhite = QLabel()
         labelWhite.setPixmap(pixmapWhite)
         labelWhite.setAlignment(Qt.AlignRight)
-        
+
         labelBlack = QLabel()
         labelBlack.setPixmap(pixmapBlack)
         labelBlack.setAlignment(Qt.AlignRight)
-        
+
         hboxLcd.addWidget(labelWhite)
         hboxLcd.addWidget(lcd1)
         hboxLcd.addStretch(1)
@@ -114,10 +114,10 @@ class MainWindow(QMainWindow):
         self.engineOutput = QTextEdit()
 
         vbox.addWidget(self.engineOutput)
-        
+
         hbox.addLayout(vbox)
-        
-        
+
+
         mainWidget.setLayout(hbox)
         self.setCentralWidget(mainWidget);
 
@@ -195,7 +195,7 @@ class MainWindow(QMainWindow):
         m_help = self.menuBar().addMenu("Help")
         about = m_help.addAction("About")
         about.triggered.connect(self.board.show_about)
-        m_help.addSeparator()    
+        m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
@@ -213,11 +213,11 @@ class MainWindow(QMainWindow):
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(1000)
+            self.engine.uci_go_movetime(self.gs.think_time)
 
     def on_analysis_mode(self):
-        self.engine.flip_eval(False)
         self.engine.start_engine("mooh")
+        self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         uci_string = self.gs.printer.to_uci(self.gs.current)
@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.board.think_time)
 
-        
+
     def centerOnScreen (self):
         '''centerOnScreen()
            Centers (vertically in the upper third) the window on the screen.'''
