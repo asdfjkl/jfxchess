@@ -308,6 +308,8 @@ class ChessboardView(QWidget):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.think_time)
+        elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK):
+            self.engine.uci_go_infinite()
         print("Now its this turn: "+str(self.gs.current.board().turn))
         self.emit(SIGNAL("statechanged()"))
 
@@ -493,5 +495,8 @@ class ChessboardView(QWidget):
         if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
             or
             (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
-            self.executeMove(move)
-            self.update()
+            uci = move
+            legal_moves = self.gs.current.board().legal_moves
+            if (len([x for x in legal_moves if x.uci() == uci]) > 0):
+                self.executeMove(move)
+                self.update()

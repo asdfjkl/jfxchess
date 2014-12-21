@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
         if(self.gs.current.board().turn == chess.WHITE):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.board.think_time)
+            self.engine.uci_go_movetime(self.gs.think_time)
 
     def on_play_as_white(self):
         self.gs.mode = MODE_PLAY_WHITE
@@ -257,7 +257,7 @@ class MainWindow(QMainWindow):
         if(self.gs.current.board().turn == chess.BLACK):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.board.think_time)
+            self.engine.uci_go_movetime(self.gs.think_time)
 
 
     def centerOnScreen (self):
