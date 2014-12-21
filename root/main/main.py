@@ -209,6 +209,11 @@ class MainWindow(QMainWindow):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
+        if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
+            (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_movetime(1000)
 
     def on_analysis_mode(self):
         self.engine.flip_eval(False)
