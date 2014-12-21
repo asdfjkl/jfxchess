@@ -289,6 +289,7 @@ class ChessboardView(QWidget):
         else:
             self.gs.current.add_variation(move)
             self.gs.current = self.gs.current.variation(move)
+        #"+str(( self.gs.board().turn + 1)%2))
         #new_node = chess.pgn.GameNode()
         #new_node.parent = temp
         #new_node.move = chess.Move.from_uci(uci)
@@ -304,6 +305,7 @@ class ChessboardView(QWidget):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
+        print("Now its this turn: "+str(self.gs.current.board().turn))
 
         
     def resetMove(self):
@@ -313,9 +315,9 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
 
     def __players_turn(self):
-        if(self.gs.mode == MODE_PLAY_BLACK and self.current.board().turn == chess.WHITE):
+        if(self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE):
             return False
-        if(self.gs.mode == MODE_PLAY_WHITE and self.current.board().turn == chess.BLACK):
+        if(self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK):
             return False
         return True
 
@@ -481,7 +483,10 @@ class ChessboardView(QWidget):
                             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
                 qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
-
+    def on_bestmove(self,move):
+        print("bestmvoe received: "+str(move))
+        self.executeMove(move)
+        self.update()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -635,6 +640,8 @@ class MainWindow(QMainWindow):
         analysis.triggered.connect(self.on_analysis_mode)
         play_white = QAction("Play as White",m_mode,checkable=True)
         m_mode.addAction(ag.addAction(play_white))
+        play_white.triggered.connect(self.on_play_as_white)
+
         play_black = QAction("Play as Black",m_mode,checkable=True)
         m_mode.addAction(ag.addAction(play_black))
 
@@ -657,6 +664,7 @@ class MainWindow(QMainWindow):
         self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
+        self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
 
     def on_statechanged(self):
         if(self.gs.mode == MODE_ANALYSIS):
@@ -681,8 +689,19 @@ class MainWindow(QMainWindow):
 
     def on_play_as_black(self): pass
 
-    def on_play_as_white(self): pass
-        
+    def on_play_as_white(self):
+        self.gs.mode = MODE_PLAY_WHITE
+        self.engine.stop_engine()
+        self.engineOutput.setHtml("")
+        self.engine.start_engine("mooh")
+        self.engine.uci_ok()
+        self.engine.uci_newgame()
+        print("MOVE : "+str(self.gs.board().turn))
+        if(self.gs.current.board().turn == chess.BLACK):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_movetime(3000)
+
         
     def centerOnScreen (self):
         '''centerOnScreen()
