@@ -66,17 +66,17 @@ class MainWindow(QMainWindow):
         spRight = QSizePolicy();
         spRight.setHorizontalStretch(2);
 
-        lcd1 = QLCDNumber(self)
+        self.lcd1 = QLCDNumber(self)
 
-        lcd1.setSegmentStyle(QLCDNumber.Flat)
-        lcd1.display(time.strftime("%H"+":"+"%M"))
-        lcd1.setFrameStyle(QFrame.NoFrame)
+        self.lcd1.setSegmentStyle(QLCDNumber.Flat)
+        self.lcd1.display(time.strftime("%H"+":"+"%M"))
+        self.lcd1.setFrameStyle(QFrame.NoFrame)
 
-        lcd2 = QLCDNumber(self)
-        lcd2.setSegmentStyle(QLCDNumber.Flat)
-        lcd2.display(time.strftime("%H"+":"+"%M"))
+        self.lcd2 = QLCDNumber(self)
+        self.lcd2.setSegmentStyle(QLCDNumber.Flat)
+        self.lcd2.display(time.strftime("%H"+":"+"%M"))
 
-        lcd2.setFrameStyle(QFrame.NoFrame)
+        self.lcd2.setFrameStyle(QFrame.NoFrame)
 
 
         hboxLcd = QHBoxLayout()
@@ -94,10 +94,10 @@ class MainWindow(QMainWindow):
         labelBlack.setAlignment(Qt.AlignRight)
 
         hboxLcd.addWidget(labelWhite)
-        hboxLcd.addWidget(lcd1)
+        hboxLcd.addWidget(self.lcd1)
         hboxLcd.addStretch(1)
         hboxLcd.addWidget(labelBlack)
-        hboxLcd.addWidget(lcd2)
+        hboxLcd.addWidget(self.lcd2)
 
         vbox = QVBoxLayout();
         vbox.addLayout(hboxLcd)
@@ -129,8 +129,7 @@ class MainWindow(QMainWindow):
         self.setLabels(self.gs.current)
 
         m_file = self.menuBar().addMenu('File ')
-        new_game_white = m_file.addAction('New Game (White)')
-        new_game_black = m_file.addAction("New Game (Black)")
+        new_game = m_file.addAction('New Game')
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
         load_game.triggered.connect(self.board.open_pgn)
@@ -198,11 +197,47 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
+        # timer
+        self.blitz_timer = QTimer()
+        self.blitz_timer.timeout.connect(self.update_timer)
+        self.blitz_timer.start(1000)
+
+        # in seconds
+        self.gs.time_white = 500
+        self.gs.time_black = 500
+        self.gs.timed_game = True
+
+        #QTimer.singleShot(3000, self.update_timer)
+
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
         self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
+
+    def hms_from_secs(self,secs):
+        hh = secs // (60*60)
+        mm = secs // 60
+        ss = secs % 60
+        return (hh,mm,ss)
+
+    def update_timer(self):
+        if(self.gs.timed_game):
+            if(self.gs.current.board().turn == chess.WHITE):
+                self.gs.time_white -= 1
+            if(self.gs.current.board().turn == chess.BLACK):
+                self.gs.time_black -= 1
+            w_hh,w_mm,w_ss = self.hms_from_secs(self.gs.time_white)
+            b_hh,b_mm,b_ss = self.hms_from_secs(self.gs.time_black)
+
+        self.lcd1.display("%02d:%02d:%02d" % (w_hh,w_mm,w_ss))
+        self.lcd2.display("%02d:%02d:%02d" % (b_hh,b_mm,b_ss))
+
+
+        print("triggered")
+        self.update()
+
+
 
     def on_statechanged(self):
         if(self.gs.mode == MODE_ANALYSIS):

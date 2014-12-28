@@ -49,6 +49,10 @@ class GameState(Game):
         self.printer = GUIPrinter()
         self.think_time = 1000
 
+        self.timed_game = False
+        self.time_white = 0
+        self.time_black = 0
+
 class ChessboardView(QWidget):
 
     def __init__(self,gamestate,engine):
