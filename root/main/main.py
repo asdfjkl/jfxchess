@@ -168,7 +168,7 @@ class MainWindow(QMainWindow):
         give_up = m_edit.addAction("Give Up")
         m_edit.addSeparator()
         stop_clock = m_edit.addAction("Stop Clock")
-        setup_clock = m_edit.addAction("Setup Clock")
+        setup_clock = m_edit.addAction("Time Controls...")
         m_mode = self.menuBar().addMenu("Mode")
         ag = QActionGroup(self, exclusive=True)
         analysis = QAction("Analysis Mode",m_mode,checkable=True)
@@ -234,7 +234,7 @@ class MainWindow(QMainWindow):
         self.lcd2.display("%02d:%02d:%02d" % (b_hh,b_mm,b_ss))
 
 
-        print("triggered")
+        #print("triggered")
         self.update()
 
 
