@@ -10,6 +10,7 @@ from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
 from dialogs.DialogAbout import DialogAbout
+from dialogs.DialogNewGame import DialogNewGame
 from uci.uci_controller import Uci_controller
 
 # python chess
@@ -214,6 +215,9 @@ class MainWindow(QMainWindow):
         self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
+
+        m = DialogNewGame()
+        m.exec_()
 
     def hms_from_secs(self,secs):
         hh = secs // (60*60)
