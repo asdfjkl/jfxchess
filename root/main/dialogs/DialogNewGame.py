@@ -34,7 +34,7 @@ class DialogNewGame(QDialog):
         hboxSlider.addWidget(self.lbl_slider_value)
 
         hboxFixedTime = QHBoxLayout()
-        lbl_fixed = QLabel("Fixed Time per Move")
+        lbl_fixed = QLabel("Untimed Game")
         lbl_fixed.setAlignment(Qt.AlignBottom)
         rb_untimed = QRadioButton("Computer thinks for")
         think_secs = QSpinBox()

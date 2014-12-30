@@ -7,6 +7,9 @@ class DialogEditGameData(QDialog):
         super(DialogEditGameData,self).__init__(parent)
         self.setWindowTitle("Edit Game Data")
 
+        # to limit the width of the lineEdit's
+        f = self.fontMetrics()
+
         self.ed_event = QLineEdit()
         self.ed_event.setText(root.headers["Event"])
         self.lbl_event = QLabel("Event")
@@ -21,11 +24,14 @@ class DialogEditGameData(QDialog):
         self.ed_date.setText(root.headers["Date"])
         self.lbl_date = QLabel("Date")
         self.lbl_date.setBuddy(self.ed_date)
+        l = f.width("2000.00.000")
+        self.ed_date.setFixedWidth(l)
 
         self.ed_round = QLineEdit()
         self.ed_round.setText(root.headers["Round"])
         self.lbl_round = QLabel("Round")
         self.lbl_round.setBuddy(self.ed_round)
+        self.ed_round.setFixedWidth(l)
 
         self.ed_white = QLineEdit()
         self.ed_white.setText(root.headers["White"])
@@ -52,38 +58,41 @@ class DialogEditGameData(QDialog):
         else:
             self.rb_unclear.setChecked(True)
 
-        grpBox = QGroupBox("Result")
+        grpBox = QButtonGroup()
         hbox = QHBoxLayout()
+        lbl_res = QLabel("Result")
         hbox.addWidget(self.rb_ww)
         hbox.addWidget(self.rb_draw)
         hbox.addWidget(self.rb_bw)
         hbox.addWidget(self.rb_unclear)
         hbox.addStretch(1)
-        grpBox.setLayout(hbox)
+        #grpBox.setLayout(hbox)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
         layout = QGridLayout()
         layout.addWidget(self.lbl_event,0,0)
-        layout.addWidget(self.ed_event,0,1,1,2)
+        layout.addWidget(self.ed_event,0,1,1,1)
 
         layout.addWidget(self.lbl_site,1,0)
-        layout.addWidget(self.ed_site,1,1,1,2)
+        layout.addWidget(self.ed_site,1,1,1,1)
 
         layout.addWidget(self.lbl_date,2,0)
         layout.addWidget(self.ed_date,2,1,1,1)
 
         layout.addWidget(self.lbl_round,3,0)
-        layout.addWidget(self.ed_round,3,1)
+        layout.addWidget(self.ed_round,3,1,1,1)
 
         layout.addWidget(self.lbl_white,4,0)
-        layout.addWidget(self.ed_white,4,1,1,2)
+        layout.addWidget(self.ed_white,4,1,1,1)
 
         layout.addWidget(self.lbl_black,5,0)
-        layout.addWidget(self.ed_black,5,1,1,2)
+        layout.addWidget(self.ed_black,5,1,1,1)
 
-        layout.addWidget(grpBox,7,0,1,3)
+        #layout.addWidget(grpBox,7,0,1,3)
+        layout.addWidget(lbl_res,7,0,1,1)
+        layout.addLayout(hbox,7,1)
 
-        layout.addWidget(buttonBox, 8, 2, 1, 1)
+        layout.addWidget(buttonBox, 8, 1, 1, 2)
         self.setLayout(layout)
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
