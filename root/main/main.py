@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
 
         m_file = self.menuBar().addMenu('File ')
         new_game = m_file.addAction('New Game')
+        new_game.triggered.connect(self.on_newgame)
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
         load_game.triggered.connect(self.board.open_pgn)
@@ -215,9 +216,9 @@ class MainWindow(QMainWindow):
         self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
+        self.connect(self, SIGNAL("statechanged()"),movesEdit.on_statechanged)
+        self.connect(self, SIGNAL("statechanged()"),self.board.on_statechanged)
 
-        m = DialogNewGame()
-        m.exec_()
 
     def hms_from_secs(self,secs):
         hh = secs // (60*60)
@@ -234,13 +235,55 @@ class MainWindow(QMainWindow):
             w_hh,w_mm,w_ss = self.hms_from_secs(self.gs.time_white)
             b_hh,b_mm,b_ss = self.hms_from_secs(self.gs.time_black)
 
-        self.lcd1.display("%02d:%02d:%02d" % (w_hh,w_mm,w_ss))
-        self.lcd2.display("%02d:%02d:%02d" % (b_hh,b_mm,b_ss))
+            self.lcd1.display("%02d:%02d:%02d" % (w_hh,w_mm,w_ss))
+            self.lcd2.display("%02d:%02d:%02d" % (b_hh,b_mm,b_ss))
 
+            self.update()
 
         #print("triggered")
-        self.update()
 
+
+    def on_newgame(self):
+        dialog = DialogNewGame()
+        print("exec dialog")
+        if dialog.exec_() == QDialog.Accepted:
+            self.gs = GameState()
+            self.board.gs = self.gs
+            print("calling update board")
+            self.board.flippedBoard = True
+            self.board.on_statechanged()
+            print("BOARD UPDATED")
+
+            self.gs.strength_level = dialog.slider.value()
+            if(dialog.rb_untimed):
+                self.gs.computer_think_time = dialog.think_secs.value()*1000
+            elif(dialog.rb_blitz1):
+                self.gs.time_white = 60
+                self.gs.time_black = 60
+            elif(dialog.rb_blitz2_12):
+                self.gs.time_white = 120
+                self.gs.time_black = 120
+                self.gs.add_secs_per_move = 12
+            elif(dialog.rb_blitz3_5):
+                self.gs.time_white = 180
+                self.gs.time_black = 180
+                self.gs.add_secs_per_move = 5
+            elif(dialog.rb_blitz5):
+                self.gs.time_white = 300
+                self.gs.time_black = 300
+            elif(dialog.rb_blitz15):
+                self.gs.time_white = 900
+                self.gs.time_black = 900
+            elif(dialog.rb_blitz30):
+                self.gs.time_white = 1800
+                self.gs.time_black = 1800
+
+            if(dialog.rb_plays_white.isChecked()):
+                print("plays white")
+                self.on_play_as_white()
+            else:
+                print("plays black")
+                self.on_play_as_black()
 
 
     def on_statechanged(self):
@@ -252,7 +295,7 @@ class MainWindow(QMainWindow):
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.think_time)
+            self.engine.uci_go_movetime(self.gs.computer_think_time)
 
     def on_analysis_mode(self):
         self.engine.start_engine("mooh")
@@ -278,11 +321,12 @@ class MainWindow(QMainWindow):
         self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
-        print("MOVE : "+str(self.gs.board().turn))
+        print("MOVE : "+str(self.gs.board().turn == chess.BLACK))
         if(self.gs.current.board().turn == chess.WHITE):
+            print("white to move")
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.think_time)
+            self.engine.uci_go_movetime(self.gs.computer_think_time)
 
     def on_play_as_white(self):
         self.gs.mode = MODE_PLAY_WHITE
@@ -296,7 +340,7 @@ class MainWindow(QMainWindow):
         if(self.gs.current.board().turn == chess.BLACK):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.think_time)
+            self.engine.uci_go_movetime(self.gs.computer_think_time)
 
 
     def centerOnScreen (self):

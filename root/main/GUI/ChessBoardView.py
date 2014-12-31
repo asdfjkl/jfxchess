@@ -47,11 +47,13 @@ class GameState(Game):
         self.current = self.root()
         self.mode = MODE_ENTER_MOVES
         self.printer = GUIPrinter()
-        self.think_time = 1000
+        self.computer_think_time = 1000
 
         self.timed_game = False
         self.time_white = 0
         self.time_black = 0
+        self.add_secs_per_move = 0
+        self.strength_level = 3
 
 class ChessboardView(QWidget):
 
@@ -311,9 +313,9 @@ class ChessboardView(QWidget):
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.think_time)
-        elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK):
-            self.engine.uci_go_infinite()
+            self.engine.uci_go_movetime(self.gs.computer_think_time)
+        elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK): pass
+            #self.engine.uci_go_infinite()
         print("Now its this turn: "+str(self.gs.current.board().turn))
         self.emit(SIGNAL("statechanged()"))
 
@@ -499,6 +501,8 @@ class ChessboardView(QWidget):
         if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
             or
             (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
+            print("executing bestmove received: "+str(move))
+
             uci = move
             legal_moves = self.gs.current.board().legal_moves
             if (len([x for x in legal_moves if x.uci() == uci]) > 0):
