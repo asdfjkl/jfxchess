@@ -249,28 +249,30 @@ class MainWindow(QMainWindow):
             self.movesEdit.gs = self.gs
             self.movesEdit.update()
             self.gs.strength_level = dialog.slider.value()
-            if(dialog.rb_untimed):
+            if(dialog.rb_untimed.isChecked()):
                 self.gs.computer_think_time = dialog.think_secs.value()*1000
-            elif(dialog.rb_blitz1):
-                self.gs.time_white = 60
-                self.gs.time_black = 60
-            elif(dialog.rb_blitz2_12):
-                self.gs.time_white = 120
-                self.gs.time_black = 120
-                self.gs.add_secs_per_move = 12
-            elif(dialog.rb_blitz3_5):
-                self.gs.time_white = 180
-                self.gs.time_black = 180
-                self.gs.add_secs_per_move = 5
-            elif(dialog.rb_blitz5):
-                self.gs.time_white = 300
-                self.gs.time_black = 300
-            elif(dialog.rb_blitz15):
-                self.gs.time_white = 900
-                self.gs.time_black = 900
-            elif(dialog.rb_blitz30):
-                self.gs.time_white = 1800
-                self.gs.time_black = 1800
+            else:
+                self.gs.timed_game = True
+                if(dialog.rb_blitz1):
+                    self.gs.time_white = 60
+                    self.gs.time_black = 60
+                elif(dialog.rb_blitz2_12):
+                    self.gs.time_white = 120
+                    self.gs.time_black = 120
+                    self.gs.add_secs_per_move = 12
+                elif(dialog.rb_blitz3_5):
+                    self.gs.time_white = 180
+                    self.gs.time_black = 180
+                    self.gs.add_secs_per_move = 5
+                elif(dialog.rb_blitz5):
+                    self.gs.time_white = 300
+                    self.gs.time_black = 300
+                elif(dialog.rb_blitz15):
+                    self.gs.time_white = 900
+                    self.gs.time_black = 900
+                elif(dialog.rb_blitz30):
+                    self.gs.time_white = 1800
+                    self.gs.time_black = 1800
             print("calling update board")
             self.board.on_statechanged()
             print("BOARD UPDATED")
