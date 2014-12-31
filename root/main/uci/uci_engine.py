@@ -7,6 +7,7 @@ class EngineInfo(object):
         self.id = None
         self.score = None
         self.depth = None
+        self.strength = None
         self.mate = None
         self.currmovenumber = None
         self.currmove = None
@@ -18,7 +19,10 @@ class EngineInfo(object):
     def __str__(self):
         outstr = '<table width="100%"><tr>'
         if(self.id):
-            outstr += '<th colspan="3" align="left">'+self.id+"</th>"
+            if(self.strength):
+                outstr += '<th colspan="3" align="left">'+self.id+" (Elo "+self.strength+")</th>"
+            else:
+                outstr += '<th colspan="3" align="left">'+self.id+"</th>"
         outstr += '</tr><tr></tr><tr><td width="33%">'
         if(self.mate):
             outstr += "#"+str(self.mate)
@@ -108,6 +112,11 @@ class Uci_engine(QThread):
         if(msg == "go infinite"):
             self.sent_go_infinite = True
           # finally issue the command
+        # if message sets strength level, add that level to
+        # the id string
+        if(msg.startswith("setoption name Skill Level value")):
+            print("received skill value")
+            self.info.strength = str(1200 + (int(msg[33:])*100))
         self.process.write(bytes(msg+"\n","utf-8"))
         self.process.waitForBytesWritten()
         self.process.write(bytes("isready\n","utf-8"))

@@ -51,6 +51,11 @@ class Uci_controller(QObject):
     def flip_eval(self,bv):
         self.engine.info.flip_eval = bv
 
+    # works only with stockfish
+    def uci_strength(self,level):
+        self.engine.command_queue.put("setoption name Skill Level value "+str(level))
+        self.engine.ping_engine()
+
     def uci_go_infinite(self):
         self.engine.command_queue.put("go infinite")
         self.engine.ping_engine()

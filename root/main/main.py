@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
 
         self.board = ChessboardView(self.gs,self.engine)
 
-        movesEdit = MovesEdit(self.gs)
+        self.movesEdit = MovesEdit(self.gs)
 
         #board.getState().setInitPos()
 
@@ -106,11 +106,11 @@ class MainWindow(QMainWindow):
         self.name = QLabel()
         self.name.setAlignment(Qt.AlignCenter)
 
-        self.name.setBuddy(movesEdit)
+        self.name.setBuddy(self.movesEdit)
         vbox.addWidget(self.name)
 
-        vbox.addWidget(movesEdit)
-        self.board.movesEdit = movesEdit
+        vbox.addWidget(self.movesEdit)
+        self.board.movesEdit = self.movesEdit
 
         self.engineOutput = QTextEdit()
 
@@ -212,13 +212,10 @@ class MainWindow(QMainWindow):
         #QTimer.singleShot(3000, self.update_timer)
 
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
-        self.connect(movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
-        self.connect(movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
-        self.connect(self.board, SIGNAL("statechanged()"),movesEdit.on_statechanged)
+        self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
+        self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
+        self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
-        self.connect(self, SIGNAL("statechanged()"),movesEdit.on_statechanged)
-        self.connect(self, SIGNAL("statechanged()"),self.board.on_statechanged)
-
 
     def hms_from_secs(self,secs):
         hh = secs // (60*60)
@@ -249,11 +246,8 @@ class MainWindow(QMainWindow):
         if dialog.exec_() == QDialog.Accepted:
             self.gs = GameState()
             self.board.gs = self.gs
-            print("calling update board")
-            self.board.flippedBoard = True
-            self.board.on_statechanged()
-            print("BOARD UPDATED")
-
+            self.movesEdit.gs = self.gs
+            self.movesEdit.update()
             self.gs.strength_level = dialog.slider.value()
             if(dialog.rb_untimed):
                 self.gs.computer_think_time = dialog.think_secs.value()*1000
@@ -277,12 +271,15 @@ class MainWindow(QMainWindow):
             elif(dialog.rb_blitz30):
                 self.gs.time_white = 1800
                 self.gs.time_black = 1800
-
+            print("calling update board")
+            self.board.on_statechanged()
+            print("BOARD UPDATED")
             if(dialog.rb_plays_white.isChecked()):
                 print("plays white")
                 self.on_play_as_white()
             else:
                 print("plays black")
+                self.board.flippedBoard = True
                 self.on_play_as_black()
 
 
@@ -321,6 +318,7 @@ class MainWindow(QMainWindow):
         self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
+        self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn == chess.BLACK))
         if(self.gs.current.board().turn == chess.WHITE):
             print("white to move")
@@ -336,6 +334,7 @@ class MainWindow(QMainWindow):
         self.engine.flip_eval(True)
         self.engine.uci_ok()
         self.engine.uci_newgame()
+        self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn))
         if(self.gs.current.board().turn == chess.BLACK):
             uci_string = self.gs.printer.to_uci(self.gs.current)
