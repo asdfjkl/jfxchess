@@ -67,41 +67,8 @@ class MainWindow(QMainWindow):
         spRight = QSizePolicy();
         spRight.setHorizontalStretch(2);
 
-        self.lcd1 = QLCDNumber(self)
-
-        self.lcd1.setSegmentStyle(QLCDNumber.Flat)
-        self.lcd1.display(time.strftime("%H"+":"+"%M"))
-        self.lcd1.setFrameStyle(QFrame.NoFrame)
-
-        self.lcd2 = QLCDNumber(self)
-        self.lcd2.setSegmentStyle(QLCDNumber.Flat)
-        self.lcd2.display(time.strftime("%H"+":"+"%M"))
-
-        self.lcd2.setFrameStyle(QFrame.NoFrame)
-
-
-        hboxLcd = QHBoxLayout()
-
-
-        pixmapWhite = QPixmap("../res/icons/whiteClock.png")
-        pixmapBlack = QPixmap("../res/icons/blackClock.png")
-
-        labelWhite = QLabel()
-        labelWhite.setPixmap(pixmapWhite)
-        labelWhite.setAlignment(Qt.AlignRight)
-
-        labelBlack = QLabel()
-        labelBlack.setPixmap(pixmapBlack)
-        labelBlack.setAlignment(Qt.AlignRight)
-
-        hboxLcd.addWidget(labelWhite)
-        hboxLcd.addWidget(self.lcd1)
-        hboxLcd.addStretch(1)
-        hboxLcd.addWidget(labelBlack)
-        hboxLcd.addWidget(self.lcd2)
-
         vbox = QVBoxLayout();
-        vbox.addLayout(hboxLcd)
+        #vbox.addLayout(hboxLcd)
 
         self.name = QLabel()
         self.name.setAlignment(Qt.AlignCenter)
@@ -169,8 +136,6 @@ class MainWindow(QMainWindow):
         offer_draw = m_edit.addAction("Offer Draw")
         give_up = m_edit.addAction("Give Up")
         m_edit.addSeparator()
-        stop_clock = m_edit.addAction("Stop Clock")
-        setup_clock = m_edit.addAction("Time Controls...")
         m_mode = self.menuBar().addMenu("Mode")
         ag = QActionGroup(self, exclusive=True)
         analysis = QAction("Analysis Mode",m_mode,checkable=True)
@@ -199,46 +164,11 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        # timer
-        self.blitz_timer = QTimer()
-        self.blitz_timer.timeout.connect(self.update_timer)
-        self.blitz_timer.start(1000)
-
-        # in seconds
-        self.gs.time_white = 500
-        self.gs.time_black = 500
-        self.gs.timed_game = True
-
-        #QTimer.singleShot(3000, self.update_timer)
-
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
-
-    def hms_from_secs(self,secs):
-        hh = secs // (60*60)
-        mm = secs // 60
-        ss = secs % 60
-        return (hh,mm,ss)
-
-    def update_timer(self):
-        if(self.gs.timed_game):
-            if(self.gs.current.board().turn == chess.WHITE):
-                self.gs.time_white -= 1
-            if(self.gs.current.board().turn == chess.BLACK):
-                self.gs.time_black -= 1
-            w_hh,w_mm,w_ss = self.hms_from_secs(self.gs.time_white)
-            b_hh,b_mm,b_ss = self.hms_from_secs(self.gs.time_black)
-
-            self.lcd1.display("%02d:%02d:%02d" % (w_hh,w_mm,w_ss))
-            self.lcd2.display("%02d:%02d:%02d" % (b_hh,b_mm,b_ss))
-
-            self.update()
-
-        #print("triggered")
-
 
     def on_newgame(self):
         dialog = DialogNewGame()
