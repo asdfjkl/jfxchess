@@ -11,6 +11,7 @@ from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
 from dialogs.DialogAbout import DialogAbout
 from dialogs.DialogNewGame import DialogNewGame
+from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from uci.uci_controller import Uci_controller
 
 # python chess
@@ -158,6 +159,7 @@ class MainWindow(QMainWindow):
         self.enter_moves.setChecked(True)
         m_mode.addSeparator()
         set_strength = m_mode.addAction("Strength Level")
+        set_strength.triggered.connect(self.on_strength_level)
         m_mode.addSeparator()
         analyze_game = m_mode.addAction("Full Game Analysis")
         play_out_pos = m_mode.addAction("Play out Position")
@@ -183,6 +185,24 @@ class MainWindow(QMainWindow):
         else:
             self.gs.display_engine_info = False
             self.engineOutput.setHtml("")
+
+    def on_strength_level(self):
+        dialog = DialogStrengthLevel()
+        if dialog.exec_() == QDialog.Accepted:
+            self.gs.strength_level = dialog.slider_elo.value()
+            val = dialog.slider_think.value()
+            self.gs.computer_think_time = val
+            if(val == 4):
+                self.gs.computer_think_time = 5
+            elif(val == 5):
+                self.gs.computer_think_time = 10
+            elif(val == 6):
+                self.gs.computer_think_time = 15
+            elif(val == 7):
+                self.gs.computer_think_time = 30
+            self.gs.computer_think_time = self.gs.computer_think_time*1000
+        if(not self.gs.mode == MODE_ENTER_MOVES):
+            self.engine.uci_strength(self.gs.strength_level)
 
     def on_newgame(self):
         dialog = DialogNewGame()
