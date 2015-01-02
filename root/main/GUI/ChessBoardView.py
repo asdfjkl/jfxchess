@@ -47,7 +47,7 @@ class GameState(Game):
         self.current = self.root()
         self.mode = MODE_ENTER_MOVES
         self.printer = GUIPrinter()
-        self.computer_think_time = 1000
+        self.computer_think_time = 3000
         self.display_engine_info = True
 
         self.timed_game = False

@@ -3,7 +3,7 @@ from PyQt4.QtCore import *
 
 class DialogNewGame(QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,gamestate=None):
         super(DialogNewGame,self).__init__(parent)
         self.setWindowTitle("New Game")
 
@@ -63,6 +63,22 @@ class DialogNewGame(QDialog):
 
         layout.addWidget(buttonBox)
         self.setLayout(layout)
+
+        if(gamestate):
+            think_time = gamestate.computer_think_time // 1000
+            if(think_time == 30):
+                think_time = 7
+            elif(think_time == 15):
+                think_time = 6
+            elif(think_time == 10):
+                think_time = 5
+            elif(think_time == 5):
+                think_time = 4
+            strength = gamestate.strength_level
+            self.slider_think.setValue(think_time)
+            self.slider_elo.setValue(strength)
+            self.set_lbl_elo_value(strength)
+            self.set_lbl_think_value(think_time)
 
         self.slider_elo.valueChanged.connect(self.set_lbl_elo_value)
         self.slider_think.valueChanged.connect(self.set_lbl_think_value)

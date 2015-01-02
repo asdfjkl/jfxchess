@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
             self.engineOutput.setHtml("")
 
     def on_strength_level(self):
-        dialog = DialogStrengthLevel()
+        dialog = DialogStrengthLevel(gamestate=self.gs)
         if dialog.exec_() == QDialog.Accepted:
             self.gs.strength_level = dialog.slider_elo.value()
             val = dialog.slider_think.value()
@@ -207,7 +207,7 @@ class MainWindow(QMainWindow):
             self.engine.uci_strength(self.gs.strength_level)
 
     def on_newgame(self):
-        dialog = DialogNewGame()
+        dialog = DialogNewGame(gamestate=self.gs)
         print("exec dialog")
         if dialog.exec_() == QDialog.Accepted:
             self.gs = GameState()
