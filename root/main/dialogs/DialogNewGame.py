@@ -23,25 +23,30 @@ class DialogNewGame(QDialog):
 
         lbl_elo = QLabel("Computer Strength")
         lbl_elo.setAlignment(Qt.AlignBottom)
-        self.lbl_slider_value = QLabel("1500")
-        hboxSlider = QHBoxLayout()
-        self.slider = QSlider(Qt.Horizontal, self)
-        self.slider.setRange(0,19)
-        self.slider.setTickInterval(1)
-        self.slider.setTickPosition(2)
-        self.slider.setValue(3)
-        hboxSlider.addWidget(self.slider)
-        hboxSlider.addWidget(self.lbl_slider_value)
+        self.lbl_elo_value = QLabel("1500")
+        hboxSlider_elo = QHBoxLayout()
+        self.slider_elo = QSlider(Qt.Horizontal, self)
+        self.slider_elo.setRange(0,19)
+        self.slider_elo.setTickInterval(1)
+        self.slider_elo.setTickPosition(2)
+        self.slider_elo.setValue(3)
+        hboxSlider_elo.addWidget(self.slider_elo)
+        hboxSlider_elo.addWidget(self.lbl_elo_value)
 
-        hboxFixedTime = QHBoxLayout()
-        self.lbl_think_time = QLabel("Computer thinks for")
-        self.think_secs = QSpinBox()
-        self.think_secs.setSuffix(" sec(s)")
-        self.think_secs.setMaximum(30)
-        self.think_secs.setValue(1)
-        hboxFixedTime.addWidget(self.lbl_think_time)
-        hboxFixedTime.addWidget(self.think_secs)
-        hboxFixedTime.addStretch(1)
+        lbl_think_time = QLabel("Computer's Time per Move")
+        lbl_think_time.setAlignment(Qt.AlignBottom)
+        self.lbl_think_value = QLabel("3 sec(s)")
+        f = self.fontMetrics()
+        l = f.width("20 sec(s)")
+        self.lbl_think_value.setFixedWidth(l)
+        hboxSlider_think = QHBoxLayout()
+        self.slider_think = QSlider(Qt.Horizontal, self)
+        self.slider_think.setRange(1,7) # 1, 2, 3, 5, 10, 15, 30
+        self.slider_think.setTickInterval(1)
+        self.slider_think.setTickPosition(2)
+        self.slider_think.setValue(3)
+        hboxSlider_think.addWidget(self.slider_think)
+        hboxSlider_think.addWidget(self.lbl_think_value)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
 
@@ -50,18 +55,33 @@ class DialogNewGame(QDialog):
         layout.addLayout(hboxSide)
         layout.addSpacing(20)
         layout.addWidget(lbl_elo)
-        layout.addLayout(hboxSlider)
+        layout.addLayout(hboxSlider_elo)
         layout.addSpacing(20)
-        layout.addLayout(hboxFixedTime)
+        layout.addWidget(lbl_think_time)
+        layout.addLayout(hboxSlider_think)
         layout.addSpacing(20)
 
         layout.addWidget(buttonBox)
         self.setLayout(layout)
 
-        self.slider.valueChanged.connect(self.set_lbl_value)
+        self.slider_elo.valueChanged.connect(self.set_lbl_elo_value)
+        self.slider_think.valueChanged.connect(self.set_lbl_think_value)
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
         self.resize(370, 150)
 
-    def set_lbl_value(self,val):
-        self.lbl_slider_value.setNum(1200+(val*100))
+    def set_lbl_elo_value(self,val):
+        self.lbl_elo_value.setNum(1200+(val*100))
+
+    def set_lbl_think_value(self,val):
+        res = val
+        if(val > 3):
+            if(val == 4):
+                res = 5
+            elif(val == 5):
+                res = 10
+            elif(val == 6):
+                res = 15
+            elif(val ==7):
+                res = 30
+        self.lbl_think_value.setText(str(res)+" sec(s)")
