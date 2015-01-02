@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
         self.display_info.triggered.connect(self.set_display_info)
         m_edit.addSeparator()
         offer_draw = m_edit.addAction("Offer Draw")
-        give_up = m_edit.addAction("Give Up")
+        give_up = m_edit.addAction("Resign")
         m_edit.addSeparator()
         m_mode = self.menuBar().addMenu("Mode")
         ag = QActionGroup(self, exclusive=True)
