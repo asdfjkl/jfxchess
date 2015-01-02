@@ -2,6 +2,9 @@
 - resign
 - computer resigns/offers draw
 
+- evaluation should always be from
+  white's perspective
+
 - play out position
 - full game analysis
 
