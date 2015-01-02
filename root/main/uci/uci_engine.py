@@ -25,7 +25,10 @@ class EngineInfo(object):
                 outstr += '<th colspan="3" align="left">'+self.id+"</th>"
         outstr += '</tr><tr></tr><tr><td width="33%">'
         if(self.mate):
-            outstr += "#"+str(self.mate)
+            if(self.flip_eval):
+                outstr += "#"+str(self.mate)
+            else:
+                outstr += "#"+str(-self.mate)
         elif(self.score):
             if(self.flip_eval):
                 print("NOT FLIP EVAL")
@@ -97,7 +100,11 @@ class Uci_engine(QThread):
         if(re.search(self.POS,msg)):
             self.info.no_game_halfmoves = len(re.findall(self.MOVES,msg))
             self.info.currmove = None
-            print("no: "+str(self.info.no_game_halfmoves))
+            print("NO OF HALFMOVES: "+str(self.info.no_game_halfmoves))
+            if(self.info.no_game_halfmoves % 2 == 1):
+                self.info.flip_eval = True
+            else:
+                self.info.flip_eval = False
         # if the engine is in infinite mode,
         # first send a stop command
         if(self.sent_go_infinite):

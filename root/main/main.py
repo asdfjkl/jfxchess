@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         self.display_info.setChecked(True)
         self.set_display_info()
         self.engine.start_engine("mooh")
-        self.engine.flip_eval(False)
+        #self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         uci_string = self.gs.printer.to_uci(self.gs.current)
