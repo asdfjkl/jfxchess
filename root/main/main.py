@@ -64,11 +64,10 @@ class MainWindow(QMainWindow):
         hbox = QHBoxLayout()
         hbox.addWidget(self.board)
 
-        spRight = QSizePolicy();
-        spRight.setHorizontalStretch(2);
+        spRight = QSizePolicy()
+        spRight.setHorizontalStretch(2)
 
-        vbox = QVBoxLayout();
-        #vbox.addLayout(hboxLcd)
+        vbox = QVBoxLayout()
 
         self.name = QLabel()
         self.name.setAlignment(Qt.AlignCenter)
@@ -87,7 +86,7 @@ class MainWindow(QMainWindow):
 
 
         mainWidget.setLayout(hbox)
-        self.setCentralWidget(mainWidget);
+        self.setCentralWidget(mainWidget)
 
         statusbar = self.statusBar()
         statusbar.showMessage('Ready')
@@ -132,6 +131,10 @@ class MainWindow(QMainWindow):
         edit_game_data.triggered.connect(self.board.editGameData)
         flip = m_edit.addAction("Flip Board")
         flip.triggered.connect(self.board.flip_board)
+        self.display_info = QAction("Show Search Info",m_edit,checkable=True)
+        m_edit.addAction(self.display_info)
+        self.display_info.setChecked(True)
+        self.display_info.triggered.connect(self.set_display_info)
         m_edit.addSeparator()
         offer_draw = m_edit.addAction("Offer Draw")
         give_up = m_edit.addAction("Give Up")
@@ -141,18 +144,18 @@ class MainWindow(QMainWindow):
         analysis = QAction("Analysis Mode",m_mode,checkable=True)
         m_mode.addAction(ag.addAction(analysis))
         analysis.triggered.connect(self.on_analysis_mode)
-        play_white = QAction("Play as White",m_mode,checkable=True)
-        m_mode.addAction(ag.addAction(play_white))
-        play_white.triggered.connect(self.on_play_as_white)
+        self.play_white = QAction("Play as White",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(self.play_white))
+        self.play_white.triggered.connect(self.on_play_as_white)
 
-        play_black = QAction("Play as Black",m_mode,checkable=True)
-        m_mode.addAction(ag.addAction(play_black))
-        play_black.triggered.connect(self.on_play_as_black)
+        self.play_black = QAction("Play as Black",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(self.play_black))
+        self.play_black.triggered.connect(self.on_play_as_black)
 
-        enter_moves = QAction("Enter Moves",m_mode,checkable=True)
-        m_mode.addAction(ag.addAction(enter_moves))
-        enter_moves.triggered.connect(self.on_enter_moves_mode)
-        enter_moves.setChecked(True)
+        self.enter_moves = QAction("Enter Moves",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(self.enter_moves))
+        self.enter_moves.triggered.connect(self.on_enter_moves_mode)
+        self.enter_moves.setChecked(True)
         m_mode.addSeparator()
         set_strength = m_mode.addAction("Strength Level")
         m_mode.addSeparator()
@@ -164,11 +167,22 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.engineOutput.setHtml)
+        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.update_engine_output)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
+
+    def update_engine_output(self,text):
+        if(self.gs.display_engine_info):
+            self.engineOutput.setHtml(text)
+
+    def set_display_info(self):
+        if(self.display_info.isChecked()):
+            self.gs.display_engine_info = True
+        else:
+            self.gs.display_engine_info = False
+            self.engineOutput.setHtml("")
 
     def on_newgame(self):
         dialog = DialogNewGame()
@@ -178,40 +192,28 @@ class MainWindow(QMainWindow):
             self.board.gs = self.gs
             self.movesEdit.gs = self.gs
             self.movesEdit.update()
-            self.gs.strength_level = dialog.slider.value()
-            if(dialog.rb_untimed.isChecked()):
-                self.gs.computer_think_time = dialog.think_secs.value()*1000
-            else:
-                self.gs.timed_game = True
-                if(dialog.rb_blitz1):
-                    self.gs.time_white = 60
-                    self.gs.time_black = 60
-                elif(dialog.rb_blitz2_12):
-                    self.gs.time_white = 120
-                    self.gs.time_black = 120
-                    self.gs.add_secs_per_move = 12
-                elif(dialog.rb_blitz3_5):
-                    self.gs.time_white = 180
-                    self.gs.time_black = 180
-                    self.gs.add_secs_per_move = 5
-                elif(dialog.rb_blitz5):
-                    self.gs.time_white = 300
-                    self.gs.time_black = 300
-                elif(dialog.rb_blitz15):
-                    self.gs.time_white = 900
-                    self.gs.time_black = 900
-                elif(dialog.rb_blitz30):
-                    self.gs.time_white = 1800
-                    self.gs.time_black = 1800
+            self.gs.strength_level = dialog.slider_elo.value()
+            val = dialog.slider_think.value()
+            self.gs.computer_think_time = val
+            if(val == 4):
+                self.gs.computer_think_time = 5
+            elif(val == 5):
+                self.gs.computer_think_time = 10
+            elif(val == 6):
+                self.gs.computer_think_time = 15
+            elif(val == 7):
+                self.gs.computer_think_time = 30
+            self.gs.computer_think_time = self.gs.computer_think_time*1000
             print("calling update board")
-            self.board.on_statechanged()
+            self.movesEdit.on_statechanged()
             print("BOARD UPDATED")
             if(dialog.rb_plays_white.isChecked()):
                 print("plays white")
+                self.play_white.setChecked(True)
                 self.on_play_as_white()
             else:
                 print("plays black")
-                self.board.flippedBoard = True
+                self.play_black.setChecked(True)
                 self.on_play_as_black()
 
 
@@ -227,6 +229,8 @@ class MainWindow(QMainWindow):
             self.engine.uci_go_movetime(self.gs.computer_think_time)
 
     def on_analysis_mode(self):
+        self.display_info.setChecked(True)
+        self.set_display_info()
         self.engine.start_engine("mooh")
         self.engine.flip_eval(False)
         self.engine.uci_ok()
@@ -243,6 +247,8 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
 
     def on_play_as_black(self):
+        self.board.flippedBoard = True
+        self.board.on_statechanged()
         self.gs.mode = MODE_PLAY_BLACK
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
@@ -259,6 +265,8 @@ class MainWindow(QMainWindow):
             self.engine.uci_go_movetime(self.gs.computer_think_time)
 
     def on_play_as_white(self):
+        self.board.flippedBoard = False
+        self.board.on_statechanged()
         self.gs.mode = MODE_PLAY_WHITE
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
