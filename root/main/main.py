@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
         self.board = ChessboardView(self.gs,self.engine)
 
         self.movesEdit = MovesEdit(self.gs)
+        self.movesEdit.setReadOnly(True)
 
         #board.getState().setInitPos()
 
@@ -80,6 +81,7 @@ class MainWindow(QMainWindow):
         self.board.movesEdit = self.movesEdit
 
         self.engineOutput = QTextEdit()
+        self.engineOutput.setReadOnly(True)
 
         vbox.addWidget(self.engineOutput)
 
@@ -252,7 +254,6 @@ class MainWindow(QMainWindow):
         self.display_info.setChecked(True)
         self.set_display_info()
         self.engine.start_engine("mooh")
-        #self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         uci_string = self.gs.printer.to_uci(self.gs.current)
@@ -273,7 +274,6 @@ class MainWindow(QMainWindow):
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
         self.engine.start_engine("mooh")
-        self.engine.flip_eval(False)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.engine.uci_strength(self.gs.strength_level)
@@ -291,7 +291,6 @@ class MainWindow(QMainWindow):
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
         self.engine.start_engine("mooh")
-        self.engine.flip_eval(True)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.engine.uci_strength(self.gs.strength_level)

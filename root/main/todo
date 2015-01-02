@@ -3,12 +3,15 @@
 - computer resigns/offers draw
 - DONE strength level dialog (both sliders)
 
-- evaluation should always be from
-  white's perspective
-- make engineoutput non editable
+- DONE evaluation should always be from
+       white's perspective
+- DONE make engineoutput non editable
 
 - play out position
 - full game analysis
+
+- engine should be started with given
+  parameter from main.py
 
 - shortcuts
 - statusbar for message

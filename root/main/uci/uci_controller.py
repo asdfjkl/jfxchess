@@ -48,9 +48,6 @@ class Uci_controller(QObject):
         self.engine.command_queue.put("go movetime "+str(ms))
         self.engine.ping_engine()
 
-    def flip_eval(self,bv):
-        self.engine.info.flip_eval = bv
-
     # works only with stockfish
     def uci_strength(self,level):
         self.engine.command_queue.put("setoption name Skill Level value "+str(level))
