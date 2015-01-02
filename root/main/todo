@@ -1,6 +1,7 @@
 - offer draw
 - resign
 - computer resigns/offers draw
+- strength level dialog (both sliders)
 
 - evaluation should always be from
   white's perspective
