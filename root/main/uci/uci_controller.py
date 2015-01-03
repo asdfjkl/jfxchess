@@ -1,6 +1,7 @@
 from PyQt4.QtCore import *
 from uci import uci_engine as uci_engine
 from time import sleep
+from uci.engine_info import EngineInfo
 
 class Uci_controller(QObject):
 
@@ -16,7 +17,7 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("bestmove(QString)"),msg)
 
     def newinfo(self,msg):
-        self.emit(SIGNAL("updateinfo(QString)"),msg)
+        self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),msg)
 
     def stop_engine(self):
         if(self.engine):
@@ -26,7 +27,7 @@ class Uci_controller(QObject):
     def start_engine(self,path):
         self.engine = uci_engine.Uci_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64",self)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.bestmove,Qt.QueuedConnection)
-        self.connect(self.engine, SIGNAL("newinfo(QString)"),self.newinfo,Qt.QueuedConnection)
+        self.connect(self.engine, SIGNAL("newinfo(PyQt_PyObject)"),self.newinfo,Qt.QueuedConnection)
         self.connect(self.engine, SIGNAL("new_err_out(QString)"), self.new_err_output,Qt.QueuedConnection)
         self.engine.start()
         while(self.engine.started == False):

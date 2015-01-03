@@ -24,7 +24,7 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 import io
 import sys, random, time
-
+from uci.engine_info import EngineInfo
 
 
 class MainWindow(QMainWindow):
@@ -171,15 +171,21 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(self.engine, SIGNAL("updateinfo(QString)"),self.update_engine_output)
+        self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),self.update_engine_output)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
-        self.connect(self.engine, SIGNAL("bestmove(QString)"),self.board.on_bestmove)
+        self.connect(self.engine, SIGNAL("bestmove(QString)"),self.on_bestmove)
 
-    def update_engine_output(self,text):
+    def update_engine_output(self,engine_info):
         if(self.gs.display_engine_info):
-            self.engineOutput.setHtml(text)
+            self.engineOutput.setHtml(str(engine_info))
+        if(engine_info.score):
+            print("SCORE RECEIVED: "+str(engine_info.score))
+            if(engine_info.flip_eval):
+                self.gs.score = - engine_info.score
+            else:
+                self.gs.score = engine_info.score
 
     def set_display_info(self):
         if(self.display_info.isChecked()):
@@ -319,6 +325,57 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         self.board.engine.stop_engine()
         print ("inside the close")
+
+    def give_up(self):
+        if(self.gs.mode == MODE_PLAY_WHITE):
+            self.gs.headers["Result"] = "1-0"
+        elif(self.gs.mode == MODE_PLAY_BLACK):
+            self.gs.headers["Result"] = "0-1"
+        self.on_enter_moves_mode()
+
+
+    def on_bestmove(self,move):
+        print("bestmvoe received: "+str(move))
+        # execute only if engine plays
+        if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
+            or
+            (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
+            print("executing bestmove received: "+str(move))
+            print("BAD: "+str(self.gs.position_bad))
+            # check for bad position
+            if(self.gs.mode == MODE_PLAY_BLACK):
+                if(self.gs.score < -10.0):
+                    self.gs.position_bad += 1
+                else:
+                    self.gs.position_bad = 0
+            if(self.gs.mode == MODE_PLAY_WHITE):
+                if(self.gs.score > 10.0):
+                    self.gs.position_bad += 1
+            # check for draw
+            if(self.gs.score == 0.0):
+                self.gs.position_draw += 1
+            else:
+                self.gs.position_draw = 0
+            resigns = False
+            draws = False
+            if(self.gs.position_bad > 5):
+                msgBox = QMessageBox()
+                msgBox.setText("The computer resigns.")
+                msgBox.setInformativeText("Congratulations!")
+                msgBox.exec_()
+                self.give_up()
+                resigns = True
+            elif(self.gs.position_draw > 5):
+                print("DRAW?")
+                draws = True
+                # to implement: draw
+            if(not (draws or resigns)):
+                # continue normal play
+                uci = move
+                legal_moves = self.gs.current.board().legal_moves
+                if (len([x for x in legal_moves if x.uci() == uci]) > 0):
+                    self.board.executeMove(move)
+                    self.board.on_statechanged()
 
 
 

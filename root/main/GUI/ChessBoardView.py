@@ -49,6 +49,9 @@ class GameState(Game):
         self.printer = GUIPrinter()
         self.computer_think_time = 3000
         self.display_engine_info = True
+        self.score = 0
+        self.position_bad = 0
+        self.position_draw = 0
 
         self.timed_game = False
         self.time_white = 0
@@ -496,16 +499,3 @@ class ChessboardView(QWidget):
                             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
                 qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
-    def on_bestmove(self,move):
-        print("bestmvoe received: "+str(move))
-        # execute only if engine plays
-        if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
-            or
-            (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
-            print("executing bestmove received: "+str(move))
-
-            uci = move
-            legal_moves = self.gs.current.board().legal_moves
-            if (len([x for x in legal_moves if x.uci() == uci]) > 0):
-                self.executeMove(move)
-                self.update()
