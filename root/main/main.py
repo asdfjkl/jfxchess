@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         paste.triggered.connect(self.board.from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("Enter Position")
-        enter_pos.triggered.connect(self.board.enter_position)
+        enter_pos.triggered.connect(self.enter_position)
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
         edit_game_data.triggered.connect(self.board.editGameData)
@@ -337,7 +337,15 @@ class MainWindow(QMainWindow):
             self.gs.headers["Result"] = "1-0"
         elif(self.gs.mode == MODE_PLAY_BLACK):
             self.gs.headers["Result"] = "0-1"
+        self.enter_moves.setChecked(True)
         self.on_enter_moves_mode()
+
+    def draw_game(self):
+        self.gs.headers["Result"] = "1/2-1/2"
+        self.play_white.setChecked(False)
+        self.enter_moves.setChecked(True)
+        self.on_enter_moves_mode()
+
 
     def on_player_resigns(self):
         msgBox = QMessageBox()
@@ -349,6 +357,24 @@ class MainWindow(QMainWindow):
         elif(self.gs.mode == MODE_PLAY_BLACK):
             self.gs.headers["Result"] = "1-0"
         self.on_enter_moves_mode()
+
+    def enter_position(self):
+        dialog = DialogEnterPosition(self.gs.current.board())
+        answer = dialog.exec_()
+        if(answer):
+            root = chess.pgn.Game()
+            root.headers["FEN"] = ""
+            root.headers["SetUp"] = ""
+            root.setup(dialog.displayBoard.board)
+            self.gs.current = root
+            #self.movesEdit.current = root
+            #self.movesEdit.update_san()
+            #self.emit(SIGNAL("statechanged()"))
+            self.board.setup_headers(self.gs)
+            self.setLabels(self.gs)
+            self.board.on_statechanged()
+            self.movesEdit.on_statechanged()
+            self.update()
 
     def on_bestmove(self,move):
         print("bestmvoe received: "+str(move))
@@ -382,8 +408,17 @@ class MainWindow(QMainWindow):
                 self.give_up()
                 resigns = True
             elif(self.gs.position_draw > 5):
-                print("DRAW?")
-                draws = True
+                msgBox = QMessageBox()
+                msgBox.setText("The computer offers a draw.")
+                msgBox.setInformativeText("Do you accept?")
+                msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+                msgBox.setDefaultButton(QMessageBox.Yes)
+                if(msgBox.exec_() == QMessageBox.Yes):
+                    draws = True
+                    self.draw_game()
+                    print("DRAW?")
+                else:
+                    self.gs.position_draw = 0
                 # to implement: draw
             if(not (draws or resigns)):
                 # continue normal play

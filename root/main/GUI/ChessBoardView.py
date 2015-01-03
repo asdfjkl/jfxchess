@@ -249,22 +249,6 @@ class ChessboardView(QWidget):
             self.flippedBoard = True
         self.update()
 
-    def enter_position(self):
-        dialog = DialogEnterPosition(self.gs.current.board())
-        answer = dialog.exec_()
-        if(answer):
-            root = chess.pgn.Game()
-            root.headers["FEN"] = ""
-            root.headers["SetUp"] = ""
-            root.setup(dialog.displayBoard.board)
-            self.gs.current = root
-            #self.movesEdit.current = root
-            #self.movesEdit.update_san()
-            self.emit(SIGNAL("statechanged()"))
-            self.setup_headers(self.gs.current)
-            self.mainWindow.setLabels(self.gs.current)
-            self.update()
-
 
     def touchPiece(self, x, y, mouse_x, mouse_y):
         self.moveSrc = Point(x,y)
