@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        self.resize(800, 500)
+        self.resize(800, 470)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
 
