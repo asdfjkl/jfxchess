@@ -140,7 +140,9 @@ class MainWindow(QMainWindow):
         self.display_info.triggered.connect(self.set_display_info)
         m_edit.addSeparator()
         offer_draw = m_edit.addAction("Offer Draw")
-        give_up = m_edit.addAction("Resign")
+        self.give_up = m_edit.addAction("Resign")
+        self.give_up.triggered.connect(self.on_player_resigns)
+        self.give_up.setEnabled(False)
         m_edit.addSeparator()
         m_mode = self.menuBar().addMenu("Mode")
         ag = QActionGroup(self, exclusive=True)
@@ -262,6 +264,7 @@ class MainWindow(QMainWindow):
         self.engine.start_engine("mooh")
         self.engine.uci_ok()
         self.engine.uci_newgame()
+        self.give_up.setEnabled(False)
         uci_string = self.gs.printer.to_uci(self.gs.current)
         self.engine.uci_send_position(uci_string)
         self.engine.uci_go_infinite()
@@ -271,6 +274,7 @@ class MainWindow(QMainWindow):
         # stop any engine
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
+        self.give_up.setEnabled(False)
         self.gs.mode = MODE_ENTER_MOVES
 
     def on_play_as_black(self):
@@ -282,6 +286,7 @@ class MainWindow(QMainWindow):
         self.engine.start_engine("mooh")
         self.engine.uci_ok()
         self.engine.uci_newgame()
+        self.give_up.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn == chess.BLACK))
         if(self.gs.current.board().turn == chess.WHITE):
@@ -299,6 +304,7 @@ class MainWindow(QMainWindow):
         self.engine.start_engine("mooh")
         self.engine.uci_ok()
         self.engine.uci_newgame()
+        self.give_up.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn))
         if(self.gs.current.board().turn == chess.BLACK):
@@ -333,6 +339,16 @@ class MainWindow(QMainWindow):
             self.gs.headers["Result"] = "0-1"
         self.on_enter_moves_mode()
 
+    def on_player_resigns(self):
+        msgBox = QMessageBox()
+        msgBox.setText("The computer thanks you.")
+        msgBox.setInformativeText("Better luck next time!")
+        msgBox.exec_()
+        if(self.gs.mode == MODE_PLAY_WHITE):
+            self.gs.headers["Result"] = "0-1"
+        elif(self.gs.mode == MODE_PLAY_BLACK):
+            self.gs.headers["Result"] = "1-0"
+        self.on_enter_moves_mode()
 
     def on_bestmove(self,move):
         print("bestmvoe received: "+str(move))
