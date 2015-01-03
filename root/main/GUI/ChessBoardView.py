@@ -151,27 +151,7 @@ class ChessboardView(QWidget):
 
             print("open pgn dummy")
 
-    def editGameData(self):
-        ed = DialogEditGameData(self.gs.current.root())
-        answer = ed.exec_()
-        if(answer):
-            root = self.gs.current.root()
-            root.headers["Event"] = ed.ed_white.text()
-            root.headers["Site"] = ed.ed_site.text()
-            root.headers["Date"] = ed.ed_date.text()
-            root.headers["Round"] = ed.ed_round.text()
-            root.headers["White"] = ed.ed_white.text()
-            root.headers["Black"] = ed.ed_black.text()
-            #root.headers["ECO"] = ed.ed_eco.text()
-            if(ed.rb_ww.isChecked()):
-                root.headers["Result"] = "1-0"
-            elif(ed.rb_bw.isChecked()):
-                root.headers["Result"] = "0-1"
-            elif(ed.rb_draw.isChecked()):
-                root.headers["Result"] = "1/2-1/2"
-            elif(ed.rb_unclear.isChecked()):
-                root.headers["Result"] = "*"
-        self.mainWindow.setLabels(self.gs.current)
+
 
     def show_about(self):
         d = DialogAbout()

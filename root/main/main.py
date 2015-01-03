@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         enter_pos.triggered.connect(self.enter_position)
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
-        edit_game_data.triggered.connect(self.board.editGameData)
+        edit_game_data.triggered.connect(self.editGameData)
         flip = m_edit.addAction("Flip Board")
         flip.triggered.connect(self.board.flip_board)
         self.display_info = QAction("Show Search Info",m_edit,checkable=True)
@@ -139,7 +139,9 @@ class MainWindow(QMainWindow):
         self.display_info.setChecked(True)
         self.display_info.triggered.connect(self.set_display_info)
         m_edit.addSeparator()
-        offer_draw = m_edit.addAction("Offer Draw")
+        self.offer_draw = m_edit.addAction("Offer Draw")
+        self.offer_draw.triggered.connect(self.handle_offered_draw)
+        self.offer_draw.setEnabled(False)
         self.give_up = m_edit.addAction("Resign")
         self.give_up.triggered.connect(self.on_player_resigns)
         self.give_up.setEnabled(False)
@@ -265,6 +267,7 @@ class MainWindow(QMainWindow):
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(False)
+        self.offer_draw.setEnabled(False)
         uci_string = self.gs.printer.to_uci(self.gs.current)
         self.engine.uci_send_position(uci_string)
         self.engine.uci_go_infinite()
@@ -275,6 +278,7 @@ class MainWindow(QMainWindow):
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
         self.give_up.setEnabled(False)
+        self.offer_draw.setEnabled(False)
         self.gs.mode = MODE_ENTER_MOVES
 
     def on_play_as_black(self):
@@ -287,6 +291,7 @@ class MainWindow(QMainWindow):
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
+        self.offer_draw.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn == chess.BLACK))
         if(self.gs.current.board().turn == chess.WHITE):
@@ -305,6 +310,7 @@ class MainWindow(QMainWindow):
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
+        self.offer_draw.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
         print("MOVE : "+str(self.gs.board().turn))
         if(self.gs.current.board().turn == chess.BLACK):
@@ -340,12 +346,48 @@ class MainWindow(QMainWindow):
         self.enter_moves.setChecked(True)
         self.on_enter_moves_mode()
 
+    def editGameData(self):
+        ed = DialogEditGameData(self.gs)
+        answer = ed.exec_()
+        if(answer):
+            root = self.gs
+            root.headers["Event"] = ed.ed_white.text()
+            root.headers["Site"] = ed.ed_site.text()
+            root.headers["Date"] = ed.ed_date.text()
+            root.headers["Round"] = ed.ed_round.text()
+            root.headers["White"] = ed.ed_white.text()
+            root.headers["Black"] = ed.ed_black.text()
+            #root.headers["ECO"] = ed.ed_eco.text()
+            if(ed.rb_ww.isChecked()):
+                root.headers["Result"] = "1-0"
+            elif(ed.rb_bw.isChecked()):
+                root.headers["Result"] = "0-1"
+            elif(ed.rb_draw.isChecked()):
+                root.headers["Result"] = "1/2-1/2"
+            elif(ed.rb_unclear.isChecked()):
+                root.headers["Result"] = "*"
+        self.setLabels(self.gs)
+
     def draw_game(self):
         self.gs.headers["Result"] = "1/2-1/2"
-        self.play_white.setChecked(False)
         self.enter_moves.setChecked(True)
         self.on_enter_moves_mode()
 
+    def handle_offered_draw(self):
+        if((self.gs.mode == MODE_PLAY_WHITE and self.gs.score > 1.1)
+            or self.gs.mode == MODE_PLAY_BLACK and self.gs.score < -1.1):
+            self.gs.headers["Result"] = "1/2-1/2"
+            msgBox = QMessageBox()
+            msgBox.setText("The computer accepts.")
+            msgBox.setInformativeText("The game ends in a draw.")
+            msgBox.exec_()
+            self.enter_moves.setChecked(True)
+            self.on_enter_moves_mode()
+        else:
+            msgBox = QMessageBox()
+            msgBox.setText("The computer rejects your offer.")
+            msgBox.setInformativeText("The game continues.")
+            msgBox.exec_()
 
     def on_player_resigns(self):
         msgBox = QMessageBox()

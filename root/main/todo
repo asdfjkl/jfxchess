@@ -1,8 +1,8 @@
-- enter position
-- DONE offer draw (but crude)
+- DONE fix enter position 
+- DONE offer draw
 - DONE resign
 - DONE computer resigns (nicer message box?)
-- computer offers draw
+- DONE computer offers draw (but crude)
 - DONE strength level dialog (both sliders)
 
 - DONE evaluation should always be from
@@ -14,6 +14,7 @@
 
 - in game mode: when jumping to
   moves, switch to analysis mode?
+  no! -> might be users choice
 
 - play out position
 - full game analysis
@@ -31,5 +32,16 @@
 - statusbar for message
 
 - editing/loading game (data)
+
+- refactor: most functionality
+  of menus in main (controller)
+  controller contols directly
+
+  boardview and movesview emit
+  emit signals if they detect changes
+
+  separate functions of controller
+  in different files/modules, probably w.r.t.
+  menu (no need for classes)
 
 - testing/bugfixings
