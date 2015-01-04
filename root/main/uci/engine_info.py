@@ -16,7 +16,7 @@ class EngineInfo(object):
         outstr = '<table width="100%"><tr>'
         if(self.id):
             if(self.strength):
-                outstr += '<th colspan="3" align="left">'+self.id+" (Elo "+self.strength+")</th>"
+                outstr += '<th colspan="3" align="left">'+self.id+" (Level "+self.strength+")</th>"
             else:
                 outstr += '<th colspan="3" align="left">'+self.id+"</th>"
         outstr += '</tr><tr></tr><tr><td width="33%">'

@@ -9,14 +9,16 @@
        white's perspective
 - DONE make engineoutput non editable
 
-- set game data (who is player etc)
-  on new game
+- DONE set game data (who is player etc)
+       on new game
 
-- in game mode: when jumping to
-  moves, switch to analysis mode?
-  no! -> might be users choice
+- automatic draws due to various rules
+  (check by python-chess api calls)
 
-- play out position
+- classify games automatically w.r.t.
+  their ECO code
+
+- play out position (maybe later?)
 - full game analysis
 
 - opening book

@@ -180,6 +180,7 @@ class MainWindow(QMainWindow):
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.on_bestmove)
+        self.connect(self.board,SIGNAL("bestmove(QString)"),self.on_bestmove)
 
     def update_engine_output(self,engine_info):
         if(self.gs.display_engine_info):
@@ -238,14 +239,20 @@ class MainWindow(QMainWindow):
             self.gs.computer_think_time = self.gs.computer_think_time*1000
             print("calling update board")
             self.movesEdit.on_statechanged()
+            self.board.setup_headers(self.gs)
             print("BOARD UPDATED")
             if(dialog.rb_plays_white.isChecked()):
                 print("plays white")
                 self.play_white.setChecked(True)
+                self.setLabels(self.gs)
                 self.on_play_as_white()
             else:
                 print("plays black")
                 self.play_black.setChecked(True)
+                temp = self.gs.headers["White"]
+                self.gs.headers["White"] = self.gs.headers["Black"]
+                self.gs.headers["Black"] = temp
+                self.setLabels(self.gs)
                 self.on_play_as_black()
 
 
@@ -428,12 +435,12 @@ class MainWindow(QMainWindow):
             print("BAD: "+str(self.gs.position_bad))
             # check for bad position
             if(self.gs.mode == MODE_PLAY_BLACK):
-                if(self.gs.score < -10.0):
+                if(self.gs.score < -7.0):
                     self.gs.position_bad += 1
                 else:
                     self.gs.position_bad = 0
             if(self.gs.mode == MODE_PLAY_WHITE):
-                if(self.gs.score > 10.0):
+                if(self.gs.score > 7.0):
                     self.gs.position_bad += 1
             # check for draw
             if(self.gs.score == 0.0):

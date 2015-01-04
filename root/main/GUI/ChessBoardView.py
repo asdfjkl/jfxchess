@@ -118,9 +118,9 @@ class ChessboardView(QWidget):
         game.headers["Event"] = ""
         game.headers["Site"] = "MyTown"
         game.headers["Date"] = time.strftime("%Y.%m.%d")
-        game.headers["Round"] = ""
+        game.headers["Black"] = "Jerry (Level "+str(1200 + 100*self.gs.strength_level)+")"
         game.headers["White"] = "N.N."
-        game.headers["Black"] = "Jerry (PC)"
+        game.headers["Round"] = ""
         game.headers["Result"] = "*"
 
     def append_to_pgn(self):
@@ -279,9 +279,28 @@ class ChessboardView(QWidget):
         #self.update()
         if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
-            uci_string = self.gs.printer.to_uci(self.gs.current)
-            self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.computer_think_time)
+            book_move = None
+            with open_reader("../books/performance.bin") as reader:
+                entries = reader.get_entries_for_position(self.gs.current.board())
+                moves = []
+                for entry in entries:
+                    move = entry.move().uci()
+                    print("GOT MOVE FROM OPENING: "+move)
+                    moves.append(move)
+                    #self.emit(SIGNAL("bestmove(QString)"),move)
+                l = len(moves)
+                if(l > 0):
+                    book_move = True
+                    n = random.randint(0,l-1)
+                    book_move = moves[n]
+                    print("SELECTEDMOVE: "+move)
+            if(book_move != None):
+                print("EMITTING BOOK MOVE"+book_move)
+                self.emit(SIGNAL("bestmove(QString)"),book_move)
+            else:
+                uci_string = self.gs.printer.to_uci(self.gs.current)
+                self.engine.uci_send_position(uci_string)
+                self.engine.uci_go_movetime(self.gs.computer_think_time)
         elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK): pass
             #self.engine.uci_go_infinite()
         print("Now its this turn: "+str(self.gs.current.board().turn))
