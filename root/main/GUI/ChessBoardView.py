@@ -280,7 +280,7 @@ class ChessboardView(QWidget):
         if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             book_move = None
-            with open_reader("../books/performance.bin") as reader:
+            with open_reader("../books/varied.bin") as reader:
                 entries = reader.get_entries_for_position(self.gs.current.board())
                 moves = []
                 for entry in entries:

@@ -25,6 +25,8 @@ class DialogAbout(QDialog):
                         "licensed under GNU GPL<br><br>"+
                         "uses the python-chess library<br>"+
                         "licensed under GNU GPL<br><br>"+
+                        "uses 'VARIED.BIN' opening book<br>"+
+                        "by Heinz van Saanen<br><br>"+
                         "uses Merida piece images<br>"+
                         "licensed under GNU GPL")
         label0.setAlignment(Qt.AlignCenter)
