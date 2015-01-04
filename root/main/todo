@@ -21,7 +21,7 @@
 - play out position (maybe later?)
 - full game analysis
 
-- opening book
+- DONE opening book
 
 - engine output should show SAN or
   full algebraic notation, not 
