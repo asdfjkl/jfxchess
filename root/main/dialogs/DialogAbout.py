@@ -22,13 +22,17 @@ class DialogAbout(QDialog):
         label0 = QLabel("<b>Jerry</b><br><br>"+
                         "Version 0.8<br><br>"+
                         "Copyright © 2014 Dominik Klein<br>"+
-                        "licensed under GNU GPL<br><br>"+
-                        "uses the python-chess library<br>"+
-                        "licensed under GNU GPL<br><br>"+
-                        "uses 'VARIED.BIN' opening book<br>"+
+                        "licensed under GNU GPL<br><br><br>"+
+                        "Acknowledgements<br><br>"+
+                        "Stockfish Chess Engine<br>"+
+                        "by the Stockfish-Team<br><br>"
+                        "python-chess library<br>"+
+                        "by Niklas Fiekas<br><br>"+
+                        "'VARIED.BIN' opening book<br>"+
                         "by Heinz van Saanen<br><br>"+
-                        "uses Merida piece images<br>"+
-                        "licensed under GNU GPL")
+                        "Merida piece images<br>"+
+                        "from pychess pychess-Team<br><br>"+
+                        "all licensed under GNU GPL")
         label0.setAlignment(Qt.AlignCenter)
         vbox.addWidget(label0)
 
