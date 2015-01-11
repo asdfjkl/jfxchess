@@ -21,8 +21,8 @@
   included: threefold repetition, checkmate, stalemate
   more complex fide-rules will not be included (useless in practice)
 
-- DONE (partial, only saves game but not current position)
-  always save current state (game, board,
+- DONE (needs testing) always save current
+  state (game, board,
   strength setting etc.) on exit
 
 - play out position (maybe later?)
@@ -42,8 +42,6 @@
 
 - statusbar for message
 
-- editing/loading game (data)
-
 - LATER refactor: most functionality
   of menus in main (controller)
   controller contols directly
@@ -56,3 +54,6 @@
   menu (no need for classes)
 
 - testing/bugfixings
+  esp. editing/loading game (data)
+  and gs.game gs.root gs.current etc.
+
