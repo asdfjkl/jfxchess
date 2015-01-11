@@ -1,0 +1,57 @@
+- DONE fix enter position 
+- DONE offer draw
+- DONE resign
+- DONE computer resigns (nicer message box?)
+- DONE computer offers draw (but crude)
+- DONE strength level dialog (both sliders)
+
+- DONE evaluation should always be from
+       white's perspective
+- DONE make engineoutput non editable
+
+- DONE set game data (who is player etc)
+       on new game
+
+- LATER: eco classification
+
+- DONE show always eval (update info only)
+
+- DONE automatic draws due to various rules
+  (check by python-chess api calls)
+  included: threefold repetition, checkmate, stalemate
+  more complex fide-rules will not be included (useless in practice)
+
+- always save current state (game, board,
+  strength setting etc.) on exit
+
+- play out position (maybe later?)
+
+- full game analysis
+
+- DONE opening book
+
+- LATER engine output should show SAN or
+  full algebraic notation, not 
+  raw engine output
+
+- DONE engine should be started with given
+  parameter from main.py
+
+- shortcuts
+
+- statusbar for message
+
+- editing/loading game (data)
+
+- LATER refactor: most functionality
+  of menus in main (controller)
+  controller contols directly
+
+  boardview and movesview emit
+  emit signals if they detect changes
+
+  separate functions of controller
+  in different files/modules, probably w.r.t.
+  menu (no need for classes)
+
+- testing/bugfixings
