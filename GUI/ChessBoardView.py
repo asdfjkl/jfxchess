@@ -40,11 +40,13 @@ class Point():
     def __ne__(self, other):
         return not self.__eq__(other)
 
-class GameState(Game):
+class GameState():
 
     def __init__(self):
         super(GameState, self).__init__()
-        self.current = self.root()
+        self.game = chess.pgn.Game()
+        self.root = self.game
+        self.current = self.game
         self.mode = MODE_ENTER_MOVES
         self.printer = GUIPrinter()
         self.computer_think_time = 3000
@@ -59,6 +61,18 @@ class GameState(Game):
         self.add_secs_per_move = 0
         self.strength_level = 3
 
+    def find_fen(self,fen_string,node):
+        print(node.board().fen())
+        if(node.board().fen() in fen_string):
+            return node
+        else:
+            for child in node.variations:
+                res = self.find_fen(fen_string,child)
+                if(not res == None):
+                    return res
+        return None
+
+
 class ChessboardView(QWidget):
 
     def __init__(self,gamestate,engine):
@@ -70,7 +84,7 @@ class ChessboardView(QWidget):
         self.gs = gamestate
         self.engine = engine
 
-        self.setup_headers(self.gs.current)
+        #self.setup_headers(self.gs.game)
 
         self.pieceImages = PieceImages()
 
