@@ -11,7 +11,7 @@ class PieceImages:
         for fst in wb:
             for snd in pcs:
                 ren = QSvgRenderer()
-                QSvgRenderer.load(ren,"../res/pieces/"+fst+snd+".svg")
+                QSvgRenderer.load(ren,"./res/pieces/"+fst+snd+".svg")
                 if fst == "w":
                     self.rens[snd.upper()] = ren
                 else:

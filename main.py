@@ -13,6 +13,7 @@ from dialogs.DialogAbout import DialogAbout
 from dialogs.DialogNewGame import DialogNewGame
 from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from uci.uci_controller import Uci_controller
+import os
 
 # python chess
 from chess.polyglot import *
@@ -97,6 +98,7 @@ class MainWindow(QMainWindow):
         self.menubar = self.menuBar()
 
         self.setLabels(self.gs.current)
+        self.old_score = None
 
         m_file = self.menuBar().addMenu('File ')
         new_game = m_file.addAction('New Game')
@@ -181,16 +183,28 @@ class MainWindow(QMainWindow):
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.on_bestmove)
         self.connect(self.board,SIGNAL("bestmove(QString)"),self.on_bestmove)
+        self.connect(self.board,SIGNAL("drawn"),self.draw_game)
+        self.connect(self.board,SIGNAL("checkmate"),self.on_checkmate)
 
     def update_engine_output(self,engine_info):
         if(self.gs.display_engine_info):
-            self.engineOutput.setHtml(str(engine_info))
-        if(engine_info.score):
-            print("SCORE RECEIVED: "+str(engine_info.score))
-            if(engine_info.flip_eval):
-                self.gs.score = - engine_info.score
+            # engine info has no score. reuse
+            # old one from gamestate, if available
+            # if so, set flip_eval to false, since
+            # the gs state is always in side
+            # independent format
+            if(not engine_info.score):
+                if(self.gs.score):
+                    engine_info.score = self.old_score
+                    engine_info.flip_eval = False
             else:
-                self.gs.score = engine_info.score
+                print("SCORE RECEIVED: "+str(engine_info.score))
+                if(engine_info.flip_eval):
+                    self.gs.score = - engine_info.score
+                else:
+                    self.gs.score = engine_info.score
+            self.engineOutput.setHtml(str(engine_info))
+
 
     def set_display_info(self):
         if(self.display_info.isChecked()):
@@ -270,7 +284,9 @@ class MainWindow(QMainWindow):
     def on_analysis_mode(self):
         self.display_info.setChecked(True)
         self.set_display_info()
-        self.engine.start_engine("mooh")
+        engine_path = module_path() + "/engine/stockfish-5-64"
+        print("engine path: "+engine_path)
+        self.engine.start_engine(engine_path)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(False)
@@ -294,7 +310,9 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_PLAY_BLACK
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
-        self.engine.start_engine("mooh")
+        engine_path = module_path() + "/engine/stockfish-5-64"
+        print("engine path: "+engine_path)
+        self.engine.start_engine(engine_path)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
@@ -313,7 +331,13 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_PLAY_WHITE
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
-        self.engine.start_engine("mooh")
+        engine_path = module_path()
+        if(engine_path == ""):
+             engine_path += "./engine/stockfish-5-64"
+        else:
+            engine_path += "/engine/stockfish-5-64"
+        print("engine path: "+engine_path)
+        self.engine.start_engine(engine_path)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
@@ -345,10 +369,18 @@ class MainWindow(QMainWindow):
         self.board.engine.stop_engine()
         print ("inside the close")
 
-    def give_up(self):
+    def give_up_game(self):
         if(self.gs.mode == MODE_PLAY_WHITE):
             self.gs.headers["Result"] = "1-0"
         elif(self.gs.mode == MODE_PLAY_BLACK):
+            self.gs.headers["Result"] = "0-1"
+        self.enter_moves.setChecked(True)
+        self.on_enter_moves_mode()
+
+    def on_checkmate(self):
+        if(self.gs.board().turn == chess.WHITE):
+            self.gs.headers["Result"] = "1-0"
+        else:
             self.gs.headers["Result"] = "0-1"
         self.enter_moves.setChecked(True)
         self.on_enter_moves_mode()
@@ -426,11 +458,12 @@ class MainWindow(QMainWindow):
             self.update()
 
     def on_bestmove(self,move):
-        print("bestmvoe received: "+str(move))
+        print("bestmove received: "+str(move))
         # execute only if engine plays
         if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
             or
             (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
+            # check if game is drawn due to various conditions
             print("executing bestmove received: "+str(move))
             print("BAD: "+str(self.gs.position_bad))
             # check for bad position
@@ -447,29 +480,27 @@ class MainWindow(QMainWindow):
                 self.gs.position_draw += 1
             else:
                 self.gs.position_draw = 0
-            resigns = False
-            draws = False
-            if(self.gs.position_bad > 5):
+            game_over = False
+            if(self.gs.position_bad > 5): # due to computer resigning
                 msgBox = QMessageBox()
                 msgBox.setText("The computer resigns.")
                 msgBox.setInformativeText("Congratulations!")
                 msgBox.exec_()
-                self.give_up()
-                resigns = True
-            elif(self.gs.position_draw > 5):
+                self.give_up_game()
+                game_over = True
+            elif(self.gs.position_draw > 5): # due to computer offering draw which is accepted
                 msgBox = QMessageBox()
                 msgBox.setText("The computer offers a draw.")
                 msgBox.setInformativeText("Do you accept?")
                 msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
                 msgBox.setDefaultButton(QMessageBox.Yes)
                 if(msgBox.exec_() == QMessageBox.Yes):
-                    draws = True
+                    game_over = True
                     self.draw_game()
                     print("DRAW?")
                 else:
                     self.gs.position_draw = 0
-                # to implement: draw
-            if(not (draws or resigns)):
+            if(not (game_over)):
                 # continue normal play
                 uci = move
                 legal_moves = self.gs.current.board().legal_moves
@@ -477,6 +508,15 @@ class MainWindow(QMainWindow):
                     self.board.executeMove(move)
                     self.board.on_statechanged()
 
+def we_are_frozen():
+    # All of the modules are built-in to the interpreter, e.g., by py2exe
+    return hasattr(sys, "frozen")
+
+def module_path():
+    encoding = sys.getfilesystemencoding()
+    if we_are_frozen():
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)
 
 
 app = QApplication(sys.argv)

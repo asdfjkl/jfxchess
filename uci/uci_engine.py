@@ -26,7 +26,7 @@ class Uci_engine(QThread):
         self.remaining_readyok = 0
         self.sent_go_infinite = False
         self.command_queue = queue.Queue()
-        self.engine_path = ".../stockfish-5-64"
+        self.engine_path = engine_path
         self.started = False
         self.info = EngineInfo()
 
@@ -203,7 +203,7 @@ class Uci_engine(QThread):
 
     def run(self):
         self.process = QProcess()
-        self.process.start("./stockfish-5-64")
+        self.process.start(self.engine_path)
         self.process.waitForStarted()
         print("started")
         self.started = True

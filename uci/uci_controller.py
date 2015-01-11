@@ -25,7 +25,7 @@ class Uci_controller(QObject):
             self.engine.wait()
 
     def start_engine(self,path):
-        self.engine = uci_engine.Uci_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64",self)
+        self.engine = uci_engine.Uci_engine(path,self)
         self.connect(self.engine, SIGNAL("bestmove(QString)"),self.bestmove,Qt.QueuedConnection)
         self.connect(self.engine, SIGNAL("newinfo(PyQt_PyObject)"),self.newinfo,Qt.QueuedConnection)
         self.connect(self.engine, SIGNAL("new_err_out(QString)"), self.new_err_output,Qt.QueuedConnection)
