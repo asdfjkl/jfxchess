@@ -91,10 +91,17 @@ class GUIPrinter():
 
             next = nodes.pop()
             if(next.move):
-                print(next.move.uci())
+                self.san_html += " "+next.move.uci()
             vars = next.variations
-            for el in vars:
-                nodes.append(el)
+            l = len(vars)
+            if(l == 1):
+                nodes.insert(0,vars[0])
+            elif(l > 1):
+                temp = []
+                for i in range(1,l):
+                    temp.append(vars[i])
+                temp.append(vars[0])
+                nodes = temp + nodes
 
             # continue
             #self.print_san(node.variation(0),move_no, inner_variant)
