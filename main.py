@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        #self.setLabels(self.gs.game)
+        self.setLabels(self.gs.game)
         self.old_score = None
 
         m_file = self.menuBar().addMenu('File ')

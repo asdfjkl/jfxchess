@@ -84,7 +84,7 @@ class ChessboardView(QWidget):
         self.gs = gamestate
         self.engine = engine
 
-        #self.setup_headers(self.gs.game)
+        self.setup_headers(self.gs.game)
 
         self.pieceImages = PieceImages()
 
