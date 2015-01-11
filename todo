@@ -38,6 +38,10 @@
 - DONE engine should be started with given
   parameter from main.py
 
+- save scrollstate in movesedit
+
+- rewrite printer iteratively
+
 - shortcuts
 
 - statusbar for message
