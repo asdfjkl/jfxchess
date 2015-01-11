@@ -280,20 +280,20 @@ class MainWindow(QMainWindow):
             self.gs.computer_think_time = self.gs.computer_think_time*1000
             print("calling update board")
             self.movesEdit.on_statechanged()
-            self.board.setup_headers(self.gs)
+            self.board.setup_headers(self.gs.game)
             print("BOARD UPDATED")
             if(dialog.rb_plays_white.isChecked()):
                 print("plays white")
                 self.play_white.setChecked(True)
-                self.setLabels(self.gs)
+                self.setLabels(self.gs.game)
                 self.on_play_as_white()
             else:
                 print("plays black")
                 self.play_black.setChecked(True)
-                temp = self.gs.headers["White"]
-                self.gs.headers["White"] = self.gs.headers["Black"]
-                self.gs.headers["Black"] = temp
-                self.setLabels(self.gs)
+                temp = self.gs.game.headers["White"]
+                self.gs.game.headers["White"] = self.gs.game.headers["Black"]
+                self.gs.game.headers["Black"] = temp
+                self.setLabels(self.gs.game)
                 self.on_play_as_black()
 
 

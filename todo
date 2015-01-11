@@ -43,6 +43,9 @@
 - rewrite printer iteratively, since recursion
   crashes with game of more than 200 moves
 
+- rewrite find_node of gamestate (must be faster
+  for games with more than 200 moves)
+
 - shortcuts
 
 - statusbar for message
