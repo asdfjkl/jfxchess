@@ -40,7 +40,8 @@
 
 - save scrollstate in movesedit
 
-- rewrite printer iteratively
+- rewrite printer iteratively, since recursion
+  crashes with game of more than 200 moves
 
 - shortcuts
 

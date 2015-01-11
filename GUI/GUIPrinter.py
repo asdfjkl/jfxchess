@@ -84,6 +84,25 @@ class GUIPrinter():
 
     def print_san(self,node,move_no,inner_variant = False):
 
+        nodes = []
+        nodes.append(node)
+
+        while(nodes != []):
+
+            next = nodes.pop()
+            if(next.move):
+                print(next.move.uci())
+            vars = next.variations
+            for el in vars:
+                nodes.append(el)
+
+            # continue
+            #self.print_san(node.variation(0),move_no, inner_variant)
+            #nodes.append(node.variation(0))
+
+
+    def print_san_r(self,node,move_no,inner_variant = False):
+
         board = self.get_board(node)
         # after a move by black,
         # increase move counter
