@@ -26,6 +26,7 @@ from  PyQt4.QtCore import *
 import io
 import sys, random, time
 from uci.engine_info import EngineInfo
+import pickle
 
 
 class MainWindow(QMainWindow):
@@ -45,14 +46,39 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
 
+        try:
+            pgn = open("current.pgn","r")
+            first_game = chess.pgn.read_game(pgn)
+            self.gs = first_game
+            self.gs.current = first_game.root()
+            self.gs.mode = MODE_ENTER_MOVES
+            self.gs.printer = GUIPrinter()
+            self.gs.computer_think_time = 3000
+            self.gs.display_engine_info = True
+            self.gs.score = 0
+            self.gs.position_bad = 0
+            self.gs.position_draw = 0
+
+            self.gs.timed_game = False
+            self.gs.time_white = 0
+            self.gs.time_black = 0
+            self.gs.add_secs_per_move = 0
+            self.gs.strength_level = 3
+        except:
+            pass
+        finally:
+            pgn.close()
+
         #self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
         #self.engine.uci_newgame()
         #self.engine.uci_ok()
 
         self.board = ChessboardView(self.gs,self.engine)
+        self.board.on_statechanged()
 
         self.movesEdit = MovesEdit(self.gs)
         self.movesEdit.setReadOnly(True)
+        self.movesEdit.on_statechanged()
 
         #board.getState().setInitPos()
 
@@ -508,6 +534,16 @@ class MainWindow(QMainWindow):
                     self.board.executeMove(move)
                     self.board.on_statechanged()
 
+    def closeEvent(self, event):
+        try:
+            f = open("current.pgn",'w')
+            print(self.gs.current.root(), file=f, end="\n\n")
+        except:
+            pass
+        finally:
+            f.close()
+        event.accept()
+
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
     return hasattr(sys, "frozen")
@@ -518,9 +554,22 @@ def module_path():
         return os.path.dirname(sys.executable)
     return os.path.dirname(__file__)
 
+def about_to_quit():
+    try:
+        f = open("current.pgn",'w')
+        print(main.gs.current.root(), file=f, end="\n\n")
+    except:
+        pass
+    finally:
+        f.close()
 
 app = QApplication(sys.argv)
 main = MainWindow()
+
+
+
+
 app.setActiveWindow(main)
+app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
 main.show()
 sys.exit(app.exec_())
