@@ -21,7 +21,8 @@
   included: threefold repetition, checkmate, stalemate
   more complex fide-rules will not be included (useless in practice)
 
-- always save current state (game, board,
+- DONE (partial, only saves game but not current position)
+  always save current state (game, board,
   strength setting etc.) on exit
 
 - play out position (maybe later?)

@@ -43,31 +43,32 @@ class MainWindow(QMainWindow):
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
         self.gs = GameState()
+        #self.gs.current = self.gs.game.root()
+        print(type(self.gs.game))
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
 
-        try:
-            pgn = open("current.pgn","r")
-            first_game = chess.pgn.read_game(pgn)
-            self.gs = first_game
-            self.gs.current = first_game.root()
-            self.gs.mode = MODE_ENTER_MOVES
-            self.gs.printer = GUIPrinter()
-            self.gs.computer_think_time = 3000
-            self.gs.display_engine_info = True
-            self.gs.score = 0
-            self.gs.position_bad = 0
-            self.gs.position_draw = 0
 
-            self.gs.timed_game = False
-            self.gs.time_white = 0
-            self.gs.time_black = 0
-            self.gs.add_secs_per_move = 0
-            self.gs.strength_level = 3
-        except:
+        try:
+            with open("current.pgn","r") as pgn:
+                first_game = chess.pgn.read_game(pgn)
+                self.gs.game = first_game
+                self.gs.current = self.gs.game
+        except FileNotFoundError as e:
+            print(e)
             pass
-        finally:
-            pgn.close()
+
+        try:
+            with open("current.fen","r") as fen:
+                fen_string = fen.readline()
+                print("loaded: "+fen_string)
+                current = self.gs.find_fen(fen_string,self.gs.current.root())
+                if(current):
+                    self.gs.current = current
+        except FileNotFoundError as e:
+            print(e)
+            pass
+
 
         #self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
         #self.engine.uci_newgame()
@@ -123,7 +124,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(self.gs.current)
+        #self.setLabels(self.gs.game)
         self.old_score = None
 
         m_file = self.menuBar().addMenu('File ')
@@ -534,15 +535,17 @@ class MainWindow(QMainWindow):
                     self.board.executeMove(move)
                     self.board.on_statechanged()
 
+    """
     def closeEvent(self, event):
         try:
-            f = open("current.pgn",'w')
-            print(self.gs.current.root(), file=f, end="\n\n")
+            with open("current.pgn",'w') as f:
+                print(self.gs.current.root(), file=f, end="\n\n")
+            with open("current.fen",'w') as f:
+                print(self.gs.current.board().fen(), file=f)
         except:
             pass
-        finally:
-            f.close()
         event.accept()
+    """
 
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
@@ -556,12 +559,14 @@ def module_path():
 
 def about_to_quit():
     try:
-        f = open("current.pgn",'w')
-        print(main.gs.current.root(), file=f, end="\n\n")
-    except:
-        pass
-    finally:
+        with open("current.pgn",'w') as f:
+            print(main.gs.current.root(), file=f, end="\n\n")
         f.close()
+        with open("current.fen",'w') as f:
+            print(main.gs.current.board().fen(),file=f)
+    except BaseException as e:
+        print(e)
+        pass
 
 app = QApplication(sys.argv)
 main = MainWindow()
