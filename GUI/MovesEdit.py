@@ -229,7 +229,9 @@ class MovesEdit(QTextEdit):
         if key == Qt.Key_Left:
             if(self.gs.current.parent):
                 self.gs.current = self.gs.current.parent
+            scroll_pos = self.verticalScrollBar().value()
             self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+            self.verticalScrollBar().setValue(scroll_pos)
             self.emit(SIGNAL("statechanged()"))
         elif key == Qt.Key_Right:
             variations = self.gs.current.variations
@@ -245,6 +247,8 @@ class MovesEdit(QTextEdit):
                     self.gs.current = self.gs.current.variation(idx)
             elif(len(variations) == 1):
                 self.gs.current = self.gs.current.variation(0)
+            scroll_pos = self.verticalScrollBar().value()
             self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+            self.verticalScrollBar().setValue(scroll_pos)
             self.emit(SIGNAL("statechanged()"))
 
