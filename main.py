@@ -65,6 +65,8 @@ class MainWindow(QMainWindow):
             print(e)
             pass
 
+        self.gs.mode = MODE_ENTER_MOVES
+
         """
         try:
             with open("current.fen","r") as fen:
@@ -578,6 +580,9 @@ def about_to_quit():
     except BaseException as e:
         print(e)
         pass
+
+
+sys.setrecursionlimit(3000)
 
 app = QApplication(sys.argv)
 main = MainWindow()
