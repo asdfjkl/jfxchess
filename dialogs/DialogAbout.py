@@ -11,7 +11,7 @@ class DialogAbout(QDialog):
 
         vbox = QVBoxLayout()
 
-        px = QPixmap("../res/icons/icon_complex64.png")
+        px = QPixmap("./res/icons/icon_complex64.png")
 
         labelImg = QLabel()
         labelImg.setPixmap(px)

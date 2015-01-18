@@ -50,14 +50,17 @@ class MainWindow(QMainWindow):
 
 
         try:
-            with open("current.pgn","r") as pgn:
-                first_game = chess.pgn.read_game(pgn)
-                self.gs.game = first_game
-                self.gs.current = self.gs.game
-        except FileNotFoundError as e:
+            with open("current.dmp","rb") as pgn:
+                #first_game = chess.pgn.read_game(pgn)
+                self.gs = pickle.load(pgn)
+                #self.gs.game = first_game
+                #self.gs.current = self.gs.game
+            pgn.close()
+        except BaseException as e:
             print(e)
             pass
 
+        """
         try:
             with open("current.fen","r") as fen:
                 fen_string = fen.readline()
@@ -68,7 +71,7 @@ class MainWindow(QMainWindow):
         except FileNotFoundError as e:
             print(e)
             pass
-
+        """
 
         #self.engine.start_engine("/Users/user/workspace/Jerry/root/main/stockfish-5-64")
         #self.engine.uci_newgame()
@@ -120,7 +123,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)
 
         statusbar = self.statusBar()
-        statusbar.showMessage('Ready')
+        statusbar.showMessage('Jerry v0.8')
 
         self.menubar = self.menuBar()
 
@@ -559,11 +562,12 @@ def module_path():
 
 def about_to_quit():
     try:
-        with open("current.pgn",'w') as f:
-            print(main.gs.current.root(), file=f, end="\n\n")
+        with open("current.dmp",'wb') as f:
+        #    print(main.gs.current.root(), file=f, end="\n\n")
+            pickle.dump(main.gs,f)
         f.close()
-        with open("current.fen",'w') as f:
-            print(main.gs.current.board().fen(),file=f)
+        #with open("current.fen",'w') as f:
+        #    print(main.gs.current.board().fen(),file=f)
     except BaseException as e:
         print(e)
         pass
