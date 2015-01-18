@@ -62,9 +62,9 @@ class MainWindow(QMainWindow):
             with open("current.fen","r") as fen:
                 fen_string = fen.readline()
                 print("loaded: "+fen_string)
-                current = self.gs.find_fen(fen_string,self.gs.current.root())
-                if(current):
-                    self.gs.current = current
+                #current = self.gs.find_fen(fen_string,self.gs.current.root())
+                #if(current):
+                #    self.gs.current = current
         except FileNotFoundError as e:
             print(e)
             pass
