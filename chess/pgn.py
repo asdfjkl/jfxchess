@@ -153,6 +153,19 @@ class GameNode(object):
 
         return not self.parent.variations or self.parent.variations[0] == self
 
+    def is_second_variation(self):
+        """
+        checks if this node is the second variation frmo the point of view of
+        its parent.
+        """
+        if(self.parent
+           and len(self.parent.variations) > 1
+           and self.parent.variations[1] == self):
+            return True
+        else:
+            return False
+
+
     def variation(self, move):
         """
         Gets a child node by move or index.
@@ -273,6 +286,79 @@ class GameNode(object):
             _board.push(main_variation.move)
             main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
             _board.pop()
+
+    def export_html(self, exporter, comments=True, variations=True, _board=None, _after_variation=False):
+        if _board is None:
+            _board = self.board()
+
+        # The mainline move goes first.
+        if self.variations:
+            main_variation = self.variations[0]
+
+            # Append fullmove number.
+            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
+
+            # Append SAN.
+            exporter.put_move(_board, main_variation.move)
+
+            if comments:
+                # Append NAGs.
+                exporter.put_nags(main_variation.nags)
+
+                # Append the comment.
+                if main_variation.comment:
+                    exporter.put_comment(main_variation.comment)
+
+        # Then export sidelines.
+        if variations:
+            for variation in itertools.islice(self.variations, 1, None):
+
+                # Start variation.
+                if variation.is_second_variation():
+                    exporter.start_snd_variation()
+                    print(variation.move.uci()+"is not a snd var")
+                else:
+                    exporter.start_variation()
+                    print(variation.move.uci()+"is not a snd var")
+
+                # Append starting comment.
+                if comments and variation.starting_comment:
+                    exporter.put_starting_comment(variation.starting_comment)
+
+                # Append fullmove number.
+                exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
+
+                # Append SAN.
+                exporter.put_move(_board, variation.move)
+
+                if comments:
+                    # Append NAGs.
+                    exporter.put_nags(variation.nags)
+
+                    # Append the comment.
+                    if variation.comment:
+                        exporter.put_comment(variation.comment)
+
+                # Recursively append the next moves.
+                _board.push(variation.move)
+                variation.export_html(exporter, comments, variations, _board, False)
+                _board.pop()
+
+                # End variation.
+                if(variation.is_second_variation()):
+                    exporter.end_snd_variation()
+                else:
+                    exporter.end_variation()
+
+        # The mainline is continued last.
+        if self.variations:
+            main_variation = self.variations[0]
+
+            # Recursively append the next moves.
+            _board.push(main_variation.move)
+            main_variation.export_html(exporter, comments, variations, _board, variations and len(self.variations) > 1)
+            _board.pop()
+
 
     def __str__(self):
         exporter = StringExporter(columns=None)
@@ -419,6 +505,12 @@ class StringExporter(object):
 
     def start_variation(self):
         self.write_token("( ")
+
+    def start_snd_variation(self):
+        self.write_token('<dd><em><span style="color:gray">[ ')
+
+    def end_snd_variation(self):
+        self.write_token('] </dd></em></span>')
 
     def end_variation(self):
         self.write_token(") ")
