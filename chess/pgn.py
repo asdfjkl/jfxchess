@@ -318,9 +318,9 @@ class GameNode(object):
             for variation in itertools.islice(self.variations, 1, None):
 
                 # Start variation.
-                if variation.is_second_variation():
+                if variation.parent.is_main_line():
                     exporter.start_snd_variation()
-                    print(variation.move.uci()+"is not a snd var")
+                    print(variation.move.uci()+"is a snd var")
                 else:
                     exporter.start_variation()
                     print(variation.move.uci()+"is not a snd var")
@@ -352,7 +352,7 @@ class GameNode(object):
                 _board.pop()
 
                 # End variation.
-                if(variation.is_second_variation()):
+                if(variation.parent.is_main_line()):
                     exporter.end_snd_variation()
                 else:
                     exporter.end_variation()
