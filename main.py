@@ -423,7 +423,7 @@ class MainWindow(QMainWindow):
         self.on_enter_moves_mode()
 
     def editGameData(self):
-        ed = DialogEditGameData(self.gs)
+        ed = DialogEditGameData(self.gs.game)
         answer = ed.exec_()
         if(answer):
             root = self.gs
@@ -442,7 +442,7 @@ class MainWindow(QMainWindow):
                 root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
                 root.headers["Result"] = "*"
-        self.setLabels(self.gs)
+        self.setLabels(self.gs.game)
 
     def draw_game(self):
         self.gs.headers["Result"] = "1/2-1/2"
