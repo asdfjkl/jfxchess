@@ -153,19 +153,6 @@ class GameNode(object):
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def is_second_variation(self):
-        """
-        checks if this node is the second variation frmo the point of view of
-        its parent.
-        """
-        if(self.parent
-           and len(self.parent.variations) > 1
-           and self.parent.variations[1] == self):
-            return True
-        else:
-            return False
-
-
     def variation(self, move):
         """
         Gets a child node by move or index.
@@ -287,8 +274,8 @@ class GameNode(object):
             main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
             _board.pop()
 
-    def export_html(self, exporter, node_to_highlight, comments=True,
-                    variations=True, _board=None, _after_variation=False):
+    def export_html(self, exporter, node_to_highlight, offset_table,
+                    comments=True, variations=True, _board=None, _after_variation=False):
         if _board is None:
             _board = self.board()
 
@@ -299,6 +286,9 @@ class GameNode(object):
             # Append fullmove number.
             exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
+            # before adding san, store in offset_table offset number + node
+            offset_start = len(re.sub('<[^>]*>','',str(exporter)))
+            offset_table.append((offset_start,main_variation))
             # Append SAN.
             if(main_variation == node_to_highlight):
                 exporter.put_move_highlighted(_board, main_variation.move)
@@ -332,6 +322,9 @@ class GameNode(object):
                 # Append fullmove number.
                 exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
 
+                # before adding san, store in offset_table offset number + node
+                offset_start = len(re.sub('<[^>]*>','',str(exporter)))
+                offset_table.append((offset_start,variation))
                 # Append SAN.
                 if(variation == node_to_highlight):
                     exporter.put_move_highlighted(_board,variation.move)
@@ -348,7 +341,7 @@ class GameNode(object):
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
-                variation.export_html(exporter, node_to_highlight,comments, variations, _board, False)
+                variation.export_html(exporter, node_to_highlight, offset_table, comments, variations, _board, False)
                 _board.pop()
 
                 # End variation.
@@ -363,7 +356,7 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
-            main_variation.export_html(exporter, node_to_highlight, comments,
+            main_variation.export_html(exporter, node_to_highlight, offset_table, comments,
                                        variations, _board, variations and len(self.variations) > 1)
             _board.pop()
 

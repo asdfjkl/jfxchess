@@ -192,11 +192,14 @@ class MovesEdit(QTextEdit):
         text = self.gs.printer.to_san_html(self.gs.current)
         offset_index = self.gs.printer.offset_table
         j = 0
-        for i in range(0,len(offset_index)):
-            if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
-                j = i
+        #for i in range(0,len(offset_index)):
+        #    if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
+        #        j = i
+        j = 0
+        while(j < len(offset_index) and offset > offset_index[j][0]):
+            j += 1
         try:
-            return offset_index[j][2]
+            return offset_index[j-1][1]
         except IndexError:
             return None
 
