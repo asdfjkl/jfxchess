@@ -287,7 +287,8 @@ class GameNode(object):
             main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
             _board.pop()
 
-    def export_html(self, exporter, comments=True, variations=True, _board=None, _after_variation=False):
+    def export_html(self, exporter, node_to_highlight, comments=True,
+                    variations=True, _board=None, _after_variation=False):
         if _board is None:
             _board = self.board()
 
@@ -299,7 +300,10 @@ class GameNode(object):
             exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
             # Append SAN.
-            exporter.put_move(_board, main_variation.move)
+            if(main_variation == node_to_highlight):
+                exporter.put_move_highlighted(_board, main_variation.move)
+            else:
+                exporter.put_move(_board, main_variation.move)
 
             if comments:
                 # Append NAGs.
@@ -329,7 +333,10 @@ class GameNode(object):
                 exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
 
                 # Append SAN.
-                exporter.put_move(_board, variation.move)
+                if(variation == node_to_highlight):
+                    exporter.put_move_highlighted(_board,variation.move)
+                else:
+                    exporter.put_move(_board, variation.move)
 
                 if comments:
                     # Append NAGs.
@@ -341,7 +348,7 @@ class GameNode(object):
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
-                variation.export_html(exporter, comments, variations, _board, False)
+                variation.export_html(exporter, node_to_highlight,comments, variations, _board, False)
                 _board.pop()
 
                 # End variation.
@@ -356,7 +363,8 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
-            main_variation.export_html(exporter, comments, variations, _board, variations and len(self.variations) > 1)
+            main_variation.export_html(exporter, node_to_highlight, comments,
+                                       variations, _board, variations and len(self.variations) > 1)
             _board.pop()
 
 
@@ -536,6 +544,11 @@ class StringExporter(object):
 
     def put_move(self, board, move):
         self.write_token(board.san(move) + " ")
+
+    def put_move_highlighted(self,board,move):
+        self.write_token('<span style="color:darkgoldenrod">')
+        self.write_token(board.san(move) + " ")
+        self.write_token('</span>')
 
     def put_result(self, result):
         self.write_token(result + " ")

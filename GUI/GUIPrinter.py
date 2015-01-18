@@ -422,6 +422,6 @@ class GUIPrinter():
         #self.print_san(current.root(),0,False)
         #return self.san_html
         exporter = StringExporter(columns=None)
-        current.root().export_html(exporter)
+        current.root().export_html(exporter,current)
         return exporter.__str__()
         #return self.export_string(current.root())
