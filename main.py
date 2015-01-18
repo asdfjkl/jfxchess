@@ -27,7 +27,7 @@ import io
 import sys, random, time
 from uci.engine_info import EngineInfo
 import pickle
-
+from util.appdirs import *
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -48,9 +48,14 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
 
+        appname = 'jerry'
+        appauthor = 'dkl'
+        fn = user_data_dir(appname, appauthor)
+        print(fn)
+        self.save_state_dir = fn
 
         try:
-            with open("current.dmp","rb") as pgn:
+            with open(fn+"/current.raw","rb") as pgn:
                 #first_game = chess.pgn.read_game(pgn)
                 self.gs = pickle.load(pgn)
                 #self.gs.game = first_game
@@ -562,7 +567,9 @@ def module_path():
 
 def about_to_quit():
     try:
-        with open("current.dmp",'wb') as f:
+        if not os.path.exists(main.save_state_dir):
+            os.makedirs(main.save_state_dir)
+        with open(main.save_state_dir+"/current.raw",'wb') as f:
         #    print(main.gs.current.root(), file=f, end="\n\n")
             pickle.dump(main.gs,f)
         f.close()
