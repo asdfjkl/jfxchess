@@ -211,7 +211,16 @@ class MovesEdit(QTextEdit):
                 selected_state = self._get_state_from_offset(cursor_pos)
                 self.gs.current = selected_state
                 self.emit(SIGNAL("statechanged()"))
+                #foo = QTextCursor()
+                #print("cursorpos "+str(cursor_pos))
+                #foo.setPosition(cursor_pos)
+                #print("foo pos:"+str(foo.position()))
+                scroll_pos = self.verticalScrollBar().value()
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                self.verticalScrollBar().setValue(scroll_pos)
+                #self.setTextCursor( foo )
+
+
 
     def on_statechanged(self):
         self.update_san()
