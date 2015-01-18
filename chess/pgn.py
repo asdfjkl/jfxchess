@@ -71,6 +71,7 @@ MOVETEXT_REGEX = re.compile(r"""
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
 
+from PyQt4.QtGui import *
 
 class GameNode(object):
 
@@ -287,13 +288,14 @@ class GameNode(object):
             exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
             # before adding san, store in offset_table offset number + node
-            offset_start = len(re.sub('<[^>]*>','',str(exporter)))
-            offset_table.append((offset_start,main_variation))
+            temp = re.sub('</dd>|<dd>','\n',str(exporter))
+            offset_start = len(re.sub('<[^>]*>','',temp))
             # Append SAN.
             if(main_variation == node_to_highlight):
                 exporter.put_move_highlighted(_board, main_variation.move)
             else:
                 exporter.put_move(_board, main_variation.move)
+            offset_table.append((offset_start,offset_start+4,main_variation))
 
             if comments:
                 # Append NAGs.
@@ -310,10 +312,8 @@ class GameNode(object):
                 # Start variation.
                 if variation.parent.is_main_line():
                     exporter.start_snd_variation()
-                    print(variation.move.uci()+"is a snd var")
                 else:
                     exporter.start_variation()
-                    print(variation.move.uci()+"is not a snd var")
 
                 # Append starting comment.
                 if comments and variation.starting_comment:
@@ -323,13 +323,14 @@ class GameNode(object):
                 exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
 
                 # before adding san, store in offset_table offset number + node
-                offset_start = len(re.sub('<[^>]*>','',str(exporter)))
-                offset_table.append((offset_start,variation))
+                temp = re.sub('</dd>|<dd>','\n',str(exporter))
+                offset_start = len(re.sub('<[^>]*>','',temp))
                 # Append SAN.
                 if(variation == node_to_highlight):
                     exporter.put_move_highlighted(_board,variation.move)
                 else:
                     exporter.put_move(_board, variation.move)
+                offset_table.append((offset_start,offset_start+4,variation))
 
                 if comments:
                     # Append NAGs.
