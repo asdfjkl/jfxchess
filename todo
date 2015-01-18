@@ -68,3 +68,9 @@
   esp. editing/loading game (data)
   and gs.game gs.root gs.current etc.
 
+- computer offers draw too early
+  (should be: only after xx moves)
+  (should the computer ever offer draw?)
+
+- edit game data when pasting
+
