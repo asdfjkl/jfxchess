@@ -22,6 +22,7 @@ MODE_ENTER_MOVES = 0
 MODE_PLAY_BLACK = 1
 MODE_PLAY_WHITE = 2
 MODE_ANALYSIS = 3
+MODE_PLAYOUT_POS = 4
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -343,6 +344,10 @@ class ChessboardView(QWidget):
                 self.engine.uci_go_movetime(self.gs.computer_think_time)
         elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK): pass
             #self.engine.uci_go_infinite()
+        elif(self.gs.mode == MODE_PLAYOUT_POS):
+            uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.uci_send_position(uci_string)
+            self.engine.uci_go_movetime(self.gs.computer_think_time)
         print("Now its this turn: "+str(self.gs.current.board().turn))
         self.emit(SIGNAL("statechanged()"))
 
@@ -354,6 +359,8 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
 
     def __players_turn(self):
+        if(self.gs.mode == MODE_PLAYOUT_POS):
+            return True
         if(self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE):
             return False
         if(self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK):

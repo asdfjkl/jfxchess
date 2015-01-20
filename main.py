@@ -5,7 +5,7 @@ from GUI.GUIPrinter import GUIPrinter
 from GUI.PieceImages import PieceImages
 from GUI.MovesEdit import MovesEdit
 from GUI.ChessBoardView import ChessboardView, GameState
-from GUI.ChessBoardView import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK
+from GUI.ChessBoardView import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK,MODE_PLAYOUT_POS
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
@@ -234,6 +234,7 @@ class MainWindow(QMainWindow):
         m_mode.addSeparator()
         analyze_game = m_mode.addAction("Full Game Analysis")
         play_out_pos = m_mode.addAction("Play out Position")
+        play_out_pos.triggered.connect(self.on_playout_pos)
         m_help = self.menuBar().addMenu("Help")
         about = m_help.addAction("About")
         about.triggered.connect(self.board.show_about)
@@ -347,6 +348,7 @@ class MainWindow(QMainWindow):
     def on_analysis_mode(self):
         self.display_info.setChecked(True)
         self.set_display_info()
+        self.engine.stop_engine()
         self.engine.start_engine(self.engine_fn)
         self.engine.uci_ok()
         self.engine.uci_newgame()
@@ -364,6 +366,22 @@ class MainWindow(QMainWindow):
         self.give_up.setEnabled(False)
         self.offer_draw.setEnabled(False)
         self.gs.mode = MODE_ENTER_MOVES
+
+    def on_playout_pos(self):
+        self.display_info.setChecked(True)
+        self.set_display_info()
+        self.engine.stop_engine()
+        self.engine.start_engine(self.engine_fn)
+        self.engine.uci_ok()
+        self.engine.uci_newgame()
+        self.give_up.setEnabled(False)
+        self.offer_draw.setEnabled(False)
+        uci_string = self.gs.printer.to_uci(self.gs.current)
+        self.engine.uci_send_position(uci_string)
+        self.engine.uci_go_movetime(self.gs.computer_think_time)
+        self.gs.mode = MODE_PLAYOUT_POS
+
+
 
     def on_play_as_black(self):
         self.board.flippedBoard = True
@@ -515,7 +533,10 @@ class MainWindow(QMainWindow):
         # execute only if engine plays
         if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
             or
-            (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)):
+            (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)
+            #temporär: fix and write proper routine
+            or self.gs.mode == MODE_PLAYOUT_POS
+            ):
             # check if game is drawn due to various conditions
             print("executing bestmove received: "+str(move))
             print("BAD: "+str(self.gs.position_bad))
