@@ -224,7 +224,7 @@ class MainWindow(QMainWindow):
         self.play_black.triggered.connect(self.on_play_as_black)
 
         self.enter_moves = QAction("Enter &Moves",m_mode,checkable=True)
-        self.enter_moves.setShortcut('m')
+        self.enter_moves.setShortcuts([Qt.Key_M,Qt.Key_Escape])
         m_mode.addAction(ag.addAction(self.enter_moves))
         self.enter_moves.triggered.connect(self.on_enter_moves_mode)
         self.enter_moves.setChecked(True)
@@ -380,7 +380,7 @@ class MainWindow(QMainWindow):
         self.engine.uci_send_position(uci_string)
         self.engine.uci_go_movetime(self.gs.computer_think_time)
         self.gs.mode = MODE_PLAYOUT_POS
-
+        self.enter_moves.setChecked(True)
 
 
     def on_play_as_black(self):
@@ -534,9 +534,7 @@ class MainWindow(QMainWindow):
         if((self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)
             or
             (self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK)
-            #temporär: fix and write proper routine
-            or self.gs.mode == MODE_PLAYOUT_POS
-            ):
+            or self.gs.mode == MODE_PLAYOUT_POS):
             # check if game is drawn due to various conditions
             print("executing bestmove received: "+str(move))
             print("BAD: "+str(self.gs.position_bad))
@@ -555,25 +553,26 @@ class MainWindow(QMainWindow):
             else:
                 self.gs.position_draw = 0
             game_over = False
-            if(self.gs.position_bad > 5): # due to computer resigning
-                msgBox = QMessageBox()
-                msgBox.setText("The computer resigns.")
-                msgBox.setInformativeText("Congratulations!")
-                msgBox.exec_()
-                self.give_up_game()
-                game_over = True
-            elif(self.gs.position_draw > 5): # due to computer offering draw which is accepted
-                msgBox = QMessageBox()
-                msgBox.setText("The computer offers a draw.")
-                msgBox.setInformativeText("Do you accept?")
-                msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
-                msgBox.setDefaultButton(QMessageBox.Yes)
-                if(msgBox.exec_() == QMessageBox.Yes):
+            if(not self.gs.mode == MODE_PLAYOUT_POS):
+                if(self.gs.position_bad > 5): # due to computer resigning
+                    msgBox = QMessageBox()
+                    msgBox.setText("The computer resigns.")
+                    msgBox.setInformativeText("Congratulations!")
+                    msgBox.exec_()
+                    self.give_up_game()
                     game_over = True
-                    self.draw_game()
-                    print("DRAW?")
-                else:
-                    self.gs.position_draw = 0
+                elif(self.gs.position_draw > 5): # due to computer offering draw which is accepted
+                    msgBox = QMessageBox()
+                    msgBox.setText("The computer offers a draw.")
+                    msgBox.setInformativeText("Do you accept?")
+                    msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+                    msgBox.setDefaultButton(QMessageBox.Yes)
+                    if(msgBox.exec_() == QMessageBox.Yes):
+                        game_over = True
+                        self.draw_game()
+                        print("DRAW?")
+                    else:
+                        self.gs.position_draw = 0
             if(not (game_over)):
                 # continue normal play
                 uci = move
