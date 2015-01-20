@@ -25,7 +25,7 @@
   state (game, board,
   strength setting etc.) on exit
 
-- stockfish dependency on os
+- DONE stockfish filename selction dependent on os
 
 - play out position (maybe later?)
 
