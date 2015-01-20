@@ -48,6 +48,17 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
 
+        self.engine_fn = os.path.dirname(os.path.realpath(sys.argv[0]))
+        if sys.platform == 'win32':
+            self.engine_fn += "/engine/stockfish.exe"
+        elif 'linux' in  sys.platform:
+            print("yahoo - we are on linux")
+            self.engine_fn += "/engine/stockfish_linux"
+        elif sys.platform == 'darwin':
+            self.engine_fn += '/engine/stockfish_osx'
+        print("engine path: "+ self.engine_fn)
+        print("os platform: "+sys.platform)
+
         appname = 'jerry'
         appauthor = 'dkl'
         fn = user_data_dir(appname, appauthor)
@@ -336,9 +347,7 @@ class MainWindow(QMainWindow):
     def on_analysis_mode(self):
         self.display_info.setChecked(True)
         self.set_display_info()
-        engine_path = module_path() + "/engine/stockfish-5-64"
-        print("engine path: "+engine_path)
-        self.engine.start_engine(engine_path)
+        self.engine.start_engine(self.engine_fn)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(False)
@@ -362,15 +371,13 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_PLAY_BLACK
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
-        engine_path = module_path() + "/engine/stockfish-5-64"
-        print("engine path: "+engine_path)
-        self.engine.start_engine(engine_path)
+        self.engine.start_engine(self.engine_fn)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
         self.offer_draw.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
-        print("MOVE : "+str(self.gs.board().turn == chess.BLACK))
+        print("MOVE : "+str(self.gs.current.board().turn == chess.BLACK))
         if(self.gs.current.board().turn == chess.WHITE):
             print("white to move")
             uci_string = self.gs.printer.to_uci(self.gs.current)
@@ -383,19 +390,13 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_PLAY_WHITE
         self.engine.stop_engine()
         self.engineOutput.setHtml("")
-        engine_path = module_path()
-        if(engine_path == ""):
-             engine_path += "./engine/stockfish-5-64"
-        else:
-            engine_path += "/engine/stockfish-5-64"
-        print("engine path: "+engine_path)
-        self.engine.start_engine(engine_path)
+        self.engine.start_engine(self.engine_fn)
         self.engine.uci_ok()
         self.engine.uci_newgame()
         self.give_up.setEnabled(True)
         self.offer_draw.setEnabled(True)
         self.engine.uci_strength(self.gs.strength_level)
-        print("MOVE : "+str(self.gs.board().turn))
+        print("MOVE : "+str(self.gs.current.board().turn))
         if(self.gs.current.board().turn == chess.BLACK):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)

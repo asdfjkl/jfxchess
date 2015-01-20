@@ -197,7 +197,7 @@ class Uci_engine(QThread):
         return s
 
     def on_err_out(self):
-        output = str(self.process.readLineStderr(),"utf-8")
+        output = str(self.process.readLine(),"utf-8")
         print("error: "+output)
         self.emit(SIGNAL("new_err_out(QString"),output)
 
