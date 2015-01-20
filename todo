@@ -25,6 +25,8 @@
   state (game, board,
   strength setting etc.) on exit
 
+- stockfish dependency on os
+
 - play out position (maybe later?)
 
 - full game analysis
@@ -48,7 +50,7 @@
   rewrite find_node of gamestate (must be faster
   for games with more than 200 moves)
 
-- shortcuts
+- DONE shortcuts
 
 - LATER (currently only version)
   statusbar for message
