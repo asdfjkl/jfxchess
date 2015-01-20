@@ -1,3 +1,5 @@
+- render pgn annotations for gui instead
+  of displaying raw numbers
 - DONE fix enter position 
 - DONE offer draw
 - DONE resign
