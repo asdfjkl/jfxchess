@@ -23,6 +23,7 @@ MODE_PLAY_BLACK = 1
 MODE_PLAY_WHITE = 2
 MODE_ANALYSIS = 3
 MODE_PLAYOUT_POS = 4
+MODE_GAME_ANALYSIS = 5
 
 def idx_to_str(x):
     return chr(97 + x % 8)
