@@ -5,7 +5,7 @@ from GUI.GUIPrinter import GUIPrinter
 from GUI.PieceImages import PieceImages
 from GUI.MovesEdit import MovesEdit
 from GUI.ChessBoardView import ChessboardView, GameState
-from GUI.ChessBoardView import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK,MODE_PLAYOUT_POS
+from GUI.ChessBoardView import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK,MODE_PLAYOUT_POS,MODE_GAME_ANALYSIS
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
@@ -359,6 +359,12 @@ class MainWindow(QMainWindow):
         self.engine.uci_go_infinite()
         self.gs.mode = MODE_ANALYSIS
 
+    def on_game_analysis(self): pass
+        # delte all variants in game tree
+        # node = bottom (oder depth)
+        # analysis for x seconds
+        # store value
+
     def on_enter_moves_mode(self):
         # stop any engine
         self.engine.stop_engine()
@@ -380,8 +386,10 @@ class MainWindow(QMainWindow):
         self.engine.uci_send_position(uci_string)
         self.engine.uci_go_movetime(self.gs.computer_think_time)
         self.gs.mode = MODE_PLAYOUT_POS
-        self.enter_moves.setChecked(True)
-
+        self.enter_moves.setChecked(False)
+        self.analysis.setChecked(False)
+        self.play_white.setChecked(False)
+        self.play_black.setChecked(False)
 
     def on_play_as_black(self):
         self.board.flippedBoard = True
