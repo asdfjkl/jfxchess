@@ -41,15 +41,15 @@ class Uci_engine(QThread):
     def send_to_stdin(self):
         # get top of commands to execute from queue
         msg = self.command_queue.get(False)
-        print("executing in send_to_stdin "+msg)
+        #print("executing in send_to_stdin "+msg)
         # first check if this is a position command
         # if so, count the number of halfmoves that
         # have been played so far, and update self.no_game_halfmoves
-        print("SENDING: "+str(msg))
+        #print("SENDING: "+str(msg))
         if(re.search(self.POS,msg)):
             self.info.no_game_halfmoves = len(re.findall(self.MOVES,msg))
             self.info.currmove = None
-            print("NO OF HALFMOVES: "+str(self.info.no_game_halfmoves))
+            #print("NO OF HALFMOVES: "+str(self.info.no_game_halfmoves))
             if(self.info.no_game_halfmoves % 2 == 1):
                 self.info.flip_eval = True
             else:
@@ -71,7 +71,7 @@ class Uci_engine(QThread):
         # if message sets strength level, add that level to
         # the id string
         if(msg.startswith("setoption name Skill Level value")):
-            print("received skill value")
+            #print("received skill value")
             self.info.strength = str(1200 + (int(msg[33:])*100))
         self.process.write(bytes(msg+"\n","utf-8"))
         self.process.waitForBytesWritten()
@@ -91,7 +91,7 @@ class Uci_engine(QThread):
     def on_std_out(self):
         output = str(self.process.readAllStandardOutput(),"utf-8")
         lines = output.splitlines()
-        print("receiv out signal: "+output)
+        #print("receiv out signal: "+output)
         #l = self.queue_to_list(self.command_queue)
         #print("command queue: "+(" ".join(l)))
         # process output
@@ -112,7 +112,7 @@ class Uci_engine(QThread):
                 emit_info = False
                 cp = self.SCORECP.search(line)
                 if(cp):
-                    print(cp.group())
+                    #print(cp.group())
                     score = float(cp.group()[9:])/100.0
                     self.info.score = score
                     emit_info = True
@@ -129,7 +129,7 @@ class Uci_engine(QThread):
                     emit_info = True
                 mate = self.MATE.search(line)
                 if(mate):
-                    print(str(mate.group()))
+                    #print(str(mate.group()))
                     m = int(mate.group()[11:])
                     self.info.mate = m
                     emit_info = True
@@ -151,7 +151,10 @@ class Uci_engine(QThread):
                     # moves numbers
                     if(self.info.no_game_halfmoves):
                         self.info.pv = self.add_move_numbers_to_info()
+                    self.info.pv_arr = moves.split(" ")
                     emit_info = True
+                    #print("pv original:"+str(moves))
+                    #print("pv split:"+str(moves.split(" ")))
                 id = self.IDNAME.search(line)
                 if(id):
                     engine_name = id.group()[8:]
@@ -159,7 +162,7 @@ class Uci_engine(QThread):
                     self.info.id = engine_name
                     emit_info = True
                 if(emit_info):
-                    print("emitting: "+str(self.info))
+                    #print("emitting: "+str(self.info))
                     self.emit(SIGNAL("newinfo(PyQt_PyObject)"),copy.deepcopy(self.info))
 
                 bm = self.BESTMOVE.search(line)
@@ -192,13 +195,13 @@ class Uci_engine(QThread):
                 white_moves = not white_moves
             else:
                 replaced_all = True
-        print(s)
+        #print(s)
         s = s.replace('?',' ')
         return s
 
     def on_err_out(self):
         output = str(self.process.readLine(),"utf-8")
-        print("error: "+output)
+        #print("error: "+output)
         self.emit(SIGNAL("new_err_out(QString"),output)
 
     def run(self):
