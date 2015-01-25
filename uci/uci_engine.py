@@ -91,7 +91,7 @@ class Uci_engine(QThread):
     def on_std_out(self):
         output = str(self.process.readAllStandardOutput(),"utf-8")
         lines = output.splitlines()
-        #print("receiv out signal: "+output)
+        print("receiv out signal: "+output)
         #l = self.queue_to_list(self.command_queue)
         #print("command queue: "+(" ".join(l)))
         # process output
@@ -112,9 +112,10 @@ class Uci_engine(QThread):
                 emit_info = False
                 cp = self.SCORECP.search(line)
                 if(cp):
-                    #print(cp.group())
+                    print(cp.group())
                     score = float(cp.group()[9:])/100.0
                     self.info.score = score
+                    print("score: "+str(score))
                     emit_info = True
                 nps = self.NPS.search(line)
                 if(nps):

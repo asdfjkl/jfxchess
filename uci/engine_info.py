@@ -21,13 +21,13 @@ class EngineInfo(object):
             else:
                 outstr += '<th colspan="3" align="left">'+self.id+"</th>"
         outstr += '</tr><tr></tr><tr><td width="33%">'
-        if(self.mate):
+        if(self.mate != None):
             if(self.mate < 0):
                 outstr += "#"+str(-self.mate)
             else:
                 outstr += "#"+str(self.mate)
-        elif(self.score):
-            if(self.flip_eval):
+        elif(self.score != None):
+            if(self.flip_eval and self.score != 0.0):
                 outstr += '%.2f' % (-self.score)
             else:
                 outstr += '%.2f' % self.score

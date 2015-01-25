@@ -253,19 +253,22 @@ class MainWindow(QMainWindow):
         self.connect(self.board,SIGNAL("checkmate"),self.on_checkmate)
 
     def update_engine_output(self,engine_info):
+        print("rec: "+str(engine_info.score))
         if(self.gs.display_engine_info):
             # engine info has no score. reuse
             # old one from gamestate, if available
             # if so, set flip_eval to false, since
             # the gs state is always in side
             # independent format
-            if(not engine_info.score):
-                if(self.gs.score):
+            if(engine_info.score == None):
+                if(self.gs.score != None):
                     engine_info.score = self.old_score
                     engine_info.flip_eval = False
             else:
-                #print("SCORE RECEIVED: "+str(engine_info.score))
+                print("SCORE RECEIVED: "+str(engine_info.score))
                 if(engine_info.flip_eval):
+                    if(engine_info.score == 0.0):
+                        print("foo")
                     self.gs.score = - engine_info.score
                 else:
                     self.gs.score = engine_info.score
