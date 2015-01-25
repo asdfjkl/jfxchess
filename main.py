@@ -373,6 +373,7 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ANALYSIS
 
     def on_game_analysis_mode(self):
+        #self.gs = self.board.gs
         self.display_info.setChecked(True)
         self.set_display_info()
         self.engine.stop_engine()
@@ -383,11 +384,14 @@ class MainWindow(QMainWindow):
         self.offer_draw.setEnabled(False)
         self.movesEdit.delete_all_comments()
         self.movesEdit.delete_all_variants()
-        self.gs.current = self.gs.game
+        #self.gs.current = self.gs.game
         self.gs.best_score = None
         self.gs.best_pv = []
         self.gs.mate_threat = False
-        while(self.gs.current.variations):
+        print(str(self.gs.current.variations[0]))
+
+        while(len(self.gs.current.variations) > 0):
+            print("going down")
             self.gs.current = self.gs.current.variations[0]
         if(self.gs.current.board().is_checkmate() or self.gs.current.board().is_stalemate()):
             print("stale or check")
@@ -637,9 +641,10 @@ class MainWindow(QMainWindow):
                     self.board.on_statechanged()
         threshold = 0.4
         if(self.gs.mode == MODE_GAME_ANALYSIS):
-            print("next move:"+self.gs.current.variations[0].move.uci())
-            print("pv:"+str(self.gs.pv))
-            print("mate thread: "+str(self.gs.mate_threat))
+            if(len(self.gs.current.variations) >0 ):
+                print("next move:"+self.gs.current.variations[0].move.uci())
+                print("pv:"+str(self.gs.pv))
+                print("mate thread: "+str(self.gs.mate_threat))
 
             if(self.exists_best_move_info()
                 and ((self.gs.score - self.gs.best_score > threshold)
