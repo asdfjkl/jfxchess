@@ -11,6 +11,7 @@ class EngineInfo(object):
         self.nps = None
         self.pv = None
         self.flip_eval = False
+        self.pv_arr = []
 
     def __str__(self):
         outstr = '<table width="100%"><tr>'

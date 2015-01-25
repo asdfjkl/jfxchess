@@ -56,6 +56,13 @@ class GameState():
         self.score = 0
         self.position_bad = 0
         self.position_draw = 0
+        self.pv = []
+
+        self.mate_threat = None
+        self.next_mate_threat = None
+
+        self.best_score = None
+        self.best_pv = []
 
         self.timed_game = False
         self.time_white = 0

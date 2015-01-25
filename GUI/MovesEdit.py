@@ -108,7 +108,7 @@ class MovesEdit(QTextEdit):
         self.update_san()
 
     def delete_all_comments(self):
-        self._rec_delete_comments(self.bv.current.root())
+        self._rec_delete_comments(self.gs.current.root())
         self.update_san()
 
     def _rec_delete_comments(self,node):
@@ -181,7 +181,7 @@ class MovesEdit(QTextEdit):
         self.update_san()
 
     def delete_all_variants(self):
-        node = self.bv.current.root()
+        node = self.gs.current.root()
         while(node.variations != []):
             node.variations = [node.variations[0]]
             node = node.variations[0]
@@ -222,7 +222,10 @@ class MovesEdit(QTextEdit):
         self.update_san()
 
     def update_san(self):
-        self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+        html = (self.gs.printer.to_san_html(self.gs.current))
+        #print("????????????????HTML"+str(html))
+        self.setHtml(html)
+        self.update()
 
     def keyPressEvent(self, event):
         key = event.key()

@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
         self.gs = GameState()
+        print(str(self.gs.best_score))
         #self.gs.current = self.gs.game.root()
         print(type(self.gs.game))
         self.gs.mode = MODE_ENTER_MOVES
@@ -233,6 +234,7 @@ class MainWindow(QMainWindow):
         set_strength.triggered.connect(self.on_strength_level)
         m_mode.addSeparator()
         analyze_game = m_mode.addAction("Full Game Analysis")
+        analyze_game.triggered.connect(self.on_game_analysis_mode)
         play_out_pos = m_mode.addAction("Play out Position")
         play_out_pos.triggered.connect(self.on_playout_pos)
         m_help = self.menuBar().addMenu("Help")
@@ -262,11 +264,21 @@ class MainWindow(QMainWindow):
                     engine_info.score = self.old_score
                     engine_info.flip_eval = False
             else:
-                print("SCORE RECEIVED: "+str(engine_info.score))
+                #print("SCORE RECEIVED: "+str(engine_info.score))
                 if(engine_info.flip_eval):
                     self.gs.score = - engine_info.score
                 else:
                     self.gs.score = engine_info.score
+            if(engine_info.pv_arr):
+                self.gs.pv = engine_info.pv_arr
+            self.gs.mate_threat = None
+            if(engine_info.mate != None):
+                print("GONNA BE MATE")
+                self.gs.mate_threat = engine_info.mate
+                #if(self.gs.current.board().turn == chess.WHITE):
+                #    self.gs.score =  -1000000
+                #else:
+                #    self.gs.score =  1000000
             self.engineOutput.setHtml(str(engine_info))
 
 
@@ -340,7 +352,8 @@ class MainWindow(QMainWindow):
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
         if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
-            (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
+            (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE) or
+            self.gs.mode == MODE_GAME_ANALYSIS):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
@@ -359,11 +372,31 @@ class MainWindow(QMainWindow):
         self.engine.uci_go_infinite()
         self.gs.mode = MODE_ANALYSIS
 
-    def on_game_analysis(self): pass
-        # delte all variants in game tree
-        # node = bottom (oder depth)
-        # analysis for x seconds
-        # store value
+    def on_game_analysis_mode(self):
+        self.display_info.setChecked(True)
+        self.set_display_info()
+        self.engine.stop_engine()
+        self.engine.start_engine(self.engine_fn)
+        self.engine.uci_ok()
+        self.engine.uci_newgame()
+        self.give_up.setEnabled(False)
+        self.offer_draw.setEnabled(False)
+        self.movesEdit.delete_all_comments()
+        self.movesEdit.delete_all_variants()
+        self.gs.current = self.gs.game
+        self.gs.best_score = None
+        self.gs.best_pv = []
+        self.gs.mate_threat = False
+        while(self.gs.current.variations):
+            self.gs.current = self.gs.current.variations[0]
+        if(self.gs.current.board().is_checkmate() or self.gs.current.board().is_stalemate()):
+            print("stale or check")
+            self.gs.current = self.gs.current.parent
+        uci_string = self.gs.printer.to_uci(self.gs.current)
+        self.engine.uci_send_position(uci_string)
+        self.engine.uci_go_movetime(3000)
+        self.gs.mode = MODE_GAME_ANALYSIS
+        print("tiggered game analysis")
 
     def on_enter_moves_mode(self):
         # stop any engine
@@ -387,7 +420,7 @@ class MainWindow(QMainWindow):
         self.engine.uci_go_movetime(self.gs.computer_think_time)
         self.gs.mode = MODE_PLAYOUT_POS
         self.enter_moves.setChecked(False)
-        self.analysis.setChecked(False)
+        #self.analysis.setChecked(False)
         self.play_white.setChecked(False)
         self.play_black.setChecked(False)
 
@@ -457,7 +490,7 @@ class MainWindow(QMainWindow):
         self.on_enter_moves_mode()
 
     def on_checkmate(self):
-        if(self.gs.board().turn == chess.WHITE):
+        if(self.gs.current.board().turn == chess.WHITE):
             self.gs.headers["Result"] = "1-0"
         else:
             self.gs.headers["Result"] = "0-1"
@@ -536,6 +569,20 @@ class MainWindow(QMainWindow):
             self.movesEdit.on_statechanged()
             self.update()
 
+    def exists_best_move_info(self):
+        return (self.gs.best_score and
+                self.gs.best_pv != [])
+
+    def add_variant_from_pv(self,root, uci_list):
+        uci_move = uci_list[0]
+        print("UCI MOVE:" + str(uci_move))
+        root.add_variation(chess.Move.from_uci(uci_move))
+        root = root.variations[1]
+        for i in range(1,len(uci_list)):
+            print("UCI MOVE:" + str(uci_list[i]))
+            root.add_main_variation(chess.Move.from_uci(uci_list[i]))
+            root = root.variations[0]
+
     def on_bestmove(self,move):
         print("bestmove received: "+str(move))
         # execute only if engine plays
@@ -588,6 +635,49 @@ class MainWindow(QMainWindow):
                 if (len([x for x in legal_moves if x.uci() == uci]) > 0):
                     self.board.executeMove(move)
                     self.board.on_statechanged()
+        threshold = 0.4
+        if(self.gs.mode == MODE_GAME_ANALYSIS):
+            print("next move:"+self.gs.current.variations[0].move.uci())
+            print("pv:"+str(self.gs.pv))
+            print("mate thread: "+str(self.gs.mate_threat))
+
+            if(self.exists_best_move_info()
+                and ((self.gs.score - self.gs.best_score > threshold)
+                    or (self.gs.mate_threat == None and self.gs.next_mate_threat != None))
+                and self.gs.current.variations != []
+                and self.gs.best_pv[0] != self.gs.current.variations[0].move.uci()):
+                    #pass
+                    #self.gs.current.variations[0].comment = str(self.gs.best_score)
+                    # add
+                    #print("next move:"+self.gs.current.variations[0].move.uci())
+                    #print("best_pv:"+str(self.gs.best_pv))
+                    self.add_variant_from_pv(self.gs.current,self.gs.pv)
+                    if(self.gs.next_mate_threat != None):
+                        self.gs.current.variations[0].comment = "#"+str(self.gs.next_mate_threat)
+                    else:
+                        self.gs.current.variations[0].comment = str(self.gs.best_score)
+
+                    self.gs.current.variations[1].comment = str(self.gs.score)
+                    #
+            self.gs.best_score = self.gs.score
+            self.gs.best_pv = self.gs.pv
+            self.gs.next_mate_threat = self.gs.mate_threat
+            self.gs.mate_threat = None
+
+            self.board.on_statechanged()
+            self.movesEdit.on_statechanged()
+
+
+            if(self.gs.current.parent):
+                print("HAS PARENT: MOVING UP")
+                self.gs.current = self.gs.current.parent
+
+                # send uci best move command
+                self.on_statechanged()
+            else:
+                print("finished analysing")
+                self.gs.mode = MODE_ENTER_MOVES
+                pass # (finished, display messagebox)
 
     """
     def closeEvent(self, event):
