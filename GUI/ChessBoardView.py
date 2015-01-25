@@ -202,6 +202,8 @@ class ChessboardView(QWidget):
             root.setup(board)
             if(root.board().status() == 0):
                 self.gs.current = root
+                self.gs.game = root
+                self.gs.root = root
         except ValueError:
             pgn = io.StringIO(clipboard.text())
             first_game = chess.pgn.read_game(pgn)
