@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
 # classes from Jerry:
-from GUI.GUIPrinter import GUIPrinter
-from GUI.PieceImages import PieceImages
-from GUI.MovesEdit import MovesEdit
-from GUI.ChessBoardView import ChessboardView, GameState
-from GUI.ChessBoardView import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK,MODE_PLAYOUT_POS,MODE_GAME_ANALYSIS
+from gui.GUIPrinter import GUIPrinter
+from gui.PieceImages import PieceImages
+from gui.MovesEdit import MovesEdit
+from gui.ChessBoardView import ChessboardView
+from logic.gamestate import GameState
+from logic.gamestate import MODE_PLAY_WHITE,MODE_ANALYSIS,MODE_ENTER_MOVES,MODE_PLAY_BLACK,MODE_PLAYOUT_POS,MODE_GAME_ANALYSIS
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
@@ -14,11 +15,13 @@ from dialogs.DialogNewGame import DialogNewGame
 from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from uci.uci_controller import Uci_controller
 import os
+from logic import file_io
 
 # python chess
 from chess.polyglot import *
 from chess.pgn import Game
 import chess
+from functools import partial
 
 # PyQt and python system functions
 from  PyQt4.QtGui import *
@@ -156,22 +159,22 @@ class MainWindow(QMainWindow):
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
         load_game.setShortcut(QKeySequence.Open)
-        load_game.triggered.connect(self.board.open_pgn)
+        load_game.triggered.connect(partial(file_io.open_pgn, self.board, self.gs))
         save_game = m_file.addAction("Save as new PGN")
         save_game.setShortcut(QKeySequence.Save)
-        save_game.triggered.connect(self.board.save_to_pgn)
+        #save_game.triggered.connect(self.board.save_to_pgn)
         append_game = m_file.addAction("Save (Append) to PGN")
         append_game.setShortcut(QKeySequence.SaveAs)
-        append_game.triggered.connect(self.board.append_to_pgn)
+        #append_game.triggered.connect(self.board.append_to_pgn)
         m_file.addSeparator()
         save_diag = m_file.addAction("Save Position as Image")
-        save_diag.triggered.connect(self.board.save_image)
+        #save_diag.triggered.connect(self.board.save_image)
         m_file.addSeparator()
         print_game = m_file.addAction("Print Game")
-        print_game.triggered.connect(self.board.print_game)
+        #print_game.triggered.connect(self.board.print_game)
         print_game.setShortcut(QKeySequence.Print)
         print_pos = m_file.addAction("Print Position")
-        print_pos.triggered.connect(self.board.print_position)
+        #print_pos.triggered.connect(self.board.print_position)
         m_file.addSeparator()
         exit_item = m_file.addAction("Quit")
         exit_item.setShortcut(QKeySequence.Quit)

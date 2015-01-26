@@ -1,4 +1,4 @@
-from GUI.PieceImages import PieceImages
+from gui.PieceImages import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 

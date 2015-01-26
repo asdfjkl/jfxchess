@@ -1,6 +1,6 @@
-from GUI.GUIPrinter import GUIPrinter
-from GUI.PieceImages import PieceImages
-from GUI.MovesEdit import MovesEdit
+from gui.GUIPrinter import GUIPrinter
+from gui.PieceImages import PieceImages
+from gui.MovesEdit import MovesEdit
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
 from dialogs.DialogEnterPosition import DialogEnterPosition
@@ -18,12 +18,7 @@ from  PyQt4.QtCore import *
 import io
 import sys, random, time
 
-MODE_ENTER_MOVES = 0
-MODE_PLAY_BLACK = 1
-MODE_PLAY_WHITE = 2
-MODE_ANALYSIS = 3
-MODE_PLAYOUT_POS = 4
-MODE_GAME_ANALYSIS = 5
+from logic.gamestate import MODE_ENTER_MOVES,MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -42,44 +37,6 @@ class Point():
     def __ne__(self, other):
         return not self.__eq__(other)
 
-class GameState():
-
-    def __init__(self):
-        super(GameState, self).__init__()
-        self.game = chess.pgn.Game()
-        self.root = self.game
-        self.current = self.game
-        self.mode = MODE_ENTER_MOVES
-        self.printer = GUIPrinter()
-        self.computer_think_time = 3000
-        self.display_engine_info = True
-        self.score = 0
-        self.position_bad = 0
-        self.position_draw = 0
-        self.pv = []
-
-        self.mate_threat = None
-        self.next_mate_threat = None
-
-        self.best_score = None
-        self.best_pv = []
-
-        self.timed_game = False
-        self.time_white = 0
-        self.time_black = 0
-        self.add_secs_per_move = 0
-        self.strength_level = 3
-
-    def find_fen(self,fen_string,node):
-        print(node.board().fen())
-        if(node.board().fen() in fen_string):
-            return node
-        else:
-            for child in node.variations:
-                res = self.find_fen(fen_string,child)
-                if(not res == None):
-                    return res
-        return None
 
 
 class ChessboardView(QWidget):
@@ -112,29 +69,6 @@ class ChessboardView(QWidget):
     def initUI(self):
         self.show()
 
-    def print_game(self):
-        dialog = QPrintDialog()
-        if dialog.exec_() == QDialog.Accepted:
-            exporter = chess.pgn.StringExporter()
-            self.gs.current.root().export(exporter, headers=True, variations=True, comments=True)
-            pgn = str(exporter)
-            QPgn = QPlainTextEdit(pgn)
-            QPgn.print_(dialog.printer())
-
-    def print_position(self):
-        dialog = QPrintDialog()
-        if dialog.exec_() == QDialog.Accepted:
-            p = QPixmap.grabWindow(self.winId())
-            painter = QPainter(dialog.printer())
-            dst = QRect(0,0,200,200)
-            painter.drawPixmap(dst, p)
-            del painter
-
-    def save_image(self):
-        filename = QFileDialog.getSaveFileName(self, 'Save Image', None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
-        if(filename):
-            p = QPixmap.grabWindow(self.winId())
-            p.save(filename,'jpg')
 
 
     def setup_headers(self,game):
@@ -146,33 +80,6 @@ class ChessboardView(QWidget):
         game.headers["Round"] = ""
         game.headers["Result"] = "*"
 
-    def append_to_pgn(self):
-        filename = QFileDialog.getSaveFileName(self, 'Append to PGN', None,
-                                                     'PGN (*.pgn)', QFileDialog.DontConfirmOverwrite)
-        if(filename):
-            print("append saver")
-
-    def save_to_pgn(self):
-        filename = QFileDialog.getSaveFileName(self, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
-        if(filename):
-            f = open(filename,'w')
-            print(self.gs.current.root(), file=f, end="\n\n")
-            print("pgn saver")
-
-    def open_pgn(self):
-        filename = QFileDialog.getOpenFileName(self, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
-        if(filename):
-            pgn = open(filename)
-            first_game = chess.pgn.read_game(pgn)
-            self.gs.current = first_game
-            self.update()
-            self.emit(SIGNAL("statechanged()"))
-            #self.movesEdit.bv = self
-
-            #self.movesEdit.update_san()
-            #self.movesEdit.setFocus()
-
-            print("open pgn dummy")
 
 
 

@@ -1,6 +1,6 @@
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-from GUI.GUIPrinter import GUIPrinter
+from gui.GUIPrinter import GUIPrinter
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
 
