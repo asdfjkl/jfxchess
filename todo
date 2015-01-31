@@ -31,7 +31,11 @@
 
 - DONE play out position (maybe later?)
 
-- full game analysis
+- DONE full game analysis
+
+- full game analysis: 
+  - stop at book
+  - start with dialog (start end move numer, threshold)
 
 - DONE opening book
 
