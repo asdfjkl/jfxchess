@@ -81,49 +81,6 @@ class ChessboardView(QWidget):
         game.headers["Result"] = "*"
 
 
-
-
-    def show_about(self):
-        d = DialogAbout()
-        d.exec_()
-
-    def game_to_clipboard(self):
-        clipboard = QApplication.clipboard()
-        exporter = chess.pgn.StringExporter()
-        self.gs.current.root().export(exporter, headers=True, variations=True, comments=True)
-        pgn_string = str(exporter)
-        clipboard.setText(pgn_string)
-
-    def pos_to_clipboard(self):
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.gs.current.board().fen())
-
-    def from_clipboard(self):
-        clipboard = QApplication.clipboard()
-        try:
-            root = chess.pgn.Game()
-            self.setup_headers(root)
-            root.headers["FEN"] = ""
-            root.headers["SetUp"] = ""
-            board = chess.Bitboard(clipboard.text())
-            root.setup(board)
-            if(root.board().status() == 0):
-                self.gs.current = root
-                self.gs.game = root
-                self.gs.root = root
-        except ValueError:
-            pgn = io.StringIO(clipboard.text())
-            first_game = chess.pgn.read_game(pgn)
-            self.gs.current = first_game
-
-        self.update()
-        self.emit(SIGNAL("statechanged()"))
-        #self.movesEdit.bv = self
-
-        #self.movesEdit.update_san()
-        #self.mainWindow.setLabels(self.gs.current)
-        #self.movesEdit.setFocus()
-
     def heightForWidth(self, width):
         return width
 

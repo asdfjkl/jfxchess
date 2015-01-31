@@ -16,6 +16,7 @@ from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from uci.uci_controller import Uci_controller
 import os
 from logic import file_io
+from logic import edit
 
 # python chess
 from chess.polyglot import *
@@ -181,13 +182,13 @@ class MainWindow(QMainWindow):
         exit_item.triggered.connect(QApplication.quit)
         m_edit = self.menuBar().addMenu('Edit ')
         copy_game = m_edit.addAction("Copy Game")
-        copy_game.triggered.connect(self.board.game_to_clipboard)
+        copy_game.triggered.connect(partial(edit.game_to_clipboard,self.gs))
         copy_game.setShortcut(QKeySequence.Copy)
         copy_pos = m_edit.addAction("Copy Position")
-        copy_pos.triggered.connect(self.board.pos_to_clipboard)
+        copy_pos.triggered.connect(partial(edit.pos_to_clipboard,self.gs))
         paste = m_edit.addAction("Paste")
         paste.setShortcut(QKeySequence.Paste)
-        paste.triggered.connect(self.board.from_clipboard)
+        paste.triggered.connect(partial(edit.from_clipboard,self.gs,self.board))
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("&Enter Position")
         enter_pos.setShortcut('e')
@@ -242,7 +243,7 @@ class MainWindow(QMainWindow):
         play_out_pos.triggered.connect(self.on_playout_pos)
         m_help = self.menuBar().addMenu("Help")
         about = m_help.addAction("About")
-        about.triggered.connect(self.board.show_about)
+        about.triggered.connect(self.show_about)
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
@@ -312,6 +313,13 @@ class MainWindow(QMainWindow):
             self.gs.computer_think_time = self.gs.computer_think_time*1000
         if(not self.gs.mode == MODE_ENTER_MOVES):
             self.engine.uci_strength(self.gs.strength_level)
+
+
+
+
+    def show_about(self):
+        d = DialogAbout()
+        d.exec_()
 
     def on_newgame(self):
         dialog = DialogNewGame(gamestate=self.gs)
