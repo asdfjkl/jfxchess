@@ -26,7 +26,7 @@ class DialogNewGame(QDialog):
         self.lbl_elo_value = QLabel("1500")
         hboxSlider_elo = QHBoxLayout()
         self.slider_elo = QSlider(Qt.Horizontal, self)
-        self.slider_elo.setRange(0,19)
+        self.slider_elo.setRange(1,20)
         self.slider_elo.setTickInterval(1)
         self.slider_elo.setTickPosition(2)
         self.slider_elo.setValue(3)
@@ -64,6 +64,9 @@ class DialogNewGame(QDialog):
         layout.addWidget(buttonBox)
         self.setLayout(layout)
 
+        self.strength = 4
+        self.think_ms = 3000
+
         if(gamestate):
             think_time = gamestate.computer_think_time // 1000
             if(think_time == 30):
@@ -76,7 +79,9 @@ class DialogNewGame(QDialog):
                 think_time = 4
             strength = gamestate.strength_level
             self.slider_think.setValue(think_time)
+            self.think_time = think_time
             self.slider_elo.setValue(strength)
+            self.strength = strength
             self.set_lbl_elo_value(strength)
             self.set_lbl_think_value(think_time)
 
@@ -87,7 +92,9 @@ class DialogNewGame(QDialog):
         self.resize(370, 150)
 
     def set_lbl_elo_value(self,val):
-        self.lbl_elo_value.setNum(1200+(val*100))
+        elo = 1200 + (val*100)
+        self.strength = val
+        self.lbl_elo_value.setNum(elo)
 
     def set_lbl_think_value(self,val):
         res = val
@@ -100,4 +107,5 @@ class DialogNewGame(QDialog):
                 res = 15
             elif(val ==7):
                 res = 30
+        self.think_ms = res * 1000
         self.lbl_think_value.setText(str(res)+" sec(s)")

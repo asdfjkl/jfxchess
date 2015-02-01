@@ -50,8 +50,6 @@ class ChessboardView(QWidget):
         self.gs = gamestate
         self.engine = engine
 
-        self.setup_headers(self.gs.game)
-
         self.pieceImages = PieceImages()
 
         self.borderWidth = 12
@@ -68,18 +66,6 @@ class ChessboardView(QWidget):
 
     def initUI(self):
         self.show()
-
-
-
-    def setup_headers(self,game):
-        game.headers["Event"] = ""
-        game.headers["Site"] = "MyTown"
-        game.headers["Date"] = time.strftime("%Y.%m.%d")
-        game.headers["Black"] = "Jerry (Level "+str(1200 + 100*self.gs.strength_level)+")"
-        game.headers["White"] = "N.N."
-        game.headers["Round"] = ""
-        game.headers["Result"] = "*"
-
 
     def heightForWidth(self, width):
         return width
