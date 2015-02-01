@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
         copy_pos.triggered.connect(partial(edit.pos_to_clipboard,self.gs))
         paste = m_edit.addAction("Paste")
         paste.setShortcut(QKeySequence.Paste)
-        paste.triggered.connect(partial(edit.from_clipboard,self.gs,self.board))
+        paste.triggered.connect(partial(edit.from_clipboard,self))
         m_edit.addSeparator()
         enter_pos = m_edit.addAction("&Enter Position")
         enter_pos.setShortcut('e')
@@ -201,8 +201,7 @@ class MainWindow(QMainWindow):
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
-        #self.connect(self.engine, SIGNAL("bestmove(QString)"),self.on_bestmove)
-        #self.connect(self.board,SIGNAL("bestmove(QString)"),self.on_bestmove)
+        self.connect(self.engine, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
 
