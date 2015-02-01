@@ -1,3 +1,7 @@
+- various fixing/testing of game analysis
+  stop at book pos
+  don't insert var with same move
+
 - render pgn annotations for gui instead
   of displaying raw numbers
 - DONE fix enter position 
@@ -76,9 +80,13 @@
   esp. editing/loading game (data)
   and gs.game gs.root gs.current etc.
 
-- computer offers draw too early
+- computer: draw acceptance (either worse or equal,
+  but at least some moves played!)
+
+- DONE computer offers draw too early
   (should be: only after xx moves)
   (should the computer ever offer draw?)
+  computer never offers draw
 
 - edit game data when pasting
 
