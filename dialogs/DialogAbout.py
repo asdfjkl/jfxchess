@@ -21,7 +21,7 @@ class DialogAbout(QDialog):
 
         label0 = QLabel("<b>Jerry</b><br><br>"+
                         "Version 0.8<br><br>"+
-                        "Copyright © 2014 Dominik Klein<br>"+
+                        "Copyright © 2014,2015 Dominik Klein<br>"+
                         "licensed under GNU GPL<br><br>"+
                         "<b>Credits</b><br><br>"+
                         "Stockfish Chess Engine<br>"+

@@ -6,6 +6,7 @@ from logic.gamestate import MODE_ENTER_MOVES, \
     MODE_PLAY_WHITE, MODE_PLAY_BLACK, MODE_ANALYSIS, \
     MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
 import chess
+from logic.file_io import is_position_in_book
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -292,6 +293,9 @@ def on_bestmove(mainWindow,move):
             # continue normal play
             uci = move
             legal_moves = gs.current.board().legal_moves
+            # test if engine move is actually legal (this should
+            # always be true, unless there is some serious sync
+            # issue between engine and gui)
             if (len([x for x in legal_moves if x.uci() == uci]) > 0):
                 mainWindow.board.executeMove(move)
                 mainWindow.board.on_statechanged()
@@ -316,11 +320,16 @@ def on_bestmove(mainWindow,move):
         # continue in that mode, unless we reached the root of
         # the game, or the parent position is in the book
         if(gs.current.parent):
-            gs.current = gs.current.parent
-            # send uci best move command
-            print("analysed, sending best move")
-            on_statechanged(mainWindow)
+            if(is_position_in_book(gs.current.parent)):
+                gs.current.parent.comment = "last book move"
+                gs.mode = MODE_ENTER_MOVES
+            else:
+                gs.current = gs.current.parent
+                # send uci best move command
+                print("analysed, sending best move")
+                on_statechanged(mainWindow)
         else:
             print("finished analysing")
             gs.mode = MODE_ENTER_MOVES
             # (finished, display messagebox)
+        mainWindow.movesEdit.update_san()
