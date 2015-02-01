@@ -17,6 +17,7 @@ from uci.uci_controller import Uci_controller
 import os
 from logic import file_io
 from logic import edit
+from logic import gamemode
 
 # python chess
 from chess.polyglot import *
@@ -150,13 +151,13 @@ class MainWindow(QMainWindow):
 
         self.menubar = self.menuBar()
 
-        self.setLabels(self.gs.game)
+        self.setLabels()
         self.old_score = None
 
         m_file = self.menuBar().addMenu('File ')
         new_game = m_file.addAction('New Game')
         new_game.setShortcut(QKeySequence.New)
-        new_game.triggered.connect(self.on_newgame)
+        new_game.triggered.connect(partial(gamemode.on_newgame,self))
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
         load_game.setShortcut(QKeySequence.Open)
@@ -195,7 +196,7 @@ class MainWindow(QMainWindow):
         enter_pos.triggered.connect(self.enter_position)
         m_edit.addSeparator()
         edit_game_data = m_edit.addAction("Edit Game Data")
-        edit_game_data.triggered.connect(self.editGameData)
+        edit_game_data.triggered.connect(partial(edit.editGameData,self))
         flip = m_edit.addAction("&Flip Board")
         flip.setShortcut('f')
         flip.triggered.connect(self.board.flip_board)
@@ -221,12 +222,12 @@ class MainWindow(QMainWindow):
         self.play_white = QAction("Play as &White",m_mode,checkable=True)
         self.play_white.setShortcut('w')
         m_mode.addAction(ag.addAction(self.play_white))
-        self.play_white.triggered.connect(self.on_play_as_white)
+        #self.play_white.triggered.connect(self.on_play_as_white)
 
         self.play_black = QAction("Play as &Black",m_mode,checkable=True)
         self.play_black.setShortcut('b')
         m_mode.addAction(ag.addAction(self.play_black))
-        self.play_black.triggered.connect(self.on_play_as_black)
+        #self.play_black.triggered.connect(self.on_play_as_black)
 
         self.enter_moves = QAction("Enter &Moves",m_mode,checkable=True)
         self.enter_moves.setShortcuts([Qt.Key_M,Qt.Key_Escape])
@@ -235,7 +236,7 @@ class MainWindow(QMainWindow):
         self.enter_moves.setChecked(True)
         m_mode.addSeparator()
         set_strength = m_mode.addAction("Strength Level")
-        set_strength.triggered.connect(self.on_strength_level)
+        set_strength.triggered.connect(partial(gamemode.on_strength_level,self.gs,self.engine))
         m_mode.addSeparator()
         analyze_game = m_mode.addAction("Full Game Analysis")
         analyze_game.triggered.connect(self.on_game_analysis_mode)
@@ -247,7 +248,7 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),self.update_engine_output)
+        self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),self.receive_engine_info)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.on_statechanged)
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
@@ -256,23 +257,12 @@ class MainWindow(QMainWindow):
         self.connect(self.board,SIGNAL("drawn"),self.draw_game)
         self.connect(self.board,SIGNAL("checkmate"),self.on_checkmate)
 
-    def update_engine_output(self,engine_info):
+    def receive_engine_info(self,engine_info):
         print("rec: "+str(engine_info.score))
         if(self.gs.display_engine_info):
-            # engine info has no score. reuse
-            # old one from gamestate, if available
-            # if so, set flip_eval to false, since
-            # the gs state is always in side
-            # independent format
-            if(engine_info.score == None):
-                if(self.gs.score != None):
-                    engine_info.score = self.old_score
-                    engine_info.flip_eval = False
-            else:
+            if(engine_info.score != None):
                 print("SCORE RECEIVED: "+str(engine_info.score))
-                if(engine_info.flip_eval):
-                    if(engine_info.score == 0.0):
-                        print("foo")
+                if(engine_info.flip_eval and engine_info.score != 0.0):
                     self.gs.score = - engine_info.score
                 else:
                     self.gs.score = engine_info.score
@@ -296,23 +286,6 @@ class MainWindow(QMainWindow):
             self.gs.display_engine_info = False
             self.engineOutput.setHtml("")
 
-    def on_strength_level(self):
-        dialog = DialogStrengthLevel(gamestate=self.gs)
-        if dialog.exec_() == QDialog.Accepted:
-            self.gs.strength_level = dialog.slider_elo.value()
-            val = dialog.slider_think.value()
-            self.gs.computer_think_time = val
-            if(val == 4):
-                self.gs.computer_think_time = 5
-            elif(val == 5):
-                self.gs.computer_think_time = 10
-            elif(val == 6):
-                self.gs.computer_think_time = 15
-            elif(val == 7):
-                self.gs.computer_think_time = 30
-            self.gs.computer_think_time = self.gs.computer_think_time*1000
-        if(not self.gs.mode == MODE_ENTER_MOVES):
-            self.engine.uci_strength(self.gs.strength_level)
 
 
 
@@ -321,43 +294,6 @@ class MainWindow(QMainWindow):
         d = DialogAbout()
         d.exec_()
 
-    def on_newgame(self):
-        dialog = DialogNewGame(gamestate=self.gs)
-        print("exec dialog")
-        if dialog.exec_() == QDialog.Accepted:
-            self.gs = GameState()
-            self.board.gs = self.gs
-            self.movesEdit.gs = self.gs
-            self.movesEdit.update()
-            self.gs.strength_level = dialog.slider_elo.value()
-            val = dialog.slider_think.value()
-            self.gs.computer_think_time = val
-            if(val == 4):
-                self.gs.computer_think_time = 5
-            elif(val == 5):
-                self.gs.computer_think_time = 10
-            elif(val == 6):
-                self.gs.computer_think_time = 15
-            elif(val == 7):
-                self.gs.computer_think_time = 30
-            self.gs.computer_think_time = self.gs.computer_think_time*1000
-            print("calling update board")
-            self.movesEdit.on_statechanged()
-            self.board.setup_headers(self.gs.game)
-            print("BOARD UPDATED")
-            if(dialog.rb_plays_white.isChecked()):
-                print("plays white")
-                self.play_white.setChecked(True)
-                self.setLabels(self.gs.game)
-                self.on_play_as_white()
-            else:
-                print("plays black")
-                self.play_black.setChecked(True)
-                temp = self.gs.game.headers["White"]
-                self.gs.game.headers["White"] = self.gs.game.headers["Black"]
-                self.gs.game.headers["Black"] = temp
-                self.setLabels(self.gs.game)
-                self.on_play_as_black()
 
 
     def on_statechanged(self):
@@ -442,42 +378,6 @@ class MainWindow(QMainWindow):
         self.play_white.setChecked(False)
         self.play_black.setChecked(False)
 
-    def on_play_as_black(self):
-        self.board.flippedBoard = True
-        self.board.on_statechanged()
-        self.gs.mode = MODE_PLAY_BLACK
-        self.engine.stop_engine()
-        self.engineOutput.setHtml("")
-        self.engine.start_engine(self.engine_fn)
-        self.engine.uci_ok()
-        self.engine.uci_newgame()
-        self.give_up.setEnabled(True)
-        self.offer_draw.setEnabled(True)
-        self.engine.uci_strength(self.gs.strength_level)
-        print("MOVE : "+str(self.gs.current.board().turn == chess.BLACK))
-        if(self.gs.current.board().turn == chess.WHITE):
-            print("white to move")
-            uci_string = self.gs.printer.to_uci(self.gs.current)
-            self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.computer_think_time)
-
-    def on_play_as_white(self):
-        self.board.flippedBoard = False
-        self.board.on_statechanged()
-        self.gs.mode = MODE_PLAY_WHITE
-        self.engine.stop_engine()
-        self.engineOutput.setHtml("")
-        self.engine.start_engine(self.engine_fn)
-        self.engine.uci_ok()
-        self.engine.uci_newgame()
-        self.give_up.setEnabled(True)
-        self.offer_draw.setEnabled(True)
-        self.engine.uci_strength(self.gs.strength_level)
-        print("MOVE : "+str(self.gs.current.board().turn))
-        if(self.gs.current.board().turn == chess.BLACK):
-            uci_string = self.gs.printer.to_uci(self.gs.current)
-            self.engine.uci_send_position(uci_string)
-            self.engine.uci_go_movetime(self.gs.computer_think_time)
 
 
     def centerOnScreen (self):
@@ -488,7 +388,8 @@ class MainWindow(QMainWindow):
                   (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
 
 
-    def setLabels(self,game):
+    def setLabels(self):
+        game = self.gs.current.root()
         self.name.setText("<b>"+game.headers["White"]+
                       " - "+
                       game.headers["Black"]+"</b><br>"+
@@ -515,27 +416,7 @@ class MainWindow(QMainWindow):
         self.enter_moves.setChecked(True)
         self.on_enter_moves_mode()
 
-    def editGameData(self):
-        ed = DialogEditGameData(self.gs.game)
-        answer = ed.exec_()
-        if(answer):
-            root = self.gs
-            root.headers["Event"] = ed.ed_white.text()
-            root.headers["Site"] = ed.ed_site.text()
-            root.headers["Date"] = ed.ed_date.text()
-            root.headers["Round"] = ed.ed_round.text()
-            root.headers["White"] = ed.ed_white.text()
-            root.headers["Black"] = ed.ed_black.text()
-            #root.headers["ECO"] = ed.ed_eco.text()
-            if(ed.rb_ww.isChecked()):
-                root.headers["Result"] = "1-0"
-            elif(ed.rb_bw.isChecked()):
-                root.headers["Result"] = "0-1"
-            elif(ed.rb_draw.isChecked()):
-                root.headers["Result"] = "1/2-1/2"
-            elif(ed.rb_unclear.isChecked()):
-                root.headers["Result"] = "*"
-        self.setLabels(self.gs.game)
+
 
     def draw_game(self):
         self.gs.headers["Result"] = "1/2-1/2"
