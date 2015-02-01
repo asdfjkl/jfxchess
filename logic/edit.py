@@ -3,6 +3,7 @@ from PyQt4.QtCore import *
 import io
 import chess
 from dialogs.DialogEditGameData import DialogEditGameData
+from dialogs.DialogEnterPosition import DialogEnterPosition
 
 def game_to_clipboard(gamestate):
     clipboard = QApplication.clipboard()
@@ -32,14 +33,8 @@ def from_clipboard(gamestate,boardview):
         pgn = io.StringIO(clipboard.text())
         first_game = chess.pgn.read_game(pgn)
         gamestate.current = first_game
-
     boardview.update()
     boardview.emit(SIGNAL("statechanged()"))
-    #self.movesEdit.bv = self
-
-    #self.movesEdit.update_san()
-    #self.mainWindow.setLabels(self.gs.current)
-    #self.movesEdit.setFocus()
 
 def editGameData(mainWindow):
     root = mainWindow.gs.current.root()
@@ -52,7 +47,6 @@ def editGameData(mainWindow):
         root.headers["Round"] = ed.ed_round.text()
         root.headers["White"] = ed.ed_white.text()
         root.headers["Black"] = ed.ed_black.text()
-        #root.headers["ECO"] = ed.ed_eco.text()
         if(ed.rb_ww.isChecked()):
             root.headers["Result"] = "1-0"
         elif(ed.rb_bw.isChecked()):
@@ -62,3 +56,18 @@ def editGameData(mainWindow):
         elif(ed.rb_unclear.isChecked()):
             root.headers["Result"] = "*"
     mainWindow.setLabels()
+
+def enter_position(mainWindow):
+    dialog = DialogEnterPosition(mainWindow.gs.current.board())
+    answer = dialog.exec_()
+    if(answer):
+        root = chess.pgn.Game()
+        root.headers["FEN"] = ""
+        root.headers["SetUp"] = ""
+        root.setup(dialog.displayBoard.board)
+        mainWindow.gs.current = root
+        mainWindow.gs.initialize_headers()
+        mainWindow.setLabels()
+        mainWindow.board.on_statechanged()
+        mainWindow.movesEdit.on_statechanged()
+        mainWindow.update()

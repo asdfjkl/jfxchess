@@ -24,6 +24,7 @@ class GameState():
         self.position_bad = 0
         self.position_draw = 0
         self.pv = []
+        self.analysis_threshold = 0.5
 
         self.mate_threat = None
         self.next_mate_threat = None
