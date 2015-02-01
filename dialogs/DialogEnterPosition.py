@@ -109,9 +109,9 @@ class DisplayBoard(QWidget):
         for i in range(0,8):
             for j in range(0,8):
                 if((j%2 == 0 and i%2 ==1) or (j%2 == 1 and i%2 ==0)):
-                    qp.setBrush(lightBlue)
-                else:
                     qp.setBrush(lightBlue2)
+                else:
+                    qp.setBrush(lightBlue)
                 #draw Square
                 x = boardOffsetX+(i*squareSize)
                 # drawing coordinates are from top left
