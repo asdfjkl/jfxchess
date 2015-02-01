@@ -2,6 +2,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import io
 import chess
+from dialogs.DialogEditGameData import DialogEditGameData
 
 def game_to_clipboard(gamestate):
     clipboard = QApplication.clipboard()
@@ -39,3 +40,25 @@ def from_clipboard(gamestate,boardview):
     #self.movesEdit.update_san()
     #self.mainWindow.setLabels(self.gs.current)
     #self.movesEdit.setFocus()
+
+def editGameData(mainWindow):
+    root = mainWindow.gs.current.root()
+    ed = DialogEditGameData(root)
+    answer = ed.exec_()
+    if(answer):
+        root.headers["Event"] = ed.ed_event.text()
+        root.headers["Site"] = ed.ed_site.text()
+        root.headers["Date"] = ed.ed_date.text()
+        root.headers["Round"] = ed.ed_round.text()
+        root.headers["White"] = ed.ed_white.text()
+        root.headers["Black"] = ed.ed_black.text()
+        #root.headers["ECO"] = ed.ed_eco.text()
+        if(ed.rb_ww.isChecked()):
+            root.headers["Result"] = "1-0"
+        elif(ed.rb_bw.isChecked()):
+            root.headers["Result"] = "0-1"
+        elif(ed.rb_draw.isChecked()):
+            root.headers["Result"] = "1/2-1/2"
+        elif(ed.rb_unclear.isChecked()):
+            root.headers["Result"] = "*"
+    mainWindow.setLabels()
