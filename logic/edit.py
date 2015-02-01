@@ -16,11 +16,13 @@ def pos_to_clipboard(gamestate):
     clipboard = QApplication.clipboard()
     clipboard.setText(gamestate.current.board().fen())
 
-def from_clipboard(gamestate,boardview):
+def from_clipboard(mainWindow):
+    gamestate = mainWindow.gs
+    boardview = mainWindow.board
     clipboard = QApplication.clipboard()
     try:
         root = chess.pgn.Game()
-        boardview.setup_headers(root)
+        #gamestate.initialize_headers()
         root.headers["FEN"] = ""
         root.headers["SetUp"] = ""
         board = chess.Bitboard(clipboard.text())
