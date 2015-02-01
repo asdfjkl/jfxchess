@@ -1,6 +1,5 @@
 - various fixing/testing of game analysis
-  stop at book pos
-  don't insert var with same move
+  bug: don't insert var with same move
 
 - render pgn annotations for gui instead
   of displaying raw numbers
@@ -38,8 +37,7 @@
 - DONE full game analysis
 
 - full game analysis: 
-  - stop at book
-  - start with dialog (start end move numer, threshold)
+ - start with dialog (start end move numer, threshold)
 
 - DONE opening book
 
@@ -79,6 +77,9 @@
 - testing/bugfixings
   esp. editing/loading game (data)
   and gs.game gs.root gs.current etc.
+  TEST TEST TEST!
+
+- various simplifications in code!
 
 - computer: draw acceptance (either worse or equal,
   but at least some moves played!)
