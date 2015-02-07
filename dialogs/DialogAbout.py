@@ -20,7 +20,7 @@ class DialogAbout(QDialog):
         vbox.addWidget(labelImg)
 
         label0 = QLabel("<b>Jerry</b><br><br>"+
-                        "Version 0.8<br><br>"+
+                        "Version 1.0 - beta<br><br>"+
                         "Copyright © 2014,2015 Dominik Klein<br>"+
                         "licensed under GNU GPL<br><br>"+
                         "<b>Credits</b><br><br>"+

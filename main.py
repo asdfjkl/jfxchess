@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
         mainWidget.setLayout(hbox)
         self.setCentralWidget(mainWidget)
         statusbar = self.statusBar()
-        statusbar.showMessage('Jerry v0.8')
+        statusbar.showMessage('Jerry v1.0 - beta')
 
         # set labels of game (i.e. player etc.) above move editing panel
         self.setLabels()
