@@ -243,6 +243,7 @@ class ChessboardView(QWidget):
         return (len([x for x in legal_moves if x.uci() == uci]) > 0)
 
     def mousePressEvent(self, mouseEvent):
+        print("MOUSE PRESS EVENT")
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos):
             i = pos.x
@@ -269,12 +270,14 @@ class ChessboardView(QWidget):
         self.update()
 
     def mouseMoveEvent(self, mouseEvent):
+        print("MOVE EVENT START")
         button = mouseEvent.button()
         if(button == 0 and (not self.grabbedPiece == None)):
             self.grabbedX = mouseEvent.x()
             self.grabbedY = mouseEvent.y()
             self.drawGrabbedPiece = True
             self.update()
+            print("MOVE EVENT STOP")
 
     def mouseReleaseEvent(self, mouseEvent):
         self.drawGrabbedPiece = False
