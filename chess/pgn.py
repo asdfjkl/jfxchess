@@ -21,6 +21,7 @@ import collections
 import copy
 import itertools
 import re
+from chess.nag_table import NagHashTable
 
 
 NAG_NULL = 0
@@ -299,7 +300,7 @@ class GameNode(object):
 
             if comments:
                 # Append NAGs.
-                exporter.put_nags(main_variation.nags)
+                exporter.put_nags_as_char(main_variation.nags)
 
                 # Append the comment.
                 if main_variation.comment:
@@ -334,7 +335,7 @@ class GameNode(object):
 
                 if comments:
                     # Append NAGs.
-                    exporter.put_nags(variation.nags)
+                    exporter.put_nags_as_char(variation.nags)
 
                     # Append the comment.
                     if variation.comment:
@@ -475,6 +476,7 @@ class StringExporter(object):
         self.lines = []
         self.columns = columns
         self.current_line = ""
+        self.nag_table = NagHashTable()
 
     def flush_current_line(self):
         if self.current_line:
@@ -527,8 +529,15 @@ class StringExporter(object):
         for nag in sorted(nags):
             self.put_nag(nag)
 
+    def put_nags_as_char(self, nags):
+        for nag in sorted(nags):
+            self.put_nag_as_char(nag)
+
     def put_nag(self, nag):
         self.write_token("$" + str(nag) + " ")
+
+    def put_nag_as_char(self, nag):
+        self.write_token(self.nag_table.nag_to_str(nag)+" ")
 
     def put_fullmove_number(self, turn, fullmove_number, variation_start):
         if turn == chess.WHITE:
