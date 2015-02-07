@@ -3,6 +3,7 @@ from  PyQt4.QtCore import *
 from gui.GUIPrinter import GUIPrinter
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
+from logic.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
 
 class MovesEdit(QTextEdit):
 
@@ -80,10 +81,12 @@ class MovesEdit(QTextEdit):
         menu.exec_(QCursor.pos())
 
     def mousePressEvent(self, mouseEvent):
-        cursor = self.cursorForPosition(mouseEvent.pos())
-        cursor_pos = cursor.position()
-        self.go_to_pos(cursor_pos)
-        self.old_cursor_pos = cursor_pos
+        mode = self.gs.mode
+        if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
+            cursor = self.cursorForPosition(mouseEvent.pos())
+            cursor_pos = cursor.position()
+            self.go_to_pos(cursor_pos)
+            self.old_cursor_pos = cursor_pos
 
     def move_annotation(self,nag):
         offset = self.old_cursor_pos
@@ -113,6 +116,7 @@ class MovesEdit(QTextEdit):
 
     def _rec_delete_comments(self,node):
         node.comment = ""
+        node.nags = set()
         for child in node.variations:
             self._rec_delete_comments(child)
 
@@ -228,30 +232,33 @@ class MovesEdit(QTextEdit):
         self.update()
 
     def keyPressEvent(self, event):
-        key = event.key()
-        if key == Qt.Key_Left:
-            if(self.gs.current.parent):
-                self.gs.current = self.gs.current.parent
-            scroll_pos = self.verticalScrollBar().value()
-            self.setHtml(self.gs.printer.to_san_html(self.gs.current))
-            self.verticalScrollBar().setValue(scroll_pos)
-            self.emit(SIGNAL("statechanged()"))
-        elif key == Qt.Key_Right:
-            variations = self.gs.current.variations
-            if(len(variations) > 1):
-                move_list = [ self.gs.current.board().san(x.move)
-                              for x in self.gs.current.variations ]
-                dialog = DialogWithListView(move_list)
-                dialog.setWindowTitle("Next Move")
-                dialog.listWidget.setFocus()
-                answer = dialog.exec_()
-                if answer == True:
-                    idx = dialog.selected_idx
-                    self.gs.current = self.gs.current.variation(idx)
-            elif(len(variations) == 1):
-                self.gs.current = self.gs.current.variation(0)
-            scroll_pos = self.verticalScrollBar().value()
-            self.setHtml(self.gs.printer.to_san_html(self.gs.current))
-            self.verticalScrollBar().setValue(scroll_pos)
-            self.emit(SIGNAL("statechanged()"))
+        mode = self.gs.mode
+        if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
+
+            key = event.key()
+            if key == Qt.Key_Left:
+                if(self.gs.current.parent):
+                    self.gs.current = self.gs.current.parent
+                scroll_pos = self.verticalScrollBar().value()
+                self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                self.verticalScrollBar().setValue(scroll_pos)
+                self.emit(SIGNAL("statechanged()"))
+            elif key == Qt.Key_Right:
+                variations = self.gs.current.variations
+                if(len(variations) > 1):
+                    move_list = [ self.gs.current.board().san(x.move)
+                                  for x in self.gs.current.variations ]
+                    dialog = DialogWithListView(move_list)
+                    dialog.setWindowTitle("Next Move")
+                    dialog.listWidget.setFocus()
+                    answer = dialog.exec_()
+                    if answer == True:
+                        idx = dialog.selected_idx
+                        self.gs.current = self.gs.current.variation(idx)
+                elif(len(variations) == 1):
+                    self.gs.current = self.gs.current.variation(0)
+                scroll_pos = self.verticalScrollBar().value()
+                self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                self.verticalScrollBar().setValue(scroll_pos)
+                self.emit(SIGNAL("statechanged()"))
 

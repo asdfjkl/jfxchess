@@ -1,5 +1,6 @@
 from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from dialogs.DialogNewGame import DialogNewGame
+from dialogs.DialogAnalyzeGame import DialogAnalyzeGame
 from PyQt4.QtGui import QDialog, QMessageBox
 from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES, \
@@ -108,26 +109,30 @@ def on_analysis_mode(mainWindow):
     mainWindow.gs.mode = MODE_ANALYSIS
 
 def on_game_analysis_mode(mainWindow):
-    #self.gs = self.board.gs
     gs = mainWindow.gs
-    mainWindow.display_info.setChecked(True)
-    mainWindow.set_display_info()
-    reset_engine(mainWindow.engine,mainWindow.engine_fn)
-    mainWindow.give_up.setEnabled(False)
-    mainWindow.offer_draw.setEnabled(False)
-    mainWindow.movesEdit.delete_all_comments()
-    mainWindow.movesEdit.delete_all_variants()
-    gs.best_score = None
-    gs.best_pv = []
-    gs.mate_threat = False
-    while(len(gs.current.variations) > 0):
-        gs.current = gs.current.variations[0]
-    if(gs.current.board().is_checkmate() or gs.current.board().is_stalemate()):
-        gs.current = gs.current.parent
-    uci_string = gs.printer.to_uci(gs.current)
-    mainWindow.engine.uci_send_position(uci_string)
-    mainWindow.engine.uci_go_movetime(3000)
-    gs.mode = MODE_GAME_ANALYSIS
+    dialog = DialogAnalyzeGame(gamestate=gs)
+    if dialog.exec_() == QDialog.Accepted:
+        gs.computer_think_time = dialog.sb_secs.value()
+        gs.analysis_threshold = dialog.sb_threshold.value()
+        print("think time: "+str(gs.computer_think_time))
+        mainWindow.display_info.setChecked(True)
+        mainWindow.set_display_info()
+        reset_engine(mainWindow.engine,mainWindow.engine_fn)
+        mainWindow.give_up.setEnabled(False)
+        mainWindow.offer_draw.setEnabled(False)
+        mainWindow.movesEdit.delete_all_comments()
+        mainWindow.movesEdit.delete_all_variants()
+        gs.best_score = None
+        gs.best_pv = []
+        gs.mate_threat = False
+        while(len(gs.current.variations) > 0):
+            gs.current = gs.current.variations[0]
+        if(gs.current.board().is_checkmate() or gs.current.board().is_stalemate()):
+            gs.current = gs.current.parent
+        uci_string = gs.printer.to_uci(gs.current)
+        mainWindow.engine.uci_send_position(uci_string)
+        mainWindow.engine.uci_go_movetime(3000)
+        gs.mode = MODE_GAME_ANALYSIS
 
 def on_enter_moves_mode(mainWindow):
     # stop any engine
