@@ -1,7 +1,7 @@
 - various fixing/testing of game analysis
   bug: don't insert var with same move
 
-- render pgn annotations for gui instead
+- DONE render pgn annotations for gui instead
   of displaying raw numbers
 - DONE fix enter position 
 - DONE offer draw
