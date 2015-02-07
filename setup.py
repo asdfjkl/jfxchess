@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ['main.py']
 DATA_FILES = []
-OPTIONS = {'argv_emulation': True, 'iconfile': 'icon.icns'}
+OPTIONS = {'argv_emulation': True, 'iconfile': 'MyIcon.icns'}
 
 setup(
     app=APP,

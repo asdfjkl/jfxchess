@@ -1,3 +1,6 @@
+- bug: dragging pieces is very slow.
+  prob. call to board() in board rendering function?!
+
 - various fixing/testing of game analysis
   bug: don't insert var with same move
 
@@ -36,7 +39,7 @@
 
 - DONE full game analysis
 
-- full game analysis: 
+- DONE full game analysis: 
  - start with dialog (start end move numer, threshold)
 
 - DONE opening book

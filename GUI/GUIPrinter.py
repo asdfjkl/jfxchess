@@ -23,6 +23,7 @@ class GUIPrinter():
 
 
     def to_san_html(self,current):
+        print("I WAS CALLED TO PRINT")
         self.current = current
         self.offset_table = []
         self.san_html = ""
