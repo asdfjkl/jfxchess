@@ -17,6 +17,7 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 import io
 import sys, random, time
+from util.cache import BoardCache
 
 from logic.gamestate import MODE_ENTER_MOVES,MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
 
@@ -61,6 +62,8 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
 
         self.flippedBoard = False
+
+        #self.cache = BoardCache()
 
         self.initUI()
 
@@ -342,6 +345,8 @@ class ChessboardView(QWidget):
             light = lightBlue2
 
         # draw Board
+        #board = self.cache.get(self.gs.current)
+        board = self.gs.current.board()
         for i in range(0,8):
             for j in range(0,8):
                 if((j%2 == 0 and i%2 ==1) or (j%2 == 1 and i%2 ==0)):
@@ -360,9 +365,9 @@ class ChessboardView(QWidget):
                 #draw Piece
                 piece = None
                 if(self.flippedBoard):
-                    piece = self.gs.current.board().piece_at((7-j)*8+i)
+                    piece = board.piece_at((7-j)*8+i)
                 else:
-                    piece = self.gs.current.board().piece_at(j*8+i)
+                    piece = board.piece_at(j*8+i)
                 if(piece != None and piece.symbol() in ('P','R','N','B','Q','K','p','r','n','b','q','k')):
                     # skip piece that is currently picked up
                     if(not self.flippedBoard):

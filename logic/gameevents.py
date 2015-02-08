@@ -193,11 +193,21 @@ def receive_engine_info(mainWindow,engine_info):
             gs.mate_threat = engine_info.mate
         mainWindow.engineOutput.setHtml(str(engine_info))
 
+def count_moves(node):
+    temp = node
+    i = 0
+    while(temp.parent != None):
+        print("has parent")
+        temp = temp.parent
+        i = i+1
+    return i
 
 def handle_offered_draw(mainWindow):
     gs = mainWindow.gs
-    if(   (gs.mode == MODE_PLAY_WHITE and gs.score >  1.1)
-       or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1)):
+    print("depth: "+str(count_moves(mainWindow.gs.current)))
+    if((   (gs.mode == MODE_PLAY_WHITE and gs.score >  1.1)
+        or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1))
+        and count_moves(mainWindow.gs.current) > 40):
         gs.current.root().headers["Result"] = "1/2-1/2"
         msgBox = QMessageBox()
         msgBox.setText("The computer accepts.")
@@ -221,7 +231,7 @@ def on_player_resigns(mainWindow):
         gs.current.root().headers["Result"] = "0-1"
     elif(gs.mode == MODE_PLAY_BLACK):
         gs.current.root().headers["Result"] = "1-0"
-    mainWindow.on_enter_moves_mode()
+    on_enter_moves_mode(mainWindow)
 
 
 def add_variant_from_pv(root, uci_list):
