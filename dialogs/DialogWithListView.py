@@ -9,9 +9,6 @@ class DialogWithListView(QDialog):
         self.setWindowTitle("Next Move")
 
         self.resize(20, 40)
-        
-        for mv in moveList :
-            print(mv)
 
         self.selected_idx = 0
  

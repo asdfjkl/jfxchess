@@ -209,7 +209,7 @@ class Uci_engine(QThread):
         self.process = QProcess()
         self.process.start(self.engine_path)
         self.process.waitForStarted()
-        print("started")
+        #print("started")
         self.started = True
         self.process.connect(self.process, SIGNAL("readyReadStandardOutput()"),self.on_std_out)
         self.process.connect(self.process, SIGNAL("readyReadStandardError()"),self.on_err_out)
