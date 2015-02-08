@@ -153,23 +153,19 @@ class DisplayBoard(QWidget):
             y = pos[1]
             if(x > 7):
                 self.selected_xy = (x-8,y)
-                print("selected xy at"+str(x-8)+str(y))
             else:
                 if(self.selected_xy != None):
                     (i,j) = self.selected_xy
                     piece = self.pcs[i][j]
                     square = y*8+x
                     current_piece = self.board.piece_at(square)
-                    print("setting at square: "+str(square) + "the piece "+ str(piece))
                     if(current_piece and current_piece.symbol() == piece):
                         self.board.remove_piece_at(square)
                     else:
                         self.board.set_piece_at(square,Piece.from_symbol(piece))
                     if(self.board.status() == 0):
-                        print("valid pos")
                         self.parent.enable_ok_button()
                     else:
-                        print("invalid pos")
                         self.parent.disable_ok_button()
         self.update()
 
@@ -270,10 +266,8 @@ class DialogEnterPosition(QDialog):
             self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_KINGSIDE
         if(not self.cbBlackLong.isChecked()):
             self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
-        print("setting castling rights")
         if(self.displayBoard.board.status() == 0):
             self.enable_ok_button()
-            print("valid position")
         else:
             self.disable_ok_button()
 
@@ -282,13 +276,10 @@ class DialogEnterPosition(QDialog):
             self.displayBoard.board.turn = WHITE
         else:
             self.displayBoard.board.turn = BLACK
-        print(str(self.displayBoard.board.status()))
         if(self.displayBoard.board.status() == 0):
             self.enable_ok_button()
-            print("valid position")
         else:
             self.disable_ok_button()
-        print("setting turn")
 
     def clear_board(self):
         self.displayBoard.board.clear()
@@ -297,7 +288,6 @@ class DialogEnterPosition(QDialog):
         self.update()
 
     def initial_position(self):
-        print("setting initial position")
         self.displayBoard.board.reset()
         self.set_castling_rights()
         self.set_turn()

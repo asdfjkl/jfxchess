@@ -114,7 +114,6 @@ def on_game_analysis_mode(mainWindow):
     if dialog.exec_() == QDialog.Accepted:
         gs.computer_think_time = dialog.sb_secs.value()
         gs.analysis_threshold = dialog.sb_threshold.value()
-        print("think time: "+str(gs.computer_think_time))
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
         reset_engine(mainWindow.engine,mainWindow.engine_fn)
@@ -197,14 +196,12 @@ def count_moves(node):
     temp = node
     i = 0
     while(temp.parent != None):
-        print("has parent")
         temp = temp.parent
         i = i+1
     return i
 
 def handle_offered_draw(mainWindow):
     gs = mainWindow.gs
-    print("depth: "+str(count_moves(mainWindow.gs.current)))
     if((   (gs.mode == MODE_PLAY_WHITE and gs.score >  1.1)
         or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1))
         and count_moves(mainWindow.gs.current) > 40):
@@ -236,11 +233,9 @@ def on_player_resigns(mainWindow):
 
 def add_variant_from_pv(root, uci_list):
     uci_move = uci_list[0]
-    print("UCI MOVE:" + str(uci_move))
     root.add_variation(chess.Move.from_uci(uci_move))
     root = root.variations[1]
     for i in range(1,len(uci_list)):
-        print("UCI MOVE:" + str(uci_list[i]))
         root.add_main_variation(chess.Move.from_uci(uci_list[i]))
         root = root.variations[0]
 
@@ -290,7 +285,6 @@ def exists_better_line(gs):
 
 
 def on_bestmove(mainWindow,move):
-    print("bestmove received: "+str(move))
     gs = mainWindow.gs
     mode = mainWindow.gs.mode
 
@@ -341,10 +335,12 @@ def on_bestmove(mainWindow,move):
             else:
                 gs.current = gs.current.parent
                 # send uci best move command
-                print("analysed, sending best move")
                 on_statechanged(mainWindow)
         else:
-            print("finished analysing")
             gs.mode = MODE_ENTER_MOVES
+            msgBox = QMessageBox()
+            msgBox.setText("The analysis is finished.")
+            msgBox.setInformativeText("Game Analysis!")
+            msgBox.exec_()
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()

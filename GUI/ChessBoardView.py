@@ -126,7 +126,6 @@ class ChessboardView(QWidget):
         return uci
 
     def executeMove(self, uci):
-        print(uci)
         temp = self.gs.current
         move = chess.Move.from_uci(uci)
         # check if move already exists
@@ -148,8 +147,6 @@ class ChessboardView(QWidget):
         self.drawGrabbedPiece = False
         #self.movesEdit = MovesEdit(self)
         #self.movesEdit.update_san()
-        print(self.gs.current.root())
-        print("castling rights: "+str(self.gs.current.board().castling_rights))
         # check if game is drawn, or checkmate due to various conditions
         if(self.gs.current.board().is_checkmate()): # due to checkmate
             msgBox = QMessageBox()
@@ -189,7 +186,6 @@ class ChessboardView(QWidget):
                 moves = []
                 for entry in entries:
                     move = entry.move().uci()
-                    print("GOT MOVE FROM OPENING: "+move)
                     moves.append(move)
                     #self.emit(SIGNAL("bestmove(QString)"),move)
                 l = len(moves)
@@ -197,9 +193,7 @@ class ChessboardView(QWidget):
                     book_move = True
                     n = random.randint(0,l-1)
                     book_move = moves[n]
-                    print("SELECTEDMOVE: "+move)
             if(book_move != None):
-                print("EMITTING BOOK MOVE"+book_move)
                 self.emit(SIGNAL("bestmove(QString)"),book_move)
             else:
                 uci_string = self.gs.printer.to_uci(self.gs.current)
@@ -211,7 +205,6 @@ class ChessboardView(QWidget):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
-        print("Now its this turn: "+str(self.gs.current.board().turn))
         self.emit(SIGNAL("statechanged()"))
 
 
@@ -246,7 +239,6 @@ class ChessboardView(QWidget):
         return (len([x for x in legal_moves if x.uci() == uci]) > 0)
 
     def mousePressEvent(self, mouseEvent):
-        print("MOUSE PRESS EVENT")
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
         if(pos):
             i = pos.x
@@ -269,18 +261,15 @@ class ChessboardView(QWidget):
             else:
                 if(self.gs.current.board().piece_at(j*8+i) != None):
                     self.touchPiece(i,j,mouseEvent.x(),mouseEvent.y())
-                    print("set picked up at: "+str(i) + str(j))
         self.update()
 
     def mouseMoveEvent(self, mouseEvent):
-        print("MOVE EVENT START")
         button = mouseEvent.button()
         if(button == 0 and (not self.grabbedPiece == None)):
             self.grabbedX = mouseEvent.x()
             self.grabbedY = mouseEvent.y()
             self.drawGrabbedPiece = True
             self.update()
-            print("MOVE EVENT STOP")
 
     def mouseReleaseEvent(self, mouseEvent):
         self.drawGrabbedPiece = False
