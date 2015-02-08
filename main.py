@@ -201,6 +201,7 @@ class MainWindow(QMainWindow):
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
+        self.connect(self.board, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
         self.connect(self.engine, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))

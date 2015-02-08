@@ -31,15 +31,12 @@ def save_image(q_widget):
 def append_to_pgn(q_widget):
     filename = QFileDialog.getSaveFileName(q_widget, 'Append to PGN', None,
                                            'PGN (*.pgn)', QFileDialog.DontConfirmOverwrite)
-    if(filename):
-        print("append saver")
 
 def save_to_pgn(q_widget,gamestate):
     filename = QFileDialog.getSaveFileName(q_widget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
-        print("pgn saver")
 
 def open_pgn(chessboardview,gamestate):
     filename = QFileDialog.getOpenFileName(chessboardview, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
@@ -53,8 +50,6 @@ def open_pgn(chessboardview,gamestate):
 
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
-
-        print("open pgn dummy")
 
 def is_position_in_book(node):
     with open_reader("./books/varied.bin") as reader:
