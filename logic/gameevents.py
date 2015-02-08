@@ -41,6 +41,7 @@ def on_newgame(mainWindow):
         movesEdit.update()
         mainWindow.gs.strength_level = dialog.strength
         mainWindow.gs.computer_think_time = dialog.think_ms
+        print("think time: "+str(mainWindow.gs.computer_think_time))
         movesEdit.on_statechanged()
         mainWindow.gs.initialize_headers()
         if(dialog.rb_plays_white.isChecked()):
@@ -113,7 +114,7 @@ def on_game_analysis_mode(mainWindow):
     gs = mainWindow.gs
     dialog = DialogAnalyzeGame(gamestate=gs)
     if dialog.exec_() == QDialog.Accepted:
-        gs.computer_think_time = dialog.sb_secs.value()
+        gs.computer_think_time = dialog.sb_secs.value()*1000
         gs.analysis_threshold = dialog.sb_threshold.value()
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
@@ -131,7 +132,7 @@ def on_game_analysis_mode(mainWindow):
             gs.current = gs.current.parent
         uci_string = gs.printer.to_uci(gs.current)
         mainWindow.engine.uci_send_position(uci_string)
-        mainWindow.engine.uci_go_movetime(3000)
+        mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
 
 def on_enter_moves_mode(mainWindow):
