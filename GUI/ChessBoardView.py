@@ -11,6 +11,7 @@ from uci.uci_controller import Uci_controller
 from chess.polyglot import *
 from chess.pgn import Game
 import chess
+import os
 
 # PyQt and python system functions
 from  PyQt4.QtGui import *
@@ -116,6 +117,11 @@ class ChessboardView(QWidget):
         self.grabbedY = mouse_y
         self.drawGrabbedPiece = True
 
+    def debug_msg(self,s):
+        msgBox = QMessageBox()
+        msgBox.setText(s)
+        msgBox.exec_()
+
 
         #self.gt.current.board.set_at(x,y,'e')
 
@@ -181,7 +187,13 @@ class ChessboardView(QWidget):
         if((self.gs.mode == MODE_PLAY_WHITE and self.gs.current.board().turn == chess.BLACK) or
             (self.gs.mode == MODE_PLAY_BLACK and self.gs.current.board().turn == chess.WHITE)):
             book_move = None
+            s = (str(os.listdir(".")))
+            #msgBox = QMessageBox()
+            #msgBox.setText(s)
+            #msgBox.exec_()
+            #print("LIST OF FILES"+s)
             with open_reader("./books/varied.bin") as reader:
+                #self.debug_msg("ok, openend file")
                 entries = reader.get_entries_for_position(self.gs.current.board())
                 moves = []
                 for entry in entries:
@@ -194,6 +206,7 @@ class ChessboardView(QWidget):
                     n = random.randint(0,l-1)
                     book_move = moves[n]
             if(book_move != None):
+                #self.debug_msg("ok, sending book move")
                 self.emit(SIGNAL("bestmove(QString)"),book_move)
             else:
                 uci_string = self.gs.printer.to_uci(self.gs.current)
