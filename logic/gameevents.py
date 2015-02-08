@@ -8,6 +8,7 @@ from logic.gamestate import MODE_ENTER_MOVES, \
     MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
 import chess
 from logic.file_io import is_position_in_book
+from util.messages import display_mbox
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -332,15 +333,13 @@ def on_bestmove(mainWindow,move):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
                 gs.mode = MODE_ENTER_MOVES
+                display_mbox("Game Analysis","The analysis is finished.")
             else:
                 gs.current = gs.current.parent
                 # send uci best move command
                 on_statechanged(mainWindow)
         else:
             gs.mode = MODE_ENTER_MOVES
-            msgBox = QMessageBox()
-            msgBox.setText("The analysis is finished.")
-            msgBox.setInformativeText("Game Analysis!")
-            msgBox.exec_()
+            display_mbox("Game Analysis","The analysis is finished.")
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()

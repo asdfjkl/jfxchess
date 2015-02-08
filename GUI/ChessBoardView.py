@@ -18,7 +18,6 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 import io
 import sys, random, time
-from util.cache import BoardCache
 
 from logic.gamestate import MODE_ENTER_MOVES,MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
 
