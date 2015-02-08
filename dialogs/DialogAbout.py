@@ -11,13 +11,13 @@ class DialogAbout(QDialog):
 
         vbox = QVBoxLayout()
 
-        px = QPixmap("./res/icons/icon_complex64.png")
+        #px = QPixmap("res/icons/icon_complex64.png")
 
-        labelImg = QLabel()
-        labelImg.setPixmap(px)
-        labelImg.setAlignment(Qt.AlignCenter)
+        #labelImg = QLabel()
+        #labelImg.setPixmap(px)
+        #labelImg.setAlignment(Qt.AlignCenter)
 
-        vbox.addWidget(labelImg)
+        #vbox.addWidget(labelImg)
 
         label0 = QLabel("<b>Jerry</b><br><br>"+
                         "Version 1.0 - beta<br><br>"+
