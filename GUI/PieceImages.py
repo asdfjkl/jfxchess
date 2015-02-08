@@ -16,8 +16,7 @@ class PieceImages:
                     self.rens[snd.upper()] = ren
                 else:
                     self.rens[snd] = ren
-        print("piece images")
-                 
+
     def getWp(self, piece, size):
         imgs = self.pieces[piece]
         if size in imgs:
