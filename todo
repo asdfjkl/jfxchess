@@ -1,96 +1,30 @@
-- bug: dragging pieces is very slow.
-  prob. call to board() in board rendering function?!
+Bugs/Important Issues
+- - - - - - - - - - -
 
-- various fixing/testing of game analysis
-  bug: don't insert var with same move
+- testing of game analysis
+ 
+- bug: don't insert var with same move
 
-- DONE render pgn annotations for gui instead
-  of displaying raw numbers
-- DONE fix enter position 
-- DONE offer draw
-- DONE resign
-- DONE computer resigns (nicer message box?)
-- DONE computer offers draw (but crude)
-- DONE strength level dialog (both sliders)
-
-- DONE evaluation should always be from
-       white's perspective
-- DONE make engineoutput non editable
-
-- DONE set game data (who is player etc)
-       on new game
-
-- LATER: eco classification
-
-- DONE show always eval (update info only)
-
-- DONE automatic draws due to various rules
-  (check by python-chess api calls)
-  included: threefold repetition, checkmate, stalemate
-  more complex fide-rules will not be included (useless in practice)
-
-- DONE (needs testing) always save current
-  state (game, board,
-  strength setting etc.) on exit
-
-- DONE stockfish filename selction dependent on os
-
-- DONE play out position (maybe later?)
-
-- DONE full game analysis
-
-- DONE full game analysis: 
- - start with dialog (start end move numer, threshold)
-
-- DONE opening book
-
-- LATER engine output should show SAN or
-  full algebraic notation, not 
-  raw engine output
-
-- DONE engine should be started with given
-  parameter from main.py
-
-- DONE save scrollstate in movesedit
-
-- DONE (by extending chess.pgn)
-  rewrite printer iteratively, since recursion
-  crashes with game of more than 200 moves
-
-- DONE (just use pickle instead)
-  rewrite find_node of gamestate (must be faster
-  for games with more than 200 moves)
-
-- DONE shortcuts
-
-- LATER (currently only version)
-  statusbar for message
-
-- LATER refactor: most functionality
-  of menus in main (controller)
-  controller contols directly
-
-  boardview and movesview emit
-  emit signals if they detect changes
-
-  separate functions of controller
-  in different files/modules, probably w.r.t.
-  menu (no need for classes)
-
-- testing/bugfixings
-  esp. editing/loading game (data)
-  and gs.game gs.root gs.current etc.
-  TEST TEST TEST!
-
-- various simplifications in code!
-
-- computer: draw acceptance (either worse or equal,
-  but at least some moves played!)
-
-- DONE computer offers draw too early
-  (should be: only after xx moves)
-  (should the computer ever offer draw?)
-  computer never offers draw
+- testing in general; code refactoring
+  removing printers, more comments
 
 - edit game data when pasting
 
+
+Long Term Roadmap
+- - - - - - - - - - -
+
+- eco classification
+
+- load full pgn files, not just first game
+
+- engine output should show SAN or
+  full algebraic notation, not 
+  raw engine output
+
+- FICS/ICC support
+
+- use more frequently statusbar for messages
+
+- computer: draw acceptance (either worse or equal,
+  but at least some moves played!)
