@@ -35,6 +35,7 @@ def from_clipboard(mainWindow):
         pgn = io.StringIO(clipboard.text())
         first_game = chess.pgn.read_game(pgn)
         gamestate.current = first_game
+        mainWindow.setLabels()
     boardview.update()
     boardview.emit(SIGNAL("statechanged()"))
 
