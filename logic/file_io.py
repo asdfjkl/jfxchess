@@ -38,7 +38,9 @@ def save_to_pgn(q_widget,gamestate):
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
 
-def open_pgn(chessboardview,gamestate):
+def open_pgn(mainWindow):
+    chessboardview = mainWindow.board
+    gamestate = mainWindow.gs
     filename = QFileDialog.getOpenFileName(chessboardview, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     if(filename):
         pgn = open(filename)
@@ -47,7 +49,7 @@ def open_pgn(chessboardview,gamestate):
         chessboardview.update()
         chessboardview.emit(SIGNAL("statechanged()"))
         #self.movesEdit.bv = self
-
+        mainWindow.setLabels()
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 
