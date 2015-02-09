@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         m_file.addSeparator()
         load_game = m_file.addAction("Load PGN")
         load_game.setShortcut(QKeySequence.Open)
-        load_game.triggered.connect(partial(file_io.open_pgn, self.board, self.gs))
+        load_game.triggered.connect(partial(file_io.open_pgn, self))
         save_game = m_file.addAction("Save as new PGN")
         save_game.setShortcut(QKeySequence.Save)
         #save_game.triggered.connect(self.board.save_to_pgn)
