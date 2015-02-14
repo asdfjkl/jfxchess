@@ -24,7 +24,7 @@ def print_position(q_widget):
 def save_image(q_widget):
     filename = QFileDialog.getSaveFileName(q_widget, 'Save Image', None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
     if(filename):
-        p = QPixmap.grabWindow(q_widget.winId())
+        p = QPixmap.grabWindow(q_widget.board.winId())
         p.save(filename,'jpg')
 
 
@@ -32,8 +32,9 @@ def append_to_pgn(q_widget):
     filename = QFileDialog.getSaveFileName(q_widget, 'Append to PGN', None,
                                            'PGN (*.pgn)', QFileDialog.DontConfirmOverwrite)
 
-def save_to_pgn(q_widget,gamestate):
-    filename = QFileDialog.getSaveFileName(q_widget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+def save_to_pgn(mainWidget):
+    gamestate = mainWidget.gs
+    filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
