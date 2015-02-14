@@ -281,7 +281,7 @@ def exists_better_line(gs):
     #    start move of the best line
     #
     return gs.best_score and gs.best_pv != [] \
-            and (gs.score - gs.best_score > gs.analysis_threshold
+            and (abs(gs.score - gs.best_score) > gs.analysis_threshold
                 or (gs.mate_threat == None and gs.next_mate_threat != None)) \
             and gs.current.variations != [] and gs.best_pv[0] != gs.current.variations[0].move.uci()
 

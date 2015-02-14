@@ -30,8 +30,9 @@ def save_image(q_widget):
 
 def append_to_pgn(q_widget):
     filename = QFileDialog.getSaveFileName(q_widget, 'Append to PGN', None,
-                                           'PGN (*.pgn)', QFileDialog.DontConfirmOverwrite)
+                                           'PGN (*.pgn)', QFileDialog.DontUseNativeDialog | QFileDialog.DontConfirmOverwrite)
 
+#QFileDialog.DontConfirmOverwrite
 def save_to_pgn(mainWidget):
     gamestate = mainWidget.gs
     filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
