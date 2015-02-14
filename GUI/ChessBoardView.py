@@ -236,6 +236,8 @@ class ChessboardView(QWidget):
         return True
 
     def _is_valid_and_promotes(self,uci):
+        if self.gs.mode == MODE_GAME_ANALYSIS:
+            return False
         if(not self.__players_turn()):
             return False
         legal_moves = self.gs.current.board().legal_moves
@@ -245,6 +247,8 @@ class ChessboardView(QWidget):
         return False
 
     def _is_valid(self,uci):
+        if self.gs.mode == MODE_GAME_ANALYSIS:
+            return False
         if(not self.__players_turn()):
             return False
         legal_moves = self.gs.current.board().legal_moves
