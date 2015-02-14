@@ -5,6 +5,12 @@ Bugs/Important Issues
  
 - bug: don't insert var with same move
 
+- bug: possible to enter move in analysis
+  via board
+
+- bug: won't switch back to enter
+  moves after analysis
+
 - testing in general; code refactoring
   removing printers, more comments
 
