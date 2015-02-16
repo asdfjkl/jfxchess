@@ -42,6 +42,13 @@ class GameState():
         self.strength_level = 3
         self.initialize_headers()
 
+    def half_moves(self):
+        halfmoves = 0
+        temp = self.current
+        while(temp.parent):
+            temp = temp.parent
+            halfmoves += 1
+        return halfmoves
 
     def initialize_headers(self):
         game = self.current.root()

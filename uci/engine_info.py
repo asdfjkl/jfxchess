@@ -24,7 +24,7 @@ class EngineInfo(object):
         self.mate = None
         self.currmovenumber = None
         self.currmove = None
-        self.no_game_halfmoves = None
+        self.no_game_halfmoves = 0
         self.nps = None
         self.pv = None
         self.flip_eval = False
@@ -71,8 +71,8 @@ class EngineInfo(object):
             self.pv = moves
             # if this a pv line, modify to include
             # moves numbers
-            #if(self.info.no_game_halfmoves):
-                #self.info.pv = self.add_move_numbers_to_info()
+            if(self.no_game_halfmoves):
+                self.pv = self.add_move_numbers_to_info()
             self.pv_arr = moves.split(" ")
             emit_info = True
             #print("pv original:"+str(moves))
@@ -92,6 +92,35 @@ class EngineInfo(object):
             move = bm.group()[9:]
             #self.emit(SIGNAL("bestmove(QString)"),move)
 
+
+
+    def add_move_numbers_to_info(self):
+        replaced_all = False
+        move_no = (self.no_game_halfmoves//2)+1
+        white_moves = True
+        s = ""
+        if(self.no_game_halfmoves % 2 == 1):
+            s += str(move_no)+". ...?"+self.pv[:]
+            move_no += 1
+        else:
+            white_moves = False
+            s += str(move_no) +"."+self.pv[:]
+        while(replaced_all == False):
+            mv = self.MOVE.search(s)
+            if(mv):
+                idx = mv.start()
+                if(white_moves):
+                    s = s[:(idx)] + " "+str(move_no) + "."+ s[(idx+1):]
+                else:
+                    move_no += 1
+                    s = s[:(idx)] + "?"+\
+                                           s[(idx+1):]
+                white_moves = not white_moves
+            else:
+                replaced_all = True
+        #print(s)
+        s = s.replace('?',' ')
+        return s
 
 
 
