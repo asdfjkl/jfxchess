@@ -7,7 +7,7 @@ Usage:
 
 from setuptools import setup
 
-APP = ['main.py']
+APP = ['jerry.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True, 'iconfile': 'MyIcon.icns'}
 
