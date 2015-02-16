@@ -2,6 +2,11 @@ Bugs/Important Issues
 - - - - - - - - - - -
 
 - testing of game analysis
+
+- bug: enter move mode after analysis
+  (need to update main window)
+
+- reset strength level in analysis mode
  
 - bug: don't insert var with same move
 
