@@ -197,7 +197,7 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
-        self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
+        self.connect(self.engine, SIGNAL("updateinfo(QString)"),partial(gameevents.receive_engine_info,self))
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
