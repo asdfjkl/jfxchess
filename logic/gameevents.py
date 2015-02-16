@@ -134,6 +134,9 @@ def on_game_analysis_mode(mainWindow):
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
+        gs.best_score = None
+        gs.best_pv = []
+
 
 def on_enter_moves_mode(mainWindow):
     # stop any engine
@@ -185,11 +188,9 @@ def receive_engine_info(mainWindow,info_string):
     engine_info.update_from_string(info_string)
     engine_info.no_game_halfmoves = gs.half_moves()
     if(gs.display_engine_info):
-        if(engine_info.score != None):
-            if(engine_info.flip_eval and engine_info.score != 0.0):
-                gs.score = - engine_info.score
-            else:
-                gs.score = engine_info.score
+        if(gs.current.board().turn == chess.BLACK and engine_info.score != 0.0):
+            engine_info.score = - engine_info.score
+        gs.score = engine_info.score
         if(engine_info.pv_arr):
             gs.pv = engine_info.pv_arr
         gs.mate_threat = None
@@ -316,6 +317,10 @@ def on_bestmove(mainWindow,move):
     # handling bestmove command if in analysis mode
     if(mode == MODE_GAME_ANALYSIS):
         if(exists_better_line(gs)):
+            print("found better line")
+            print(mainWindow.gs.printer.to_uci)
+            print("gs.best score:"+str(gs.best_score))
+            print("gs.score: "+str(gs.score))
             add_variant_from_pv(gs.current,gs.pv)
             if(gs.next_mate_threat != None):
                 gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
