@@ -183,6 +183,7 @@ def receive_engine_info(mainWindow,info_string):
     gs = mainWindow.gs
     engine_info = gs.engine_info
     engine_info.update_from_string(info_string)
+    engine_info.no_game_halfmoves = gs.half_moves()
     if(gs.display_engine_info):
         if(engine_info.score != None):
             if(engine_info.flip_eval and engine_info.score != 0.0):
