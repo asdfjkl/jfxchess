@@ -33,10 +33,10 @@ class EngineInfo(object):
     def update_from_string(self,line):
         cp = self.SCORECP.search(line)
         if(cp):
-            print(cp.group())
+            #print(cp.group())
             score = float(cp.group()[9:])/100.0
             self.score = score
-            print("score: "+str(score))
+            #print("score: "+str(score))
             emit_info = True
         nps = self.NPS.search(line)
         if(nps):
@@ -79,18 +79,13 @@ class EngineInfo(object):
             #print("pv split:"+str(moves.split(" ")))
         id = self.IDNAME.search(line)
         if(id):
-            engine_name = id.group()[8:]
-            print("rec: "+engine_name)
+            engine_name = id.group()[8:].split("\n")[0]
+            #print("rec: "+engine_name+"end")
             self.id = engine_name
             emit_info = True
         #if(emit_info): pass
             #print("emitting: "+str(self.info))
             #self.emit(SIGNAL("newinfo(PyQt_PyObject)"),copy.deepcopy(self.info))
-
-        bm = self.BESTMOVE.search(line)
-        if(bm):
-            move = bm.group()[9:]
-            #self.emit(SIGNAL("bestmove(QString)"),move)
 
 
 

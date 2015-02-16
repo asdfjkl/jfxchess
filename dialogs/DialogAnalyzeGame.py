@@ -29,7 +29,7 @@ class DialogAnalyzeGame(QDialog):
 
         if(gamestate):
             self.sb_threshold.setValue(gamestate.analysis_threshold)
-            self.sb_secs.setValue(gamestate.computer_think_time)
+            self.sb_secs.setValue(gamestate.computer_think_time/1000)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
 
