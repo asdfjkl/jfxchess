@@ -1,6 +1,7 @@
 from gui.GUIPrinter import GUIPrinter
 import chess
 import time
+from uci.engine_info import EngineInfo
 
 MODE_ENTER_MOVES = 0
 MODE_PLAY_BLACK = 1
@@ -25,6 +26,8 @@ class GameState():
         self.position_draw = 0
         self.pv = []
         self.analysis_threshold = 0.5
+
+        self.engine_info = EngineInfo()
 
         self.mate_threat = None
         self.next_mate_threat = None
