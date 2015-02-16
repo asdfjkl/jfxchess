@@ -1,7 +1,4 @@
 from PyQt4.QtCore import *
-from uci import uci_engine as uci_engine
-from time import sleep
-from uci.engine_info import EngineInfo
 import re
 
 class Uci_controller(QObject):

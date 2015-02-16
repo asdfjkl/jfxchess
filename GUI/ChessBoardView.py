@@ -1,22 +1,14 @@
-from gui.GUIPrinter import GUIPrinter
 from gui.PieceImages import PieceImages
-from gui.MovesEdit import MovesEdit
-from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogPromotion import DialogPromotion
-from dialogs.DialogEnterPosition import DialogEnterPosition
-from dialogs.DialogAbout import DialogAbout
-from uci.uci_controller import Uci_controller
 
 # python chess
 from chess.polyglot import *
-from chess.pgn import Game
 import chess
 import os
 
 # PyQt and python system functions
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-import io
 import sys, random, time
 
 from logic.gamestate import MODE_ENTER_MOVES,MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
