@@ -170,7 +170,7 @@ def reset_engine(engine,fn):
 
 def on_checkmate(mainWindow):
     root = mainWindow.gs.current.root()
-    if(root.current.board().turn == chess.WHITE):
+    if(root.board().turn == chess.WHITE):
         root.headers["Result"] = "1-0"
     else:
         root.headers["Result"] = "0-1"
@@ -196,6 +196,8 @@ def receive_engine_info(mainWindow,info_string):
         gs.mate_threat = None
         if(engine_info.mate != None):
             gs.mate_threat = engine_info.mate
+        if(gs.mode == MODE_PLAY_BLACK or gs.mode == MODE_PLAY_WHITE):
+            engine_info.strength = str((gs.strength_level * 100)+1200)
         mainWindow.engineOutput.setHtml(str(engine_info))
 
 def count_moves(node):
