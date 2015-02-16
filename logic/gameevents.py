@@ -179,8 +179,10 @@ def draw_game(mainWindow):
     mainWindow.enter_moves.setChecked(True)
     on_enter_moves_mode(mainWindow)
 
-def receive_engine_info(mainWindow,engine_info):
+def receive_engine_info(mainWindow,info_string):
     gs = mainWindow.gs
+    engine_info = gs.engine_info
+    engine_info.update_from_string(info_string)
     if(gs.display_engine_info):
         if(engine_info.score != None):
             if(engine_info.flip_eval and engine_info.score != 0.0):

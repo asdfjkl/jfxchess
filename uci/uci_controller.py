@@ -7,47 +7,41 @@ class Uci_controller(QObject):
 
     def __init__(self,parent=None):
         super(Uci_controller,self).__init__(parent)
+        self.engine = QProcess()
 
-        self.engine = None
 
-    def new_err_output(self,msg):
-        print("engine error: "+msg)
+    def new_err_output(self):
+        pass
+        #print("engine error: "+msg)
 
     def bestmove(self,msg):
         self.emit(SIGNAL("bestmove(QString)"),msg)
 
-    def newinfo(self,msg):
-        self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),msg)
+    def newinfo(self):
+        output = str(self.engine.readAllStandardOutput(),"utf-8")
+        self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),output)
 
     def stop_engine(self):
         if(self.engine):
-            self.engine.quit()
-            self.engine.wait()
+            self.engine.kill()
+            #self.engine.wait()
 
     def start_engine(self,path):
-        self.engine = uci_engine.Uci_engine(path,self)
-        self.connect(self.engine, SIGNAL("bestmove(QString)"),self.bestmove,Qt.QueuedConnection)
-        self.connect(self.engine, SIGNAL("newinfo(PyQt_PyObject)"),self.newinfo,Qt.QueuedConnection)
-        self.connect(self.engine, SIGNAL("new_err_out(QString)"), self.new_err_output,Qt.QueuedConnection)
-        self.engine.start()
-        while(self.engine.started == False):
-            sleep(1)
+        self.engine.start(path)
+        self.connect(self.engine, SIGNAL("readyReadStandardOutput()"),self.newinfo)
+        self.connect(self.engine, SIGNAL("readyReadStandardError()"),self.new_err_output)
 
     def uci_newgame(self):
-        self.engine.command_queue.put("ucinewgame")
-        self.engine.ping_engine()
+        self.engine.write(bytes("ucinewgame\n","utf-8"))
 
     def uci_send_position(self,uci_string):
-        self.engine.command_queue.put(uci_string)
-        self.engine.ping_engine()
+        self.engine.write(bytes(uci_string+"\n","utf-8"))
 
     def uci_ok(self):
-        self.engine.command_queue.put("uci")
-        self.engine.ping_engine()
+        self.engine.write(bytes("uci"+"\n","utf-8"))
 
     def uci_go_movetime(self,ms):
-        self.engine.command_queue.put("go movetime "+str(ms))
-        self.engine.ping_engine()
+        self.engine.write(bytes("go movetime "+str(ms)+"\n"))
 
     # works only with stockfish
     def uci_strength(self,level):
@@ -55,6 +49,6 @@ class Uci_controller(QObject):
         self.engine.ping_engine()
 
     def uci_go_infinite(self):
-        self.engine.command_queue.put("go infinite")
-        self.engine.ping_engine()
+        self.engine.write(bytes(("stop\n"),"utf-8"))
+        self.engine.write(bytes(("go infinite\n"),"utf-8"))
 
