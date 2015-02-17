@@ -3,14 +3,19 @@ Bugs/Important Issues
 
 - testing of game analysis
 
+- bug: save scroll level when entering
+  move via boardview in scroll down state
+
 - bug: enter move mode after analysis
   (need to update main window)
 
-- reset strength level in analysis mode
+- DONE reset strength level in analysis mode
+  (current saving of strength level and
+   handling of game info is ugly, though)
  
 - bug: don't insert var with same move
 
-- bug: possible to enter move in analysis
+- FIXED bug: possible to enter move in analysis
   via board
 
 - bug: won't switch back to enter
@@ -24,6 +29,8 @@ Bugs/Important Issues
 
 Long Term Roadmap
 - - - - - - - - - - -
+
+- width of messagebox according to message
 
 - eco classification
 
