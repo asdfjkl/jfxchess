@@ -58,18 +58,19 @@ def on_newgame(mainWindow):
             on_play_as_black(mainWindow)
 
 def on_play_as_black(mainWindow):
-        mainWindow.board.flippedBoard = True
-        mainWindow.board.on_statechanged()
-        mainWindow.gs.mode = MODE_PLAY_BLACK
-        mainWindow.engineOutput.setHtml("")
-        reset_engine(mainWindow.engine,mainWindow.engine_fn)
-        mainWindow.give_up.setEnabled(True)
-        mainWindow.offer_draw.setEnabled(True)
-        mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
-        if(mainWindow.gs.current.board().turn == chess.WHITE):
-            uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-            mainWindow.engine.uci_send_position(uci_string)
-            mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
+    mainWindow.board.flippedBoard = True
+    mainWindow.board.on_statechanged()
+    mainWindow.gs.mode = MODE_PLAY_BLACK
+    mainWindow.engineOutput.setHtml("")
+    reset_engine(mainWindow.engine,mainWindow.engine_fn)
+    mainWindow.give_up.setEnabled(True)
+    mainWindow.offer_draw.setEnabled(True)
+    mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
+    mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
+    if(mainWindow.gs.current.board().turn == chess.WHITE):
+        uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+        mainWindow.engine.uci_send_position(uci_string)
+        mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_play_as_white(mainWindow):
     mainWindow.board.flippedBoard = False
@@ -80,6 +81,7 @@ def on_play_as_white(mainWindow):
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
     mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
+    mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.BLACK):
         uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
         mainWindow.engine.uci_send_position(uci_string)
@@ -108,6 +110,7 @@ def on_analysis_mode(mainWindow):
     uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_infinite()
+    mainWindow.gs.engine_info.strength = None
     mainWindow.gs.mode = MODE_ANALYSIS
 
 def on_game_analysis_mode(mainWindow):
@@ -116,6 +119,7 @@ def on_game_analysis_mode(mainWindow):
     if dialog.exec_() == QDialog.Accepted:
         gs.computer_think_time = dialog.sb_secs.value()*1000
         gs.analysis_threshold = dialog.sb_threshold.value()
+        gs.engine_info.strength = None
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
         reset_engine(mainWindow.engine,mainWindow.engine_fn)
@@ -155,6 +159,7 @@ def on_playout_pos(mainWindow):
     uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
+    mainWindow.gs.engine_info.strength = None
     mainWindow.gs.mode = MODE_PLAYOUT_POS
     mainWindow.enter_moves.setChecked(False)
     #self.analysis.setChecked(False)
@@ -196,8 +201,6 @@ def receive_engine_info(mainWindow,info_string):
         gs.mate_threat = None
         if(engine_info.mate != None):
             gs.mate_threat = engine_info.mate
-        if(gs.mode == MODE_PLAY_BLACK or gs.mode == MODE_PLAY_WHITE):
-            engine_info.strength = str((gs.strength_level * 100)+1200)
         mainWindow.engineOutput.setHtml(str(engine_info))
 
 def count_moves(node):
@@ -354,3 +357,4 @@ def on_bestmove(mainWindow,move):
             display_mbox("Game Analysis","The analysis is finished.")
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
+        mainWindow.update()
