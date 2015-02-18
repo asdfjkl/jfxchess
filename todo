@@ -13,7 +13,12 @@ Bugs/Important Issues
   (current saving of strength level and
    handling of game info is ugly, though)
  
-- bug: don't insert var with same move
+- FIXED(?) bug: don't insert var with same move
+
+- records better "mate" line and gives numbers
+  instead of mate -> record mate as large eval number?
+
+- bug: responsiveness in analysis mode
 
 - FIXED bug: possible to enter move in analysis
   via board
