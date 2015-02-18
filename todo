@@ -6,8 +6,8 @@ Bugs/Important Issues
 - bug: save scroll level when entering
   move via boardview in scroll down state
 
-- bug: enter move mode after analysis
-  (need to update main window)
+- DONE bug: won't automatically enter move mode
+  after analysis (need to update main window)
 
 - DONE reset strength level in analysis mode
   (current saving of strength level and
@@ -17,9 +17,6 @@ Bugs/Important Issues
 
 - FIXED bug: possible to enter move in analysis
   via board
-
-- bug: won't switch back to enter
-  moves after analysis
 
 - testing in general; code refactoring
   removing printers, more comments

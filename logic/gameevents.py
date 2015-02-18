@@ -1,7 +1,7 @@
 from dialogs.DialogStrengthLevel import DialogStrengthLevel
 from dialogs.DialogNewGame import DialogNewGame
 from dialogs.DialogAnalyzeGame import DialogAnalyzeGame
-from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt4.QtGui import QDialog, QMessageBox, QApplication
 from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES, \
     MODE_PLAY_WHITE, MODE_PLAY_BLACK, MODE_ANALYSIS, \
@@ -134,6 +134,7 @@ def on_game_analysis_mode(mainWindow):
             gs.current = gs.current.variations[0]
         if(gs.current.board().is_checkmate() or gs.current.board().is_stalemate()):
             gs.current = gs.current.parent
+        mainWindow.movesEdit.update_san()
         uci_string = gs.printer.to_uci(gs.current)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
@@ -242,7 +243,7 @@ def on_player_resigns(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 
-def add_variant_from_pv(root, uci_list):
+def add_variant_from_pv(root, move, uci_list):
     uci_move = uci_list[0]
     root.add_variation(chess.Move.from_uci(uci_move))
     root = root.variations[1]
@@ -292,7 +293,7 @@ def exists_better_line(gs):
     return gs.best_score and gs.best_pv != [] \
             and (abs(gs.score - gs.best_score) > gs.analysis_threshold
                 or (gs.mate_threat == None and gs.next_mate_threat != None)) \
-            and gs.current.variations != [] and gs.best_pv[0] != gs.current.variations[0].move.uci()
+            and gs.current.variations != [] and gs.pv[0] != gs.current.variations[0].move.uci()
 
 
 def on_bestmove(mainWindow,move):
@@ -321,12 +322,16 @@ def on_bestmove(mainWindow,move):
                 mainWindow.board.on_statechanged()
     # handling bestmove command if in analysis mode
     if(mode == MODE_GAME_ANALYSIS):
+        print("-----------------")
+        print("currently in state after: "+str(gs.current.move.uci()))
+        print("current score: "+str(gs.score))
+        print("best move here: "+str(move))
+        print("pv here:"+"".join([str(x) for x in gs.pv]))
+        #print("best pv recorded:"+"".join([str(x) for x in gs.best_pv]))
+        #print("best pv score:"+str(gs.best_score))
         if(exists_better_line(gs)):
-            print("found better line")
             print(mainWindow.gs.printer.to_uci)
-            print("gs.best score:"+str(gs.best_score))
-            print("gs.score: "+str(gs.score))
-            add_variant_from_pv(gs.current,gs.pv)
+            add_variant_from_pv(gs.current,move,gs.pv)
             if(gs.next_mate_threat != None):
                 gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
             else:
