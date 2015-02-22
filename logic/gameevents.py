@@ -187,14 +187,15 @@ def draw_game(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def receive_engine_info(mainWindow,info_string):
+    #print(info_string)
     gs = mainWindow.gs
     engine_info = gs.engine_info
+    engine_info.turn = gs.current.board().turn
     engine_info.update_from_string(info_string)
     engine_info.no_game_halfmoves = gs.half_moves()
     if(gs.display_engine_info):
-        if(gs.current.board().turn == chess.BLACK and engine_info.score != None and engine_info.score != 0.0):
-            engine_info.score = - engine_info.score
         gs.score = engine_info.score
+        #print("score: "+str(gs.engine_info.score))
         if(engine_info.pv_arr):
             gs.pv = engine_info.pv_arr
         #gs.mate_threat = None
