@@ -1,4 +1,5 @@
 import re
+from chess import WHITE, BLACK
 
 class EngineInfo(object):
 
@@ -29,6 +30,7 @@ class EngineInfo(object):
         self.pv = None
         self.flip_eval = False
         self.pv_arr = []
+        self.turn = WHITE
 
     def update_from_string(self,line):
         cp = self.SCORECP.search(line)
@@ -38,7 +40,10 @@ class EngineInfo(object):
             contains_cp = True
             self.mate = None
             score = float(cp.group()[9:])/100.0
-            self.score = score
+            if(self.turn == BLACK):
+                self.score = -score
+            else:
+                self.score = score
             #print("score: "+str(score))
             emit_info = True
         nps = self.NPS.search(line)
@@ -140,10 +145,8 @@ class EngineInfo(object):
             else:
                 outstr += "#"+str(self.mate)
         elif(self.score != None):
-            if(self.flip_eval and self.score != 0.0):
+            if(self.score != 0.0):
                 outstr += '%.2f' % (-self.score)
-            else:
-                outstr += '%.2f' % self.score
         outstr += '</td><td width="36%">'
         if(self.currmovenumber and self.currmove):
             halfmoves = self.currmovenumber + self.no_game_halfmoves
