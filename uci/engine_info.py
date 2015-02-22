@@ -32,8 +32,11 @@ class EngineInfo(object):
 
     def update_from_string(self,line):
         cp = self.SCORECP.search(line)
+        contains_cp = False
         if(cp):
-            #print(cp.group())
+            #print("contains cp:"+cp.group())
+            contains_cp = True
+            self.mate = None
             score = float(cp.group()[9:])/100.0
             self.score = score
             #print("score: "+str(score))
@@ -47,11 +50,15 @@ class EngineInfo(object):
         if(depth):
             d = int(depth.group()[6:])
             self.depth = d
-            self.mate = None
+            #self.mate = None
             emit_info = True
         mate = self.MATE.search(line)
         if(mate):
-            #print(str(mate.group()))
+            #print("found mate"+str(mate.group()))
+            # if score update was done
+            # ma
+            #if(not contains_cp):
+                #print("setting mate since no cp")
             m = int(mate.group()[11:])
             self.mate = m
             emit_info = True

@@ -3,6 +3,8 @@ Bugs/Important Issues
 
 - testing of game analysis
 
+- priority level of qprocess
+
 - bug: save scroll level when entering
   move via boardview in scroll down state
 
