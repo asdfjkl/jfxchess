@@ -128,7 +128,6 @@ def on_game_analysis_mode(mainWindow):
         mainWindow.movesEdit.delete_all_comments()
         mainWindow.movesEdit.delete_all_variants()
         gs.best_score = None
-        gs.best_pv = []
         gs.mate_threat = False
         while(len(gs.current.variations) > 0):
             gs.current = gs.current.variations[0]
@@ -140,7 +139,6 @@ def on_game_analysis_mode(mainWindow):
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
         gs.best_score = None
-        gs.best_pv = []
 
 
 def on_enter_moves_mode(mainWindow):
@@ -194,14 +192,14 @@ def receive_engine_info(mainWindow,info_string):
     engine_info.update_from_string(info_string)
     engine_info.no_game_halfmoves = gs.half_moves()
     if(gs.display_engine_info):
-        if(gs.current.board().turn == chess.BLACK and engine_info.score != 0.0):
+        if(gs.current.board().turn == chess.BLACK and engine_info.score != None and engine_info.score != 0.0):
             engine_info.score = - engine_info.score
         gs.score = engine_info.score
         if(engine_info.pv_arr):
             gs.pv = engine_info.pv_arr
-        gs.mate_threat = None
-        if(engine_info.mate != None):
-            gs.mate_threat = engine_info.mate
+        #gs.mate_threat = None
+        #if(engine_info.mate != None):
+        gs.mate_threat = engine_info.mate
         mainWindow.engineOutput.setHtml(str(engine_info))
 
 def count_moves(node):
@@ -283,14 +281,15 @@ def is_lost_by_comp(gamestate):
 
 def exists_better_line(gs):
     # there is a better line if:
-    # a) we actually have a best_score and best_pv information from
+    # a) we actually have a best_score information from
     #    analysing the next position (this is not true at the leaf node of a game tree)
+    #    and a pv line from the current position
     # b) either the score after the next move is worse (threshold) than the current eval
     #    or a mate was missed
     # c) there is a next move (i.e. not a leaf node) and the played move is not the
     #    start move of the best line
     #
-    return gs.best_score and gs.best_pv != [] \
+    return gs.best_score and gs.pv != [] \
             and (abs(gs.score - gs.best_score) > gs.analysis_threshold
                 or (gs.mate_threat == None and gs.next_mate_threat != None)) \
             and gs.current.variations != [] and gs.pv[0] != gs.current.variations[0].move.uci()
@@ -339,7 +338,8 @@ def on_bestmove(mainWindow,move):
             gs.current.variations[1].comment = str(gs.score)
         # record current evaluations
         gs.best_score = gs.score
-        gs.best_pv = gs.pv
+        #gs.best_pv = gs.pv
+        gs.pv = []
         gs.next_mate_threat = gs.mate_threat
         gs.mate_threat = None
 
