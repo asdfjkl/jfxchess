@@ -20,4 +20,4 @@ def set_lowpriority(pid):
     else:
         import os
         os.system('renice -n 1 -p '+str(pid))
-        os.nice(1)
+        #os.nice(1)
