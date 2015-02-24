@@ -551,7 +551,7 @@ class StringExporter(object):
     def put_move_highlighted(self,board,move):
         self.write_token('<span style="color:darkgoldenrod">')
         self.write_token(board.san(move) + " ")
-        self.write_token('</span>')
+        self.write_token('</span><a id="current" name="current">b</a>')
 
     def put_result(self, result):
         self.write_token(result + " ")

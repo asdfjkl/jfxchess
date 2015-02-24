@@ -1,5 +1,6 @@
 from PyQt4.QtCore import *
 import re
+from util.proc import set_lowpriority
 
 class Uci_controller(QObject):
 
@@ -63,8 +64,6 @@ class Uci_controller(QObject):
         s = s.replace('?',' ')
         return s
 
-
-
     def stop_engine(self):
         if(self.engine):
             self.engine.close()
@@ -72,6 +71,7 @@ class Uci_controller(QObject):
 
     def start_engine(self,path):
         self.engine.start(path)
+        set_lowpriority(self.engine.pid())
         self.connect(self.engine, SIGNAL("readyReadStandardOutput()"),self.new_std_output)
         self.connect(self.engine, SIGNAL("readyReadStandardError()"),self.new_err_output)
 
