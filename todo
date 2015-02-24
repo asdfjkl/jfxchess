@@ -3,6 +3,8 @@ Bugs/Important Issues
 
 - testing of game analysis
 
+- FIXED bug: -/+ doesn't work in analysis
+
 - DONE priority level of qprocess (untested on windows)
 
 - DONE switching eval (ie multiply * -1 ) must

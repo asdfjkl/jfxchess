@@ -147,7 +147,7 @@ class EngineInfo(object):
                 outstr += "#"+str(self.mate)
         elif(self.score != None):
             #if(self.score != 0.0):
-            outstr += '%.2f' % (-self.score)
+            outstr += '%.2f' % (self.score)
         outstr += '</td><td width="36%">'
         if(self.currmovenumber and self.currmove):
             halfmoves = self.currmovenumber + self.no_game_halfmoves
