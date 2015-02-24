@@ -36,11 +36,12 @@ class EngineInfo(object):
         cp = self.SCORECP.search(line)
         contains_cp = False
         if(cp):
-            #print("contains cp:"+cp.group())
+            print("contains cp:"+cp.group())
             contains_cp = True
             self.mate = None
             score = float(cp.group()[9:])/100.0
-            if(self.turn == BLACK):
+            print("score"+str(score))
+            if(self.turn == BLACK and score != 0):
                 self.score = -score
             else:
                 self.score = score
@@ -145,8 +146,8 @@ class EngineInfo(object):
             else:
                 outstr += "#"+str(self.mate)
         elif(self.score != None):
-            if(self.score != 0.0):
-                outstr += '%.2f' % (-self.score)
+            #if(self.score != 0.0):
+            outstr += '%.2f' % (-self.score)
         outstr += '</td><td width="36%">'
         if(self.currmovenumber and self.currmove):
             halfmoves = self.currmovenumber + self.no_game_halfmoves
