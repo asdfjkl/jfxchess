@@ -3,7 +3,7 @@ Bugs/Important Issues
 
 - testing of game analysis
 
-- priority level of qprocess
+- DONE priority level of qprocess (untested on windows)
 
 - DONE switching eval (ie multiply * -1 ) must
   be synched to the current movenumber/line
