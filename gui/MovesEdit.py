@@ -11,8 +11,12 @@ class MovesEdit(QTextEdit):
         super(QTextEdit, self).__init__()
         self.gs = gamestate
         self.old_cursor_pos = -1
-        self.setCursorWidth(0)
+        #self.setCursorWidth(8)
+        #self.setEnabled(False)
         self.viewport().setCursor(Qt.ArrowCursor)
+        textColor = self.textColor()
+        #self.textCursor().
+        #self.viewport().setCursor(Qt.BlankCursor)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
 
@@ -85,6 +89,7 @@ class MovesEdit(QTextEdit):
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             cursor = self.cursorForPosition(mouseEvent.pos())
             cursor_pos = cursor.position()
+            print("cursor pos after click"+str(cursor_pos))
             self.go_to_pos(cursor_pos)
             self.old_cursor_pos = cursor_pos
 
@@ -192,6 +197,7 @@ class MovesEdit(QTextEdit):
         self.update_san()
 
     def _get_state_from_offset(self, offset):
+        print("offset rec.:"+str(offset))
         # next is to update to current status
         text = self.gs.printer.to_san_html(self.gs.current)
         offset_index = self.gs.printer.offset_table
@@ -204,15 +210,18 @@ class MovesEdit(QTextEdit):
         except IndexError:
             return None
 
-    def move_scroll_bar(self, offset):
-        scroll_pos = self.verticalScrollBar().value()
-        print("scroll pos" + str(scroll_pos))
-        #self.setHtml(self.gs.printer.to_san_html(self.gs.current))
-                #self.move_scroll_bar(700)
-        self.verticalScrollBar().setValue(scroll_pos+offset)
+    def _get_offset_for_current_state(self):
+        offset_index = self.gs.printer.offset_table
+        idx = 0
+        for i in range(0,len(offset_index)):
+            if(offset_index[i][2] == self.gs.current):
+                idx = offset_index[i][0]
+        print("idx "+str(idx))
+        return idx
 
     def go_to_pos(self,cursor_pos):
         offset = self.textCursor().position()
+        print("offset: "+str(offset))
         if(cursor_pos > 0):
             if(offset != self.old_cursor_pos):
                 self.old_cursor_pos = offset
@@ -220,8 +229,9 @@ class MovesEdit(QTextEdit):
                 self.gs.current = selected_state
                 self.emit(SIGNAL("statechanged()"))
                 scroll_pos = self.verticalScrollBar().value()
-                print("scroll pos" + str(scroll_pos))
+                #print("scroll pos" + str(scroll_pos))
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                #self.scrollToAnchor("current")
                 #self.move_scroll_bar(700)
                 self.verticalScrollBar().setValue(scroll_pos)
 
@@ -235,6 +245,8 @@ class MovesEdit(QTextEdit):
         #print("????????????????HTML"+str(html))
         self.setHtml(html)
         self.update()
+        #self.scrollToAnchor("target")
+
 
     def keyPressEvent(self, event):
         mode = self.gs.mode
@@ -247,12 +259,16 @@ class MovesEdit(QTextEdit):
                 scroll_pos = self.verticalScrollBar().value()
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
                 #self.verticalScrollBar().setValue(scroll_pos-5)
-                self.append('<a name="target">foo</a>');
-                foo = self.find("target")
-                if(foo):
-                    print("foo man chu")
-                print("scrolling to anchor")
-                self.scrollToAnchor("target")
+                #print("scroll pos" + str(scroll_pos))
+                #self.scrollToAnchor("current")
+                #self.move_scroll_bar(700)
+                self.verticalScrollBar().setValue(scroll_pos)
+                #self.scrollToAnchor("current")
+                idx = self._get_offset_for_current_state()
+                cursor = self.textCursor()
+                cursor.setPosition(idx)
+                self.setTextCursor(cursor)
+                #print("after setting text")
                 self.emit(SIGNAL("statechanged()"))
             elif key == Qt.Key_Right:
                 variations = self.gs.current.variations
@@ -268,8 +284,11 @@ class MovesEdit(QTextEdit):
                         self.gs.current = self.gs.current.variation(idx)
                 elif(len(variations) == 1):
                     self.gs.current = self.gs.current.variation(0)
-                scroll_pos = self.verticalScrollBar().value()
+                #scroll_pos = self.verticalScrollBar().value()
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
-                self.verticalScrollBar().setValue(scroll_pos+5)
+                self.scrollToAnchor("current")
+                #self.verticalScrollBar().setValue(scroll_pos+5)
                 self.emit(SIGNAL("statechanged()"))
+        self.ensureCursorVisible()
+
 
