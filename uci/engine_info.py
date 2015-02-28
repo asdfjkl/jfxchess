@@ -36,11 +36,9 @@ class EngineInfo(object):
         cp = self.SCORECP.search(line)
         contains_cp = False
         if(cp):
-            print("contains cp:"+cp.group())
             contains_cp = True
             self.mate = None
             score = float(cp.group()[9:])/100.0
-            print("score"+str(score))
             if(self.turn == BLACK and score != 0):
                 self.score = -score
             else:
