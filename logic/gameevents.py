@@ -264,6 +264,8 @@ def is_lost_by_comp(gamestate):
     # then never give up
     if(gamestate.mode == MODE_PLAYOUT_POS):
         return False
+    if(gamestate.score == None):
+        return False
     # otherwise, if we are in a play-state, first update
     # the current gamestate
     if((gamestate.mode == MODE_PLAY_BLACK and gamestate.score < -7.0) or
