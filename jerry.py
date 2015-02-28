@@ -17,6 +17,7 @@ from  PyQt4.QtCore import *
 from functools import partial
 import pickle
 from util.appdirs import *
+from util.messages import display_mbox
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
         self.engine_fn = os.path.dirname(os.path.realpath(sys.argv[0]))
+        #display_mbox("filename",self.engine_fn)
         # get filename of engine depending on os
         if sys.platform == 'win32':
             self.engine_fn += "/engine/stockfish.exe"
@@ -42,7 +44,7 @@ class MainWindow(QMainWindow):
             self.engine_fn += "/engine/stockfish_linux"
         elif sys.platform == 'darwin':
             self.engine_fn += '/engine/stockfish_osx'
-
+        self.engine_fn = '"'+self.engine_fn+'"'
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
         appname = 'jerry'
@@ -266,7 +268,14 @@ sys.setrecursionlimit(3000)
 app = QApplication(sys.argv)
 main = MainWindow()
 
-
+# set app icon
+app_icon = QIcon()
+app_icon.addFile('res/icons_taskbar/icon16.png', QSize(16,16))
+app_icon.addFile('res/icons_taskbar/icon24.png', QSize(24,24))
+app_icon.addFile('res/icons_taskbar/icon32.png', QSize(32,32))
+app_icon.addFile('res/icons/taskbar/icon48.png', QSize(48,48))
+app_icon.addFile('res/icons_taskbar/icon256.png',QSize(256,256))
+app.setWindowIcon(app_icon)
 
 
 app.setActiveWindow(main)
