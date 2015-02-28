@@ -11,7 +11,7 @@ Bugs/Important Issues
   be synched to the current movenumber/line
   (no: but won't switch when info w/o score)
 
-- bug: save scroll level when entering
+- DONE: save scroll level when entering
   move via boardview in scroll down state
 
 - DONE bug: won't automatically enter move mode
@@ -26,7 +26,9 @@ Bugs/Important Issues
 - FIXED records better "mate" line and gives numbers
   instead of mate -> record mate as large eval number?
 
-- bug: responsiveness in analysis mode
+- LATER: responsiveness in analysis mode
+  is this really an issue, when engine process
+  is set to be lower than gui?
 
 - FIXED bug: possible to enter move in analysis
   via board
@@ -34,7 +36,7 @@ Bugs/Important Issues
 - testing in general; code refactoring
   removing printers, more comments
 
-- edit game data when pasting
+- DONE edit game data when pasting
 
 
 Long Term Roadmap
