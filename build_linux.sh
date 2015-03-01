@@ -32,6 +32,9 @@ cp util/*.py ./release/jerry_linux_x32/util
 mkdir release/jerry_linux_x64
 cp jerry.py ./release/jerry_linux_x64/
 
+mkdir release/jerry_linux_x64/books
+cp books/*.* ./release/jerry_linux_x64/books
+
 mkdir release/jerry_linux_x64/chess
 cp chess/*.py ./release/jerry_linux_x64/chess
 
