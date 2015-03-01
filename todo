@@ -3,6 +3,8 @@ Bugs/Important Issues
 
 - testing of game analysis
 
+- remove printers
+
 - FIXED bug: -/+ doesn't work in analysis
 
 - DONE priority level of qprocess (untested on windows)
