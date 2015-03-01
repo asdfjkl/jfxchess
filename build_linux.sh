@@ -56,5 +56,5 @@ cp util/*.py ./release/jerry_linux_x64/util
 mkdir release/jerry_linux_x64/logic
 cp logic/*.py ./release/jerry_linux_x64/logic
 
-tar -zcvf ./release/jerry_linux_x86 ./release/jerry_linux_x32
-tar -zcvf ./release/jerry_linux_x64 ./release/jerry_linux_x64
+tar -zcvf ./release/jerry_linux_x86.tgz ./release/jerry_linux_x32
+tar -zcvf ./release/jerry_linux_x64.tgz ./release/jerry_linux_x64
