@@ -1,9 +1,26 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
+- hide moves up until played (for training)
+
+- jumps scrollwheel when adding variant
+
+- focus lost bugs (keys l/r movesedit)
+
+- just "save" in file menu(!)
+
 - testing of game analysis
 
 - remove printers
+
+- after loading: N.N. (game data edit)
+
+- move variant up
+
+- blind/training mode
+
+- compiled version: after loading a game focus lost
+  then file load: crash (seems to only happen on mac)
 
 - FIXED bug: -/+ doesn't work in analysis
 
