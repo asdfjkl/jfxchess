@@ -6,6 +6,13 @@ Bugs/Important Issues
 - jumps scrollwheel when adding variant
 
 - focus lost bugs (keys l/r movesedit)
+  1.) qt.conf in /Contents/ressources :
+  [Path]
+   Plugins=bollocks
+
+- set focus to movesedit after load game (seems to work, check others)
+
+- multiple uci engines
 
 - just "save" in file menu(!)
 

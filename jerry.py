@@ -281,4 +281,5 @@ app.setWindowIcon(app_icon)
 app.setActiveWindow(main)
 app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
 main.show()
+#main.setFocus()
 sys.exit(app.exec_())
