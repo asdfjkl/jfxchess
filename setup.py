@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ['jerry.py']
 DATA_FILES = []
-OPTIONS = {'argv_emulation': False, 'iconfile': 'MyIcon.icns'}
+OPTIONS = {'argv_emulation': True, 'iconfile': 'MyIcon.icns'}
 
 setup(
     app=APP,
