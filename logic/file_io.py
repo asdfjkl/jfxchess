@@ -52,6 +52,7 @@ def open_pgn(mainWindow):
         chessboardview.emit(SIGNAL("statechanged()"))
         #self.movesEdit.bv = self
         mainWindow.setLabels()
+        mainWindow.movesEdit.setFocus()
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 
