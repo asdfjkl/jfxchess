@@ -1,5 +1,6 @@
 from gui.PieceImages import PieceImages
 from dialogs.DialogPromotion import DialogPromotion
+from util.messages import display_mbox
 
 # python chess
 from chess.polyglot import *
@@ -146,30 +147,17 @@ class ChessboardView(QWidget):
         #self.movesEdit.update_san()
         # check if game is drawn, or checkmate due to various conditions
         if(self.gs.current.board().is_checkmate()): # due to checkmate
-            msgBox = QMessageBox()
-            msgBox.setText("Checkmate.")
-            msgBox.setInformativeText("The game is over!")
-            msgBox.exec_()
+            display_mbox("Checkmate","The game is over!")
             self.emit(SIGNAL("checkmate"))
         elif(self.gs.current.board().is_stalemate()): # due to stalemate
-            msgBox = QMessageBox()
-            msgBox.setText("Stalemate.")
-            msgBox.setInformativeText("The game is drawn!")
-            msgBox.exec_()
+            display_mbox("Stalemate","The game is drawn!")
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().is_insufficient_material()): # due to insufficient material
-            msgBox = QMessageBox()
-            msgBox.setText("Insufficient material to win.")
-            msgBox.setInformativeText("The game is drawn!")
-            msgBox.exec_()
+            display_mbox("Insufficient material to win.","The game is drawn!")
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
-            msgBox = QMessageBox()
-            msgBox.setText("Threefold repetition.")
-            msgBox.setInformativeText("The game is drawn!")
-            msgBox.exec_()
+            display_mbox("Threefold repetition.","The game is drawn!")
             self.emit(SIGNAL("drawn"))
-
         if(self.gs.mode == MODE_ANALYSIS):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)

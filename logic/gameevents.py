@@ -41,9 +41,10 @@ def on_newgame(mainWindow):
         movesEdit.update()
         mainWindow.gs.strength_level = dialog.strength
         mainWindow.gs.computer_think_time = dialog.think_ms
-        print("think time: "+str(mainWindow.gs.computer_think_time))
+        #print("think time: "+str(mainWindow.gs.computer_think_time))
         movesEdit.on_statechanged()
         mainWindow.gs.initialize_headers()
+        mainWindow.save_game.setEnabled(False)
         if(dialog.rb_plays_white.isChecked()):
             mainWindow.play_white.setChecked(True)
             mainWindow.setLabels()
@@ -182,7 +183,7 @@ def on_checkmate(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def draw_game(mainWindow):
-    mainWindow.gs.headers["Result"] = "1/2-1/2"
+    mainWindow.gs.current.root().headers["Result"] = "1/2-1/2"
     mainWindow.enter_moves.setChecked(True)
     on_enter_moves_mode(mainWindow)
 
@@ -324,15 +325,15 @@ def on_bestmove(mainWindow,move):
                 mainWindow.board.on_statechanged()
     # handling bestmove command if in analysis mode
     if(mode == MODE_GAME_ANALYSIS):
-        print("-----------------")
-        print("currently in state after: "+str(gs.current.move.uci()))
-        print("current score: "+str(gs.score))
-        print("best move here: "+str(move))
-        print("pv here:"+"".join([str(x) for x in gs.pv]))
+        #print("-----------------")
+        #print("currently in state after: "+str(gs.current.move.uci()))
+        #print("current score: "+str(gs.score))
+        #print("best move here: "+str(move))
+        #print("pv here:"+"".join([str(x) for x in gs.pv]))
         #print("best pv recorded:"+"".join([str(x) for x in gs.best_pv]))
         #print("best pv score:"+str(gs.best_score))
         if(exists_better_line(gs)):
-            print(mainWindow.gs.printer.to_uci)
+            #print(mainWindow.gs.printer.to_uci)
             add_variant_from_pv(gs.current,move,gs.pv)
             if(gs.next_mate_threat != None):
                 gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
@@ -355,14 +356,14 @@ def on_bestmove(mainWindow,move):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
                 gs.mode = MODE_ENTER_MOVES
-                display_mbox("Game Analysis","The analysis is finished.")
+                display_mbox("Game Analysis Finished","The analysis is finished.")
             else:
                 gs.current = gs.current.parent
                 # send uci best move command
                 on_statechanged(mainWindow)
         else:
             gs.mode = MODE_ENTER_MOVES
-            display_mbox("Game Analysis","The analysis is finished.")
+            display_mbox("Game Analysis Finished","The analysis is finished.")
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
         mainWindow.update()

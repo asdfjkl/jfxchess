@@ -1,72 +1,45 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
-- hide moves up until played (for training)
+- game analysis was finished bug: switch to analysis instead
+  of enter moves
+  -> can't reproduce.
 
-- jumps scrollwheel when adding variant
+- 1.) remember save directory
 
-- focus lost bugs (keys l/r movesedit)
-  1.) qt.conf in /Contents/ressources :
-  [Path]
-   Plugins=bollocks
-
-- set focus to movesedit after load game (seems to work, check others)
-
-- multiple uci engines
-
-- just "save" in file menu(!)
-
-- testing of game analysis
+- 2.) if save path is known, target save_as directory there
 
 - remove printers
 
-- after loading: N.N. (game data edit)
+- move variant up, down
+- delete variant: set current to last before variant start
 
-- move variant up
+- add menu: delete annotation
 
-- blind/training mode
+- priority level of qprocess: currently doesn't work on windows due to qt bug
 
-- compiled version: after loading a game focus lost
-  then file load: crash (seems to only happen on mac)
-
-- FIXED bug: -/+ doesn't work in analysis
-
-- DONE priority level of qprocess (untested on windows)
-
-- DONE switching eval (ie multiply * -1 ) must
-  be synched to the current movenumber/line
-  (no: but won't switch when info w/o score)
-
-- DONE: save scroll level when entering
-  move via boardview in scroll down state
-
-- DONE bug: won't automatically enter move mode
-  after analysis (need to update main window)
-
-- DONE reset strength level in analysis mode
-  (current saving of strength level and
-   handling of game info is ugly, though)
- 
-- FIXED(?) bug: don't insert var with same move
-
-- FIXED records better "mate" line and gives numbers
-  instead of mate -> record mate as large eval number?
+- LATER (current saving of strength level and
+  handling of game info is ugly, though)
+  for reset strength level in analysis mode
 
 - LATER: responsiveness in analysis mode
   is this really an issue, when engine process
   is set to be lower than gui?
 
-- FIXED bug: possible to enter move in analysis
-  via board
-
 - testing in general; code refactoring
   removing printers, more comments
-
-- DONE edit game data when pasting
 
 
 Long Term Roadmap
 - - - - - - - - - - -
+
+- multiple uci engines
+
+- drag and drop pgns
+
+- a "reset board" function in edit.
+
+- hide moves up until played (for training)
 
 - width of messagebox according to message
 
