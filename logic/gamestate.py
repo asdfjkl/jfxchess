@@ -42,6 +42,8 @@ class GameState():
         self.strength_level = 3
         self.initialize_headers()
 
+        self.pgn_filename = None
+
     def half_moves(self):
         halfmoves = 0
         temp = self.current

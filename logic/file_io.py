@@ -29,16 +29,45 @@ def save_image(q_widget):
 
 
 def append_to_pgn(q_widget):
+    gamestate = q_widget.gs
     filename = QFileDialog.getSaveFileName(q_widget, 'Append to PGN', None,
                                            'PGN (*.pgn)', QFileDialog.DontUseNativeDialog | QFileDialog.DontConfirmOverwrite)
+    if(filename):
+        f = open(filename,'a')
+        print("\n",file=f)
+        print(gamestate.current.root(), file=f, end="\n\n")
+        q_widget.movesEdit.setFocus()
+        f.close()
+
+def save_to_pgn(mainWidget):
+    gamestate = mainWidget.gs
+    if(gamestate.pgn_filename != None):
+        try:
+            f = open(gamestate.pgn_filename,'w')
+            print(gamestate.current.root(), file=f, end="\n\n")
+            mainWidget.movesEdit.setFocus()
+            f.close()
+        except (OSError, IOError) as e:
+            save_as_to_pgn(mainWidget)
+
+    #filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+    #if(filename):
+    #    f = open(filename,'w')
+    #    print(gamestate.current.root(), file=f, end="\n\n")
+    #    mainWidget.movesEdit.setFocus()
+
 
 #QFileDialog.DontConfirmOverwrite
-def save_to_pgn(mainWidget):
+def save_as_to_pgn(mainWidget):
     gamestate = mainWidget.gs
     filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
+        gamestate.pgn_filename = filename
+        mainWidget.save_game.setEnabled(True)
+        mainWidget.movesEdit.setFocus()
+        f.close()
 
 def open_pgn(mainWindow):
     chessboardview = mainWindow.board
@@ -51,8 +80,11 @@ def open_pgn(mainWindow):
         chessboardview.update()
         chessboardview.emit(SIGNAL("statechanged()"))
         #self.movesEdit.bv = self
+        gamestate.pgn_filename = filename
+        mainWindow.save_game.setEnabled(True)
         mainWindow.setLabels()
         mainWindow.movesEdit.setFocus()
+        pgn.close()
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 
