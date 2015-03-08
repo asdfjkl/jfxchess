@@ -151,9 +151,10 @@ class MovesEdit(QTextEdit):
         offset = self.old_cursor_pos
         selected_state = self._get_state_from_offset(offset)
         if(selected_state != None and selected_state.parent != None):
+            print("inner")
             variations = selected_state.parent.variations
             idx = variations.index(selected_state)
-            if(idx < len(variations)-1):
+            if(idx > 0):
                 temp = variations[idx-1]
                 variations[idx] = temp
                 variations[idx-1] = selected_state
@@ -165,7 +166,7 @@ class MovesEdit(QTextEdit):
         if(selected_state != None and selected_state.parent != None):
             variations = selected_state.parent.variations
             idx = variations.index(selected_state)
-            if(idx > 0):
+            if(idx < len(variations)-1):
                 temp = variations[idx+1]
                 variations[idx] = temp
                 variations[idx+1] = selected_state
