@@ -64,6 +64,8 @@ class MovesEdit(QTextEdit):
         delete_comment.triggered.connect(self.delete_comment)
         menu.addMenu(sub_move_annotation)
         menu.addMenu(sub_pos_annotation)
+        remove_all_annotations = menu.addAction("Remove Annotations")
+        remove_all_annotations.triggered.connect(self.remove_annotations)
         menu.addSeparator()
         variant_up = menu.addAction("Move Variant Up")
         variant_up.triggered.connect(self.variant_up)
@@ -79,6 +81,10 @@ class MovesEdit(QTextEdit):
         delete_all_variants = menu.addAction("Delete All Variants")
         delete_all_variants.triggered.connect(self.delete_all_variants)
         menu.exec_(QCursor.pos())
+
+    def remove_annotations(self):
+        self.pos_annotation(None)
+        self.move_annotation(None)
 
     def mousePressEvent(self, mouseEvent):
         mode = self.gs.mode
