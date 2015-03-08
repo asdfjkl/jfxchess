@@ -14,8 +14,6 @@ Bugs/Important Issues
 - move variant up, down
 - delete variant: set current to last before variant start
 
-- add menu: delete annotation
-
 - priority level of qprocess: currently doesn't work on windows due to qt bug
 
 - LATER (current saving of strength level and
