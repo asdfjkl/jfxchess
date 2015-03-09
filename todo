@@ -60,5 +60,4 @@ Long Term Roadmap
 
 - use more frequently statusbar for messages
 
-- computer: draw acceptance (either worse or equal,
-  but at least some moves played!)
+- idee: animationen bei zügen mit vor/zurück (vlt. sogar double-buffering?)
