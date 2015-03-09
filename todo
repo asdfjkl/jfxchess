@@ -5,6 +5,8 @@ Bugs/Important Issues
   of enter moves
   -> can't reproduce.
 
+- after: offer draw -> reject -> give up still in play as white mode
+
 - 1.) remember save directory
 
 - 2.) if save path is known, target save_as directory there
