@@ -149,6 +149,8 @@ def on_enter_moves_mode(mainWindow):
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     mainWindow.gs.mode = MODE_ENTER_MOVES
+    mainWindow.enter_moves.setChecked(True)
+
 
 def on_playout_pos(mainWindow):
     mainWindow.display_info.setChecked(True)
@@ -179,12 +181,10 @@ def on_checkmate(mainWindow):
         root.headers["Result"] = "1-0"
     else:
         root.headers["Result"] = "0-1"
-    mainWindow.enter_moves.setChecked(True)
     on_enter_moves_mode(mainWindow)
 
 def draw_game(mainWindow):
     mainWindow.gs.current.root().headers["Result"] = "1/2-1/2"
-    mainWindow.enter_moves.setChecked(True)
     on_enter_moves_mode(mainWindow)
 
 def receive_engine_info(mainWindow,info_string):
@@ -222,8 +222,7 @@ def handle_offered_draw(mainWindow):
         msgBox.setText("The computer accepts.")
         msgBox.setInformativeText("The game ends in a draw.")
         msgBox.exec_()
-        mainWindow.enter_moves.setChecked(True)
-        mainWindow.on_enter_moves_mode()
+        on_enter_moves_mode(mainWindow)
     else:
         msgBox = QMessageBox()
         msgBox.setText("The computer rejects your offer.")
@@ -257,7 +256,6 @@ def give_up_game(mainWindow):
         gs.headers["Result"] = "1-0"
     elif(gs.mode == MODE_PLAY_BLACK):
         gs.headers["Result"] = "0-1"
-    mainWindow.enter_moves.setChecked(True)
     on_enter_moves_mode(mainWindow)
 
 def is_lost_by_comp(gamestate):
