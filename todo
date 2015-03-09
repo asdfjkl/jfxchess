@@ -5,7 +5,13 @@ Bugs/Important Issues
   of enter moves
   -> can't reproduce.
 
-- after: offer draw -> reject -> give up still in play as white mode
+- remove binary blob (jerry_osx.zip, jerry_win.zip) from gitlog
+  use java util on ubuntu
+
+- computer thanks you message on give up game have no info flag
+  (they don't use message_box)
+  title + informative line looks strange on win
+  (maybe just one textline)
 
 - 1.) remember save directory
 
@@ -13,7 +19,6 @@ Bugs/Important Issues
 
 - remove printers
 
-- move variant up, down
 - delete variant: set current to last before variant start
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
