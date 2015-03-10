@@ -179,17 +179,27 @@ class MovesEdit(QTextEdit):
             selected_state.variations = []
         self.update_san()
 
-    def delete_variant(self):
-        offset = self.old_cursor_pos
-        selected_state = self._get_state_from_offset(offset)
-        if(selected_state != None):
-            temp = selected_state
-            idx = 0
-            while(temp.parent != None and len(temp.parent.variations) <= 1):
+    def is_variant(self,node):
+        temp = node
+        while(temp.parent != None):
+            if(temp.parent.variations[0] != temp):
+                return True
+            else:
                 temp = temp.parent
-            if(temp.parent != None):
-                temp.parent.variations.remove(temp)
-        self.update_san()
+        return False
+
+    def delete_variant(self):
+        if(self.is_variant(self.gs.current)):
+            offset = self.old_cursor_pos
+            selected_state = self._get_state_from_offset(offset)
+            if(selected_state != None):
+                temp = selected_state
+                idx = 0
+                while(temp.parent != None and len(temp.parent.variations) <= 1):
+                    temp = temp.parent
+                if(temp.parent != None):
+                    temp.parent.variations.remove(temp)
+            self.update_san()
 
     def delete_all_variants(self):
         node = self.gs.current.root()
