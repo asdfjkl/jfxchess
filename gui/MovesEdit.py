@@ -199,7 +199,9 @@ class MovesEdit(QTextEdit):
                     temp = temp.parent
                 if(temp.parent != None):
                     temp.parent.variations.remove(temp)
-            self.update_san()
+                    self.gs.current = temp.parent
+                    self.emit(SIGNAL("statechanged()"))
+                    self.update_san()
 
     def delete_all_variants(self):
         node = self.gs.current.root()
