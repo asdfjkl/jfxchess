@@ -58,6 +58,8 @@ Long Term Roadmap
 
 - FICS/ICC support
 
+- internationalization
+
 - use more frequently statusbar for messages
 
 - idee: animationen bei zügen mit vor/zurück (vlt. sogar double-buffering?)
