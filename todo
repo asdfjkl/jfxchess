@@ -1,12 +1,6 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
-- game analysis was finished bug: switch to analysis instead
-  of enter moves
-  -> can't reproduce.
-  -> happened again, when calling from analysis mode to
-     full game analysis
-
 - remove binary blob (jerry_osx.zip, jerry_win.zip) from gitlog
   use java util on ubuntu
 
