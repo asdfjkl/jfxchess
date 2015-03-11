@@ -345,8 +345,8 @@ def on_bestmove(mainWindow,move):
         if(gs.current.parent):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
-                gs.mode = MODE_ENTER_MOVES
                 display_mbox("Game Analysis Finished","The analysis is finished.")
+                on_enter_moves_mode(mainWindow)
             else:
                 gs.current = gs.current.parent
                 # send uci best move command
@@ -354,6 +354,7 @@ def on_bestmove(mainWindow,move):
         else:
             gs.mode = MODE_ENTER_MOVES
             display_mbox("Game Analysis Finished","The analysis is finished.")
+            on_enter_moves_mode(mainWindow)
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
         mainWindow.update()
