@@ -219,22 +219,13 @@ def handle_offered_draw(mainWindow):
         or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1))
         and count_moves(mainWindow.gs.current) > 40):
         gs.current.root().headers["Result"] = "1/2-1/2"
-        msgBox = QMessageBox()
-        msgBox.setText("The computer accepts.")
-        msgBox.setInformativeText("The game ends in a draw.")
-        msgBox.exec_()
+        display_mbox("The computer accepts.","The game ends in a draw.")
         on_enter_moves_mode(mainWindow)
     else:
-        msgBox = QMessageBox()
-        msgBox.setText("The computer rejects your offer.")
-        msgBox.setInformativeText("The game continues.")
-        msgBox.exec_()
+        display_mbox("The computer rejects your offer.","The game continues.")
 
 def on_player_resigns(mainWindow):
-    msgBox = QMessageBox()
-    msgBox.setText("The computer thanks you.")
-    msgBox.setInformativeText("Better luck next time!")
-    msgBox.exec_()
+    display_mbox("The computer thanks you.","Better luck next time!")
     gs = mainWindow.gs
     if(gs.mode == MODE_PLAY_WHITE):
         gs.current.root().headers["Result"] = "0-1"
