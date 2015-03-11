@@ -10,9 +10,7 @@ Bugs/Important Issues
 - remove binary blob (jerry_osx.zip, jerry_win.zip) from gitlog
   use java util on ubuntu
 
-- computer thanks you message on give up game have no info flag
-  (they don't use message_box)
-  title + informative line looks strange on win
+- messages: title + informative line looks strange on win
   (maybe just one textline)
 
 - 1.) remember save directory
