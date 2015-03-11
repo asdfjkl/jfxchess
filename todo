@@ -4,6 +4,8 @@ Bugs/Important Issues
 - game analysis was finished bug: switch to analysis instead
   of enter moves
   -> can't reproduce.
+  -> happened again, when calling from analysis mode to
+     full game analysis
 
 - remove binary blob (jerry_osx.zip, jerry_win.zip) from gitlog
   use java util on ubuntu
@@ -21,6 +23,8 @@ Bugs/Important Issues
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
 
+- when pasting position or game: unmark "save" in file menu (should not accidently overwrite)
+
 - LATER (current saving of strength level and
   handling of game info is ugly, though)
   for reset strength level in analysis mode
@@ -35,6 +39,14 @@ Bugs/Important Issues
 
 Long Term Roadmap
 - - - - - - - - - - -
+
+- choose the side for game analysis
+
+- different player profiles
+
+- ability to draw arrows/other graphical annotations
+
+- textual commentary(?)
 
 - multiple uci engines
 
@@ -61,3 +73,7 @@ Long Term Roadmap
 - use more frequently statusbar for messages
 
 - idee: animationen bei zügen mit vor/zurück (vlt. sogar double-buffering?)
+
+- various skins
+
+- calculate (pseudo elo) rating when playing against computer like shredder

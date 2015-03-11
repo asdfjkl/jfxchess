@@ -128,6 +128,7 @@ def on_game_analysis_mode(mainWindow):
         mainWindow.offer_draw.setEnabled(False)
         mainWindow.movesEdit.delete_all_comments()
         mainWindow.movesEdit.delete_all_variants()
+        gs.current = gs.current.root()
         gs.best_score = None
         gs.mate_threat = False
         while(len(gs.current.variations) > 0):
