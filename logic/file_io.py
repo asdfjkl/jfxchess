@@ -62,6 +62,8 @@ def save_as_to_pgn(mainWidget):
     gamestate = mainWidget.gs
     filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
+        if(not filename.endswith(".pgn")):
+            filename = filename + ".pgn"
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
         gamestate.pgn_filename = filename
