@@ -7,6 +7,8 @@ Bugs/Important Issues
 - messages: title + informative line looks strange on win
   (maybe just one textline)
 
+- filename save as: check if ends with pgn, else add extension automatically
+
 - 1.) remember save directory
 
 - 2.) if save path is known, target save_as directory there

@@ -186,16 +186,20 @@ class MainWindow(QMainWindow):
         self.enter_moves.setShortcuts([Qt.Key_M,Qt.Key_Escape])
         m_mode.addAction(ag.addAction(self.enter_moves))
         self.enter_moves.triggered.connect(partial(gameevents.on_enter_moves_mode,self))
-
         self.enter_moves.setChecked(True)
         m_mode.addSeparator()
+
+        self.analyze_game = QAction("Full Game Analysis",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(self.analyze_game))
+        self.analyze_game.triggered.connect(partial(gameevents.on_game_analysis_mode,self))
+        self.play_out_pos = QAction("Play out Position",m_mode,checkable=True)
+        m_mode.addAction(ag.addAction(self.play_out_pos))
+        self.play_out_pos.triggered.connect(partial(gameevents.on_playout_pos,self))
+        m_mode.addSeparator()
+
         set_strength = m_mode.addAction("Strength Level")
         set_strength.triggered.connect(partial(gameevents.on_strength_level,self))
-        m_mode.addSeparator()
-        analyze_game = m_mode.addAction("Full Game Analysis")
-        analyze_game.triggered.connect(partial(gameevents.on_game_analysis_mode,self))
-        play_out_pos = m_mode.addAction("Play out Position")
-        play_out_pos.triggered.connect(partial(gameevents.on_playout_pos,self))
+
 
         # HELP MENU
         m_help = self.menuBar().addMenu("Help")
