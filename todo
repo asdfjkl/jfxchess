@@ -15,8 +15,6 @@ Bugs/Important Issues
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
 
-- when pasting position or game: unmark "save" in file menu (should not accidently overwrite)
-
 - LATER (current saving of strength level and
   handling of game info is ugly, though)
   for reset strength level in analysis mode
