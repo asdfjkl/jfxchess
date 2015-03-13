@@ -1,6 +1,8 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
+- disable save dir after enter position
+
 - messages: title + informative line looks strange on win
   (maybe just one textline)
 
