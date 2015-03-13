@@ -44,6 +44,9 @@ class GameState():
 
         self.pgn_filename = None
 
+        self.last_save_dir = None
+        self.last_open_dir = None
+
     def half_moves(self):
         halfmoves = 0
         temp = self.current

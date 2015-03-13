@@ -4,13 +4,10 @@ Bugs/Important Issues
 - messages: title + informative line looks strange on win
   (maybe just one textline)
 
-- 1.) remember save directory
-
-- 2.) if save path is known, target save_as directory there
-
 - remove printers
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
+  solution: port to pyqt5
 
 - LATER (current saving of strength level and
   handling of game info is ugly, though)
@@ -22,6 +19,8 @@ Bugs/Important Issues
 
 - testing in general; code refactoring
   removing printers, more comments
+
+- san instead of fan in analysis window
 
 
 Long Term Roadmap
