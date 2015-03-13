@@ -298,10 +298,7 @@ def on_bestmove(mainWindow,move):
        (mode == MODE_PLAY_WHITE and gs.current.board().turn == chess.BLACK) or
        (mode == MODE_PLAYOUT_POS)):
         if(is_lost_by_comp(gs)):
-            msgBox = QMessageBox()
-            msgBox.setText("The computer resigns.")
-            msgBox.setInformativeText("Congratulations!")
-            msgBox.exec_()
+            display_mbox("The computer resigns.","Congratulations!")
             give_up_game(mainWindow)
         else:
             # continue normal play
