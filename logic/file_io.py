@@ -60,7 +60,10 @@ def save_to_pgn(mainWidget):
 #QFileDialog.DontConfirmOverwrite
 def save_as_to_pgn(mainWidget):
     gamestate = mainWidget.gs
-    filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+    dialog = QFileDialog()
+    if(gamestate.last_save_dir != None):
+        dialog.setDirectory(gamestate.last_save_dir)
+    filename = dialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
@@ -70,11 +73,15 @@ def save_as_to_pgn(mainWidget):
         mainWidget.save_game.setEnabled(True)
         mainWidget.movesEdit.setFocus()
         f.close()
+        gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
 def open_pgn(mainWindow):
     chessboardview = mainWindow.board
     gamestate = mainWindow.gs
-    filename = QFileDialog.getOpenFileName(chessboardview, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
+    dialog = QFileDialog()
+    if(gamestate.last_open_dir != None):
+        dialog.setDirectory(gamestate.last_open_dir)
+    filename = dialog.getOpenFileName(chessboardview, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     if(filename):
         pgn = open(filename)
         first_game = chess.pgn.read_game(pgn)
@@ -87,6 +94,8 @@ def open_pgn(mainWindow):
         mainWindow.setLabels()
         mainWindow.movesEdit.setFocus()
         pgn.close()
+        gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
+
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 
