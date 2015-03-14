@@ -64,7 +64,7 @@ class EngineInfo(object):
                     s += str(move_no)+". ... "
                 #else:
                 #    s += str(move_no) +"."
-                move_no += 1
+                    move_no += 1
                 for san in pv_san:
                     if(white_moves):
                         s += " "+str(move_no)+". "+san
