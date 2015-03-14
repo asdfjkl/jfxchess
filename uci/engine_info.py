@@ -1,5 +1,7 @@
 import re
 from chess import WHITE, BLACK
+from chess import Move
+import copy
 
 class EngineInfo(object):
 
@@ -30,9 +32,52 @@ class EngineInfo(object):
         self.pv = None
         self.flip_eval = False
         self.pv_arr = []
+        self.san_arr = None
         self.turn = WHITE
+        self.board = None
 
-    def update_from_string(self,line):
+    def pv_to_san(self):
+        if(self.san_arr == None):
+            return ""
+        else:
+            #print("new variant")
+            pv_san = []
+            board = copy.deepcopy(self.san_arr[0])
+            moves = self.san_arr[1]
+            for uci in moves:
+                #print("adding: "+uci)
+                move = Move.from_uci(uci)
+                if(move in board.pseudo_legal_moves):
+                    pv_san.append(board.san(move))
+                    board.push(move)
+                else:
+                    pass
+                    #mvs = " ".join(map(str,board.pseudo_legal_moves))
+                    #print(board.fen())
+                    #print("trying: "+uci)
+            if(len(pv_san) > 0):
+                s = ""
+                white_moves = True
+                move_no = (self.no_game_halfmoves//2)+1
+                if(self.no_game_halfmoves % 2 == 1):
+                    white_moves = False
+                    s += str(move_no)+". ... "
+                #else:
+                #    s += str(move_no) +"."
+                move_no += 1
+                for san in pv_san:
+                    if(white_moves):
+                        s += " "+str(move_no)+". "+san
+                        move_no +=1
+                    else:
+                        s += " "+san
+                    white_moves = not white_moves
+                return s
+            else:
+                return ""
+            #return "".join(pv_san)
+
+    def update_from_string(self,line,board=None):
         cp = self.SCORECP.search(line)
         contains_cp = False
         if(cp):
@@ -85,6 +130,8 @@ class EngineInfo(object):
             if(self.no_game_halfmoves):
                 self.pv = self.add_move_numbers_to_info()
             self.pv_arr = moves.split(" ")
+            if(board != None):
+                self.san_arr = (board, moves.split(" "))
             emit_info = True
             #print("pv original:"+str(moves))
             #print("pv split:"+str(moves.split(" ")))
@@ -160,6 +207,9 @@ class EngineInfo(object):
             outstr += str(self.nps)+" kn/s"
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
-            outstr += self.pv
+            #if(self.board != None):
+            outstr += self.pv_to_san()
+            #else:
+            #    outstr += self.pv
         outstr += '</td></tr></table>'
         return outstr

@@ -76,4 +76,5 @@ def enter_position(mainWindow):
         mainWindow.setLabels()
         mainWindow.board.on_statechanged()
         mainWindow.movesEdit.on_statechanged()
+        mainWindow.save_game.setEnabled(False)
         mainWindow.update()
