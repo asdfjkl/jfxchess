@@ -1,11 +1,6 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
-- disable save dir after enter position
-
-- messages: title + informative line looks strange on win
-  (maybe just one textline)
-
 - remove printers
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
@@ -63,6 +58,8 @@ Long Term Roadmap
 - use more frequently statusbar for messages
 
 - idee: animationen bei zügen mit vor/zurück (vlt. sogar double-buffering?)
+
+- markierung der letzten züge wie bei chess.com
 
 - various skins
 
