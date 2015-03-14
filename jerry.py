@@ -229,7 +229,7 @@ class MainWindow(QMainWindow):
         self.update_info_ok = True
 
     def set_timer2(self):
-        print("state change timer over")
+        #print("state change timer over")
         self.state_changed = False
         #self.state_changed_timer.stop()
 
