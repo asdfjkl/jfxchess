@@ -208,8 +208,8 @@ class EngineInfo(object):
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
             #if(self.board != None):
-            outstr += self.pv_to_san()
+            #outstr += self.pv_to_san()
             #else:
-            #    outstr += self.pv
+            outstr += self.pv
         outstr += '</td></tr></table>'
         return outstr

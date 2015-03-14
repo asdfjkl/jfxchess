@@ -208,6 +208,13 @@ class MainWindow(QMainWindow):
         m_help.addSeparator()
         # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
+        self.update_info_ok = False
+        self.state_changed = False
+        self.timer_update_info = QTimer()
+        self.timer_update_info.timeout.connect(self.set_timer)
+        self.timer_update_info.start(100)
+        self.state_changed_timer = QTimer()
+
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),partial(gameevents.receive_engine_info,self))
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
@@ -217,6 +224,14 @@ class MainWindow(QMainWindow):
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
 
+    def set_timer(self):
+        #print("resetting timer")
+        self.update_info_ok = True
+
+    def set_timer2(self):
+        print("state change timer over")
+        self.state_changed = False
+        #self.state_changed_timer.stop()
 
     def set_display_info(self):
         if(self.display_info.isChecked()):

@@ -22,7 +22,7 @@ class Uci_controller(QObject):
         output = str(self.engine.readAllStandardOutput(),"utf-8")
         #self.emit(SIGNAL("updateinfo(QString)"),output)
         lines = output.splitlines()
-        #print("receiv out signal: "+output)
+        #print("uci in: "+output)
         #l = self.queue_to_list(self.command_queue)
         #print("command queue: "+(" ".join(l)))
         # process output

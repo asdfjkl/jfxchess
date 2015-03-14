@@ -2,6 +2,7 @@ from gui.GUIPrinter import GUIPrinter
 import chess
 import time
 from uci.engine_info import EngineInfo
+from PyQt4.QtCore import QTimer
 
 MODE_ENTER_MOVES = 0
 MODE_PLAY_BLACK = 1
