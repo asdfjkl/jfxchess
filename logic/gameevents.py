@@ -91,6 +91,9 @@ def on_play_as_white(mainWindow):
 def on_statechanged(mainWindow):
     gs = mainWindow.gs
     engine = mainWindow.engine
+    mainWindow.update_info_ok = True
+    mainWindow.state_changed = True
+    mainWindow.state_changed_timer.singleShot(500,mainWindow.set_timer2)
     if(gs.mode == MODE_ANALYSIS):
         uci_string = mainWindow.gs.printer.to_uci(gs.current)
         engine.uci_send_position(uci_string)
@@ -189,21 +192,33 @@ def draw_game(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def receive_engine_info(mainWindow,info_string):
+    QApplication.processEvents()
     #print(info_string)
     gs = mainWindow.gs
-    engine_info = gs.engine_info
-    engine_info.turn = gs.current.board().turn
-    engine_info.update_from_string(info_string,gs.current.board())
-    engine_info.no_game_halfmoves = gs.half_moves()
-    if(gs.display_engine_info):
-        gs.score = engine_info.score
-        #print("score: "+str(gs.engine_info.score))
-        if(engine_info.pv_arr):
-            gs.pv = engine_info.pv_arr
-        #gs.mate_threat = None
-        #if(engine_info.mate != None):
-        gs.mate_threat = engine_info.mate
-        mainWindow.engineOutput.setHtml(str(engine_info))
+    #print("currently: "+str(mainWindow.have_analysis))
+    if(mainWindow.update_info_ok or mainWindow.state_changed):
+        if(mainWindow.state_changed):
+            print("received line"+info_string)
+        #if(not mainWindow.have_analysis):
+        #    print("received line: "+info_string)
+        #print("Start")
+        engine_info = gs.engine_info
+        engine_info.turn = gs.current.board().turn
+        engine_info.update_from_string(info_string,gs.current.board())
+        engine_info.no_game_halfmoves = gs.half_moves()
+        if(gs.display_engine_info):
+            gs.score = engine_info.score
+            #print("score: "+str(gs.engine_info.score))
+            if(engine_info.pv_arr):
+                gs.pv = engine_info.pv_arr
+            #gs.mate_threat = None
+            #if(engine_info.mate != None):
+            gs.mate_threat = engine_info.mate
+            mainWindow.engineOutput.setHtml(str(engine_info))
+            if("pv" in info_string or "mate" in info_string):
+                mainWindow.update_info_ok = False
+        #print("stop")
+
 
 def count_moves(node):
     temp = node
