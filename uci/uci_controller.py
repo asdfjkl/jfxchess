@@ -66,11 +66,14 @@ class Uci_controller(QObject):
 
     def stop_engine(self):
         if(self.engine):
-            self.engine.close()
+            print("call close")
+            self.engine.terminate()
+            print("close end")
             #self.engine.wait()
 
     def start_engine(self,path):
         self.engine.start(path)
+        self.engine.waitForStarted()
         set_lowpriority(self.engine.pid())
         self.connect(self.engine, SIGNAL("readyReadStandardOutput()"),self.new_std_output)
         self.connect(self.engine, SIGNAL("readyReadStandardError()"),self.new_err_output)

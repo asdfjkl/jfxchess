@@ -106,6 +106,7 @@ def on_statechanged(mainWindow):
         engine.uci_go_movetime(gs.computer_think_time)
 
 def on_analysis_mode(mainWindow):
+    print("enter analysis mode")
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
     reset_engine(mainWindow.engine,mainWindow.engine_fn)
@@ -116,6 +117,7 @@ def on_analysis_mode(mainWindow):
     mainWindow.engine.uci_go_infinite()
     mainWindow.gs.engine_info.strength = None
     mainWindow.gs.mode = MODE_ANALYSIS
+    print("exit analysis mode")
 
 def on_game_analysis_mode(mainWindow):
     gs = mainWindow.gs
@@ -148,12 +150,15 @@ def on_game_analysis_mode(mainWindow):
 
 def on_enter_moves_mode(mainWindow):
     # stop any engine
+    print("entered enter moves")
     mainWindow.engine.stop_engine()
+    print("successfully stopped engine")
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     mainWindow.gs.mode = MODE_ENTER_MOVES
     mainWindow.enter_moves.setChecked(True)
+    print("exit enter moves")
 
 
 def on_playout_pos(mainWindow):
