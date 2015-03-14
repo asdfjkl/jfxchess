@@ -3,6 +3,10 @@ Bugs/Important Issues
 
 - remove printers
 
+- check jpg extension (similar to pgn) when saving position as image
+
+- colon/spacing with current move in display window
+
 - priority level of qprocess: currently doesn't work on windows due to qt bug
   solution: port to pyqt5
 
@@ -13,6 +17,8 @@ Bugs/Important Issues
 - LATER: responsiveness in analysis mode
   is this really an issue, when engine process
   is set to be lower than gui?
+
+- crash when quickly changing between analysis and enter moves mode
 
 - testing in general; code refactoring
   removing printers, more comments
@@ -26,6 +32,8 @@ Bugs/Important Issues
 
 Long Term Roadmap
 - - - - - - - - - - -
+
+- display captured pieces next to board
 
 - choose the side for game analysis
 
