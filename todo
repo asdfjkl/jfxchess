@@ -19,6 +19,10 @@ Bugs/Important Issues
 
 - san instead of fan in analysis window
 
+- mate#0; don't display anything except checkmate in analysis window
+
+- fix bug wrt engine update
+
 
 Long Term Roadmap
 - - - - - - - - - - -

@@ -210,6 +210,7 @@ class EngineInfo(object):
             #if(self.board != None):
             #outstr += self.pv_to_san()
             #else:
-            outstr += self.pv
+            if(not self.mate == 0):
+                outstr += self.pv_to_san()
         outstr += '</td></tr></table>'
         return outstr
