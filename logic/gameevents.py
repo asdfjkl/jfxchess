@@ -193,7 +193,7 @@ def receive_engine_info(mainWindow,info_string):
     gs = mainWindow.gs
     engine_info = gs.engine_info
     engine_info.turn = gs.current.board().turn
-    engine_info.update_from_string(info_string)
+    engine_info.update_from_string(info_string,gs.current.board())
     engine_info.no_game_halfmoves = gs.half_moves()
     if(gs.display_engine_info):
         gs.score = engine_info.score
