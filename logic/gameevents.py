@@ -93,7 +93,7 @@ def on_statechanged(mainWindow):
     engine = mainWindow.engine
     mainWindow.update_info_ok = True
     mainWindow.state_changed = True
-    mainWindow.state_changed_timer.singleShot(500,mainWindow.set_timer2)
+    mainWindow.state_changed_timer.singleShot(800,mainWindow.set_timer2)
     if(gs.mode == MODE_ANALYSIS):
         uci_string = mainWindow.gs.printer.to_uci(gs.current)
         engine.uci_send_position(uci_string)
@@ -197,8 +197,8 @@ def receive_engine_info(mainWindow,info_string):
     gs = mainWindow.gs
     #print("currently: "+str(mainWindow.have_analysis))
     if(mainWindow.update_info_ok or mainWindow.state_changed):
-        if(mainWindow.state_changed):
-            print("received line"+info_string)
+        #if(mainWindow.state_changed):
+        #    print("received line"+info_string)
         #if(not mainWindow.have_analysis):
         #    print("received line: "+info_string)
         #print("Start")
