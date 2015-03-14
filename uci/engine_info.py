@@ -78,6 +78,13 @@ class EngineInfo(object):
             #return "".join(pv_san)
 
     def update_from_string(self,line,board=None):
+        #print("ALL"+line)
+        lines = line.split("\n")
+        line = ""
+        for i in range(0,min(len(lines),10)):
+            line += lines[i]+"\n"
+        #line = lines[len(lines)-2]
+        #print("LAST:"+line)
         cp = self.SCORECP.search(line)
         contains_cp = False
         if(cp):
@@ -125,6 +132,7 @@ class EngineInfo(object):
         if(pv):
             moves = pv.group()[3:]
             self.pv = moves
+            #print("...and I have found: "+moves)
             # if this a pv line, modify to include
             # moves numbers
             if(self.no_game_halfmoves):
