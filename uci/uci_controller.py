@@ -68,10 +68,10 @@ class Uci_controller(QObject):
     def stop_engine(self):
         if(self.engine):
             #print("call close")
-            self.engine.terminate()
-            time.sleep(0.2)
-            #print("close end")
-            #self.engine.waitForFinished(200)
+            self.engine.kill()
+            #time.sleep(0.5)
+            print("close end")
+            self.engine.waitForFinished(200)
             #print("waiting 2")
 
     def start_engine(self,path):
