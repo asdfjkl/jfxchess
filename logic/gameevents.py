@@ -90,6 +90,7 @@ def on_play_as_white(mainWindow):
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_statechanged(mainWindow):
+    print("ok statechanged")
     gs = mainWindow.gs
     engine = mainWindow.engine
     mainWindow.update_info_ok = True
@@ -194,8 +195,12 @@ def on_checkmate(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def draw_game(mainWindow):
+    print("foo1")
     mainWindow.gs.current.root().headers["Result"] = "1/2-1/2"
+    print("foo2")
     on_enter_moves_mode(mainWindow)
+    print("foo3")
+
 
 def receive_engine_info(mainWindow,info_string):
     QApplication.processEvents()

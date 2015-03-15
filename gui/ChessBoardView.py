@@ -158,6 +158,7 @@ class ChessboardView(QWidget):
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
             display_mbox("Threefold repetition.","The game is drawn!")
             self.emit(SIGNAL("drawn"))
+            print("foo")
         if(self.gs.mode == MODE_ANALYSIS):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
