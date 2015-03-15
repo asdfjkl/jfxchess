@@ -70,6 +70,7 @@ def on_play_as_black(mainWindow):
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.WHITE):
         uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+        print("uci send position")
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
