@@ -212,7 +212,7 @@ class EngineInfo(object):
             if(halfmoves % 2 == 0):
                 outstr += str(move_no)+". ..."
             else:
-                outstr += str(move_no) +"."
+                outstr += str(move_no) +". "
             outstr += str(self.currmove)
         outstr += "</td><td>"
         if(self.nps):
