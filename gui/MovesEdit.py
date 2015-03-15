@@ -247,14 +247,23 @@ class MovesEdit(QTextEdit):
         self.update_san()
 
     def update_san(self):
+        print("update san was called")
         scroll_pos = self.verticalScrollBar().value()
-        self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+        print("printing html")
+        txt = self.gs.printer.to_san_html(self.gs.current)
+        #txt = "foo"
+        print("printing html 222222")
+        self.setHtml(txt)
+        print("html printing finished")
         self.verticalScrollBar().setValue(scroll_pos)
+        print("computing idx")
         idx = self._get_offset_for_current_state()
+        print("computing idx finished")
         cursor = self.textCursor()
         cursor.setPosition(idx)
         self.setTextCursor(cursor)
-        self.update()
+        #self.update()
+        print("update san finished")
 
     def keyPressEvent(self, event):
         mode = self.gs.mode
