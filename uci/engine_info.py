@@ -79,12 +79,12 @@ class EngineInfo(object):
 
     def update_from_string(self,line,board=None):
         #print("RECEIVED ALL"+line)
-        print("\n")
+        #print("\n")
         lines = line.split("\n")
         line = ""
         start = len(lines) - 1
         stop = max(start-10,0)
-        for i in range(start,stop,-1):
+        for i in range(start,stop-1,-1):
             #print("i: "+str(i))
             line += lines[i]+"\n"
         #line = lines[len(lines)-1]

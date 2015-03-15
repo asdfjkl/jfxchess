@@ -1,6 +1,7 @@
 from PyQt4.QtCore import *
 import re
 from util.proc import set_lowpriority
+import time
 
 class Uci_controller(QObject):
 
@@ -68,8 +69,9 @@ class Uci_controller(QObject):
         if(self.engine):
             #print("call close")
             self.engine.terminate()
+            time.sleep(0.2)
             #print("close end")
-            self.engine.waitForFinished(200)
+            #self.engine.waitForFinished(200)
             #print("waiting 2")
 
     def start_engine(self,path):
