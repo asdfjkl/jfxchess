@@ -124,6 +124,7 @@ class ChessboardView(QWidget):
         return uci
 
     def executeMove(self, uci):
+        print("executing")
         temp = self.gs.current
         move = chess.Move.from_uci(uci)
         # check if move already exists
@@ -198,6 +199,7 @@ class ChessboardView(QWidget):
             uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
+        print("emitting statechange")
         self.emit(SIGNAL("statechanged()"))
 
 
