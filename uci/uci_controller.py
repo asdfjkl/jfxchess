@@ -69,7 +69,7 @@ class Uci_controller(QObject):
             print("call close")
             self.engine.terminate()
             print("close end")
-            #self.engine.wait()
+            self.engine.waitForFinished()
 
     def start_engine(self,path):
         self.engine.start(path)
