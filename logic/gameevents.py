@@ -63,6 +63,7 @@ def on_play_as_black(mainWindow):
     mainWindow.board.on_statechanged()
     mainWindow.gs.mode = MODE_PLAY_BLACK
     mainWindow.engineOutput.setHtml("")
+    print("resetting engine")
     reset_engine(mainWindow.engine,mainWindow.engine_fn)
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
