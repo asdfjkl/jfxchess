@@ -94,7 +94,7 @@ def on_statechanged(mainWindow):
     engine = mainWindow.engine
     mainWindow.update_info_ok = True
     mainWindow.state_changed = True
-    mainWindow.state_changed_timer.singleShot(300,mainWindow.set_timer2)
+    mainWindow.state_changed_timer.singleShot(600,mainWindow.set_timer2)
     if(gs.mode == MODE_ANALYSIS):
         uci_string = mainWindow.gs.printer.to_uci(gs.current)
         engine.uci_send_position(uci_string)
