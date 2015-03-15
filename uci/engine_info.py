@@ -78,13 +78,17 @@ class EngineInfo(object):
             #return "".join(pv_san)
 
     def update_from_string(self,line,board=None):
-        #print("ALL"+line)
+        #print("RECEIVED ALL"+line)
+        print("\n")
         lines = line.split("\n")
         line = ""
-        for i in range(0,min(len(lines),10)):
+        start = len(lines) - 1
+        stop = max(start-10,0)
+        for i in range(start,stop,-1):
+            #print("i: "+str(i))
             line += lines[i]+"\n"
-        #line = lines[len(lines)-2]
-        #print("LAST:"+line)
+        #line = lines[len(lines)-1]
+        #print("LINE:"+line)
         cp = self.SCORECP.search(line)
         contains_cp = False
         if(cp):
@@ -216,7 +220,7 @@ class EngineInfo(object):
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
             #if(self.board != None):
-            #outstr += self.pv_to_san()
+            #outstr += self.pv
             #else:
             if(not self.mate == 0):
                 outstr += self.pv_to_san()
