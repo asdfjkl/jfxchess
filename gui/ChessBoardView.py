@@ -200,6 +200,8 @@ class ChessboardView(QWidget):
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
         print("emitting statechange")
+        self.update()
+        print("self. update finished")
         self.emit(SIGNAL("statechanged()"))
 
 
