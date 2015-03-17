@@ -212,7 +212,7 @@ class MainWindow(QMainWindow):
         self.state_changed = False
         self.timer_update_info = QTimer()
         self.timer_update_info.timeout.connect(self.set_timer)
-        self.timer_update_info.start(100)
+        self.timer_update_info.start(600)
         self.state_changed_timer = QTimer()
 
         self.connect(self.engine, SIGNAL("updateinfo(QString)"),partial(gameevents.receive_engine_info,self))
