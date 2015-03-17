@@ -2,102 +2,72 @@ from PyQt4.QtCore import *
 import re
 from util.proc import set_lowpriority
 import time
+from uci.uci_worker import Uci_worker
 
 class Uci_controller(QObject):
 
-    BESTMOVE = re.compile('bestmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
-
     def __init__(self,parent=None):
         super(Uci_controller,self).__init__(parent)
-        self.engine = QProcess()
+        self.thread = QThread()
+        self.uci_worker = Uci_worker()
+        timer = QTimer()
+
+        timer.timeout.connect(self.uci_worker.process_command)
+        timer.start(100)
+
+        self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
+        self.connect(self.uci_worker,SIGNAL("info(QString)"),self.on_info)
+        self.connect(self.uci_worker,SIGNAL("on_error(QString)"),self.on_error)
+
+        self.connect(self,SIGNAL("foobar"),self.uci_worker.add_command)
+        self.emit(SIGNAL("foobar"))
 
 
-    def new_err_output(self):
+        timer.moveToThread(self.thread)
+        self.uci_worker.moveToThread(self.thread)
+
+        self.emit(SIGNAL("foobar"))
+
+        self.thread.start()
+        print("thread started")
+
+    def on_error(self,msg):
         pass
         #print("engine error: "+msg)
 
-    def bestmove(self,msg):
+    def on_bestmove(self,msg):
         self.emit(SIGNAL("bestmove(QString)"),msg)
 
-    def new_std_output(self):
-        output = str(self.engine.readAllStandardOutput(),"utf-8")
-        #self.emit(SIGNAL("updateinfo(QString)"),output)
-        lines = output.splitlines()
-        #print("uci in: "+output)
-        #l = self.queue_to_list(self.command_queue)
-        #print("command queue: "+(" ".join(l)))
-        # process output
-        for line in lines:
-            bm = self.BESTMOVE.search(line)
-            if(bm):
-                move = bm.group()[9:]
-                self.emit(SIGNAL("bestmove(QString)"),move)
-            else:
-                self.emit(SIGNAL("updateinfo(QString)"),output)
-
-
-
-    def add_move_numbers_to_info(self):
-        replaced_all = False
-        move_no = (self.info.no_game_halfmoves//2)+1
-        white_moves = True
-        s = ""
-        if(self.info.no_game_halfmoves % 2 == 1):
-            s += str(move_no)+". ...?"+self.info.pv[:]
-            move_no += 1
-        else:
-            white_moves = False
-            s += str(move_no) +"."+self.info.pv[:]
-        while(replaced_all == False):
-            mv = self.MOVE.search(s)
-            if(mv):
-                idx = mv.start()
-                if(white_moves):
-                    s = s[:(idx)] + " "+str(move_no) + "."+ s[(idx+1):]
-                else:
-                    move_no += 1
-                    s = s[:(idx)] + "?"+\
-                                           s[(idx+1):]
-                white_moves = not white_moves
-            else:
-                replaced_all = True
-        #print(s)
-        s = s.replace('?',' ')
-        return s
+    def on_info(self,msg):
+        self.emit(SIGNAL("updateinfo(QString)"),msg)
 
     def stop_engine(self):
-        if(self.engine):
-            #print("call close")
-            self.engine.kill()
-            #time.sleep(0.5)
-            print("close end")
-            self.engine.waitForFinished(200)
-            #print("waiting 2")
+        self.emit(SIGNAL("new_command(QString"),"quit")
 
     def start_engine(self,path):
-        self.engine.start(path)
-        self.engine.waitForStarted()
-        set_lowpriority(self.engine.pid())
-        self.connect(self.engine, SIGNAL("readyReadStandardOutput()"),self.new_std_output)
-        self.connect(self.engine, SIGNAL("readyReadStandardError()"),self.new_err_output)
+        self.emit(SIGNAL("new_command(QString"),"start_engine?"+path)
+
+    def reset_engine(self,path):
+        self.stop_engine()
+        self.start_engine(path)
 
     def uci_newgame(self):
-        self.engine.write(bytes("ucinewgame\n","utf-8"))
+        self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
 
     def uci_send_position(self,uci_string):
-        self.engine.write(bytes(uci_string+"\n","utf-8"))
+        print("sending foobar")
+        self.emit(SIGNAL("foobar"))
 
     def uci_ok(self):
-        self.engine.write(bytes("uci"+"\n","utf-8"))
+        self.emit(SIGNAL("new_command(QString)"),"uci")
 
     def uci_go_movetime(self,ms):
-        self.engine.write(bytes("go movetime "+str(ms)+"\n","utf-8"))
+        self.emit(SIGNAL("new_command(QString"),"go movetime "+str(ms))
 
     # works only with stockfish
     def uci_strength(self,level):
-        self.engine.write(bytes("setoption name Skill Level value "+str(level)+"\n","utf-8"))
+        self.emit(SIGNAL("new_command(QString"),"setoption name Skill Level value "+str(level))
 
     def uci_go_infinite(self):
-        self.engine.write(bytes(("stop\n"),"utf-8"))
-        self.engine.write(bytes(("go infinite\n"),"utf-8"))
+        self.emit(SIGNAL("new_command(QString"),"go infinite")
 
