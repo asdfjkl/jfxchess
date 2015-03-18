@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
             self.engine_fn += '/engine/stockfish_osx'
         self.engine_fn = '"'+self.engine_fn+'"'
         self.engine.start_engine(self.engine_fn)
+        self.engine.uci_go_infinite()
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
         appname = 'jerry'

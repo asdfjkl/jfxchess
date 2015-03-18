@@ -10,23 +10,23 @@ class Uci_controller(QObject):
         super(Uci_controller,self).__init__(parent)
         self.thread = QThread()
         self.uci_worker = Uci_worker()
-        timer = QTimer()
+        self.timer = QTimer()
 
-        timer.timeout.connect(self.uci_worker.process_command)
-        timer.start(100)
+        self.timer.timeout.connect(self.uci_worker.process_command)
+        self.timer.start(100)
 
         self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
         self.connect(self.uci_worker,SIGNAL("info(QString)"),self.on_info)
         self.connect(self.uci_worker,SIGNAL("on_error(QString)"),self.on_error)
 
-        self.connect(self,SIGNAL("foobar"),self.uci_worker.add_command)
-        self.emit(SIGNAL("foobar"))
+        self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
+        #self.emit(SIGNAL("foobar"))
 
 
-        timer.moveToThread(self.thread)
+        self.timer.moveToThread(self.thread)
         self.uci_worker.moveToThread(self.thread)
 
-        self.emit(SIGNAL("foobar"))
+        #self.emit(SIGNAL("foobar"))
 
         self.thread.start()
         print("thread started")
@@ -42,10 +42,11 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("updateinfo(QString)"),msg)
 
     def stop_engine(self):
-        self.emit(SIGNAL("new_command(QString"),"quit")
+        self.emit(SIGNAL("new_command(QString)"),"quit")
 
     def start_engine(self,path):
-        self.emit(SIGNAL("new_command(QString"),"start_engine?"+path)
+        print("starting engine "+path)
+        self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
     def reset_engine(self,path):
         self.stop_engine()
@@ -62,12 +63,12 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"uci")
 
     def uci_go_movetime(self,ms):
-        self.emit(SIGNAL("new_command(QString"),"go movetime "+str(ms))
+        self.emit(SIGNAL("new_command(QString)"),"go movetime "+str(ms))
 
     # works only with stockfish
     def uci_strength(self,level):
-        self.emit(SIGNAL("new_command(QString"),"setoption name Skill Level value "+str(level))
+        self.emit(SIGNAL("new_command(QString)"),"setoption name Skill Level value "+str(level))
 
     def uci_go_infinite(self):
-        self.emit(SIGNAL("new_command(QString"),"go infinite")
+        self.emit(SIGNAL("new_command(QString)"),"go infinite")
 
