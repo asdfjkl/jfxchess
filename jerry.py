@@ -226,8 +226,8 @@ class MainWindow(QMainWindow):
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
 
-        self.engine.start_engine(self.engine_fn)
-        self.engine.uci_go_infinite()
+        #self.engine.start_engine(self.engine_fn)
+        #self.engine.uci_go_infinite()
 
     def set_timer(self):
         #print("resetting timer")
