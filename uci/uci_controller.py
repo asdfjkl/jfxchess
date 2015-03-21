@@ -22,9 +22,11 @@ class Uci_controller(QObject):
         self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
         #self.emit(SIGNAL("foobar"))
 
+        self.foobar = self.uci_worker.process
 
         self.timer.moveToThread(self.thread)
         self.uci_worker.moveToThread(self.thread)
+        #self.uci_worker.process.moveToThread(self.thread)
 
         #self.emit(SIGNAL("foobar"))
 
@@ -45,7 +47,7 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"quit")
 
     def start_engine(self,path):
-        print("starting engine "+path)
+        #print("starting engine "+path)
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
     def reset_engine(self,path):
@@ -56,8 +58,8 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
 
     def uci_send_position(self,uci_string):
-        print("sending foobar")
-        self.emit(SIGNAL("foobar"))
+        print("sending"+uci_string)
+        self.emit(SIGNAL("new_command(QString)"),uci_string)
 
     def uci_ok(self):
         self.emit(SIGNAL("new_command(QString)"),"uci")
