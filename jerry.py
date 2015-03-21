@@ -10,6 +10,7 @@ from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES
 from dialogs.DialogAbout import DialogAbout
 from uci.uci_controller import Uci_controller
+import gc
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -45,8 +46,7 @@ class MainWindow(QMainWindow):
         elif sys.platform == 'darwin':
             self.engine_fn += '/engine/stockfish_osx'
         self.engine_fn = '"'+self.engine_fn+'"'
-        self.engine.start_engine(self.engine_fn)
-        self.engine.uci_go_infinite()
+
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
         appname = 'jerry'
@@ -226,6 +226,9 @@ class MainWindow(QMainWindow):
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
 
+        self.engine.start_engine(self.engine_fn)
+        self.engine.uci_go_infinite()
+
     def set_timer(self):
         #print("resetting timer")
         self.update_info_ok = True
@@ -288,6 +291,8 @@ def about_to_quit():
         print(e)
         pass
 
+
+#gc.disable()
 
 sys.setrecursionlimit(3000)
 
