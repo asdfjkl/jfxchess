@@ -221,9 +221,9 @@ class EngineInfo(object):
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
             #if(self.board != None):
-            #outstr += self.pv
+            outstr += self.pv
             #else:
-            if(not self.mate == 0):
-                outstr += self.pv_to_san()
+            #if(not self.mate == 0):
+            #    outstr += self.pv_to_san()
         outstr += '</td></tr></table>'
         return outstr
