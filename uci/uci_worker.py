@@ -10,6 +10,7 @@ processes = set([])
 class Uci_worker(QObject):
 
     MOVES = re.compile('\s[a-z]\d[a-z]\d([a-z]{0,1})')
+    BESTMOVE = re.compile('bestmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
 
     def __init__(self,parent=None):
         super(Uci_worker,self).__init__(parent)
@@ -40,6 +41,12 @@ class Uci_worker(QObject):
             self.engine_info.update_from_string(output,self.current_fen)
             #print(output)
             self.emit(SIGNAL("info(PyQt_PyObject)"),deepcopy(self.engine_info))
+            lines = output.splitlines()
+            for line in lines:
+                bm = self.BESTMOVE.search(line)
+                if(bm):
+                    move = bm.group()[9:]
+                    self.emit(SIGNAL("bestmove(QString)"),move)
             #if(self.process.state() == QProcess.NotRunning):
             #    print("RESTARTING")
             #    self.process.start("/Users/user/workspace/jerry/engine/stockfish_osx")
