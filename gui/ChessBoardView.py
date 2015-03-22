@@ -161,7 +161,8 @@ class ChessboardView(QWidget):
             self.emit(SIGNAL("drawn"))
             print("foo")
         if(self.gs.mode == MODE_ANALYSIS):
-            uci_string = self.gs.printer.to_uci(self.gs.current)
+            fen, uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.send_fen(fen)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_infinite()
         #self.update()
@@ -190,13 +191,15 @@ class ChessboardView(QWidget):
                 #self.debug_msg("ok, sending book move")
                 self.emit(SIGNAL("bestmove(QString)"),book_move)
             else:
-                uci_string = self.gs.printer.to_uci(self.gs.current)
+                fen, uci_string = self.gs.printer.to_uci(self.gs.current)
+                self.engine.send_fen(fen)
                 self.engine.uci_send_position(uci_string)
                 self.engine.uci_go_movetime(self.gs.computer_think_time)
         elif(self.gs.mode == MODE_PLAY_WHITE or self.gs.mode == MODE_PLAY_BLACK): pass
             #self.engine.uci_go_infinite()
         elif(self.gs.mode == MODE_PLAYOUT_POS):
-            uci_string = self.gs.printer.to_uci(self.gs.current)
+            fen, uci_string = self.gs.printer.to_uci(self.gs.current)
+            self.engine.send_fen(fen)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
         print("emitting statechange")

@@ -1,10 +1,14 @@
 from PyQt4.QtCore import *
 import queue
+from uci.engine_info import EngineInfo
 import gc
+import re
 
 processes = set([])
 
 class Uci_worker(QObject):
+
+    MOVES = re.compile('\s[a-z]\d[a-z]\d([a-z]{0,1})')
 
     def __init__(self,parent=None):
         super(Uci_worker,self).__init__(parent)
@@ -13,10 +17,12 @@ class Uci_worker(QObject):
         #self.process = None
         self.process = QProcess()
         self.go_infinite = False
+        self.current_fen = ""
+        self.engine_info = EngineInfo()
 
     def process_command(self):
         #output = str(self.process.readAllStandardOutput(),"utf-8")
-
+        #print("current fen"+self.current_fen)
         #gc.disable()
         if(self.process.state() == QProcess.NotRunning and not self.command_queue.empty()):
             msg = self.command_queue.get()
@@ -30,8 +36,9 @@ class Uci_worker(QObject):
                 #self.process.write(bytes(("go infinite\n"),"utf-8"))
         elif(self.process.state() == QProcess.Running):
             output = str(self.process.readAllStandardOutput(),"utf-8")
+            self.engine_info.update_from_string(output,self.current_fen)
             #print(output)
-            self.emit(SIGNAL("info(QString)"),output)
+            self.emit(SIGNAL("info(QString)"),str(self.engine_info))
             #if(self.process.state() == QProcess.NotRunning):
             #    print("RESTARTING")
             #    self.process.start("/Users/user/workspace/jerry/engine/stockfish_osx")
@@ -45,6 +52,13 @@ class Uci_worker(QObject):
                 # process commands sent to engine
                 msg = self.command_queue.get()
                 self.go_infinite = False
+                # if command is position fen moves, first count the
+                # numbers of moves so far to generate move numbers in engine info
+                if(msg.startswith("position")):
+                    match = self.MOVES.findall(msg)
+                    #print("MOVE CALCULATIN"+str(moves))
+                    if(len(match) > 0):
+                        self.engine_info.no_game_halfmoves = len(match)
                 if(msg.startswith("quit")):
                     #pass
                     self.process.write(bytes(("quit\n"),"utf-8"))
@@ -80,6 +94,10 @@ class Uci_worker(QObject):
                     #self.process.waitForFinished(100)
 
 
-    def add_command(self,msg):
+    def add_command(self,command):
         #print("adding to queue"+msg)
-        self.command_queue.put(msg)
+        self.command_queue.put(command)
+
+    def update_fen(self,fen_string):
+        print("GETTING NEW FEN"+fen_string)
+        self.current_fen = fen_string

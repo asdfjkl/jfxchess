@@ -70,8 +70,9 @@ def on_play_as_black(mainWindow):
     mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.WHITE):
-        uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+        fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
         print("uci send position")
+        mainWindow.engine.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
@@ -86,7 +87,8 @@ def on_play_as_white(mainWindow):
     mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.BLACK):
-        uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+        fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+        mainWindow.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
@@ -98,13 +100,15 @@ def on_statechanged(mainWindow):
     mainWindow.state_changed = True
     mainWindow.state_changed_timer.singleShot(600,mainWindow.set_timer2)
     if(gs.mode == MODE_ANALYSIS):
-        uci_string = mainWindow.gs.printer.to_uci(gs.current)
+        fen, uci_string = mainWindow.gs.printer.to_uci(gs.current)
+        engine.send_fen(fen)
         engine.uci_send_position(uci_string)
         engine.uci_go_infinite()
     if((gs.mode == MODE_PLAY_WHITE and gs.current.board().turn == chess.BLACK) or
            (gs.mode == MODE_PLAY_BLACK and gs.current.board().turn == chess.WHITE) or
            (gs.mode == MODE_GAME_ANALYSIS)):
-        uci_string = gs.printer.to_uci(gs.current)
+        fen, uci_string = gs.printer.to_uci(gs.current)
+        engine.send_fen(fen)
         engine.uci_send_position(uci_string)
         engine.uci_go_movetime(gs.computer_think_time)
 
@@ -116,7 +120,8 @@ def on_analysis_mode(mainWindow):
     #mainWindow.engine.start_engine(mainWindow.engine_fn)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
-    uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    mainWindow.engine.send_fen(fen)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_infinite()
     mainWindow.gs.engine_info.strength = None
@@ -145,7 +150,8 @@ def on_game_analysis_mode(mainWindow):
         if(gs.current.board().is_checkmate() or gs.current.board().is_stalemate()):
             gs.current = gs.current.parent
         mainWindow.movesEdit.update_san()
-        uci_string = gs.printer.to_uci(gs.current)
+        fen, uci_string = gs.printer.to_uci(gs.current)
+        mainWindow.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
@@ -171,7 +177,8 @@ def on_playout_pos(mainWindow):
     reset_engine(mainWindow.engine,mainWindow.engine_fn)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
-    uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    mainWindow.send_fen(fen)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
     mainWindow.gs.engine_info.strength = None
@@ -205,7 +212,7 @@ def draw_game(mainWindow):
 
 
 def receive_engine_info(mainWindow,info_string):
-    QApplication.processEvents()
+    #QApplication.processEvents()
     #print(info_string)
     gs = mainWindow.gs
     #print("currently: "+str(mainWindow.have_analysis))
@@ -217,8 +224,8 @@ def receive_engine_info(mainWindow,info_string):
         #print("Start")
         engine_info = gs.engine_info
         engine_info.turn = gs.current.board().turn
-        engine_info.update_from_string(info_string,gs.current.board())
-        engine_info.no_game_halfmoves = gs.half_moves()
+        #engine_info.update_from_string(info_string,gs.current.board())
+        #engine_info.no_game_halfmoves = gs.half_moves()
         if(gs.display_engine_info):
             gs.score = engine_info.score
             #print("score: "+str(gs.engine_info.score))
@@ -227,7 +234,7 @@ def receive_engine_info(mainWindow,info_string):
             #gs.mate_threat = None
             #if(engine_info.mate != None):
             gs.mate_threat = engine_info.mate
-            mainWindow.engineOutput.setHtml(str(engine_info))
+            mainWindow.engineOutput.setHtml(info_string)
             if("pv" in info_string or "mate" in info_string):
                 mainWindow.update_info_ok = False
         #print("stop")
