@@ -1,6 +1,7 @@
 import re
 from chess import WHITE, BLACK
 from chess import Move
+from chess import Bitboard
 import copy
 
 class EngineInfo(object):
@@ -37,12 +38,13 @@ class EngineInfo(object):
         self.board = None
 
     def pv_to_san(self):
+        #print("called")
         if(self.san_arr == None):
             return ""
         else:
             #print("new variant")
             pv_san = []
-            board = copy.deepcopy(self.san_arr[0])
+            board = Bitboard(self.san_arr[0])
             moves = self.san_arr[1]
             for uci in moves:
                 #print("adding: "+uci)
@@ -77,7 +79,7 @@ class EngineInfo(object):
                 return ""
             #return "".join(pv_san)
 
-    def update_from_string(self,line,board=None):
+    def update_from_string(self,line,fen=None):
 
         #print("RECEIVED ALL"+line)
         #print("\n")
@@ -143,8 +145,8 @@ class EngineInfo(object):
             if(self.no_game_halfmoves):
                 self.pv = self.add_move_numbers_to_info()
             self.pv_arr = moves.split(" ")
-            if(board != None):
-                self.san_arr = (board, moves.split(" "))
+            if(fen != None):
+                self.san_arr = (fen, moves.split(" "))
             emit_info = True
             #print("pv original:"+str(moves))
             #print("pv split:"+str(moves.split(" ")))
@@ -221,9 +223,9 @@ class EngineInfo(object):
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
             #if(self.board != None):
-            outstr += self.pv
+            #outstr += self.pv
             #else:
-            #if(not self.mate == 0):
-            #    outstr += self.pv_to_san()
+            if(not self.mate == 0):
+                outstr += self.pv_to_san()
         outstr += '</td></tr></table>'
         return outstr

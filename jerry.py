@@ -28,6 +28,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
 
+        print("jerry id:"+str(QCoreApplication.applicationPid()))
+
+
         exit = QAction(QIcon('icons/exit.png'), 'Exit', self)
         exit.setShortcut('Ctrl+Q')
         exit.setStatusTip('Exit application')
