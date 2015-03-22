@@ -18,8 +18,10 @@ class GUIPrinter():
             node = node.parent
         moves = " ".join(reversed(rev_moves))
         fen = node.board().fen()
+        fen_current = self.current.board().fen()
+        print("current fen:"+fen_current)
         uci = "position fen "+fen+" moves "+moves
-        return uci
+        return fen_current, uci
 
 
     def to_san_html(self,current):

@@ -20,6 +20,7 @@ class Uci_controller(QObject):
         self.connect(self.uci_worker,SIGNAL("on_error(QString)"),self.on_error)
 
         self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
+        self.connect(self,SIGNAL("new_fen(QString)"),self.uci_worker.update_fen)
         #self.emit(SIGNAL("foobar"))
 
         self.foobar = self.uci_worker.process
@@ -36,6 +37,9 @@ class Uci_controller(QObject):
     def on_error(self,msg):
         pass
         #print("engine error: "+msg)
+
+    def send_fen(self,fen_string):
+        self.emit(SIGNAL("new_fen(QString)"),fen_string)
 
     def on_bestmove(self,msg):
         self.emit(SIGNAL("bestmove(QString)"),msg)
