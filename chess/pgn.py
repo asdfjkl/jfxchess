@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# python-chess Lib Version 0.7
+# custom changes for printing w/ jerry GUI
+
 import chess
 import collections
 import copy
@@ -72,7 +75,6 @@ MOVETEXT_REGEX = re.compile(r"""
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
 
-from PyQt4.QtGui import *
 
 class GameNode(object):
 
@@ -84,15 +86,19 @@ class GameNode(object):
         self.comment = ""
         self.variations = []
 
+        self.board_cached = None
+
     def board(self):
         """
         Gets a bitboard with the position of the node.
 
-        Its a copy, so modifying the board will not alter the game.
+        It's a copy, so modifying the board will not alter the game.
         """
-        board = self.parent.board()
-        board.push(self.move)
-        return board
+        if not self.board_cached:
+            self.board_cached = self.parent.board()
+            self.board_cached.push(self.move)
+
+        return copy.deepcopy(self.board_cached)
 
     def san(self):
         """
@@ -193,7 +199,7 @@ class GameNode(object):
         """Removes a variation by move."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move, comment="", starting_comment="", nags=set()):
+    def add_variation(self, move, comment="", starting_comment="", nags=()):
         """Creates a child node with the given attributes."""
         node = GameNode()
         node.move = move
@@ -275,6 +281,7 @@ class GameNode(object):
             _board.push(main_variation.move)
             main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
             _board.pop()
+
 
     def export_html(self, exporter, node_to_highlight, offset_table,
                     comments=True, variations=True, _board=None, _after_variation=False):
@@ -361,6 +368,8 @@ class GameNode(object):
             main_variation.export_html(exporter, node_to_highlight, offset_table, comments,
                                        variations, _board, variations and len(self.variations) > 1)
             _board.pop()
+
+
 
 
     def __str__(self):
@@ -510,14 +519,14 @@ class StringExporter(object):
     def start_variation(self):
         self.write_token("( ")
 
+    def end_variation(self):
+        self.write_token(") ")
+
     def start_snd_variation(self):
         self.write_token('<dd><em><span style="color:gray">[ ')
 
     def end_snd_variation(self):
         self.write_token('] </dd></em></span>')
-
-    def end_variation(self):
-        self.write_token(") ")
 
     def put_starting_comment(self, comment):
         self.put_comment(comment)
