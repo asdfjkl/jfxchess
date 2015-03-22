@@ -16,7 +16,7 @@ class Uci_controller(QObject):
         self.timer.start(50)
 
         self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
-        self.connect(self.uci_worker,SIGNAL("info(QString)"),self.on_info)
+        self.connect(self.uci_worker,SIGNAL("info(PyQt_PyObject)"),self.on_info)
         self.connect(self.uci_worker,SIGNAL("on_error(QString)"),self.on_error)
 
         self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
@@ -44,8 +44,8 @@ class Uci_controller(QObject):
     def on_bestmove(self,msg):
         self.emit(SIGNAL("bestmove(QString)"),msg)
 
-    def on_info(self,msg):
-        self.emit(SIGNAL("updateinfo(QString)"),msg)
+    def on_info(self,engine_info):
+        self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),engine_info)
 
     def stop_engine(self):
         self.emit(SIGNAL("new_command(QString)"),"quit")
