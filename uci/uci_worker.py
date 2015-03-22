@@ -3,6 +3,7 @@ import queue
 from uci.engine_info import EngineInfo
 import gc
 import re
+from copy import deepcopy
 
 processes = set([])
 
@@ -38,7 +39,7 @@ class Uci_worker(QObject):
             output = str(self.process.readAllStandardOutput(),"utf-8")
             self.engine_info.update_from_string(output,self.current_fen)
             #print(output)
-            self.emit(SIGNAL("info(QString)"),str(self.engine_info))
+            self.emit(SIGNAL("info(PyQt_PyObject)"),deepcopy(self.engine_info))
             #if(self.process.state() == QProcess.NotRunning):
             #    print("RESTARTING")
             #    self.process.start("/Users/user/workspace/jerry/engine/stockfish_osx")
