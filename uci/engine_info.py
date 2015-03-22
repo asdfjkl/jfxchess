@@ -80,7 +80,9 @@ class EngineInfo(object):
             #return "".join(pv_san)
 
     def update_from_string(self,line,fen=None):
-
+        if(not fen==None):
+            b = Bitboard(fen)
+            self.turn = b.turn
         #print("RECEIVED ALL"+line)
         #print("\n")
         lines = line.split("\n")

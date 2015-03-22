@@ -148,7 +148,7 @@ def on_game_analysis_mode(mainWindow):
             gs.current = gs.current.parent
         mainWindow.movesEdit.update_san()
         fen, uci_string = gs.printer.to_uci(gs.current)
-        mainWindow.send_fen(fen)
+        mainWindow.engine.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
