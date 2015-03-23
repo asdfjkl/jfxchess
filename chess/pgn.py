@@ -297,6 +297,7 @@ class GameNode(object):
             # before adding san, store in offset_table offset number + node
             #temp = re.sub('</dd>|<dd>','\n',str(exporter))
             #offset_start = len(re.sub('<[^>]*>','',temp))
+            offset_start = len(str(exporter))
 
             if(main_variation.invalidate == False):
                 exporter.write_token(main_variation.san_cached)
@@ -327,7 +328,7 @@ class GameNode(object):
                 main_variation.san_cached = s
                 main_variation.invalidate = False
                 exporter.write_token(s)
-                #offset_table.append((offset_start,offset_start+len(s),main_variation))
+                offset_table.append((offset_start,offset_start+len(s),main_variation))
 
 
         # Then export sidelines.
@@ -347,6 +348,7 @@ class GameNode(object):
                 # ab hier
                 #temp = re.sub('</dd>|<dd>','\n',str(exporter))
                 #offset_start = len(re.sub('<[^>]*>','',temp))
+                offset_start = len(str(exporter))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
@@ -375,7 +377,7 @@ class GameNode(object):
                     variation.invalidate = False
                     variation.san_cached = s
                     exporter.write_token(s)
-                    #offset_table.append((offset_start,offset_start+len(s),variation))
+                    offset_table.append((offset_start,offset_start+len(s),variation))
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
