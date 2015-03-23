@@ -294,8 +294,13 @@ class GameNode(object):
         if self.variations:
             main_variation = self.variations[0]
 
+            # before adding san, store in offset_table offset number + node
+            temp = re.sub('</dd>|<dd>','\n',str(exporter))
+            offset_start = len(re.sub('<[^>]*>','',temp))
+
             if(main_variation.invalidate == False):
                 exporter.write_token(main_variation.san_cached)
+                offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
             else:
                 s = ""
                 s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
@@ -303,17 +308,11 @@ class GameNode(object):
                 # Append fullmove number.
                 #exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
-                # before adding san, store in offset_table offset number + node
-                #temp = re.sub('</dd>|<dd>','\n',str(exporter))
-                #offset_start = len(re.sub('<[^>]*>','',temp))
                 # Append SAN.
-                #if(main_variation == node_to_highlight):
-                #    exporter.put_move_highlighted(_board, main_variation.move)
-                #else:
-                #    exporter.put_move(_board, main_variation.move)
-                #offset_table.append((offset_start,offset_start+4,main_variation))
-                s += exporter.return_move(_board, main_variation.move)
-
+                if(main_variation == node_to_highlight):
+                    s += exporter.return_move_highlighted(_board, main_variation.move)
+                else:
+                    s += exporter.return_move(_board, main_variation.move)
 
                 if comments:
                     # Append NAGs.
@@ -328,6 +327,8 @@ class GameNode(object):
                 main_variation.san_cached = s
                 main_variation.invalidate = False
                 exporter.write_token(s)
+                offset_table.append((offset_start,offset_start+len(s),main_variation))
+
 
         # Then export sidelines.
         if variations:
@@ -344,23 +345,23 @@ class GameNode(object):
                     exporter.put_starting_comment(variation.starting_comment)
 
                 # ab hier
+                temp = re.sub('</dd>|<dd>','\n',str(exporter))
+                offset_start = len(re.sub('<[^>]*>','',temp))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
+                    offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
                 else:
                     s = ""
                     # Append fullmove number.
                     s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, True)
 
                     # before adding san, store in offset_table offset number + node
-                    #temp = re.sub('</dd>|<dd>','\n',str(exporter))
-                    #offset_start = len(re.sub('<[^>]*>','',temp))
                     # Append SAN.
-                    #if(variation == node_to_highlight):
-                    #    exporter.put_move_highlighted(_board,variation.move)
-                    #else:
-                    s += exporter.return_move(_board, variation.move)
-                    #offset_table.append((offset_start,offset_start+4,variation))
+                    if(variation == node_to_highlight):
+                        s += exporter.return_move_highlighted(_board,variation.move)
+                    else:
+                        s += exporter.return_move(_board, variation.move)
 
                     if comments:
                         # Append NAGs.
@@ -374,6 +375,7 @@ class GameNode(object):
                     variation.invalidate = False
                     variation.san_cached = s
                     exporter.write_token(s)
+                    offset_table.append((offset_start,offset_start+len(s),variation))
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
@@ -609,6 +611,9 @@ class StringExporter(object):
         self.write_token('<span style="color:darkgoldenrod">')
         self.write_token(board.san(move) + " ")
         self.write_token('</span><a name="current"></a>')
+
+    def return_move_highlighted(self,board,move):
+        return '<span style="color:darkgoldenrod">'+board.san(move)+' </span><a name="current"></a>'
 
     def put_result(self, result):
         self.write_token(result + " ")
