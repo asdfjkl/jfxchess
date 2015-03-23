@@ -1,6 +1,12 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
+- add "cache" with text repr. of each game node
+
+- add bool trigger redraw to each game node
+
+- rewrite gui printer with that
+
 - remove printers
 
 - play as black not working
