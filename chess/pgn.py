@@ -295,12 +295,12 @@ class GameNode(object):
             main_variation = self.variations[0]
 
             # before adding san, store in offset_table offset number + node
-            temp = re.sub('</dd>|<dd>','\n',str(exporter))
-            offset_start = len(re.sub('<[^>]*>','',temp))
+            #temp = re.sub('</dd>|<dd>','\n',str(exporter))
+            #offset_start = len(re.sub('<[^>]*>','',temp))
 
             if(main_variation.invalidate == False):
                 exporter.write_token(main_variation.san_cached)
-                offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
+                #offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
             else:
                 s = ""
                 s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
@@ -327,7 +327,7 @@ class GameNode(object):
                 main_variation.san_cached = s
                 main_variation.invalidate = False
                 exporter.write_token(s)
-                offset_table.append((offset_start,offset_start+len(s),main_variation))
+                #offset_table.append((offset_start,offset_start+len(s),main_variation))
 
 
         # Then export sidelines.
@@ -345,12 +345,12 @@ class GameNode(object):
                     exporter.put_starting_comment(variation.starting_comment)
 
                 # ab hier
-                temp = re.sub('</dd>|<dd>','\n',str(exporter))
-                offset_start = len(re.sub('<[^>]*>','',temp))
+                #temp = re.sub('</dd>|<dd>','\n',str(exporter))
+                #offset_start = len(re.sub('<[^>]*>','',temp))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
-                    offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
+                    #offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
                 else:
                     s = ""
                     # Append fullmove number.
@@ -375,7 +375,7 @@ class GameNode(object):
                     variation.invalidate = False
                     variation.san_cached = s
                     exporter.write_token(s)
-                    offset_table.append((offset_start,offset_start+len(s),variation))
+                    #offset_table.append((offset_start,offset_start+len(s),variation))
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
