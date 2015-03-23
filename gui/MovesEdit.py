@@ -11,7 +11,7 @@ class MovesEdit(QTextEdit):
         super(QTextEdit, self).__init__()
         self.gs = gamestate
         self.old_cursor_pos = -1
-        #self.setCursorWidth(8)
+        #self.setCursorWidth(1)
         self.viewport().setCursor(Qt.ArrowCursor)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)

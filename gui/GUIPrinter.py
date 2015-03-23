@@ -32,5 +32,7 @@ class GUIPrinter():
         #return self.san_html
         exporter = StringExporter(columns=None)
         current.root().export_html(exporter,current,self.offset_table)
+        #current.root().export(exporter,current)
+
         return exporter.__str__()
         #return self.export_string(current.root())
