@@ -558,10 +558,10 @@ class StringExporter(object):
 
     def start_snd_variation(self):
         #self.write_token('<dd><em><span style="color:gray">[ ')
-        self.write_token('[ ')
+        self.write_token('\n[ ')
 
     def end_snd_variation(self):
-        self.write_token('] ')
+        self.write_token('] \n')
 
     def put_starting_comment(self, comment):
         self.put_comment(comment)
@@ -596,14 +596,14 @@ class StringExporter(object):
         if turn == chess.WHITE:
             self.write_token(str(fullmove_number) + ". ")
         elif variation_start:
-            self.write_token(str(fullmove_number) + "... ")
+            self.write_token(str(fullmove_number) + ". ... ")
 
     def return_fullmove_number(self, turn, fullmove_number, variation_start):
         s = ""
         if turn == chess.WHITE:
             return str(fullmove_number) + ". "
         elif variation_start:
-            return str(fullmove_number) + "... "
+            return str(fullmove_number) + ". ... "
         else:
             return ""
 
