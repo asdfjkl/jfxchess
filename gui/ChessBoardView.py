@@ -126,6 +126,7 @@ class ChessboardView(QWidget):
     def executeMove(self, uci):
         print("executing")
         temp = self.gs.current
+        self.gs.current.invalidate = True
         move = chess.Move.from_uci(uci)
         # check if move already exists
         variation_moves = [ x.move for x in self.gs.current.variations ]

@@ -40,14 +40,17 @@ class GUIPrinter():
         # highlighting doesn't work
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
+        start_idx = -1
+        end_idx = - 1
         game = exporter.__str__()
         for i in range(0,len(self.offset_table)):
             if(self.offset_table[i][2] == current):
                 start_idx = self.offset_table[i][0]
                 end_idx = self.offset_table[i][1]
         #if(current.board().turn == chess.WHITE):
-        game = game[:end_idx] + "</span>" + game[end_idx:]
-        game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
+        if(not start_idx == -1):
+            game = game[:end_idx] + "</span>" + game[end_idx:]
+            game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
         #game = game[:start_idx] + '<span style="color:red">' + game[start_idx:]
 
         #else:

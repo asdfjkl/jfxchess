@@ -310,10 +310,10 @@ class GameNode(object):
                 #s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
                 # Append SAN.
-                if(main_variation == node_to_highlight):
-                    s += exporter.return_move_highlighted(_board, main_variation.move)
-                else:
-                    s += exporter.return_move(_board, main_variation.move)
+                #if(main_variation == node_to_highlight):
+                #    s += exporter.return_move_highlighted(_board, main_variation.move)
+                #else:
+                s += exporter.return_move(_board, main_variation.move)
 
                 if comments:
                     # Append NAGs.
@@ -363,10 +363,10 @@ class GameNode(object):
 
                     # before adding san, store in offset_table offset number + node
                     # Append SAN.
-                    if(variation == node_to_highlight):
-                        s += exporter.return_move_highlighted(_board,variation.move)
-                    else:
-                        s += exporter.return_move(_board, variation.move)
+                    #if(variation == node_to_highlight):
+                    #    s += exporter.return_move_highlighted(_board,variation.move)
+                    #else:
+                    s += exporter.return_move(_board, variation.move)
 
                     if comments:
                         # Append NAGs.
