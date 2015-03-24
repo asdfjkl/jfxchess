@@ -240,8 +240,24 @@ class MovesEdit(QTextEdit):
                 self.gs.current = selected_state
                 self.emit(SIGNAL("statechanged()"))
                 scroll_pos = self.verticalScrollBar().value()
+                print("max before :" + str(self.verticalScrollBar().maximum()))
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                mini = max(scroll_pos,self.verticalScrollBar().maximum())
+                print("min: "+str(mini))
+
+                print("computing idx finished")
+                cursor = self.textCursor()
+                idx = self._get_offset_for_current_state()
+                cursor.setPosition(idx)
+                self.setTextCursor(cursor)
                 self.verticalScrollBar().setValue(scroll_pos)
+                print("max after :" + str(self.verticalScrollBar().maximum()))
+                print(scroll_pos)
+                print(self.verticalScrollBar().value())
+                #self.update_san()
+                #self.ensureCursorVisible()
+
+
 
     def on_statechanged(self):
         self.update_san()
@@ -262,10 +278,11 @@ class MovesEdit(QTextEdit):
         cursor = self.textCursor()
         cursor.setPosition(idx)
         self.setTextCursor(cursor)
-        #self.update()
+        self.update()
         print("update san finished")
 
     def keyPressEvent(self, event):
+        print(self.verticalScrollBar().value())
         mode = self.gs.mode
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             key = event.key()
