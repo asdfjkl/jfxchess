@@ -41,8 +41,26 @@ class GUIPrinter():
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
         game = exporter.__str__()
+        for i in range(0,len(self.offset_table)):
+            if(self.offset_table[i][2] == current):
+                start_idx = self.offset_table[i][0]
+                end_idx = self.offset_table[i][1]
+        #if(current.board().turn == chess.WHITE):
+        game = game[:end_idx] + "</span>" + game[end_idx:]
+        game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
+        #else:
+        #    game = game[:end_idx] + "</span>" + game[end_idx:]
+        #    game = game[:start_idx+3] + '<span style="color:darkgoldenrod">' + game[start_idx+3:]
+
+
         game1 = re.sub("\[",'<dd><em><span style="color:gray">[',game)
         game2 = re.sub("]",'] </dd></em></span>',game1)
+        #pos = game2.index('')
+        #game2 = game2[:pos-5] + '<span style="color:darkgoldenrod">' + game2[pos-5:pos] + '</span>' + game2[pos:]
+        #game2 = re.sub("????",'] </dd></em></span>',game1)
+        #start_idx = 0
+        #end_idx = 0
+
         return game2
 
         #print("GAME: "+game)
