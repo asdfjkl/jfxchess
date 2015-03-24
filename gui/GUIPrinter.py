@@ -41,9 +41,23 @@ class GUIPrinter():
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
         game = exporter.__str__()
-        game1 = re.sub("\[",'<dd><em><span style="color:gray">[ ',game)
-        return re.sub("]",'] </dd></em></span>',game1)
+        game1 = re.sub("\[",'<dd><em><span style="color:gray">[',game)
+        game2 = re.sub("]",'] </dd></em></span>',game1)
+        return game2
 
+        #print("GAME: "+game)
+        #test = QtGui.QTextEdit()
+        #test.setHtml(game2)
+        #print("HTML: "+test.toPlainText())
+
+        #with open("html.txt", "w") as text_file:
+        #    text_file.write(test.toPlainText())
+
+        #with open("plain.txt", "w") as text_file:
+        #    text_file.write(game)
+
+        #print("are equal:"+str(test.toPlainText() == game2))
+        #return game1
         #self.write_token('<dd><em><span style="color:gray">[ ')
 
         #return self.export_string(current.root())
