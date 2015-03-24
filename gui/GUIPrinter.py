@@ -34,5 +34,17 @@ class GUIPrinter():
         current.root().export_html(exporter,current,self.offset_table)
         #current.root().export(exporter,current)
 
-        return exporter.__str__()
+        # do formatting of plain text with regexp here by
+        # making all variations grey
+        # [ ] must be then blocked for comments, otherwise
+        # highlighting doesn't work
+        # for highlighting current move, look up current move in offset table
+        # then insert highlighting at offsets
+        game = exporter.__str__()
+        game1 = re.sub("\[",'<dd><em><span style="color:gray">[ ',game)
+        return re.sub("]",'] </dd></em></span>',game1)
+
+        #self.write_token('<dd><em><span style="color:gray">[ ')
+
         #return self.export_string(current.root())
+        #return (exporter.__str__())
