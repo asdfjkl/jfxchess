@@ -301,19 +301,19 @@ class GameNode(object):
 
             if(main_variation.invalidate == False):
                 exporter.write_token(main_variation.san_cached)
-                #offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
+                offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
             else:
                 s = ""
                 s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
                 # Append fullmove number.
-                #exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
+                #s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
                 # Append SAN.
-                if(main_variation == node_to_highlight):
-                    s += exporter.return_move_highlighted(_board, main_variation.move)
-                else:
-                    s += exporter.return_move(_board, main_variation.move)
+                #if(main_variation == node_to_highlight):
+                #    s += exporter.return_move_highlighted(_board, main_variation.move)
+                #else:
+                s += exporter.return_move(_board, main_variation.move)
 
                 if comments:
                     # Append NAGs.
@@ -346,13 +346,16 @@ class GameNode(object):
                     exporter.put_starting_comment(variation.starting_comment)
 
                 # ab hier
+                #print(str(exporter))
                 #temp = re.sub('</dd>|<dd>','\n',str(exporter))
+                #print(temp)
+                #print(re.sub('<[^>]*>','',temp))
                 #offset_start = len(re.sub('<[^>]*>','',temp))
                 offset_start = len(str(exporter))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
-                    #offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
+                    offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
                 else:
                     s = ""
                     # Append fullmove number.
@@ -360,10 +363,10 @@ class GameNode(object):
 
                     # before adding san, store in offset_table offset number + node
                     # Append SAN.
-                    if(variation == node_to_highlight):
-                        s += exporter.return_move_highlighted(_board,variation.move)
-                    else:
-                        s += exporter.return_move(_board, variation.move)
+                    #if(variation == node_to_highlight):
+                    #    s += exporter.return_move_highlighted(_board,variation.move)
+                    #else:
+                    s += exporter.return_move(_board, variation.move)
 
                     if comments:
                         # Append NAGs.
@@ -554,10 +557,11 @@ class StringExporter(object):
         self.write_token(") ")
 
     def start_snd_variation(self):
-        self.write_token('<dd><em><span style="color:gray">[ ')
+        #self.write_token('<dd><em><span style="color:gray">[ ')
+        self.write_token('[ ')
 
     def end_snd_variation(self):
-        self.write_token('] </dd></em></span>')
+        self.write_token('] ')
 
     def put_starting_comment(self, comment):
         self.put_comment(comment)
