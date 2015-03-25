@@ -75,6 +75,35 @@ def save_as_to_pgn(mainWidget):
         f.close()
         gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
+def init_game_tree(mainWindow, root):
+    gamestate = mainWindow.gs
+    # ugly workaround:
+    # the next lines are just to ensure that
+    # the "board cache" (see doc. of python-chess lib)
+    # is initialized. The call to the last board of the main
+    # line ensures recursive calls to the boards up to
+    # the root
+    temp = gamestate.current.root()
+    end = gamestate.current.end()
+    mainline_nodes = [temp]
+    while(not temp == end):
+        temp = temp.variations[0]
+        mainline_nodes.append(temp)
+    cnt = len(mainline_nodes)
+    print(cnt)
+    print(str(mainline_nodes))
+    pDialog = QProgressDialog("Initializing Game Tree",None,0,cnt,mainWindow)
+    pDialog.setWindowModality(Qt.WindowModal)
+    pDialog.show()
+    for i,n in enumerate(mainline_nodes):
+        #print("step:"+str(i)+" "+str(n))
+        QApplication.processEvents()
+        pDialog.setValue(i)
+        if(i > 0 and i % 25 == 0):
+            _ = n.cache_board()
+    pDialog.hide()
+    pDialog.close()
+
 def open_pgn(mainWindow):
     chessboardview = mainWindow.board
     gamestate = mainWindow.gs
@@ -95,31 +124,8 @@ def open_pgn(mainWindow):
         mainWindow.movesEdit.setFocus()
         pgn.close()
         gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
-        # ugly workaround:
-        # the next lines are just to ensure that
-        # the "board cache" (see doc. of python-chess lib)
-        # is initialized. The call to the last board of the main
-        # line ensures recursive calls to the boards up to
-        # the root
-        temp = gamestate.current.root()
-        mainline_nodes = [temp]
-        while(not temp == first_game.end()):
-            temp = temp.variations[0]
-            mainline_nodes.append(temp)
-        cnt = len(mainline_nodes)
-        print(cnt)
-        print(str(mainline_nodes))
-        pDialog = QProgressDialog("Initializing Game Tree",None,0,cnt,mainWindow)
-        pDialog.setWindowModality(Qt.WindowModal)
-        pDialog.show()
-        for i,n in enumerate(mainline_nodes):
-            #print("step:"+str(i)+" "+str(n))
-            QApplication.processEvents()
-            pDialog.setValue(i)
-            if(i > 0 and i % 25 == 0):
-                _ = n.cache_board()
-        pDialog.hide()
-        pDialog.close()
+        init_game_tree(mainWindow,gamestate.current.root())
+
 
         #end = gamestate.current.end()
         #b = end.board()
