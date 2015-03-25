@@ -4,6 +4,7 @@ from gui.GUIPrinter import GUIPrinter
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
 from logic.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
+import time
 
 class MovesEdit(QTextEdit):
 
@@ -215,9 +216,12 @@ class MovesEdit(QTextEdit):
         text = self.gs.printer.to_san_html(self.gs.current)
         offset_index = self.gs.printer.offset_table
         j = 0
+        start = time.clock()
         for i in range(0,len(offset_index)):
             if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
                 j = i
+        #your code here
+        print("get state from offset: "+str(time.clock() - start))
         try:
             return offset_index[j][2]
         except IndexError:
@@ -226,15 +230,20 @@ class MovesEdit(QTextEdit):
     def _get_offset_for_current_state(self):
         offset_index = self.gs.printer.offset_table
         idx = 0
+        start = time.clock()
         for i in range(0,len(offset_index)):
             if(offset_index[i][2] == self.gs.current):
                 idx = offset_index[i][0]
+        #your code here
+        print("get offset from state: "+str(time.clock() - start))
         return idx
 
     def go_to_pos(self,cursor_pos):
         offset = self.textCursor().position()
         if(cursor_pos > 0):
             if(offset != self.old_cursor_pos):
+                start = time.clock()
+
                 self.old_cursor_pos = offset
                 selected_state = self._get_state_from_offset(cursor_pos)
                 self.gs.current = selected_state
@@ -256,6 +265,10 @@ class MovesEdit(QTextEdit):
                 print(self.verticalScrollBar().value())
                 #self.update_san()
                 #self.ensureCursorVisible()
+                print("go to pos: "+str(time.clock() - start))
+                QApplication.processEvents()
+                #self.update()
+
 
 
 
