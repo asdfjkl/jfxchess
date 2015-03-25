@@ -104,6 +104,7 @@ class MovesEdit(QTextEdit):
             selected_state.nags = selected_state.nags - set(range(0,10))
             if(nag != None):
                 selected_state.nags.add(nag)
+            selected_state.invalidate = True
         self.update_san()
 
     def pos_annotation(self, nag):
@@ -115,6 +116,7 @@ class MovesEdit(QTextEdit):
             selected_state.nags = selected_state.nags - set(range(10,136))
             if(nag != None):
                 selected_state.nags.add(nag)
+            selected_state.invalidate = True
         self.update_san()
 
     def delete_all_comments(self):
@@ -132,6 +134,7 @@ class MovesEdit(QTextEdit):
         selected_state = self._get_state_from_offset(offset)
         if(selected_state != None):
             selected_state.comment = ""
+            selected_state.invalidate = True
         self.update_san()
 
     def add_comment(self):
@@ -145,8 +148,8 @@ class MovesEdit(QTextEdit):
             if answer == True:
                 typed_text = dialog.saved_text
                 selected_state.comment = typed_text
+                selected_state.invalidate = True
                 self.update_san()
-
 
     def variant_up(self):
         offset = self.old_cursor_pos
