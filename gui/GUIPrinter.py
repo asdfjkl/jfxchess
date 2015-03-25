@@ -1,5 +1,6 @@
 from PyQt4 import QtGui
 from chess.pgn import *
+import time
 
 class GUIPrinter():
     def __init__(self):
@@ -31,7 +32,9 @@ class GUIPrinter():
         #self.print_san(current.root(),0,False)
         #return self.san_html
         exporter = StringExporter(columns=None)
+        start = time.clock()
         current.root().export_html(exporter,current,self.offset_table)
+
         #current.root().export(exporter,current)
 
         # do formatting of plain text with regexp here by
@@ -65,6 +68,9 @@ class GUIPrinter():
         #game2 = re.sub("????",'] </dd></em></span>',game1)
         #start_idx = 0
         #end_idx = 0
+        print("export to html: "+str(time.clock() - start))
+
+
 
         return game2
 
