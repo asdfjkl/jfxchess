@@ -95,7 +95,14 @@ def open_pgn(mainWindow):
         mainWindow.movesEdit.setFocus()
         pgn.close()
         gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
-
+        # ugly workaround:
+        # the next lines are just to ensure that
+        # the "board cache" (see doc. of python-chess lib)
+        # is initialized. The call to the last board of the main
+        # line ensures recursive calls to the boards up to
+        # the root
+        end = gamestate.current.end()
+        b = end.board()
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 

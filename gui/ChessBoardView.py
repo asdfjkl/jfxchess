@@ -1,7 +1,7 @@
 from gui.PieceImages import PieceImages
 from dialogs.DialogPromotion import DialogPromotion
 from util.messages import display_mbox
-
+import time
 # python chess
 from chess.polyglot import *
 import chess
@@ -304,7 +304,10 @@ class ChessboardView(QWidget):
         return (boardSize,squareSize)
 
     def on_statechanged(self):
+        start = time.clock()
         self.update()
+        print("cbv updated: "+str(time.clock() - start))
+
 
     def drawBoard(self, event, qp):
         penZero = QPen(Qt.black, 1, Qt.NoPen)

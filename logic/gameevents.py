@@ -9,6 +9,7 @@ from logic.gamestate import MODE_ENTER_MOVES, \
 import chess
 from logic.file_io import is_position_in_book
 from util.messages import display_mbox
+import time
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -93,6 +94,7 @@ def on_play_as_white(mainWindow):
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_statechanged(mainWindow):
+    start = time.clock()
     print("ok statechanged")
     gs = mainWindow.gs
     engine = mainWindow.engine
@@ -108,6 +110,8 @@ def on_statechanged(mainWindow):
         engine.send_fen(fen)
         engine.uci_send_position(uci_string)
         engine.uci_go_movetime(gs.computer_think_time)
+    print("statechange in gameevents: "+str(time.clock() - start))
+
 
 def on_analysis_mode(mainWindow):
     print("enter analysis mode")
