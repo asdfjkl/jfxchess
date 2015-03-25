@@ -4,6 +4,7 @@ import io
 import chess
 from dialogs.DialogEditGameData import DialogEditGameData
 from dialogs.DialogEnterPosition import DialogEnterPosition
+from logic.file_io import init_game_tree
 
 def game_to_clipboard(gamestate):
     clipboard = QApplication.clipboard()
@@ -39,6 +40,7 @@ def from_clipboard(mainWindow):
             gamestate.current = first_game
             mainWindow.setLabels()
             mainWindow.save_game.setEnabled(False)
+            init_game_tree(mainWindow,gamestate.current.root())
     boardview.update()
     boardview.emit(SIGNAL("statechanged()"))
 
