@@ -102,6 +102,16 @@ class GameNode(object):
 
         return copy.deepcopy(self.board_cached)
 
+    def cache_board(self):
+        """
+        build the bitboard with the position of the board
+        and cache the computed version; but does not
+        return anything
+        """
+        if not self.board_cached:
+            self.board_cached = self.parent.board()
+            self.board_cached.push(self.move)
+
     def san(self):
         """
         Gets the standard algebraic notation of the move leading to this node.

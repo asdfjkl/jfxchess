@@ -101,8 +101,28 @@ def open_pgn(mainWindow):
         # is initialized. The call to the last board of the main
         # line ensures recursive calls to the boards up to
         # the root
-        end = gamestate.current.end()
-        b = end.board()
+        temp = gamestate.current.root()
+        mainline_nodes = [temp]
+        while(not temp == first_game.end()):
+            temp = temp.variations[0]
+            mainline_nodes.append(temp)
+        cnt = len(mainline_nodes)
+        print(cnt)
+        print(str(mainline_nodes))
+        pDialog = QProgressDialog("Initializing Game Tree",None,0,cnt,mainWindow)
+        pDialog.setWindowModality(Qt.WindowModal)
+        pDialog.show()
+        for i,n in enumerate(mainline_nodes):
+            #print("step:"+str(i)+" "+str(n))
+            QApplication.processEvents()
+            pDialog.setValue(i)
+            if(i > 0 and i % 25 == 0):
+                _ = n.cache_board()
+        pDialog.hide()
+        pDialog.close()
+
+        #end = gamestate.current.end()
+        #b = end.board()
         #self.movesEdit.update_san()
         #self.movesEdit.setFocus()
 
