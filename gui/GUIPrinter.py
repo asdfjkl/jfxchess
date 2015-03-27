@@ -55,7 +55,7 @@ class GUIPrinter():
             game = game[:end_idx] + "</span>" + game[end_idx:]
             game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
         #game = game[:start_idx] + '<span style="color:red">' + game[start_idx:]
-        print(game)
+        #print(game)
         #else:
         #    game = game[:end_idx] + "</span>" + game[end_idx:]
         #    game = game[:start_idx+3] + '<span style="color:darkgoldenrod">' + game[start_idx+3:]
