@@ -157,6 +157,8 @@ def on_game_analysis_mode(mainWindow):
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
         gs.best_score = None
+    else:
+        on_enter_moves_mode(mainWindow)
 
 
 def on_enter_moves_mode(mainWindow):
