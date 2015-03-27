@@ -137,6 +137,9 @@ class ChessboardView(QWidget):
         # otherwise create a new node
         else:
             self.gs.current.add_variation(move)
+            # enforce repainting main variation if exists
+            if(len(self.gs.current.variations)>0 and len(self.gs.current.variations[0].variations)>0):
+                self.gs.current.variations[0].variations[0].invalidate = True
             self.gs.current = self.gs.current.variation(move)
         #"+str(( self.gs.board().turn + 1)%2))
         #new_node = chess.pgn.GameNode()
