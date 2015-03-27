@@ -212,6 +212,7 @@ class MovesEdit(QTextEdit):
         while(node.variations != []):
             node.variations = [node.variations[0]]
             node = node.variations[0]
+            node.invalidate = True
         self.update_san()
 
     def _get_state_from_offset(self, offset):
