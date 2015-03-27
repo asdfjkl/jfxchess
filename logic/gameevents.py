@@ -274,6 +274,9 @@ def on_player_resigns(mainWindow):
 def add_variant_from_pv(root, move, uci_list):
     uci_move = uci_list[0]
     root.add_variation(chess.Move.from_uci(uci_move))
+    # enforce repainting main variation if exists
+    if(len(root.variations)>0 and len(root.variations[0].variations)>0):
+        root.variations[0].variations[0].invalidate = True
     root = root.variations[1]
     for i in range(1,len(uci_list)):
         root.add_main_variation(chess.Move.from_uci(uci_list[i]))

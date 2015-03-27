@@ -55,14 +55,14 @@ class GUIPrinter():
             game = game[:end_idx] + "</span>" + game[end_idx:]
             game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
         #game = game[:start_idx] + '<span style="color:red">' + game[start_idx:]
-
+        print(game)
         #else:
         #    game = game[:end_idx] + "</span>" + game[end_idx:]
         #    game = game[:start_idx+3] + '<span style="color:darkgoldenrod">' + game[start_idx+3:]
 
 
         game1 = re.sub("\[",'<dd><em><span style="color:gray">[',game)
-        game2 = re.sub("]",'] </dd></em></span>',game1)
+        game2 = re.sub("]",']</dd></em></span>',game1)
         #pos = game2.index('')
         #game2 = game2[:pos-5] + '<span style="color:darkgoldenrod">' + game2[pos-5:pos] + '</span>' + game2[pos:]
         #game2 = re.sub("????",'] </dd></em></span>',game1)
