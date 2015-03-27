@@ -307,7 +307,7 @@ class GameNode(object):
             # before adding san, store in offset_table offset number + node
             #temp = re.sub('</dd>|<dd>','\n',str(exporter))
             #offset_start = len(re.sub('<[^>]*>','',temp))
-            offset_start = len(str(exporter))+1
+            offset_start = len(str(exporter))
 
             if(main_variation.invalidate == False):
                 exporter.write_token(main_variation.san_cached)
@@ -361,7 +361,7 @@ class GameNode(object):
                 #print(temp)
                 #print(re.sub('<[^>]*>','',temp))
                 #offset_start = len(re.sub('<[^>]*>','',temp))
-                offset_start = len(str(exporter))+1
+                offset_start = len(str(exporter))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
@@ -571,7 +571,7 @@ class StringExporter(object):
         self.write_token('\n[ ')
 
     def end_snd_variation(self):
-        self.write_token('] \n')
+        self.write_token(']\n')
 
     def put_starting_comment(self, comment):
         self.put_comment(comment)
