@@ -1,6 +1,8 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
+- "reset" to get init pos in edit menu
+
 - remove _all_ printers
 
 - add "cache" with text repr. of each game node
