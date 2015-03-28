@@ -5,5 +5,4 @@ def display_mbox(title,content):
     msgBox.setWindowTitle("Jerry")
     msgBox.setIcon(QMessageBox.Information)
     msgBox.setText(title+"\n"+content)
-    #msgBox.setInformativeText(content)
     msgBox.exec_()
