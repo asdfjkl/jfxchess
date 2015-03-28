@@ -62,7 +62,7 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
 
     def uci_send_position(self,uci_string):
-        print("sending"+uci_string)
+        #print("sending"+uci_string)
         self.emit(SIGNAL("new_command(QString)"),uci_string)
 
     def uci_ok(self):
