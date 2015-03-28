@@ -9,7 +9,6 @@ from logic.gamestate import MODE_ENTER_MOVES, \
 import chess
 from logic.file_io import is_position_in_book
 from util.messages import display_mbox
-import time
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -64,7 +63,6 @@ def on_play_as_black(mainWindow):
     mainWindow.board.on_statechanged()
     mainWindow.gs.mode = MODE_PLAY_BLACK
     mainWindow.engineOutput.setHtml("")
-    print("resetting engine")
     reset_engine(mainWindow.engine,mainWindow.engine_fn)
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
@@ -72,7 +70,6 @@ def on_play_as_black(mainWindow):
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.WHITE):
         fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-        print("uci send position")
         mainWindow.engine.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
@@ -94,8 +91,6 @@ def on_play_as_white(mainWindow):
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_statechanged(mainWindow):
-    start = time.clock()
-    print("ok statechanged")
     gs = mainWindow.gs
     engine = mainWindow.engine
     if(gs.mode == MODE_ANALYSIS):
@@ -110,15 +105,12 @@ def on_statechanged(mainWindow):
         engine.send_fen(fen)
         engine.uci_send_position(uci_string)
         engine.uci_go_movetime(gs.computer_think_time)
-    print("statechange in gameevents: "+str(time.clock() - start))
 
 
 def on_analysis_mode(mainWindow):
-    print("enter analysis mode")
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
     reset_engine(mainWindow.engine,mainWindow.engine_fn)
-    #mainWindow.engine.start_engine(mainWindow.engine_fn)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
@@ -127,7 +119,6 @@ def on_analysis_mode(mainWindow):
     mainWindow.engine.uci_go_infinite()
     mainWindow.gs.engine_info.strength = None
     mainWindow.gs.mode = MODE_ANALYSIS
-    print("exit analysis mode")
 
 def on_game_analysis_mode(mainWindow):
     gs = mainWindow.gs
@@ -163,15 +154,12 @@ def on_game_analysis_mode(mainWindow):
 
 def on_enter_moves_mode(mainWindow):
     # stop any engine
-    print("entered enter moves")
     mainWindow.engine.stop_engine()
-    print("successfully stopped engine")
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     mainWindow.gs.mode = MODE_ENTER_MOVES
     mainWindow.enter_moves.setChecked(True)
-    print("exit enter moves")
 
 
 def on_playout_pos(mainWindow):
@@ -207,42 +195,19 @@ def on_checkmate(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def draw_game(mainWindow):
-    print("foo1")
     mainWindow.gs.current.root().headers["Result"] = "1/2-1/2"
-    print("foo2")
     on_enter_moves_mode(mainWindow)
-    print("foo3")
 
 
 def receive_engine_info(mainWindow,info_string):
-    #QApplication.processEvents()
-    #print(info_string)
     gs = mainWindow.gs
     engine_info = info_string
-    #print("currently: "+str(mainWindow.have_analysis))
-    if(True):
-        #if(mainWindow.state_changed):
-        #    print("received line"+info_string)
-        #if(not mainWindow.have_analysis):
-        #    print("received line: "+info_string)
-        #print("Start")
-        #engine_info = gs.engine_info
-        #engine_info.turn = gs.current.board().turn
-        #engine_info.update_from_string(info_string,gs.current.board())
-        #engine_info.no_game_halfmoves = gs.half_moves()
-        if(gs.display_engine_info):
-            gs.score = engine_info.score
-            #print("score: "+str(gs.engine_info.score))
-            if(engine_info.pv_arr):
-                gs.pv = engine_info.pv_arr
-            #gs.mate_threat = None
-            #if(engine_info.mate != None):
-            gs.mate_threat = engine_info.mate
-            mainWindow.engineOutput.setHtml(str(info_string))
-            #if("pv" in info_string or "mate" in info_string):
-            #    mainWindow.update_info_ok = False
-        #print("stop")
-
+    if(gs.display_engine_info):
+        gs.score = engine_info.score
+        if(engine_info.pv_arr):
+            gs.pv = engine_info.pv_arr
+        gs.mate_threat = engine_info.mate
+        mainWindow.engineOutput.setHtml(str(info_string))
 
 def count_moves(node):
     temp = node
@@ -355,15 +320,7 @@ def on_bestmove(mainWindow,move):
                 mainWindow.board.on_statechanged()
     # handling bestmove command if in analysis mode
     if(mode == MODE_GAME_ANALYSIS):
-        #print("-----------------")
-        #print("currently in state after: "+str(gs.current.move.uci()))
-        #print("current score: "+str(gs.score))
-        #print("best move here: "+str(move))
-        #print("pv here:"+"".join([str(x) for x in gs.pv]))
-        #print("best pv recorded:"+"".join([str(x) for x in gs.best_pv]))
-        #print("best pv score:"+str(gs.best_score))
         if(exists_better_line(gs)):
-            #print(mainWindow.gs.printer.to_uci)
             add_variant_from_pv(gs.current,move,gs.pv)
             if(gs.next_mate_threat != None):
                 gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
@@ -372,7 +329,6 @@ def on_bestmove(mainWindow,move):
             gs.current.variations[1].comment = str(gs.score)
         # record current evaluations
         gs.best_score = gs.score
-        #gs.best_pv = gs.pv
         gs.pv = []
         gs.next_mate_threat = gs.mate_threat
         gs.mate_threat = None

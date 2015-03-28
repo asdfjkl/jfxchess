@@ -38,25 +38,17 @@ class EngineInfo(object):
         self.board = None
 
     def pv_to_san(self):
-        #print("called")
         if(self.san_arr == None):
             return ""
         else:
-            #print("new variant")
             pv_san = []
             board = Bitboard(self.san_arr[0])
             moves = self.san_arr[1]
             for uci in moves:
-                #print("adding: "+uci)
                 move = Move.from_uci(uci)
                 if(move in board.pseudo_legal_moves):
                     pv_san.append(board.san(move))
                     board.push(move)
-                else:
-                    pass
-                    #mvs = " ".join(map(str,board.pseudo_legal_moves))
-                    #print(board.fen())
-                    #print("trying: "+uci)
             if(len(pv_san) > 0):
                 s = ""
                 white_moves = True
@@ -64,8 +56,6 @@ class EngineInfo(object):
                 if(self.no_game_halfmoves % 2 == 1):
                     white_moves = False
                     s += str(move_no)+". ... "
-                #else:
-                #    s += str(move_no) +"."
                     move_no += 1
                 for san in pv_san:
                     if(white_moves):
@@ -77,7 +67,6 @@ class EngineInfo(object):
                 return s
             else:
                 return ""
-            #return "".join(pv_san)
 
     def update_from_string(self,line,fen=None):
         if(not fen==None):
@@ -86,65 +75,43 @@ class EngineInfo(object):
                 self.turn = b.turn
             except ValueError:
                 pass
-        #print("RECEIVED ALL"+line)
-        #print("\n")
         lines = line.split("\n")
         line = ""
         start = len(lines) - 1
-        stop = max(start-10,0)
         for i in range(start,-1,-1):
-            #print("i: "+str(i))
             line += lines[i]+"\n"
-        #line = lines[len(lines)-1]
-        #print("LINE:"+line)
         cp = self.SCORECP.search(line)
-        contains_cp = False
         if(cp):
-            contains_cp = True
             self.mate = None
             score = float(cp.group()[9:])/100.0
             if(self.turn == BLACK and score != 0):
                 self.score = -score
             else:
                 self.score = score
-            #print("score: "+str(score))
-            emit_info = True
         nps = self.NPS.search(line)
         if(nps):
             knps = int(nps.group()[4:])//1000
             self.nps = knps
-            emit_info = True
         depth = self.DEPTH.search(line)
         if(depth):
             d = int(depth.group()[6:])
             self.depth = d
-            #self.mate = None
-            emit_info = True
         mate = self.MATE.search(line)
         if(mate):
-            #print("found mate"+str(mate.group()))
-            # if score update was done
-            # ma
-            #if(not contains_cp):
-                #print("setting mate since no cp")
             m = int(mate.group()[11:])
             self.mate = m
-            emit_info = True
         cmn = self.CURRMOVENUMBER.search(line)
         if(cmn):
             n = int(cmn.group()[15])
             self.currmovenumber = n
-            emit_info = True
         cm = self.CURRMOVE.search(line)
         if(cm):
             move = cm.group()[9:]
             self.currmove = move
-            emit_info = True
         pv = self.PV.search(line)
         if(pv):
             moves = pv.group()[3:]
             self.pv = moves
-            #print("...and I have found: "+moves)
             # if this a pv line, modify to include
             # moves numbers
             if(self.no_game_halfmoves):
@@ -152,50 +119,10 @@ class EngineInfo(object):
             self.pv_arr = moves.split(" ")
             if(fen != None):
                 self.san_arr = (fen, moves.split(" "))
-            emit_info = True
-            #print("pv original:"+str(moves))
-            #print("pv split:"+str(moves.split(" ")))
         id = self.IDNAME.search(line)
         if(id):
             engine_name = id.group()[8:].split("\n")[0]
-            #print("rec: "+engine_name+"end")
             self.id = engine_name
-            emit_info = True
-        #if(emit_info): pass
-            #print("emitting: "+str(self.info))
-            #self.emit(SIGNAL("newinfo(PyQt_PyObject)"),copy.deepcopy(self.info))
-
-
-
-    def add_move_numbers_to_info(self):
-        replaced_all = False
-        move_no = (self.no_game_halfmoves//2)+1
-        white_moves = True
-        s = ""
-        if(self.no_game_halfmoves % 2 == 1):
-            s += str(move_no)+". ...?"+self.pv[:]
-            move_no += 1
-        else:
-            white_moves = False
-            s += str(move_no) +"."+self.pv[:]
-        while(replaced_all == False):
-            mv = self.MOVE.search(s)
-            if(mv):
-                idx = mv.start()
-                if(white_moves):
-                    s = s[:(idx)] + " "+str(move_no) + "."+ s[(idx+1):]
-                else:
-                    move_no += 1
-                    s = s[:(idx)] + "?"+\
-                                           s[(idx+1):]
-                white_moves = not white_moves
-            else:
-                replaced_all = True
-        #print(s)
-        s = s.replace('?',' ')
-        return s
-
-
 
     def __str__(self):
         outstr = '<table width="100%"><tr>'
@@ -211,7 +138,6 @@ class EngineInfo(object):
             else:
                 outstr += "#"+str(self.mate)
         elif(self.score != None):
-            #if(self.score != 0.0):
             outstr += '%.2f' % (self.score)
         outstr += '</td><td width="36%">'
         if(self.currmovenumber and self.currmove):
@@ -227,11 +153,7 @@ class EngineInfo(object):
             outstr += str(self.nps)+" kn/s"
         outstr += '</td></tr><tr></tr><tr><td colspan="3" align="left">'
         if(self.pv):
-            #if(self.board != None):
-            #outstr += self.pv
-            #else:
             if(not self.mate == 0):
                 outstr += self.pv_to_san()
         outstr += '</td></tr></table>'
-        print("SELF STRENGTH:"+str(self.strength))
         return outstr

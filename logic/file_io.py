@@ -50,14 +50,7 @@ def save_to_pgn(mainWidget):
         except (OSError, IOError) as e:
             save_as_to_pgn(mainWidget)
 
-    #filename = QFileDialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
-    #if(filename):
-    #    f = open(filename,'w')
-    #    print(gamestate.current.root(), file=f, end="\n\n")
-    #    mainWidget.movesEdit.setFocus()
 
-
-#QFileDialog.DontConfirmOverwrite
 def save_as_to_pgn(mainWidget):
     gamestate = mainWidget.gs
     dialog = QFileDialog()
@@ -90,20 +83,15 @@ def init_game_tree(mainWindow, root):
         temp = temp.variations[0]
         mainline_nodes.append(temp)
     cnt = len(mainline_nodes)
-    #print(cnt)
-    #print(str(mainline_nodes))
     pDialog = QProgressDialog("Initializing Game Tree",None,0,cnt,mainWindow)
     pDialog.setWindowModality(Qt.WindowModal)
     pDialog.show()
     QApplication.processEvents()
-    print("showing pdialog")
     for i,n in enumerate(mainline_nodes):
-        #print("step:"+str(i)+" "+str(n))
         QApplication.processEvents()
         pDialog.setValue(i)
         if(i > 0 and i % 25 == 0):
             _ = n.cache_board()
-    #pDialog.hide()
     pDialog.close()
 
 def open_pgn(mainWindow):
@@ -119,22 +107,13 @@ def open_pgn(mainWindow):
         gamestate.current = first_game
         chessboardview.update()
         chessboardview.emit(SIGNAL("statechanged()"))
-        #self.movesEdit.bv = self
         gamestate.pgn_filename = filename
         mainWindow.save_game.setEnabled(True)
         mainWindow.setLabels()
         mainWindow.movesEdit.setFocus()
         pgn.close()
         gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
-        print("GAME INIT")
         init_game_tree(mainWindow,gamestate.current.root())
-        print("END GAME INIT")
-
-
-        #end = gamestate.current.end()
-        #b = end.board()
-        #self.movesEdit.update_san()
-        #self.movesEdit.setFocus()
 
 def is_position_in_book(node):
     with open_reader("./books/varied.bin") as reader:

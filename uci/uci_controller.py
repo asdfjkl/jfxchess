@@ -18,21 +18,16 @@ class Uci_controller(QObject):
         self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
         self.connect(self.uci_worker,SIGNAL("info(PyQt_PyObject)"),self.on_info)
         self.connect(self.uci_worker,SIGNAL("on_error(QString)"),self.on_error)
-
         self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
         self.connect(self,SIGNAL("new_fen(QString)"),self.uci_worker.update_fen)
-        #self.emit(SIGNAL("foobar"))
 
+        # needed to keep reference? #todo
         self.foobar = self.uci_worker.process
 
         self.timer.moveToThread(self.thread)
         self.uci_worker.moveToThread(self.thread)
-        #self.uci_worker.process.moveToThread(self.thread)
-
-        #self.emit(SIGNAL("foobar"))
 
         self.thread.start()
-        print("thread started")
 
     def on_error(self,msg):
         pass
@@ -51,7 +46,6 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"quit")
 
     def start_engine(self,path):
-        #print("starting engine "+path)
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
     def reset_engine(self,path):
@@ -62,7 +56,6 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
 
     def uci_send_position(self,uci_string):
-        #print("sending"+uci_string)
         self.emit(SIGNAL("new_command(QString)"),uci_string)
 
     def uci_ok(self):
