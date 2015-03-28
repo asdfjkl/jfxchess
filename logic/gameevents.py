@@ -278,6 +278,7 @@ def add_variant_from_pv(root, move, uci_list):
     root.add_variation(chess.Move.from_uci(uci_move))
     # enforce repainting main variation if exists
     if(len(root.variations)>0 and len(root.variations[0].variations)>0):
+        root.variations[0].invalidate = True
         root.variations[0].variations[0].invalidate = True
     root = root.variations[1]
     for i in range(1,len(uci_list)):
@@ -384,6 +385,7 @@ def on_bestmove(mainWindow,move):
         if(gs.current.parent):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
+                gs.current.parent.invalidate = True
                 display_mbox("Game Analysis Finished","The analysis is finished.")
                 on_enter_moves_mode(mainWindow)
             else:
