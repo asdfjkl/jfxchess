@@ -41,33 +41,35 @@ class EngineInfo(object):
         if(self.san_arr == None):
             return ""
         else:
-            pv_san = []
-            board = Bitboard(self.san_arr[0])
-            moves = self.san_arr[1]
-            for uci in moves:
-                move = Move.from_uci(uci)
-                if(move in board.pseudo_legal_moves):
-                    pv_san.append(board.san(move))
-                    board.push(move)
-            if(len(pv_san) > 0):
-                s = ""
-                white_moves = True
-                move_no = (self.no_game_halfmoves//2)+1
-                if(self.no_game_halfmoves % 2 == 1):
-                    white_moves = False
-                    s += str(move_no)+". ... "
-                    move_no += 1
-                for san in pv_san:
-                    if(white_moves):
-                        s += " "+str(move_no)+". "+san
-                        move_no +=1
-                    else:
-                        s += " "+san
-                    white_moves = not white_moves
-                return s
-            else:
+            try:
+                pv_san = []
+                board = Bitboard(self.san_arr[0])
+                moves = self.san_arr[1]
+                for uci in moves:
+                    move = Move.from_uci(uci)
+                    if(move in board.pseudo_legal_moves):
+                        pv_san.append(board.san(move))
+                        board.push(move)
+                if(len(pv_san) > 0):
+                    s = ""
+                    white_moves = True
+                    move_no = (self.no_game_halfmoves//2)+1
+                    if(self.no_game_halfmoves % 2 == 1):
+                        white_moves = False
+                        s += str(move_no)+". ... "
+                        move_no += 1
+                    for san in pv_san:
+                        if(white_moves):
+                            s += " "+str(move_no)+". "+san
+                            move_no +=1
+                        else:
+                            s += " "+san
+                        white_moves = not white_moves
+                    return s
+                else:
+                    return ""
+            except ValueError:
                 return ""
-
     def update_from_string(self,line,fen=None):
         if(not fen==None):
             try:
@@ -114,8 +116,8 @@ class EngineInfo(object):
             self.pv = moves
             # if this a pv line, modify to include
             # moves numbers
-            if(self.no_game_halfmoves):
-                self.pv = self.add_move_numbers_to_info()
+            #if(self.no_game_halfmoves):
+            #    self.pv = self.add_move_numbers_to_info()
             self.pv_arr = moves.split(" ")
             if(fen != None):
                 self.san_arr = (fen, moves.split(" "))

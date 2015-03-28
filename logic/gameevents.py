@@ -169,7 +169,7 @@ def on_playout_pos(mainWindow):
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-    mainWindow.send_fen(fen)
+    #mainWindow.send_fen(fen)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
     mainWindow.gs.engine_info.strength = None
