@@ -11,6 +11,8 @@ class Uci_worker(QObject):
 
     MOVES = re.compile('\s[a-z]\d[a-z]\d([a-z]{0,1})')
     BESTMOVE = re.compile('bestmove\s[a-z]\d[a-z]\d[a-z]{0,1}')
+    STRENGTH = re.compile('Skill Level value \d+')
+
 
     def __init__(self,parent=None):
         super(Uci_worker,self).__init__(parent)
@@ -34,6 +36,7 @@ class Uci_worker(QObject):
                 path = msg.split("?")[1]
                 print("path: "+path)
                 self.process.start(path+"\n")
+                self.engine_info.strength = None
 
                 #self.process.write(bytes(("go infinite\n"),"utf-8"))
         elif(self.process.state() == QProcess.Running):
@@ -76,6 +79,13 @@ class Uci_worker(QObject):
                     print("sending go infinite")
                     self.go_infinite = True
                     self.process.write(bytes(("go infinite\n"),"utf-8"))
+                    self.process.waitForBytesWritten()
+                elif(msg.startswith("setoption name Skill Level")):
+                    m = self.STRENGTH.search(msg)
+                    if(m):
+                        print(str(m.group()[18:]))
+                        self.engine_info.strength = 1200+int(m.group()[18:])*100
+                    self.process.write(bytes(msg+"\n","utf-8"))
                     self.process.waitForBytesWritten()
                 else:
                     #if(msg.startswith("quit")):
