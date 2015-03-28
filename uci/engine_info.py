@@ -81,8 +81,11 @@ class EngineInfo(object):
 
     def update_from_string(self,line,fen=None):
         if(not fen==None):
-            b = Bitboard(fen)
-            self.turn = b.turn
+            try:
+                b = Bitboard(fen)
+                self.turn = b.turn
+            except ValueError:
+                pass
         #print("RECEIVED ALL"+line)
         #print("\n")
         lines = line.split("\n")
@@ -198,7 +201,7 @@ class EngineInfo(object):
         outstr = '<table width="100%"><tr>'
         if(self.id):
             if(self.strength):
-                outstr += '<th colspan="3" align="left">'+self.id+" (Level "+self.strength+")</th>"
+                outstr += '<th colspan="3" align="left">'+self.id+" (Level "+str(self.strength)+")</th>"
             else:
                 outstr += '<th colspan="3" align="left">'+self.id+"</th>"
         outstr += '</tr><tr></tr><tr><td width="33%">'
@@ -230,4 +233,5 @@ class EngineInfo(object):
             if(not self.mate == 0):
                 outstr += self.pv_to_san()
         outstr += '</td></tr></table>'
+        print("SELF STRENGTH:"+str(self.strength))
         return outstr

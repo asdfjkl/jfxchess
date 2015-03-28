@@ -28,7 +28,7 @@ def on_strength_level(mainWindow):
         elif(val == 7):
             gamestate.computer_think_time = 30
         gamestate.computer_think_time = gamestate.computer_think_time*1000
-    if(not gamestate.mode == MODE_ENTER_MOVES):
+    if(gamestate.mode == MODE_PLAY_WHITE or gamestate.mode == MODE_PLAY_BLACK):
         engine.uci_strength(gamestate.strength_level)
 
 
