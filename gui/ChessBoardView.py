@@ -124,7 +124,6 @@ class ChessboardView(QWidget):
         return uci
 
     def executeMove(self, uci):
-        print("executing")
         temp = self.gs.current
         self.gs.current.invalidate = True
         move = chess.Move.from_uci(uci)
@@ -163,7 +162,6 @@ class ChessboardView(QWidget):
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
             display_mbox("Threefold repetition.","The game is drawn!")
             self.emit(SIGNAL("drawn"))
-            print("foo")
         if(self.gs.mode == MODE_ANALYSIS):
             fen, uci_string = self.gs.printer.to_uci(self.gs.current)
             self.engine.send_fen(fen)
@@ -206,9 +204,7 @@ class ChessboardView(QWidget):
             self.engine.send_fen(fen)
             self.engine.uci_send_position(uci_string)
             self.engine.uci_go_movetime(self.gs.computer_think_time)
-        print("emitting statechange")
         self.update()
-        print("self. update finished")
         self.emit(SIGNAL("statechanged()"))
 
 
@@ -307,9 +303,7 @@ class ChessboardView(QWidget):
         return (boardSize,squareSize)
 
     def on_statechanged(self):
-        start = time.clock()
         self.update()
-        print("cbv updated: "+str(time.clock() - start))
 
 
     def drawBoard(self, event, qp):

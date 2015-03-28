@@ -4,7 +4,6 @@ from gui.GUIPrinter import GUIPrinter
 from dialogs.DialogWithListView import DialogWithListView
 from dialogs.DialogWithPlaintext import DialogWithPlainText
 from logic.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
-import time
 
 class MovesEdit(QTextEdit):
 
@@ -155,7 +154,6 @@ class MovesEdit(QTextEdit):
         offset = self.old_cursor_pos
         selected_state = self._get_state_from_offset(offset)
         if(selected_state != None and selected_state.parent != None):
-            print("inner")
             variations = selected_state.parent.variations
             idx = variations.index(selected_state)
             if(idx > 0):
@@ -220,12 +218,9 @@ class MovesEdit(QTextEdit):
         text = self.gs.printer.to_san_html(self.gs.current)
         offset_index = self.gs.printer.offset_table
         j = 0
-        start = time.clock()
         for i in range(0,len(offset_index)):
             if(offset>= offset_index[i][0] and offset<= offset_index[i][1]):
                 j = i
-        #your code here
-        print("get state from offset: "+str(time.clock() - start))
         try:
             return offset_index[j][2]
         except IndexError:
@@ -234,72 +229,46 @@ class MovesEdit(QTextEdit):
     def _get_offset_for_current_state(self):
         offset_index = self.gs.printer.offset_table
         idx = 0
-        start = time.clock()
         for i in range(0,len(offset_index)):
             if(offset_index[i][2] == self.gs.current):
                 idx = offset_index[i][0]
-        #your code here
-        print("get offset from state: "+str(time.clock() - start))
         return idx
 
     def go_to_pos(self,cursor_pos):
         offset = self.textCursor().position()
         if(cursor_pos > 0):
             if(offset != self.old_cursor_pos):
-                start = time.clock()
-
                 self.old_cursor_pos = offset
                 selected_state = self._get_state_from_offset(cursor_pos)
                 self.gs.current = selected_state
                 self.emit(SIGNAL("statechanged()"))
                 scroll_pos = self.verticalScrollBar().value()
-                print("max before :" + str(self.verticalScrollBar().maximum()))
                 self.setHtml(self.gs.printer.to_san_html(self.gs.current))
                 mini = max(scroll_pos,self.verticalScrollBar().maximum())
-                print("min: "+str(mini))
 
-                print("computing idx finished")
                 cursor = self.textCursor()
                 idx = self._get_offset_for_current_state()
                 cursor.setPosition(idx)
                 self.setTextCursor(cursor)
                 self.verticalScrollBar().setValue(scroll_pos)
-                print("max after :" + str(self.verticalScrollBar().maximum()))
-                print(scroll_pos)
-                print(self.verticalScrollBar().value())
-                #self.update_san()
-                #self.ensureCursorVisible()
-                print("go to pos: "+str(time.clock() - start))
                 QApplication.processEvents()
-                #self.update()
-
-
 
 
     def on_statechanged(self):
         self.update_san()
 
     def update_san(self):
-        print("update san was called")
         scroll_pos = self.verticalScrollBar().value()
-        print("printing html")
         txt = self.gs.printer.to_san_html(self.gs.current)
-        #txt = "foo"
-        print("printing html 222222")
         self.setHtml(txt)
-        print("html printing finished")
         self.verticalScrollBar().setValue(scroll_pos)
-        print("computing idx")
         idx = self._get_offset_for_current_state()
-        print("computing idx finished")
         cursor = self.textCursor()
         cursor.setPosition(idx)
         self.setTextCursor(cursor)
         self.update()
-        print("update san finished")
 
     def keyPressEvent(self, event):
-        print(self.verticalScrollBar().value())
         mode = self.gs.mode
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             key = event.key()

@@ -54,7 +54,7 @@ class DisplayBoard(QWidget):
 
     def mousePressEvent(self, mouseEvent):
         pos = self.getBoardPosition(mouseEvent.x(), mouseEvent.y())
-        print(str(pos))
+        #print(str(pos))
 
     def getBoardPosition(self,x,y):
         (boardSize,squareSize) = self.calculateBoardSize()

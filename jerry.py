@@ -10,7 +10,6 @@ from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES
 from dialogs.DialogAbout import DialogAbout
 from uci.uci_controller import Uci_controller
-import gc
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -18,7 +17,6 @@ from  PyQt4.QtCore import *
 from functools import partial
 import pickle
 from util.appdirs import *
-from util.messages import display_mbox
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -27,9 +25,6 @@ class MainWindow(QMainWindow):
         self.resize(800, 470)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
-
-        print("jerry id:"+str(QCoreApplication.applicationPid()))
-
 
         exit = QAction(QIcon('icons/exit.png'), 'Exit', self)
         exit.setShortcut('Ctrl+Q')
@@ -40,7 +35,6 @@ class MainWindow(QMainWindow):
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
         self.engine_fn = os.path.dirname(os.path.realpath(sys.argv[0]))
-        #display_mbox("filename",self.engine_fn)
         # get filename of engine depending on os
         if sys.platform == 'win32':
             self.engine_fn += "/engine/stockfish.exe"
@@ -120,7 +114,6 @@ class MainWindow(QMainWindow):
         save_game_as.setShortcut(QKeySequence.SaveAs)
         save_game_as.triggered.connect(partial(file_io.save_as_to_pgn,self))
         append_game = m_file.addAction("Append to ...")
-        #append_game.setShortcut(QKeySequence.SaveAs)
         append_game.triggered.connect(partial(file_io.append_to_pgn,self))
         m_file.addSeparator()
         save_diag = m_file.addAction("Save Position as Image")
@@ -211,7 +204,6 @@ class MainWindow(QMainWindow):
         about = m_help.addAction("About")
         about.triggered.connect(self.show_about)
         m_help.addSeparator()
-        # self.connect(action2, QtCore.SIGNAL('triggered()'), QtCore.SLOT(board.flip_board()))
 
         self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
@@ -221,9 +213,6 @@ class MainWindow(QMainWindow):
         self.connect(self.engine, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
         self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
         self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
-
-        #self.engine.start_engine(self.engine_fn)
-        #self.engine.uci_go_infinite()
 
     def set_display_info(self):
         if(self.display_info.isChecked()):
@@ -253,7 +242,6 @@ class MainWindow(QMainWindow):
 
 
 
-
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe, py2app...
     return hasattr(sys, "frozen")
@@ -269,17 +257,12 @@ def about_to_quit():
         if not os.path.exists(main.save_state_dir):
             os.makedirs(main.save_state_dir)
         with open(main.save_state_dir+"/current.raw",'wb') as f:
-        #    print(main.gs.current.root(), file=f, end="\n\n")
             pickle.dump(main.gs,f)
         f.close()
-        #with open("current.fen",'w') as f:
-        #    print(main.gs.current.board().fen(),file=f)
     except BaseException as e:
         print(e)
         pass
 
-
-#gc.disable()
 
 sys.setrecursionlimit(3000)
 
