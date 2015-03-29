@@ -1,6 +1,10 @@
 Bugs/Important Issues
 - - - - - - - - - - -
 
+- cursor should be set to offset + 1 in order
+  to ensure that move after variant (newline)
+  is visible
+
 - "reset" to get init pos in edit menu
 
 - remove _all_ printers
