@@ -65,7 +65,7 @@ class Uci_worker(QObject):
                 elif(msg.startswith("setoption name Skill Level")):
                     m = self.STRENGTH.search(msg)
                     if(m):
-                        print(str(m.group()[18:]))
+                        #print(str(m.group()[18:]))
                         self.engine_info.strength = 1200+int(m.group()[18:])*100
                     self.process.write(bytes(msg+"\n","utf-8"))
                     self.process.waitForBytesWritten()
