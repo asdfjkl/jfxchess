@@ -23,6 +23,10 @@ to be fixed before Version 2.0
 Version 2.0
 - - - - - -
 
+* internationalization: +German, +Japanese
+  for menus and config (but either keep SAN in english,
+  or replace for gui with symbols)
+
 * Game Browser for PGN files below main window
   should have various filter search options, e.g.
   filter by all header tags of pgn, (and probably
@@ -69,13 +73,7 @@ Long Term Roadmap
 
 - load full pgn files, not just first game
 
-- engine output should show SAN or
-  full algebraic notation, not 
-  raw engine output
-
 - FICS/ICC support
-
-- internationalization
 
 - use more frequently statusbar for messages
 
