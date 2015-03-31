@@ -611,7 +611,7 @@ class StringExporter(object):
     def return_fullmove_number(self, turn, fullmove_number, variation_start):
         s = ""
         if turn == chess.WHITE:
-            return str(fullmove_number) + ". "
+            return str(fullmove_number) + "."
         elif variation_start:
             return str(fullmove_number) + ". ... "
         else:
