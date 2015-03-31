@@ -1,27 +1,10 @@
-Bugs/Important Issues
-- - - - - - - - - - -
-
-- cursor should be set to offset + 1 in order
-  to ensure that move after variant (newline)
-  is visible
+Bugs/Important Issues/General Issues
+- - - - - - - - - - - - - - - - - - -
+to be fixed before Version 2.0
 
 - "reset" to get init pos in edit menu
 
-- remove _all_ printers
-
-- add "cache" with text repr. of each game node
-
-- add bool trigger redraw to each game node
-
-- rewrite gui printer with that
-
-- remove printers
-
-- play as black not working
-
 - check jpg extension (similar to pgn) when saving position as image
-
-- colon/spacing with current move in display window
 
 - priority level of qprocess: currently doesn't work on windows due to qt bug
   solution: port to pyqt5
@@ -34,17 +17,28 @@ Bugs/Important Issues
   is this really an issue, when engine process
   is set to be lower than gui?
 
-- crash when quickly changing between analysis and enter moves mode
-
 - testing in general; code refactoring
   removing printers, more comments
 
-- san instead of fan in analysis window
+Version 2.0
+- - - - - -
 
-- mate#0; don't display anything except checkmate in analysis window
+* Game Browser for PGN files below main window
+  should have various filter search options, e.g.
+  filter by all header tags of pgn, (and probably
+  step by step moves?)
+  needs some indexer for large pgn databases
 
-- fix bug wrt engine update
+* ECO classification for new/loaded games
 
+* timed games
+
+* ability to switch (for analysis) to another
+  game engine
+
+* choose your own board colors
+
+... and probably some of the next ones:
 
 Long Term Roadmap
 - - - - - - - - - - -
