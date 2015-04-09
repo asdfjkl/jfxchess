@@ -160,6 +160,8 @@ class MovesEdit(QTextEdit):
                 temp = variations[idx-1]
                 variations[idx] = temp
                 variations[idx-1] = selected_state
+                selected_state.invalidate = True
+                temp.invalidate = True
         self.update_san()
 
     def variant_down(self):
@@ -172,6 +174,8 @@ class MovesEdit(QTextEdit):
                 temp = variations[idx+1]
                 variations[idx] = temp
                 variations[idx+1] = selected_state
+                selected_state.invalidate = True
+                temp.invalidate = True
         self.update_san()
 
     def delete_from_here(self):
