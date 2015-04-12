@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # classes from Jerry:
 from gui.MovesEdit import MovesEdit
