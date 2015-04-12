@@ -1,4 +1,7 @@
 #!/bin/bash
+rm -r -f release
+mkdir release
+
 mkdir release/jerry_linux_x32
 cp jerry.py ./release/jerry_linux_x32/
 
@@ -61,3 +64,24 @@ cp logic/*.py ./release/jerry_linux_x64/logic
 
 tar -zcvf ./release/jerry_linux_x86.tar.gz ./release/jerry_linux_x32
 tar -zcvf ./release/jerry_linux_x64.tar.gz ./release/jerry_linux_x64
+
+# now build the debian package
+# edit the name of the control file to
+# control the resulting architecture.
+# here we only build for i386, since we 
+# can't build for amd64 on an i386 system
+# and vice-versa
+mkdir release/jerry
+mkdir release/jerry/DEBIAN
+mkdir release/jerry/usr
+mkdir release/jerry/usr/bin
+mkdir release/jerry/usr/share
+mkdir release/jerry/usr/share/applications
+mkdir release/jerry/usr/share/jerry
+cp -r release/jerry_linux_x32/* release/jerry/usr/share/jerry/
+cp debian_package_files/jerry.desktop release/jerry/usr/share/applications/
+cp debian_package_files/control_i386 release/jerry/DEBIAN/control
+chmod u+x release/jerry/usr/share/jerry/jerry.py
+cd release/
+dpkg-deb -b jerry .
+cd ..
