@@ -1,4 +1,4 @@
-python3 setup.py py2app --includes "sip"
+/opt/local/bin/python3.4 setup.py py2app --includes "sip"
 cp -R res dist/Jerry.app/Contents/Resources/
 cp -R books dist/Jerry.app/Contents/Resources/
 cp -R engine dist/Jerry.app/Contents/Resources/
