@@ -46,7 +46,7 @@ class MainWindow(QMainWindow):
 
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
-        appname = 'jerry'
+        appname = 'jerry102'
         appauthor = 'dkl'
         fn = user_data_dir(appname, appauthor)
         self.save_state_dir = fn
@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         mainWidget.setLayout(hbox)
         self.setCentralWidget(mainWidget)
         statusbar = self.statusBar()
-        statusbar.showMessage('Jerry v1.01')
+        statusbar.showMessage('Jerry v1.02')
 
         # set labels of game (i.e. player etc.) above move editing panel
         self.setLabels()
