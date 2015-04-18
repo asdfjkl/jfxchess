@@ -1,0 +1,2 @@
+echo "Removing files that couldn't be removed by dpkg..."
+rm -r -f /usr/share/jerry

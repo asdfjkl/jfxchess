@@ -82,7 +82,7 @@ cp -r release/jerry_linux_x32/* release/jerry/usr/share/jerry/
 cp debian_package_files/jerry.desktop release/jerry/usr/share/applications/
 cp debian_package_files/jerry release/jerry/usr/bin/
 cp debian_package_files/control_i386 release/jerry/DEBIAN/control
-cp debian_package_files/postinst release/jerry/DEBIAN/postinst
+cp debian_package_files/postrm release/jerry/DEBIAN/postrm
 chmod u+x release/jerry/usr/share/jerry/jerry.py
 cd release/
 dpkg-deb -b jerry .
