@@ -2,7 +2,7 @@
 Version=1.0
 Name=Jerry - Chess
 Comment=Jerry is a chess program build around the powerful chess engine Stockfish
-Exec=/usr/share/jerry/jerry.py
+Exec=/usr/bin/jerry/
 Path=/usr/share/jerry
 Icon=/usr/share/jerry/res/icons_taskbar/icon256.png
 Terminal=false
