@@ -80,6 +80,7 @@ mkdir release/jerry/usr/share/applications
 mkdir release/jerry/usr/share/jerry
 cp -r release/jerry_linux_x32/* release/jerry/usr/share/jerry/
 cp debian_package_files/jerry.desktop release/jerry/usr/share/applications/
+cp debian_package_files/jerry release/jerry/usr/bin/
 cp debian_package_files/control_i386 release/jerry/DEBIAN/control
 chmod u+x release/jerry/usr/share/jerry/jerry.py
 cd release/
