@@ -18,6 +18,12 @@ from functools import partial
 import pickle
 from util.appdirs import *
 
+import gettext
+gettext.install('jerry')
+#t = gettext.translation('APPNAME', "./locales") # where does gettext find the language files
+#_ = t.ugettext # definition of strings to be translated
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
