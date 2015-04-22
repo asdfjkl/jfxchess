@@ -22,6 +22,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
+        print(self.tr("foobar"))
+
         self.resize(800, 470)
         self.setWindowTitle('Jerry - Chess')
         self.centerOnScreen()
@@ -267,6 +269,13 @@ def about_to_quit():
 sys.setrecursionlimit(3000)
 
 app = QApplication(sys.argv)
+
+#load localization
+translator = QTranslator(app)
+translator.load("jerry_jp.qm","i18n/ts/")
+app.installTranslator(translator)
+
+
 main = MainWindow()
 
 # set app icon
