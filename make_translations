@@ -1,0 +1,3 @@
+#!/bin/sh
+pylupdate4-3.4 jerry.pro 
+lrelease i18n/ts/jerry_jp.ts 
