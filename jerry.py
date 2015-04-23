@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        print(self.tr("foobar"))
+        print(self.trUtf8("foobar"))
 
         self.resize(800, 470)
         self.setWindowTitle('Jerry - Chess')
