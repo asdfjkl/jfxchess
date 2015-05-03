@@ -178,7 +178,7 @@ class DialogEnterPosition(QDialog):
         super(DialogEnterPosition, self).__init__(parent)
         #self.resize(600, 400)
 
-        self.setWindowTitle("Enter Position")
+        self.setWindowTitle(self.trUtf8("Enter Position"))
 
         self.displayBoard = DisplayBoard(self.deep_copy_board_pos(board),self)
 
@@ -189,11 +189,11 @@ class DialogEnterPosition(QDialog):
         else:
             self.current = Bitboard()
 
-        self.cbWhiteShort = QCheckBox("White O-O")
-        self.cbWhiteLong = QCheckBox("White O-O-O")
-        self.cbBlackShort = QCheckBox("Black O-O")
-        self.cbBlackLong = QCheckBox("Black O-O-O")
-        grpBox_castle = QGroupBox("Castling Rights")
+        self.cbWhiteShort = QCheckBox(self.trUtf8("White O-O"))
+        self.cbWhiteLong = QCheckBox(self.trUtf8("White O-O-O"))
+        self.cbBlackShort = QCheckBox(self.trUtf8("Black O-O"))
+        self.cbBlackLong = QCheckBox(self.trUtf8("Black O-O-O"))
+        grpBox_castle = QGroupBox(self.trUtf8("Castling Rights"))
         vbox_castle = QVBoxLayout()
         vbox_castle.addWidget(self.cbWhiteShort)
         vbox_castle.addWidget(self.cbWhiteLong)
@@ -202,18 +202,18 @@ class DialogEnterPosition(QDialog):
         vbox_castle.addStretch(1)
         grpBox_castle.setLayout(vbox_castle)
 
-        self.rbWhite = QRadioButton("White To Move")
-        self.rbBlack = QRadioButton("Black To Move")
-        grpBox_turn = QGroupBox("Turn")
+        self.rbWhite = QRadioButton(self.trUtf8("White To Move"))
+        self.rbBlack = QRadioButton(self.trUtf8("Black To Move"))
+        grpBox_turn = QGroupBox(self.trUtf8("Turn"))
         vbox_radio = QVBoxLayout()
         vbox_radio.addWidget(self.rbWhite)
         vbox_radio.addWidget(self.rbBlack)
         vbox_radio.addStretch(1)
         grpBox_turn.setLayout(vbox_radio)
 
-        self.buttonInit = QPushButton("Initial Position")
-        self.buttonClear = QPushButton("Clear Board")
-        self.buttonCurrent = QPushButton("Current Position")
+        self.buttonInit = QPushButton(self.trUtf8("Initial Position"))
+        self.buttonClear = QPushButton(self.trUtf8("Clear Board"))
+        self.buttonCurrent = QPushButton(self.trUtf8("Current Position"))
 
         vbox_config = QVBoxLayout()
         vbox_config.addWidget(grpBox_castle)

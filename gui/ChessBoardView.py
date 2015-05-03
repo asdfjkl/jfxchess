@@ -151,16 +151,16 @@ class ChessboardView(QWidget):
         #self.movesEdit.update_san()
         # check if game is drawn, or checkmate due to various conditions
         if(self.gs.current.board().is_checkmate()): # due to checkmate
-            display_mbox("Checkmate","The game is over!")
+            display_mbox(self.trUtf8("Checkmate"),self.trUtf8("The game is over!"))
             self.emit(SIGNAL("checkmate"))
         elif(self.gs.current.board().is_stalemate()): # due to stalemate
-            display_mbox("Stalemate","The game is drawn!")
+            display_mbox(self.trUtf8("Stalemate"),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().is_insufficient_material()): # due to insufficient material
-            display_mbox("Insufficient material to win.","The game is drawn!")
+            display_mbox(self.trUtf8("Insufficient material to win."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
-            display_mbox("Threefold repetition.","The game is drawn!")
+            display_mbox(self.trUtf8("Threefold repetition."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         if(self.gs.mode == MODE_ANALYSIS):
             fen, uci_string = self.gs.printer.to_uci(self.gs.current)

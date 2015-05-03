@@ -6,7 +6,7 @@ class DialogWithListView(QDialog):
     def __init__(self, moveList, parent=None):
         super(DialogWithListView, self).__init__(parent)
 
-        self.setWindowTitle("Next Move")
+        self.setWindowTitle(self.trUtf8("Next Move"))
 
         self.resize(20, 40)
 

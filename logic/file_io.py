@@ -22,7 +22,7 @@ def print_position(q_widget):
         del painter
 
 def save_image(q_widget):
-    filename = QFileDialog.getSaveFileName(q_widget, 'Save Image', None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
+    filename = QFileDialog.getSaveFileName(q_widget, q_widget.trUtf8('Save Image'), None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
     if(filename):
         p = QPixmap.grabWindow(q_widget.board.winId())
         p.save(filename,'jpg')
@@ -30,7 +30,7 @@ def save_image(q_widget):
 
 def append_to_pgn(q_widget):
     gamestate = q_widget.gs
-    filename = QFileDialog.getSaveFileName(q_widget, 'Append to PGN', None,
+    filename = QFileDialog.getSaveFileName(q_widget, q_widget.tr('Append to PGN'), None,
                                            'PGN (*.pgn)', QFileDialog.DontUseNativeDialog | QFileDialog.DontConfirmOverwrite)
     if(filename):
         f = open(filename,'a')
@@ -56,7 +56,7 @@ def save_as_to_pgn(mainWidget):
     dialog = QFileDialog()
     if(gamestate.last_save_dir != None):
         dialog.setDirectory(gamestate.last_save_dir)
-    filename = dialog.getSaveFileName(mainWidget, 'Save PGN', None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+    filename = dialog.getSaveFileName(mainWidget, mainWidget.trUtf8('Save PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
@@ -83,7 +83,7 @@ def init_game_tree(mainWindow, root):
         temp = temp.variations[0]
         mainline_nodes.append(temp)
     cnt = len(mainline_nodes)
-    pDialog = QProgressDialog("Initializing Game Tree",None,0,cnt,mainWindow)
+    pDialog = QProgressDialog(mainWindow.self.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
     pDialog.setWindowModality(Qt.WindowModal)
     pDialog.show()
     QApplication.processEvents()
@@ -100,7 +100,7 @@ def open_pgn(mainWindow):
     dialog = QFileDialog()
     if(gamestate.last_open_dir != None):
         dialog.setDirectory(gamestate.last_open_dir)
-    filename = dialog.getOpenFileName(chessboardview, 'Open PGN', None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
+    filename = dialog.getOpenFileName(chessboardview, mainWindow.self.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     if(filename):
         pgn = open(filename)
         first_game = chess.pgn.read_game(pgn)

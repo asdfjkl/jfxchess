@@ -5,13 +5,13 @@ class DialogNewGame(QDialog):
 
     def __init__(self, parent=None,gamestate=None):
         super(DialogNewGame,self).__init__(parent)
-        self.setWindowTitle("New Game")
+        self.setWindowTitle(self.trUtf8("New Game"))
 
-        self.rb_plays_white = QRadioButton("White")
-        self.rb_plays_black = QRadioButton("Black")
+        self.rb_plays_white = QRadioButton(self.trUtf8("White"))
+        self.rb_plays_black = QRadioButton(self.trUtf8("Black"))
         self.rb_plays_white.setChecked(True)
 
-        lbl_choose_side = QLabel("Choose your side:")
+        lbl_choose_side = QLabel(self.trUtf8("Choose your side:"))
         btnGroupSide = QButtonGroup(self)
         btnGroupSide.addButton(self.rb_plays_white)
         btnGroupSide.addButton(self.rb_plays_black)
@@ -21,7 +21,7 @@ class DialogNewGame(QDialog):
         hboxSide.addWidget(self.rb_plays_black)
         hboxSide.setAlignment(Qt.AlignLeft)
 
-        lbl_elo = QLabel("Computer Strength")
+        lbl_elo = QLabel(self.trUtf8("Computer Strength"))
         lbl_elo.setAlignment(Qt.AlignBottom)
         self.lbl_elo_value = QLabel("1500")
         hboxSlider_elo = QHBoxLayout()
@@ -33,11 +33,11 @@ class DialogNewGame(QDialog):
         hboxSlider_elo.addWidget(self.slider_elo)
         hboxSlider_elo.addWidget(self.lbl_elo_value)
 
-        lbl_think_time = QLabel("Computer's Time per Move")
+        lbl_think_time = QLabel(self.trUtf8("Computer's Time per Move"))
         lbl_think_time.setAlignment(Qt.AlignBottom)
-        self.lbl_think_value = QLabel("3 sec(s)")
+        self.lbl_think_value = QLabel(self.trUtf8("3 sec(s)"))
         f = self.fontMetrics()
-        l = f.width("20 sec(s)")
+        l = f.width(self.trUtf8("20 sec(s)"))
         self.lbl_think_value.setFixedWidth(l)
         hboxSlider_think = QHBoxLayout()
         self.slider_think = QSlider(Qt.Horizontal, self)
@@ -108,4 +108,4 @@ class DialogNewGame(QDialog):
             elif(val ==7):
                 res = 30
         self.think_ms = res * 1000
-        self.lbl_think_value.setText(str(res)+" sec(s)")
+        self.lbl_think_value.setText(str(res)+self.trUtf8(" sec(s)"))
