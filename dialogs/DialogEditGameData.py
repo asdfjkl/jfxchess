@@ -5,7 +5,7 @@ class DialogEditGameData(QDialog):
 
     def __init__(self, root, parent=None):
         super(DialogEditGameData,self).__init__(parent)
-        self.setWindowTitle("Edit Game Data")
+        self.setWindowTitle(self.trUtf8("Edit Game Data"))
 
         # to limit the width of the lineEdit's
         f = self.fontMetrics()

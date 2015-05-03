@@ -7,7 +7,7 @@ class DialogPromotion(QDialog):
     def __init__(self, whitePromotes, parent=None):
         super(DialogPromotion, self).__init__(parent) 
 
-        self.setWindowTitle("Promotion")
+        self.setWindowTitle(self.trUtf8("Promotion"))
 
         self.border = 10
         h = self.size().height() - (2*self.border)

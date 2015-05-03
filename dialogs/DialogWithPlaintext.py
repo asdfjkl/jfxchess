@@ -5,7 +5,7 @@ class DialogWithPlainText(QDialog):
     def __init__(self, parent=None):
         super(DialogWithPlainText, self).__init__(parent)
 
-        self.setWindowTitle("Edit Comment")
+        self.setWindowTitle(self.trUtf8("Edit Comment"))
 
         self.plainTextEdit = QPlainTextEdit()
         self.saved_text = ""

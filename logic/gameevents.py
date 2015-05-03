@@ -342,7 +342,7 @@ def on_bestmove(mainWindow,move):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
                 gs.current.parent.invalidate = True
-                display_mbox("Game Analysis Finished","The analysis is finished.")
+                display_mbox(mainWindow.self.trUtf8("Game Analysis Finished","The analysis is finished."))
                 on_enter_moves_mode(mainWindow)
             else:
                 gs.current = gs.current.parent
@@ -350,7 +350,7 @@ def on_bestmove(mainWindow,move):
                 on_statechanged(mainWindow)
         else:
             gs.mode = MODE_ENTER_MOVES
-            display_mbox("Game Analysis Finished","The analysis is finished.")
+            display_mbox(mainWindow.self.trUtf8("Game Analysis Finished","The analysis is finished."))
             on_enter_moves_mode(mainWindow)
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
