@@ -11,10 +11,10 @@ class DialogAnalyzeGame(QDialog):
         f = self.fontMetrics()
         l = f.width("XXXXXXXX")
 
-        self.setWindowTitle("Full Game Analysis")
+        self.setWindowTitle(self.trUtf8("Full Game Analysis"))
 
-        lbl_time = QLabel("Sec(s) per move:")
-        lbl_threshold = QLabel("Threshold (in pawns):")
+        lbl_time = QLabel(self.trUtf8("Sec(s) per move:"))
+        lbl_threshold = QLabel(self.trUtf8("Threshold (in pawns):"))
 
         self.sb_secs = QSpinBox()
         self.sb_secs.setRange(1,30)

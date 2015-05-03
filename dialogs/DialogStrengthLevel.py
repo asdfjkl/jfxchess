@@ -5,9 +5,9 @@ class DialogStrengthLevel(QDialog):
 
     def __init__(self, parent=None, gamestate = None):
         super(DialogStrengthLevel,self).__init__(parent)
-        self.setWindowTitle("Set Strength Level")
+        self.setWindowTitle(self.trUtf8("Set Strength Level"))
 
-        lbl_elo = QLabel("Computer Strength")
+        lbl_elo = QLabel(self.trUtf8("Computer Strength"))
         lbl_elo.setAlignment(Qt.AlignBottom)
         self.lbl_elo_value = QLabel("1500")
         hboxSlider_elo = QHBoxLayout()
@@ -19,11 +19,11 @@ class DialogStrengthLevel(QDialog):
         hboxSlider_elo.addWidget(self.slider_elo)
         hboxSlider_elo.addWidget(self.lbl_elo_value)
 
-        lbl_think_time = QLabel("Computer's Time per Move")
+        lbl_think_time = QLabel(self.trUtf8("Computer's Time per Move"))
         lbl_think_time.setAlignment(Qt.AlignBottom)
-        self.lbl_think_value = QLabel("3 sec(s)")
+        self.lbl_think_value = QLabel(self.trUtf8("3 sec(s)"))
         f = self.fontMetrics()
-        l = f.width("20 sec(s)")
+        l = f.width(self.trUtf8("20 sec(s)"))
         self.lbl_think_value.setFixedWidth(l)
         hboxSlider_think = QHBoxLayout()
         self.slider_think = QSlider(Qt.Horizontal, self)
@@ -83,4 +83,4 @@ class DialogStrengthLevel(QDialog):
                 res = 15
             elif(val ==7):
                 res = 30
-        self.lbl_think_value.setText(str(res)+" sec(s)")
+        self.lbl_think_value.setText(str(res)+self.trUtf8(" sec(s)"))
