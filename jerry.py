@@ -200,8 +200,9 @@ class MainWindow(QMainWindow):
 
 
         # HELP MENU
-        m_help = self.menuBar().addMenu(self.trUtf8("Help"))
+        m_help = self.menuBar().addMenu(("Help"))
         about = m_help.addAction(self.trUtf8("About"))
+        about.setMenuRole(QAction.AboutRole)
         about.triggered.connect(self.show_about)
         m_help.addSeparator()
 
@@ -268,9 +269,14 @@ sys.setrecursionlimit(3000)
 
 app = QApplication(sys.argv)
 
-#load localization
+#load qt localization
+qt_translator = QTranslator(app)
+qt_translator.load("qt_de.qm","i18n/qm")
+app.installTranslator(qt_translator)
+
+#load jerry localization
 translator = QTranslator(app)
-translator.load("jerry_jp.qm","i18n/ts/")
+translator.load("jerry_de.qm","i18n/qm/")
 app.installTranslator(translator)
 
 
