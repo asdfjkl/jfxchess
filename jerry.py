@@ -269,14 +269,20 @@ sys.setrecursionlimit(3000)
 
 app = QApplication(sys.argv)
 
+# get locale
+#qm = 'qt_' + QLocale().name() + 's.qm'
+lan = QLocale().name()[0:2]
+qt_translation = "qt_"+lan+".qm"
+jerry_translation = "jerry_"+lan+".qm"
+
 #load qt localization
 qt_translator = QTranslator(app)
-qt_translator.load("qt_de.qm","i18n/qm")
+qt_translator.load(qt_translation,"i18n/qm")
 app.installTranslator(qt_translator)
 
 #load jerry localization
 translator = QTranslator(app)
-translator.load("jerry_de.qm","i18n/qm/")
+translator.load(jerry_translation,"i18n/qm/")
 app.installTranslator(translator)
 
 
