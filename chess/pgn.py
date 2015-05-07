@@ -630,7 +630,7 @@ class StringExporter(object):
 
     def return_move_highlighted(self,board,move):
         return '<span style="color:darkgoldenrod">'+board.san(move)+' </span><a name="current"></a>'
-        #return board.san(move)+"foobar"
+        #return board.san(move)
 
 
     def put_result(self, result):

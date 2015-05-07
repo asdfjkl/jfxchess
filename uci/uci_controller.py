@@ -21,7 +21,7 @@ class Uci_controller(QObject):
         self.connect(self,SIGNAL("new_command(QString)"),self.uci_worker.add_command)
         self.connect(self,SIGNAL("new_fen(QString)"),self.uci_worker.update_fen)
 
-        # needed to keep reference? #todo
+        # needed to keep reference?
         self.foobar = self.uci_worker.process
 
         self.timer.moveToThread(self.thread)
