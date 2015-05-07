@@ -7,7 +7,7 @@ class DialogAbout(QDialog):
     def __init__(self, parent=None):
         super(DialogAbout, self).__init__(parent)
 
-        self.setWindowTitle("About")
+        self.setWindowTitle(self.trUtf8("About"))
 
         vbox = QVBoxLayout()
 
