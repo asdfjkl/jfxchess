@@ -200,11 +200,15 @@ class MainWindow(QMainWindow):
 
 
         # HELP MENU
-        m_help = self.menuBar().addMenu(("Help"))
+        m_help = self.menuBar().addMenu((self.trUtf8("Help")))
         about = m_help.addAction(self.trUtf8("About"))
         about.setMenuRole(QAction.AboutRole)
         about.triggered.connect(self.show_about)
-        m_help.addSeparator()
+        homepage = m_help.addAction(self.trUtf8(("Jerry-Homepage")))
+        homepage.triggered.connect(self.go_to_homepage)
+
+
+        #m_help.addSeparator()
 
         self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
@@ -225,6 +229,9 @@ class MainWindow(QMainWindow):
     def show_about(self):
         d = DialogAbout()
         d.exec_()
+
+    def go_to_homepage(self):
+        QDesktopServices.openUrl(QUrl("http://asdfjkl.github.io/jerry/"))
 
     def centerOnScreen (self):
         resolution = QDesktopWidget().screenGeometry()
