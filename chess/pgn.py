@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2014 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+# Copyright (C) 2012-2015 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# python-chess Lib Version 0.7
+# python-chess Lib Version 0.8
 # custom changes for printing w/ jerry GUI
 
 import chess
@@ -67,7 +67,7 @@ MOVETEXT_REGEX = re.compile(r"""
     |(\))
     |(\*|1-0|0-1|1/2-1/2)
     |(
-        [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=[nbrqNBRQ])?
+        [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqNBRQ])?
         |--
         |O-O(?:-O)?
         |0-0(?:-0)?
@@ -468,9 +468,9 @@ class Game(GameNode):
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            return chess.Bitboard(self.headers["FEN"])
+            return chess.Board(self.headers["FEN"])
         else:
-            return chess.Bitboard()
+            return chess.Board()
 
     def setup(self, board):
         """
@@ -480,7 +480,7 @@ class Game(GameNode):
         try:
             fen = board.fen()
         except AttributeError:
-            fen = chess.Bitboard(board).fen()
+            fen = chess.Board(board).fen()
 
         if fen == chess.STARTING_FEN:
             del self.headers["SetUp"]

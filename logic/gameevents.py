@@ -63,7 +63,7 @@ def on_play_as_black(mainWindow):
     mainWindow.board.on_statechanged()
     mainWindow.gs.mode = MODE_PLAY_BLACK
     mainWindow.engineOutput.setHtml("")
-    reset_engine(mainWindow.engine,mainWindow.engine_fn)
+    reset_engine(mainWindow.engine,mainWindow.user_settings)
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
     mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
@@ -78,7 +78,7 @@ def on_play_as_white(mainWindow):
     mainWindow.board.flippedBoard = False
     mainWindow.board.on_statechanged()
     mainWindow.gs.mode = MODE_PLAY_WHITE
-    reset_engine(mainWindow.engine,mainWindow.engine_fn)
+    reset_engine(mainWindow.engine,mainWindow.user_settings)
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
@@ -110,7 +110,7 @@ def on_statechanged(mainWindow):
 def on_analysis_mode(mainWindow):
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
-    reset_engine(mainWindow.engine,mainWindow.engine_fn)
+    reset_engine(mainWindow.engine,mainWindow.user_settings)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
@@ -129,7 +129,7 @@ def on_game_analysis_mode(mainWindow):
         gs.engine_info.strength = None
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
-        reset_engine(mainWindow.engine,mainWindow.engine_fn)
+        reset_engine(mainWindow.engine,mainWindow.user_settings)
         mainWindow.give_up.setEnabled(False)
         mainWindow.offer_draw.setEnabled(False)
         mainWindow.movesEdit.delete_all_comments()
@@ -165,7 +165,7 @@ def on_enter_moves_mode(mainWindow):
 def on_playout_pos(mainWindow):
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
-    reset_engine(mainWindow.engine,mainWindow.engine_fn)
+    reset_engine(mainWindow.engine,mainWindow.user_settings)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
@@ -180,7 +180,8 @@ def on_playout_pos(mainWindow):
     mainWindow.play_black.setChecked(False)
 
 
-def reset_engine(engine,fn):
+def reset_engine(engine,user_settings):
+    fn = user_settings.active_engine.path
     engine.stop_engine()
     engine.start_engine(fn)
     engine.uci_ok()
