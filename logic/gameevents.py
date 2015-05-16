@@ -9,6 +9,7 @@ from logic.gamestate import MODE_ENTER_MOVES, \
 import chess
 from logic.file_io import is_position_in_book
 from util.messages import display_mbox
+from dialogs.DialogEngines import DialogEngines
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -356,3 +357,17 @@ def on_bestmove(mainWindow,move):
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
         mainWindow.update()
+
+
+def on_set_engines(mainWidget):
+    user_settings = mainWidget.user_settings
+    dialog = DialogEngines(user_settings=user_settings)
+    if dialog.exec_() == QDialog.Accepted:
+        user_settings.engines = dialog.engines
+        user_settings.active_engine = dialog.active_engine
+        if(mainWidget.gs.mode == MODE_ANALYSIS):
+            reset_engine(mainWidget.engine,user_settings)
+
+        #todo update gui, i.e. label above engine window
+
+

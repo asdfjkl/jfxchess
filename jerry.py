@@ -9,7 +9,6 @@ from logic import gameevents
 from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES
 from dialogs.DialogAbout import DialogAbout
-from dialogs.DialogEngines import DialogEngines
 from uci.uci_controller import Uci_controller
 from logic.user_settings import Settings,InternalEngine
 
@@ -205,6 +204,8 @@ class MainWindow(QMainWindow):
         set_strength = m_mode.addAction(self.trUtf8("Strength Level"))
         set_strength.triggered.connect(partial(gameevents.on_strength_level,self))
 
+        set_engines = m_mode.addAction(self.trUtf8("Engines..."))
+        set_engines.triggered.connect(partial(gameevents.on_set_engines,self))
 
         # HELP MENU
         m_help = self.menuBar().addMenu((self.trUtf8("Help")))
@@ -315,10 +316,6 @@ app.setWindowIcon(app_icon)
 app.setActiveWindow(main)
 app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
 main.show()
-
-#
-dlg = DialogEngines(engines=main.user_settings.engines)
-dlg.show()
 
 #main.setFocus()
 sys.exit(app.exec_())
