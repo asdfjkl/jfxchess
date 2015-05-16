@@ -9,7 +9,9 @@ from logic import gameevents
 from logic.gamestate import GameState
 from logic.gamestate import MODE_ENTER_MOVES
 from dialogs.DialogAbout import DialogAbout
+from dialogs.DialogEngines import DialogEngines
 from uci.uci_controller import Uci_controller
+from logic.user_settings import Settings,InternalEngine
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -34,6 +36,7 @@ class MainWindow(QMainWindow):
         self.gs = GameState()
         self.gs.mode = MODE_ENTER_MOVES
         self.engine = Uci_controller()
+        """
         self.engine_fn = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
         if sys.platform == 'win32':
@@ -43,6 +46,10 @@ class MainWindow(QMainWindow):
         elif sys.platform == 'darwin':
             self.engine_fn += '/engine/stockfish_osx'
         self.engine_fn = '"'+self.engine_fn+'"'
+        """
+        self.user_settings = Settings()
+        self.user_settings.engines.append(InternalEngine())
+        self.user_settings.active_engine = self.user_settings.engines[0]
 
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
@@ -308,5 +315,10 @@ app.setWindowIcon(app_icon)
 app.setActiveWindow(main)
 app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
 main.show()
+
+#
+dlg = DialogEngines(engines=main.user_settings.engines)
+dlg.show()
+
 #main.setFocus()
 sys.exit(app.exec_())

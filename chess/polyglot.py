@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2014 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+# Copyright (C) 2012-2015 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -102,11 +102,6 @@ class Reader(object):
         self.seek_entry(0)
         return self
 
-    def __reversed__(self):
-        for i in xrange(self.__entry_count - 1, -1, -1):
-            self.seek_entry(i)
-            yield self.next()
-
     def seek_entry(self, offset, whence=0):
         """
         Seek an entry by its index.
@@ -126,7 +121,7 @@ class Reader(object):
 
         # Do a binary search.
         start = 0
-        end = len(self)
+        end = len(self) - 1
         while end >= start:
             middle = int((start + end) / 2)
 
