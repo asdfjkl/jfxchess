@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2014 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+# Copyright (C) 2012-2015 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 import collections
 import re
@@ -50,7 +50,7 @@ STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 
-SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
+SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
 
 FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
 
@@ -772,7 +772,7 @@ class Move(object):
         return cls(0, 0, NONE)
 
 
-class Bitboard(object):
+class Board(object):
     """
     A bitboard and additional information representing a position.
 
@@ -810,22 +810,6 @@ class Bitboard(object):
         self.occupied_r45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for i in range(64) ]
-
-        for i in range(64):
-            mask = BB_SQUARES[i]
-            if mask & self.pawns:
-                self.pieces[i] = PAWN
-            elif mask & self.knights:
-                self.pieces[i] = KNIGHT
-            elif mask & self.bishops:
-                self.pieces[i] = BISHOP
-            elif mask & self.rooks:
-                self.pieces[i] = ROOK
-            elif mask & self.queens:
-                self.pieces[i] = QUEEN
-            elif mask & self.kings:
-                self.pieces[i] = KING
 
         self.ep_square = 0
         self.castling_rights = CASTLING
@@ -873,7 +857,6 @@ class Bitboard(object):
         self.occupied_l45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for _ in range(64) ]
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -889,6 +872,30 @@ class Bitboard(object):
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
         self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
+    def pieces_mask(self, piece_type, color):
+        if piece_type == PAWN:
+            bb = self.pawns
+        elif piece_type == KNIGHT:
+            bb = self.knights
+        elif piece_type == BISHOP:
+            bb = self.bishops
+        elif piece_type == ROOK:
+            bb = self.rooks
+        elif piece_type == QUEEN:
+            bb = self.queens
+        elif piece_type == KING:
+            bb = self.kings
+
+        return bb & self.occupied_co[color]
+
+    def pieces(self, piece_type, color):
+        """
+        Gets pieces of the given type and color.
+
+        Returns a set of squares.
+        """
+        return SquareSet(self.pieces_mask(piece_type, color))
+
     def piece_at(self, square):
         """Gets the piece at the given square."""
         mask = BB_SQUARES[square]
@@ -900,16 +907,30 @@ class Bitboard(object):
 
     def piece_type_at(self, square):
         """Gets the piece type at the given square."""
-        return self.pieces[square]
+        mask = BB_SQUARES[square]
+
+        if self.pawns & mask:
+            return PAWN
+        elif self.knights & mask:
+            return KNIGHT
+        elif self.bishops & mask:
+            return BISHOP
+        elif self.rooks & mask:
+            return ROOK
+        elif self.queens & mask:
+            return QUEEN
+        elif self.kings & mask:
+            return KING
+        else:
+            return NONE
 
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
-        piece_type = self.pieces[square]
-
-        if piece_type == NONE:
+        mask = BB_SQUARES[square]
+        if not self.occupied & mask:
             return
 
-        mask = BB_SQUARES[square]
+        piece_type = self.piece_type_at(square)
 
         if piece_type == PAWN:
             self.pawns ^= mask
@@ -926,7 +947,6 @@ class Bitboard(object):
 
         color = int(bool(self.occupied_co[BLACK] & mask))
 
-        self.pieces[square] = NONE
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
         self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
@@ -943,8 +963,6 @@ class Bitboard(object):
     def set_piece_at(self, square, piece):
         """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
-
-        self.pieces[square] = piece.piece_type
 
         mask = BB_SQUARES[square]
 
@@ -974,7 +992,6 @@ class Bitboard(object):
         else:
             piece_index = (piece.piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.turn == WHITE:
@@ -1461,7 +1478,7 @@ class Bitboard(object):
     def is_game_over(self):
         """
         Checks if the game is over due to checkmate, stalemate, insufficient
-        mating material, the seventyfive-move rule or fivefold repitition.
+        mating material, the seventyfive-move rule or fivefold repetition.
         """
         # Seventyfive-move rule.
         if self.halfmove_clock >= 150:
@@ -1477,8 +1494,8 @@ class Bitboard(object):
         except StopIteration:
             return True
 
-        # Fivefold repitition.
-        if self.is_fivefold_repitition():
+        # Fivefold repetition.
+        if self.is_fivefold_repetition():
             return True
 
         return False
@@ -1543,7 +1560,7 @@ class Bitboard(object):
 
         return False
 
-    def is_fivefold_repitition(self):
+    def is_fivefold_repetition(self):
         """
         Since the first of July 2014 a game is automatically drawn (without
         a claim by one of the players) if a position occurs for the fifth time
@@ -1575,12 +1592,15 @@ class Bitboard(object):
 
         return True
 
+    # TODO: Remove alias.
+    is_fivefold_repitition = is_fivefold_repetition
+
     def can_claim_draw(self):
         """
         Checks if the side to move can claim a draw by the fifty-move rule or
-        by threefold repitition.
+        by threefold repetition.
         """
-        return self.can_claim_fifty_moves() or self.can_claim_threefold_repitition()
+        return self.can_claim_fifty_moves() or self.can_claim_threefold_repetition()
 
     def can_claim_fifty_moves(self):
         """
@@ -1598,17 +1618,17 @@ class Bitboard(object):
 
         return False
 
-    def can_claim_threefold_repitition(self):
+    def can_claim_threefold_repetition(self):
         """
-        Draw by threefold repitition can be claimed if the position on the
-        board occured for the third time or if such a repitition is reached
+        Draw by threefold repetition can be claimed if the position on the
+        board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.
         """
-        # Threefold repitition occured.
+        # Threefold repetition occured.
         if self.transpositions[self.zobrist_hash()] >= 3:
             return True
 
-        # The next legal move is a threefold repitition.
+        # The next legal move is a threefold repetition.
         for move in self.generate_pseudo_legal_moves():
             self.push(move)
 
@@ -1619,6 +1639,9 @@ class Bitboard(object):
             self.pop()
 
         return False
+
+    # TODO: Remove alias.
+    can_claim_threefold_repitition = can_claim_threefold_repetition
 
     def push(self, move):
         """
@@ -2131,7 +2154,7 @@ class Bitboard(object):
         if not match.group(5):
             promotion = NONE
         else:
-            promotion = PIECE_SYMBOLS.index(match.group(5)[1].lower())
+            promotion = PIECE_SYMBOLS.index(match.group(5)[-1].lower())
 
         # Filter by piece type.
         if match.group(1) == "N":
@@ -2374,7 +2397,7 @@ class Bitboard(object):
         return errors
 
     def __repr__(self):
-        return "Bitboard('{0}')".format(self.fen())
+        return "Board('{0}')".format(self.fen())
 
     def __str__(self):
         builder = []
@@ -2502,6 +2525,9 @@ class Bitboard(object):
         return zobrist_hash
 
 
+Bitboard = Board
+
+
 class PseudoLegalMoveGenerator(object):
 
     def __init__(self, bitboard):
@@ -2585,6 +2611,14 @@ class SquareSet(object):
         while square != -1 and square is not None:
             yield square
             square = bit_scan(self.mask, square + 1)
+
+    def __reversed__(self):
+        string = bin(self.mask)
+        l = len(string)
+        r = string.find("1", 0)
+        while r != -1:
+            yield l - r - 1
+            r = string.find("1", r + 1)
 
     def __contains__(self, square):
         return bool(BB_SQUARES[square] & self.mask)
