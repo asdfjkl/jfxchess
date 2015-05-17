@@ -1,4 +1,5 @@
 import os,sys
+from chess.uci import popen_engine
 
 class Settings():
     def __init__(self):
@@ -17,7 +18,7 @@ class Engine():
 class InternalEngine(Engine):
     def __init__(self):
         super(InternalEngine, self).__init__()
-        self.name = "Stockfish (Internal)"
+        self.name = "Stockfish"
         # path
         self.path = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
@@ -29,3 +30,10 @@ class InternalEngine(Engine):
             self.path += '/engine/stockfish_osx'
         self.path = '"'+self.path+'"'
         self.options = []
+
+        """
+        eng = popen_engine(self.path)
+        command = eng.uci(async_callback=True)
+        command.result(timeout=1.5)
+        self.name = eng.name
+        """

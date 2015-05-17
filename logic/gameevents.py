@@ -10,6 +10,7 @@ import chess
 from logic.file_io import is_position_in_book
 from util.messages import display_mbox
 from dialogs.DialogEngines import DialogEngines
+from uci.engine_info import EngineInfo
 
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
@@ -344,7 +345,7 @@ def on_bestmove(mainWindow,move):
             if(is_position_in_book(gs.current.parent)):
                 gs.current.parent.comment = "last book move"
                 gs.current.parent.invalidate = True
-                display_mbox(mainWindow.self.trUtf8("Game Analysis Finished","The analysis is finished."))
+                display_mbox(mainWindow.trUtf8("Game Analysis Finished","The analysis is finished."))
                 on_enter_moves_mode(mainWindow)
             else:
                 gs.current = gs.current.parent
@@ -352,7 +353,7 @@ def on_bestmove(mainWindow,move):
                 on_statechanged(mainWindow)
         else:
             gs.mode = MODE_ENTER_MOVES
-            display_mbox(mainWindow.self.trUtf8("Game Analysis Finished","The analysis is finished."))
+            display_mbox(mainWindow.trUtf8("Game Analysis Finished","The analysis is finished."))
             on_enter_moves_mode(mainWindow)
             # (finished, display messagebox)
         mainWindow.movesEdit.update_san()
@@ -362,12 +363,14 @@ def on_bestmove(mainWindow,move):
 def on_set_engines(mainWidget):
     user_settings = mainWidget.user_settings
     dialog = DialogEngines(user_settings=user_settings)
+    on_enter_moves_mode(mainWidget)
     if dialog.exec_() == QDialog.Accepted:
         user_settings.engines = dialog.engines
         user_settings.active_engine = dialog.active_engine
-        if(mainWidget.gs.mode == MODE_ANALYSIS):
-            reset_engine(mainWidget.engine,user_settings)
-
+        info = EngineInfo()
+        info.id = user_settings.active_engine.name
+        receive_engine_info(mainWidget,info)
+        print("active engine"+str(user_settings.active_engine.path))
         #todo update gui, i.e. label above engine window
 
 
