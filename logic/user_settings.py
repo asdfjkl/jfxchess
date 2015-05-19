@@ -29,7 +29,7 @@ class InternalEngine(Engine):
             self.path += "/engine/stockfish_linux"
         elif sys.platform == 'darwin':
             self.path += '/engine/stockfish_osx'
-        self.path = '"'+self.path+'"'
+        #self.path = '"'+self.path+'"'
         self.options = []
 
         """
