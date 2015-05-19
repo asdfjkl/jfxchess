@@ -3,7 +3,7 @@ from PyQt4.QtCore import *
 
 class DialogStrengthLevel(QDialog):
 
-    def __init__(self, parent=None, gamestate = None):
+    def __init__(self, parent=None, gamestate = None, user_settings = None):
         super(DialogStrengthLevel,self).__init__(parent)
         self.setWindowTitle(self.trUtf8("Set Strength Level"))
 
@@ -12,7 +12,7 @@ class DialogStrengthLevel(QDialog):
         self.lbl_elo_value = QLabel("1500")
         hboxSlider_elo = QHBoxLayout()
         self.slider_elo = QSlider(Qt.Horizontal, self)
-        self.slider_elo.setRange(0,19)
+        self.slider_elo.setRange(0,20)
         self.slider_elo.setTickInterval(1)
         self.slider_elo.setTickPosition(2)
         self.slider_elo.setValue(3)
@@ -48,6 +48,14 @@ class DialogStrengthLevel(QDialog):
             self.slider_elo.setValue(strength)
             self.set_lbl_elo_value(strength)
             self.set_lbl_think_value(think_time)
+
+        # if a custom engine is used, we can't set the
+        # strength level. set the slider to max an deactivate
+        # slider
+        if(user_settings != None and (not user_settings.active_engine == user_settings.engines[0])):
+            self.slider_elo.setValue(20)
+            self.set_lbl_elo_value(20)
+            self.slider_elo.setEnabled(False)
 
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
