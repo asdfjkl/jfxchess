@@ -64,6 +64,8 @@ class DialogEngines(QDialog):
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
 
+        btnParameters.setEnabled(False)
+
         self.setLayout(vbox)
 
     def on_select_engine(self):

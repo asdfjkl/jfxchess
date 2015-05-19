@@ -1,5 +1,6 @@
-import os,sys
+import os,sys,json
 from chess.uci import popen_engine
+
 
 class Settings():
     def __init__(self):

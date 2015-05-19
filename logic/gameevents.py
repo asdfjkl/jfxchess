@@ -15,9 +15,13 @@ from uci.engine_info import EngineInfo
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
     engine = mainWindow.engine
-    dialog = DialogStrengthLevel(gamestate=gamestate)
+    settings = mainWindow.user_settings
+    dialog = DialogStrengthLevel(gamestate=gamestate, user_settings=mainWindow.user_settings)
     if dialog.exec_() == QDialog.Accepted:
-        gamestate.strength_level = dialog.slider_elo.value()
+        # strength is only changed if internal engine is used
+        # otherwise the dialog is meaningless
+        if(settings.active_engine == settings.engines[0]):
+            gamestate.strength_level = dialog.slider_elo.value()
         val = dialog.slider_think.value()
         gamestate.computer_think_time = val
         if(val == 4):
@@ -34,14 +38,18 @@ def on_strength_level(mainWindow):
 
 
 def on_newgame(mainWindow):
-    dialog = DialogNewGame(gamestate=mainWindow.gs)
+    settings = mainWindow.user_settings
+    dialog = DialogNewGame(gamestate=mainWindow.gs,user_settings=settings)
     movesEdit = mainWindow.movesEdit
     if dialog.exec_() == QDialog.Accepted:
         mainWindow.gs = GameState()
         mainWindow.board.gs = mainWindow.gs
         movesEdit.gs = mainWindow.gs
         movesEdit.update()
-        mainWindow.gs.strength_level = dialog.strength
+        # strength is only changed if internal engine is used
+        # otherwise the dialog is meaningless
+        if(settings.active_engine == settings.engines[0]):
+            mainWindow.gs.strength_level = dialog.slider_elo.value()
         mainWindow.gs.computer_think_time = dialog.think_ms
         #print("think time: "+str(mainWindow.gs.computer_think_time))
         movesEdit.on_statechanged()
@@ -68,7 +76,10 @@ def on_play_as_black(mainWindow):
     reset_engine(mainWindow.engine,mainWindow.user_settings)
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
-    mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
+    # strength is only set if internal engine is used
+    # otherwise the dialog is meaningless
+    if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
+        mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.WHITE):
         fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
@@ -84,7 +95,10 @@ def on_play_as_white(mainWindow):
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
-    mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
+    # strength is only set if internal engine is used
+    # otherwise the dialog is meaningless
+    if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
+        mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
     if(mainWindow.gs.current.board().turn == chess.BLACK):
         fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
@@ -372,5 +386,6 @@ def on_set_engines(mainWidget):
         receive_engine_info(mainWidget,info)
         print("active engine"+str(user_settings.active_engine.path))
         #todo update gui, i.e. label above engine window
+
 
 

@@ -3,7 +3,7 @@ from PyQt4.QtCore import *
 
 class DialogNewGame(QDialog):
 
-    def __init__(self, parent=None,gamestate=None):
+    def __init__(self, parent=None,gamestate=None, user_settings = None):
         super(DialogNewGame,self).__init__(parent)
         self.setWindowTitle(self.trUtf8("New Game"))
 
@@ -84,6 +84,15 @@ class DialogNewGame(QDialog):
             self.strength = strength
             self.set_lbl_elo_value(strength)
             self.set_lbl_think_value(think_time)
+
+        # if a custom engine is used, we can't set the
+        # strength level. set the slider to max an deactivate
+        # slider
+        if(user_settings != None and (not user_settings.active_engine == user_settings.engines[0])):
+            self.slider_elo.setValue(20)
+            self.set_lbl_elo_value(20)
+            self.slider_elo.setEnabled(False)
+
 
         self.slider_elo.valueChanged.connect(self.set_lbl_elo_value)
         self.slider_think.valueChanged.connect(self.set_lbl_think_value)
