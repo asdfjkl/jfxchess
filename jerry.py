@@ -64,6 +64,13 @@ class MainWindow(QMainWindow):
         except BaseException as e:
             print(e)
             pass
+        try:
+            with open(fn+"/settings.raw","rb") as f_setting:
+                self.user_settings = pickle.load(f_setting)
+            f_setting.close()
+        except BaseException as e:
+            print(e)
+            pass
 
         self.board = ChessboardView(self.gs,self.engine)
         self.board.on_statechanged()
@@ -274,6 +281,9 @@ def about_to_quit():
             os.makedirs(main.save_state_dir)
         with open(main.save_state_dir+"/current.raw",'wb') as f:
             pickle.dump(main.gs,f)
+        f.close()
+        with open(main.save_state_dir+"/settings.raw","wb") as f:
+            pickle.dump(main.user_settings,f)
         f.close()
     except BaseException as e:
         print(e)
