@@ -4,6 +4,7 @@ import sys
 from logic.user_settings import Engine
 from chess.uci import popen_engine, TimeoutError
 from copy import deepcopy
+from dialogs.DialogEngineOptions import DialogEngineOptions
 
 class DialogEngines(QDialog):
 
@@ -60,11 +61,10 @@ class DialogEngines(QDialog):
 
         self.connect(btnAdd,SIGNAL("clicked()"),self.on_add)
         self.connect(self.btnRemove,SIGNAL("clicked()"),self.on_remove)
+        self.connect(btnParameters,SIGNAL("clicked()"),self.on_parameters)
         self.connect(self.lstEngines,SIGNAL("itemSelectionChanged()"),self.on_select_engine)
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
-
-        btnParameters.setEnabled(False)
 
         self.setLayout(vbox)
 
@@ -78,6 +78,10 @@ class DialogEngines(QDialog):
                 else:
                     self.btnRemove.setEnabled(True)
                 print("selected: "+self.engines[i].name)
+
+    def on_parameters(self):
+        dlgEngOpt = DialogEngineOptions(self.active_engine)
+        dlgEngOpt.exec_()
 
     def on_remove(self):
         for i in range(0,self.lstEngines.count()):
@@ -110,8 +114,12 @@ class DialogEngines(QDialog):
                     item = QListWidgetItem(engine.name)
                     self.lstEngines.addItem(item)
                     item.setSelected(True)
+                    print("I am quitting. I quit.")
+                    eng.quit()
+                    print("sine they have my stapler")
                     #self.active_engine = engine
-                except: pass
+                except BaseException as e:
+                    print(e)
                 finally: pass
                     # todo: better error handling if
                     # a non-chess engine is chosen
