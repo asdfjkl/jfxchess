@@ -16,6 +16,24 @@ class Engine():
         self.path = None
         self.options = []
 
+    """
+    returns True if the option with
+    opt_name exists among the stored
+    options of the engine
+    """
+    def exists_option_value(self,opt_name):
+        for (option,val) in self.options:
+            if option.name == opt_name:
+                return True
+        return False
+
+    def get_option_value(self,opt_name):
+        for (option,val) in self.options:
+            if option.name == opt_name:
+                return val
+        raise ValueError("There is no defined option for this option name!")
+        raise ValueError("There is no defined option for this option name!")
+
 class InternalEngine(Engine):
     def __init__(self):
         super(InternalEngine, self).__init__()

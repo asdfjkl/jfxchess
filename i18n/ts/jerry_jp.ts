@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ja_JP" sourcelanguage="en_US">
+<!DOCTYPE TS>
+<TS version="2.0" language="ja_JP" sourcelanguage="en_US">
 <context>
     <name>ChessboardView</name>
     <message>
         <location filename="gui/ChessBoardView.py" line="154"/>
         <source>Checkmate</source>
-        <translation type="unfinished"></translation>
+        <translation>チェックメイト</translation>
     </message>
     <message>
         <location filename="gui/ChessBoardView.py" line="154"/>
@@ -33,14 +34,14 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>DialogAbout</name>
     <message>
         <location filename="dialogs/DialogAbout.py" line="10"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="dialogs/DialogAbout.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 1.02&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
         <translation type="unfinished"></translation>
@@ -445,37 +446,37 @@
         <source>Position Annotation</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="40"/>
         <source>∞ Unclear</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="42"/>
         <source>=/∞ With Compensation for White</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="44"/>
         <source>∞/= With Compensation for Black</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="46"/>
         <source>⩲ White Slightly Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="48"/>
         <source>⩱ Black Slightly Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="50"/>
         <source>± White Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="gui/MovesEdit.py" line="52"/>
         <source>∓ Black Better</source>
         <translation type="unfinished"></translation>
