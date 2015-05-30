@@ -8,4 +8,4 @@ SOURCES = jerry.py dialogs/DialogAbout.py dialogs/DialogAnalyzeGame.py \
           logic/gameevents.py logic/gamestate.py uci/engine_info.py    \
           uci/uci_controller.py uci/uci_worker.py util/appdirs.py      \
           util/cache.py util/messages.py util/proc.py                 
-TRANSLATIONS = i18n/ts/jerry_de.ts
+TRANSLATIONS = i18n/ts/jerry_jp.ts
