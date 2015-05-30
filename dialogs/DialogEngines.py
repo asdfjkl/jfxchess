@@ -20,11 +20,13 @@ class DialogEngines(QDialog):
         vbox_right = QVBoxLayout()
         btnAdd = QPushButton(self.trUtf8("Add..."))
         self.btnRemove = QPushButton(self.trUtf8("Remove..."))
-        btnParameters = QPushButton(self.trUtf8("Parameters..."))
+        btnParameters = QPushButton(self.trUtf8("Edit Parameters..."))
+        btnResetParameters = QPushButton(self.trUtf8("Reset Parameters..."))
         vbox_right.addWidget(btnAdd)
         vbox_right.addWidget(self.btnRemove)
         vbox_right.addStretch(0)
         vbox_right.addWidget(btnParameters)
+        vbox_right.addWidget(btnResetParameters)
 
         hbox_up = QHBoxLayout()
         self.lstEngines = QListWidget()
@@ -53,7 +55,9 @@ class DialogEngines(QDialog):
             # made a deepcopy for self.engines, hence
             # need to check active engine of user-config
             # by index of user_settings_engines
+            print("selected: "+ user_settings.engines[idx].name + " active: "+user_settings.active_engine.name)
             if(user_settings.active_engine == user_settings.engines[idx]):
+                print("are the same: "+user_settings.engines[idx].name)
                 item.setSelected(True)
                 # if internal one is active, deactivate remove button
                 if(idx == 0):
@@ -81,7 +85,28 @@ class DialogEngines(QDialog):
 
     def on_parameters(self):
         dlgEngOpt = DialogEngineOptions(self.active_engine)
-        dlgEngOpt.exec_()
+        if dlgEngOpt.exec_() == QDialog.Accepted:
+            print("accepted")
+            # first delete all engine options from active
+            # engine, then
+            # pick up those engine options that are
+            # different from default values, and store
+            # them in engine.options
+            self.active_engine.options = []
+            for opt,widget in dlgEngOpt.optionWidgets:
+                if type(widget) == QSpinBox:
+                    if(not widget.value() == opt.default):
+                        self.active_engine.options.append((opt,widget.value()))
+                elif type(widget) == QCheckBox:
+                    if(not (widget.isChecked() == opt.default)):
+                        self.active_engine.options.append((opt,widget.isChecked()))
+                elif type(widget) == QComboBox:
+                    if(not widget.currentText == opt.default):
+                        self.active_engine.options.append((opt,widget.currentText))
+                elif type(widget) == QLineEdit:
+                    if(not widget.text() == opt.default):
+                        self.active_engine.options.append((opt,widget.text()))
+
 
     def on_remove(self):
         for i in range(0,self.lstEngines.count()):
