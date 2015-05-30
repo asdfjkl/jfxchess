@@ -104,7 +104,7 @@ class DialogEngines(QDialog):
                         self.active_engine.options.append((opt,widget.isChecked()))
                 elif type(widget) == QComboBox:
                     if(not widget.currentText == opt.default):
-                        self.active_engine.options.append((opt,widget.currentText))
+                        self.active_engine.options.append((opt,widget.currentText()))
                 elif type(widget) == QLineEdit:
                     if(not widget.text() == opt.default):
                         self.active_engine.options.append((opt,widget.text()))
