@@ -384,7 +384,7 @@ def on_set_engines(mainWidget):
         info = EngineInfo()
         info.id = user_settings.active_engine.name
         receive_engine_info(mainWidget,info)
-        print("active engine"+str(user_settings.active_engine.path))
+        print("active engine after dialog setting"+str(user_settings.active_engine.path))
         #todo update gui, i.e. label above engine window
 
 
