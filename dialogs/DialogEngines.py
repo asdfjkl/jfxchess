@@ -15,7 +15,9 @@ class DialogEngines(QDialog):
         # so that when dialog is not accepted, we can
         # revert to original state w/o side-effects
         self.engines = deepcopy(user_settings.engines)
-        self.active_engine = deepcopy(user_settings.active_engine)
+        idx = user_settings.engines.index(user_settings.active_engine)
+        # should point to the same from copied engines(!)
+        self.active_engine = self.engines[idx]
 
         vbox_right = QVBoxLayout()
         btnAdd = QPushButton(self.trUtf8("Add..."))
