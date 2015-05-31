@@ -1,6 +1,8 @@
 Bugs of 1.01
 ------------
 
+- test with uci option "spy" on windows(!)
+
 - FIXED when moving a variant up/down, redraw is not correctly
   triggered (main variant looks like: [8.0-0 8...Nf6])
 
