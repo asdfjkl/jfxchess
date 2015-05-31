@@ -68,11 +68,15 @@ class DialogEngines(QDialog):
         self.connect(btnAdd,SIGNAL("clicked()"),self.on_add)
         self.connect(self.btnRemove,SIGNAL("clicked()"),self.on_remove)
         self.connect(btnParameters,SIGNAL("clicked()"),self.on_parameters)
+        self.connect(btnResetParameters,SIGNAL("clicked()"),self.on_reset)
         self.connect(self.lstEngines,SIGNAL("itemSelectionChanged()"),self.on_select_engine)
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
 
         self.setLayout(vbox)
+
+    def on_reset(self):
+        self.active_engine.options = []
 
     def on_select_engine(self):
         for i in range(0,self.lstEngines.count()):

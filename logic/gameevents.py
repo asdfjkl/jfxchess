@@ -12,6 +12,15 @@ from util.messages import display_mbox
 from dialogs.DialogEngines import DialogEngines
 from uci.engine_info import EngineInfo
 
+def send_engine_options(uci_controller, engine):
+    for (option,val) in engine.options:
+        if(option.type == 'spin'):
+            uci_controller.uci_send_command("setoption name "+option.name+" value "+str(val))
+        elif(option.type == 'check'):
+            uci_controller.uci_send_command("setoption name "+option.name+" value "+str(val).lower())
+        else:
+            uci_controller.uci_send_command("setoption name "+option.name+" value "+val)
+
 def on_strength_level(mainWindow):
     gamestate = mainWindow.gs
     engine = mainWindow.engine
@@ -81,6 +90,7 @@ def on_play_as_black(mainWindow):
     if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
         mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
+    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
     if(mainWindow.gs.current.board().turn == chess.WHITE):
         fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
         mainWindow.engine.send_fen(fen)
@@ -100,6 +110,7 @@ def on_play_as_white(mainWindow):
     if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
         mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
     mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
+    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
     if(mainWindow.gs.current.board().turn == chess.BLACK):
         fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
         mainWindow.engine.send_fen(fen)
@@ -130,6 +141,7 @@ def on_analysis_mode(mainWindow):
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
     mainWindow.engine.send_fen(fen)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_infinite()
@@ -159,6 +171,7 @@ def on_game_analysis_mode(mainWindow):
             gs.current = gs.current.parent
         mainWindow.movesEdit.update_san()
         fen, uci_string = gs.printer.to_uci(gs.current)
+        send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
         mainWindow.engine.send_fen(fen)
         mainWindow.engine.uci_send_position(uci_string)
         mainWindow.engine.uci_go_movetime(gs.computer_think_time)
@@ -185,6 +198,7 @@ def on_playout_pos(mainWindow):
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
     fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
+    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
     mainWindow.engine.send_fen(fen)
     mainWindow.engine.uci_send_position(uci_string)
     mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
@@ -201,6 +215,7 @@ def reset_engine(engine,user_settings):
     engine.stop_engine()
     engine.start_engine(fn)
     engine.uci_ok()
+    send_engine_options(engine, user_settings.active_engine)
     engine.uci_newgame()
 
 def on_checkmate(mainWindow):
