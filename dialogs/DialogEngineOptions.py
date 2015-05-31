@@ -22,7 +22,12 @@ class DialogEngineOptions(QDialog):
         eng = popen_engine(engine.path)
         command = eng.uci(async_callback=True)
         command.result(timeout=1.5)
-        #eng.options
+        # eng.options
+        # create sorted shallow copy
+        eng_opts = []
+        for key in eng.options:
+            eng_opts.append(eng.options[key])
+        eng_opts.sort(key=lambda x: x.name)
 
         self.optionWidgets = []
         grid = QGridLayout()
@@ -30,8 +35,8 @@ class DialogEngineOptions(QDialog):
         rowwidth = count/4
         x = 0
         y = 0
-        for key in eng.options:
-            opt = eng.options[key]
+        for opt in eng_opts:
+            #opt = eng.options[key]
             # add a widget for that option depending on its type
             # we will ignore options where the name starts with UCI_
             # or is one of the following:
