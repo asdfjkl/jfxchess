@@ -12,6 +12,8 @@ from dialogs.DialogAbout import DialogAbout
 from uci.uci_controller import Uci_controller
 from logic.user_settings import Settings,InternalEngine
 
+from dialogs.DialogBrowsePgn import DialogBrowsePgn
+
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
@@ -321,7 +323,6 @@ app_icon.addFile('res/icons_taskbar/icon32.png', QSize(32,32))
 app_icon.addFile('res/icons/taskbar/icon48.png', QSize(48,48))
 app_icon.addFile('res/icons_taskbar/icon256.png',QSize(256,256))
 app.setWindowIcon(app_icon)
-
 
 app.setActiveWindow(main)
 app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
