@@ -16,8 +16,11 @@ class DialogBrowsePgn(QDialog):
         rows = len(offset_headers)
         self.setWindowTitle(filenName)
         self.table = QTableWidget(rows,columns)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+
         horizontalHeaders = [self.trUtf8("No."),self.trUtf8("White"),self.trUtf8("Black"), \
-                             self.trUtf8("Result"), self.trUtf8("Year"), self.trUtf8("ECO"), self.trUtf8("Site")]
+                             self.trUtf8("Result"), self.trUtf8("Date"), self.trUtf8("ECO"), self.trUtf8("Site")]
         for row, (offset,headers) in enumerate(offset_headers):
             self.table.setItem(row,0,QTableWidgetItem(str(row+1)))
             self.table.setItem(row,1,QTableWidgetItem(self.get_key("White",headers)))
@@ -27,6 +30,12 @@ class DialogBrowsePgn(QDialog):
             self.table.setItem(row,5,QTableWidgetItem(self.get_key("Eco",headers)))
             self.table.setItem(row,6,QTableWidgetItem(self.get_key("Site",headers)))
         self.table.setHorizontalHeaderLabels(horizontalHeaders)
+        self.table.verticalHeader().hide()
+        self.table.setShowGrid(False)
+        self.table.resizeColumnsToContents()
+        self.table.horizontalHeader().setStretchLastSection(True)
+
+        self.resize(self.table.width()-100,100)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.table)
