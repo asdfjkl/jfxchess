@@ -3,6 +3,7 @@ from PyQt4.QtCore import *
 #import chess
 from chess.polyglot import *
 from dialogs.DialogBrowsePgn import DialogBrowsePgn
+import os
 
 def print_game(gamestate):
     dialog = QPrintDialog()
@@ -103,11 +104,20 @@ def open_pgn(mainWindow):
         dialog.setDirectory(gamestate.last_open_dir)
     filename = dialog.getOpenFileName(chessboardview, mainWindow.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     with open(filename) as pgn:
+        size = os.path.getsize(filename)
         offset_headers = []
+        pDialog = QProgressDialog(mainWindow.trUtf8("Scanning PGN File"),None,0,size,mainWindow)
+        pDialog.show()
+        pDialog.setWindowModality(Qt.WindowModal)
+        QApplication.processEvents()
         for offset, headers in chess.pgn.scan_headers(pgn):
+            QApplication.processEvents()
+            pDialog.setValue(offset)
             offset_headers.append((offset,headers))
+        pDialog.close()
         dlg = DialogBrowsePgn(offset_headers,filename)
         dlg.exec_()
+
 
     """
     if(filename):
