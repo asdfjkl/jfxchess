@@ -35,7 +35,9 @@ class DialogBrowsePgn(QDialog):
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setStretchLastSection(True)
 
-        self.resize(self.table.width()-100,100)
+        f = self.fontMetrics()
+        rec = QApplication.desktop().screenGeometry()
+        self.resize(min(650,rec.width()-100),min(rows*20+130,rec.height()-200))
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.table)
