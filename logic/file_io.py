@@ -2,6 +2,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 #import chess
 from chess.polyglot import *
+from dialogs.DialogBrowsePgn import DialogBrowsePgn
 
 def print_game(gamestate):
     dialog = QPrintDialog()
@@ -100,7 +101,15 @@ def open_pgn(mainWindow):
     dialog = QFileDialog()
     if(gamestate.last_open_dir != None):
         dialog.setDirectory(gamestate.last_open_dir)
-    filename = dialog.getOpenFileName(chessboardview, mainWindow.self.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
+    filename = dialog.getOpenFileName(chessboardview, mainWindow.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
+    with open(filename) as pgn:
+        offset_headers = []
+        for offset, headers in chess.pgn.scan_headers(pgn):
+            offset_headers.append((offset,headers))
+        dlg = DialogBrowsePgn(offset_headers,filename)
+        dlg.exec_()
+
+    """
     if(filename):
         pgn = open(filename)
         first_game = chess.pgn.read_game(pgn)
@@ -114,6 +123,7 @@ def open_pgn(mainWindow):
         pgn.close()
         gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
         init_game_tree(mainWindow,gamestate.current.root())
+    """
 
 def is_position_in_book(node):
     with open_reader("./books/varied.bin") as reader:
