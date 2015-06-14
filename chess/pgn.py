@@ -314,7 +314,7 @@ class GameNode(object):
                 offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
             else:
                 s = ""
-                s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
+                s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation, self.parent == None)
 
                 # Append fullmove number.
                 #s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
@@ -369,7 +369,7 @@ class GameNode(object):
                 else:
                     s = ""
                     # Append fullmove number.
-                    s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, True)
+                    s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, True, False)
 
                     # before adding san, store in offset_table offset number + node
                     # Append SAN.
@@ -608,11 +608,14 @@ class StringExporter(object):
         elif variation_start:
             self.write_token(str(fullmove_number) + ". ... ")
 
-    def return_fullmove_number(self, turn, fullmove_number, variation_start):
+
+    def return_fullmove_number(self, turn, fullmove_number, variation_start, is_root):
         s = ""
         if turn == chess.WHITE:
             return str(fullmove_number) + "."
         elif variation_start:
+            return str(fullmove_number) + ". ... "
+        elif is_root and turn == chess.BLACK:
             return str(fullmove_number) + ". ... "
         else:
             return ""
