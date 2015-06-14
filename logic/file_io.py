@@ -85,7 +85,7 @@ def init_game_tree(mainWindow, root):
         temp = temp.variations[0]
         mainline_nodes.append(temp)
     cnt = len(mainline_nodes)
-    pDialog = QProgressDialog(mainWindow.self.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
+    pDialog = QProgressDialog(mainWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
     pDialog.setWindowModality(Qt.WindowModal)
     pDialog.show()
     QApplication.processEvents()
@@ -116,7 +116,26 @@ def open_pgn(mainWindow):
             offset_headers.append((offset,headers))
         pDialog.close()
         dlg = DialogBrowsePgn(offset_headers,filename)
-        dlg.exec_()
+        selectedGame = 0
+        if dlg.exec_() == QDialog.Accepted:
+            items = dlg.table.selectedItems()
+            idx = int(items[0].text())-1
+            offset, headers = offset_headers[idx]
+            pgn.seek(offset)
+            first_game = chess.pgn.read_game(pgn)
+            gamestate.current = first_game
+            chessboardview.update()
+            chessboardview.emit(SIGNAL("statechanged()"))
+            gamestate.pgn_filename = filename
+            mainWindow.save_game.setEnabled(True)
+            mainWindow.setLabels()
+            mainWindow.movesEdit.setFocus()
+            pgn.close()
+            gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
+            init_game_tree(mainWindow,gamestate.current.root())
+
+            #if(dlg.table.hasS)
+            #print(str(dlg.table.selectedIndexes()))
 
 
     """

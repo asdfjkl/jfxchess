@@ -1,3 +1,7 @@
+Bug (dev):
+
+- if game is loaded from fen, 1. is missing at first move
+
 Bugs of 1.01
 ------------
 
