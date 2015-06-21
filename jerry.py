@@ -11,6 +11,7 @@ from logic.gamestate import MODE_ENTER_MOVES
 from dialogs.DialogAbout import DialogAbout
 from uci.uci_controller import Uci_controller
 from logic.user_settings import Settings,InternalEngine
+from logic.database import Database
 
 from dialogs.DialogBrowsePgn import DialogBrowsePgn
 
@@ -51,6 +52,8 @@ class MainWindow(QMainWindow):
         self.user_settings = Settings()
         self.user_settings.engines.append(InternalEngine())
         self.user_settings.active_engine = self.user_settings.engines[0]
+
+        self.database = Database("mygames.pgn")
 
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
@@ -117,25 +120,29 @@ class MainWindow(QMainWindow):
         new_game.setShortcut(QKeySequence.New)
         new_game.triggered.connect(partial(gameevents.on_newgame,self))
         new_db = m_file.addAction(self.trUtf8("New Database..."))
+        new_db.triggered.connect(partial(file_io.new_database,self))
         m_file.addSeparator()
-        new_db = m_file.addAction(self.trUtf8("Open Database..."))
-        load_game = m_file.addAction(self.trUtf8("Load Game ..."))
-        load_game.setShortcut(QKeySequence.Open)
-        load_game.triggered.connect(partial(file_io.open_pgn, self))
-        self.save_game = m_file.addAction(self.trUtf8("Save Game"))
+        open_db = m_file.addAction(self.trUtf8("Open Database..."))
+        open_db.setShortcut(QKeySequence.Open)
+        open_db.triggered.connect(partial(file_io.open_pgn, self))
+        self.save_game = m_file.addAction(self.trUtf8("Save"))
         self.save_game.setShortcut(QKeySequence.Save)
         self.save_game.triggered.connect(partial(file_io.save_to_pgn,self))
         if(self.gs.pgn_filename == None):
             self.save_game.setEnabled(False)
-        save_game_as = m_file.addAction(self.trUtf8("Export Game..."))
+        save_game_as = m_file.addAction(self.trUtf8("Save As..."))
         save_game_as.setShortcut(QKeySequence.SaveAs)
-        save_game_as.triggered.connect(partial(file_io.save_as_to_pgn,self))
-        delete = m_file.addAction(self.trUtf8("Delete Game"))
         #append_game = m_file.addAction(self.trUtf8("Append to ..."))
         #append_game.triggered.connect(partial(file_io.append_to_pgn,self))
+        load_game = m_file.addAction(self.trUtf8("Browse Database ..."))
+        load_game.setShortcut('L')
+        load_game.triggered.connect(partial(file_io.browse_database, self))
         m_file.addSeparator()
         next_ = m_file.addAction(self.trUtf8("Next in Database"))
         prev_ = m_file.addAction(self.trUtf8("Previous in Database"))
+        m_file.addSeparator()
+        export_game = m_file.addAction(self.trUtf8("Export Game..."))
+        export_game.triggered.connect(partial(file_io.export_game,self))
         m_file.addSeparator()
         save_diag = m_file.addAction(self.trUtf8("Save Position as Image"))
         save_diag.triggered.connect(partial(file_io.save_image,self))
