@@ -4,6 +4,7 @@ from PyQt4.QtCore import *
 from chess.polyglot import *
 from dialogs.DialogBrowsePgn import DialogBrowsePgn
 import os
+from logic.database import Database
 
 def print_game(gamestate):
     dialog = QPrintDialog()
@@ -50,10 +51,10 @@ def save_to_pgn(mainWidget):
             mainWidget.movesEdit.setFocus()
             f.close()
         except (OSError, IOError) as e:
-            save_as_to_pgn(mainWidget)
+            export_game(mainWidget)
 
 
-def save_as_to_pgn(mainWidget):
+def export_game(mainWidget):
     gamestate = mainWidget.gs
     dialog = QFileDialog()
     if(gamestate.last_save_dir != None):
@@ -96,6 +97,25 @@ def init_game_tree(mainWindow, root):
             _ = n.cache_board()
     pDialog.close()
 
+def new_database(mainWindow):
+    dialog = QFileDialog()
+    filename = dialog.getSaveFileName(mainWindow, mainWindow.trUtf8('Create New PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+    if(filename):
+        if(mainWindow.database.unsaved_changes):
+            # todo: save currently open db if there are unsaved changes
+            pass
+        if(not filename.endswith(".pgn")):
+            filename = filename + ".pgn"
+        with open(filename,'w') as pgn:
+            print(mainWindow.gs.current.root(), file=pgn, end="\n\n")
+            mainWindow.gs.pgn_filename = filename
+            mainWindow.save_game.setEnabled(True)
+            mainWindow.movesEdit.setFocus()
+        mainWindow.gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
+        db = Database(filename)
+        db.initialize(mainWindow)
+        mainWindow.database = db
+
 def open_pgn(mainWindow):
     chessboardview = mainWindow.board
     gamestate = mainWindow.gs
@@ -103,39 +123,34 @@ def open_pgn(mainWindow):
     if(gamestate.last_open_dir != None):
         dialog.setDirectory(gamestate.last_open_dir)
     filename = dialog.getOpenFileName(chessboardview, mainWindow.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
-    with open(filename) as pgn:
-        size = os.path.getsize(filename)
-        offset_headers = []
-        pDialog = QProgressDialog(mainWindow.trUtf8("Scanning PGN File"),None,0,size,mainWindow)
-        pDialog.show()
-        pDialog.setWindowModality(Qt.WindowModal)
-        QApplication.processEvents()
-        for offset, headers in chess.pgn.scan_headers(pgn):
-            QApplication.processEvents()
-            pDialog.setValue(offset)
-            offset_headers.append((offset,headers))
-        pDialog.close()
-        dlg = DialogBrowsePgn(offset_headers,filename)
+    if filename:
+        db = Database(filename)
+        db.initialize(mainWindow)
         selectedGame = 0
-        if dlg.exec_() == QDialog.Accepted:
-            items = dlg.table.selectedItems()
-            idx = int(items[0].text())-1
-            offset, headers = offset_headers[idx]
-            pgn.seek(offset)
-            first_game = chess.pgn.read_game(pgn)
-            gamestate.current = first_game
+        if(db.no_of_games() > 1):
+            dlg = DialogBrowsePgn(db)
+            if dlg.exec_() == QDialog.Accepted:
+                items = dlg.table.selectedItems()
+                selectedGame = int(items[0].text())-1
+            else:
+                selectedGame = None
+        if(selectedGame):
+            loaded_game = db.load_game(selectedGame)
+                #offset, headers = db.offset_headers[idx]
+                #pgn.seek(offset)
+                #first_game = chess.pgn.read_game(pgn)
+            gamestate.current = loaded_game
             chessboardview.update()
             chessboardview.emit(SIGNAL("statechanged()"))
             gamestate.pgn_filename = filename
             mainWindow.save_game.setEnabled(True)
             mainWindow.setLabels()
             mainWindow.movesEdit.setFocus()
-            pgn.close()
             gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
             init_game_tree(mainWindow,gamestate.current.root())
 
-            #if(dlg.table.hasS)
-            #print(str(dlg.table.selectedIndexes()))
+                #if(dlg.table.hasS)
+                #print(str(dlg.table.selectedIndexes()))
 
 
     """
@@ -153,6 +168,27 @@ def open_pgn(mainWindow):
         gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
         init_game_tree(mainWindow,gamestate.current.root())
     """
+
+def browse_database(mainWindow):
+    selectedGame = 0
+    db = mainWindow.database
+    gs = mainWindow.gs
+    cbv = mainWindow.board
+    dlg = DialogBrowsePgn(db)
+    if dlg.exec_() == QDialog.Accepted:
+        items = dlg.table.selectedItems()
+        selectedGame = int(items[0].text())-1
+        loaded_game = db.load_game(selectedGame)
+        #offset, headers = db.offset_headers[idx]
+        #pgn.seek(offset)
+        #first_game = chess.pgn.read_game(pgn)
+        gs.current = loaded_game
+        cbv.update()
+        cbv.emit(SIGNAL("statechanged()"))
+        mainWindow.setLabels()
+        mainWindow.movesEdit.setFocus()
+        init_game_tree(mainWindow,gs.current.root())
+
 
 def is_position_in_book(node):
     with open_reader("./books/varied.bin") as reader:
