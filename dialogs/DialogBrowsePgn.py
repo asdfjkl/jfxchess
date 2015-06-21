@@ -9,12 +9,12 @@ class DialogBrowsePgn(QDialog):
         except KeyError:
             return ""
 
-    def __init__(self, offset_headers, filenName, parent=None):
+    def __init__(self, database, parent=None):
         super(QDialog, self).__init__(parent)
 
         columns = 7
-        rows = len(offset_headers)
-        self.setWindowTitle(filenName)
+        rows = len(database.offset_headers)
+        self.setWindowTitle(database.filename)
         self.table = QTableWidget(rows,columns)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -22,7 +22,7 @@ class DialogBrowsePgn(QDialog):
 
         horizontalHeaders = [self.trUtf8("No."),self.trUtf8("White"),self.trUtf8("Black"), \
                              self.trUtf8("Result"), self.trUtf8("Date"), self.trUtf8("ECO"), self.trUtf8("Site")]
-        for row, (offset,headers) in enumerate(offset_headers):
+        for row, (offset,headers) in enumerate(database.offset_headers):
             self.table.setItem(row,0,QTableWidgetItem(str(row+1)))
             self.table.setItem(row,1,QTableWidgetItem(self.get_key("White",headers)))
             self.table.setItem(row,2,QTableWidgetItem(self.get_key("Black",headers)))
@@ -40,10 +40,24 @@ class DialogBrowsePgn(QDialog):
         rec = QApplication.desktop().screenGeometry()
         self.resize(min(650,rec.width()-100),min(rows*20+130,rec.height()-200))
 
+        search_lbl = QLabel(self.trUtf8("Search:"))
+        self.search_field = QLineEdit()
+        hbox_lbl = QHBoxLayout()
+        hbox_lbl.addWidget(search_lbl)
+        hbox_lbl.addWidget(self.search_field)
+
         vbox = QVBoxLayout()
+        vbox.addLayout(hbox_lbl)
         vbox.addWidget(self.table)
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
+        self.button_edit_header = QPushButton(self.trUtf8(("Edit Headers")))
+        self.button_delete      = QPushButton(self.trUtf8("Delete"))
+        buttonBox = QDialogButtonBox(Qt.Horizontal)
+        buttonBox.addButton(self.button_edit_header, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(self.button_delete, QDialogButtonBox.ActionRole)
+        buttonBox.addButton(QDialogButtonBox.Ok)
+        buttonBox.addButton(QDialogButtonBox.Cancel)
+
         vbox.addWidget(buttonBox)
 
         self.setLayout(vbox)
