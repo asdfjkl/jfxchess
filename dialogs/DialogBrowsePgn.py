@@ -28,7 +28,7 @@ class DialogBrowsePgn(QDialog):
             self.table.setItem(row,2,QTableWidgetItem(self.get_key("Black",headers)))
             self.table.setItem(row,3,QTableWidgetItem(self.get_key("Result",headers)))
             self.table.setItem(row,4,QTableWidgetItem(self.get_key("Date",headers)))
-            self.table.setItem(row,5,QTableWidgetItem(self.get_key("Eco",headers)))
+            self.table.setItem(row,5,QTableWidgetItem(self.get_key("ECO",headers)))
             self.table.setItem(row,6,QTableWidgetItem(self.get_key("Site",headers)))
         self.table.setHorizontalHeaderLabels(horizontalHeaders)
         self.table.verticalHeader().hide()
