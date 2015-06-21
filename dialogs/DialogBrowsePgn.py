@@ -42,9 +42,11 @@ class DialogBrowsePgn(QDialog):
 
         search_lbl = QLabel(self.trUtf8("Search:"))
         self.search_field = QLineEdit()
+        self.hlp_button = QPushButton("? ")
         hbox_lbl = QHBoxLayout()
         hbox_lbl.addWidget(search_lbl)
         hbox_lbl.addWidget(self.search_field)
+        hbox_lbl.addWidget(self.hlp_button)
 
         vbox = QVBoxLayout()
         vbox.addLayout(hbox_lbl)
