@@ -8,6 +8,7 @@ class Settings():
 
         self.engines = []
         self.active_engine = None
+        self.active_database = None
 
 class Engine():
     def __init__(self):

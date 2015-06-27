@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         self.user_settings.engines.append(InternalEngine())
         self.user_settings.active_engine = self.user_settings.engines[0]
 
-        self.database = Database("mygames.pgn")
+        self.database = None
 
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
@@ -76,6 +76,17 @@ class MainWindow(QMainWindow):
         except BaseException as e:
             print(e)
             pass
+
+        default_db_path = fn + "/mygames.pgn"
+        if(self.user_settings.active_database == None):
+            # if user has no database, create new
+            # one. current game is saved as first entry
+            self.database = Database(default_db_path)
+            self.database.create_new_pgn(self.gs)
+            self.database.init_from_file(self)
+        else:
+            self.database = Database(self.user_settings.active_database)
+            self.database.init_from_file(self)
 
         self.board = ChessboardView(self.gs,self.engine)
         self.board.on_statechanged()
@@ -131,6 +142,7 @@ class MainWindow(QMainWindow):
         if(self.gs.pgn_filename == None):
             self.save_game.setEnabled(False)
         save_game_as = m_file.addAction(self.trUtf8("Save As..."))
+        save_game_as.triggered.connect(partial(file_io.save_db_as_new,self))
         save_game_as.setShortcut(QKeySequence.SaveAs)
         #append_game = m_file.addAction(self.trUtf8("Append to ..."))
         #append_game.triggered.connect(partial(file_io.append_to_pgn,self))

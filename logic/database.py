@@ -3,6 +3,7 @@ from PyQt4.QtGui import QApplication, QProgressDialog
 import PyQt4
 import os
 import chess
+import shutil
 
 class Database():
 
@@ -15,7 +16,59 @@ class Database():
         self.game_open_idx = None
         self.unsaved_changes = False
 
-    def initialize(self, mainWindow):
+    def create_new_pgn(self,gamestate = None):
+        filename = self.filename
+        f = open(filename, 'w')
+        f.close()
+        self.filename = filename
+        if(not gamestate == None):
+            f = open(filename,'a')
+            print(gamestate.current.root(), file=f, end="\n\n")
+            f.close()
+            self.game_open = True
+            self.game_open_idx = 0
+            self.unsaved_changes = False
+
+    def add_index_for_current(self):
+        self.game_open_idx = len(self.offset_headers) - 1
+
+    def save_as_new(self,gamestate,new_filename):
+        shutil.move(self.filename,new_filename)
+        self.filename = new_filename
+        self.save_all(gamestate)
+
+
+    def save_all(self, gamestate):
+        # create a new temp file
+        if not self.is_consistent():
+            raise IOError("database file has changed on disk - index is inconsistent")
+        with open(self.filename,'rb') as pgn:
+            with open(self.filename+"tmp",'w') as new_pgn:
+                for idx, (offset,headers) in enumerate(self.offset_headers):
+                    # either load from file, or it's the current game
+                    if not idx == self.game_open_idx:
+                        pgn.seek(offset)
+                        game = chess.pgn.read_game(pgn)
+                        print(game.root(), file=new_pgn, end="\n\n")
+                    else:
+                        print(gamestate.current.root(), file=new_pgn, end="\n\n")
+                if(self.game_open_idx == len(self.offset_headers)-1):
+                    print(gamestate.current.root(), file=new_pgn, end="\n\n")
+        shutil.move(self.filename+"tmp",self.filename)
+        self.init_from_file1()
+        self.game_open_idx = len(self.offset_headers)-1
+
+    def init_from_file1(self):
+        with open(self.filename) as pgn:
+            size = os.path.getsize(self.filename)
+            self.offset_headers = []
+            QApplication.processEvents()
+            for offset, headers in chess.pgn.scan_headers(pgn):
+                QApplication.processEvents()
+                self.offset_headers.append((offset,headers))
+        self.checksum = crc32_from_file(self.filename)
+
+    def init_from_file(self, mainWindow):
         with open(self.filename) as pgn:
             size = os.path.getsize(self.filename)
             self.offset_headers = []

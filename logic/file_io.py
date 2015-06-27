@@ -54,6 +54,23 @@ def save_to_pgn(mainWidget):
             export_game(mainWidget)
 
 
+def save_db_as_new(mainWidget):
+    gamestate = mainWidget.gs
+    db = mainWidget.database
+    dialog = QFileDialog()
+    if(gamestate.last_save_dir != None):
+        dialog.setDirectory(gamestate.last_save_dir)
+    filename = dialog.getSaveFileName(mainWidget, mainWidget.trUtf8('Save PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+    if(filename):
+        if(not filename.endswith(".pgn")):
+            filename = filename + ".pgn"
+        db.save_as_new(gamestate, filename)
+        mainWidget.save_game.setEnabled(True)
+        mainWidget.movesEdit.setFocus()
+        gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
+
+
+
 def export_game(mainWidget):
     gamestate = mainWidget.gs
     dialog = QFileDialog()
@@ -113,7 +130,7 @@ def new_database(mainWindow):
             mainWindow.movesEdit.setFocus()
         mainWindow.gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
         db = Database(filename)
-        db.initialize(mainWindow)
+        db.create_new_pgn(mainWindow.gs)
         mainWindow.database = db
 
 def open_pgn(mainWindow):
@@ -125,7 +142,7 @@ def open_pgn(mainWindow):
     filename = dialog.getOpenFileName(chessboardview, mainWindow.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     if filename:
         db = Database(filename)
-        db.initialize(mainWindow)
+        db.init_from_file(mainWindow)
         selectedGame = 0
         if(db.no_of_games() > 1):
             dlg = DialogBrowsePgn(db)
