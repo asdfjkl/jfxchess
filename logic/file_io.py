@@ -64,7 +64,8 @@ def save_db_as_new(mainWidget):
     if(filename):
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
-        db.save_as_new(gamestate, filename)
+        db.save_as_new(mainWidget, gamestate, filename)
+        mainWidget.user_settings.active_database = db.filename
         mainWidget.save_game.setEnabled(True)
         mainWidget.movesEdit.setFocus()
         gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
@@ -123,15 +124,15 @@ def new_database(mainWindow):
             pass
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
-        with open(filename,'w') as pgn:
-            print(mainWindow.gs.current.root(), file=pgn, end="\n\n")
-            mainWindow.gs.pgn_filename = filename
-            mainWindow.save_game.setEnabled(True)
-            mainWindow.movesEdit.setFocus()
+        #with open(filename,'w') as pgn:
+        #    print(mainWindow.gs.current.root(), file=pgn, end="\n\n")
+        #    mainWindow.save_game.setEnabled(True)
+        #    mainWindow.movesEdit.setFocus()
         mainWindow.gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
         db = Database(filename)
         db.create_new_pgn(mainWindow.gs)
         mainWindow.database = db
+        mainWindow.user_settings.active_database = db.filename
 
 def open_pgn(mainWindow):
     chessboardview = mainWindow.board
@@ -143,6 +144,8 @@ def open_pgn(mainWindow):
     if filename:
         db = Database(filename)
         db.init_from_file(mainWindow)
+        mainWindow.database = db
+        mainWindow.user_settings.active_database = db.filename
         selectedGame = 0
         if(db.no_of_games() > 1):
             dlg = DialogBrowsePgn(db)
@@ -151,7 +154,7 @@ def open_pgn(mainWindow):
                 selectedGame = int(items[0].text())-1
             else:
                 selectedGame = None
-        if(selectedGame):
+        if(not selectedGame == None):
             loaded_game = db.load_game(selectedGame)
                 #offset, headers = db.offset_headers[idx]
                 #pgn.seek(offset)
@@ -159,7 +162,6 @@ def open_pgn(mainWindow):
             gamestate.current = loaded_game
             chessboardview.update()
             chessboardview.emit(SIGNAL("statechanged()"))
-            gamestate.pgn_filename = filename
             mainWindow.save_game.setEnabled(True)
             mainWindow.setLabels()
             mainWindow.movesEdit.setFocus()
@@ -199,7 +201,9 @@ def browse_database(mainWindow):
         #offset, headers = db.offset_headers[idx]
         #pgn.seek(offset)
         #first_game = chess.pgn.read_game(pgn)
-        gs.current = loaded_game
+        print("loaded game: "+str(loaded_game))
+        if(not loaded_game == None):
+            gs.current = loaded_game
         cbv.update()
         cbv.emit(SIGNAL("statechanged()"))
         mainWindow.setLabels()

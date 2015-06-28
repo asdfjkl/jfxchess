@@ -4,6 +4,7 @@ import PyQt4
 import os
 import chess
 import shutil
+import pickle
 
 class Database():
 
@@ -28,23 +29,35 @@ class Database():
             self.game_open = True
             self.game_open_idx = 0
             self.unsaved_changes = False
+            self.init_from_file1()
+            print(str(self.offset_headers))
 
     def add_index_for_current(self):
         self.game_open_idx = len(self.offset_headers) - 1
 
-    def save_as_new(self,gamestate,new_filename):
-        shutil.move(self.filename,new_filename)
-        self.filename = new_filename
-        self.save_all(gamestate)
+    def save_as_new(self,mainWindow, gamestate,new_filename):
+        if(new_filename == self.filename):
+            self.save_all(mainWindow, gamestate)
+        else:
+            shutil.copy(self.filename,new_filename)
+            self.filename = new_filename
+            self.save_all(mainWindow, gamestate)
 
 
-    def save_all(self, gamestate):
+    def save_all(self, mainWindow, gamestate):
         # create a new temp file
         if not self.is_consistent():
             raise IOError("database file has changed on disk - index is inconsistent")
-        with open(self.filename,'rb') as pgn:
+        pDialog = QProgressDialog(mainWindow.trUtf8("Saving PGN File"),None,0,len(self.offset_headers),mainWindow)
+        pDialog.show()
+        pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
+        QApplication.processEvents()
+        with open(self.filename,'r') as pgn:
             with open(self.filename+"tmp",'w') as new_pgn:
                 for idx, (offset,headers) in enumerate(self.offset_headers):
+                    QApplication.processEvents()
+                    pDialog.setValue(idx)
+                    #print("about to load: "+str(offset) + str(headers))
                     # either load from file, or it's the current game
                     if not idx == self.game_open_idx:
                         pgn.seek(offset)
@@ -54,7 +67,8 @@ class Database():
                         print(gamestate.current.root(), file=new_pgn, end="\n\n")
                 if(self.game_open_idx == len(self.offset_headers)-1):
                     print(gamestate.current.root(), file=new_pgn, end="\n\n")
-        shutil.move(self.filename+"tmp",self.filename)
+                pDialog.close()
+        shutil.copy(self.filename+"tmp",self.filename)
         self.init_from_file1()
         self.game_open_idx = len(self.offset_headers)-1
 
@@ -83,22 +97,29 @@ class Database():
             pDialog.close()
         self.checksum = crc32_from_file(self.filename)
 
+    def init_from_cache(self):
+        filename = self.filename[:-4] + ".idx"
+        with open(filename,"rb") as f:
+            self.checksum, self.offset_headers = pickle.load(f)
+
     def no_of_games(self):
         return len(self.offset_headers)
 
     def load_game(self, index):
         if not self.is_consistent():
             raise IOError("database file has changed on disk - index is inconsistent")
-        if index >= 0 and index < len(self.offset_headers):
-            with open(self.filename) as pgn:
-                offset, headers = self.offset_headers[index]
-                pgn.seek(offset)
-                game = chess.pgn.read_game(pgn)
-                self.game_open = True
-                self.game_open_idx = index
+        if not index == self.game_open_idx:
+            if index >= 0 and index < len(self.offset_headers):
+                with open(self.filename) as pgn:
+                    offset, headers = self.offset_headers[index]
+                    pgn.seek(offset)
+                    game = chess.pgn.read_game(pgn)
+                    print(str(game))
+                    self.game_open = True
+                    self.game_open_idx = index
                 return game
-        else:
-            raise ValueError("no game for supplied index in database")
+            else:
+                raise ValueError("no game for supplied index in database")
 
     def is_consistent(self):
         checksum = crc32_from_file(self.filename)
