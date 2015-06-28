@@ -9,7 +9,7 @@ class DialogBrowsePgn(QDialog):
         except KeyError:
             return ""
 
-    def __init__(self, database, parent=None):
+    def __init__(self, database, selectedIdx = None, parent=None):
         super(QDialog, self).__init__(parent)
 
         columns = 7
@@ -35,6 +35,10 @@ class DialogBrowsePgn(QDialog):
         self.table.setShowGrid(False)
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setStretchLastSection(True)
+        if not selectedIdx == None:
+            self.table.selectRow(selectedIdx)
+        else:
+            self.table.selectRow(0)
 
         f = self.fontMetrics()
         rec = QApplication.desktop().screenGeometry()

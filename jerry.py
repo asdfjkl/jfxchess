@@ -77,23 +77,31 @@ class MainWindow(QMainWindow):
             print(e)
             pass
 
-        default_db_path = fn + "/mygames.pgn"
-        if(self.user_settings.active_database == None):
-            # if user has no database, create new
-            # one. current game is saved as first entry
-            self.database = Database(default_db_path)
-            self.database.create_new_pgn(self.gs)
-            self.database.init_from_file(self)
-        else:
-            self.database = Database(self.user_settings.active_database)
-            self.database.init_from_file(self)
-
         self.board = ChessboardView(self.gs,self.engine)
         self.board.on_statechanged()
 
         self.movesEdit = MovesEdit(self.gs)
         self.movesEdit.setReadOnly(True)
         self.movesEdit.on_statechanged()
+
+
+        default_db_path = fn + "/mygames.pgn"
+        if(not self.user_settings.active_database == None):
+            try:
+                self.database = Database(self.user_settings.active_database)
+                self.database.init_from_cache()
+                #self.database.init_from_file(self)
+            except BaseException as e:
+                print(e)
+                self.database = Database(default_db_path)
+                self.database.create_new_pgn(self.gs)
+                self.database.init_from_file(self)
+        else:
+            # if user has no database, create new
+            # one. current game is saved as first entry
+            self.database = Database(default_db_path)
+            self.database.create_new_pgn(self.gs)
+            self.database.init_from_file(self)
 
         # setup the main window
         spLeft = QSizePolicy();
@@ -312,6 +320,9 @@ def about_to_quit():
         f.close()
         with open(main.save_state_dir+"/settings.raw","wb") as f:
             pickle.dump(main.user_settings,f)
+        f.close()
+        with open(main.database.filename[:-4]+".idx",'wb') as f:
+            pickle.dump((main.database.checksum,main.database.offset_headers),f)
         f.close()
     except BaseException as e:
         print(e)
