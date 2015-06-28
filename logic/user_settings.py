@@ -33,7 +33,6 @@ class Engine():
             if option.name == opt_name:
                 return val
         raise ValueError("There is no defined option for this option name!")
-        raise ValueError("There is no defined option for this option name!")
 
 class InternalEngine(Engine):
     def __init__(self):
