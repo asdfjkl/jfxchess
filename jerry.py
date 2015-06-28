@@ -322,7 +322,7 @@ def about_to_quit():
             pickle.dump(main.user_settings,f)
         f.close()
         with open(main.database.filename[:-4]+".idx",'wb') as f:
-            pickle.dump((main.database.checksum,main.database.offset_headers),f)
+            pickle.dump((main.database.game_open_idx,main.database.checksum,main.database.offset_headers),f)
         f.close()
     except BaseException as e:
         print(e)

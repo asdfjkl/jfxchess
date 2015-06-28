@@ -204,11 +204,11 @@ def browse_database(mainWindow):
         print("loaded game: "+str(loaded_game))
         if(not loaded_game == None):
             gs.current = loaded_game
-        cbv.update()
-        cbv.emit(SIGNAL("statechanged()"))
-        mainWindow.setLabels()
-        mainWindow.movesEdit.setFocus()
-        init_game_tree(mainWindow,gs.current.root())
+            cbv.update()
+            cbv.emit(SIGNAL("statechanged()"))
+            mainWindow.setLabels()
+            mainWindow.movesEdit.setFocus()
+            init_game_tree(mainWindow,gs.current.root())
 
 
 def is_position_in_book(node):
