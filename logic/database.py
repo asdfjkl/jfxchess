@@ -100,12 +100,14 @@ class Database():
     def init_from_cache(self):
         filename = self.filename[:-4] + ".idx"
         with open(filename,"rb") as f:
-            self.checksum, self.offset_headers = pickle.load(f)
+            self.game_open_idx, self.checksum, self.offset_headers = pickle.load(f)
 
     def no_of_games(self):
         return len(self.offset_headers)
 
     def load_game(self, index):
+        print("index: "+str(index))
+        print("open game index: "+str(self.game_open_idx))
         if not self.is_consistent():
             raise IOError("database file has changed on disk - index is inconsistent")
         if not index == self.game_open_idx:
