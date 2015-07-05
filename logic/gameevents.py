@@ -46,7 +46,6 @@ def on_strength_level(mainWindow):
     if(gamestate.mode == MODE_PLAY_WHITE or gamestate.mode == MODE_PLAY_BLACK):
         engine.uci_strength(gamestate.strength_level)
 
-
 def on_newgame(mainWindow):
     settings = mainWindow.user_settings
     db = mainWindow.database
