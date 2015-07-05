@@ -72,6 +72,9 @@ def export_game(mainWidget):
         f.close()
         gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
+def save_to_db(mainWindow):
+    mainWindow.database.add_current_game(mainWindow.gs.game.root())
+
 def init_game_tree(mainWindow, root):
     gamestate = mainWindow.gs
     # ugly workaround:
