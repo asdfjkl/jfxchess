@@ -74,6 +74,7 @@ def export_game(mainWidget):
 
 def save_to_db(mainWindow):
     mainWindow.database.add_current_game(mainWindow.gs.game.root())
+    mainWindow.save_in_db.setEnabled(False)
 
 def init_game_tree(mainWindow, root):
     gamestate = mainWindow.gs
@@ -117,6 +118,7 @@ def new_database(mainWindow):
         db = Database(filename)
         db.create_new_pgn()
         mainWindow.save.setEnabled(False)
+        mainWindow.save_in_db.setEnable(True)
         mainWindow.database = db
         mainWindow.user_settings.active_database = db.filename
 
@@ -149,6 +151,7 @@ def open_pgn(mainWindow):
             chessboardview.update()
             chessboardview.emit(SIGNAL("statechanged()"))
             mainWindow.save.setEnabled(False)
+            mainWindow.save_in_db.setEnabled(False)
             mainWindow.setLabels()
             mainWindow.movesEdit.setFocus()
             gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
@@ -190,6 +193,7 @@ def browse_database(mainWindow):
         print("loaded game: "+str(loaded_game))
         if(not loaded_game == None):
             gs.current = loaded_game
+            mainWindow.save_in_db.setEnabled(False)
             cbv.update()
             cbv.emit(SIGNAL("statechanged()"))
             mainWindow.setLabels()

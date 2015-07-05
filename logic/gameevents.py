@@ -75,9 +75,10 @@ def on_newgame(mainWindow):
         #print("think time: "+str(mainWindow.gs.computer_think_time))
         movesEdit.on_statechanged()
         mainWindow.gs.initialize_headers()
-        mainWindow.save.setEnabled(False)
+        #mainWindow.save.setEnabled(False)
         # add current game to database, but don't save it
         mainWindow.database.index_current_game = None
+        mainWindow.save_in_db.setEnabled(True)
         #mainWindow.database.add_current_game(mainWindow.gs.game.root())
         if(dialog.rb_plays_white.isChecked()):
             mainWindow.play_white.setChecked(True)

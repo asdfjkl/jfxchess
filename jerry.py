@@ -141,9 +141,11 @@ class MainWindow(QMainWindow):
         new_game.triggered.connect(partial(gameevents.on_newgame,self))
 
         m_file.addSeparator()
-        save_in_db = m_file.addAction(self.trUtf8("Save to Database..."))
-        save_in_db.triggered.connect(partial(file_io.save_to_db,self))
-        export_game = m_file.addAction(self.trUtf8("Save As File..."))
+        self.save_in_db = m_file.addAction(self.trUtf8("Add to Database..."))
+        self.save_in_db.triggered.connect(partial(file_io.save_to_db,self))
+        if(not self.database.index_current_game == None):
+            self.save_in_db.setEnabled(False)
+        export_game = m_file.addAction(self.trUtf8("Export..."))
         export_game.triggered.connect(partial(file_io.export_game,self))
         m_file.addSeparator()
         save_diag = m_file.addAction(self.trUtf8("Save Position as Image"))
