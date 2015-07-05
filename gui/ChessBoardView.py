@@ -140,6 +140,7 @@ class ChessboardView(QWidget):
             if(len(self.gs.current.variations)>0 and len(self.gs.current.variations[0].variations)>0):
                 self.gs.current.variations[0].variations[0].invalidate = True
             self.gs.current = self.gs.current.variation(move)
+            self.emit(SIGNAL("unsaved_changes()"))
         #"+str(( self.gs.board().turn + 1)%2))
         #new_node = chess.pgn.GameNode()
         #new_node.parent = temp
