@@ -9,11 +9,11 @@ class DialogBrowsePgn(QDialog):
         except KeyError:
             return ""
 
-    def __init__(self, database, selectedIdx = None, parent=None):
+    def __init__(self, database, parent=None):
         super(QDialog, self).__init__(parent)
 
         columns = 7
-        rows = len(database.offset_headers)
+        rows = len(database.entries)
         self.setWindowTitle(database.filename)
         self.table = QTableWidget(rows,columns)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -22,21 +22,21 @@ class DialogBrowsePgn(QDialog):
 
         horizontalHeaders = [self.trUtf8("No."),self.trUtf8("White"),self.trUtf8("Black"), \
                              self.trUtf8("Result"), self.trUtf8("Date"), self.trUtf8("ECO"), self.trUtf8("Site")]
-        for row, (offset,headers) in enumerate(database.offset_headers):
+        for row, entry in enumerate(database.entries):
             self.table.setItem(row,0,QTableWidgetItem(str(row+1)))
-            self.table.setItem(row,1,QTableWidgetItem(self.get_key("White",headers)))
-            self.table.setItem(row,2,QTableWidgetItem(self.get_key("Black",headers)))
-            self.table.setItem(row,3,QTableWidgetItem(self.get_key("Result",headers)))
-            self.table.setItem(row,4,QTableWidgetItem(self.get_key("Date",headers)))
-            self.table.setItem(row,5,QTableWidgetItem(self.get_key("ECO",headers)))
-            self.table.setItem(row,6,QTableWidgetItem(self.get_key("Site",headers)))
+            self.table.setItem(row,1,QTableWidgetItem(self.get_key("White",entry.headers)))
+            self.table.setItem(row,2,QTableWidgetItem(self.get_key("Black",entry.headers)))
+            self.table.setItem(row,3,QTableWidgetItem(self.get_key("Result",entry.headers)))
+            self.table.setItem(row,4,QTableWidgetItem(self.get_key("Date",entry.headers)))
+            self.table.setItem(row,5,QTableWidgetItem(self.get_key("ECO",entry.headers)))
+            self.table.setItem(row,6,QTableWidgetItem(self.get_key("Site",entry.headers)))
         self.table.setHorizontalHeaderLabels(horizontalHeaders)
         self.table.verticalHeader().hide()
         self.table.setShowGrid(False)
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setStretchLastSection(True)
-        if not selectedIdx == None:
-            self.table.selectRow(selectedIdx)
+        if not database.index_current_game == None:
+            self.table.selectRow(database.index_current_game)
         else:
             self.table.selectRow(0)
 
