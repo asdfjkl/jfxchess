@@ -30,45 +30,28 @@ def save_image(q_widget):
         p = QPixmap.grabWindow(q_widget.board.winId())
         p.save(filename,'jpg')
 
-
-def append_to_pgn(q_widget):
-    gamestate = q_widget.gs
-    filename = QFileDialog.getSaveFileName(q_widget, q_widget.tr('Append to PGN'), None,
-                                           'PGN (*.pgn)', QFileDialog.DontUseNativeDialog | QFileDialog.DontConfirmOverwrite)
-    if(filename):
-        f = open(filename,'a')
-        print("\n",file=f)
-        print(gamestate.current.root(), file=f, end="\n\n")
-        q_widget.movesEdit.setFocus()
-        f.close()
-
-def save_to_pgn(mainWidget):
-    gamestate = mainWidget.gs
-    if(gamestate.pgn_filename != None):
-        try:
-            f = open(gamestate.pgn_filename,'w')
-            print(gamestate.current.root(), file=f, end="\n\n")
-            mainWidget.movesEdit.setFocus()
-            f.close()
-        except (OSError, IOError) as e:
-            export_game(mainWidget)
-
+def save(mainWidget):
+    db = mainWidget.database
+    db.save(mainWidget)
+    mainWidget.user_settings.active_database = db.filename
+    mainWidget.save.setEnabled(False)
+    mainWidget.movesEdit.setFocus()
 
 def save_db_as_new(mainWidget):
-    gamestate = mainWidget.gs
+    gs = mainWidget.gs
     db = mainWidget.database
     dialog = QFileDialog()
-    if(gamestate.last_save_dir != None):
-        dialog.setDirectory(gamestate.last_save_dir)
+    if(gs.last_save_dir != None):
+        dialog.setDirectory(gs.last_save_dir)
     filename = dialog.getSaveFileName(mainWidget, mainWidget.trUtf8('Save PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
-        db.save_as_new(mainWidget, gamestate, filename)
+        db.save_as_new(mainWidget, filename)
         mainWidget.user_settings.active_database = db.filename
-        mainWidget.save_game.setEnabled(True)
+        mainWidget.save.setEnabled(False)
         mainWidget.movesEdit.setFocus()
-        gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
+        gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
 
 
@@ -84,7 +67,7 @@ def export_game(mainWidget):
         f = open(filename,'w')
         print(gamestate.current.root(), file=f, end="\n\n")
         gamestate.pgn_filename = filename
-        mainWidget.save_game.setEnabled(True)
+        #mainWidget.save_game.setEnabled(True)
         mainWidget.movesEdit.setFocus()
         f.close()
         gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
@@ -120,8 +103,7 @@ def new_database(mainWindow):
     filename = dialog.getSaveFileName(mainWindow, mainWindow.trUtf8('Create New PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
     if(filename):
         if(mainWindow.database.unsaved_changes):
-            # todo: save currently open db if there are unsaved changes
-            pass
+            mainWindow.database.save(mainWindow)
         if(not filename.endswith(".pgn")):
             filename = filename + ".pgn"
         #with open(filename,'w') as pgn:
@@ -130,7 +112,8 @@ def new_database(mainWindow):
         #    mainWindow.movesEdit.setFocus()
         mainWindow.gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
         db = Database(filename)
-        db.create_new_pgn(mainWindow.gs)
+        db.create_new_pgn()
+        mainWindow.save.setEnabled(False)
         mainWindow.database = db
         mainWindow.user_settings.active_database = db.filename
 
@@ -162,7 +145,7 @@ def open_pgn(mainWindow):
             gamestate.current = loaded_game
             chessboardview.update()
             chessboardview.emit(SIGNAL("statechanged()"))
-            mainWindow.save_game.setEnabled(True)
+            mainWindow.save.setEnabled(False)
             mainWindow.setLabels()
             mainWindow.movesEdit.setFocus()
             gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()

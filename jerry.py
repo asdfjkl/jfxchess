@@ -94,14 +94,14 @@ class MainWindow(QMainWindow):
             except BaseException as e:
                 print(e)
                 self.database = Database(default_db_path)
-                self.database.create_new_pgn(self.gs)
+                self.database.create_new_pgn()
                 self.database.init_from_file(self)
         else:
             # if user has no database, create new
             # one. current game is saved as first entry
             self.database = Database(default_db_path)
-            self.database.create_new_pgn(self.gs)
-            self.database.init_from_file(self)
+            self.database.create_new_pgn()
+            #self.database.add_game(self.gs.game.root())
 
         # setup the main window
         spLeft = QSizePolicy();
@@ -144,11 +144,10 @@ class MainWindow(QMainWindow):
         open_db = m_file.addAction(self.trUtf8("Open Database..."))
         open_db.setShortcut(QKeySequence.Open)
         open_db.triggered.connect(partial(file_io.open_pgn, self))
-        self.save_game = m_file.addAction(self.trUtf8("Save"))
-        self.save_game.setShortcut(QKeySequence.Save)
-        self.save_game.triggered.connect(partial(file_io.save_to_pgn,self))
-        if(self.gs.pgn_filename == None):
-            self.save_game.setEnabled(False)
+        self.save = m_file.addAction(self.trUtf8("Save"))
+        self.save.setShortcut(QKeySequence.Save)
+        self.save.triggered.connect(partial(file_io.save,self))
+        self.save.setEnabled(False)
         save_game_as = m_file.addAction(self.trUtf8("Save As..."))
         save_game_as.triggered.connect(partial(file_io.save_db_as_new,self))
         save_game_as.setShortcut(QKeySequence.SaveAs)
@@ -264,6 +263,8 @@ class MainWindow(QMainWindow):
         self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
         self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
         self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
+        self.connect(self.movesEdit, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
+        self.connect(self.board, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
         self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
         self.connect(self.board, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
         self.connect(self.engine, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
@@ -321,8 +322,9 @@ def about_to_quit():
         with open(main.save_state_dir+"/settings.raw","wb") as f:
             pickle.dump(main.user_settings,f)
         f.close()
-        with open(main.database.filename[:-4]+".idx",'wb') as f:
-            pickle.dump((main.database.game_open_idx,main.database.checksum,main.database.offset_headers),f)
+        db = main.database
+        with open(db.filename[:-4]+".idx",'wb') as f:
+            pickle.dump((db.index_current_game,db.checksum,db.entries),f)
         f.close()
     except BaseException as e:
         print(e)
