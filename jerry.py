@@ -141,13 +141,13 @@ class MainWindow(QMainWindow):
         open_db = m_file.addAction(self.trUtf8("Open..."))
         open_db.setShortcut(QKeySequence.Open)
         open_db.triggered.connect(partial(file_io.open_pgn, self))
-        self.save = m_file.addAction(self.trUtf8("Save"))
-        self.save.setShortcut(QKeySequence.Save)
-        self.save.triggered.connect(partial(file_io.save,self))
-        self.save.setEnabled(False)
-        save_game_as = m_file.addAction(self.trUtf8("Save As..."))
-        save_game_as.triggered.connect(partial(file_io.save_db_as_new,self))
-        save_game_as.setShortcut(QKeySequence.SaveAs)
+        #self.save = m_file.addAction(self.trUtf8("Save"))
+        #self.save.setShortcut(QKeySequence.Save)
+        #self.save.triggered.connect(partial(file_io.save,self))
+        #self.save.setEnabled(False)
+        #save_game_as = m_file.addAction(self.trUtf8("Save As..."))
+        #save_game_as.triggered.connect(partial(file_io.save_db_as_new,self))
+        #save_game_as.setShortcut(QKeySequence.SaveAs)
         #append_game = m_file.addAction(self.trUtf8("Append to ..."))
         #append_game.triggered.connect(partial(file_io.append_to_pgn,self))
         load_game = m_file.addAction(self.trUtf8("Browse Games..."))
@@ -202,15 +202,18 @@ class MainWindow(QMainWindow):
         self.give_up.setEnabled(False)
         m_edit.addSeparator()
 
+        # GAME MENU
         m_game = self.menuBar().addMenu(self.trUtf8('Game '))
         new_game = m_game.addAction(self.trUtf8('New Game'))
         # save game in database
         new_game.setShortcut(QKeySequence.New)
         new_game.triggered.connect(partial(gameevents.on_newgame,self))
-        self.save_in_db = m_game.addAction(self.trUtf8("Add to Database..."))
-        self.save_in_db.triggered.connect(partial(file_io.save_to_db,self))
-        if(not self.database.index_current_game == None):
-            self.save_in_db.setEnabled(False)
+        self.save = m_game.addAction(self.trUtf8("Save"))
+        self.save.triggered.connect(partial(file_io.save,self))
+        if(not self.gs.unsaved_changes):
+            self.save.setEnabled(False)
+        self.save_as = m_game.addAction(self.trUtf8("Save As New..."))
+        self.save_as.triggered.connect(partial(file_io.save_as_new,self))
         export_game = m_game.addAction(self.trUtf8("Export..."))
         export_game.triggered.connect(partial(file_io.export_game,self))
         m_game.addSeparator()
@@ -330,10 +333,6 @@ def about_to_quit():
         f.close()
         with open(main.save_state_dir+"/settings.raw","wb") as f:
             pickle.dump(main.user_settings,f)
-        f.close()
-        db = main.database
-        with open(db.filename[:-4]+".idx",'wb') as f:
-            pickle.dump((db.index_current_game,db.checksum,db.entries),f)
         f.close()
     except BaseException as e:
         print(e)

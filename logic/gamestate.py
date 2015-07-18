@@ -15,9 +15,10 @@ class GameState():
 
     def __init__(self):
         super(GameState, self).__init__()
-        self.game = chess.pgn.Game()
-        self.root = self.game
-        self.current = self.game
+        #self.game = chess.pgn.Game()
+        #self.root = self.game
+        #self.current = self.game
+        self.current = chess.pgn.Game()
         self.mode = MODE_ENTER_MOVES
         self.printer = GUIPrinter()
         self.computer_think_time = 3000
@@ -47,6 +48,8 @@ class GameState():
 
         self.last_save_dir = None
         self.last_open_dir = None
+
+        self.unsaved_changes = False
 
     def half_moves(self):
         halfmoves = 0
