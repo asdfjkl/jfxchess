@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
 
         # if existing, recover game state that user was in
         # before existing game the last time (by unpickling)
-        appname = 'jerry102'
+        appname = 'jerry200'
         appauthor = 'dkl'
         fn = user_data_dir(appname, appauthor)
         self.save_state_dir = fn
