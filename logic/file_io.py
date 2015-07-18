@@ -5,6 +5,8 @@ from chess.polyglot import *
 from dialogs.DialogBrowsePgn import DialogBrowsePgn
 import os
 from logic.database import Database
+import logic
+import logic.gamestate
 
 def print_game(gamestate):
     dialog = QPrintDialog()
@@ -32,10 +34,25 @@ def save_image(q_widget):
 
 def save(mainWidget):
     db = mainWidget.database
-    db.save(mainWidget)
-    mainWidget.user_settings.active_database = db.filename
+    # if the game is not in the database
+    # i.e. hasn't been saved yet, then
+    # calls save_as
+    if(db.index_current_game == None):
+        save_as_new(mainWidget)
+    else:
+        db.update_game(db.index_current_game,mainWidget.gs.current)
     mainWidget.save.setEnabled(False)
     mainWidget.movesEdit.setFocus()
+
+def save_as_new(mainWidget):
+    db = mainWidget.database
+    gs = mainWidget.gs
+    # let the user enter game data
+    logic.edit.editGameData(mainWidget)
+    db.append_game(gs.current)
+    mainWidget.save.setEnabled(False)
+    mainWidget.movesEdit.setFocus()
+
 
 def save_db_as_new(mainWidget):
     gs = mainWidget.gs
@@ -118,7 +135,6 @@ def new_database(mainWindow):
         db = Database(filename)
         db.create_new_pgn()
         mainWindow.save.setEnabled(False)
-        mainWindow.save_in_db.setEnable(True)
         mainWindow.database = db
         mainWindow.user_settings.active_database = db.filename
 
@@ -151,7 +167,6 @@ def open_pgn(mainWindow):
             chessboardview.update()
             chessboardview.emit(SIGNAL("statechanged()"))
             mainWindow.save.setEnabled(False)
-            mainWindow.save_in_db.setEnabled(False)
             mainWindow.setLabels()
             mainWindow.movesEdit.setFocus()
             gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
@@ -179,10 +194,14 @@ def open_pgn(mainWindow):
 
 def browse_database(mainWindow):
     selectedGame = 0
+    mainWindow.gs.mode = logic.gamestate.MODE_ENTER_MOVES
     db = mainWindow.database
     gs = mainWindow.gs
     cbv = mainWindow.board
+    logic.gameevents.unsaved_changes(mainWindow)
+
     dlg = DialogBrowsePgn(db)
+    #
     if dlg.exec_() == QDialog.Accepted:
         items = dlg.table.selectedItems()
         selectedGame = int(items[0].text())-1
@@ -193,7 +212,7 @@ def browse_database(mainWindow):
         print("loaded game: "+str(loaded_game))
         if(not loaded_game == None):
             gs.current = loaded_game
-            mainWindow.save_in_db.setEnabled(False)
+            mainWindow.save.setEnabled(False)
             cbv.update()
             cbv.emit(SIGNAL("statechanged()"))
             mainWindow.setLabels()
