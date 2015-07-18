@@ -25,7 +25,10 @@ class Database():
 
     def create_new_pgn(self):
         filename = self.filename
-        f = open(filename, 'w')
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+        f = open(filename, 'wb')
+        #print(" ",file=f)
         f.close()
         self.checksum = crc32_from_file(self.filename)
         self.filename = filename
