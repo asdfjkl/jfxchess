@@ -12,6 +12,7 @@ from logic.file_io import is_position_in_book
 from util.messages import display_mbox
 from dialogs.DialogEngines import DialogEngines
 from uci.engine_info import EngineInfo
+import logic.edit
 
 def send_engine_options(uci_controller, engine):
     for (option,val) in engine.options:
@@ -46,20 +47,35 @@ def on_strength_level(mainWindow):
     if(gamestate.mode == MODE_PLAY_WHITE or gamestate.mode == MODE_PLAY_BLACK):
         engine.uci_strength(gamestate.strength_level)
 
-def on_newgame(mainWindow):
-    settings = mainWindow.user_settings
-    db = mainWindow.database
-    # before getting dialog for new game:
-    # if current open game is not part of database, ask
-    # user if he wants to add it
-    if(mainWindow.database.index_current_game == None):
+def unsaved_changes(mainWindow):
+    print("unsaved changes")
+    print(str(mainWindow.gs.unsaved_changes))
+    print(str(mainWindow.database.index_current_game))
+    # dialog to be called to
+    # check for unsaved changes to
+    # the current game
+    # if current game has unsaved changes
+    # or is not saved in database
+    # ask user if he wants save it
+    if(mainWindow.database.index_current_game == None or
+        mainWindow.gs.unsaved_changes):
+        print("inside loop")
         dlg_changes = DialogSaveChanges()
         ret = dlg_changes.exec_()
         if(ret == QMessageBox.Save):
-            # add current game to database
-            # but don't write to pgn file yet
-            mainWindow.database.add_game(mainWindow.gs.game.root())
-            #pass
+            # if game is not in db append
+            if(mainWindow.database.index_current_game == None):
+                logic.edit.editGameData(mainWindow)
+                mainWindow.database.append_game(mainWindow.gs.current)
+            else:
+                mainWindow.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
+            mainWindow.save.setEnabled(False)
+
+
+def on_newgame(mainWindow):
+    settings = mainWindow.user_settings
+    db = mainWindow.database
+    unsaved_changes(mainWindow)
     dialog = DialogNewGame(gamestate=mainWindow.gs,user_settings=settings)
     movesEdit = mainWindow.movesEdit
     if dialog.exec_() == QDialog.Accepted:
@@ -78,7 +94,7 @@ def on_newgame(mainWindow):
         #mainWindow.save.setEnabled(False)
         # add current game to database, but don't save it
         mainWindow.database.index_current_game = None
-        mainWindow.save_in_db.setEnabled(True)
+        mainWindow.save.setEnabled(True)
         #mainWindow.database.add_current_game(mainWindow.gs.game.root())
         if(dialog.rb_plays_white.isChecked()):
             mainWindow.play_white.setChecked(True)
@@ -134,6 +150,7 @@ def on_play_as_white(mainWindow):
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_unsaved_changes(mainWindow):
+    mainWindow.gs.unsaved_changes = True
     mainWindow.save.setEnabled(True)
 
 def on_statechanged(mainWindow):
