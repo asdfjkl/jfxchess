@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.movesEdit.on_statechanged()
 
 
-        default_db_path = fn + "//mygames.pgn"
+        default_db_path = fn + "/mygames.pgn"
         if(not self.user_settings.active_database == None):
             try:
                 self.database = Database(self.user_settings.active_database)
