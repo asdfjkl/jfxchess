@@ -82,6 +82,11 @@ class Database():
         pgn.truncate(new_size)
         pgn.close()
 
+        for i in range(idx, len(self.entries)):
+            self.entries[i].pgn_offset -= length
+        del(self.entries[idx])
+
+
     def append_game(self, game_tree):
         # first remember the last position
         # of the current file
@@ -105,8 +110,35 @@ class Database():
         self.entries.append(Entry(start_offset,game_tree.root().headers))
         self.index_current_game = len(self.entries) - 1
 
+
+    def delete_game_for_update_at(self,idx):
+        start_offset = self.entries[idx].pgn_offset
+
+        # if the last game is to be deleted, first get
+        # the offset at the very end of the file
+        stop_offset = None
+        if(idx == len(self.entries) -1):
+            stop_offset = self.get_end_offset()
+        else: # just take the start of the next game as end
+            stop_offset = self.entries[idx+1].pgn_offset
+
+        length = stop_offset - start_offset
+
+        pgn = open(self.filename, 'r+')
+        m=mm.mmap(pgn.fileno(),0)
+        size = len(m)
+        new_size = size - length
+        m.move(start_offset,stop_offset,size-stop_offset)
+        m.flush()
+        m.close()
+        pgn.truncate(new_size)
+        pgn.close()
+
+        return length
+
+
     def update_game(self, idx, game_tree):
-        self.delete_game_at(idx)
+        old_length = self.delete_game_for_update_at(idx)
 
         dos_newlines = False
         if "\r\n".encode() in open(self.filename,"rb").read():
@@ -138,6 +170,10 @@ class Database():
         m.close()
         pgn.close()
 
+        for i in range(idx+1, len(self.entries)):
+            self.entries[i].pgn_offset += (length-old_length)
+
+
     def no_of_games(self):
         return len(self.entries)
 
@@ -160,17 +196,29 @@ class Database():
         else:
             return True
 
-
 """
 import sys
-entries = []
 app = PyQt4.QtGui.QApplication(sys.argv)
 w = PyQt4.QtGui.QWidget()
 db = Database("/Users/user/Desktop/middleg.pgn")
 db.init_from_file(w)
-game = db.load_game(0)
-db.update_game(1,game)
-#db.delete_game_at(1)
+game = db.load_game(21)
+#db.update_game(1,game)
+print("offset of 2: "+str(db.entries[2].pgn_offset))
+print("offset of 3: "+str(db.entries[3].pgn_offset))
+print("deleting game at 2")
+db.update_game(2,game)
+print("calculated offsets:")
+print("offset of 2: "+str(db.entries[2].pgn_offset))
+print("offset of 3: "+str(db.entries[3].pgn_offset))
+
+entries = []
+with open("/Users/user/Desktop/middleg.pgn","r") as pgn:
+    for offset, headers in chess.pgn.scan_headers(pgn):
+        entries.append((offset,headers))
+print("real offsets:")
+print("offset of 2: "+str(entries[2][0]))
+print("offset of 3: "+str(entries[3][0]))
 
 #with open("/Users/user/Desktop/foobar.pgn", 'w') as pgn:
 #    print("\n\n", file=pgn)
