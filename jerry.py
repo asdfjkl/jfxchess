@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         if(not self.user_settings.active_database == None):
             try:
                 self.database = Database(self.user_settings.active_database)
-                self.database.init_from_cache()
+                self.database.init_from_file(self)
                 #self.database.init_from_file(self)
             except BaseException as e:
                 print(e)
@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
         mainWidget.setLayout(hbox)
         self.setCentralWidget(mainWidget)
         statusbar = self.statusBar()
-        statusbar.showMessage('Jerry v1.02')
+        statusbar.showMessage('Jerry v2.0 alpha')
 
         # set labels of game (i.e. player etc.) above move editing panel
         self.setLabels()
@@ -333,6 +333,9 @@ def about_to_quit():
         f.close()
         with open(main.save_state_dir+"/settings.raw","wb") as f:
             pickle.dump(main.user_settings,f)
+        f.close()
+        with open(main.save_state_dir+"/db_idx.raw","wb") as f:
+            pickle.dump(main.database,f)
         f.close()
     except BaseException as e:
         print(e)
