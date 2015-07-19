@@ -1,5 +1,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from dialogs.DialogEditGameData import DialogEditGameData
 
 class DialogBrowsePgn(QDialog):
 
@@ -72,6 +73,39 @@ class DialogBrowsePgn(QDialog):
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
         self.button_delete.clicked.connect(self.on_delete)
+        self.button_edit_header.clicked.connect(self.on_edit_headers)
+
+    def on_edit_headers(self):
+        # get selected game
+        items = self.table.selectedItems()
+        idx_selected_game = int(items[0].text())-1
+        print("selected: "+str(idx_selected_game))
+        # load selected game
+        game = self.database.load_game(idx_selected_game)
+        dlg = DialogEditGameData(game.root())
+        answer = dlg.exec_()
+        if(answer):
+            game.root().headers["Event"] = dlg.ed_event.text()
+            game.root().headers["Site"] = dlg.ed_site.text()
+            game.root().headers["Date"] = dlg.ed_date.text()
+            game.root().headers["Round"] = dlg.ed_round.text()
+            game.root().headers["White"] = dlg.ed_white.text()
+            game.root().headers["Black"] = dlg.ed_black.text()
+            if(dlg.rb_ww.isChecked()):
+                game.root().headers["Result"] = "1-0"
+            elif(dlg.rb_bw.isChecked()):
+                game.root().headers["Result"] = "0-1"
+            elif(dlg.rb_draw.isChecked()):
+                game.root().headers["Result"] = "1/2-1/2"
+            elif(dlg.rb_unclear.isChecked()):
+                game.root().headers["Result"] = "*"
+            self.database.update_game(idx_selected_game,game)
+            self.table.setItem(idx_selected_game,1,QTableWidgetItem(self.get_key("White",game.root().headers)))
+            self.table.setItem(idx_selected_game,2,QTableWidgetItem(self.get_key("Black",game.root().headers)))
+            self.table.setItem(idx_selected_game,3,QTableWidgetItem(self.get_key("Result",game.root().headers)))
+            self.table.setItem(idx_selected_game,4,QTableWidgetItem(self.get_key("Date",game.root().headers)))
+            self.table.setItem(idx_selected_game,5,QTableWidgetItem(self.get_key("ECO",game.root().headers)))
+            self.table.setItem(idx_selected_game,6,QTableWidgetItem(self.get_key("Site",game.root().headers)))
 
     def on_delete(self):
         # get selected game
