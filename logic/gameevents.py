@@ -70,44 +70,48 @@ def unsaved_changes(mainWindow):
             else:
                 mainWindow.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
             mainWindow.save.setEnabled(False)
+        return ret
+    else:
+        return QMessageBox.Discard
 
 
 def on_newgame(mainWindow):
     settings = mainWindow.user_settings
     db = mainWindow.database
-    unsaved_changes(mainWindow)
-    dialog = DialogNewGame(gamestate=mainWindow.gs,user_settings=settings)
-    movesEdit = mainWindow.movesEdit
-    if dialog.exec_() == QDialog.Accepted:
-        mainWindow.gs = GameState()
-        mainWindow.board.gs = mainWindow.gs
-        movesEdit.gs = mainWindow.gs
-        movesEdit.update()
-        # strength is only changed if internal engine is used
-        # otherwise the dialog is meaningless
-        if(settings.active_engine == settings.engines[0]):
-            mainWindow.gs.strength_level = dialog.slider_elo.value()
-        mainWindow.gs.computer_think_time = dialog.think_ms
-        #print("think time: "+str(mainWindow.gs.computer_think_time))
-        movesEdit.on_statechanged()
-        mainWindow.gs.initialize_headers()
-        #mainWindow.save.setEnabled(False)
-        # add current game to database, but don't save it
-        mainWindow.database.index_current_game = None
-        mainWindow.save.setEnabled(True)
-        #mainWindow.database.add_current_game(mainWindow.gs.game.root())
-        if(dialog.rb_plays_white.isChecked()):
-            mainWindow.play_white.setChecked(True)
-            mainWindow.setLabels()
-            on_play_as_white(mainWindow)
-        else:
-            mainWindow.play_black.setChecked(True)
-            root = mainWindow.gs.current.root()
-            temp = root.headers["White"]
-            root.headers["White"] = root.headers["Black"]
-            root.headers["Black"] = temp
-            mainWindow.setLabels()
-            on_play_as_black(mainWindow)
+    ret = unsaved_changes(mainWindow)
+    if not ret == QMessageBox.Cancel:
+        dialog = DialogNewGame(gamestate=mainWindow.gs,user_settings=settings)
+        movesEdit = mainWindow.movesEdit
+        if dialog.exec_() == QDialog.Accepted:
+            mainWindow.gs = GameState()
+            mainWindow.board.gs = mainWindow.gs
+            movesEdit.gs = mainWindow.gs
+            movesEdit.update()
+            # strength is only changed if internal engine is used
+            # otherwise the dialog is meaningless
+            if(settings.active_engine == settings.engines[0]):
+                mainWindow.gs.strength_level = dialog.slider_elo.value()
+            mainWindow.gs.computer_think_time = dialog.think_ms
+            #print("think time: "+str(mainWindow.gs.computer_think_time))
+            movesEdit.on_statechanged()
+            mainWindow.gs.initialize_headers()
+            #mainWindow.save.setEnabled(False)
+            # add current game to database, but don't save it
+            mainWindow.database.index_current_game = None
+            mainWindow.save.setEnabled(True)
+            #mainWindow.database.add_current_game(mainWindow.gs.game.root())
+            if(dialog.rb_plays_white.isChecked()):
+                mainWindow.play_white.setChecked(True)
+                mainWindow.setLabels()
+                on_play_as_white(mainWindow)
+            else:
+                mainWindow.play_black.setChecked(True)
+                root = mainWindow.gs.current.root()
+                temp = root.headers["White"]
+                root.headers["White"] = root.headers["Black"]
+                root.headers["Black"] = temp
+                mainWindow.setLabels()
+                on_play_as_black(mainWindow)
 
 def on_play_as_black(mainWindow):
     mainWindow.board.flippedBoard = True
