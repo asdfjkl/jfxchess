@@ -221,7 +221,10 @@ class MainWindow(QMainWindow):
         edit_game_data.triggered.connect(partial(edit.editGameData,self))
         m_game.addSeparator()
         next_ = m_game.addAction(self.trUtf8("Next in Database"))
+        next_.triggered.connect(partial(gameevents.on_nextgame,self))
         prev_ = m_game.addAction(self.trUtf8("Previous in Database"))
+        prev_.triggered.connect(partial(gameevents.on_previous_game,self))
+
 
         # MODE MENU
         m_mode = self.menuBar().addMenu(self.trUtf8("Mode"))

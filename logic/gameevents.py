@@ -13,6 +13,9 @@ from util.messages import display_mbox
 from dialogs.DialogEngines import DialogEngines
 from uci.engine_info import EngineInfo
 import logic.edit
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+import logic.file_io
 
 def send_engine_options(uci_controller, engine):
     for (option,val) in engine.options:
@@ -73,6 +76,43 @@ def unsaved_changes(mainWindow):
         return ret
     else:
         return QMessageBox.Discard
+
+def on_nextgame(mainWindow):
+    db = mainWindow.database
+    gs = mainWindow.gs
+    cbv = mainWindow.board
+    if(not db.index_current_game == None):
+        if(db.index_current_game < len(db.entries)-1):
+            ret = unsaved_changes(mainWindow)
+            if not ret == QMessageBox.Cancel:
+                loaded_game = db.load_game(db.index_current_game+1)
+                gs.current = loaded_game
+                cbv.update()
+                cbv.emit(SIGNAL("statechanged()"))
+                gs.unsaved_changes = False
+                mainWindow.save.setEnabled(False)
+                mainWindow.setLabels()
+                mainWindow.movesEdit.setFocus()
+                logic.file_io.init_game_tree(mainWindow,gs.current.root())
+
+
+def on_previous_game(mainWindow):
+    db = mainWindow.database
+    gs = mainWindow.gs
+    cbv = mainWindow.board
+    if(not db.index_current_game == None):
+        if(db.index_current_game > 0):
+            ret = unsaved_changes(mainWindow)
+            if not ret == QMessageBox.Cancel:
+                loaded_game = db.load_game(db.index_current_game-1)
+                gs.current = loaded_game
+                cbv.update()
+                cbv.emit(SIGNAL("statechanged()"))
+                gs.unsaved_changes = False
+                mainWindow.save.setEnabled(False)
+                mainWindow.setLabels()
+                mainWindow.movesEdit.setFocus()
+                logic.file_io.init_game_tree(mainWindow,gs.current.root())
 
 
 def on_newgame(mainWindow):

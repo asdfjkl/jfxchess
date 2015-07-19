@@ -1,5 +1,11 @@
 Bug (dev):
 
+- saving db index and reloading (by checking integrity) on startup
+
+- add maximal game limit (1024 games?) for pgn files
+
+- bug: offsets when deleting/updating last game
+
 - change gamestate only if real edits happen, not just moving back and forth
 
 - FIXED if game is loaded from fen, 1. is missing at first move
