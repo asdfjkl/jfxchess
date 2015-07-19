@@ -12,6 +12,7 @@ class DialogBrowsePgn(QDialog):
     def __init__(self, database, parent=None):
         super(QDialog, self).__init__(parent)
 
+        self.database = database
         columns = 7
         rows = len(database.entries)
         self.setWindowTitle(database.filename)
@@ -70,3 +71,25 @@ class DialogBrowsePgn(QDialog):
 
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
+        self.button_delete.clicked.connect(self.on_delete)
+
+    def on_delete(self):
+        # get selected game
+        items = self.table.selectedItems()
+        idx_selected_game = int(items[0].text())-1
+        print("selected: "+str(idx_selected_game))
+
+        # ask user if he is sure
+        ask_sure = QMessageBox()
+        ask_sure.setText(self.trUtf8("Please confirm."))
+        ask_sure.setInformativeText(self.trUtf8("This will delete the selected game permanently."))
+        ask_sure.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        ask_sure.setDefaultButton(QMessageBox.Cancel)
+
+        if ask_sure.exec_() == QMessageBox.Ok:
+            self.table.removeRow(idx_selected_game)
+            for i in range(idx_selected_game, self.table.rowCount()):
+                old_idx = int(self.table.item(i,0).text())
+                print(str(old_idx))
+                self.table.setItem(i,0,QTableWidgetItem(str(old_idx-1)))
+            self.database.delete_game_at(idx_selected_game)
