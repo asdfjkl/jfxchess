@@ -161,6 +161,7 @@ class Database():
             return True
 
 
+"""
 import sys
 entries = []
 app = PyQt4.QtGui.QApplication(sys.argv)
@@ -174,3 +175,4 @@ db.update_game(1,game)
 #with open("/Users/user/Desktop/foobar.pgn", 'w') as pgn:
 #    print("\n\n", file=pgn)
 #    print(game.root(), file=pgn, end="\n\n")
+"""
