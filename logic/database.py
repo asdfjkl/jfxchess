@@ -59,16 +59,8 @@ class Database():
             end_offset = pgn.tell()
         return end_offset
 
-
     def delete_game_at(self,idx):
         start_offset = self.entries[idx].pgn_offset
-
-        # check for dos-style newlines
-        dos_newlines = False
-        if "\r\n".encode() in open(self.filename,"rb").read():
-            dos_newlines = True
-
-        print("dos newlines:"+str(dos_newlines))
 
         # if the last game is to be deleted, first get
         # the offset at the very end of the file
@@ -77,21 +69,18 @@ class Database():
             stop_offset = self.get_end_offset()
         else: # just take the start of the next game as end
             stop_offset = self.entries[idx+1].pgn_offset
-        # now overwrite the deleted game with
-        # blank spaces + \n
-        length = stop_offset - start_offset
-        pgn = os.open(self.filename, os.O_RDWR)
-        m=mm.mmap(pgn,0)
-        if(dos_newlines):
-            empty_lines = ' '* (length-2) + '\r\n'
-        else:
-            empty_lines = ' '* (length-1) + '\n'
-        m[start_offset:stop_offset] = empty_lines.encode('utf-8')
-        m.flush()
-        os.close(pgn)
 
-        # remove the header from index
-        del(self.entries[idx])
+        length = stop_offset - start_offset
+
+        pgn = open(self.filename, 'r+')
+        m=mm.mmap(pgn.fileno(),0)
+        size = len(m)
+        new_size = size - length
+        m.move(start_offset,stop_offset,size-stop_offset)
+        m.flush()
+        m.close()
+        pgn.truncate(new_size)
+        pgn.close()
 
     def append_game(self, game_tree):
         # first remember the last position
@@ -99,17 +88,55 @@ class Database():
         # this is going to be the offfset for
         # the game that is written
         start_offset = self.get_end_offset()
+
+        dos_newlines = False
+        if "\r\n".encode() in open(self.filename,"rb").read():
+            dos_newlines = True
+
         # append the game
         with open(self.filename, 'a') as pgn:
-            print("\n\n", file=pgn)
-            print(game_tree.root(), file=pgn, end="\n\n")
+            if(dos_newlines):
+                print('\r\n\r\n', file=pgn)
+                print(game_tree.root(), file=pgn, end='\r\n\r\n')
+            else:
+                print("\n\n", file=pgn)
+                print(game_tree.root(), file=pgn, end="\n\n")
         # create new entry
         self.entries.append(Entry(start_offset,game_tree.root().headers))
         self.index_current_game = len(self.entries) - 1
 
     def update_game(self, idx, game_tree):
         self.delete_game_at(idx)
-        self.append_game(game_tree)
+
+        dos_newlines = False
+        if "\r\n".encode() in open(self.filename,"rb").read():
+            dos_newlines = True
+
+        if(dos_newlines):
+            game_str = (str(game_tree.root())).replace('\n','\r\n')
+            game_str = (game_str + '\r\n\r\n').encode('utf-8')
+        else:
+            game_str = (str(game_tree.root())+"\n\n").encode('utf-8')
+        length = len(game_str)
+
+        offset = self.entries[idx].pgn_offset
+
+        pgn = open(self.filename, 'r+')
+        m=mm.mmap(pgn.fileno(),0)
+        size = len(m)
+        new_size = size + length
+        m.flush()
+        m.close()
+        pgn.seek(size)
+        pgn.write('A'*length)
+        pgn.flush()
+        m=mm.mmap(pgn.fileno(),0)
+        m.move(offset+length,offset,size-offset)
+        m.seek(offset)
+        m.write(game_str)
+        m.flush()
+        m.close()
+        pgn.close()
 
     def no_of_games(self):
         return len(self.entries)
@@ -133,3 +160,17 @@ class Database():
         else:
             return True
 
+
+import sys
+entries = []
+app = PyQt4.QtGui.QApplication(sys.argv)
+w = PyQt4.QtGui.QWidget()
+db = Database("/Users/user/Desktop/middleg.pgn")
+db.init_from_file(w)
+game = db.load_game(0)
+db.update_game(1,game)
+#db.delete_game_at(1)
+
+#with open("/Users/user/Desktop/foobar.pgn", 'w') as pgn:
+#    print("\n\n", file=pgn)
+#    print(game.root(), file=pgn, end="\n\n")
