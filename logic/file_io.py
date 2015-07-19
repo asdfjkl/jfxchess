@@ -198,23 +198,25 @@ def browse_database(mainWindow):
     db = mainWindow.database
     gs = mainWindow.gs
     cbv = mainWindow.board
-    ret = logic.gameevents.unsaved_changes(mainWindow)
-    if not ret == QMessageBox.Cancel:
-        dlg = DialogBrowsePgn(db)
-        #
-        if dlg.exec_() == QDialog.Accepted:
-            items = dlg.table.selectedItems()
-            selectedGame = int(items[0].text())-1
-            loaded_game = db.load_game(selectedGame)
-            #offset, headers = db.offset_headers[idx]
-            #pgn.seek(offset)
-            #first_game = chess.pgn.read_game(pgn)
-            print("loaded game: "+str(loaded_game))
-            if(not loaded_game == None):
+
+    dlg = DialogBrowsePgn(db)
+    #
+    if dlg.exec_() == QDialog.Accepted:
+        items = dlg.table.selectedItems()
+        selectedGame = int(items[0].text())-1
+        loaded_game = db.load_game(selectedGame)
+        #offset, headers = db.offset_headers[idx]
+        #pgn.seek(offset)
+        #first_game = chess.pgn.read_game(pgn)
+        print("loaded game: "+str(loaded_game))
+        if(not loaded_game == None):
+            ret = logic.gameevents.unsaved_changes(mainWindow)
+            if not ret == QMessageBox.Cancel:
                 gs.current = loaded_game
-                mainWindow.save.setEnabled(False)
                 cbv.update()
                 cbv.emit(SIGNAL("statechanged()"))
+                gs.unsaved_changes = False
+                mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
                 mainWindow.movesEdit.setFocus()
                 init_game_tree(mainWindow,gs.current.root())
