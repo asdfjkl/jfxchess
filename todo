@@ -1,6 +1,8 @@
 Bug (dev):
 
-- saving db index and reloading (by checking integrity) on startup
+- replace pickle with json
+
+- DONE saving db index and reloading (by checking integrity) on startup
 
 - add maximal game limit (1024 games?) for pgn files
 
