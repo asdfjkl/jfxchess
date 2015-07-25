@@ -147,7 +147,7 @@ def open_pgn(mainWindow):
     filename = dialog.getOpenFileName(chessboardview, mainWindow.trUtf8('Open PGN'), None, 'PGN (*.pgn)',QFileDialog.DontUseNativeDialog)
     if filename:
         db = Database(filename)
-        db.init_from_file(mainWindow)
+        db.init_from_file(mainWindow,mainWindow.trUtf8("Scanning PGN File..."))
         mainWindow.database = db
         mainWindow.user_settings.active_database = db.filename
         selectedGame = 0
