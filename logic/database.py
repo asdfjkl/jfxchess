@@ -57,6 +57,7 @@ class Database():
         with open(self.filename,'r') as pgn:
             pgn.seek(0,os.SEEK_END)
             end_offset = pgn.tell()
+        print("determined end offset: "+str(end_offset))
         return end_offset
 
     def delete_game_at(self,idx):
@@ -123,6 +124,7 @@ class Database():
         stop_offset = None
         if(idx == len(self.entries) -1):
             stop_offset = self.get_end_offset()
+            print("stop offset: "+str(stop_offset))
         else: # just take the start of the next game as end
             stop_offset = self.entries[idx+1].pgn_offset
 
