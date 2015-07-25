@@ -33,11 +33,11 @@ class Database():
         self.checksum = crc32_from_file(self.filename)
         self.filename = filename
 
-    def init_from_file(self, mainWindow):
+    def init_from_file(self, mainWindow, msg):
         with open(self.filename) as pgn:
             size = os.path.getsize(self.filename)
             self.entries = []
-            pDialog = QProgressDialog(mainWindow.trUtf8("Scanning PGN File"),None,0,size,mainWindow)
+            pDialog = QProgressDialog(msg,None,0,size,mainWindow)
             pDialog.show()
             pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
             QApplication.processEvents()
@@ -81,6 +81,7 @@ class Database():
         m.close()
         pgn.truncate(new_size)
         pgn.close()
+        self.checksum = crc32_from_file(self.filename)
 
         for i in range(idx, len(self.entries)):
             self.entries[i].pgn_offset -= length
@@ -106,6 +107,9 @@ class Database():
             else:
                 print("\n\n", file=pgn)
                 print(game_tree.root(), file=pgn, end="\n\n")
+
+        self.checksum = crc32_from_file(self.filename)
+
         # create new entry
         self.entries.append(Entry(start_offset,game_tree.root().headers))
         self.index_current_game = len(self.entries) - 1
@@ -169,6 +173,8 @@ class Database():
         m.flush()
         m.close()
         pgn.close()
+
+        self.checksum = crc32_from_file(self.filename)
 
         for i in range(idx+1, len(self.entries)):
             self.entries[i].pgn_offset += (length-old_length)

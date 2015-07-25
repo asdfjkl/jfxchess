@@ -76,6 +76,21 @@ class MainWindow(QMainWindow):
         except BaseException as e:
             print(e)
             pass
+        try:
+            with open(fn+"/db_idx.raw","rb") as f_database:
+                db = pickle.load(f_database)
+                print("db loaded")
+                if(db.is_consistent()):
+                    print("db is consistent")
+                    self.database = db
+                else:
+                    print("db is not consistent")
+                    db.init_from_file(self,self.trUtf8("PGN changed on disk - rescanning..."))
+                    self.database = db
+            f_database.close()
+        except BaseException as e:
+            print(e)
+            pass
 
         self.board = ChessboardView(self.gs,self.engine)
         self.board.on_statechanged()
@@ -86,17 +101,8 @@ class MainWindow(QMainWindow):
 
 
         default_db_path = fn + "/mygames.pgn"
-        if(not self.user_settings.active_database == None):
-            try:
-                self.database = Database(self.user_settings.active_database)
-                self.database.init_from_file(self)
-                #self.database.init_from_file(self)
-            except BaseException as e:
-                print(e)
-                self.database = Database(default_db_path)
-                self.database.create_new_pgn()
-                self.database.init_from_file(self)
-        else:
+        # if a db could be not be recovered create default one
+        if(self.database == None):
             # if user has no database, create new
             # one. current game is saved as first entry
             self.database = Database(default_db_path)
