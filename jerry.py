@@ -4,7 +4,7 @@
 from views.moves_edit_view import MovesEditView
 from views.chessboard_view import ChessboardView
 from controller import file_io
-from controller import edit
+from controller import edit_menu_ctr
 from controller import gameevents
 from model.gamestate import GameState
 from model.gamestate import MODE_ENTER_MOVES
@@ -13,7 +13,7 @@ from uci.uci_controller import Uci_controller
 from model.user_settings import UserSettings,InternalEngine
 from model.database import Database
 from model.model import Model
-from controller.edit import EditMenuController
+from controller.edit_menu_ctr import EditMenuController
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
