@@ -13,6 +13,7 @@ from uci.uci_controller import Uci_controller
 from model.user_settings import UserSettings,InternalEngine
 from model.database import Database
 from model.model import Model
+from controller.edit import EditMenuController
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -118,19 +119,21 @@ class MainWindow(QMainWindow):
         exit_item.triggered.connect(QApplication.quit)
 
         # EDIT MENU
+        self.editMenuController = EditMenuController(self,self.model)
         m_edit = self.menuBar().addMenu(self.trUtf8('Edit '))
         copy_game = m_edit.addAction(self.trUtf8("Copy Game"))
-        copy_game.triggered.connect(partial(edit.game_to_clipboard,self.model.gamestate))
+        copy_game.triggered.connect(self.editMenuController.game_to_clipboard)
+        print("connected")
         copy_game.setShortcut(QKeySequence.Copy)
         copy_pos = m_edit.addAction(self.trUtf8("Copy Position"))
-        copy_pos.triggered.connect(partial(edit.pos_to_clipboard,self.model.gamestate))
+        copy_pos.triggered.connect(self.editMenuController.pos_to_clipboard)
         paste = m_edit.addAction(self.trUtf8("Paste"))
         paste.setShortcut(QKeySequence.Paste)
-        paste.triggered.connect(partial(edit.from_clipboard,self))
+        paste.triggered.connect(self.editMenuController.from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction(self.trUtf8("&Enter Position"))
         enter_pos.setShortcut('e')
-        enter_pos.triggered.connect(partial(edit.enter_position,self))
+        enter_pos.triggered.connect(self.editMenuController.enter_position)
         reset_pos = m_edit.addAction(self.trUtf8("Reset to Initial"))
         m_edit.addSeparator()
         flip = m_edit.addAction(self.trUtf8("&Flip Board"))
@@ -165,7 +168,7 @@ class MainWindow(QMainWindow):
         export_game.triggered.connect(partial(file_io.export_game,self))
         m_game.addSeparator()
         edit_game_data = m_game.addAction(self.trUtf8("Edit Game Data"))
-        edit_game_data.triggered.connect(partial(edit.editGameData,self))
+        edit_game_data.triggered.connect(self.editMenuController.editGameData)
         m_game.addSeparator()
         next_ = m_game.addAction(self.trUtf8("Next in Database"))
         next_.triggered.connect(partial(gameevents.on_nextgame,self))
