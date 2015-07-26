@@ -2,9 +2,9 @@ import os,sys,json
 from chess.uci import popen_engine
 
 
-class Settings():
+class UserSettings():
     def __init__(self):
-        super(Settings, self).__init__()
+        super(UserSettings, self).__init__()
 
         self.engines = []
         self.active_engine = None

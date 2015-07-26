@@ -1,19 +1,18 @@
 #!/usr/bin/python3
 
 # classes from Jerry:
-from gui.MovesEdit import MovesEdit
-from gui.ChessBoardView import ChessboardView
-from logic import file_io
-from logic import edit
-from logic import gameevents
-from logic.gamestate import GameState
-from logic.gamestate import MODE_ENTER_MOVES
-from dialogs.DialogAbout import DialogAbout
+from views.moves_edit_view import MovesEditView
+from views.chessboard_view import ChessboardView
+from controller import file_io
+from controller import edit
+from controller import gameevents
+from model.gamestate import GameState
+from model.gamestate import MODE_ENTER_MOVES
+from dialogs.dialog_about import DialogAbout
 from uci.uci_controller import Uci_controller
-from logic.user_settings import Settings,InternalEngine
-from logic.database import Database
-
-from dialogs.DialogBrowsePgn import DialogBrowsePgn
+from model.user_settings import UserSettings,InternalEngine
+from model.database import Database
+from model.model import Model
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -35,9 +34,7 @@ class MainWindow(QMainWindow):
         exit.setStatusTip(self.trUtf8('Exit application'))
         self.connect(exit, SIGNAL('triggered()'), SLOT('close()'))
 
-        self.gs = GameState()
-        self.gs.mode = MODE_ENTER_MOVES
-        self.engine = Uci_controller()
+        self.engine_controller = Uci_controller()
         """
         self.engine_fn = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
@@ -49,81 +46,38 @@ class MainWindow(QMainWindow):
             self.engine_fn += '/engine/stockfish_osx'
         self.engine_fn = '"'+self.engine_fn+'"'
         """
-        self.user_settings = Settings()
-        self.user_settings.engines.append(InternalEngine())
-        self.user_settings.active_engine = self.user_settings.engines[0]
 
-        self.database = None
+        self.model = Model.create_on_startup(self)
 
-        # if existing, recover game state that user was in
-        # before existing game the last time (by unpickling)
-        appname = 'jerry200'
-        appauthor = 'dkl'
-        fn = user_data_dir(appname, appauthor)
-        self.save_state_dir = fn
-        try:
-            with open(fn+"/current.raw","rb") as pgn:
-                self.gs = pickle.load(pgn)
-                self.gs.mode = MODE_ENTER_MOVES
-            pgn.close()
-        except BaseException as e:
-            print(e)
-            pass
-        try:
-            with open(fn+"/settings.raw","rb") as f_setting:
-                self.user_settings = pickle.load(f_setting)
-            f_setting.close()
-        except BaseException as e:
-            print(e)
-            pass
-        try:
-            with open(fn+"/db_idx.raw","rb") as f_database:
-                db = pickle.load(f_database)
-                print("db loaded")
-                if(db.is_consistent()):
-                    print("db is consistent")
-                    self.database = db
-                else:
-                    print("db is not consistent")
-                    db.init_from_file(self,self.trUtf8("PGN changed on disk - rescanning..."))
-                    self.database = db
-            f_database.close()
-        except BaseException as e:
-            print(e)
-            pass
+        self.chessboard_view = ChessboardView(self.model.gamestate,self.engine_controller)
+        self.chessboard_view.on_statechanged()
 
-        self.board = ChessboardView(self.gs,self.engine)
-        self.board.on_statechanged()
+        self.moves_edit_view = MovesEditView(self.model.gamestate)
+        self.moves_edit_view.setReadOnly(True)
+        self.moves_edit_view.on_statechanged()
 
-        self.movesEdit = MovesEdit(self.gs)
-        self.movesEdit.setReadOnly(True)
-        self.movesEdit.on_statechanged()
-
-
-        default_db_path = fn + "/mygames.pgn"
-        # if a db could be not be recovered create default one
-        if(self.database == None):
-            # if user has no database, create new
-            # one. current game is saved as first entry
-            self.database = Database(default_db_path)
-            self.database.create_new_pgn()
-            #self.database.add_game(self.gs.game.root())
 
         # setup the main window
+        # consisting of:
+        #
+        # <-------menubar---------------------------->
+        # <chess-     ->   <moves_edit_view---------->
+        # <boardview  ->   <engine output (Textedit)->
+        #
         spLeft = QSizePolicy();
         spLeft.setHorizontalStretch(1);
         mainWidget = QWidget()
         hbox = QHBoxLayout()
-        hbox.addWidget(self.board)
+        hbox.addWidget(self.chessboard_view)
         spRight = QSizePolicy()
         spRight.setHorizontalStretch(2)
         vbox = QVBoxLayout()
         self.name = QLabel()
         self.name.setAlignment(Qt.AlignCenter)
-        self.name.setBuddy(self.movesEdit)
+        self.name.setBuddy(self.moves_edit_view)
         vbox.addWidget(self.name)
-        vbox.addWidget(self.movesEdit)
-        self.board.movesEdit = self.movesEdit
+        vbox.addWidget(self.moves_edit_view)
+        self.chessboard_view.movesEdit = self.moves_edit_view
         self.engineOutput = QTextEdit()
         self.engineOutput.setReadOnly(True)
         vbox.addWidget(self.engineOutput)
@@ -143,30 +97,18 @@ class MainWindow(QMainWindow):
         m_file = self.menuBar().addMenu(self.trUtf8('File '))
         new_db = m_file.addAction(self.trUtf8("New..."))
         new_db.triggered.connect(partial(file_io.new_database,self))
-        #m_file.addSeparator()
         open_db = m_file.addAction(self.trUtf8("Open..."))
         open_db.setShortcut(QKeySequence.Open)
         open_db.triggered.connect(partial(file_io.open_pgn, self))
-        #self.save = m_file.addAction(self.trUtf8("Save"))
-        #self.save.setShortcut(QKeySequence.Save)
-        #self.save.triggered.connect(partial(file_io.save,self))
-        #self.save.setEnabled(False)
-        #save_game_as = m_file.addAction(self.trUtf8("Save As..."))
-        #save_game_as.triggered.connect(partial(file_io.save_db_as_new,self))
-        #save_game_as.setShortcut(QKeySequence.SaveAs)
-        #append_game = m_file.addAction(self.trUtf8("Append to ..."))
-        #append_game.triggered.connect(partial(file_io.append_to_pgn,self))
-        load_game = m_file.addAction(self.trUtf8("Browse Games..."))
-        load_game.setShortcut('L')
-        load_game.triggered.connect(partial(file_io.browse_database, self))
-
-
+        browse_games = m_file.addAction(self.trUtf8("Browse Games..."))
+        browse_games.setShortcut('L')
+        browse_games.triggered.connect(partial(file_io.browse_database, self))
         m_file.addSeparator()
         save_diag = m_file.addAction(self.trUtf8("Save Position as Image"))
         save_diag.triggered.connect(partial(file_io.save_image,self))
         m_file.addSeparator()
         print_game = m_file.addAction(self.trUtf8("Print Game"))
-        print_game.triggered.connect(partial(file_io.print_game,self.gs))
+        print_game.triggered.connect(partial(file_io.print_game,self.model.gamestate))
         print_game.setShortcut(QKeySequence.Print)
         print_pos = m_file.addAction(self.trUtf8("Print Position"))
         print_pos.triggered.connect(partial(file_io.print_position,self))
@@ -178,10 +120,10 @@ class MainWindow(QMainWindow):
         # EDIT MENU
         m_edit = self.menuBar().addMenu(self.trUtf8('Edit '))
         copy_game = m_edit.addAction(self.trUtf8("Copy Game"))
-        copy_game.triggered.connect(partial(edit.game_to_clipboard,self.gs))
+        copy_game.triggered.connect(partial(edit.game_to_clipboard,self.model.gamestate))
         copy_game.setShortcut(QKeySequence.Copy)
         copy_pos = m_edit.addAction(self.trUtf8("Copy Position"))
-        copy_pos.triggered.connect(partial(edit.pos_to_clipboard,self.gs))
+        copy_pos.triggered.connect(partial(edit.pos_to_clipboard,self.model.gamestate))
         paste = m_edit.addAction(self.trUtf8("Paste"))
         paste.setShortcut(QKeySequence.Paste)
         paste.triggered.connect(partial(edit.from_clipboard,self))
@@ -189,11 +131,11 @@ class MainWindow(QMainWindow):
         enter_pos = m_edit.addAction(self.trUtf8("&Enter Position"))
         enter_pos.setShortcut('e')
         enter_pos.triggered.connect(partial(edit.enter_position,self))
-        enter_pos = m_edit.addAction(self.trUtf8("Reset to Initial"))
+        reset_pos = m_edit.addAction(self.trUtf8("Reset to Initial"))
         m_edit.addSeparator()
         flip = m_edit.addAction(self.trUtf8("&Flip Board"))
         flip.setShortcut('f')
-        flip.triggered.connect(self.board.flip_board)
+        flip.triggered.connect(self.chessboard_view.flip_board)
         self.display_info = QAction(self.trUtf8("Show Search &Info"),m_edit,checkable=True)
         self.display_info.setShortcut('i')
         m_edit.addAction(self.display_info)
@@ -211,12 +153,11 @@ class MainWindow(QMainWindow):
         # GAME MENU
         m_game = self.menuBar().addMenu(self.trUtf8('Game '))
         new_game = m_game.addAction(self.trUtf8('New Game'))
-        # save game in database
         new_game.setShortcut(QKeySequence.New)
         new_game.triggered.connect(partial(gameevents.on_newgame,self))
         self.save = m_game.addAction(self.trUtf8("Save"))
         self.save.triggered.connect(partial(file_io.save,self))
-        if(not self.gs.unsaved_changes):
+        if(not self.model.gamestate.unsaved_changes):
             self.save.setEnabled(False)
         self.save_as = m_game.addAction(self.trUtf8("Save As New..."))
         self.save_as.triggered.connect(partial(file_io.save_as_new,self))
@@ -278,19 +219,16 @@ class MainWindow(QMainWindow):
         homepage = m_help.addAction(self.trUtf8(("Jerry-Homepage")))
         homepage.triggered.connect(self.go_to_homepage)
 
-
-        #m_help.addSeparator()
-
-        self.connect(self.engine, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
-        self.connect(self.movesEdit, SIGNAL("statechanged()"),self.board.on_statechanged)
-        self.connect(self.movesEdit, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
-        self.connect(self.movesEdit, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
-        self.connect(self.board, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
-        self.connect(self.board, SIGNAL("statechanged()"),self.movesEdit.on_statechanged)
-        self.connect(self.board, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
-        self.connect(self.engine, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
-        self.connect(self.board,SIGNAL("drawn"),partial(gameevents.draw_game,self))
-        self.connect(self.board,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
+        self.connect(self.engine_controller, SIGNAL("updateinfo(PyQt_PyObject)"),partial(gameevents.receive_engine_info,self))
+        self.connect(self.moves_edit_view, SIGNAL("statechanged()"),self.chessboard_view.on_statechanged)
+        self.connect(self.moves_edit_view, SIGNAL("statechanged()"),partial(gameevents.on_statechanged,self))
+        self.connect(self.moves_edit_view, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
+        self.connect(self.chessboard_view, SIGNAL("unsaved_changes()"),partial(gameevents.on_unsaved_changes,self))
+        self.connect(self.chessboard_view, SIGNAL("statechanged()"),self.moves_edit_view.on_statechanged)
+        self.connect(self.chessboard_view, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
+        self.connect(self.engine_controller, SIGNAL("bestmove(QString)"),partial(gameevents.on_bestmove,self))
+        self.connect(self.chessboard_view,SIGNAL("drawn"),partial(gameevents.draw_game,self))
+        self.connect(self.chessboard_view,SIGNAL("checkmate"),partial(gameevents.on_checkmate,self))
 
     def set_display_info(self):
         if(self.display_info.isChecked()):
@@ -312,7 +250,7 @@ class MainWindow(QMainWindow):
                   (resolution.height() / 2) - (self.frameSize().height()*2 / 3))
 
     def setLabels(self):
-        game = self.gs.current.root()
+        game = self.model.gamestate.current.root()
         self.name.setText("<b>"+game.headers["White"]+ " - "+
                       game.headers["Black"]+"</b><br>"+
                       game.headers["Site"]+ " "+
@@ -333,22 +271,6 @@ def module_path():
         return os.path.dirname(sys.executable)
     return os.path.dirname(__file__)
 
-def about_to_quit():
-    try:
-        if not os.path.exists(main.save_state_dir):
-            os.makedirs(main.save_state_dir)
-        with open(main.save_state_dir+"/current.raw",'wb') as f:
-            pickle.dump(main.gs,f)
-        f.close()
-        with open(main.save_state_dir+"/settings.raw","wb") as f:
-            pickle.dump(main.user_settings,f)
-        f.close()
-        with open(main.save_state_dir+"/db_idx.raw","wb") as f:
-            pickle.dump(main.database,f)
-        f.close()
-    except BaseException as e:
-        print(e)
-        pass
 
 
 sys.setrecursionlimit(3000)
@@ -373,6 +295,10 @@ app.installTranslator(translator)
 
 
 main = MainWindow()
+
+def about_to_quit():
+    main.model.dump()
+
 
 # set app icon
 app_icon = QIcon()
