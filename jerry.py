@@ -257,7 +257,7 @@ class MainWindow(QMainWindow):
                       game.headers["Date"])
 
     def closeEvent(self, event):
-        self.board.engine.stop_engine()
+        self.engine_controller.stop_engine()
 
 
 

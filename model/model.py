@@ -83,15 +83,15 @@ class Model():
     # of whole model (instead of three separate files
     def dump(self):
         try:
-            if not os.path.exists(self.save_state_dir):
-                os.makedirs(self.save_state_dir)
-            with open(self.save_state_dir+"/current.raw",'wb') as f:
-                pickle.dump(self.gs,f)
+            if not os.path.exists(self.save_dir):
+                os.makedirs(self.save_dir)
+            with open(self.save_dir+"/current.raw",'wb') as f:
+                pickle.dump(self.gamestate,f)
             f.close()
-            with open(self.save_state_dir+"/settings.raw","wb") as f:
+            with open(self.save_dir+"/settings.raw","wb") as f:
                 pickle.dump(self.user_settings,f)
             f.close()
-            with open(self.save_state_dir+"/db_idx.raw","wb") as f:
+            with open(self.save_dir+"/db_idx.raw","wb") as f:
                 pickle.dump(self.database,f)
             f.close()
         except BaseException as e:

@@ -53,8 +53,8 @@ def on_strength_level(mainWindow):
 
 def unsaved_changes(mainWindow):
     print("unsaved changes")
-    print(str(mainWindow.gs.unsaved_changes))
-    print(str(mainWindow.database.index_current_game))
+    print(str(mainWindow.model.gamestate.unsaved_changes))
+    print(str(mainWindow.model.database.index_current_game))
     # dialog to be called to
     # check for unsaved changes to
     # the current game
@@ -195,13 +195,13 @@ def on_play_as_white(mainWindow):
         mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_unsaved_changes(mainWindow):
-    mainWindow.gs.unsaved_changes = True
+    mainWindow.model.gamestate.unsaved_changes = True
     mainWindow.save.setEnabled(True)
 
 def on_statechanged(mainWindow):
     mainWindow.save.setEnabled(True)
-    gs = mainWindow.gs
-    engine = mainWindow.engine
+    gs = mainWindow.model.gamestate
+    engine = mainWindow.engine_controller
     if(gs.mode == MODE_ANALYSIS):
         fen, uci_string = mainWindow.gs.printer.to_uci(gs.current)
         engine.send_fen(fen)
