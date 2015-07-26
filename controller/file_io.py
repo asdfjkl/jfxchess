@@ -2,11 +2,10 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 #import chess
 from chess.polyglot import *
-from dialogs.DialogBrowsePgn import DialogBrowsePgn
-import os
-from logic.database import Database
-import logic
-import logic.gamestate
+from dialogs.dialog_browse_pgn import DialogBrowsePgn
+from model.database import Database
+import controller
+import model.gamestate
 
 def print_game(gamestate):
     dialog = QPrintDialog()
@@ -48,7 +47,7 @@ def save_as_new(mainWidget):
     db = mainWidget.database
     gs = mainWidget.gs
     # let the user enter game data
-    logic.edit.editGameData(mainWidget)
+    controller.edit.editGameData(mainWidget)
     db.append_game(gs.current)
     mainWidget.save.setEnabled(False)
     mainWidget.movesEdit.setFocus()
@@ -121,7 +120,7 @@ def init_game_tree(mainWindow, root):
 
 def new_database(mainWindow):
     dialog = QFileDialog()
-    ret = logic.gameevents.unsaved_changes(mainWindow)
+    ret = controller.gameevents.unsaved_changes(mainWindow)
     if not ret == QMessageBox.Cancel:
         filename = dialog.getSaveFileName(mainWindow, mainWindow.trUtf8('Create New PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if(filename):
@@ -194,10 +193,10 @@ def open_pgn(mainWindow):
 
 def browse_database(mainWindow):
     selectedGame = 0
-    mainWindow.gs.mode = logic.gamestate.MODE_ENTER_MOVES
-    db = mainWindow.database
-    gs = mainWindow.gs
-    cbv = mainWindow.board
+    mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
+    db = mainWindow.model.database
+    gs = mainWindow.model.gamestate
+    cbv = mainWindow.chessboard_view
 
     dlg = DialogBrowsePgn(db)
     #
@@ -210,7 +209,7 @@ def browse_database(mainWindow):
         #first_game = chess.pgn.read_game(pgn)
         print("loaded game: "+str(loaded_game))
         if(not loaded_game == None):
-            ret = logic.gameevents.unsaved_changes(mainWindow)
+            ret = controller.gameevents.unsaved_changes(mainWindow)
             if not ret == QMessageBox.Cancel:
                 gs.current = loaded_game
                 cbv.update()

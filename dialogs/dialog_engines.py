@@ -1,10 +1,12 @@
+from copy import deepcopy
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys
-from logic.user_settings import Engine
-from chess.uci import popen_engine, TimeoutError
-from copy import deepcopy
-from dialogs.DialogEngineOptions import DialogEngineOptions
+
+from model.user_settings import Engine
+from chess.uci import popen_engine
+from dialogs.dialog_engine_options import DialogEngineOptions
+
 
 class DialogEngines(QDialog):
 

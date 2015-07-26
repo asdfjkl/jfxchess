@@ -1,7 +1,6 @@
-from gui.PieceImages import PieceImages
-from dialogs.DialogPromotion import DialogPromotion
+from views.piece_images import PieceImages
+from dialogs.dialog_promotion import DialogPromotion
 from util.messages import display_mbox
-import time
 # python chess
 from chess.polyglot import *
 import chess
@@ -10,9 +9,9 @@ import os
 # PyQt and python system functions
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-import sys, random, time
+import random
 
-from logic.gamestate import MODE_ENTER_MOVES,MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
+from model.gamestate import MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
 
 def idx_to_str(x):
     return chr(97 + x % 8)

@@ -2,9 +2,9 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import io
 import chess
-from dialogs.DialogEditGameData import DialogEditGameData
-from dialogs.DialogEnterPosition import DialogEnterPosition
-from logic.file_io import init_game_tree
+from dialogs.dialog_edit_game_data import DialogEditGameData
+from dialogs.dialog_enter_position import DialogEnterPosition
+from controller.file_io import init_game_tree
 
 def game_to_clipboard(gamestate):
     clipboard = QApplication.clipboard()

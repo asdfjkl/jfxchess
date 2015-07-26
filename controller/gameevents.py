@@ -1,21 +1,22 @@
-from dialogs.DialogStrengthLevel import DialogStrengthLevel
-from dialogs.DialogNewGame import DialogNewGame
-from dialogs.DialogAnalyzeGame import DialogAnalyzeGame
-from dialogs.DialogSaveChanges import DialogSaveChanges
-from PyQt4.QtGui import QDialog, QMessageBox, QApplication
-from logic.gamestate import GameState
-from logic.gamestate import MODE_ENTER_MOVES, \
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
+from dialogs.dialog_strength_level import DialogStrengthLevel
+from dialogs.dialog_new_game import DialogNewGame
+from dialogs.dialog_analyze_game import DialogAnalyzeGame
+from dialogs.dialog_save_changes import DialogSaveChanges
+from model.gamestate import GameState
+from model.gamestate import MODE_ENTER_MOVES, \
     MODE_PLAY_WHITE, MODE_PLAY_BLACK, MODE_ANALYSIS, \
     MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
 import chess
-from logic.file_io import is_position_in_book
+from controller.file_io import is_position_in_book
 from util.messages import display_mbox
-from dialogs.DialogEngines import DialogEngines
+from dialogs.dialog_engines import DialogEngines
 from uci.engine_info import EngineInfo
-import logic.edit
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-import logic.file_io
+import controller.edit
+import controller.file_io
+
 
 def send_engine_options(uci_controller, engine):
     for (option,val) in engine.options:
@@ -68,7 +69,7 @@ def unsaved_changes(mainWindow):
         if(ret == QMessageBox.Save):
             # if game is not in db append
             if(mainWindow.database.index_current_game == None):
-                logic.edit.editGameData(mainWindow)
+                controller.edit.editGameData(mainWindow)
                 mainWindow.database.append_game(mainWindow.gs.current)
             else:
                 mainWindow.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
@@ -93,7 +94,7 @@ def on_nextgame(mainWindow):
                 mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
                 mainWindow.movesEdit.setFocus()
-                logic.file_io.init_game_tree(mainWindow,gs.current.root())
+                controller.file_io.init_game_tree(mainWindow,gs.current.root())
 
 
 def on_previous_game(mainWindow):
@@ -112,7 +113,7 @@ def on_previous_game(mainWindow):
                 mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
                 mainWindow.movesEdit.setFocus()
-                logic.file_io.init_game_tree(mainWindow,gs.current.root())
+                controller.file_io.init_game_tree(mainWindow,gs.current.root())
 
 
 def on_newgame(mainWindow):
@@ -427,7 +428,7 @@ def on_bestmove(mainWindow,move):
             legal_moves = gs.current.board().legal_moves
             # test if engine move is actually legal (this should
             # always be true, unless there is some serious sync
-            # issue between engine and gui)
+            # issue between engine and views)
             if (len([x for x in legal_moves if x.uci() == uci]) > 0):
                 mainWindow.board.executeMove(move)
                 mainWindow.board.on_statechanged()
@@ -481,7 +482,7 @@ def on_set_engines(mainWidget):
         info.id = user_settings.active_engine.name
         receive_engine_info(mainWidget,info)
         print("active engine after dialog setting"+str(user_settings.active_engine.path))
-        #todo update gui, i.e. label above engine window
+        #todo update views, i.e. label above engine window
 
 
 
