@@ -1,11 +1,12 @@
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-from gui.GUIPrinter import GUIPrinter
-from dialogs.DialogWithListView import DialogWithListView
-from dialogs.DialogWithPlaintext import DialogWithPlainText
-from logic.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
 
-class MovesEdit(QTextEdit):
+from dialogs.dialog_with_listview import DialogWithListView
+from dialogs.dialog_with_plaintext import DialogWithPlainText
+from model.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
+
+
+class MovesEditView(QTextEdit):
 
     def __init__(self,gamestate):
         super(QTextEdit, self).__init__()

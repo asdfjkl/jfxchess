@@ -1,4 +1,4 @@
-from gui.PieceImages import PieceImages
+from views.piece_images import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode

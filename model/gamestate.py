@@ -1,4 +1,4 @@
-from gui.GUIPrinter import GUIPrinter
+from views.game_gui_printer import GUIPrinter
 import chess
 import time
 from uci.engine_info import EngineInfo

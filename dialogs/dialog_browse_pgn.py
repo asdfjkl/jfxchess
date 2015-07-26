@@ -1,6 +1,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from dialogs.DialogEditGameData import DialogEditGameData
+from dialogs.dialog_edit_game_data import DialogEditGameData
 import re
 import PyQt4
 
