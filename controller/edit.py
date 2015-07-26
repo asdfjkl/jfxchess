@@ -45,7 +45,7 @@ def from_clipboard(mainWindow):
     boardview.emit(SIGNAL("statechanged()"))
 
 def editGameData(mainWindow):
-    root = mainWindow.gs.current.root()
+    root = mainWindow.model.gamestate.current.root()
     ed = DialogEditGameData(root)
     answer = ed.exec_()
     if(answer):
