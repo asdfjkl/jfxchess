@@ -28,7 +28,7 @@ def print_position(q_widget):
 def save_image(q_widget):
     filename = QFileDialog.getSaveFileName(q_widget, q_widget.trUtf8('Save Image'), None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
     if(filename):
-        p = QPixmap.grabWindow(q_widget.board.winId())
+        p = QPixmap.grabWindow(q_widget.chessboard_view.winId())
         p.save(filename,'jpg')
 
 def save(mainWidget):
@@ -93,7 +93,7 @@ def save_to_db(mainWindow):
     mainWindow.save_in_db.setEnabled(False)
 
 def init_game_tree(mainWindow, root):
-    gamestate = mainWindow.gs
+    gamestate = mainWindow.model.gamestate
     # ugly workaround:
     # the next lines are just to ensure that
     # the "board cache" (see doc. of python-chess lib)
@@ -138,8 +138,8 @@ def new_database(mainWindow):
             mainWindow.user_settings.active_database = db.filename
 
 def open_pgn(mainWindow):
-    chessboardview = mainWindow.board
-    gamestate = mainWindow.gs
+    chessboardview = mainWindow.chessboard_view
+    gamestate = mainWindow.model.gamestate
     dialog = QFileDialog()
     if(gamestate.last_open_dir != None):
         dialog.setDirectory(gamestate.last_open_dir)
@@ -147,8 +147,8 @@ def open_pgn(mainWindow):
     if filename:
         db = Database(filename)
         db.init_from_file(mainWindow,mainWindow.trUtf8("Scanning PGN File..."))
-        mainWindow.database = db
-        mainWindow.user_settings.active_database = db.filename
+        mainWindow.model.database = db
+        mainWindow.model.user_settings.active_database = db.filename
         selectedGame = 0
         if(db.no_of_games() > 1):
             dlg = DialogBrowsePgn(db)
@@ -167,7 +167,7 @@ def open_pgn(mainWindow):
             chessboardview.emit(SIGNAL("statechanged()"))
             mainWindow.save.setEnabled(False)
             mainWindow.setLabels()
-            mainWindow.movesEdit.setFocus()
+            mainWindow.moves_edit_view.setFocus()
             gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
             init_game_tree(mainWindow,gamestate.current.root())
 
