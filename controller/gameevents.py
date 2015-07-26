@@ -61,18 +61,18 @@ def unsaved_changes(mainWindow):
     # if current game has unsaved changes
     # or is not saved in database
     # ask user if he wants save it
-    if(mainWindow.database.index_current_game == None or
-        mainWindow.gs.unsaved_changes):
+    if(mainWindow.model.database.index_current_game == None or
+        mainWindow.model.gamestate.unsaved_changes):
         print("inside loop")
         dlg_changes = DialogSaveChanges()
         ret = dlg_changes.exec_()
         if(ret == QMessageBox.Save):
             # if game is not in db append
-            if(mainWindow.database.index_current_game == None):
+            if(mainWindow.model.database.index_current_game == None):
                 controller.edit.editGameData(mainWindow)
-                mainWindow.database.append_game(mainWindow.gs.current)
+                mainWindow.model.database.append_game(mainWindow.gs.current)
             else:
-                mainWindow.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
+                mainWindow.model.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
             mainWindow.save.setEnabled(False)
         return ret
     else:

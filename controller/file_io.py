@@ -32,25 +32,25 @@ def save_image(q_widget):
         p.save(filename,'jpg')
 
 def save(mainWidget):
-    db = mainWidget.database
+    db = mainWidget.model.database
     # if the game is not in the database
     # i.e. hasn't been saved yet, then
     # calls save_as
     if(db.index_current_game == None):
         save_as_new(mainWidget)
     else:
-        db.update_game(db.index_current_game,mainWidget.gs.current)
+        db.update_game(db.index_current_game,mainWidget.model.gamestate.current)
     mainWidget.save.setEnabled(False)
-    mainWidget.movesEdit.setFocus()
+    mainWidget.moves_edit_view.setFocus()
 
 def save_as_new(mainWidget):
-    db = mainWidget.database
-    gs = mainWidget.gs
+    db = mainWidget.model.database
+    gs = mainWidget.model.gamestate
     # let the user enter game data
     controller.edit.editGameData(mainWidget)
     db.append_game(gs.current)
     mainWidget.save.setEnabled(False)
-    mainWidget.movesEdit.setFocus()
+    mainWidget.moves_edit_view.setFocus()
 
 
 def save_db_as_new(mainWidget):
@@ -130,12 +130,12 @@ def new_database(mainWindow):
             #    print(mainWindow.gs.current.root(), file=pgn, end="\n\n")
             #    mainWindow.save_game.setEnabled(True)
             #    mainWindow.movesEdit.setFocus()
-            mainWindow.gs.last_save_dir = QFileInfo(filename).dir().absolutePath()
+            mainWindow.model.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
             db = Database(filename)
             db.create_new_pgn()
             mainWindow.save.setEnabled(False)
-            mainWindow.database = db
-            mainWindow.user_settings.active_database = db.filename
+            mainWindow.model.database = db
+            mainWindow.model.user_settings.active_database = db.filename
 
 def open_pgn(mainWindow):
     chessboardview = mainWindow.chessboard_view
@@ -217,7 +217,7 @@ def browse_database(mainWindow):
                 gs.unsaved_changes = False
                 mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
-                mainWindow.movesEdit.setFocus()
+                mainWindow.moves_edit_view.setFocus()
                 init_game_tree(mainWindow,gs.current.root())
 
 
