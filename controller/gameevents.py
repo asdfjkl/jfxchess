@@ -14,7 +14,7 @@ from controller.file_io import is_position_in_book
 from util.messages import display_mbox
 from dialogs.dialog_engines import DialogEngines
 from uci.engine_info import EngineInfo
-import controller.edit
+import controller.edit_menu_ctr
 import controller.file_io
 
 
@@ -69,7 +69,7 @@ def unsaved_changes(mainWindow):
         if(ret == QMessageBox.Save):
             # if game is not in db append
             if(mainWindow.model.database.index_current_game == None):
-                controller.edit.editGameData(mainWindow)
+                controller.edit_menu_ctr.editGameData(mainWindow)
                 mainWindow.model.database.append_game(mainWindow.gs.current)
             else:
                 mainWindow.model.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
