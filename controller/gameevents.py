@@ -28,10 +28,10 @@ def send_engine_options(uci_controller, engine):
             uci_controller.uci_send_command("setoption name "+option.name+" value "+val)
 
 def on_strength_level(mainWindow):
-    gamestate = mainWindow.gs
-    engine = mainWindow.engine
-    settings = mainWindow.user_settings
-    dialog = DialogStrengthLevel(gamestate=gamestate, user_settings=mainWindow.user_settings)
+    gamestate = mainWindow.model.gamestate
+    engine = mainWindow.engine_controller
+    settings = mainWindow.model.user_settings
+    dialog = DialogStrengthLevel(gamestate=gamestate, user_settings=mainWindow.model.user_settings)
     if dialog.exec_() == QDialog.Accepted:
         # strength is only changed if internal engine is used
         # otherwise the dialog is meaningless
@@ -79,9 +79,9 @@ def unsaved_changes(mainWindow):
         return QMessageBox.Discard
 
 def on_nextgame(mainWindow):
-    db = mainWindow.database
-    gs = mainWindow.gs
-    cbv = mainWindow.board
+    db = mainWindow.model.database
+    gs = mainWindow.model.gamestate
+    cbv = mainWindow.chessboard_view
     if(not db.index_current_game == None):
         if(db.index_current_game < len(db.entries)-1):
             ret = unsaved_changes(mainWindow)
@@ -93,14 +93,14 @@ def on_nextgame(mainWindow):
                 gs.unsaved_changes = False
                 mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
-                mainWindow.movesEdit.setFocus()
+                mainWindow.moves_edit_view.setFocus()
                 controller.file_io.init_game_tree(mainWindow,gs.current.root())
 
 
 def on_previous_game(mainWindow):
-    db = mainWindow.database
-    gs = mainWindow.gs
-    cbv = mainWindow.board
+    db = mainWindow.model.database
+    gs = mainWindow.model.gamestate
+    cbv = mainWindow.chessboard_view
     if(not db.index_current_game == None):
         if(db.index_current_game > 0):
             ret = unsaved_changes(mainWindow)
@@ -112,33 +112,33 @@ def on_previous_game(mainWindow):
                 gs.unsaved_changes = False
                 mainWindow.save.setEnabled(False)
                 mainWindow.setLabels()
-                mainWindow.movesEdit.setFocus()
+                mainWindow.moves_edit_view.setFocus()
                 controller.file_io.init_game_tree(mainWindow,gs.current.root())
 
 
 def on_newgame(mainWindow):
-    settings = mainWindow.user_settings
-    db = mainWindow.database
+    settings = mainWindow.model.user_settings
+    db = mainWindow.model.database
     ret = unsaved_changes(mainWindow)
     if not ret == QMessageBox.Cancel:
         dialog = DialogNewGame(gamestate=mainWindow.gs,user_settings=settings)
-        movesEdit = mainWindow.movesEdit
+        movesEdit = mainWindow.moves_edit_view
         if dialog.exec_() == QDialog.Accepted:
-            mainWindow.gs = GameState()
-            mainWindow.board.gs = mainWindow.gs
+            mainWindow.model.gamestate = GameState()
+            mainWindow.chessboard_view.gs = mainWindow.model.gamestate
             movesEdit.gs = mainWindow.gs
             movesEdit.update()
             # strength is only changed if internal engine is used
             # otherwise the dialog is meaningless
             if(settings.active_engine == settings.engines[0]):
-                mainWindow.gs.strength_level = dialog.slider_elo.value()
-            mainWindow.gs.computer_think_time = dialog.think_ms
+                mainWindow.model.gamestate.strength_level = dialog.slider_elo.value()
+            mainWindow.model.gamestate.computer_think_time = dialog.think_ms
             #print("think time: "+str(mainWindow.gs.computer_think_time))
             movesEdit.on_statechanged()
-            mainWindow.gs.initialize_headers()
+            mainWindow.model.gamestate.initialize_headers()
             #mainWindow.save.setEnabled(False)
             # add current game to database, but don't save it
-            mainWindow.database.index_current_game = None
+            mainWindow.model.database.index_current_game = None
             mainWindow.save.setEnabled(True)
             #mainWindow.database.add_current_game(mainWindow.gs.game.root())
             if(dialog.rb_plays_white.isChecked()):
@@ -147,7 +147,7 @@ def on_newgame(mainWindow):
                 on_play_as_white(mainWindow)
             else:
                 mainWindow.play_black.setChecked(True)
-                root = mainWindow.gs.current.root()
+                root = mainWindow.model.gamestate.current.root()
                 temp = root.headers["White"]
                 root.headers["White"] = root.headers["Black"]
                 root.headers["Black"] = temp
@@ -155,44 +155,44 @@ def on_newgame(mainWindow):
                 on_play_as_black(mainWindow)
 
 def on_play_as_black(mainWindow):
-    mainWindow.board.flippedBoard = True
-    mainWindow.board.on_statechanged()
-    mainWindow.gs.mode = MODE_PLAY_BLACK
+    mainWindow.chessboard_view.flippedBoard = True
+    mainWindow.chessboard_view.on_statechanged()
+    mainWindow.model.gamestate.mode = MODE_PLAY_BLACK
     mainWindow.engineOutput.setHtml("")
-    reset_engine(mainWindow.engine,mainWindow.user_settings)
+    reset_engine(mainWindow.engine_controller,mainWindow.model.user_settings)
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
     # strength is only set if internal engine is used
     # otherwise the dialog is meaningless
-    if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
-        mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
-    mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
-    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
-    if(mainWindow.gs.current.board().turn == chess.WHITE):
-        fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-        mainWindow.engine.send_fen(fen)
-        mainWindow.engine.uci_send_position(uci_string)
-        mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
+    if(mainWindow.model.user_settings.active_engine == mainWindow.model.user_settings.engines[0]):
+        mainWindow.engine_controller.uci_strength(mainWindow.gs.strength_level)
+    mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
+    send_engine_options(mainWindow.engine_controller, mainWindow.model.user_settings.active_engine)
+    if(mainWindow.model.gamestate.current.board().turn == chess.WHITE):
+        fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.gs.current)
+        mainWindow.engine_controller.send_fen(fen)
+        mainWindow.engine_controller.uci_send_position(uci_string)
+        mainWindow.engine_controller.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_play_as_white(mainWindow):
-    mainWindow.board.flippedBoard = False
-    mainWindow.board.on_statechanged()
-    mainWindow.gs.mode = MODE_PLAY_WHITE
-    reset_engine(mainWindow.engine,mainWindow.user_settings)
+    mainWindow.chessboard_view.flippedBoard = False
+    mainWindow.chessboard_view.on_statechanged()
+    mainWindow.model.gamestate.mode = MODE_PLAY_WHITE
+    reset_engine(mainWindow.engine_controller,mainWindow.model.user_settings)
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(True)
     mainWindow.offer_draw.setEnabled(True)
     # strength is only set if internal engine is used
     # otherwise the dialog is meaningless
-    if(mainWindow.user_settings.active_engine == mainWindow.user_settings.engines[0]):
-        mainWindow.engine.uci_strength(mainWindow.gs.strength_level)
-    mainWindow.gs.engine_info.strength = str((mainWindow.gs.strength_level * 100)+1200)
-    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
-    if(mainWindow.gs.current.board().turn == chess.BLACK):
-        fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-        mainWindow.engine.send_fen(fen)
-        mainWindow.engine.uci_send_position(uci_string)
-        mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
+    if(mainWindow.model.user_settings.active_engine == mainWindow.model.user_settings.engines[0]):
+        mainWindow.engine_controller.uci_strength(mainWindow.model.gamestate.strength_level)
+    mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
+    send_engine_options(mainWindow.engine_controller, mainWindow.model.user_settings.active_engine)
+    if(mainWindow.model.gamestate.current.board().turn == chess.BLACK):
+        fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.gs.current)
+        mainWindow.engine_controller.send_fen(fen)
+        mainWindow.engine_controller.uci_send_position(uci_string)
+        mainWindow.engine_controller.uci_go_movetime(mainWindow.gs.computer_think_time)
 
 def on_unsaved_changes(mainWindow):
     mainWindow.model.gamestate.unsaved_changes = True
@@ -203,7 +203,7 @@ def on_statechanged(mainWindow):
     gs = mainWindow.model.gamestate
     engine = mainWindow.engine_controller
     if(gs.mode == MODE_ANALYSIS):
-        fen, uci_string = mainWindow.gs.printer.to_uci(gs.current)
+        fen, uci_string = mainWindow.model.gamestate.printer.to_uci(gs.current)
         engine.send_fen(fen)
         engine.uci_send_position(uci_string)
         engine.uci_go_infinite()
@@ -219,19 +219,19 @@ def on_statechanged(mainWindow):
 def on_analysis_mode(mainWindow):
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
-    reset_engine(mainWindow.engine,mainWindow.user_settings)
+    reset_engine(mainWindow.engine_controller,mainWindow.model.user_settings)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
-    fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
-    mainWindow.engine.send_fen(fen)
-    mainWindow.engine.uci_send_position(uci_string)
-    mainWindow.engine.uci_go_infinite()
-    mainWindow.gs.engine_info.strength = None
-    mainWindow.gs.mode = MODE_ANALYSIS
+    fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
+    send_engine_options(mainWindow.engine_controller, mainWindow.model.user_settings.active_engine)
+    mainWindow.engine_controller.send_fen(fen)
+    mainWindow.engine_controller.uci_send_position(uci_string)
+    mainWindow.engine_controller.uci_go_infinite()
+    mainWindow.model.gamestate.engine_info.strength = None
+    mainWindow.model.gamestate.mode = MODE_ANALYSIS
 
 def on_game_analysis_mode(mainWindow):
-    gs = mainWindow.gs
+    gs = mainWindow.model.gamestate
     dialog = DialogAnalyzeGame(gamestate=gs)
     if dialog.exec_() == QDialog.Accepted:
         gs.computer_think_time = dialog.sb_secs.value()*1000
@@ -242,8 +242,8 @@ def on_game_analysis_mode(mainWindow):
         reset_engine(mainWindow.engine,mainWindow.user_settings)
         mainWindow.give_up.setEnabled(False)
         mainWindow.offer_draw.setEnabled(False)
-        mainWindow.movesEdit.delete_all_comments()
-        mainWindow.movesEdit.delete_all_variants()
+        mainWindow.moves_edit_view.delete_all_comments()
+        mainWindow.moves_edit_view.delete_all_variants()
         gs.current = gs.current.root()
         gs.best_score = None
         gs.mate_threat = False
@@ -251,12 +251,12 @@ def on_game_analysis_mode(mainWindow):
             gs.current = gs.current.variations[0]
         if(gs.current.board().is_checkmate() or gs.current.board().is_stalemate()):
             gs.current = gs.current.parent
-        mainWindow.movesEdit.update_san()
+        mainWindow.moves_edit_view.update_san()
         fen, uci_string = gs.printer.to_uci(gs.current)
-        send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
-        mainWindow.engine.send_fen(fen)
-        mainWindow.engine.uci_send_position(uci_string)
-        mainWindow.engine.uci_go_movetime(gs.computer_think_time)
+        send_engine_options(mainWindow.engine_controller, mainWindow.model.user_settings.active_engine)
+        mainWindow.engine_controller.send_fen(fen)
+        mainWindow.engine_controller.uci_send_position(uci_string)
+        mainWindow.engine_controller.uci_go_movetime(gs.computer_think_time)
         gs.mode = MODE_GAME_ANALYSIS
         gs.best_score = None
     else:
@@ -265,27 +265,27 @@ def on_game_analysis_mode(mainWindow):
 
 def on_enter_moves_mode(mainWindow):
     # stop any engine
-    mainWindow.engine.stop_engine()
+    mainWindow.engine_controller.stop_engine()
     mainWindow.engineOutput.setHtml("")
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
-    mainWindow.gs.mode = MODE_ENTER_MOVES
+    mainWindow.model.gamestate.mode = MODE_ENTER_MOVES
     mainWindow.enter_moves.setChecked(True)
 
 
 def on_playout_pos(mainWindow):
     mainWindow.display_info.setChecked(True)
     mainWindow.set_display_info()
-    reset_engine(mainWindow.engine,mainWindow.user_settings)
+    reset_engine(mainWindow.engine_controller,mainWindow.model.user_settings)
     mainWindow.give_up.setEnabled(False)
     mainWindow.offer_draw.setEnabled(False)
-    fen, uci_string = mainWindow.gs.printer.to_uci(mainWindow.gs.current)
-    send_engine_options(mainWindow.engine, mainWindow.user_settings.active_engine)
-    mainWindow.engine.send_fen(fen)
-    mainWindow.engine.uci_send_position(uci_string)
-    mainWindow.engine.uci_go_movetime(mainWindow.gs.computer_think_time)
-    mainWindow.gs.engine_info.strength = None
-    mainWindow.gs.mode = MODE_PLAYOUT_POS
+    fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
+    send_engine_options(mainWindow.engine_controller, mainWindow.model.user_settings.active_engine)
+    mainWindow.engine_controller.send_fen(fen)
+    mainWindow.engine_controller.uci_send_position(uci_string)
+    mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
+    mainWindow.model.gamestate.engine_info.strength = None
+    mainWindow.model.gamestate.mode = MODE_PLAYOUT_POS
     mainWindow.enter_moves.setChecked(False)
     #self.analysis.setChecked(False)
     mainWindow.play_white.setChecked(False)
@@ -301,7 +301,7 @@ def reset_engine(engine,user_settings):
     engine.uci_newgame()
 
 def on_checkmate(mainWindow):
-    root = mainWindow.gs.current.root()
+    root = mainWindow.model.gamestate.current.root()
     if(root.board().turn == chess.WHITE):
         root.headers["Result"] = "1-0"
     else:
@@ -309,12 +309,12 @@ def on_checkmate(mainWindow):
     on_enter_moves_mode(mainWindow)
 
 def draw_game(mainWindow):
-    mainWindow.gs.current.root().headers["Result"] = "1/2-1/2"
+    mainWindow.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
     on_enter_moves_mode(mainWindow)
 
 
 def receive_engine_info(mainWindow,info_string):
-    gs = mainWindow.gs
+    gs = mainWindow.model.gamestate
     engine_info = info_string
     if(gs.display_engine_info):
         gs.score = engine_info.score
@@ -332,7 +332,7 @@ def count_moves(node):
     return i
 
 def handle_offered_draw(mainWindow):
-    gs = mainWindow.gs
+    gs = mainWindow.model.gamestate
     if((   (gs.mode == MODE_PLAY_WHITE and gs.score >  1.1)
         or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1))
         and count_moves(mainWindow.gs.current) > 40):
@@ -344,7 +344,7 @@ def handle_offered_draw(mainWindow):
 
 def on_player_resigns(mainWindow):
     display_mbox("The computer thanks you.","Better luck next time!")
-    gs = mainWindow.gs
+    gs = mainWindow.model.gamestate
     if(gs.mode == MODE_PLAY_WHITE):
         gs.current.root().headers["Result"] = "0-1"
     elif(gs.mode == MODE_PLAY_BLACK):
@@ -365,7 +365,7 @@ def add_variant_from_pv(root, move, uci_list):
         root = root.variations[0]
 
 def give_up_game(mainWindow):
-    gs = mainWindow.gs
+    gs = mainWindow.model.gamestate
     if(gs.mode == MODE_PLAY_WHITE):
         gs.headers["Result"] = "1-0"
     elif(gs.mode == MODE_PLAY_BLACK):
@@ -412,8 +412,8 @@ def exists_better_line(gs):
 
 
 def on_bestmove(mainWindow,move):
-    gs = mainWindow.gs
-    mode = mainWindow.gs.mode
+    gs = mainWindow.model.gamestate
+    mode = mainWindow.model.gamestate.mode
 
     # handling a best move in playing mode (either human vs comp or comp vs comp)
     if((mode == MODE_PLAY_BLACK and gs.current.board().turn == chess.WHITE) or
@@ -430,8 +430,8 @@ def on_bestmove(mainWindow,move):
             # always be true, unless there is some serious sync
             # issue between engine and views)
             if (len([x for x in legal_moves if x.uci() == uci]) > 0):
-                mainWindow.board.executeMove(move)
-                mainWindow.board.on_statechanged()
+                mainWindow.chessboard_view.executeMove(move)
+                mainWindow.chessboard_view.on_statechanged()
     # handling bestmove command if in analysis mode
     if(mode == MODE_GAME_ANALYSIS):
         if(exists_better_line(gs)):
@@ -447,8 +447,8 @@ def on_bestmove(mainWindow,move):
         gs.next_mate_threat = gs.mate_threat
         gs.mate_threat = None
 
-        mainWindow.board.on_statechanged()
-        mainWindow.movesEdit.on_statechanged()
+        mainWindow.chessboard_view.on_statechanged()
+        mainWindow.moves_edit_view.on_statechanged()
 
         # continue in that mode, unless we reached the root of
         # the game, or the parent position is in the book
@@ -467,12 +467,12 @@ def on_bestmove(mainWindow,move):
             display_mbox(mainWindow.trUtf8("Game Analysis Finished","The analysis is finished."))
             on_enter_moves_mode(mainWindow)
             # (finished, display messagebox)
-        mainWindow.movesEdit.update_san()
+        mainWindow.moves_edit_view.update_san()
         mainWindow.update()
 
 
 def on_set_engines(mainWidget):
-    user_settings = mainWidget.user_settings
+    user_settings = mainWidget.model.user_settings
     dialog = DialogEngines(user_settings=user_settings)
     on_enter_moves_mode(mainWidget)
     if dialog.exec_() == QDialog.Accepted:
