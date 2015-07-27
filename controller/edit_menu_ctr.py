@@ -76,17 +76,17 @@ class EditMenuController():
 
     def enter_position(self):
         mainWindow = self.mainAppWindow
-        dialog = DialogEnterPosition(mainWindow.gs.current.board())
+        dialog = DialogEnterPosition(mainWindow.model.gamestate.current.board())
         answer = dialog.exec_()
         if(answer):
             root = chess.pgn.Game()
             root.headers["FEN"] = ""
             root.headers["SetUp"] = ""
             root.setup(dialog.displayBoard.board)
-            mainWindow.gs.current = root
-            mainWindow.gs.initialize_headers()
+            mainWindow.model.gamestate.current = root
+            mainWindow.model.gamestate.initialize_headers()
             mainWindow.setLabels()
-            mainWindow.board.on_statechanged()
-            mainWindow.movesEdit.on_statechanged()
-            mainWindow.save_game.setEnabled(False)
+            mainWindow.chessboard_view.on_statechanged()
+            mainWindow.moves_edit_view.on_statechanged()
+            mainWindow.save.setEnabled(False)
             mainWindow.update()

@@ -235,9 +235,9 @@ class MainWindow(QMainWindow):
 
     def set_display_info(self):
         if(self.display_info.isChecked()):
-            self.gs.display_engine_info = True
+            self.model.gamestate.display_engine_info = True
         else:
-            self.gs.display_engine_info = False
+            self.model.gamestate.display_engine_info = False
             self.engineOutput.setHtml("")
 
     def show_about(self):
