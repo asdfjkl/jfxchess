@@ -77,6 +77,8 @@ class Model():
             database.create_new_pgn()
             #self.database.add_game(self.gs.game.root())
 
+        print("databse current index" + str(database.index_current_game))
+
         return Model(gamestate,database,user_settings, save_dir)
 
     # TODO: write proper serialization with JSON
