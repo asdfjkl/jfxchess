@@ -182,7 +182,7 @@ class FileMenuController():
 
 
 
-        """
+"""
         if(filename):
             pgn = open(filename)
             first_game = chess.pgn.read_game(pgn)
