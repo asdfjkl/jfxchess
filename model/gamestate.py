@@ -1,5 +1,6 @@
 from views.game_gui_printer import GUIPrinter
 import chess
+import chess.polyglot
 import time
 from uci.engine_info import EngineInfo
 from PyQt4.QtCore import Qt
@@ -104,3 +105,18 @@ class GameState():
             for i,n in enumerate(mainline_nodes):
                 if(i > 0 and i % 25 == 0):
                     _ = n.cache_board()
+
+    def is_current_position_in_book(self,node=None):
+        if node == None:
+            node = self.current
+        with chess.polyglot.open_reader("./books/varied.bin") as reader:
+            entries = reader.get_entries_for_position(node.board())
+            moves = []
+            for entry in entries:
+                move = entry.move().uci()
+                moves.append(move)
+            l = len(moves)
+            if(l > 0):
+                return True
+            else:
+                return False
