@@ -13,7 +13,7 @@ class EditMenuController():
         self.mainAppWindow = mainAppWindow
         self.model = model
 
-    def game_to_clipboard(self):
+    def copy_game_to_clipboard(self):
         print("called game to clipboard")
         clipboard = QApplication.clipboard()
         exporter = chess.pgn.StringExporter()
@@ -21,11 +21,11 @@ class EditMenuController():
         pgn_string = str(exporter)
         clipboard.setText(pgn_string)
 
-    def pos_to_clipboard(self):
+    def copy_pos_to_clipboard(self):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.model.gamestate.current.board().fen())
 
-    def from_clipboard(self):
+    def paste_from_clipboard(self):
         gamestate = self.model.gamestate
         boardview = self.mainAppWindow.chessboard_view
         clipboard = QApplication.clipboard()
@@ -52,27 +52,7 @@ class EditMenuController():
         boardview.update()
         boardview.emit(SIGNAL("statechanged()"))
 
-    def editGameData(self):
-        mainWindow = self.mainAppWindow
-        root = mainWindow.model.gamestate.current.root()
-        ed = DialogEditGameData(root)
-        answer = ed.exec_()
-        if(answer):
-            root.headers["Event"] = ed.ed_event.text()
-            root.headers["Site"] = ed.ed_site.text()
-            root.headers["Date"] = ed.ed_date.text()
-            root.headers["Round"] = ed.ed_round.text()
-            root.headers["White"] = ed.ed_white.text()
-            root.headers["Black"] = ed.ed_black.text()
-            if(ed.rb_ww.isChecked()):
-                root.headers["Result"] = "1-0"
-            elif(ed.rb_bw.isChecked()):
-                root.headers["Result"] = "0-1"
-            elif(ed.rb_draw.isChecked()):
-                root.headers["Result"] = "1/2-1/2"
-            elif(ed.rb_unclear.isChecked()):
-                root.headers["Result"] = "*"
-        mainWindow.setLabels()
+
 
     def enter_position(self):
         mainWindow = self.mainAppWindow
@@ -90,3 +70,6 @@ class EditMenuController():
             mainWindow.moves_edit_view.on_statechanged()
             mainWindow.save.setEnabled(False)
             mainWindow.update()
+
+    def reset_to_initial(self):
+        pass
