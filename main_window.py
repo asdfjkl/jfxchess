@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
         """
 
         self.model = Model.create_on_startup(self)
+        print(self.model.database.index_current_game)
 
         self.chessboard_view = ChessboardView(self.model.gamestate,self.engine_controller)
         self.chessboard_view.on_statechanged()
@@ -97,7 +98,7 @@ class MainWindow(QMainWindow):
         self.gamestateController = GamestateController(self,self.model)
 
         # FILE MENU
-        self.fileMenuController = FileMenuController(self,self.model)
+        self.fileMenuController = FileMenuController(self,self.model,self.gamestateController)
         m_file = self.menuBar().addMenu(self.trUtf8('File '))
         new_db = m_file.addAction(self.trUtf8("New..."))
         new_db.triggered.connect(self.fileMenuController.new_database)
