@@ -15,24 +15,20 @@ class FileMenuController():
         self.model = model
 
     def new_database(self):
-        mainWindow = self.mainAppWindow
         dialog = QFileDialog()
-        ret = controller.gameevents.unsaved_changes(mainWindow)
+        ret = controller.gameevents.unsaved_changes(self.mainWindow)
         if not ret == QMessageBox.Cancel:
-            filename = dialog.getSaveFileName(mainWindow, mainWindow.trUtf8('Create New PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+            filename = dialog.getSaveFileName(self.mainWindow, self.mainWindow.trUtf8('Create New PGN'), \
+                                              None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
             if(filename):
                 if(not filename.endswith(".pgn")):
                     filename = filename + ".pgn"
-                #with open(filename,'w') as pgn:
-                #    print(mainWindow.gs.current.root(), file=pgn, end="\n\n")
-                #    mainWindow.save_game.setEnabled(True)
-                #    mainWindow.movesEdit.setFocus()
-                mainWindow.model.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
+                self.model.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
                 db = Database(filename)
                 db.create_new_pgn()
-                mainWindow.save.setEnabled(False)
-                mainWindow.model.database = db
-                mainWindow.model.user_settings.active_database = db.filename
+                self.mainWindow.save.setEnabled(False)
+                self.model.database = db
+                self.model.user_settings.active_database = db.filename
 
     def open_database(self):
         mainWindow = self.mainAppWindow
@@ -133,32 +129,32 @@ class FileMenuController():
 
 ########################
 
- def unsaved_changes(self, mainWindow):
-        print("unsaved changes")
-        print(str(mainWindow.model.gamestate.unsaved_changes))
-        print(str(mainWindow.model.database.index_current_game))
-        # dialog to be called to
-        # check for unsaved changes to
-        # the current game
-        # if current game has unsaved changes
-        # or is not saved in database
-        # ask user if he wants save it
-        if(mainWindow.model.database.index_current_game == None or
-            mainWindow.model.gamestate.unsaved_changes):
-            print("inside loop")
-            dlg_changes = DialogSaveChanges()
-            ret = dlg_changes.exec_()
-            if(ret == QMessageBox.Save):
-                # if game is not in db append
-                if(mainWindow.model.database.index_current_game == None):
-                    controller.edit_mnu_ctr.editGameData(mainWindow)
-                    mainWindow.model.database.append_game(mainWindow.gs.current)
-                else:
-                    mainWindow.model.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
-                mainWindow.save.setEnabled(False)
-            return ret
-        else:
-            return QMessageBox.Discard
+        def unsaved_changes(self, mainWindow):
+            print("unsaved changes")
+            print(str(mainWindow.model.gamestate.unsaved_changes))
+            print(str(mainWindow.model.database.index_current_game))
+            # dialog to be called to
+            # check for unsaved changes to
+            # the current game
+            # if current game has unsaved changes
+            # or is not saved in database
+            # ask user if he wants save it
+            if(mainWindow.model.database.index_current_game == None or
+                   mainWindow.model.gamestate.unsaved_changes):
+                print("inside loop")
+                dlg_changes = DialogSaveChanges()
+                ret = dlg_changes.exec_()
+                if(ret == QMessageBox.Save):
+                    # if game is not in db append
+                    if(mainWindow.model.database.index_current_game == None):
+                        controller.edit_mnu_ctr.editGameData(mainWindow)
+                        mainWindow.model.database.append_game(mainWindow.gs.current)
+                    else:
+                        mainWindow.model.database.update_game(mainWindow.database.index_current_game,mainWindow.gs.current)
+                    mainWindow.save.setEnabled(False)
+                return ret
+            else:
+                return QMessageBox.Discard
 
 
 
