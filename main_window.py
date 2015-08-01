@@ -13,6 +13,7 @@ from uci.uci_controller import Uci_controller
 from model.user_settings import UserSettings,InternalEngine
 from model.database import Database
 from model.model import Model
+from controller.gamestate_ctr import GamestateController
 from controller.edit_mnu_ctr import EditMenuController
 from controller.file_mnu_ctr import FileMenuController
 from controller.game_mnu_ctr import GameMenuController
@@ -97,6 +98,13 @@ class MainWindow(QMainWindow):
 
         # create the main menu bar, and connect slots for actions
         self.menubar = self.menuBar()
+
+        # the gamestate controller is the controller that
+        # manages all functionality w.r.t. state changes
+        #
+        # other controllers get a reference of this
+        # controller and make user of this functionality
+        self.gamestateController = GamestateController(self,self.model)
 
         # FILE MENU
         self.fileMenuController = FileMenuController(self,self.model)
@@ -229,16 +237,16 @@ class MainWindow(QMainWindow):
         homepage = m_help.addAction(self.trUtf8(("Jerry-Homepage")))
         homepage.triggered.connect(self.go_to_homepage)
 
-        self.connect(self.engine_controller, SIGNAL("updateinfo(PyQt_PyObject)"),self.gameMenuController.receive_engine_info)
+        self.connect(self.engine_controller, SIGNAL("updateinfo(PyQt_PyObject)"),self.gamestateController.receive_engine_info)
         self.connect(self.moves_edit_view, SIGNAL("statechanged()"),self.chessboard_view.on_statechanged)
-        self.connect(self.moves_edit_view, SIGNAL("statechanged()"),self.gameMenuController.on_statechanged)
+        self.connect(self.moves_edit_view, SIGNAL("statechanged()"),self.gamestateController.on_statechanged)
         self.connect(self.moves_edit_view, SIGNAL("unsaved_changes()"),self.gameMenuController.on_unsaved_changes)
         self.connect(self.chessboard_view, SIGNAL("unsaved_changes()"),self.gameMenuController.on_unsaved_changes)
         self.connect(self.chessboard_view, SIGNAL("statechanged()"),self.moves_edit_view.on_statechanged)
-        self.connect(self.chessboard_view, SIGNAL("bestmove(QString)"),self.gameMenuController.on_bestmove)
-        self.connect(self.engine_controller, SIGNAL("bestmove(QString)"),self.gameMenuController.on_bestmove)
-        self.connect(self.chessboard_view,SIGNAL("drawn"),self.gameMenuController.draw_game)
-        self.connect(self.chessboard_view,SIGNAL("checkmate"),self.gameMenuController.on_checkmate)
+        self.connect(self.chessboard_view, SIGNAL("bestmove(QString)"),self.gamestateController.on_bestmove)
+        self.connect(self.engine_controller, SIGNAL("bestmove(QString)"),self.gamestateController.on_bestmove)
+        self.connect(self.chessboard_view,SIGNAL("drawn"),self.gamestateController.draw_game)
+        self.connect(self.chessboard_view,SIGNAL("checkmate"),self.gamestateController.on_checkmate)
 
     def set_display_info(self):
         if(self.display_info.isChecked()):

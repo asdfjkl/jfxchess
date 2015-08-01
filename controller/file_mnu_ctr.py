@@ -67,7 +67,7 @@ class FileMenuController():
                 mainWindow.setLabels()
                 mainWindow.moves_edit_view.setFocus()
                 gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
-                self.init_game_tree(gamestate.current.root())
+                gamestate.init_game_tree(self.mainAppWindow)
 
                     #if(dlg.table.hasS)
                     #print(str(dlg.table.selectedIndexes()))
@@ -99,7 +99,8 @@ class FileMenuController():
                     mainWindow.save.setEnabled(False)
                     mainWindow.setLabels()
                     mainWindow.moves_edit_view.setFocus()
-                    self.init_game_tree(gs.current.root())
+                    #self.init_game_tree(gs.current.root())
+                    gs.init_game_tree(self.mainAppWindow)
 
 
     def save_image(self):
@@ -133,32 +134,7 @@ class FileMenuController():
 ########################
 
 
-    def init_game_tree(self,root):
-        mainWindow = self.mainAppWindow
-        gamestate = mainWindow.model.gamestate
-        # ugly workaround:
-        # the next lines are just to ensure that
-        # the "board cache" (see doc. of python-chess lib)
-        # is initialized. The call to the last board of the main
-        # line ensures recursive calls to the boards up to
-        # the root
-        temp = gamestate.current.root()
-        end = gamestate.current.end()
-        mainline_nodes = [temp]
-        while(not temp == end):
-            temp = temp.variations[0]
-            mainline_nodes.append(temp)
-        cnt = len(mainline_nodes)
-        pDialog = QProgressDialog(mainWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
-        pDialog.setWindowModality(Qt.WindowModal)
-        pDialog.show()
-        QApplication.processEvents()
-        for i,n in enumerate(mainline_nodes):
-            QApplication.processEvents()
-            pDialog.setValue(i)
-            if(i > 0 and i % 25 == 0):
-                _ = n.cache_board()
-        pDialog.close()
+
 
 
 
