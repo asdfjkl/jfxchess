@@ -2,7 +2,8 @@ from views.game_gui_printer import GUIPrinter
 import chess
 import time
 from uci.engine_info import EngineInfo
-from PyQt4.QtCore import QTimer
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QProgressDialog, QApplication
 
 MODE_ENTER_MOVES = 0
 MODE_PLAY_BLACK = 1
@@ -68,3 +69,38 @@ class GameState():
         game.headers["White"] = "N.N."
         game.headers["Round"] = ""
         game.headers["Result"] = "*"
+
+    def init_game_tree(self, mainAppWindow = None):
+        # ugly workaround:
+        # the next lines are just to ensure that
+        # the "board cache" (see doc. of python-chess lib)
+        # is initialized. The call to the last board of the main
+        # line ensures recursive calls to the boards up to the root
+        #
+        # if a mainAppWindow is passed, a progress bar
+        # will be displayed while the game tree is initialized
+        # the app might "freeze" otherwise, as longer games
+        # i.e. (> 70 moves) can take some time to initialize
+        temp = self.current.root()
+        end = self.current.end()
+        mainline_nodes = [temp]
+        while(not temp == end):
+            temp = temp.variations[0]
+            mainline_nodes.append(temp)
+        cnt = len(mainline_nodes)
+        if(not mainAppWindow == None):
+            pDialog = QProgressDialog(mainAppWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
+            pDialog.setWindowModality(Qt.WindowModal)
+            pDialog.show()
+            QApplication.processEvents()
+            for i,n in enumerate(mainline_nodes):
+                QApplication.processEvents()
+                pDialog.setValue(i)
+                if(i > 0 and i % 25 == 0):
+                    _ = n.cache_board()
+            pDialog.close()
+        else:
+            QApplication.processEvents()
+            for i,n in enumerate(mainline_nodes):
+                if(i > 0 and i % 25 == 0):
+                    _ = n.cache_board()
