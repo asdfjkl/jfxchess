@@ -3,9 +3,9 @@
 # classes from Jerry:
 from views.moves_edit_view import MovesEditView
 from views.chessboard_view import ChessboardView
-from controller import file_menu_ctr
-from controller import edit_menu_ctr
-from controller import game_menu_controller
+from controller import file_mnu_ctr
+from controller import edit_mnu_ctr
+from controller import game_mnu_ctr
 from model.gamestate import GameState
 from model.gamestate import MODE_ENTER_MOVES
 from dialogs.dialog_about import DialogAbout
@@ -13,8 +13,8 @@ from uci.uci_controller import Uci_controller
 from model.user_settings import UserSettings,InternalEngine
 from model.database import Database
 from model.model import Model
-from controller.edit_menu_ctr import EditMenuController
-from controller.file_menu_ctr import FileMenuController
+from controller.edit_mnu_ctr import EditMenuController
+from controller.file_mnu_ctr import FileMenuController
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
