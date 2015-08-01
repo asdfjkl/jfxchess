@@ -6,32 +6,52 @@ from dialogs.dialog_browse_pgn import DialogBrowsePgn
 from model.database import Database
 import controller
 import model.gamestate
+from dialogs.dialog_save_changes import DialogSaveChanges
 
 class FileMenuController():
 
-    def __init__(self, mainAppWindow, model):
+    def __init__(self, mainAppWindow, model, gamestate_controller):
         super(FileMenuController, self).__init__()
-        self.mainAppWindow = mainAppWindow
-        self.model = model
+        self.mWin = mainAppWindow
+        self.mdl = model
+        self.gs_ctr = gamestate_controller
 
     def new_database(self):
-        dialog = QFileDialog()
-        ret = controller.gameevents.unsaved_changes(self.mainWindow)
-        if not ret == QMessageBox.Cancel:
-            filename = dialog.getSaveFileName(self.mainWindow, self.mainWindow.trUtf8('Create New PGN'), \
-                                              None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+        # if the game is not in database (no index), or if the gamestate
+        # has unsaved changes, first ask the user if he wants to save
+        # the current game. if yes, then either let the user write the game
+        # headers and add the game to database,
+        # or update the database entry with the current gamestate
+        cancel = False
+        if(self.mdl.database.index_current_game == None or self.mdl.gamestate.unsaved_changes):
+            changes_dialog = DialogSaveChanges()
+            ret = changes_dialog.exec_()
+            if(ret == QMessageBox.Save):
+                if(self.mdl.database.index_current_game == None):
+                    self.gs_ctr.editGameData()
+                    self.mdl.database.append_game(self.mdl.gamestate.current)
+                else:
+                    self.mdl.database.update_game(self.mdl.database.index_current_game,\
+                                                    self.mdl.gamestate.current)
+                self.mWin.save.setEnabled(False)
+            if(ret == QMessageBox.Cancel):
+                cancel = True
+        if(not cancel):
+            file_dialog = QFileDialog()
+            filename = file_dialog.getSaveFileName(self.mWin, self.mWin.trUtf8('Create New PGN'), \
+                                                   None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
             if(filename):
                 if(not filename.endswith(".pgn")):
                     filename = filename + ".pgn"
-                self.model.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
+                self.mdl.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
                 db = Database(filename)
                 db.create_new_pgn()
-                self.mainWindow.save.setEnabled(False)
-                self.model.database = db
-                self.model.user_settings.active_database = db.filename
+                self.mWin.save.setEnabled(False)
+                self.mdl.database = db
+                self.mdl.user_settings.active_database = db.filename
 
     def open_database(self):
-        mainWindow = self.mainAppWindow
+        mainWindow = self.mWin
         chessboardview = mainWindow.chessboard_view
         gamestate = mainWindow.model.gamestate
         dialog = QFileDialog()
@@ -63,12 +83,12 @@ class FileMenuController():
                 mainWindow.setLabels()
                 mainWindow.moves_edit_view.setFocus()
                 gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
-                gamestate.init_game_tree(self.mainAppWindow)
+                gamestate.init_game_tree(self.mWin)
 
                     #if(dlg.table.hasS)
                     #print(str(dlg.table.selectedIndexes()))
     def browse_games(self):
-        mainWindow = self.mainAppWindow
+        mainWindow = self.mWin
         selectedGame = 0
         mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
         db = mainWindow.model.database
@@ -96,11 +116,11 @@ class FileMenuController():
                     mainWindow.setLabels()
                     mainWindow.moves_edit_view.setFocus()
                     #self.init_game_tree(gs.current.root())
-                    gs.init_game_tree(self.mainAppWindow)
+                    gs.init_game_tree(self.mWin)
 
 
     def save_image(self):
-        q_widget = self.mainAppWindow
+        q_widget = self.mWin
         filename = QFileDialog.getSaveFileName(q_widget, q_widget.trUtf8('Save Image'), None, 'JPG (*.jpg)', QFileDialog.DontUseNativeDialog)
         if(filename):
             p = QPixmap.grabWindow(q_widget.chessboard_view.winId())
@@ -108,7 +128,7 @@ class FileMenuController():
 
 
     def print_game(self):
-        gamestate = self.model.gamestate
+        gamestate = self.mdl.gamestate
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted:
             exporter = chess.pgn.StringExporter()
@@ -118,7 +138,7 @@ class FileMenuController():
             QPgn.print_(dialog.printer())
 
     def print_position(self):
-        q_widget = self.mainAppWindow
+        q_widget = self.mWin
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted:
             p = QPixmap.grabWindow(q_widget.winId())
@@ -128,7 +148,7 @@ class FileMenuController():
             del painter
 
 ########################
-
+"""
         def unsaved_changes(self, mainWindow):
             print("unsaved changes")
             print(str(mainWindow.model.gamestate.unsaved_changes))
@@ -157,7 +177,7 @@ class FileMenuController():
                 return QMessageBox.Discard
 
 
-
+"""
 
 
 
