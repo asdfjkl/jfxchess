@@ -3,15 +3,8 @@
 # classes from Jerry:
 from views.moves_edit_view import MovesEditView
 from views.chessboard_view import ChessboardView
-from controller import file_mnu_ctr
-from controller import edit_mnu_ctr
-from controller import game_mnu_ctr
-from model.gamestate import GameState
-from model.gamestate import MODE_ENTER_MOVES
 from dialogs.dialog_about import DialogAbout
 from uci.uci_controller import Uci_controller
-from model.user_settings import UserSettings,InternalEngine
-from model.database import Database
 from model.model import Model
 from controller.gamestate_ctr import GamestateController
 from controller.edit_mnu_ctr import EditMenuController
@@ -22,9 +15,6 @@ from controller.mode_mnu_ctr import ModeMenuController
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
-from functools import partial
-import pickle
-from util.appdirs import *
 
 
 class MainWindow(QMainWindow):
@@ -275,4 +265,6 @@ class MainWindow(QMainWindow):
                       game.headers["Date"])
 
     def closeEvent(self, event):
+        print("close event")
         self.engine_controller.stop_engine()
+        self.engine_controller.thread.exit()
