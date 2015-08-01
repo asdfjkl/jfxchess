@@ -3,6 +3,7 @@ import re
 from util.proc import set_lowpriority
 import time
 from uci.uci_worker import Uci_worker
+import time
 
 class Uci_controller(QObject):
 
@@ -44,6 +45,11 @@ class Uci_controller(QObject):
 
     def stop_engine(self):
         self.emit(SIGNAL("new_command(QString)"),"quit")
+        print("emitted stop signal")
+        #time.sleep(1)
+        #print("slept for 1")
+        #self.thread.killTimer(1)
+
 
     def start_engine(self,path):
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
