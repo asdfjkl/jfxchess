@@ -3,9 +3,9 @@
 # classes from Jerry:
 from views.moves_edit_view import MovesEditView
 from views.chessboard_view import ChessboardView
-from controller import file_menu_ctr
-from controller import edit_menu_ctr
-from controller import game_menu_controller
+from controller import file_mnu_ctr
+from controller import edit_mnu_ctr
+from controller import game_mnu_ctr
 from model.gamestate import GameState
 from model.gamestate import MODE_ENTER_MOVES
 from dialogs.dialog_about import DialogAbout
@@ -13,9 +13,10 @@ from uci.uci_controller import Uci_controller
 from model.user_settings import UserSettings,InternalEngine
 from model.database import Database
 from model.model import Model
-from controller.edit_menu_ctr import EditMenuController
-from controller.file_menu_ctr import FileMenuController
-from controller.game_menu_controller import GameMenuController
+from controller.edit_mnu_ctr import EditMenuController
+from controller.file_mnu_ctr import FileMenuController
+from controller.game_mnu_ctr import GameMenuController
+from controller.mode_mnu_ctr import ModeMenuController
 
 # PyQt and python system functions / external libs
 from  PyQt4.QtGui import *
@@ -104,10 +105,10 @@ class MainWindow(QMainWindow):
         new_db.triggered.connect(self.fileMenuController.new_database)
         open_db = m_file.addAction(self.trUtf8("Open..."))
         open_db.setShortcut(QKeySequence.Open)
-        open_db.triggered.connect(self.fileMenuController.open_pgn)
+        open_db.triggered.connect(self.fileMenuController.open_database)
         browse_games = m_file.addAction(self.trUtf8("Browse Games..."))
         browse_games.setShortcut('L')
-        browse_games.triggered.connect(self.fileMenuController.browse_database)
+        browse_games.triggered.connect(self.fileMenuController.browse_games)
         m_file.addSeparator()
         save_diag = m_file.addAction(self.trUtf8("Save Position as Image"))
         save_diag.triggered.connect(self.fileMenuController.save_image)
@@ -126,19 +127,19 @@ class MainWindow(QMainWindow):
         self.editMenuController = EditMenuController(self,self.model)
         m_edit = self.menuBar().addMenu(self.trUtf8('Edit '))
         copy_game = m_edit.addAction(self.trUtf8("Copy Game"))
-        copy_game.triggered.connect(self.editMenuController.game_to_clipboard)
-        print("connected")
+        copy_game.triggered.connect(self.editMenuController.copy_game_to_clipboard)
         copy_game.setShortcut(QKeySequence.Copy)
         copy_pos = m_edit.addAction(self.trUtf8("Copy Position"))
-        copy_pos.triggered.connect(self.editMenuController.pos_to_clipboard)
+        copy_pos.triggered.connect(self.editMenuController.copy_pos_to_clipboard)
         paste = m_edit.addAction(self.trUtf8("Paste"))
         paste.setShortcut(QKeySequence.Paste)
-        paste.triggered.connect(self.editMenuController.from_clipboard)
+        paste.triggered.connect(self.editMenuController.paste_from_clipboard)
         m_edit.addSeparator()
         enter_pos = m_edit.addAction(self.trUtf8("&Enter Position"))
         enter_pos.setShortcut('e')
         enter_pos.triggered.connect(self.editMenuController.enter_position)
         reset_pos = m_edit.addAction(self.trUtf8("Reset to Initial"))
+        reset_pos.triggered.connect(self.editMenuController.reset_to_initial)
         m_edit.addSeparator()
         flip = m_edit.addAction(self.trUtf8("&Flip Board"))
         flip.setShortcut('f')
@@ -164,16 +165,16 @@ class MainWindow(QMainWindow):
         new_game.setShortcut(QKeySequence.New)
         new_game.triggered.connect(self.gameMenuController.on_newgame)
         self.save = m_game.addAction(self.trUtf8("Save"))
-        self.save.triggered.connect(self.fileMenuController.save)
+        self.save.triggered.connect(self.gameMenuController.save)
         if(not self.model.gamestate.unsaved_changes):
             self.save.setEnabled(False)
         self.save_as = m_game.addAction(self.trUtf8("Save As New..."))
-        self.save_as.triggered.connect(self.fileMenuController.save_as_new)
+        self.save_as.triggered.connect(self.gameMenuController.save_as_new)
         export_game = m_game.addAction(self.trUtf8("Export..."))
-        export_game.triggered.connect(self.fileMenuController.export_game)
+        export_game.triggered.connect(self.gameMenuController.export_game)
         m_game.addSeparator()
         edit_game_data = m_game.addAction(self.trUtf8("Edit Game Data"))
-        edit_game_data.triggered.connect(self.editMenuController.editGameData)
+        edit_game_data.triggered.connect(self.gameMenuController.editGameData)
         m_game.addSeparator()
         next_ = m_game.addAction(self.trUtf8("Next in Database"))
         next_.triggered.connect(self.gameMenuController.on_nextgame)
@@ -182,42 +183,43 @@ class MainWindow(QMainWindow):
 
 
         # MODE MENU
+        self.modeMenuController = ModeMenuController(self,self.model)
         m_mode = self.menuBar().addMenu(self.trUtf8("Mode"))
         ag = QActionGroup(self, exclusive=True)
         analysis = QAction(self.trUtf8("&Analysis Mode"),m_mode,checkable=True)
         m_mode.addAction(ag.addAction(analysis))
         analysis.setShortcut('a')
-        analysis.triggered.connect(self.gameMenuController.on_analysis_mode)
+        analysis.triggered.connect(self.modeMenuController.on_analysis_mode)
         self.play_white = QAction(self.trUtf8("Play as &White"),m_mode,checkable=True)
         self.play_white.setShortcut('w')
         m_mode.addAction(ag.addAction(self.play_white))
-        self.play_white.triggered.connect(self.gameMenuController.on_play_as_white)
+        self.play_white.triggered.connect(self.modeMenuController.on_play_as_white)
 
         self.play_black = QAction(self.trUtf8("Play as &Black"),m_mode,checkable=True)
         self.play_black.setShortcut('b')
         m_mode.addAction(ag.addAction(self.play_black))
-        self.play_black.triggered.connect(self.gameMenuController.on_play_as_black)
+        self.play_black.triggered.connect(self.modeMenuController.on_play_as_black)
 
         self.enter_moves = QAction(self.trUtf8("Enter &Moves"),m_mode,checkable=True)
         self.enter_moves.setShortcuts([Qt.Key_M,Qt.Key_Escape])
         m_mode.addAction(ag.addAction(self.enter_moves))
-        self.enter_moves.triggered.connect(self.gameMenuController.on_enter_moves_mode)
+        self.enter_moves.triggered.connect(self.modeMenuController.on_enter_moves_mode)
         self.enter_moves.setChecked(True)
         m_mode.addSeparator()
 
         self.analyze_game = QAction(self.trUtf8("Full Game Analysis"),m_mode,checkable=True)
         m_mode.addAction(ag.addAction(self.analyze_game))
-        self.analyze_game.triggered.connect(self.gameMenuController.on_game_analysis_mode,)
+        self.analyze_game.triggered.connect(self.modeMenuController.on_game_analysis_mode,)
         self.play_out_pos = QAction(self.trUtf8("Play out Position"),m_mode,checkable=True)
         m_mode.addAction(ag.addAction(self.play_out_pos))
-        self.play_out_pos.triggered.connect(self.gameMenuController.on_playout_pos)
+        self.play_out_pos.triggered.connect(self.modeMenuController.on_playout_pos)
         m_mode.addSeparator()
 
         set_strength = m_mode.addAction(self.trUtf8("Strength Level"))
-        set_strength.triggered.connect(self.gameMenuController.on_strength_level)
+        set_strength.triggered.connect(self.modeMenuController.on_strength_level)
 
         set_engines = m_mode.addAction(self.trUtf8("Engines..."))
-        set_engines.triggered.connect(self.gameMenuController.on_set_engines)
+        set_engines.triggered.connect(self.modeMenuController.on_set_engines)
 
         # HELP MENU
         m_help = self.menuBar().addMenu((self.trUtf8("Help")))
