@@ -106,26 +106,8 @@ class GameMenuController():
             gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
     def editGameData(self):
-        mainWindow = self.mainAppWindow
-        root = mainWindow.model.gamestate.current.root()
-        ed = DialogEditGameData(root)
-        answer = ed.exec_()
-        if(answer):
-            root.headers["Event"] = ed.ed_event.text()
-            root.headers["Site"] = ed.ed_site.text()
-            root.headers["Date"] = ed.ed_date.text()
-            root.headers["Round"] = ed.ed_round.text()
-            root.headers["White"] = ed.ed_white.text()
-            root.headers["Black"] = ed.ed_black.text()
-            if(ed.rb_ww.isChecked()):
-                root.headers["Result"] = "1-0"
-            elif(ed.rb_bw.isChecked()):
-                root.headers["Result"] = "0-1"
-            elif(ed.rb_draw.isChecked()):
-                root.headers["Result"] = "1/2-1/2"
-            elif(ed.rb_unclear.isChecked()):
-                root.headers["Result"] = "*"
-        mainWindow.setLabels()
+        pass
+        # todo call common gamestate functionality
 
     def on_nextgame(self, mainWindow):
         db = mainWindow.model.database
