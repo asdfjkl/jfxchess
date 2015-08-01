@@ -4,7 +4,7 @@ import io
 import chess
 from dialogs.dialog_edit_game_data import DialogEditGameData
 from dialogs.dialog_enter_position import DialogEnterPosition
-from controller.file_io import init_game_tree
+#from controller.file_menu_ctr import init_game_tree
 
 class EditMenuController():
 
@@ -48,7 +48,7 @@ class EditMenuController():
                 gamestate.current = first_game
                 self.mainAppWindow.setLabels()
                 self.mainAppWindow.save_game.setEnabled(False)
-                init_game_tree(self.mainAppWindow,gamestate.current.root())
+                #init_game_tree(self.mainAppWindow,gamestate.current.root())
         boardview.update()
         boardview.emit(SIGNAL("statechanged()"))
 
