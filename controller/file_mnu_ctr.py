@@ -157,15 +157,3 @@ class FileMenuController():
         """
 
 
-    def is_position_in_book(self,node):
-        with open_reader("./books/varied.bin") as reader:
-            entries = reader.get_entries_for_position(node.board())
-            moves = []
-            for entry in entries:
-                move = entry.move().uci()
-                moves.append(move)
-            l = len(moves)
-            if(l > 0):
-                return True
-            else:
-                return False
