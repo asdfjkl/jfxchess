@@ -157,6 +157,6 @@ class GameMenuController():
 
 
 
-    def on_unsaved_changes(self, mainWindow):
-        mainWindow.model.gamestate.unsaved_changes = True
-        mainWindow.save.setEnabled(True)
+    def on_unsaved_changes(self):
+        self.mainAppWindow.model.gamestate.unsaved_changes = True
+        self.mainAppWindow.save.setEnabled(True)
