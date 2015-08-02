@@ -90,7 +90,7 @@ class GameState():
             mainline_nodes.append(temp)
         cnt = len(mainline_nodes)
         if(not mainAppWindow == None):
-            pDialog = QProgressDialog(mainAppWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainWindow)
+            pDialog = QProgressDialog(mainAppWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainAppWindow)
             pDialog.setWindowModality(Qt.WindowModal)
             pDialog.show()
             QApplication.processEvents()
