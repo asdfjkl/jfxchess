@@ -47,7 +47,7 @@ class EditMenuController():
             if(first_game != None):
                 gamestate.current = first_game
                 self.mainAppWindow.setLabels()
-                self.mainAppWindow.save_game.setEnabled(False)
+                self.mainAppWindow.save.setEnabled(False)
                 self.model.gamestate.init_game_tree(self.mainAppWindow)
         boardview.update()
         boardview.emit(SIGNAL("statechanged()"))
