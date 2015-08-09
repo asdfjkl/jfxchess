@@ -51,6 +51,8 @@ class FileMenuController():
                 self.mWin.save.setEnabled(False)
                 self.mdl.database = db
                 self.mdl.user_settings.active_database = db.filename
+        self.mWin.moves_edit_view.setFocus()
+
 
     def open_database(self):
         mainWindow = self.mWin
@@ -86,6 +88,8 @@ class FileMenuController():
                 mainWindow.moves_edit_view.setFocus()
                 gamestate.last_open_dir = QFileInfo(filename).dir().absolutePath()
                 gamestate.init_game_tree(self.mWin)
+        self.mWin.moves_edit_view.setFocus()
+
 
                     #if(dlg.table.hasS)
                     #print(str(dlg.table.selectedIndexes()))
@@ -134,6 +138,7 @@ class FileMenuController():
                     mainWindow.moves_edit_view.setFocus()
                     #self.init_game_tree(gs.current.root())
                     gs.init_game_tree(self.mWin)
+        self.mWin.moves_edit_view.setFocus()
 
 
     def save_image(self):
