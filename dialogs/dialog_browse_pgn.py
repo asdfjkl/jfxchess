@@ -69,6 +69,8 @@ class DialogBrowsePgn(QDialog):
 
         self.setLayout(vbox)
 
+        self.search_field.setFocus()
+
         self.connect(buttonBox, SIGNAL("accepted()"),self, SLOT("accept()"))
         self.connect(buttonBox, SIGNAL("rejected()"),self, SLOT("reject()"))
         self.button_delete.clicked.connect(self.on_delete)

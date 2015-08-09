@@ -34,6 +34,7 @@ class Database():
         self.filename = filename
 
     def init_from_file(self, mainWindow, msg):
+        print("loading from: "+self.filename)
         with open(self.filename) as pgn:
             size = os.path.getsize(self.filename)
             self.entries = []
@@ -42,6 +43,7 @@ class Database():
             pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
             QApplication.processEvents()
             for offset, headers in chess.pgn.scan_headers(pgn):
+                print(headers)
                 QApplication.processEvents()
                 pDialog.setValue(offset)
                 self.entries.append(Entry(offset,headers))
@@ -186,6 +188,7 @@ class Database():
         return len(self.entries)
 
     def load_game(self, index):
+        print(self.entries)
         if index >= 0 and index < len(self.entries):
             entry = self.entries[index]
             with open(self.filename) as pgn:

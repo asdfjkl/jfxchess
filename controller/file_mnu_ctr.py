@@ -31,6 +31,8 @@ class FileMenuController():
                     self.gs_ctr.editGameData()
                     self.mdl.database.append_game(self.mdl.gamestate.current)
                 else:
+                    print(self.mdl.gamestate.current)
+                    print(self.mdl.database.index_current_game)
                     self.mdl.database.update_game(self.mdl.database.index_current_game,\
                                                     self.mdl.gamestate.current)
                 self.mWin.save.setEnabled(False)
@@ -71,7 +73,7 @@ class FileMenuController():
                     selectedGame = int(items[0].text())-1
                 else:
                     selectedGame = None
-            if(not selectedGame == None):
+            if(not selectedGame == None and db.no_of_games() > 0):
                 loaded_game = db.load_game(selectedGame)
                     #offset, headers = db.offset_headers[idx]
                     #pgn.seek(offset)
@@ -101,13 +103,28 @@ class FileMenuController():
             items = dlg.table.selectedItems()
             selectedGame = int(items[0].text())-1
             loaded_game = db.load_game(selectedGame)
-            #offset, headers = db.offset_headers[idx]
-            #pgn.seek(offset)
-            #first_game = chess.pgn.read_game(pgn)
             print("loaded game: "+str(loaded_game))
             if(not loaded_game == None):
-                ret = controller.gameevents.unsaved_changes(mainWindow)
-                if not ret == QMessageBox.Cancel:
+                # if the user wants to load a game, but the current open
+                # game has still unsaved changes or hasn't been saved at all,
+                # ask user what to do
+                cancel = False
+                if(self.mdl.database.index_current_game == None or self.mdl.gamestate.unsaved_changes):
+                    changes_dialog = DialogSaveChanges()
+                    ret = changes_dialog.exec_()
+                    if(ret == QMessageBox.Save):
+                        if(self.mdl.database.index_current_game == None):
+                            self.gs_ctr.editGameData()
+                            self.mdl.database.append_game(self.mdl.gamestate.current)
+                        else:
+                            print(self.mdl.gamestate.current)
+                            print(self.mdl.database.index_current_game)
+                            self.mdl.database.update_game(self.mdl.database.index_current_game,\
+                                                    self.mdl.gamestate.current)
+                        self.mWin.save.setEnabled(False)
+                    if(ret == QMessageBox.Cancel):
+                        cancel = True
+                if(not cancel):
                     gs.current = loaded_game
                     cbv.update()
                     cbv.emit(SIGNAL("statechanged()"))
@@ -141,7 +158,7 @@ class FileMenuController():
         q_widget = self.mWin
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted:
-            p = QPixmap.grabWindow(q_widget.winId())
+            p = QPixmap.grabWindow(q_widget.chessboard_view.winId())
             painter = QPainter(dialog.printer())
             dst = QRect(0,0,200,200)
             painter.drawPixmap(dst, p)
