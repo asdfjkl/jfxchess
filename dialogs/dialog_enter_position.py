@@ -252,6 +252,11 @@ class DialogEnterPosition(QDialog):
         self.buttonClear.clicked.connect(self.clear_board)
         self.buttonCurrent.clicked.connect(self.set_current)
 
+        # reset who's current turn it is and the current
+        # castling rights of the position
+        self.set_castling_rights()
+        self.set_turn()
+
     def set_castling_rights(self):
         self.displayBoard.board.castling_rights = CASTLING
         #if(not self.cbWhiteShort.isChecked() or not self.cbWhiteLong.isChecked()):
