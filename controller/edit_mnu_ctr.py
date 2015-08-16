@@ -72,4 +72,17 @@ class EditMenuController():
             mainWindow.update()
 
     def reset_to_initial(self):
-        pass
+
+        root = chess.pgn.Game()
+        root.headers["FEN"] = ""
+        root.headers["SetUp"] = ""
+        #root.setup(dialog.displayBoard.board)
+        self.mainAppWindow.model.gamestate.current = root
+        self.mainAppWindow.model.gamestate.initialize_headers()
+        self.mainAppWindow.setLabels()
+        self.mainAppWindow.chessboard_view.on_statechanged()
+        self.mainAppWindow.moves_edit_view.on_statechanged()
+        self.mainAppWindow.save.setEnabled(False)
+        self.mainAppWindow.update()
+        #self.model.gamestate.current.board().reset()
+        #self.mainAppWindow.chessboard_view.update()
