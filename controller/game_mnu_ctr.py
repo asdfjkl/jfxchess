@@ -28,7 +28,7 @@ class GameMenuController():
 
     def on_newgame(self):
         settings = self.model.user_settings
-        ret = self.mainAppWindow.fileMenuController.unsaved_changes(self.mainAppWindow)
+        ret = self.mainAppWindow.gamestateController.unsaved_changes()
         #ret = QMessageBox.Ok
         if not ret == QMessageBox.Cancel:
             dialog = DialogNewGame(gamestate=self.model.gamestate,user_settings=settings)
@@ -114,7 +114,7 @@ class GameMenuController():
         cbv = self.mainAppWindow.chessboard_view
         if(not db.index_current_game == None):
             if(db.index_current_game < len(db.entries)-1):
-                ret = self.mainAppWindow.fileMenuController.unsaved_changes(self.mainAppWindow)
+                ret = self.mainAppWindow.gamestateController.unsaved_changes()
                 #ret = QMessageBox.Ok
                 if not ret == QMessageBox.Cancel:
                     loaded_game = db.load_game(db.index_current_game+1)
@@ -136,7 +136,7 @@ class GameMenuController():
         cbv = mainWindow.chessboard_view
         if(not db.index_current_game == None):
             if(db.index_current_game > 0):
-                ret = self.mainAppWindow.fileMenuController.unsaved_changes(self.mainAppWindow)
+                ret = self.mainAppWindow.gamestateController.unsaved_changes()
                 #ret = QMessageBox.Ok
                 if not ret == QMessageBox.Cancel:
                     loaded_game = db.load_game(db.index_current_game-1)
