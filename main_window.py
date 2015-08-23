@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         exit_item.triggered.connect(QApplication.quit)
 
         # EDIT MENU
-        self.editMenuController = EditMenuController(self,self.model)
+        self.editMenuController = EditMenuController(self)
         m_edit = self.menuBar().addMenu(self.trUtf8('Edit '))
         copy_game = m_edit.addAction(self.trUtf8("Copy Game"))
         copy_game.triggered.connect(self.editMenuController.copy_game_to_clipboard)
