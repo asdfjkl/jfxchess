@@ -3,6 +3,8 @@ from model.gamestate import MODE_ENTER_MOVES,MODE_PLAY_BLACK,\
 import chess
 from util.messages import display_mbox
 from dialogs.dialog_edit_game_data import DialogEditGameData
+from dialogs.dialog_save_changes import DialogSaveChanges
+from PyQt4.QtGui import *
 
 class GamestateController():
 
@@ -246,3 +248,29 @@ class GamestateController():
         mainWindow.setLabels()
 
 
+    def unsaved_changes(self):
+        print("unsaved changes")
+        print(str(self.model.gamestate.unsaved_changes))
+        print(str(self.model.database.index_current_game))
+        # dialog to be called to
+        # check for unsaved changes to
+        # the current game
+        # if current game has unsaved changes
+        # or is not saved in database
+        # ask user if he wants save it
+        if(self.model.database.index_current_game == None or
+               self.model.gamestate.unsaved_changes):
+            print("inside loop")
+            dlg_changes = DialogSaveChanges()
+            ret = dlg_changes.exec_()
+            if(ret == QMessageBox.Save):
+                # if game is not in db append
+                if(self.model.database.index_current_game == None):
+                    self.mainAppWindow.gameMenuController.editGameData()
+                    self.model.database.append_game(self.model.gamestate.current)
+                else:
+                    self.model.database.update_game(self.model.database.index_current_game,self.model.gamestate.current)
+                self.mainAppWindow.save.setEnabled(False)
+            return ret
+        else:
+            return QMessageBox.Discard
