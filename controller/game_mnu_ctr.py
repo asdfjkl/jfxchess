@@ -1,30 +1,15 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from dialogs.dialog_strength_level import DialogStrengthLevel
 from dialogs.dialog_new_game import DialogNewGame
-from dialogs.dialog_analyze_game import DialogAnalyzeGame
-from dialogs.dialog_save_changes import DialogSaveChanges
 from model.gamestate import GameState
-from model.gamestate import MODE_ENTER_MOVES, \
-    MODE_PLAY_WHITE, MODE_PLAY_BLACK, MODE_ANALYSIS, \
-    MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
-import chess
-#from controller.file_menu_ctr import is_position_in_book
-from util.messages import display_mbox
-from dialogs.dialog_engines import DialogEngines
-from uci.engine_info import EngineInfo
-import controller.edit_mnu_ctr
-import controller.file_mnu_ctr
-from dialogs.dialog_edit_game_data import DialogEditGameData
 
 class GameMenuController():
 
-    def __init__(self, mainAppWindow, model):
+    def __init__(self, mainAppWindow):
         super(GameMenuController, self).__init__()
         self.mainAppWindow = mainAppWindow
-        self.uci_controller = mainAppWindow.engine_controller
-        self.model = model
+        self.model = mainAppWindow.model
 
     def on_newgame(self):
         settings = self.model.user_settings
@@ -80,9 +65,10 @@ class GameMenuController():
         db = self.model.database
         gs = self.model.gamestate
         # let the user enter game data
-        controller.edit.editGameData(self.mainAppWindow)
+        self.mainAppWindow.gamestateController.editGameData()
         db.append_game(gs.current)
         self.mainAppWindow.save.setEnabled(False)
+        self.model.gamestate.unsaved_changes = False
         self.mainAppWindow.moves_edit_view.setFocus()
 
     def export_game(self):
