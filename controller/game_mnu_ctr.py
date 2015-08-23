@@ -12,30 +12,23 @@ class GameMenuController():
         self.model = mainAppWindow.model
 
     def on_newgame(self):
-        settings = self.model.user_settings
         ret = self.mainAppWindow.gamestateController.unsaved_changes()
-        #ret = QMessageBox.Ok
         if not ret == QMessageBox.Cancel:
-            dialog = DialogNewGame(gamestate=self.model.gamestate,user_settings=settings)
-            movesEdit = self.mainAppWindow.moves_edit_view
+            dialog = DialogNewGame(gamestate=self.model.gamestate,user_settings=self.model.user_settings)
             if dialog.exec_() == QDialog.Accepted:
                 self.model.gamestate = GameState()
                 self.mainAppWindow.chessboard_view.gs = self.model.gamestate
-                movesEdit.gs = self.model.gamestate
-                movesEdit.update()
+                self.mainAppWindow.moves_edit_view.gs = self.model.gamestate
+                self.mainAppWindow.moves_edit_view.update()
                 # strength is only changed if internal engine is used
                 # otherwise the dialog is meaningless
-                if(settings.active_engine == settings.engines[0]):
+                if(self.model.user_settings.active_engine == self.model.user_settings.engines[0]):
                     self.model.gamestate.strength_level = dialog.slider_elo.value()
                 self.model.gamestate.computer_think_time = dialog.think_ms
-                #print("think time: "+str(mainWindow.gs.computer_think_time))
-                movesEdit.on_statechanged()
+                self.mainAppWindow.moves_edit_view.on_statechanged()
                 self.model.gamestate.initialize_headers()
-                #mainWindow.save.setEnabled(False)
-                # add current game to database, but don't save it
                 self.model.database.index_current_game = None
                 self.mainAppWindow.save.setEnabled(True)
-                #mainWindow.database.add_current_game(mainWindow.gs.game.root())
                 if(dialog.rb_plays_white.isChecked()):
                     self.mainAppWindow.play_white.setChecked(True)
                     self.mainAppWindow.setLabels()
@@ -50,100 +43,78 @@ class GameMenuController():
                     self.mainAppWindow.modeMenuController.on_play_as_black()
 
     def save(self):
-        db = self.model.database
         # if the game is not in the database
         # i.e. hasn't been saved yet, then
         # calls save_as
-        if(db.index_current_game == None):
+        if(self.model.database.index_current_game == None):
             self.save_as_new()
         else:
-            db.update_game(db.index_current_game,self.model.gamestate.current)
+            self.model.database.update_game(self.model.database.index_current_game,self.model.gamestate.current)
         self.mainAppWindow.save.setEnabled(False)
         self.mainAppWindow.moves_edit_view.setFocus()
 
     def save_as_new(self):
-        db = self.model.database
-        gs = self.model.gamestate
         # let the user enter game data
         self.mainAppWindow.gamestateController.editGameData()
-        db.append_game(gs.current)
+        # then save to db
+        self.model.database.append_game(self.model.gamestate.current)
         self.mainAppWindow.save.setEnabled(False)
         self.model.gamestate.unsaved_changes = False
         self.mainAppWindow.moves_edit_view.setFocus()
 
     def export_game(self):
-        mainWidget = self.mainAppWindow
-        gamestate = self.model.gamestate
         dialog = QFileDialog()
-        if(gamestate.last_save_dir != None):
-            dialog.setDirectory(gamestate.last_save_dir)
-        filename = dialog.getSaveFileName(mainWidget, mainWidget.trUtf8('Save PGN'), None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
+        if(self.model.gamestate.last_save_dir != None):
+            dialog.setDirectory(self.model.gamestate.last_save_dir)
+        filename = dialog.getSaveFileName(self.mainAppWindow, self.mainAppWindow.trUtf8('Save PGN'), \
+                                          None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if(filename):
             if(not filename.endswith(".pgn")):
                 filename = filename + ".pgn"
             f = open(filename,'w')
-            print(gamestate.current.root(), file=f, end="\n\n")
-            gamestate.pgn_filename = filename
-            #mainWidget.save_game.setEnabled(True)
-            mainWidget.movesEdit.setFocus()
+            print(self.model.gamestate.current.root(), file=f, end="\n\n")
+            self.model.gamestate.pgn_filename = filename
+            self.mainAppWindow.movesEdit.setFocus()
             f.close()
-            gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
+            self.model.gamestate.last_save_dir = QFileInfo(filename).dir().absolutePath()
 
     def editGameData(self):
+        # just pass directly to gamestate controller
         self.mainAppWindow.gamestateController.editGameData()
-        #pass
-        # todo call common gamestate functionality
 
     def on_nextgame(self):
-        db = self.model.database
-        gs = self.model.gamestate
-        cbv = self.mainAppWindow.chessboard_view
-        if(not db.index_current_game == None):
-            if(db.index_current_game < len(db.entries)-1):
+        if(not self.model.database.index_current_game == None):
+            if(self.model.database.index_current_game < len(db.entries)-1):
                 ret = self.mainAppWindow.gamestateController.unsaved_changes()
                 #ret = QMessageBox.Ok
                 if not ret == QMessageBox.Cancel:
-                    loaded_game = db.load_game(db.index_current_game+1)
-                    gs.current = loaded_game
-                    cbv.update()
-                    cbv.emit(SIGNAL("statechanged()"))
-                    gs.unsaved_changes = False
+                    loaded_game = self.model.database.load_game(self.model.database.index_current_game+1)
+                    self.model.gamestate.current = loaded_game
+                    self.mainAppWindow.chessboard_view.update()
+                    self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
+                    self.model.gamestate.unsaved_changes = False
                     self.mainAppWindow.save.setEnabled(False)
                     self.mainAppWindow.setLabels()
                     self.mainAppWindow.moves_edit_view.setFocus()
-                    #controller.file_mnu_ctr.init_game_tree(mainWindow,gs.current.root())
-                    gs.init_game_tree(self.mainAppWindow)
-
+                    self.model.gamestate.init_game_tree(self.mainAppWindow)
 
     def on_previous_game(self):
-        mainWindow = self.mainAppWindow
-        db = self.model.database
-        gs = self.model.gamestate
-        cbv = mainWindow.chessboard_view
-        if(not db.index_current_game == None):
-            if(db.index_current_game > 0):
+        if(not self.model.database.index_current_game == None):
+            if(self.model.database.index_current_game > 0):
                 ret = self.mainAppWindow.gamestateController.unsaved_changes()
                 #ret = QMessageBox.Ok
                 if not ret == QMessageBox.Cancel:
-                    loaded_game = db.load_game(db.index_current_game-1)
-                    gs.current = loaded_game
-                    cbv.update()
-                    cbv.emit(SIGNAL("statechanged()"))
-                    gs.unsaved_changes = False
-                    mainWindow.save.setEnabled(False)
-                    mainWindow.setLabels()
-                    mainWindow.moves_edit_view.setFocus()
-                    gs.init_game_tree(mainWindow)
-
-
+                    loaded_game = self.model.database.load_game(self.model.database.index_current_game-1)
+                    self.model.gamestate.current = loaded_game
+                    self.mainAppWindow.chessboard_view.update()
+                    self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
+                    self.model.gamestate.unsaved_changes = False
+                    self.mainAppWindow.save.setEnabled(False)
+                    self.mainAppWindow.setLabels()
+                    self.mainAppWindow.moves_edit_view.setFocus()
+                    self.model.gamestate.init_game_tree(self.mainAppWindow)
 
 ###########
-
-
-
-
-
-
 
     def on_unsaved_changes(self):
         self.mainAppWindow.model.gamestate.unsaved_changes = True
