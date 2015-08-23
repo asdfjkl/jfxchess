@@ -48,7 +48,7 @@ class ModeMenuController():
             fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
             mainWindow.engine_controller.send_fen(fen)
             mainWindow.engine_controller.uci_send_position(uci_string)
-            mainWindow.engine_controller.uci_go_movetime(mainWindow.gs.computer_think_time)
+            mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
 
 
     def on_play_as_black(self):
@@ -114,14 +114,14 @@ class ModeMenuController():
             gs.mode = MODE_GAME_ANALYSIS
             gs.best_score = None
         else:
-            self.on_enter_moves_mode(mainWindow)
+            self.on_enter_moves_mode()
 
 
     def on_playout_pos(self):
         mainWindow = self.mainAppWindow
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
-        self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine.options)
+        self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine)
         mainWindow.give_up.setEnabled(False)
         mainWindow.offer_draw.setEnabled(False)
         fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
@@ -167,12 +167,12 @@ class ModeMenuController():
         mainWidget = self.mainAppWindow
         user_settings = mainWidget.model.user_settings
         dialog = DialogEngines(user_settings=user_settings)
-        self.on_enter_moves_mode(mainWidget)
+        self.on_enter_moves_mode()
         if dialog.exec_() == QDialog.Accepted:
             user_settings.engines = dialog.engines
             user_settings.active_engine = dialog.active_engine
             info = EngineInfo()
             info.id = user_settings.active_engine.name
-            self.receive_engine_info(mainWidget,info)
+            self.mainAppWindow.gamestateController.receive_engine_info(info)
             print("active engine after dialog setting"+str(user_settings.active_engine.path))
             #todo update views, i.e. label above engine window

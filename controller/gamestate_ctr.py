@@ -241,6 +241,8 @@ class GamestateController():
                 root.headers["Result"] = "1/2-1/2"
             elif(ed.rb_unclear.isChecked()):
                 root.headers["Result"] = "*"
+            self.mainAppWindow.save.setEnabled(True)
+            self.model.gamestate.unsaved_changes = True
         mainWindow.setLabels()
 
 
