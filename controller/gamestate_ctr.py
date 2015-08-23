@@ -13,12 +13,12 @@ class GamestateController():
         self.model = model
 
 
-    def on_statechanged(self, mainWindow):
-        mainWindow.save.setEnabled(True)
-        gs = mainWindow.model.gamestate
-        engine = mainWindow.engine_controller
+    def on_statechanged(self):
+        self.mainAppWindow.save.setEnabled(True)
+        gs = self.mainAppWindow.model.gamestate
+        engine = self.mainAppWindow.engine_controller
         if(gs.mode == MODE_ANALYSIS):
-            fen, uci_string = mainWindow.model.gamestate.printer.to_uci(gs.current)
+            fen, uci_string = self.mainAppWindow.model.gamestate.printer.to_uci(gs.current)
             engine.send_fen(fen)
             engine.uci_send_position(uci_string)
             engine.uci_go_infinite()
@@ -45,14 +45,15 @@ class GamestateController():
             root.headers["Result"] = "1-0"
         else:
             root.headers["Result"] = "0-1"
-        self.on_enter_moves_mode(mainWindow)
+        self.on_enter_moves_mode()
 
     def draw_game(self, mainWindow):
         mainWindow.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
-        self.on_enter_moves_mode(mainWindow)
+        self.on_enter_moves_mode()
 
 
-    def receive_engine_info(self, mainWindow,info_string):
+    def receive_engine_info(self, info_string):
+        mainWindow = self.mainAppWindow
         gs = mainWindow.model.gamestate
         engine_info = info_string
         if(gs.display_engine_info):
@@ -77,7 +78,7 @@ class GamestateController():
             and self.count_moves(mainWindow.gs.current) > 40):
             gs.current.root().headers["Result"] = "1/2-1/2"
             display_mbox("The computer accepts.","The game ends in a draw.")
-            self.on_enter_moves_mode(mainWindow)
+            self.on_enter_moves_mode()
         else:
             display_mbox("The computer rejects your offer.","The game continues.")
 
@@ -88,8 +89,17 @@ class GamestateController():
             gs.current.root().headers["Result"] = "0-1"
         elif(gs.mode == MODE_PLAY_BLACK):
             gs.current.root().headers["Result"] = "1-0"
-        self.on_enter_moves_mode(mainWindow)
+        self.on_enter_moves_mode()
 
+    def on_enter_moves_mode(self):
+        # stop any engine
+        mainWindow = self.mainAppWindow
+        mainWindow.engine_controller.stop_engine()
+        mainWindow.engineOutput.setHtml("")
+        mainWindow.give_up.setEnabled(False)
+        mainWindow.offer_draw.setEnabled(False)
+        mainWindow.model.gamestate.mode = MODE_ENTER_MOVES
+        mainWindow.enter_moves.setChecked(True)
 
     def add_variant_from_pv(self, root, move, uci_list):
         uci_move = uci_list[0]
@@ -109,7 +119,7 @@ class GamestateController():
             gs.headers["Result"] = "1-0"
         elif(gs.mode == MODE_PLAY_BLACK):
             gs.headers["Result"] = "0-1"
-        self.on_enter_moves_mode(mainWindow)
+        self.on_enter_moves_mode()
 
     def is_lost_by_comp(self, gamestate):
         # if the position is played out (i.e. comp vs comp)
@@ -150,7 +160,8 @@ class GamestateController():
                 and gs.current.variations != [] and gs.pv[0] != gs.current.variations[0].move.uci()
 
 
-    def on_bestmove(self, mainWindow,move):
+    def on_bestmove(self, move):
+        mainWindow = self.mainAppWindow
         gs = mainWindow.model.gamestate
         mode = mainWindow.model.gamestate.mode
 
@@ -192,19 +203,19 @@ class GamestateController():
             # continue in that mode, unless we reached the root of
             # the game, or the parent position is in the book
             if(gs.current.parent):
-                if(self.is_position_in_book(gs.current.parent)):
+                if((gs.is_current_position_in_book(gs.current.parent))):
                     gs.current.parent.comment = "last book move"
                     gs.current.parent.invalidate = True
-                    display_mbox(mainWindow.trUtf8("Game Analysis Finished","The analysis is finished."))
-                    self.on_enter_moves_mode(mainWindow)
+                    display_mbox(mainWindow.trUtf8("Game Analysis Finished"),mainWindow.trUtf8("The analysis is finished."))
+                    self.on_enter_moves_mode()
                 else:
                     gs.current = gs.current.parent
                     # send uci best move command
-                    self.on_statechanged(mainWindow)
+                    self.on_statechanged()
             else:
                 gs.mode = MODE_ENTER_MOVES
-                display_mbox(mainWindow.trUtf8("Game Analysis Finished","The analysis is finished."))
-                self.on_enter_moves_mode(mainWindow)
+                display_mbox(mainWindow.trUtf8("Game Analysis Finished"),mainWindow.trUtf8("The analysis is finished."))
+                self.on_enter_moves_mode()
                 # (finished, display messagebox)
             mainWindow.moves_edit_view.update_san()
             mainWindow.update()
