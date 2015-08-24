@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
         m_edit.addSeparator()
 
         # GAME MENU
-        self.gameMenuController = GameMenuController(self,self.model)
+        self.gameMenuController = GameMenuController(self)
         m_game = self.menuBar().addMenu(self.trUtf8('Game '))
         new_game = m_game.addAction(self.trUtf8('New Game'))
         new_game.setShortcut(QKeySequence.New)
@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
 
 
         # MODE MENU
-        self.modeMenuController = ModeMenuController(self,self.model)
+        self.modeMenuController = ModeMenuController(self)
         m_mode = self.menuBar().addMenu(self.trUtf8("Mode"))
         ag = QActionGroup(self, exclusive=True)
         analysis = QAction(self.trUtf8("&Analysis Mode"),m_mode,checkable=True)
