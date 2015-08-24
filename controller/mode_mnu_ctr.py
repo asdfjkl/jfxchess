@@ -9,11 +9,10 @@ import chess
 
 class ModeMenuController():
 
-    def __init__(self, mainWindow, model):
+    def __init__(self, mainWindow):
         super(ModeMenuController, self).__init__()
-        self.model = model
+        self.model = mainWindow.model
         self.mainAppWindow = mainWindow
-        self.uci_controller = mainWindow.engine_controller
 
     def on_analysis_mode(self):
         self.mainAppWindow.display_info.setChecked(True)
@@ -34,7 +33,7 @@ class ModeMenuController():
         mainWindow.chessboard_view.flippedBoard = False
         mainWindow.chessboard_view.on_statechanged()
         mainWindow.model.gamestate.mode = MODE_PLAY_WHITE
-        self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine)
+        self.mainAppWindow.engine_controller.reset_engine(mainWindow.model.user_settings.active_engine)
         mainWindow.engineOutput.setHtml("")
         mainWindow.give_up.setEnabled(True)
         mainWindow.offer_draw.setEnabled(True)
@@ -43,13 +42,12 @@ class ModeMenuController():
         if(mainWindow.model.user_settings.active_engine == mainWindow.model.user_settings.engines[0]):
             mainWindow.engine_controller.uci_strength(mainWindow.model.gamestate.strength_level)
         mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
-        self.uci_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
+        self.mainAppWindow.engine_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
         if(mainWindow.model.gamestate.current.board().turn == chess.BLACK):
             fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
             mainWindow.engine_controller.send_fen(fen)
             mainWindow.engine_controller.uci_send_position(uci_string)
             mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
-
 
     def on_play_as_black(self):
         mainWindow = self.mainAppWindow
@@ -57,7 +55,7 @@ class ModeMenuController():
         mainWindow.chessboard_view.on_statechanged()
         mainWindow.model.gamestate.mode = MODE_PLAY_BLACK
         mainWindow.engineOutput.setHtml("")
-        self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine)
+        self.mainAppWindow.engine_controller.reset_engine(mainWindow.model.user_settings.active_engine)
         mainWindow.give_up.setEnabled(True)
         mainWindow.offer_draw.setEnabled(True)
         # strength is only set if internal engine is used
@@ -65,7 +63,7 @@ class ModeMenuController():
         if(mainWindow.model.user_settings.active_engine == mainWindow.model.user_settings.engines[0]):
             mainWindow.engine_controller.uci_strength(mainWindow.model.gamestate.strength_level)
         mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
-        self.uci_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
+        self.mainAppWindow.engine_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
         if(mainWindow.model.gamestate.current.board().turn == chess.WHITE):
             fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
             mainWindow.engine_controller.send_fen(fen)
@@ -82,7 +80,6 @@ class ModeMenuController():
         mainWindow.model.gamestate.mode = MODE_ENTER_MOVES
         mainWindow.enter_moves.setChecked(True)
 
-
     def on_game_analysis_mode(self):
         mainWindow = self.mainAppWindow
         gs = mainWindow.model.gamestate
@@ -93,7 +90,7 @@ class ModeMenuController():
             gs.engine_info.strength = None
             mainWindow.display_info.setChecked(True)
             mainWindow.set_display_info()
-            self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine)
+            self.mainAppWindow.engine_controller.reset_engine(mainWindow.model.user_settings.active_engine)
             mainWindow.give_up.setEnabled(False)
             mainWindow.offer_draw.setEnabled(False)
             mainWindow.moves_edit_view.delete_all_comments()
@@ -116,32 +113,27 @@ class ModeMenuController():
         else:
             self.on_enter_moves_mode()
 
-
     def on_playout_pos(self):
         mainWindow = self.mainAppWindow
         mainWindow.display_info.setChecked(True)
         mainWindow.set_display_info()
-        self.uci_controller.reset_engine(mainWindow.model.user_settings.active_engine)
+        self.mainAppWindow.engine_controller.reset_engine(mainWindow.model.user_settings.active_engine)
         mainWindow.give_up.setEnabled(False)
         mainWindow.offer_draw.setEnabled(False)
         fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
-        self.uci_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
+        self.mainAppWindow.engine_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
         mainWindow.engine_controller.send_fen(fen)
         mainWindow.engine_controller.uci_send_position(uci_string)
         mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
         mainWindow.model.gamestate.engine_info.strength = None
         mainWindow.model.gamestate.mode = MODE_PLAYOUT_POS
         mainWindow.enter_moves.setChecked(False)
-        #self.analysis.setChecked(False)
         mainWindow.play_white.setChecked(False)
         mainWindow.play_black.setChecked(False)
 
-
-
     def on_strength_level(self):
         mainWindow = self.mainAppWindow
-        gamestate = mainWindow.model.gamestate
-        engine = mainWindow.engine_controller
+        gamestate = self.model.gamestate
         settings = mainWindow.model.user_settings
         dialog = DialogStrengthLevel(gamestate=gamestate, user_settings=mainWindow.model.user_settings)
         if dialog.exec_() == QDialog.Accepted:
@@ -161,11 +153,10 @@ class ModeMenuController():
                 gamestate.computer_think_time = 30
             gamestate.computer_think_time = gamestate.computer_think_time*1000
         if(gamestate.mode == MODE_PLAY_WHITE or gamestate.mode == MODE_PLAY_BLACK):
-            engine.uci_strength(gamestate.strength_level)
+            self.mainAppWindow.engine_controller.uci_strength(gamestate.strength_level)
 
     def on_set_engines(self):
-        mainWidget = self.mainAppWindow
-        user_settings = mainWidget.model.user_settings
+        user_settings = self.model.user_settings
         dialog = DialogEngines(user_settings=user_settings)
         self.on_enter_moves_mode()
         if dialog.exec_() == QDialog.Accepted:
@@ -174,5 +165,4 @@ class ModeMenuController():
             info = EngineInfo()
             info.id = user_settings.active_engine.name
             self.mainAppWindow.gamestateController.receive_engine_info(info)
-            print("active engine after dialog setting"+str(user_settings.active_engine.path))
             #todo update views, i.e. label above engine window
