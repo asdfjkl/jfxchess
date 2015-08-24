@@ -95,10 +95,10 @@ class MainWindow(QMainWindow):
         #
         # other controllers get a reference of this
         # controller and make user of this functionality
-        self.gamestateController = GamestateController(self,self.model)
+        self.gamestateController = GamestateController(self)
 
         # FILE MENU
-        self.fileMenuController = FileMenuController(self,self.model,self.gamestateController)
+        self.fileMenuController = FileMenuController(self)
         m_file = self.menuBar().addMenu(self.trUtf8('File '))
         new_db = m_file.addAction(self.trUtf8("New..."))
         new_db.triggered.connect(self.fileMenuController.new_database)
