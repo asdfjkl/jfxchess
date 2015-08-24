@@ -8,12 +8,11 @@ from PyQt4.QtGui import *
 
 class GamestateController():
 
-    def __init__(self, mainAppWindow, model):
+    def __init__(self, mainAppWindow):
         super(GamestateController, self).__init__()
         self.mainAppWindow = mainAppWindow
-        self.uci_controller = mainAppWindow.engine_controller
-        self.model = model
-
+        #self.uci_controller = mainAppWindow.engine_controller
+        self.model = mainAppWindow.model
 
     def on_statechanged(self):
         self.mainAppWindow.save.setEnabled(True)
@@ -32,15 +31,6 @@ class GamestateController():
             engine.uci_send_position(uci_string)
             engine.uci_go_movetime(gs.computer_think_time)
 
-
-
-
-
-
-
-
-
-
     def on_checkmate(self, mainWindow):
         root = mainWindow.model.gamestate.current.root()
         if(root.board().turn == chess.WHITE):
@@ -49,21 +39,18 @@ class GamestateController():
             root.headers["Result"] = "0-1"
         self.on_enter_moves_mode()
 
-    def draw_game(self, mainWindow):
-        mainWindow.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
+    def draw_game(self):
+        self.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
         self.on_enter_moves_mode()
 
-
     def receive_engine_info(self, info_string):
-        mainWindow = self.mainAppWindow
-        gs = mainWindow.model.gamestate
         engine_info = info_string
-        if(gs.display_engine_info):
-            gs.score = engine_info.score
+        if(self.model.gamestate.display_engine_info):
+            self.model.gamestate.score = engine_info.score
             if(engine_info.pv_arr):
-                gs.pv = engine_info.pv_arr
-            gs.mate_threat = engine_info.mate
-            mainWindow.engineOutput.setHtml(str(info_string))
+                self.model.gamestate.pv = engine_info.pv_arr
+            self.model.gamestate.mate_threat = engine_info.mate
+            self.mainAppWindow.engineOutput.setHtml(str(info_string))
 
     def count_moves(self, node):
         temp = node
@@ -73,37 +60,33 @@ class GamestateController():
             i = i+1
         return i
 
-    def handle_offered_draw(self, mainWindow):
-        gs = mainWindow.model.gamestate
-        if((   (gs.mode == MODE_PLAY_WHITE and gs.score >  1.1)
-            or (gs.mode == MODE_PLAY_BLACK and gs.score < -1.1))
-            and self.count_moves(mainWindow.gs.current) > 40):
-            gs.current.root().headers["Result"] = "1/2-1/2"
+    def handle_offered_draw(self):
+        if((   (self.model.gamestate.mode == MODE_PLAY_WHITE and self.model.gamestate.score >  1.1)
+            or (self.model.gamestate.mode == MODE_PLAY_BLACK and self.model.gamestate.score < -1.1))
+            and self.count_moves(self.model.gamestate.current) > 40):
+            self.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
             display_mbox("The computer accepts.","The game ends in a draw.")
             self.on_enter_moves_mode()
         else:
             display_mbox("The computer rejects your offer.","The game continues.")
 
-    def on_player_resigns(self, mainWindow):
+    def on_player_resigns(self):
         display_mbox("The computer thanks you.","Better luck next time!")
-        gs = mainWindow.model.gamestate
-        if(gs.mode == MODE_PLAY_WHITE):
-            gs.current.root().headers["Result"] = "0-1"
-        elif(gs.mode == MODE_PLAY_BLACK):
-            gs.current.root().headers["Result"] = "1-0"
+        if(self.model.gamestate.mode == MODE_PLAY_WHITE):
+            self.model.gamestate.current.root().headers["Result"] = "0-1"
+        elif(self.model.gamestate.mode == MODE_PLAY_BLACK):
+            self.model.gamestate.current.root().headers["Result"] = "1-0"
         self.on_enter_moves_mode()
 
     def on_enter_moves_mode(self):
-        # stop any engine
-        mainWindow = self.mainAppWindow
-        mainWindow.engine_controller.stop_engine()
-        mainWindow.engineOutput.setHtml("")
-        mainWindow.give_up.setEnabled(False)
-        mainWindow.offer_draw.setEnabled(False)
-        mainWindow.model.gamestate.mode = MODE_ENTER_MOVES
-        mainWindow.enter_moves.setChecked(True)
+        self.mainAppWindow.engine_controller.stop_engine()
+        self.mainAppWindow.engineOutput.setHtml("")
+        self.mainAppWindow.give_up.setEnabled(False)
+        self.mainAppWindow.offer_draw.setEnabled(False)
+        self.model.gamestate.mode = MODE_ENTER_MOVES
+        self.mainAppWindow.enter_moves.setChecked(True)
 
-    def add_variant_from_pv(self, root, move, uci_list):
+    def add_variant_from_pv(self, root, uci_list):
         uci_move = uci_list[0]
         root.add_variation(chess.Move.from_uci(uci_move))
         # enforce repainting main variation if exists
@@ -115,12 +98,11 @@ class GamestateController():
             root.add_main_variation(chess.Move.from_uci(uci_list[i]))
             root = root.variations[0]
 
-    def give_up_game(self, mainWindow):
-        gs = mainWindow.model.gamestate
-        if(gs.mode == MODE_PLAY_WHITE):
-            gs.headers["Result"] = "1-0"
-        elif(gs.mode == MODE_PLAY_BLACK):
-            gs.headers["Result"] = "0-1"
+    def give_up_game(self):
+        if(self.model.gamestate.mode == MODE_PLAY_WHITE):
+            self.model.gamestate.headers["Result"] = "1-0"
+        elif(self.model.gamestate.mode == MODE_PLAY_BLACK):
+            self.model.gamestate.headers["Result"] = "0-1"
         self.on_enter_moves_mode()
 
     def is_lost_by_comp(self, gamestate):
@@ -163,9 +145,8 @@ class GamestateController():
 
 
     def on_bestmove(self, move):
-        mainWindow = self.mainAppWindow
-        gs = mainWindow.model.gamestate
-        mode = mainWindow.model.gamestate.mode
+        gs = self.model.gamestate
+        mode = self.model.gamestate.mode
 
         # handling a best move in playing mode (either human vs comp or comp vs comp)
         if((mode == MODE_PLAY_BLACK and gs.current.board().turn == chess.WHITE) or
@@ -173,7 +154,7 @@ class GamestateController():
            (mode == MODE_PLAYOUT_POS)):
             if(self.is_lost_by_comp(gs)):
                 display_mbox("The computer resigns.","Congratulations!")
-                self.give_up_game(mainWindow)
+                self.give_up_game()
             else:
                 # continue normal play
                 uci = move
@@ -182,12 +163,12 @@ class GamestateController():
                 # always be true, unless there is some serious sync
                 # issue between engine and views)
                 if (len([x for x in legal_moves if x.uci() == uci]) > 0):
-                    mainWindow.chessboard_view.executeMove(move)
-                    mainWindow.chessboard_view.on_statechanged()
+                    self.mainAppWindow.chessboard_view.executeMove(move)
+                    self.mainAppWindow.chessboard_view.on_statechanged()
         # handling bestmove command if in analysis mode
         if(mode == MODE_GAME_ANALYSIS):
             if(self.exists_better_line(gs)):
-                self.add_variant_from_pv(gs.current,move,gs.pv)
+                self.add_variant_from_pv(gs.current,gs.pv)
                 if(gs.next_mate_threat != None):
                     gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
                 else:
@@ -199,8 +180,8 @@ class GamestateController():
             gs.next_mate_threat = gs.mate_threat
             gs.mate_threat = None
 
-            mainWindow.chessboard_view.on_statechanged()
-            mainWindow.moves_edit_view.on_statechanged()
+            self.mainAppWindow.chessboard_view.on_statechanged()
+            self.mainAppWindow.moves_edit_view.on_statechanged()
 
             # continue in that mode, unless we reached the root of
             # the game, or the parent position is in the book
@@ -208,7 +189,8 @@ class GamestateController():
                 if((gs.is_current_position_in_book(gs.current.parent))):
                     gs.current.parent.comment = "last book move"
                     gs.current.parent.invalidate = True
-                    display_mbox(mainWindow.trUtf8("Game Analysis Finished"),mainWindow.trUtf8("The analysis is finished."))
+                    display_mbox(self.mainAppWindow.trUtf8("Game Analysis Finished"),\
+                                 self.mainAppWindow.trUtf8("The analysis is finished."))
                     self.on_enter_moves_mode()
                 else:
                     gs.current = gs.current.parent
@@ -216,16 +198,16 @@ class GamestateController():
                     self.on_statechanged()
             else:
                 gs.mode = MODE_ENTER_MOVES
-                display_mbox(mainWindow.trUtf8("Game Analysis Finished"),mainWindow.trUtf8("The analysis is finished."))
+                display_mbox(self.mainAppWindow.trUtf8("Game Analysis Finished"),\
+                             self.mainAppWindow.trUtf8("The analysis is finished."))
                 self.on_enter_moves_mode()
                 # (finished, display messagebox)
-            mainWindow.moves_edit_view.update_san()
-            mainWindow.update()
+            self.mainAppWindow.moves_edit_view.update_san()
+            self.mainAppWindow.update()
 
 
     def editGameData(self):
-        mainWindow = self.mainAppWindow
-        root = mainWindow.model.gamestate.current.root()
+        root = self.model.gamestate.current.root()
         ed = DialogEditGameData(root)
         answer = ed.exec_()
         if(answer):
@@ -245,22 +227,23 @@ class GamestateController():
                 root.headers["Result"] = "*"
             self.mainAppWindow.save.setEnabled(True)
             self.model.gamestate.unsaved_changes = True
-        mainWindow.setLabels()
-
+        self.mainAppWindow.setLabels()
 
     def unsaved_changes(self):
-        print("unsaved changes")
-        print(str(self.model.gamestate.unsaved_changes))
-        print(str(self.model.database.index_current_game))
         # dialog to be called to
         # check for unsaved changes to
         # the current game
         # if current game has unsaved changes
         # or is not saved in database
         # ask user if he wants save it
+        #
+        # returns
+        # 1) QMessageBox.Discard if the user discarded
+        # 2) QMessageBox.Cancel if the user canceled
+        # 3) QMessageBox.Save if the user chose to save
+        #              saves the game before returning in case 3)
         if(self.model.database.index_current_game == None or
                self.model.gamestate.unsaved_changes):
-            print("inside loop")
             dlg_changes = DialogSaveChanges()
             ret = dlg_changes.exec_()
             if(ret == QMessageBox.Save):
