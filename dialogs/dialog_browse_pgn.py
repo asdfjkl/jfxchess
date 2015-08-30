@@ -78,6 +78,18 @@ class DialogBrowsePgn(QDialog):
         self.button_search.clicked.connect(self.on_search)
         self.button_reset.clicked.connect(self.draw_all_items)
 
+    def keyPressEvent(self,keyEvent):
+        print("captured key event")
+        if(keyEvent.key() == Qt.Key_Return or keyEvent.key() == Qt.Key_Enter):
+            print("return was pressed in browse dialog")
+            if(self.search_field.hasFocus()):
+                self.on_search()
+            else:
+                print("... search field has no focus")
+                QDialog.keyPressEvent(self,keyEvent)
+        else:
+            QDialog.keyPressEvent(self,keyEvent)
+
     def on_edit_headers(self):
         # get selected game
         items = self.table.selectedItems()

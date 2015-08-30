@@ -84,7 +84,7 @@ class GameMenuController():
 
     def on_nextgame(self):
         if(not self.model.database.index_current_game == None):
-            if(self.model.database.index_current_game < len(db.entries)-1):
+            if(self.model.database.index_current_game < len(self.model.database.entries)-1):
                 ret = self.mainAppWindow.gamestateController.unsaved_changes()
                 #ret = QMessageBox.Ok
                 if not ret == QMessageBox.Cancel:
