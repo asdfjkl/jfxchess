@@ -70,38 +70,39 @@ class FileMenuController():
         dlg = DialogBrowsePgn(self.model.database)
         if dlg.exec_() == QDialog.Accepted:
             items = dlg.table.selectedItems()
-            selectedGame = int(items[0].text())-1
-            loaded_game = self.model.database.load_game(selectedGame)
-            #print("loaded game: "+str(loaded_game))
-            if(not loaded_game == None):
-                # if the user wants to load a game, but the current open
-                # game has still unsaved changes or hasn't been saved at all,
-                # ask user what to do
-                cancel = False
-                if(self.model.database.index_current_game == None or self.model.gamestate.unsaved_changes):
-                    changes_dialog = DialogSaveChanges()
-                    ret = changes_dialog.exec_()
-                    if(ret == QMessageBox.Save):
-                        if(self.model.database.index_current_game == None):
-                            self.gs_ctr.editGameData()
-                            self.model.database.append_game(self.model.gamestate.current)
-                        else:
-                            print(self.model.gamestate.current)
-                            print(self.model.database.index_current_game)
-                            self.model.database.update_game(self.model.database.index_current_game,\
-                                                    self.model.gamestate.current)
+            if(len(items) > 0):
+                selectedGame = int(items[0].text())-1
+                loaded_game = self.model.database.load_game(selectedGame)
+                #print("loaded game: "+str(loaded_game))
+                if(not loaded_game == None):
+                    # if the user wants to load a game, but the current open
+                    # game has still unsaved changes or hasn't been saved at all,
+                    # ask user what to do
+                    cancel = False
+                    if(self.model.database.index_current_game == None or self.model.gamestate.unsaved_changes):
+                        changes_dialog = DialogSaveChanges()
+                        ret = changes_dialog.exec_()
+                        if(ret == QMessageBox.Save):
+                            if(self.model.database.index_current_game == None):
+                                self.gs_ctr.editGameData()
+                                self.model.database.append_game(self.model.gamestate.current)
+                            else:
+                                print(self.model.gamestate.current)
+                                print(self.model.database.index_current_game)
+                                self.model.database.update_game(self.model.database.index_current_game,\
+                                                        self.model.gamestate.current)
+                            self.mainAppWindow.save.setEnabled(False)
+                        if(ret == QMessageBox.Cancel):
+                            cancel = True
+                    if(not cancel):
+                        self.model.gamestate.current = loaded_game
+                        self.mainAppWindow.chessboard_view.update()
+                        self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
+                        self.model.gamestate.unsaved_changes = False
                         self.mainAppWindow.save.setEnabled(False)
-                    if(ret == QMessageBox.Cancel):
-                        cancel = True
-                if(not cancel):
-                    self.model.gamestate.current = loaded_game
-                    self.mainAppWindow.chessboard_view.update()
-                    self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
-                    self.model.gamestate.unsaved_changes = False
-                    self.mainAppWindow.save.setEnabled(False)
-                    self.mainAppWindow.setLabels()
-                    self.mainAppWindow.moves_edit_view.setFocus()
-                    self.model.gamestate.init_game_tree(self.mainAppWindow)
+                        self.mainAppWindow.setLabels()
+                        self.mainAppWindow.moves_edit_view.setFocus()
+                        self.model.gamestate.init_game_tree(self.mainAppWindow)
         self.mainAppWindow.moves_edit_view.setFocus()
 
 

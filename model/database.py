@@ -75,20 +75,34 @@ class Database():
 
         length = stop_offset - start_offset
 
-        pgn = open(self.filename, 'r+')
-        m=mm.mmap(pgn.fileno(),0)
-        size = len(m)
-        new_size = size - length
-        m.move(start_offset,stop_offset,size-stop_offset)
-        m.flush()
-        m.close()
-        pgn.truncate(new_size)
-        pgn.close()
-        self.checksum = crc32_from_file(self.filename)
+        # we can't mmap an empty file
+        # the file is however empty, the
+        # game to be deleted was the only one in the database
+        # just delete it
+        current_filesize = os.stat(self.filename).st_size
+        print("current fs: "+str(current_filesize))
+        if current_filesize == 0:
+            print("file is empty")
+            pgn = open(self.filename, 'r+')
+            pgn.close()
+        else:
+            pgn = open(self.filename, 'r+')
+            m=mm.mmap(pgn.fileno(),0)
+            size = len(m)
+            new_size = size - length
+            m.move(start_offset,stop_offset,size-stop_offset)
+            m.flush()
+            m.close()
+            pgn.truncate(new_size)
+            pgn.close()
+            self.checksum = crc32_from_file(self.filename)
 
         for i in range(idx, len(self.entries)):
             self.entries[i].pgn_offset -= length
         del(self.entries[idx])
+        # if idx was the current open game, set current_idx to None
+        if(idx == self.index_current_game):
+            self.index_current_game = None
 
 
     def append_game(self, game_tree):
@@ -169,6 +183,7 @@ class Database():
         print("current fs: "+str(current_filesize))
         if current_filesize == 0:
             print("file is empty")
+            self.entries = []
             self.append_game(game_tree)
         else:
             pgn = open(self.filename, 'r+')
@@ -188,11 +203,10 @@ class Database():
             m.close()
             pgn.close()
 
-            self.checksum = crc32_from_file(self.filename)
-
             for i in range(idx+1, len(self.entries)):
                 self.entries[i].pgn_offset += (length-old_length)
 
+        self.checksum = crc32_from_file(self.filename)
         self.entries[idx] = Entry(offset, game_tree.root().headers)
 
 
