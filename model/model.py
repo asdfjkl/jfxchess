@@ -3,7 +3,7 @@ import model.gamestate as gs
 import model.user_settings as us
 import util.appdirs as ad
 import pickle
-import model.database as db
+from model.database import Database
 import os
 
 class Model():
@@ -73,7 +73,7 @@ class Model():
         if(database == None):
             # if user has no database, create new
             # one. current game is saved as first entry
-            database = db.Database(default_db_path)
+            database = Database(default_db_path)
             database.create_new_pgn()
             #self.database.add_game(self.gs.game.root())
 
