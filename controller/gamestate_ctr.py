@@ -227,6 +227,7 @@ class GamestateController():
                 root.headers["Result"] = "*"
             self.mainAppWindow.save.setEnabled(True)
             self.model.gamestate.unsaved_changes = True
+        self.mainAppWindow.moves_edit_view.update_san()
         self.mainAppWindow.setLabels()
 
     def unsaved_changes(self):
