@@ -161,27 +161,39 @@ class Database():
 
         offset = self.entries[idx].pgn_offset
 
-        pgn = open(self.filename, 'r+')
-        m=mm.mmap(pgn.fileno(),0)
-        size = len(m)
-        new_size = size + length
-        m.flush()
-        m.close()
-        pgn.seek(size)
-        pgn.write('A'*length)
-        pgn.flush()
-        m=mm.mmap(pgn.fileno(),0)
-        m.move(offset+length,offset,size-offset)
-        m.seek(offset)
-        m.write(game_str)
-        m.flush()
-        m.close()
-        pgn.close()
+        # we can't mmap an empty file
+        # the file is however empty, if the current
+        # game was the only one in the database
+        # just append it
+        current_filesize = os.stat(self.filename).st_size
+        print("current fs: "+str(current_filesize))
+        if current_filesize == 0:
+            print("file is empty")
+            self.append_game(game_tree)
+        else:
+            pgn = open(self.filename, 'r+')
+            m=mm.mmap(pgn.fileno(),0)
+            size = len(m)
+            new_size = size + length
+            m.flush()
+            m.close()
+            pgn.seek(size)
+            pgn.write('A'*length)
+            pgn.flush()
+            m=mm.mmap(pgn.fileno(),0)
+            m.move(offset+length,offset,size-offset)
+            m.seek(offset)
+            m.write(game_str)
+            m.flush()
+            m.close()
+            pgn.close()
 
-        self.checksum = crc32_from_file(self.filename)
+            self.checksum = crc32_from_file(self.filename)
 
-        for i in range(idx+1, len(self.entries)):
-            self.entries[i].pgn_offset += (length-old_length)
+            for i in range(idx+1, len(self.entries)):
+                self.entries[i].pgn_offset += (length-old_length)
+
+        self.entries[idx] = Entry(offset, game_tree.root().headers)
 
 
     def no_of_games(self):
