@@ -1,5 +1,9 @@
 Bug (dev):
 
+- DONE handle deletion of current game in browse_dialog
+
+- ensure "Save" is really only enabled when it makes sense
+
 - replace pickle with json
 
 - DONE saving db index and reloading (by checking integrity) on startup

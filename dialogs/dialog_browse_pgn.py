@@ -93,55 +93,57 @@ class DialogBrowsePgn(QDialog):
     def on_edit_headers(self):
         # get selected game
         items = self.table.selectedItems()
-        idx_selected_game = int(items[0].text())-1
-        print("selected: "+str(idx_selected_game))
-        # load selected game
-        game = self.database.load_game(idx_selected_game)
-        dlg = DialogEditGameData(game.root())
-        answer = dlg.exec_()
-        if(answer):
-            game.root().headers["Event"] = dlg.ed_event.text()
-            game.root().headers["Site"] = dlg.ed_site.text()
-            game.root().headers["Date"] = dlg.ed_date.text()
-            game.root().headers["Round"] = dlg.ed_round.text()
-            game.root().headers["White"] = dlg.ed_white.text()
-            game.root().headers["Black"] = dlg.ed_black.text()
-            if(dlg.rb_ww.isChecked()):
-                game.root().headers["Result"] = "1-0"
-            elif(dlg.rb_bw.isChecked()):
-                game.root().headers["Result"] = "0-1"
-            elif(dlg.rb_draw.isChecked()):
-                game.root().headers["Result"] = "1/2-1/2"
-            elif(dlg.rb_unclear.isChecked()):
-                game.root().headers["Result"] = "*"
-            self.database.update_game(idx_selected_game,game)
-            self.table.setItem(idx_selected_game,1,QTableWidgetItem(self.get_key("White",game.root().headers)))
-            self.table.setItem(idx_selected_game,2,QTableWidgetItem(self.get_key("Black",game.root().headers)))
-            self.table.setItem(idx_selected_game,3,QTableWidgetItem(self.get_key("Result",game.root().headers)))
-            self.table.setItem(idx_selected_game,4,QTableWidgetItem(self.get_key("Date",game.root().headers)))
-            self.table.setItem(idx_selected_game,5,QTableWidgetItem(self.get_key("ECO",game.root().headers)))
-            self.table.setItem(idx_selected_game,6,QTableWidgetItem(self.get_key("Site",game.root().headers)))
+        if(len(items) > 0):
+            idx_selected_game = int(items[0].text())-1
+            print("selected: "+str(idx_selected_game))
+            # load selected game
+            game = self.database.load_game(idx_selected_game)
+            dlg = DialogEditGameData(game.root())
+            answer = dlg.exec_()
+            if(answer):
+                game.root().headers["Event"] = dlg.ed_event.text()
+                game.root().headers["Site"] = dlg.ed_site.text()
+                game.root().headers["Date"] = dlg.ed_date.text()
+                game.root().headers["Round"] = dlg.ed_round.text()
+                game.root().headers["White"] = dlg.ed_white.text()
+                game.root().headers["Black"] = dlg.ed_black.text()
+                if(dlg.rb_ww.isChecked()):
+                    game.root().headers["Result"] = "1-0"
+                elif(dlg.rb_bw.isChecked()):
+                    game.root().headers["Result"] = "0-1"
+                elif(dlg.rb_draw.isChecked()):
+                    game.root().headers["Result"] = "1/2-1/2"
+                elif(dlg.rb_unclear.isChecked()):
+                    game.root().headers["Result"] = "*"
+                self.database.update_game(idx_selected_game,game)
+                self.table.setItem(idx_selected_game,1,QTableWidgetItem(self.get_key("White",game.root().headers)))
+                self.table.setItem(idx_selected_game,2,QTableWidgetItem(self.get_key("Black",game.root().headers)))
+                self.table.setItem(idx_selected_game,3,QTableWidgetItem(self.get_key("Result",game.root().headers)))
+                self.table.setItem(idx_selected_game,4,QTableWidgetItem(self.get_key("Date",game.root().headers)))
+                self.table.setItem(idx_selected_game,5,QTableWidgetItem(self.get_key("ECO",game.root().headers)))
+                self.table.setItem(idx_selected_game,6,QTableWidgetItem(self.get_key("Site",game.root().headers)))
 
     def on_delete(self):
         # get selected game
         items = self.table.selectedItems()
-        idx_selected_game = int(items[0].text())-1
-        print("selected: "+str(idx_selected_game))
+        if(len(items) > 0):
+            idx_selected_game = int(items[0].text())-1
+            print("selected: "+str(idx_selected_game))
 
-        # ask user if he is sure
-        ask_sure = QMessageBox()
-        ask_sure.setText(self.trUtf8("Please confirm."))
-        ask_sure.setInformativeText(self.trUtf8("This will delete the selected game permanently."))
-        ask_sure.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        ask_sure.setDefaultButton(QMessageBox.Cancel)
+            # ask user if he is sure
+            ask_sure = QMessageBox()
+            ask_sure.setText(self.trUtf8("Please confirm."))
+            ask_sure.setInformativeText(self.trUtf8("This will delete the selected game permanently."))
+            ask_sure.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            ask_sure.setDefaultButton(QMessageBox.Cancel)
 
-        if ask_sure.exec_() == QMessageBox.Ok:
-            self.table.removeRow(idx_selected_game)
-            for i in range(idx_selected_game, self.table.rowCount()):
-                old_idx = int(self.table.item(i,0).text())
-                print(str(old_idx))
-                self.table.setItem(i,0,QTableWidgetItem(str(old_idx-1)))
-            self.database.delete_game_at(idx_selected_game)
+            if ask_sure.exec_() == QMessageBox.Ok:
+                self.table.removeRow(idx_selected_game)
+                for i in range(idx_selected_game, self.table.rowCount()):
+                    old_idx = int(self.table.item(i,0).text())
+                    print(str(old_idx))
+                    self.table.setItem(i,0,QTableWidgetItem(str(old_idx-1)))
+                self.database.delete_game_at(idx_selected_game)
 
     def draw_all_items(self):
         self.table.clear()
