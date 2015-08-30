@@ -35,7 +35,7 @@ class FileMenuController():
         dialog = QFileDialog()
         if(self.model.gamestate.last_open_dir != None):
             dialog.setDirectory(self.model.gamestate.last_open_dir)
-        filename = dialog.getOpenFileName(self.mainAppWindow.chessboardview, self.mainAppWindow.trUtf8('Open PGN'), \
+        filename = dialog.getOpenFileName(self.mainAppWindow.chessboard_view, self.mainAppWindow.trUtf8('Open PGN'), \
                                           None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if filename:
             db = Database(filename)
@@ -53,8 +53,8 @@ class FileMenuController():
             if(not selectedGame == None and db.no_of_games() > 0):
                 loaded_game = db.load_game(selectedGame)
                 self.model.gamestate.current = loaded_game
-                self.mainAppWindow.chessboardview.update()
-                self.mainAppWindow.chessboardview.emit(SIGNAL("statechanged()"))
+                self.mainAppWindow.chessboard_view.update()
+                self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
                 self.mainAppWindow.save.setEnabled(False)
                 self.mainAppWindow.setLabels()
                 self.mainAppWindow.moves_edit_view.setFocus()
@@ -72,7 +72,7 @@ class FileMenuController():
             items = dlg.table.selectedItems()
             selectedGame = int(items[0].text())-1
             loaded_game = self.model.database.load_game(selectedGame)
-            print("loaded game: "+str(loaded_game))
+            #print("loaded game: "+str(loaded_game))
             if(not loaded_game == None):
                 # if the user wants to load a game, but the current open
                 # game has still unsaved changes or hasn't been saved at all,
@@ -95,8 +95,8 @@ class FileMenuController():
                         cancel = True
                 if(not cancel):
                     self.model.gamestate.current = loaded_game
-                    self.mainAppWindow.chessboardview.update()
-                    self.mainAppWindow.chessboardview.emit(SIGNAL("statechanged()"))
+                    self.mainAppWindow.chessboard_view.update()
+                    self.mainAppWindow.chessboard_view.emit(SIGNAL("statechanged()"))
                     self.model.gamestate.unsaved_changes = False
                     self.mainAppWindow.save.setEnabled(False)
                     self.mainAppWindow.setLabels()
