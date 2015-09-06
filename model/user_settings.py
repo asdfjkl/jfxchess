@@ -10,6 +10,40 @@ class UserSettings():
         self.active_engine = None
         self.active_database = None
 
+    def __str__(self):
+        s = ""
+        for engine in self.engines:
+            s += str(engine)
+        s += "[General]\n"
+        if(not self.active_engine == None):
+            s += "active_engine="+str(self.engines.index(self.active_engine))+"\n"
+        if(not self.active_database == None):
+            s += "active_database="+str(self.active_database)+"\n"
+        return s
+
+    def load_from_file(self, absolute_filename):
+        PARSE_GENERAL = "parse_general"
+        PARSE_ENGINE = "parse_engine"
+        engines = []
+        mode = None
+        current_engine = None
+        with open(absolute_filename) as f:
+            for line in f:
+                setting_value = line.rstrip().split('=')
+                if(mode == None and setting_value[0].startswith("[General]")):
+                    mode = PARSE_GENERAL
+                if(mode == None and setting_value[0].startswith("[Engine]")):
+                    mode = PARSE_ENGINE
+                    current_engine = Engine()
+                if(mode == PARSE_GENERAL):
+                    if(setting_value[0].startswith("active_engine")):
+                        self.active_engine = setting_value[1]
+                    elif(setting_value[0].startswith("active_engine")):
+                        pass
+
+
+        f.close()
+
 class Engine():
     def __init__(self):
         super(Engine, self).__init__()
@@ -33,6 +67,15 @@ class Engine():
             if option.name == opt_name:
                 return val
         raise ValueError("There is no defined option for this option name!")
+
+    def __str__(self):
+        s = "[Engine]\n"
+        s += "Name="+str(self.name)+"\n"
+        s += "Path="+str(self.path)+"\n"
+        for (opt,val) in self.options:
+            s += str(opt)+"="+str(val)+"\n"
+        print(self.options)
+        return s
 
 class InternalEngine(Engine):
     def __init__(self):

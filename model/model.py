@@ -5,6 +5,7 @@ import util.appdirs as ad
 import pickle
 from model.database import Database
 import os
+import chess
 
 class Model():
 
@@ -38,9 +39,10 @@ class Model():
         fn = ad.user_data_dir(appname, appauthor)
         save_dir = fn
         try:
-            with open(fn+"/current.raw","rb") as pgn:
-                gamestate = pickle.load(pgn)
-                gamestate.mode = gs.MODE_ENTER_MOVES
+            with open(fn+"/current.pgn") as pgn:
+                game = chess.pgn.read_game(pgn)
+                gamestate.current = game
+                gamestate.init_game_tree(mainAppWindow=parentWidget)
             pgn.close()
         except BaseException as e:
             print(e)
@@ -87,15 +89,13 @@ class Model():
         try:
             if not os.path.exists(self.save_dir):
                 os.makedirs(self.save_dir)
-            with open(self.save_dir+"/current.raw",'wb') as f:
-                pickle.dump(self.gamestate,f)
+            with open(self.save_dir+"/current.pgn",'w') as f:
+                print(self.gamestate.current.root(), file=f)
             f.close()
-            with open(self.save_dir+"/settings.raw","wb") as f:
-                pickle.dump(self.user_settings,f)
+            with open(self.save_dir+"/settings.ini","w") as f:
+                print(str(self.user_settings),file = f)
             f.close()
-            with open(self.save_dir+"/db_idx.raw","wb") as f:
-                pickle.dump(self.database,f)
-            f.close()
+            self.database.dump_to_file(self.save_dir+"/database.ini")
         except BaseException as e:
             print(e)
             pass
