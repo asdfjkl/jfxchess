@@ -13,6 +13,13 @@ class Entry():
         self.pgn_offset = _pgn_offset
         self.headers = _headers
 
+    def __str__(self):
+        s = "[Entry]\n"
+        s += "pgn_offset="+str(self.pgn_offset)+"\n"
+        for header in self.headers:
+            s += str(header[0])+"="+str(header[1])+"\n"
+        return s
+
 class Database():
 
     def __init__(self, filename):
@@ -22,6 +29,22 @@ class Database():
         self.checksum = None
         self.index_current_game = None
         self.unsaved_changes = False
+
+    def dump_to_file(self,absolute_filename):
+        with open(absolute_filename,"w") as f:
+            print("[General]\n",file=f)
+            print("filename="+str(self.filename)+"\n",file=f)
+            print("checksum="+str(self.checksum)+"\n",file=f)
+            print("index_current_game"+str(self.index_current_game)+"\n\n",file=f)
+            for entry in self.entries:
+                print(str(entry),file=f)
+        f.close()
+
+#    def init_from_file(self,absolute_filename):
+#
+#        with open(absolute_filename,"r") as f:
+#            for line in f:
+#                if line.startswith("[General]")
 
     def create_new_pgn(self):
         filename = self.filename
@@ -33,7 +56,7 @@ class Database():
         self.checksum = crc32_from_file(self.filename)
         self.filename = filename
 
-    def init_from_file(self, mainWindow, msg):
+    def init_from_pgn(self, mainWindow, msg):
         print("loading from: "+self.filename)
         with open(self.filename) as pgn:
             size = os.path.getsize(self.filename)
