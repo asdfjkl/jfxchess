@@ -48,7 +48,7 @@ class Database():
         self.filename = filename
 
     def reload_if_necessary(self, mainWindow):
-        print("my filename at start:"+self.filename)
+        print("MY FILENAME WHEN CALLED:"+self.filename)
         print(os.path.isfile(self.filename))
         if not os.path.isfile(self.filename):
             self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
@@ -60,20 +60,22 @@ class Database():
             self.create_new_pgn()
         else:
             crc = crc32_from_file(self.filename)
-            print(crc)
+            print("crc caluclated: "+str(crc))
             print(self.checksum)
             if not crc == self.checksum:
                 try:
                     self.init_from_pgn(mainWindow, mainWindow.trUtf8("Re-loading PGN File..."))
                 except BaseException as e:
                     print(e)
+                    print("EXECPTION SO CHANING FILENAME")
                     self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
                     self.index_current_game = None
                     self.create_new_pgn()
             else:
-                self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
-                self.index_current_game = None
-                self.create_new_pgn()
+                print("CHECKSUM EQUAL SO DOING NOTHING")
+                #self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
+                #self.index_current_game = None
+                #self.create_new_pgn()
 
     def init_from_pgn(self, mainWindow, msg):
         print("loading from: "+self.filename)
