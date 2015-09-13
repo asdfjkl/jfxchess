@@ -1,5 +1,6 @@
 import os,sys,json
 from chess.uci import popen_engine
+import configparser
 
 
 class UserSettings():
@@ -10,39 +11,57 @@ class UserSettings():
         self.active_engine = None
         self.active_database = None
 
-    def __str__(self):
-        s = ""
-        for engine in self.engines:
-            s += str(engine)
-        s += "[General]\n"
+    def save_to_file(self, absolute_filename):
+        config = configparser.ConfigParser()
+        config['General'] = {}
         if(not self.active_engine == None):
-            s += "active_engine="+str(self.engines.index(self.active_engine))+"\n"
+            config['General']['active_engine']=str(self.engines.index(self.active_engine))
         if(not self.active_database == None):
-            s += "active_database="+str(self.active_database)+"\n"
-        return s
+            config['General']['active_database']=str(self.active_database)
+        for i, engine in enumerate(self.engines):
+            tag = 'Engine'+str(i)
+            config[tag] = {}
+            config[tag]['Name'] = str(engine.name)
+            config[tag]['Path'] = str(engine.path)
+            for i,(option_name,option_type,val) in enumerate(engine.options):
+                s_i = str(i).zfill(2)
+                config[tag]['option_name_'+s_i]=str(option_name)
+                config[tag]['option_type_'+s_i]=str(option_type)
+                config[tag]['option_val_'+s_i]=str(val)
+        with open(absolute_filename,"w") as f:
+            config.write(f)
 
     def load_from_file(self, absolute_filename):
-        PARSE_GENERAL = "parse_general"
-        PARSE_ENGINE = "parse_engine"
-        engines = []
-        mode = None
-        current_engine = None
-        with open(absolute_filename) as f:
-            for line in f:
-                setting_value = line.rstrip().split('=')
-                if(mode == None and setting_value[0].startswith("[General]")):
-                    mode = PARSE_GENERAL
-                if(mode == None and setting_value[0].startswith("[Engine]")):
-                    mode = PARSE_ENGINE
-                    current_engine = Engine()
-                if(mode == PARSE_GENERAL):
-                    if(setting_value[0].startswith("active_engine")):
-                        self.active_engine = setting_value[1]
-                    elif(setting_value[0].startswith("active_engine")):
-                        pass
+        config = configparser.ConfigParser()
+        idx_active = 0
+        self.engines = []
+        try:
+            config.read(absolute_filename)
+        except configparser.Error as e:
+            print(e)
+            pass
+        for section in config.sections():
+            print(section)
+            if section == 'General':
+                if 'active_engine' in config[section]:
+                    idx_active = int(config[section]['active_engine'])
+                elif 'active_database' in section:
+                    self.active_database = str(config[section]['active_database'])
+            if str(section).startswith('Engine'):
+                print("starts with engine")
+                e = Engine()
+                e.name = str(config[section]['Name'])
+                e.path = str(config[section]['Path'])
+                #for key in section:
+                #
+                self.engines.append(e)
+        if(len(self.engines) == 0):
+            self.engines.append(InternalEngine())
+        if(idx_active < len(self.engines)):
+            self.active_engine = self.engines[idx_active]
+        else:
+            self.active_engine = self.engines[0]
 
-
-        f.close()
 
 class Engine():
     def __init__(self):
@@ -57,25 +76,16 @@ class Engine():
     options of the engine
     """
     def exists_option_value(self,opt_name):
-        for (option,val) in self.options:
-            if option.name == opt_name:
+        for (option_name,option_type,val) in self.options:
+            if option_name == opt_name:
                 return True
         return False
 
     def get_option_value(self,opt_name):
-        for (option,val) in self.options:
-            if option.name == opt_name:
+        for (option_name,option_type,val) in self.options:
+            if option_name.name == opt_name:
                 return val
         raise ValueError("There is no defined option for this option name!")
-
-    def __str__(self):
-        s = "[Engine]\n"
-        s += "Name="+str(self.name)+"\n"
-        s += "Path="+str(self.path)+"\n"
-        for (opt,val) in self.options:
-            s += str(opt)+"="+str(val)+"\n"
-        print(self.options)
-        return s
 
 class InternalEngine(Engine):
     def __init__(self):

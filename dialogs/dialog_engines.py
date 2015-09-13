@@ -17,6 +17,7 @@ class DialogEngines(QDialog):
         # so that when dialog is not accepted, we can
         # revert to original state w/o side-effects
         self.engines = deepcopy(user_settings.engines)
+        print(user_settings.engines[0].name)
         idx = user_settings.engines.index(user_settings.active_engine)
         # should point to the same from copied engines(!)
         self.active_engine = self.engines[idx]
@@ -104,16 +105,16 @@ class DialogEngines(QDialog):
             for opt,widget in dlgEngOpt.optionWidgets:
                 if type(widget) == QSpinBox:
                     if(not widget.value() == opt.default):
-                        self.active_engine.options.append((opt,widget.value()))
+                        self.active_engine.options.append((opt.name,opt.type,widget.value()))
                 elif type(widget) == QCheckBox:
                     if(not (widget.isChecked() == opt.default)):
-                        self.active_engine.options.append((opt,widget.isChecked()))
+                        self.active_engine.options.append((opt.name,opt.type,widget.isChecked()))
                 elif type(widget) == QComboBox:
                     if(not widget.currentText == opt.default):
-                        self.active_engine.options.append((opt,widget.currentText()))
+                        self.active_engine.options.append((opt.name,opt.type,widget.currentText()))
                 elif type(widget) == QLineEdit:
                     if(not widget.text() == opt.default):
-                        self.active_engine.options.append((opt,widget.text()))
+                        self.active_engine.options.append((opt.name,opt.type,widget.text()))
 
 
     def on_remove(self):

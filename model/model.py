@@ -6,6 +6,7 @@ import pickle
 from model.database import Database
 import os
 import chess
+import configparser
 
 class Model():
 
@@ -54,6 +55,7 @@ class Model():
         except BaseException as e:
             print(e)
             pass
+        user_settings.load_from_file(fn+"/settings.ini")
         try:
             with open(fn+"/db_idx.raw","rb") as f_database:
                 db = pickle.load(f_database)
@@ -92,9 +94,7 @@ class Model():
             with open(self.save_dir+"/current.pgn",'w') as f:
                 print(self.gamestate.current.root(), file=f)
             f.close()
-            with open(self.save_dir+"/settings.ini","w") as f:
-                print(str(self.user_settings),file = f)
-            f.close()
+            self.user_settings.save_to_file(self.save_dir+"/settings.ini")
             self.database.dump_to_file(self.save_dir+"/database.ini")
         except BaseException as e:
             print(e)
