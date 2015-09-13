@@ -1,7 +1,7 @@
 import os,sys,json
 from chess.uci import popen_engine
 import configparser
-
+import ast
 
 class UserSettings():
     def __init__(self):
@@ -25,9 +25,7 @@ class UserSettings():
             config[tag]['Path'] = str(engine.path)
             for i,(option_name,option_type,val) in enumerate(engine.options):
                 s_i = str(i).zfill(2)
-                config[tag]['option_name_'+s_i]=str(option_name)
-                config[tag]['option_type_'+s_i]=str(option_type)
-                config[tag]['option_val_'+s_i]=str(val)
+                config[tag]['option'+s_i]=str(option_name)+"\_/"+str(option_type)+"\_/"+str(val)
         with open(absolute_filename,"w") as f:
             config.write(f)
 
@@ -52,8 +50,24 @@ class UserSettings():
                 e = Engine()
                 e.name = str(config[section]['Name'])
                 e.path = str(config[section]['Path'])
-                #for key in section:
-                #
+                for key in config[section]:
+                    print(key)
+                    if(str(key).startswith('option')):
+                        print("key starts with option")
+                        opt = config[section][key].split('\_/')
+                        print(opt)
+                        try:
+                            if(len(opt) == 3):
+                                if(opt[1] == 'spin'):
+                                    e.options.append((opt[0],opt[1],int(opt[2])))
+                                elif(opt[1] == 'string'):
+                                    e.options.append((opt[0],opt[1],opt[2]))
+                                elif(opt[1] == 'check'):
+                                    print(ast.literal_eval(opt[2]))
+                                    e.options.append((opt[0],opt[1],ast.literal_eval(opt[2])))
+                        except BaseException as err:
+                            print(err)
+                            pass
                 self.engines.append(e)
         if(len(self.engines) == 0):
             self.engines.append(InternalEngine())
@@ -83,7 +97,7 @@ class Engine():
 
     def get_option_value(self,opt_name):
         for (option_name,option_type,val) in self.options:
-            if option_name.name == opt_name:
+            if option_name == opt_name:
                 return val
         raise ValueError("There is no defined option for this option name!")
 
