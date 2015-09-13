@@ -39,7 +39,7 @@ class FileMenuController():
                                           None, 'PGN (*.pgn)', QFileDialog.DontUseNativeDialog)
         if filename:
             db = Database(filename)
-            db.init_from_file(self.mainAppWindow,self.mainAppWindow.trUtf8("Scanning PGN File..."))
+            db.init_from_pgn(self.mainAppWindow,self.mainAppWindow.trUtf8("Scanning PGN File..."))
             self.model.database = db
             self.model.user_settings.active_database = db.filename
             selectedGame = 0
@@ -65,6 +65,7 @@ class FileMenuController():
 
     def browse_games(self):
         mainWindow = self.mainAppWindow
+        self.model.database.reload_if_necessary(mainWindow)
         selectedGame = 0
         mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
         dlg = DialogBrowsePgn(self.model.database)
