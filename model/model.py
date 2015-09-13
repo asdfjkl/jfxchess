@@ -2,11 +2,12 @@ __author__ = 'user'
 import model.gamestate as gs
 import model.user_settings as us
 import util.appdirs as ad
-import pickle
 from model.database import Database
 import os
 import chess
-import configparser
+
+appname = 'jerry200'
+appauthor = 'dkl'
 
 class Model():
 
@@ -35,8 +36,6 @@ class Model():
         # database that user used before exiting app last time
         # (by unpickling)
         # TODO: replace by proper JSON serialization
-        appname = 'jerry200'
-        appauthor = 'dkl'
         fn = ad.user_data_dir(appname, appauthor)
         save_dir = fn
         try:
@@ -48,40 +47,13 @@ class Model():
         except BaseException as e:
             print(e)
             pass
-        try:
-            with open(fn+"/settings.raw","rb") as f_setting:
-                user_settings = pickle.load(f_setting)
-            f_setting.close()
-        except BaseException as e:
-            print(e)
-            pass
         user_settings.load_from_file(fn+"/settings.ini")
-        try:
-            with open(fn+"/db_idx.raw","rb") as f_database:
-                db = pickle.load(f_database)
-                print("db loaded")
-                if(db.is_consistent()):
-                    print("db is consistent")
-                    database = db
-                else:
-                    print("db is not consistent")
-                    db.init_from_file(parentWidget,parentWidget.trUtf8("PGN changed on disk - rescanning..."))
-                    database = db
-            f_database.close()
-        except BaseException as e:
-            print(e)
-            pass
-
-        default_db_path = fn + "/mygames.pgn"
-        # if a db could be not be recovered create default one
-        if(database == None):
-            # if user has no database, create new
-            # one. current game is saved as first entry
+        print("on startup: "+str(user_settings.active_database))
+        if(not user_settings.active_database == None):
+            database = Database(user_settings.active_database)
+        else:
+            default_db_path = fn + "/mygames.pgn"
             database = Database(default_db_path)
-            database.create_new_pgn()
-            #self.database.add_game(self.gs.game.root())
-
-        print("databse current index" + str(database.index_current_game))
 
         return Model(gamestate,database,user_settings, save_dir)
 
@@ -95,7 +67,8 @@ class Model():
                 print(self.gamestate.current.root(), file=f)
             f.close()
             self.user_settings.save_to_file(self.save_dir+"/settings.ini")
-            self.database.dump_to_file(self.save_dir+"/database.ini")
+            #self.database.dump_to_file(self.save_dir+"/database.ini")
+            #self.database.save_to_file(self.save_dir+"/database.idx")
         except BaseException as e:
             print(e)
             pass

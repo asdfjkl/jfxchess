@@ -6,6 +6,12 @@ import chess.pgn
 import shutil
 import pickle
 import mmap as mm
+import configparser
+import json
+import util.appdirs as ad
+
+appname = 'jerry200'
+appauthor = 'dkl'
 
 class Entry():
     def __init__(self, _pgn_offset, _headers):
@@ -17,7 +23,8 @@ class Entry():
         s = "[Entry]\n"
         s += "pgn_offset="+str(self.pgn_offset)+"\n"
         for header in self.headers:
-            s += str(header[0])+"="+str(header[1])+"\n"
+            print(header)
+            s += str(header)+"="+str(self.headers[header])+"\n"
         return s
 
 class Database():
@@ -30,22 +37,6 @@ class Database():
         self.index_current_game = None
         self.unsaved_changes = False
 
-    def dump_to_file(self,absolute_filename):
-        with open(absolute_filename,"w") as f:
-            print("[General]\n",file=f)
-            print("filename="+str(self.filename)+"\n",file=f)
-            print("checksum="+str(self.checksum)+"\n",file=f)
-            print("index_current_game"+str(self.index_current_game)+"\n\n",file=f)
-            for entry in self.entries:
-                print(str(entry),file=f)
-        f.close()
-
-#    def init_from_file(self,absolute_filename):
-#
-#        with open(absolute_filename,"r") as f:
-#            for line in f:
-#                if line.startswith("[General]")
-
     def create_new_pgn(self):
         filename = self.filename
         if not os.path.exists(os.path.dirname(filename)):
@@ -55,6 +46,34 @@ class Database():
         f.close()
         self.checksum = crc32_from_file(self.filename)
         self.filename = filename
+
+    def reload_if_necessary(self, mainWindow):
+        print("my filename at start:"+self.filename)
+        print(os.path.isfile(self.filename))
+        if not os.path.isfile(self.filename):
+            self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
+            self.index_current_game = None
+        # if still path doesn't exist, we have to create
+        # new default pgn from scratch
+        print("my filename is now:"+self.filename)
+        if(not os.path.isfile(self.filename)):
+            self.create_new_pgn()
+        else:
+            crc = crc32_from_file(self.filename)
+            print(crc)
+            print(self.checksum)
+            if not crc == self.checksum:
+                try:
+                    self.init_from_pgn(mainWindow, mainWindow.trUtf8("Re-loading PGN File..."))
+                except BaseException as e:
+                    print(e)
+                    self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
+                    self.index_current_game = None
+                    self.create_new_pgn()
+            else:
+                self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
+                self.index_current_game = None
+                self.create_new_pgn()
 
     def init_from_pgn(self, mainWindow, msg):
         print("loading from: "+self.filename)

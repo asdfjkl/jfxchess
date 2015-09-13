@@ -41,10 +41,13 @@ class UserSettings():
         for section in config.sections():
             print(section)
             if section == 'General':
-                if 'active_engine' in config[section]:
-                    idx_active = int(config[section]['active_engine'])
-                elif 'active_database' in section:
-                    self.active_database = str(config[section]['active_database'])
+                print("section is general")
+                print(str(config[section]))
+                for key in config[section]:
+                    if key == 'active_engine':
+                        idx_active = int(config[section]['active_engine'])
+                    if key == 'active_database':
+                        self.active_database = str(config[section]['active_database'])
             if str(section).startswith('Engine'):
                 print("starts with engine")
                 e = Engine()
