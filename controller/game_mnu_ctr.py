@@ -43,6 +43,7 @@ class GameMenuController():
                     self.mainAppWindow.modeMenuController.on_play_as_black()
 
     def save(self):
+        self.model.database.reload_if_necessary(self.mainAppWindow)
         # if the game is not in the database
         # i.e. hasn't been saved yet, then
         # calls save_as
@@ -54,6 +55,7 @@ class GameMenuController():
         self.mainAppWindow.moves_edit_view.setFocus()
 
     def save_as_new(self):
+        self.model.database.reload_if_necessary(self.mainAppWindow)
         # let the user enter game data
         self.mainAppWindow.gamestateController.editGameData()
         # then save to db
