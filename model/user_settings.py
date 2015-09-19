@@ -25,8 +25,10 @@ class UserSettings():
             config[tag]['Name'] = str(engine.name)
             config[tag]['Path'] = str(engine.path)
             for i,(option_name,option_type,val) in enumerate(engine.options):
-                s_i = str(i).zfill(2)
-                config[tag]['option'+s_i]=str(option_name)+"\_/"+str(option_type)+"\_/"+str(val)
+                # skip first one, which is the internal engine
+                if(i>0):
+                    s_i = str(i).zfill(2)
+                    config[tag]['option'+s_i]=str(option_name)+"\_/"+str(option_type)+"\_/"+str(val)
         with open(absolute_filename,"w") as f:
             config.write(f)
 
@@ -34,6 +36,7 @@ class UserSettings():
         config = configparser.ConfigParser()
         idx_active = 0
         self.engines = []
+        self.engines.append(InternalEngine())
         try:
             config.read(absolute_filename)
         except configparser.Error as e:
@@ -113,8 +116,11 @@ class InternalEngine(Engine):
         self.path = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
         platform, wordsize = get_platform_wordsize()
-        self.path += "/engine/stockfish" + platform + str(wordsize)
-        #self.path = '"'+self.path+'"'
+        if(platform == 'win32'):
+            self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)+".exe"
+        else:
+            self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)
+        print(self.path)
         self.options = []
 
         """
