@@ -2,6 +2,7 @@ import os,sys,json
 from chess.uci import popen_engine
 import configparser
 import ast
+from util.platform import get_platform_wordsize
 
 class UserSettings():
     def __init__(self):
@@ -111,12 +112,8 @@ class InternalEngine(Engine):
         # path
         self.path = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
-        if sys.platform == 'win32':
-            self.path += "/engine/stockfish.exe"
-        elif 'linux' in  sys.platform:
-            self.path += "/engine/stockfish_linux"
-        elif sys.platform == 'darwin':
-            self.path += '/engine/stockfish_osx'
+        platform, wordsize = get_platform_wordsize()
+        self.path += "/engine/stockfish" + platform + str(wordsize)
         #self.path = '"'+self.path+'"'
         self.options = []
 
