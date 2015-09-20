@@ -59,6 +59,10 @@ main = MainWindow()
 
 def about_to_quit():
     main.model.dump()
+    #main.engine_controller.stop_engine()
+    #print("about to quit, stopped engine")
+    #main.engine_controller.thread.exit()
+    #print("thread exit called")
 
 
 # set app icon
