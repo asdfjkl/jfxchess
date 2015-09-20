@@ -16,6 +16,7 @@ from controller.mode_mnu_ctr import ModeMenuController
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 
+import time
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -269,3 +270,8 @@ class MainWindow(QMainWindow):
         print("close event")
         self.engine_controller.stop_engine()
         self.engine_controller.thread.exit()
+        #print("thread exit with return code"+str(ret))
+        #self.engine_controller.thread.quit()
+        #time.sleep(1)
+        self.engine_controller.thread.wait()
+        #print("wait return is"+str(ret))
