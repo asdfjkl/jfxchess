@@ -87,6 +87,11 @@ class ModeMenuController():
         if dialog.exec_() == QDialog.Accepted:
             gs.computer_think_time = dialog.sb_secs.value()*1000
             gs.analysis_threshold = dialog.sb_threshold.value()
+            gs.game_analysis_white = dialog.rb_white.isChecked()
+            gs.game_analysis_black = dialog.rb_black.isChecked()
+            if(dialog.rb_both.isChecked()):
+                gs.game_analysis_white = True
+                gs.game_analysis_black = True
             gs.engine_info.strength = None
             mainWindow.display_info.setChecked(True)
             mainWindow.set_display_info()
