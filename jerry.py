@@ -30,10 +30,10 @@ sys.setrecursionlimit(3000)
 app = QApplication(sys.argv)
 
 # show splash screen until we're ready
-splash_pix = QPixmap('splash_loading.png')
-splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
-splash.setMask(splash_pix.mask())
-splash.show()
+#splash_pix = QPixmap('startup_test.png')
+#splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+#splash.setMask(splash_pix.mask())
+#splash.show()
 
 app.processEvents()
 
@@ -85,7 +85,7 @@ app.aboutToQuit.connect(about_to_quit) # myExitHandler is a callable
 # TODO: check os platform before calling
 main.raise_()
 main.show()
-splash.finish(main)
+#splash.finish(main)
 
 
 sys.exit(app.exec_())
