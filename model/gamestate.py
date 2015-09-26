@@ -52,6 +52,8 @@ class GameState():
         self.last_open_dir = None
 
         self.unsaved_changes = False
+        self.game_analysis_white = False
+        self.game_analysis_black = False
 
     def half_moves(self):
         halfmoves = 0

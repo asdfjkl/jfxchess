@@ -165,9 +165,11 @@ class GamestateController():
                 if (len([x for x in legal_moves if x.uci() == uci]) > 0):
                     self.mainAppWindow.chessboard_view.executeMove(move)
                     self.mainAppWindow.chessboard_view.on_statechanged()
-        # handling bestmove command if in analysis mode
+        # handling bestmove command if in game analysis mode
         if(mode == MODE_GAME_ANALYSIS):
-            if(self.exists_better_line(gs)):
+            if(self.exists_better_line(gs) and
+                   ((gs.game_analysis_white and gs.current.board().turn == chess.WHITE) or
+                    (gs.game_analysis_black and gs.current.board().turn == chess.BLACK))):
                 self.add_variant_from_pv(gs.current,gs.pv)
                 if(gs.next_mate_threat != None):
                     gs.current.variations[0].comment = "#"+str(gs.next_mate_threat)
