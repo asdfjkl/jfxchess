@@ -15,6 +15,7 @@ class DialogAnalyzeGame(QDialog):
 
         lbl_time = QLabel(self.trUtf8("Sec(s) per move:"))
         lbl_threshold = QLabel(self.trUtf8("Threshold (in pawns):"))
+        lbl_side = QLabel(self.trUtf8("Side:"))
 
         self.sb_secs = QSpinBox()
         self.sb_secs.setRange(1,30)
@@ -31,13 +32,26 @@ class DialogAnalyzeGame(QDialog):
             self.sb_threshold.setValue(gamestate.analysis_threshold)
             self.sb_secs.setValue(gamestate.computer_think_time/1000)
 
+        self.rb_both = QRadioButton(self.tr("Both"))
+        self.rb_both.setChecked(True)
+        self.rb_white = QRadioButton(self.trUtf8("White"))
+        self.rb_black = QRadioButton(self.tr("Black"))
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.rb_both)
+        hbox.addWidget(self.rb_white)
+        hbox.addWidget(self.rb_black)
+        hbox.addStretch(1)
+
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok| QDialogButtonBox.Cancel)
 
         layout = QGridLayout()
-        layout.addWidget(lbl_time,1,0)
-        layout.addWidget(self.sb_secs,1,1)
-        layout.addWidget(lbl_threshold,2,0)
-        layout.addWidget(self.sb_threshold,2,1)
+        layout.addWidget(lbl_time,1,0,1,2)
+        layout.addWidget(self.sb_secs,1,2)
+        layout.addWidget(lbl_threshold,2,0,1,2)
+        layout.addWidget(self.sb_threshold,2,2)
+        layout.addWidget(lbl_side,3,0)
+        layout.addLayout(hbox,3,1,1,2)
 
         layout1 = QVBoxLayout()
         layout1.addLayout(layout)
