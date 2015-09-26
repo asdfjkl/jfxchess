@@ -1,3 +1,11 @@
+todo before releasing alpha:
+
+- windows: automatic identification of 32/64 bit
+- complete translation to German and Japanese
+- otherwise only show-stopper bugs
+
+-------
+
 Bug (dev):
 
 - DONE handle deletion of current game in browse_dialog
