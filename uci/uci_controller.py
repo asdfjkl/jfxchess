@@ -46,7 +46,7 @@ class Uci_controller(QObject):
     def stop_engine(self):
         self.emit(SIGNAL("new_command(QString)"),"quit")
         print("emitted stop signal")
-        self.foobar.terminate()
+        self.foobar.kill()
         self.foobar.waitForFinished()
         #time.sleep(1)
         #print("slept for 1")
