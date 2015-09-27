@@ -3,6 +3,7 @@ import re
 from util.proc import set_lowpriority
 import time
 from uci.uci_worker import Uci_worker
+import time
 
 class Uci_controller(QObject):
 
@@ -44,13 +45,20 @@ class Uci_controller(QObject):
 
     def stop_engine(self):
         self.emit(SIGNAL("new_command(QString)"),"quit")
+        print("emitted stop signal")
+        self.foobar.terminate()
+        self.foobar.waitForFinished()
+        #time.sleep(1)
+        #print("slept for 1")
+        #self.thread.killTimer(1)
+
 
     def start_engine(self,path):
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
-    def reset_engine(self,path):
-        self.stop_engine()
-        self.start_engine(path)
+#    def reset_engine(self,path):
+#        self.stop_engine()
+#        self.start_engine(path)
 
     def uci_newgame(self):
         self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
@@ -73,4 +81,20 @@ class Uci_controller(QObject):
 
     def uci_go_infinite(self):
         self.emit(SIGNAL("new_command(QString)"),"go infinite")
+
+    def send_engine_options(self, options):
+        for (option,val) in options:
+            if(option.type == 'spin'):
+                self.uci_send_command("setoption name "+option.name+" value "+str(val))
+            elif(option.type == 'check'):
+                self.uci_send_command("setoption name "+option.name+" value "+str(val).lower())
+            else:
+                self.uci_send_command("setoption name "+option.name+" value "+val)
+
+    def reset_engine(self, engine):
+        self.stop_engine()
+        self.start_engine(engine.path)
+        self.uci_ok()
+        self.send_engine_options(engine.options)
+        self.uci_newgame()
 
