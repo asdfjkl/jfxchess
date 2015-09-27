@@ -20,15 +20,15 @@ class UserSettings():
         if(not self.active_database == None):
             config['General']['active_database']=str(self.active_database)
         for i, engine in enumerate(self.engines):
-            tag = 'Engine'+str(i)
-            config[tag] = {}
-            config[tag]['Name'] = str(engine.name)
-            config[tag]['Path'] = str(engine.path)
-            for i,(option_name,option_type,val) in enumerate(engine.options):
-                # skip first one, which is the internal engine
-                if(i>0):
-                    s_i = str(i).zfill(2)
-                    config[tag]['option'+s_i]=str(option_name)+"\_/"+str(option_type)+"\_/"+str(val)
+            # skip first one, which is the internal engine
+            if(i>0):
+                tag = 'Engine'+str(i)
+                config[tag] = {}
+                config[tag]['Name'] = str(engine.name)
+                config[tag]['Path'] = str(engine.path)
+                for j,(option_name,option_type,val) in enumerate(engine.options):
+                    s_j = str(j).zfill(2)
+                    config[tag]['option'+s_j]=str(option_name)+"\_/"+str(option_type)+"\_/"+str(val)
         with open(absolute_filename,"w") as f:
             config.write(f)
 
