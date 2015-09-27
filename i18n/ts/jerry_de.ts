@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="de_DE" sourcelanguage="en_US">
+<!DOCTYPE TS><TS version="2.0" language="de_DE" sourcelanguage="en_US">
 <context>
     <name>ChessboardView</name>
     <message>
@@ -34,14 +33,14 @@
         <translation>Dreifache Stellungswiederholung.</translation>
     </message>
 </context>
-<context>
+<context encoding="UTF-8">
     <name>DialogAbout</name>
     <message>
         <location filename="dialogs/dialog_about.py" line="10"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
         <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figurenbilder&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
@@ -623,37 +622,37 @@
         <source>Position Annotation</source>
         <translation>Stellungsbewertung</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="41"/>
         <source>∞ Unclear</source>
         <translation>∞ Unklar</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="43"/>
         <source>=/∞ With Compensation for White</source>
         <translation>=/∞ Mit Kompensation für Weiß</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="45"/>
         <source>∞/= With Compensation for Black</source>
         <translation>∞/= Mit Kompensation für Schwarz</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="47"/>
         <source>⩲ White Slightly Better</source>
         <translation>⩲ Weiß steht etwas besser</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="49"/>
         <source>⩱ Black Slightly Better</source>
         <translation>⩱ Schwarz steht etwas besser</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="51"/>
         <source>± White Better</source>
         <translation>± Weiß steht besser</translation>
     </message>
-    <message utf8="true">
+    <message encoding="UTF-8">
         <location filename="views/moves_edit_view.py" line="53"/>
         <source>∓ Black Better</source>
         <translation>∓ Schwarz steht besser</translation>
