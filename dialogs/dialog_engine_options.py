@@ -1,10 +1,9 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys
-from logic.user_settings import Engine
-from chess.uci import popen_engine, TimeoutError
-from copy import deepcopy
-from logic.user_settings import InternalEngine
+
+from chess.uci import popen_engine
+from model.user_settings import InternalEngine
+
 
 class DialogEngineOptions(QDialog):
 
@@ -45,7 +44,7 @@ class DialogEngineOptions(QDialog):
             # in addition:
             # - for internal engine also block 'Skill Level' (handled at other place via GUI)
             # - settings of button type (maybe implement later, but for now we just
-            #   save all settings, and send them to the gui right before engine is
+            #   save all settings, and send them to the views right before engine is
             #   activated via switching to resp. game mode, and not while in this dialog
             if not opt.name.startswith('UCI_') and not \
                 (opt.name == 'Hash' or opt.name == 'NalimovPath' or \
