@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ja_JP" sourcelanguage="en_US">
+<!DOCTYPE TS>
+<TS version="2.0" language="ja_JP" sourcelanguage="en_US">
 <context>
     <name>ChessboardView</name>
     <message>
@@ -15,12 +16,12 @@
     <message>
         <location filename="views/chessboard_view.py" line="157"/>
         <source>Stalemate</source>
-        <translation type="unfinished"></translation>
+        <translation>ステイルメイト</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="163"/>
         <source>The game is drawn!</source>
-        <translation type="unfinished"></translation>
+        <translation>ドロウ</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="160"/>
@@ -33,17 +34,17 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>DialogAbout</name>
     <message>
         <location filename="dialogs/dialog_about.py" line="10"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Jerryについで</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</translation>
     </message>
 </context>
 <context>
@@ -51,7 +52,7 @@
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="14"/>
         <source>Full Game Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>分析</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="16"/>
@@ -71,17 +72,17 @@
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="35"/>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>白と黒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="37"/>
         <source>White</source>
-        <translation type="unfinished"></translation>
+        <translation>白</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="38"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>黒</translation>
     </message>
 </context>
 <context>
@@ -94,62 +95,62 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
         <source>White</source>
-        <translation type="unfinished"></translation>
+        <translation>白</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>黒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Result</source>
-        <translation type="unfinished"></translation>
+        <translation>結果</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日付</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>ECO</source>
-        <translation type="unfinished"></translation>
+        <translation>ECO</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Site</source>
-        <translation type="unfinished"></translation>
+        <translation>場所</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="47"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>検索</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="48"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="62"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>作条</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="136"/>
         <source>Please confirm.</source>
-        <translation type="unfinished"></translation>
+        <translation>本当に削除しますか。</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="137"/>
         <source>This will delete the selected game permanently.</source>
-        <translation type="unfinished"></translation>
+        <translation>削除したゲームは復元できません。</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="171"/>
         <source>Searching...</source>
-        <translation type="unfinished"></translation>
+        <translation>検索中</translation>
     </message>
 </context>
 <context>
@@ -157,7 +158,7 @@
     <message>
         <location filename="dialogs/dialog_edit_game_data.py" line="8"/>
         <source>Edit Game Data</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲームの情報を変化する</translation>
     </message>
 </context>
 <context>
@@ -165,7 +166,7 @@
     <message>
         <location filename="dialogs/dialog_engine_options.py" line="18"/>
         <source>UCI Engine Options: </source>
-        <translation type="unfinished"></translation>
+        <translation>UCIエンジンオプション</translation>
     </message>
 </context>
 <context>
@@ -173,7 +174,7 @@
     <message>
         <location filename="dialogs/dialog_engines.py" line="15"/>
         <source>Chess Engines</source>
-        <translation type="unfinished"></translation>
+        <translation>チェッスエンジン</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="26"/>
@@ -211,12 +212,12 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="192"/>
         <source>White O-O</source>
-        <translation type="unfinished"></translation>
+        <translation>白 O-O</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="193"/>
         <source>White O-O-O</source>
-        <translation type="unfinished"></translation>
+        <translation>白 O-O-O</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="194"/>
@@ -522,7 +523,7 @@
     <message>
         <location filename="main_window.py" line="189"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モード</translation>
     </message>
     <message>
         <location filename="main_window.py" line="191"/>
@@ -622,37 +623,37 @@
         <source>Position Annotation</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="41"/>
         <source>∞ Unclear</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="43"/>
         <source>=/∞ With Compensation for White</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="45"/>
         <source>∞/= With Compensation for Black</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="47"/>
         <source>⩲ White Slightly Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="49"/>
         <source>⩱ Black Slightly Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="51"/>
         <source>± White Better</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="53"/>
         <source>∓ Black Better</source>
         <translation type="unfinished"></translation>
