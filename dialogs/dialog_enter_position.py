@@ -1,4 +1,4 @@
-from gui.PieceImages import PieceImages
+from views.piece_images import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode
@@ -251,6 +251,11 @@ class DialogEnterPosition(QDialog):
         self.buttonInit.clicked.connect(self.initial_position)
         self.buttonClear.clicked.connect(self.clear_board)
         self.buttonCurrent.clicked.connect(self.set_current)
+
+        # reset who's current turn it is and the current
+        # castling rights of the position
+        self.set_castling_rights()
+        self.set_turn()
 
     def set_castling_rights(self):
         self.displayBoard.board.castling_rights = CASTLING
