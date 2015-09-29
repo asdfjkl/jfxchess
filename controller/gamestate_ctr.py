@@ -15,7 +15,7 @@ class GamestateController():
         self.model = mainAppWindow.model
 
     def on_statechanged(self):
-        self.mainAppWindow.save.setEnabled(True)
+        #self.mainAppWindow.save.setEnabled(True)
         gs = self.mainAppWindow.model.gamestate
         engine = self.mainAppWindow.engine_controller
         if(gs.mode == MODE_ANALYSIS):
