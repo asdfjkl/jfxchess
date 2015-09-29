@@ -119,5 +119,6 @@ class GameMenuController():
 ###########
 
     def on_unsaved_changes(self):
+        print("received unsaved changes event")
         self.mainAppWindow.model.gamestate.unsaved_changes = True
         self.mainAppWindow.save.setEnabled(True)
