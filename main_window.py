@@ -151,10 +151,10 @@ class MainWindow(QMainWindow):
         self.display_info.triggered.connect(self.set_display_info)
         m_edit.addSeparator()
         self.offer_draw = m_edit.addAction(self.trUtf8("Offer Draw"))
-        #self.offer_draw.triggered.connect(partial(game_menu_controller.handle_offered_draw,self))
+        self.offer_draw.triggered.connect(self.gamestateController.handle_offered_draw)
         self.offer_draw.setEnabled(False)
         self.give_up = m_edit.addAction(self.trUtf8("Resign"))
-        #self.give_up.triggered.connect(partial(game_menu_controller.on_player_resigns,self))
+        self.give_up.triggered.connect(self.gamestateController.on_player_resigns)
         self.give_up.setEnabled(False)
         m_edit.addSeparator()
 
