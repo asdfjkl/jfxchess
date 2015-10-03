@@ -57,7 +57,7 @@ class DialogBrowsePgn(QDialog):
         vbox.addLayout(hbox_lbl)
         vbox.addWidget(self.table)
 
-        self.button_edit_header = QPushButton(self.trUtf8(("Edit Headers")))
+        self.button_edit_header = QPushButton(self.trUtf8("Edit Headers"))
         self.button_delete      = QPushButton(self.trUtf8("Delete"))
         buttonBox = QDialogButtonBox(Qt.Horizontal)
         buttonBox.addButton(self.button_edit_header, QDialogButtonBox.ActionRole)

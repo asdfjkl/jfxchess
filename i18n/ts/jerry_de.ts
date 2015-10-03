@@ -43,7 +43,12 @@
     <message encoding="UTF-8">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
-        <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figurenbilder&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
+        <translation type="obsolete">&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figurenbilder&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="dialogs/dialog_about.py" line="22"/>
+        <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0 ALPHA&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
+        <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0 ALPHA&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figuren&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
     </message>
 </context>
 <context>
@@ -151,6 +156,11 @@
         <source>Searching...</source>
         <translation>Suche...</translation>
     </message>
+    <message>
+        <location filename="dialogs/dialog_browse_pgn.py" line="61"/>
+        <source>Edit Headers</source>
+        <translation>Header editieren</translation>
+    </message>
 </context>
 <context>
     <name>DialogEditGameData</name>
@@ -165,7 +175,7 @@
     <message>
         <location filename="dialogs/dialog_engine_options.py" line="18"/>
         <source>UCI Engine Options: </source>
-        <translation>UCI Engine Optionen</translation>
+        <translation>UCI Engine Optionen:</translation>
     </message>
 </context>
 <context>
