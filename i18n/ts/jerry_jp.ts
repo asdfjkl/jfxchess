@@ -11,7 +11,7 @@
     <message>
         <location filename="views/chessboard_view.py" line="154"/>
         <source>The game is over!</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲームが決めた。</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="157"/>
@@ -26,12 +26,12 @@
     <message>
         <location filename="views/chessboard_view.py" line="160"/>
         <source>Insufficient material to win.</source>
-        <translation type="unfinished"></translation>
+        <translation>戦力不足</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="163"/>
         <source>Threefold repetition.</source>
-        <translation type="unfinished"></translation>
+        <translation>同形三復</translation>
     </message>
 </context>
 <context>
@@ -90,7 +90,7 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
         <source>No.</source>
-        <translation type="unfinished"></translation>
+        <translation>番号</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
@@ -179,27 +179,27 @@
     <message>
         <location filename="dialogs/dialog_engines.py" line="26"/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translation>追加</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="27"/>
         <source>Remove...</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="28"/>
         <source>Edit Parameters...</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジンオプションを変化する</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="29"/>
         <source>Reset Parameters...</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジンオプションをリセットする</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="138"/>
         <source>Select Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジンを選択</translation>
     </message>
 </context>
 <context>
@@ -207,7 +207,7 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="181"/>
         <source>Enter Position</source>
-        <translation type="unfinished"></translation>
+        <translation>局面を作成する</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="192"/>
@@ -222,17 +222,17 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="194"/>
         <source>Black O-O</source>
-        <translation type="unfinished"></translation>
+        <translation>黒 O-O</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="195"/>
         <source>Black O-O-O</source>
-        <translation type="unfinished"></translation>
+        <translation>黒 O-O-O</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="196"/>
         <source>Castling Rights</source>
-        <translation type="unfinished"></translation>
+        <translation>キャスリングの可能</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="205"/>
@@ -318,7 +318,7 @@
     <message>
         <location filename="dialogs/dialog_promotion.py" line="10"/>
         <source>Promotion</source>
-        <translation type="unfinished"></translation>
+        <translation>プロモーション</translation>
     </message>
 </context>
 <context>
@@ -478,7 +478,7 @@
     <message>
         <location filename="main_window.py" line="158"/>
         <source>Resign</source>
-        <translation type="unfinished"></translation>
+        <translation>リザイン</translation>
     </message>
     <message>
         <location filename="main_window.py" line="165"/>
@@ -743,7 +743,7 @@
     <message>
         <location filename="controller/file_mnu_ctr.py" line="20"/>
         <source>Create New PGN</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいPGN作成</translation>
     </message>
     <message>
         <location filename="controller/file_mnu_ctr.py" line="38"/>
