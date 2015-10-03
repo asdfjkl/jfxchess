@@ -61,12 +61,14 @@ class GamestateController():
         return i
 
     def handle_offered_draw(self):
-        if((   (self.model.gamestate.mode == MODE_PLAY_WHITE and self.model.gamestate.score >  1.1)
+        if( (not self.model.gamestate.score == None) and
+            (   (self.model.gamestate.mode == MODE_PLAY_WHITE and self.model.gamestate.score >  1.1)
             or (self.model.gamestate.mode == MODE_PLAY_BLACK and self.model.gamestate.score < -1.1))
             and self.count_moves(self.model.gamestate.current) > 40):
             self.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
             display_mbox("The computer accepts.","The game ends in a draw.")
             self.on_enter_moves_mode()
+            self.mainAppWindow.moves_edit_view.update_san()
         else:
             display_mbox("The computer rejects your offer.","The game continues.")
 
@@ -77,6 +79,7 @@ class GamestateController():
         elif(self.model.gamestate.mode == MODE_PLAY_BLACK):
             self.model.gamestate.current.root().headers["Result"] = "1-0"
         self.on_enter_moves_mode()
+        self.mainAppWindow.moves_edit_view.update_san()
 
     def on_enter_moves_mode(self):
         self.mainAppWindow.engine_controller.stop_engine()
