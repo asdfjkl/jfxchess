@@ -95,12 +95,12 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
         <source>White</source>
-        <translation>白</translation>
+        <translation>白の名前</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="28"/>
         <source>Black</source>
-        <translation>黒</translation>
+        <translation>黒の名前</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
@@ -110,17 +110,17 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Date</source>
-        <translation>日付</translation>
+        <translation>対局が始まった日付</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>ECO</source>
-        <translation>ECO</translation>
+        <translation>ECOコード</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Site</source>
-        <translation>場所</translation>
+        <translation>対局が行われた場所</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="47"/>
@@ -237,12 +237,12 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="205"/>
         <source>White To Move</source>
-        <translation>白手番</translation>
+        <translation>白の手番</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="206"/>
         <source>Black To Move</source>
-        <translation>黒手番</translation>
+        <translation>黒の手番</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="207"/>
@@ -270,7 +270,7 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="8"/>
         <source>New Game</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲーム作成</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="10"/>
@@ -295,7 +295,7 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="36"/>
         <source>Computer&apos;s Time per Move</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン　秒／手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="38"/>
@@ -331,7 +331,7 @@
     <message>
         <location filename="dialogs/dialog_save_changes.py" line="11"/>
         <source>Otherwise, the changes to the current game will be lost.</source>
-        <translation type="unfinished"></translation>
+        <translation>セーブしなかったら、変わった事がなくなる。</translation>
     </message>
 </context>
 <context>
@@ -339,32 +339,32 @@
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="8"/>
         <source>Set Strength Level</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン能力設定</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="10"/>
         <source>Computer Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン能力</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="22"/>
         <source>Computer&apos;s Time per Move</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン　秒／手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="24"/>
         <source>3 sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>3秒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="26"/>
         <source>20 sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>20秒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="94"/>
         <source> sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
 </context>
 <context>
@@ -372,7 +372,7 @@
     <message>
         <location filename="dialogs/dialog_with_listview.py" line="9"/>
         <source>Next Move</source>
-        <translation type="unfinished"></translation>
+        <translation>次の手</translation>
     </message>
 </context>
 <context>
@@ -380,7 +380,7 @@
     <message>
         <location filename="dialogs/dialog_with_plaintext.py" line="8"/>
         <source>Edit Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>コメント編集</translation>
     </message>
 </context>
 <context>
@@ -388,92 +388,92 @@
     <message>
         <location filename="main_window.py" line="31"/>
         <source>Exit application</source>
-        <translation type="unfinished"></translation>
+        <translation>アップリケーションを閉じる</translation>
     </message>
     <message>
         <location filename="main_window.py" line="105"/>
         <source>File </source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <location filename="main_window.py" line="106"/>
         <source>New...</source>
-        <translation type="unfinished"></translation>
+        <translation>新規</translation>
     </message>
     <message>
         <location filename="main_window.py" line="108"/>
         <source>Open...</source>
-        <translation type="unfinished"></translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="main_window.py" line="111"/>
         <source>Browse Games...</source>
-        <translation type="unfinished"></translation>
+        <translation>PGNを拾い読みする</translation>
     </message>
     <message>
         <location filename="main_window.py" line="115"/>
         <source>Save Position as Image</source>
-        <translation type="unfinished"></translation>
+        <translation>配置の図をセーブ</translation>
     </message>
     <message>
         <location filename="main_window.py" line="118"/>
         <source>Print Game</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲム印刷</translation>
     </message>
     <message>
         <location filename="main_window.py" line="121"/>
         <source>Print Position</source>
-        <translation type="unfinished"></translation>
+        <translation>局面印刷</translation>
     </message>
     <message>
         <location filename="main_window.py" line="124"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>終了</translation>
     </message>
     <message>
         <location filename="main_window.py" line="130"/>
         <source>Edit </source>
-        <translation type="unfinished"></translation>
+        <translation>編集</translation>
     </message>
     <message>
         <location filename="main_window.py" line="131"/>
         <source>Copy Game</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲームコピー</translation>
     </message>
     <message>
         <location filename="main_window.py" line="134"/>
         <source>Copy Position</source>
-        <translation type="unfinished"></translation>
+        <translation>局面コピー</translation>
     </message>
     <message>
         <location filename="main_window.py" line="136"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>貼り付け</translation>
     </message>
     <message>
         <location filename="main_window.py" line="140"/>
         <source>&amp;Enter Position</source>
-        <translation type="unfinished"></translation>
+        <translation>局面を作成する(&amp;E)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="143"/>
         <source>Reset to Initial</source>
-        <translation type="unfinished"></translation>
+        <translation>駒の初期配置</translation>
     </message>
     <message>
         <location filename="main_window.py" line="146"/>
         <source>&amp;Flip Board</source>
-        <translation type="unfinished"></translation>
+        <translation>ボードを動かす(&amp;F)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="149"/>
         <source>Show Search &amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>検索情報を見せる</translation>
     </message>
     <message>
         <location filename="main_window.py" line="155"/>
         <source>Offer Draw</source>
-        <translation type="unfinished"></translation>
+        <translation>ドローを提案する</translation>
     </message>
     <message>
         <location filename="main_window.py" line="158"/>
@@ -483,42 +483,42 @@
     <message>
         <location filename="main_window.py" line="165"/>
         <source>Game </source>
-        <translation type="unfinished"></translation>
+        <translation>ゲーム</translation>
     </message>
     <message>
         <location filename="main_window.py" line="166"/>
         <source>New Game</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲーム作成</translation>
     </message>
     <message>
         <location filename="main_window.py" line="169"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>セーブ</translation>
     </message>
     <message>
         <location filename="main_window.py" line="173"/>
         <source>Save As New...</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいゲームでセーブ</translation>
     </message>
     <message>
         <location filename="main_window.py" line="175"/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <location filename="main_window.py" line="178"/>
         <source>Edit Game Data</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲームの情報を変化する</translation>
     </message>
     <message>
         <location filename="main_window.py" line="181"/>
         <source>Next in Database</source>
-        <translation type="unfinished"></translation>
+        <translation>データベースの次のゲーム</translation>
     </message>
     <message>
         <location filename="main_window.py" line="183"/>
         <source>Previous in Database</source>
-        <translation type="unfinished"></translation>
+        <translation>データベースの前のゲーム</translation>
     </message>
     <message>
         <location filename="main_window.py" line="189"/>
@@ -528,52 +528,52 @@
     <message>
         <location filename="main_window.py" line="191"/>
         <source>&amp;Analysis Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>分析モード</translation>
     </message>
     <message>
         <location filename="main_window.py" line="195"/>
         <source>Play as &amp;White</source>
-        <translation type="unfinished"></translation>
+        <translation>白でさす(&amp;W)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="200"/>
         <source>Play as &amp;Black</source>
-        <translation type="unfinished"></translation>
+        <translation>黒でさす(&amp;B)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="205"/>
         <source>Enter &amp;Moves</source>
-        <translation type="unfinished"></translation>
+        <translation>手を書く(&amp;M)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="212"/>
         <source>Full Game Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>分析をさせる</translation>
     </message>
     <message>
         <location filename="main_window.py" line="215"/>
         <source>Play out Position</source>
-        <translation type="unfinished"></translation>
+        <translation>配置から自動でさす</translation>
     </message>
     <message>
         <location filename="main_window.py" line="220"/>
         <source>Strength Level</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン能力</translation>
     </message>
     <message>
         <location filename="main_window.py" line="223"/>
         <source>Engines...</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン</translation>
     </message>
     <message>
         <location filename="main_window.py" line="227"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘルプ</translation>
     </message>
     <message>
         <location filename="main_window.py" line="228"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Jerryについで</translation>
     </message>
 </context>
 <context>
@@ -581,137 +581,137 @@
     <message>
         <location filename="views/moves_edit_view.py" line="23"/>
         <source>Move Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>手注記</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="24"/>
         <source>?? Blunder</source>
-        <translation type="unfinished"></translation>
+        <translation>?? 大悪手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="26"/>
         <source>? Mistake</source>
-        <translation type="unfinished"></translation>
+        <translation>? 疑問手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="28"/>
         <source>?! Dubious Move</source>
-        <translation type="unfinished"></translation>
+        <translation>?! 疑わしい手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="30"/>
         <source>!? Interesting Move</source>
-        <translation type="unfinished"></translation>
+        <translation>!? 注目すべき手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="32"/>
         <source>! Good Move</source>
-        <translation type="unfinished"></translation>
+        <translation>! 好手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="34"/>
         <source>!! Brilliant Move</source>
-        <translation type="unfinished"></translation>
+        <translation>!! 絶妙手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="59"/>
         <source>No Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>手注記なし</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="40"/>
         <source>Position Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>配置注記</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="41"/>
         <source>∞ Unclear</source>
-        <translation type="unfinished"></translation>
+        <translation>∞ 形勢不明</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="43"/>
         <source>=/∞ With Compensation for White</source>
-        <translation type="unfinished"></translation>
+        <translation>=/∞ 白は補償持っています</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="45"/>
         <source>∞/= With Compensation for Black</source>
-        <translation type="unfinished"></translation>
+        <translation>∞/= 黒は補償持っています</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="47"/>
         <source>⩲ White Slightly Better</source>
-        <translation type="unfinished"></translation>
+        <translation>± 白が小勝勢</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="49"/>
         <source>⩱ Black Slightly Better</source>
-        <translation type="unfinished"></translation>
+        <translation>⩱ 黒が小勝勢</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="51"/>
         <source>± White Better</source>
-        <translation type="unfinished"></translation>
+        <translation>± 白が勝勢</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="53"/>
         <source>∓ Black Better</source>
-        <translation type="unfinished"></translation>
+        <translation>∓ 黒が勝勢</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="55"/>
         <source>+- White Much Better</source>
-        <translation type="unfinished"></translation>
+        <translation>+- 白が勝勢</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="57"/>
         <source>-+ Black Much Better</source>
-        <translation type="unfinished"></translation>
+        <translation>-+ 黒が勝勢</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="147"/>
         <source>Add/Edit Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>コメント編集</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="64"/>
         <source>Delete Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>コメント作条</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="68"/>
         <source>Remove Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>注記なし</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="71"/>
         <source>Move Variant Up</source>
-        <translation type="unfinished"></translation>
+        <translation>変化を上がる</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="73"/>
         <source>Move Variant Down</source>
-        <translation type="unfinished"></translation>
+        <translation>変化を下がる</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="75"/>
         <source>Delete Variant</source>
-        <translation type="unfinished"></translation>
+        <translation>変化を作条する</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="77"/>
         <source>Delete From Here</source>
-        <translation type="unfinished"></translation>
+        <translation>ここから作条</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="80"/>
         <source>Delete All Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>全部のコメントを作条する</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="82"/>
         <source>Delete All Variants</source>
-        <translation type="unfinished"></translation>
+        <translation>全部の変化を作条する</translation>
     </message>
 </context>
 <context>
@@ -719,7 +719,7 @@
     <message>
         <location filename="model/gamestate.py" line="97"/>
         <source>Initializing Game Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>ゲーム木構造初期化中</translation>
     </message>
 </context>
 <context>
@@ -727,7 +727,7 @@
     <message>
         <location filename="model/database.py" line="67"/>
         <source>Re-loading PGN File...</source>
-        <translation type="unfinished"></translation>
+        <translation>PGNファイルを読み込んでいます.</translation>
     </message>
 </context>
 <context>
@@ -743,32 +743,32 @@
     <message>
         <location filename="controller/file_mnu_ctr.py" line="20"/>
         <source>Create New PGN</source>
-        <translation>新しいPGN作成</translation>
+        <translation>PGNファイル作成</translation>
     </message>
     <message>
         <location filename="controller/file_mnu_ctr.py" line="38"/>
         <source>Open PGN</source>
-        <translation type="unfinished"></translation>
+        <translation>PGNファイル開く</translation>
     </message>
     <message>
         <location filename="controller/file_mnu_ctr.py" line="42"/>
         <source>Scanning PGN File...</source>
-        <translation type="unfinished"></translation>
+        <translation>PGNをスキャン中</translation>
     </message>
     <message>
         <location filename="controller/game_mnu_ctr.py" line="71"/>
         <source>Save PGN</source>
-        <translation>PGNをセーブ</translation>
+        <translation>PGNファイルセーブ</translation>
     </message>
     <message>
         <location filename="controller/gamestate_ctr.py" line="203"/>
         <source>Game Analysis Finished</source>
-        <translation type="unfinished"></translation>
+        <translation>分析が終わりました。</translation>
     </message>
     <message>
         <location filename="controller/gamestate_ctr.py" line="203"/>
         <source>The analysis is finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>分析が終わりました。</translation>
     </message>
 </context>
 </TS>
