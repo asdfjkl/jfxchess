@@ -46,8 +46,8 @@ class GUIPrinter():
         # highlighting doesn't work
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
-        game1 = re.sub("〔",'<dd><em><span style="color:gray">[',game)
-        game2 = re.sub("〕",']</dd></em></span>',game1)
+        game1 = re.sub("╔",'<dd><em><span style="color:gray">[',game)
+        game2 = re.sub("╚",']</dd></em></span>',game1)
         try:
             game2 += " "+current.root().headers['Result']
             pass

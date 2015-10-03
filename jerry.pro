@@ -15,4 +15,4 @@ SOURCES = controller/edit_mnu_ctr.py controller/file_mnu_ctr.py \
           views/chessboard_view.py views/game_gui_printer.py \
           views/moves_edit_view.py views/piece_images.py \
           main_window.py jerry.py 
-TRANSLATIONS = i18n/ts/jerry_jp.ts
+TRANSLATIONS = i18n/ts/jerry_de.ts
