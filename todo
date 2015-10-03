@@ -1,8 +1,13 @@
+ver 2 alpha, bug list
+---------------------
+
+- switching to analysis mode after game analysis
+- offering draw and resigning not working
+
 todo before releasing alpha:
 
-- windows: automatic identification of 32/64 bit
-- complete translation to German and Japanese
-- otherwise only show-stopper bugs
+- windows: automatic identification of 32/64 bit [done]
+- complete translation to German and Japanese [done, not verified]
 
 -------
 
