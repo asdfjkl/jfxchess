@@ -568,10 +568,10 @@ class StringExporter(object):
 
     def start_snd_variation(self):
         #self.write_token('<dd><em><span style="color:gray">[ ')
-        self.write_token('\n[ ')
+        self.write_token('\n〔 ')
 
     def end_snd_variation(self):
-        self.write_token(']\n')
+        self.write_token('〕\n')
 
     def put_starting_comment(self, comment):
         self.put_comment(comment)
