@@ -57,17 +57,17 @@
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="16"/>
         <source>Sec(s) per move:</source>
-        <translation type="unfinished"></translation>
+        <translation>秒／手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="17"/>
         <source>Threshold (in pawns):</source>
-        <translation type="unfinished"></translation>
+        <translation>閾値（ポーン）</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="18"/>
         <source>Side:</source>
-        <translation type="unfinished"></translation>
+        <translation>手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="35"/>
@@ -237,32 +237,32 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="205"/>
         <source>White To Move</source>
-        <translation type="unfinished"></translation>
+        <translation>白手番</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="206"/>
         <source>Black To Move</source>
-        <translation type="unfinished"></translation>
+        <translation>黒手番</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="207"/>
         <source>Turn</source>
-        <translation type="unfinished"></translation>
+        <translation>手番</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="214"/>
         <source>Initial Position</source>
-        <translation type="unfinished"></translation>
+        <translation>駒の初期配置</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="215"/>
         <source>Clear Board</source>
-        <translation type="unfinished"></translation>
+        <translation>ボードを消す</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="216"/>
         <source>Current Position</source>
-        <translation type="unfinished"></translation>
+        <translation>現在の配置</translation>
     </message>
 </context>
 <context>
@@ -275,22 +275,22 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="10"/>
         <source>White</source>
-        <translation type="unfinished"></translation>
+        <translation>白</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="11"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>黒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="14"/>
         <source>Choose your side:</source>
-        <translation type="unfinished"></translation>
+        <translation>手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="24"/>
         <source>Computer Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>エンジン能力</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="36"/>
@@ -300,17 +300,17 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="38"/>
         <source>3 sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>3秒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="40"/>
         <source>20 sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>20秒</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="120"/>
         <source> sec(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
 </context>
 <context>
@@ -326,7 +326,7 @@
     <message>
         <location filename="dialogs/dialog_save_changes.py" line="10"/>
         <source>Save changes now?</source>
-        <translation type="unfinished"></translation>
+        <translation>変わった事をセブか</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_save_changes.py" line="11"/>
@@ -735,7 +735,7 @@
     <message>
         <location filename="controller/file_mnu_ctr.py" line="120"/>
         <source>Save Image</source>
-        <translation type="unfinished"></translation>
+        <translation>局面図画像をセーブ</translation>
     </message>
 </context>
 <context>
@@ -758,7 +758,7 @@
     <message>
         <location filename="controller/game_mnu_ctr.py" line="71"/>
         <source>Save PGN</source>
-        <translation type="unfinished"></translation>
+        <translation>PGNをセーブ</translation>
     </message>
     <message>
         <location filename="controller/gamestate_ctr.py" line="203"/>
