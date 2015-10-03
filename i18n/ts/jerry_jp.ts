@@ -6,7 +6,7 @@
     <message>
         <location filename="views/chessboard_view.py" line="154"/>
         <source>Checkmate</source>
-        <translation type="unfinished">チェックメイト</translation>
+        <translation>チェックメイト</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="154"/>
