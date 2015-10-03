@@ -28,7 +28,7 @@ class Uci_controller(QObject):
         self.timer.moveToThread(self.thread)
         self.uci_worker.moveToThread(self.thread)
 
-        self.thread.start()
+        self.thread.start(QThread.LowestPriority)
 
     def on_error(self,msg):
         pass
