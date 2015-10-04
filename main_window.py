@@ -78,6 +78,7 @@ class MainWindow(QMainWindow):
         self.chessboard_view.movesEdit = self.moves_edit_view
         self.engineOutput = QTextEdit()
         self.engineOutput.setReadOnly(True)
+        self.engineOutput.setFocusPolicy(Qt.NoFocus)
         vbox.addWidget(self.engineOutput)
         hbox.addLayout(vbox)
         mainWidget.setLayout(hbox)
