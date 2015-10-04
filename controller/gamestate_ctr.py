@@ -31,7 +31,8 @@ class GamestateController():
             engine.uci_send_position(uci_string)
             engine.uci_go_movetime(gs.computer_think_time)
 
-    def on_checkmate(self, mainWindow):
+    def on_checkmate(self):
+        mainWindow = self.mainAppWindow
         root = mainWindow.model.gamestate.current.root()
         if(root.board().turn == chess.WHITE):
             root.headers["Result"] = "1-0"
