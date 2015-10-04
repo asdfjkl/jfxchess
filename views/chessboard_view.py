@@ -11,7 +11,7 @@ from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 import random
 
-from model.gamestate import MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS
+from model.gamestate import MODE_GAME_ANALYSIS,MODE_PLAY_BLACK,MODE_ANALYSIS,MODE_PLAY_WHITE,MODE_PLAYOUT_POS,MODE_ENTER_MOVES
 
 def idx_to_str(x):
     return chr(97 + x % 8)
@@ -156,7 +156,9 @@ class ChessboardView(QWidget):
         elif(self.gs.current.board().is_stalemate()): # due to stalemate
             display_mbox(self.trUtf8("Stalemate"),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
-        elif(self.gs.current.board().is_insufficient_material()): # due to insufficient material
+        elif(self.gs.current.board().is_insufficient_material() and not self.gs.mode == MODE_ENTER_MOVES):
+            # due to insufficient material
+            print("mode insuff")
             display_mbox(self.trUtf8("Insufficient material to win."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
