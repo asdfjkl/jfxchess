@@ -68,7 +68,8 @@ class FileMenuController():
         print("checksum is now: "+str(self.model.database.filename))
         self.model.database.reload_if_necessary(mainWindow)
         selectedGame = 0
-        mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
+        #mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
+        mainWindow.gamestateController.on_enter_moves_mode()
         print("checksum is now0: "+self.model.database.filename)
 
         dlg = DialogBrowsePgn(self.model.database)
