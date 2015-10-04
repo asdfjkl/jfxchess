@@ -18,17 +18,17 @@
         <translation>Patt</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="163"/>
+        <location filename="views/chessboard_view.py" line="165"/>
         <source>The game is drawn!</source>
         <translation>Das Spiel ist remis!</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="160"/>
+        <location filename="views/chessboard_view.py" line="162"/>
         <source>Insufficient material to win.</source>
         <translation>Ungenügendes Material für Gewinn.</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="163"/>
+        <location filename="views/chessboard_view.py" line="165"/>
         <source>Threefold repetition.</source>
         <translation>Dreifache Stellungswiederholung.</translation>
     </message>
@@ -373,7 +373,7 @@
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="94"/>
         <source> sec(s)</source>
-        <translation>Sekunde(n)</translation>
+        <translation type="unfinished"> Sekunde(n)</translation>
     </message>
 </context>
 <context>
@@ -770,12 +770,12 @@
         <translation>PGN speichern</translation>
     </message>
     <message>
-        <location filename="controller/gamestate_ctr.py" line="203"/>
+        <location filename="controller/gamestate_ctr.py" line="207"/>
         <source>Game Analysis Finished</source>
         <translation>Partieanalyse beendet</translation>
     </message>
     <message>
-        <location filename="controller/gamestate_ctr.py" line="203"/>
+        <location filename="controller/gamestate_ctr.py" line="207"/>
         <source>The analysis is finished.</source>
         <translation>Die Analyse ist fertig.</translation>
     </message>
