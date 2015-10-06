@@ -1,16 +1,19 @@
 ver 2 alpha, bug list
 ---------------------
 
+- bug when loading game snd time
 - focus lost when clicking on analysis window       [done]
 - switching to analysis mode after game analysis
 - offering draw and resigning not working           [done]
 - on_enter_moves_mode wasn't called before          [done]
   browsing database
+- performance issue on old computer systems:
+  information processing too slow
 
 todo before releasing alpha:
 
 - windows: automatic identification of 32/64 bit    [done]
-- complete translation to German and Japanese       [done, not verified]
+- complete translation to German and Japanese       [done, verified, need to update jap]
 
 -------
 
