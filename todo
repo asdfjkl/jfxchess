@@ -9,6 +9,9 @@ ver 2 alpha, bug list
   browsing database
 - performance issue on old computer systems:
   information processing too slow
+  prob. due to GIL, i.e. python code that processes
+  output of engine in qthread "fights" with GUI
+
 
 todo before releasing alpha:
 
