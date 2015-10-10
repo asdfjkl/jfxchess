@@ -4,6 +4,7 @@ from uci.engine_info import EngineInfo
 import gc
 import re
 from copy import deepcopy
+import time
 
 processes = set([])
 
@@ -26,10 +27,13 @@ class Uci_worker(QObject):
         if(self.process.state() == QProcess.NotRunning and not self.command_queue.empty()):
             msg = self.command_queue.get()
             if(msg.startswith("start_engine?")):
+                print("engine start command received, starting engine")
                 path = msg.split("?")[1]
                 self.process.start(path+"\n")
                 self.engine_info.strength = None
+                print("process started")
         elif(self.process.state() == QProcess.Running):
+            #time.sleep(0.001)
             output = str(self.process.readAllStandardOutput(),"utf-8")
             self.engine_info.update_from_string(output,self.current_fen)
             self.emit(SIGNAL("info(PyQt_PyObject)"),deepcopy(self.engine_info))
@@ -40,6 +44,7 @@ class Uci_worker(QObject):
                     move = bm.group()[9:]
                     self.emit(SIGNAL("bestmove(QString)"),move)
             if(not self.command_queue.empty()):
+                print("processing queue")
                 # first check if we are in go infinite mode
                 # then first send a stop command to engine
                 # before processing further commands
@@ -51,6 +56,37 @@ class Uci_worker(QObject):
                 # if command is position fen moves, first count the
                 # numbers of moves so far to generate move numbers in engine info
                 if(msg.startswith("position")):
+                    # there could be a lot of position + go infinite commands in the queue
+                    # if the user clicks very quickly through the game. then
+                    # check for the most _recent_ go infinite command in the
+                    # queue and forget about previous ones in order to get
+                    # quicker responses in the GUI for the user
+                    finish = False
+                    while(not finish):
+                        print("msg is: "+msg)
+                        next_msg = None
+                        next_next_msg = None
+                        try:
+                            next_msg = self.command_queue.get(timeout=0.01)
+                        except queue.Empty:
+                            finish = True
+                        if not finish:
+                            try:
+                                next_next_msg = self.command_queue.get(timeout=0.01)
+                            except queue.Empty:
+                                finish = True
+                                self.command_queue.put(next_msg)
+                        if not finish:
+                            if next_msg.startswith("go infinite") and next_next_msg.startswith("position"):
+                                # just skip current position command and associated go infinite
+                                # and go to the last go infinite command
+                                print("prev skipping, now: "+next_next_msg)
+                                msg = next_next_msg
+                            else:
+                                self.command_queue.put(next_next_msg)
+                                self.command_queue.put(next_msg)
+                        else:
+                            finish = True
                     match = self.MOVES.findall(msg)
                     if(len(match) > 0):
                         self.engine_info.no_game_halfmoves = len(match)
