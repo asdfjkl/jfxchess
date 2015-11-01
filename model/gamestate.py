@@ -114,7 +114,7 @@ class GameState():
         if node == None:
             node = self.current
         with chess.polyglot.open_reader("./books/varied.bin") as reader:
-            entries = reader.get_entries_for_position(node.board())
+            entries = reader.find_all(node.board())
             moves = []
             for entry in entries:
                 move = entry.move().uci()
