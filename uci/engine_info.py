@@ -1,7 +1,7 @@
 import re
 from chess import WHITE, BLACK
 from chess import Move
-from chess import Bitboard
+#from chess import Bitboard
 import copy
 
 class EngineInfo(object):

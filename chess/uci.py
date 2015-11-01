@@ -16,15 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import chess
-import collections
 import signal
 import subprocess
 import logging
 import threading
+import concurrent.futures
+
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 try:
     import queue
@@ -35,8 +37,14 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-POLL_TIMEOUT = 5
-STOP_TIMEOUT = 2
+class EngineStateException(Exception):
+    """Unexpected UCI engine state."""
+    pass
+
+
+class EngineTerminatedException(Exception):
+    """The engine has been terminated."""
+    pass
 
 
 class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
@@ -78,23 +86,43 @@ class OptionMap(collections.MutableMapping):
 
     def __eq__(self, other):
         for key, value in self.items():
-            if not key in other or other[key] != value:
+            if key not in other or other[key] != value:
                 return False
 
         for key, value in other.items():
-            if not key in self or self[key] != value:
+            if key not in self or self[key] != value:
                 return False
 
         return True
 
     def copy(self):
-        return OptionMap(self._store.values())
+        return type(self)(self._store.values())
+
+    def __copy__(self):
+        return self.copy()
 
     def __repr__(self):
-        return "{0}({1})".format(self.__class__.__name__, dict(self.items()))
+        return "{0}({1})".format(type(self).__name__, dict(self.items()))
 
 
 class InfoHandler(object):
+    """
+    Chess engines may send information about their calculations with the
+    *info* command. You can register info handlers to be asynchronously
+    notified whenever the engine sends more information.
+
+    >>> # Register a standard info handler.
+    >>> info_handler = chess.uci.InfoHandler()
+    >>> engine.info_handlers.append(info_handler)
+
+    You would usually subclass the *InfoHandler* class.
+
+    >>> class MyHandler(chess.uci.InfoHandler):
+    ...     def post_info(self):
+    ...         # Called whenever a complete *info* line has been processed.
+    ...         super(MyHandler, self).post_info()
+    ...         print(self.info)
+    """
     def __init__(self):
         self.lock = threading.Lock()
 
@@ -156,7 +184,12 @@ class InfoHandler(object):
         self.info["score"][self.info.get("multipv", 1)] = Score(cp, mate, lowerbound, upperbound)
 
     def currmove(self, move):
-        """Received a move the engine is currently thinking about."""
+        """
+        Received a move the engine is currently thinking about.
+
+        These moves come directly from the engine. So the castling move
+        representation depends on the UCI_Chess960 option of the engine.
+        """
         self.info["currmove"] = move
 
     def currmovenumber(self, x):
@@ -255,313 +288,8 @@ class InfoHandler(object):
         self.acquire()
         return self.info
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.release()
-
-
-class TimeoutError(Exception):
-    """The UCI command timed out."""
-    pass
-
-
-class Command(object):
-    """Information about the state of a command."""
-    def __init__(self):
-        self._condition = threading.Condition()
-        self._result = None
-        self._done = False
-        self._done_callbacks = []
-
-    def _invoke_callbacks(self):
-        for callback in self._done_callbacks:
-            try:
-                callback(self)
-            except Exception:
-                LOGGER.exception("exception calling callback for %r", self)
-
-    def __repr__(self):
-        with self._condition:
-            if self._done:
-                if self._result is None:
-                    return "<Command at {0} (finished)>".format(hex(id(self)))
-                else:
-                    return "<Command at {0} (result={1})>".format(hex(id(self)), self._result)
-            else:
-                return "<Command at {0} (pending)>".format(hex(id(self)))
-
-    def done(self):
-        """Returns whether the command has already been completed."""
-        with self._condition:
-            return self._done
-
-    def add_done_callback(self, fn):
-        """
-        Add a callback function to be notified once the command completes.
-
-        The callback function will receive the *Command* object as a single
-        argument.
-
-        The callback might be executed on a different thread. If the command
-        has already been completed it will be invoked immidiately, instead.
-        """
-        with self._condition:
-            if self._done:
-                fn(self)
-            else:
-                self._done_callbacks.append(fn)
-
-    def result(self, timeout=None):
-        """
-        Wait for the command to finish and return the result.
-
-        A *timeout* in seconds may be given as a floating point number and
-        *TimeoutError* is raised if the command does not complete in time.
-        """
-        with self._condition:
-            if self._done:
-                return self._result
-
-            self._condition.wait(timeout)
-
-            if self._done:
-                return self._result
-            else:
-                raise TimeoutError()
-
-    def set_result(self, result):
-        with self._condition:
-            self._result = result
-            self._done = True
-            self._condition.notify_all()
-
-        self._invoke_callbacks()
-
-    def execute(self, engine):
-        pass
-
-
-class UciCommand(Command):
-    def execute(self, engine):
-        engine.uciok.clear()
-        engine.send_line("uci")
-        engine.uciok.wait()
-        self.set_result(None)
-
-
-class DebugCommand(Command):
-    def __init__(self, on):
-        super(DebugCommand, self).__init__()
-        self.on = bool(on)
-
-    def execute(self, engine):
-        if self.on:
-            engine.send_line("debug on")
-        else:
-            engine.send_line("debug off")
-        self.set_result(None)
-
-
-class IsReadyCommand(Command):
-    def __init__(self):
-        super(IsReadyCommand, self).__init__()
-
-    def execute(self, engine):
-        engine.readyok.clear()
-        engine.send_line("isready")
-        engine.readyok.wait()
-        self.set_result(None)
-
-
-class SetOptionCommand(IsReadyCommand):
-    def __init__(self, options):
-        super(SetOptionCommand, self).__init__()
-
-        self.option_lines = []
-
-        for name, value in options.items():
-            builder = []
-            builder.append("setoption name ")
-            builder.append(name)
-            builder.append(" value ")
-            if value is True:
-                builder.append("true")
-            elif value is False:
-                builder.append("false")
-            elif value is None:
-                builder.append("none")
-            else:
-                builder.append(str(value))
-
-            self.option_lines.append("".join(builder))
-
-    def execute(self, engine):
-        for option_line in self.option_lines:
-            engine.send_line(option_line)
-
-        super(SetOptionCommand, self).execute(engine)
-
-
-class UciNewGameCommand(IsReadyCommand):
-    def execute(self, engine):
-        engine.send_line("ucinewgame")
-        super(UciNewGameCommand, self).execute(engine)
-
-
-class PositionCommand(IsReadyCommand):
-    def __init__(self, board):
-        super(PositionCommand, self).__init__()
-
-        builder = []
-        builder.append("position")
-
-        switchyard = collections.deque()
-        while board.move_stack:
-            switchyard.append(board.pop())
-
-        fen = board.fen()
-        if fen == chess.STARTING_FEN:
-            builder.append("startpos")
-        else:
-            builder.append("fen")
-            builder.append(fen)
-
-        if switchyard:
-            builder.append("moves")
-
-            while switchyard:
-                move = switchyard.pop()
-                builder.append(move.uci())
-                board.push(move)
-
-        self.buf = " ".join(builder)
-
-    def execute(self, engine):
-        engine.send_line(self.buf)
-        super(PositionCommand, self).execute(engine)
-
-
-class GoCommand(Command):
-    def __init__(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False):
-        super(GoCommand, self).__init__()
-
-        builder = []
-        builder.append("go")
-
-        if searchmoves:
-            builder.append("searchmoves")
-            for move in searchmoves:
-                builder.append(move.uci())
-
-        self.ponder = ponder
-        if ponder:
-            builder.append("ponder")
-
-        if wtime is not None:
-            builder.append("wtime")
-            builder.append(str(int(wtime)))
-
-        if btime is not None:
-            builder.append("btime")
-            builder.append(str(int(btime)))
-
-        if winc is not None:
-            builder.append("winc")
-            builder.append(str(int(winc)))
-
-        if binc is not None:
-            builder.append("binc")
-            builder.append(str(int(binc)))
-
-        if movestogo is not None and movestogo > 0:
-            builder.append("movestogo")
-            builder.append(str(int(movestogo)))
-
-        if depth is not None:
-            builder.append("depth")
-            builder.append(str(int(depth)))
-
-        if nodes is not None:
-            builder.append("nodes")
-            builder.append(str(int(nodes)))
-
-        if mate is not None:
-            builder.append("mate")
-            builder.append(str(int(mate)))
-
-        if movetime is not None:
-            builder.append("movetime")
-            builder.append(str(int(movetime)))
-
-        self.infinite = infinite
-        if infinite:
-            builder.append("infinite")
-
-        self.buf = " ".join(builder)
-
-    def execute(self, engine):
-        for info_handler in engine.info_handlers:
-            info_handler.on_go()
-
-        engine.bestmove = None
-        engine.ponder = None
-        engine.bestmove_received.clear()
-        engine.send_line(self.buf)
-        if self.infinite or self.ponder:
-            self.set_result(None)
-        else:
-            engine.bestmove_received.wait()
-            self.set_result(BestMove(engine.bestmove, engine.ponder))
-
-
-class StopCommand(Command):
-    def execute(self, engine):
-        engine.readyok.clear()
-
-        # First check if the engine already sent a best move and stopped
-        # searching. For example Maverick will stop when a mate is found, even
-        # in infinite mode.
-        if not engine.bestmove_received.is_set():
-            engine.send_line("stop")
-
-        engine.send_line("isready")
-        engine.readyok.wait()
-
-        engine.bestmove_received.wait(STOP_TIMEOUT)
-        self.set_result(BestMove(engine.bestmove, engine.ponder))
-
-
-class PonderhitCommand(Command):
-    def execute(self, engine):
-        engine.bestmove = None
-        engine.ponder = None
-        engine.bestmove_received.clear()
-        engine.send_line("ponderhit")
-
-        engine.bestmove_received.wait()
-        self.set_result(BestMove(engine.bestmove, engine.ponder))
-
-
-class QuitCommand(Command):
-    def execute(self, engine):
-        engine.send_line("quit")
-        engine.terminated.wait()
-        self.set_result(engine.process.wait_for_return_code())
-
-
-class TerminationPromise(object):
-    def __init__(self, engine):
-        self.engine = engine
-
-    def done(self):
-        return self.engine.terminated.is_set()
-
-    def result(self, timeout=None):
-        self.engine.terminated.wait(timeout)
-
-        if not self.done():
-            raise TimeoutError()
-        else:
-            return self.engine.return_code
 
 
 class MockProcess(object):
@@ -570,8 +298,20 @@ class MockProcess(object):
         self._is_dead = threading.Event()
         self._std_streams_closed = False
 
+        self._send_queue = queue.Queue()
+        self._send_thread = threading.Thread(target=self._send_thread_target)
+        self._send_thread.daemon = True
+
+    def _send_thread_target(self):
+        while not self._is_dead.is_set():
+            line = self._send_queue.get()
+            if line is not None:
+                self.engine.on_line_received(line)
+            self._send_queue.task_done()
+
     def spawn(self, engine):
         self.engine = engine
+        self._send_thread.start()
 
     def expect(self, expectation, responses=()):
         self._expectations.append((expectation, responses))
@@ -581,7 +321,6 @@ class MockProcess(object):
 
     def assert_terminated(self):
         self.assert_done()
-        assert self._std_streams_closed
         assert self._is_dead.is_set()
 
     def is_alive(self):
@@ -589,14 +328,13 @@ class MockProcess(object):
 
     def terminate(self):
         self._is_dead.set()
+        self._send_queue.put(None)
         self.engine.on_terminated()
 
     def kill(self):
         self._is_dead.set()
+        self._send_queue.put(None)
         self.engine.on_terminated()
-
-    def close_std_streams(self):
-        self._std_streams_closed = True
 
     def send_line(self, string):
         assert self.is_alive()
@@ -606,7 +344,7 @@ class MockProcess(object):
         assert expectation == string, "expected: {0}, got {1}".format(expectation, string)
 
         for response in responses:
-            self.engine.on_line_received(response)
+            self._send_queue.put(response)
 
     def wait_for_return_code(self):
         self._is_dead.wait()
@@ -623,6 +361,7 @@ class PopenProcess(object):
     def __init__(self, command):
         self.command = command
 
+        self.process = None
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
 
@@ -650,10 +389,6 @@ class PopenProcess(object):
     def kill(self):
         self.process.kill()
 
-    def close_std_streams(self):
-        self.process.stdout.close()
-        self.process.stdin.close()
-
     def send_line(self, string):
         self.process.stdin.write(string)
         self.process.stdin.write("\n")
@@ -679,6 +414,9 @@ class SpurProcess(object):
 
         self._result = None
 
+        self.process = None
+        self.spawned = threading.Event()
+
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
@@ -686,9 +424,15 @@ class SpurProcess(object):
         self.engine = engine
 
         self.process = self.shell.spawn(self.command, store_pid=True, allow_error=True, stdout=self)
+        self.spawned.set()
+
         self._waiting_thread.start()
 
     def write(self, byte):
+        # Wait for spawn to return. Otherwise we might already try processing
+        # data before self.process is set.
+        self.spawned.wait()
+
         # Interally called whenever a byte is received.
         if byte == b"\r":
             pass
@@ -711,16 +455,6 @@ class SpurProcess(object):
     def kill(self):
         self.process.send_signal(signal.SIGKILL)
 
-    def close_std_streams(self):
-        # TODO: Spur does not do real clean up.
-        #try:
-        #    self.process._process_stdin.close()
-        #except AttributeError:
-        #    self.process._stdin.close()
-        #self.process._io._handlers[0]._file_in.close()
-        #self.process._io._handlers[1]._file_in.close()
-        pass
-
     def send_line(self, string):
         self.process.stdin_write(string.encode("utf-8"))
         self.process.stdin_write(b"\n")
@@ -736,23 +470,29 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process):
+    def __init__(self, process, Executor=concurrent.futures.ThreadPoolExecutor):
         self.process = process
+
+        self.idle = True
+        self.pondering = False
+        self.state_changed = threading.Condition()
+        self.semaphore = threading.Semaphore()
+        self.search_started = threading.Event()
+
+        self.board = chess.Board()
+        self.uci_chess960 = None
 
         self.name = None
         self.author = None
         self.options = OptionMap()
         self.uciok = threading.Event()
+        self.uciok_received = threading.Condition()
 
-        self.readyok = threading.Event()
+        self.readyok_received = threading.Condition()
 
         self.bestmove = None
         self.ponder = None
         self.bestmove_received = threading.Event()
-
-        self.queue = queue.Queue()
-        self.stdin_thread = threading.Thread(target=self._stdin_thread_target)
-        self.stdin_thread.daemon = True
 
         self.return_code = None
         self.terminated = threading.Event()
@@ -760,7 +500,8 @@ class Engine(object):
         self.info_handlers = []
 
         self.process.spawn(self)
-        self.stdin_thread.start()
+
+        self.pool = Executor(max_workers=3)
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -793,25 +534,19 @@ class Engine(object):
             elif command_and_args[0] == "option":
                 return self._option(command_and_args[1])
 
-    def _stdin_thread_target(self):
-        while self.is_alive():
-            try:
-                command = self.queue.get(True, POLL_TIMEOUT)
-            except queue.Empty:
-                continue
-
-            if not self.is_alive():
-                break
-
-            command.execute(self)
-            self.queue.task_done()
-
-        self.on_terminated()
-
     def on_terminated(self):
-        self.process.close_std_streams()
         self.return_code = self.process.wait_for_return_code()
+        self.pool.shutdown(wait=False)
         self.terminated.set()
+
+        # Wake up waiting commands.
+        self.bestmove_received.set()
+        with self.uciok_received:
+            self.uciok_received.notify_all()
+        with self.readyok_received:
+            self.readyok_received.notify_all()
+        with self.state_changed:
+            self.state_changed.notify_all()
 
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
@@ -829,18 +564,45 @@ class Engine(object):
             return
 
     def _uciok(self):
+        # Set UCI_Chess960 default value.
+        if self.uci_chess960 is None and "UCI_Chess960" in self.options:
+            self.uci_chess960 = self.options["UCI_Chess960"].default
+
         self.uciok.set()
 
+        with self.uciok_received:
+            self.uciok_received.notify_all()
+
     def _readyok(self):
-        self.readyok.set()
+        with self.readyok_received:
+            self.readyok_received.notify_all()
 
     def _bestmove(self, arg):
         tokens = arg.split(None, 2)
-        self.bestmove = chess.Move.from_uci(tokens[0])
-        if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-            self.ponder = chess.Move.from_uci(tokens[2])
-        else:
-            self.ponder = None
+
+        self.bestmove = None
+        if tokens[0] != "(none)":
+            try:
+                self.bestmove = self.board.parse_uci(tokens[0])
+            except ValueError:
+                LOGGER.exception("exception parsing bestmove")
+
+        self.ponder = None
+        if self.bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+            # The ponder move must be legal after the bestmove. Generally we
+            # trust the engine on this. But we still have to convert
+            # non-UCI_Chess960 castling moves.
+            try:
+                self.ponder = chess.Move.from_uci(tokens[2])
+                if self.ponder.from_square in (chess.E1, chess.E8) and self.ponder.to_square in (chess.C1, chess.C8, chess.G1, chess.G8):
+                    # Make a copy of the board to avoid race conditions.
+                    board = self.board.copy()
+                    board.push(self.bestmove)
+                    self.ponder = board.parse_uci(tokens[2])
+            except ValueError:
+                LOGGER.exception("exception parsing bestmove ponder")
+                self.ponder = None
+
         self.bestmove_received.set()
 
         for info_handler in self.info_handlers:
@@ -848,11 +610,11 @@ class Engine(object):
 
     def _copyprotection(self, arg):
         # TODO: Implement copyprotection
-        pass
+        LOGGER.error("engine copyprotection not supported")
 
     def _registration(self, arg):
         # TODO: Implement registration
-        pass
+        LOGGER.error("engine registration not supported")
 
     def _info(self, arg):
         if not self.info_handlers:
@@ -863,6 +625,7 @@ class Engine(object):
             info_handler.pre_info(arg)
 
         # Initialize parser state.
+        board = None
         pv = None
         score_kind = None
         score_cp = None
@@ -903,6 +666,7 @@ class Engine(object):
             try:
                 intval = int(token)
             except ValueError:
+                LOGGER.exception("exception parsing integer token")
                 return
 
             for info_handler in self.info_handlers:
@@ -912,6 +676,7 @@ class Engine(object):
             try:
                 move = chess.Move.from_uci(token)
             except ValueError:
+                LOGGER.exception("exception parsing move token")
                 return
 
             for info_handler in self.info_handlers:
@@ -920,7 +685,7 @@ class Engine(object):
         # Find multipv parameter first.
         if "multipv" in arg:
             current_parameter = None
-            for token in arg.split(" "):
+            for token in arg.split():
                 if token == "string":
                     break
 
@@ -934,7 +699,11 @@ class Engine(object):
         for token in arg.split(" "):
             if current_parameter == "string":
                 string.append(token)
-            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"):
+            elif not token:
+                # Ignore extra spaces. Those can not be directly discarded,
+                # because they may occur in the string parameter.
+                pass
+            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"]:
                 end_of_parameter()
                 current_parameter = token
 
@@ -951,6 +720,9 @@ class Engine(object):
 
                 if current_parameter == "pv":
                     pv = []
+
+                if current_parameter in ("refutation", "pv", "currline"):
+                    board = self.board.copy()
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
             elif current_parameter == "seldepth":
@@ -961,9 +733,9 @@ class Engine(object):
                 handle_integer_token(token, lambda handler, val: handler.nodes(val))
             elif current_parameter == "pv":
                 try:
-                    pv.append(chess.Move.from_uci(token))
+                    pv.append(board.push_uci(token))
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing pv")
             elif current_parameter == "multipv":
                 # Ignore multipv. It was already parsed before anything else.
                 pass
@@ -978,12 +750,12 @@ class Engine(object):
                     try:
                         score_cp = int(token)
                     except ValueError:
-                        pass
+                        LOGGER.exception("exception parsing score cp value")
                 elif score_kind == "mate":
                     try:
                         score_mate = int(token)
                     except ValueError:
-                        pass
+                        LOGGER.exception("exception parsing score mate value")
             elif current_parameter == "currmove":
                 handle_move_token(token, lambda handler, val: handler.currmove(val))
             elif current_parameter == "currmovenumber":
@@ -999,19 +771,19 @@ class Engine(object):
             elif current_parameter == "refutation":
                 try:
                     if refutation_move is None:
-                        refutation_move = chess.Move.from_uci(token)
+                        refutation_move = board.push_uci(token)
                     else:
-                        refuted_by.append(chess.Move.from_uci(token))
+                        refuted_by.append(board.push_uci(token))
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing refutation")
             elif current_parameter == "currline":
                 try:
                     if currline_cpunr is None:
                         currline_cpunr = int(token)
                     else:
-                        currline_moves.append(chess.Move.from_uci(token))
+                        currline_moves.append(board.push_uci(token))
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing currline")
 
         end_of_parameter()
 
@@ -1054,20 +826,20 @@ class Engine(object):
                 name.append(token)
             elif current_parameter == "type":
                 type.append(token)
-            elif current_parameter == "min":
-                try:
-                    min = int(token)
-                except ValueError:
-                    pass
-            elif current_parameter == "max":
-                try:
-                    max = int(token)
-                except ValueError:
-                    pass
             elif current_parameter == "default":
                 default.append(token)
             elif current_parameter == "var":
                 current_var.append(token)
+            elif current_parameter == "min":
+                try:
+                    min = int(token)
+                except ValueError:
+                    LOGGER.exception("exception parsing option min")
+            elif current_parameter == "max":
+                try:
+                    max = int(token)
+                except ValueError:
+                    LOGGER.exception("exception parsing option max")
 
         if current_var is not None:
             var.append(" ".join(current_var))
@@ -1086,24 +858,25 @@ class Engine(object):
             try:
                 default = int(default)
             except ValueError:
+                LOGGER.exception("exception parsing option spin default")
                 default = None
 
         option = Option(" ".join(name), type, default, min, max, var)
         self.options[option.name] = option
 
-    def _queue_command(self, command, async_callback=None):
-        if self.terminated.is_set():
-            raise RuntimeError('can not queue command for terminated uci engine')
-
-        self.queue.put(command)
+    def _queue_command(self, command, async_callback):
+        try:
+            future = self.pool.submit(command)
+        except RuntimeError:
+            raise EngineTerminatedException()
 
         if async_callback is True:
-            return command
+            return future
         elif async_callback:
-            command.add_done_callback(async_callback)
-            return command
+            future.add_done_callback(async_callback)
+            return future
         else:
-            return command.result()
+            return future.result()
 
     def uci(self, async_callback=None):
         """
@@ -1114,7 +887,16 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self._queue_command(UciCommand(), async_callback)
+        def command():
+            with self.semaphore:
+                with self.uciok_received:
+                    self.send_line("uci")
+                    self.uciok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def debug(self, on, async_callback=None):
         """
@@ -1127,7 +909,14 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self._queue_command(DebugCommand(on), async_callback)
+        def command():
+            with self.semaphore:
+                if on:
+                    self.send_line("debug on")
+                else:
+                    self.send_line("debug off")
+
+        return self._queue_command(command, async_callback)
 
     def isready(self, async_callback=None):
         """
@@ -1138,17 +927,59 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self._queue_command(IsReadyCommand(), async_callback)
+        def command():
+            with self.semaphore:
+                with self.readyok_received:
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def setoption(self, options, async_callback=None):
         """
-        Set a values for the engines available options.
+        Set values for the engines available options.
 
         :param options: A dictionary with option names as keys.
 
         :return: Nothing
         """
-        return self._queue_command(SetOptionCommand(options), async_callback)
+        option_lines = []
+
+        for name, value in options.items():
+            if name.lower() == "uci_chess960":
+                self.uci_chess960 = value
+
+            builder = []
+            builder.append("setoption name")
+            builder.append(name)
+            builder.append("value")
+            if value is True:
+                builder.append("true")
+            elif value is False:
+                builder.append("false")
+            elif value is None:
+                builder.append("none")
+            else:
+                builder.append(str(value))
+
+            option_lines.append(" ".join(builder))
+
+        def command():
+            with self.semaphore:
+                with self.readyok_received:
+                    for option_line in option_lines:
+                        self.send_line(option_line)
+
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     # TODO: Implement register command
 
@@ -1162,7 +993,23 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self._queue_command(UciNewGameCommand(), async_callback)
+        # Warn if this is called while the engine is still calculating.
+        with self.state_changed:
+            if not self.idle:
+                LOGGER.warning("ucinewgame while engine is busy")
+
+        def command():
+            with self.semaphore:
+                with self.readyok_received:
+                    self.send_line("ucinewgame")
+
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def position(self, board, async_callback=None):
         """
@@ -1178,8 +1025,71 @@ class Engine(object):
         :param board: A *chess.Board*.
 
         :return: Nothing
+
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
+            calculating.
         """
-        return self._queue_command(PositionCommand(board), async_callback)
+        # Work on a local copy.
+        board = board.copy()
+
+        # Raise if this is called while the engine is still calculating.
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("position command while engine is busy")
+
+        builder = []
+        builder.append("position")
+
+        # Take back moves to obtain the first FEN we know. Later giving the
+        # moves explicitly allows for transposition detection.
+        switchyard = collections.deque()
+        while board.move_stack:
+            switchyard.append(board.pop())
+
+        # Validate castling rights.
+        if not self.uci_chess960 and board.chess960:
+            if board.has_chess960_castling_rights():
+                LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
+
+                # Just send the final FEN without transpositions in hops
+                # that this will work.
+                while switchyard:
+                    board.push(switchyard.pop())
+
+        # Send startposition.
+        if board.fen() == chess.STARTING_FEN:
+            builder.append("startpos")
+        else:
+            builder.append("fen")
+
+            if self.uci_chess960:
+                builder.append(board.shredder_fen())
+            else:
+                builder.append(board.fen())
+
+        # Send moves.
+        if switchyard:
+            builder.append("moves")
+
+            while switchyard:
+                move = switchyard.pop()
+                builder.append(board.uci(move, chess960=self.uci_chess960))
+                board.push(move)
+
+        self.board = board
+
+        def command():
+            with self.semaphore:
+                with self.readyok_received:
+                    self.send_line(" ".join(builder))
+
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
         """
@@ -1188,6 +1098,9 @@ class Engine(object):
         All parameters are optional, but there should be at least one of
         *depth*, *nodes*, *mate*, *infinite* or some time control settings,
         so that the engine knows how long to calculate.
+
+        Note that when using *infinite* or *ponder* the engine will not stop
+        until it is told to.
 
         :param searchmoves: Restrict search to moves in this list.
         :param ponder: Bool to enable pondering mode. The engine will not stop
@@ -1202,27 +1115,127 @@ class Engine(object):
         :param nodes: Search so many *nodes* only.
         :param mate: Search for a mate in *mate* moves.
         :param movetime: Integer. Search exactly *movetime* milliseconds.
-        :param infinite: Search in the backgorund until a *stop* command is
+        :param infinite: Search in the background until a *stop* command is
             received.
 
-        :return: **In normal search mode** a tuple of two elements. The first
-            is the best move according to the engine. The second is the ponder
-            move. This is the reply expected by the engine. Either of the
-            elements may be *None*. **In infinite search mode** or
-            **ponder mode** there is no result. See *stop* (or *ponderhit*)
-            instead.
+        :return: A tuple of two elements. The first is the best move according
+            to the engine. The second is the ponder move. This is the reply
+            as sent by the engine. Either of the elements may be *None*.
+
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is
+            already calculating.
         """
-        return self._queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite), async_callback)
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("go command while engine is already busy")
+
+            self.idle = False
+            self.search_started.clear()
+            self.bestmove_received.clear()
+            self.pondering = ponder
+            self.state_changed.notify_all()
+
+        for info_handler in self.info_handlers:
+            info_handler.on_go()
+
+        builder = []
+        builder.append("go")
+
+        if ponder:
+            builder.append("ponder")
+
+        if wtime is not None:
+            builder.append("wtime")
+            builder.append(str(int(wtime)))
+
+        if btime is not None:
+            builder.append("btime")
+            builder.append(str(int(btime)))
+
+        if winc is not None:
+            builder.append("winc")
+            builder.append(str(int(winc)))
+
+        if binc is not None:
+            builder.append("binc")
+            builder.append(str(int(binc)))
+
+        if movestogo is not None and movestogo > 0:
+            builder.append("movestogo")
+            builder.append(str(int(movestogo)))
+
+        if depth is not None:
+            builder.append("depth")
+            builder.append(str(int(depth)))
+
+        if nodes is not None:
+            builder.append("nodes")
+            builder.append(str(int(nodes)))
+
+        if mate is not None:
+            builder.append("mate")
+            builder.append(str(int(mate)))
+
+        if movetime is not None:
+            builder.append("movetime")
+            builder.append(str(int(movetime)))
+
+        if infinite:
+            builder.append("infinite")
+
+        if searchmoves:
+            builder.append("searchmoves")
+            for move in searchmoves:
+                builder.append(self.board.uci(move, chess960=self.uci_chess960))
+
+        def command():
+            with self.semaphore:
+                self.send_line(" ".join(builder))
+
+                with self.readyok_received:
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+                    self.search_started.set()
+
+            self.bestmove_received.wait()
+
+            with self.state_changed:
+                self.idle = True
+                self.state_changed.notify_all()
+
+            if self.terminated.is_set():
+                raise EngineTerminatedException()
+
+            return BestMove(self.bestmove, self.ponder)
+
+        return self._queue_command(command, async_callback)
 
     def stop(self, async_callback=None):
         """
         Stop calculating as soon as possible.
 
-        :return: A tuple of the latest best move and the ponder move. See the
-            *go* command. Results of infinite searches will also be available
-            here.
+        :return: Nothing.
         """
-        return self._queue_command(StopCommand(), async_callback)
+        # Only send stop when the engine is actually searching.
+        def command():
+            with self.semaphore:
+                with self.state_changed:
+                    backoff = 0.5
+                    while not self.bestmove_received.is_set() and not self.terminated.is_set():
+                        if self.idle:
+                            break
+                        else:
+                            self.send_line("stop")
+                        self.bestmove_received.wait(backoff)
+                        backoff *= 2
+
+                    self.idle = True
+                    self.state_changed.notify_all()
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def ponderhit(self, async_callback=None):
         """
@@ -1231,11 +1244,26 @@ class Engine(object):
         The engine should continue searching but should switch from pondering
         to normal search.
 
-        :return: A tuple of two elements. The first element is the best move
-        according to the engine. The second is the new ponder move. Either
-        of the elements may be *None*.
+        :return: Nothing.
+
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is not
+            currently searching in ponder mode.
         """
-        return self._queue_command(PonderhitCommand(), async_callback)
+        with self.state_changed:
+            if self.idle:
+                raise EngineStateException("ponderhit but not searching")
+            if not self.pondering:
+                raise EngineStateException("ponderhit but not pondering")
+
+            self.pondering = False
+            self.state_changed.notify_all()
+
+        def command():
+            self.search_started.wait()
+            with self.semaphore:
+                self.send_line("ponderhit")
+
+        return self._queue_command(command, async_callback)
 
     def quit(self, async_callback=None):
         """
@@ -1243,9 +1271,35 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        return self._queue_command(QuitCommand(), async_callback)
+        def command():
+            with self.semaphore:
+                self.send_line("quit")
 
-    def terminate(self, async=False):
+                self.terminated.wait()
+                return self.return_code
+
+        return self._queue_command(command, async_callback)
+
+    def _queue_termination(self, async_callback):
+        def wait():
+            self.terminated.wait()
+            return self.return_code
+
+        try:
+            return self._queue_command(wait, async_callback)
+        except EngineTerminatedException:
+            assert self.terminated.is_set()
+
+            future = concurrent.futures.Future()
+            future.set_result(self.return_code)
+            if async_callback is True:
+                return future
+            elif async_callback:
+                future.add_done_callback(async_callback)
+            else:
+                return future.result()
+
+    def terminate(self, async_callback=None):
         """
         Terminate the engine.
 
@@ -1253,33 +1307,21 @@ class Engine(object):
         on operating system level, for example by sending SIGTERM on Unix
         systems. If possible, first try the *quit* command.
 
-        :return: The return code of the engine process.
+        :return: The return code of the engine process (or a Future).
         """
-        self.process.close_std_streams()
         self.process.terminate()
+        return self._queue_termination(async_callback)
 
-        promise = TerminationPromise(self)
-        if async:
-            return promise
-        else:
-            return promise.result()
-
-    def kill(self, async=False):
+    def kill(self, async_callback=None):
         """
         Kill the engine.
 
         Forcefully kill the engine process, for example by sending SIGKILL.
 
-        :return: The return code of the engine process.
+        :return: The return code of the engine process (or a Future).
         """
-        self.process.close_std_streams()
         self.process.kill()
-
-        promise = TerminationPromise(self)
-        if async:
-            return promise
-        else:
-            return promise.result()
+        return self._queue_termination(async_callback)
 
     def is_alive(self):
         """Poll the engine process to check if it is alive."""
@@ -1309,11 +1351,11 @@ def popen_engine(command, engine_cls=Engine):
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
     """
-    Spwans a remote engine using a `Spur`_ shell.
+    Spawns a remote engine using a `Spur`_ shell.
 
     >>> import spur
     >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
-    >>> engine = chess.uci.spur_spwan_engine(shell, ["/usr/games/stockfish"])
+    >>> engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
     >>> engine.uci()
 
     .. _Spur: https://pypi.python.org/pypi/spur
