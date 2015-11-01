@@ -27,11 +27,9 @@ class Uci_worker(QObject):
         if(self.process.state() == QProcess.NotRunning and not self.command_queue.empty()):
             msg = self.command_queue.get()
             if(msg.startswith("start_engine?")):
-                print("engine start command received, starting engine")
                 path = msg.split("?")[1]
                 self.process.start(path+"\n")
                 self.engine_info.strength = None
-                print("process started")
         elif(self.process.state() == QProcess.Running):
             #time.sleep(0.001)
             output = str(self.process.readAllStandardOutput(),"utf-8")
@@ -44,7 +42,6 @@ class Uci_worker(QObject):
                     move = bm.group()[9:]
                     self.emit(SIGNAL("bestmove(QString)"),move)
             if(not self.command_queue.empty()):
-                print("processing queue")
                 # first check if we are in go infinite mode
                 # then first send a stop command to engine
                 # before processing further commands
@@ -63,7 +60,6 @@ class Uci_worker(QObject):
                     # quicker responses in the GUI for the user
                     finish = False
                     while(not finish):
-                        print("msg is: "+msg)
                         next_msg = None
                         next_next_msg = None
                         try:
@@ -80,7 +76,6 @@ class Uci_worker(QObject):
                             if next_msg.startswith("go infinite") and next_next_msg.startswith("position"):
                                 # just skip current position command and associated go infinite
                                 # and go to the last go infinite command
-                                print("prev skipping, now: "+next_next_msg)
                                 msg = next_next_msg
                             else:
                                 self.command_queue.put(next_next_msg)
@@ -101,7 +96,6 @@ class Uci_worker(QObject):
                 elif(msg.startswith("setoption name Skill Level")):
                     m = self.STRENGTH.search(msg)
                     if(m):
-                        #print(str(m.group()[18:]))
                         self.engine_info.strength = 1200+int(m.group()[18:])*100
                     self.process.write(bytes(msg+"\n","utf-8"))
                     self.process.waitForBytesWritten()

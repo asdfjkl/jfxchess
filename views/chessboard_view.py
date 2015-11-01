@@ -158,7 +158,6 @@ class ChessboardView(QWidget):
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().is_insufficient_material() and not self.gs.mode == MODE_ENTER_MOVES):
             # due to insufficient material
-            print("mode insuff")
             display_mbox(self.trUtf8("Insufficient material to win."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
@@ -177,7 +176,6 @@ class ChessboardView(QWidget):
             #msgBox = QMessageBox()
             #msgBox.setText(s)
             #msgBox.exec_()
-            #print("LIST OF FILES"+s)
             with open_reader("./books/varied.bin") as reader:
                 #self.debug_msg("ok, openend file")
                 entries = reader.get_entries_for_position(self.gs.current.board())

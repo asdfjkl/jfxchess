@@ -43,26 +43,19 @@ class UserSettings():
             print(e)
             pass
         for section in config.sections():
-            print(section)
             if section == 'General':
-                print("section is general")
-                print(str(config[section]))
                 for key in config[section]:
                     if key == 'active_engine':
                         idx_active = int(config[section]['active_engine'])
                     if key == 'active_database':
                         self.active_database = str(config[section]['active_database'])
             if str(section).startswith('Engine'):
-                print("starts with engine")
                 e = Engine()
                 e.name = str(config[section]['Name'])
                 e.path = str(config[section]['Path'])
                 for key in config[section]:
-                    print(key)
                     if(str(key).startswith('option')):
-                        print("key starts with option")
                         opt = config[section][key].split('\_/')
-                        print(opt)
                         try:
                             if(len(opt) == 3):
                                 if(opt[1] == 'spin'):
@@ -70,7 +63,6 @@ class UserSettings():
                                 elif(opt[1] == 'string'):
                                     e.options.append((opt[0],opt[1],opt[2]))
                                 elif(opt[1] == 'check'):
-                                    print(ast.literal_eval(opt[2]))
                                     e.options.append((opt[0],opt[1],ast.literal_eval(opt[2])))
                         except BaseException as err:
                             print(err)
@@ -120,7 +112,6 @@ class InternalEngine(Engine):
             self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)+".exe"
         else:
             self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)
-        print(self.path)
         self.options = []
 
         """
