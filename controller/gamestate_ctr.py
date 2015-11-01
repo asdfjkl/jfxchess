@@ -149,6 +149,7 @@ class GamestateController():
 
 
     def on_bestmove(self, move):
+        print("bestmove received, "+str(move))
         gs = self.model.gamestate
         mode = self.model.gamestate.mode
 
