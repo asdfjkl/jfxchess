@@ -2,7 +2,7 @@ from views.piece_images import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode
-from chess import Piece, WHITE, BLACK #,Bitboard
+from chess import Piece, WHITE, BLACK,Board
 #from chess import CASTLING, CASTLING_BLACK_KINGSIDE, CASTLING_BLACK_QUEENSIDE, \
 #    CASTLING_WHITE_KINGSIDE, CASTLING_WHITE_QUEENSIDE, CASTLING_NONE
 
@@ -14,7 +14,7 @@ class DisplayBoard(QWidget):
         self.setSizePolicy(policy)
 
         if(board == None):
-            board = Bitboard()
+            board = Board()
             board.castling_rights = CASTLING_NONE
 
         self.board = board
@@ -186,7 +186,7 @@ class DialogEnterPosition(QDialog):
             # create a deepcopy of current board
             self.current = self.deep_copy_board_pos(board)
         else:
-            self.current = Bitboard()
+            self.current = Board()
 
         self.cbWhiteShort = QCheckBox(self.trUtf8("White O-O"))
         self.cbWhiteLong = QCheckBox(self.trUtf8("White O-O-O"))
@@ -299,7 +299,7 @@ class DialogEnterPosition(QDialog):
 
     def set_current(self):
         fen = self.current.fen()
-        board = Bitboard(fen)
+        board = Board(fen)
         self.displayBoard.board = board
         self.set_castling_rights()
         self.set_turn()
@@ -309,7 +309,7 @@ class DialogEnterPosition(QDialog):
     # board into a clean new board, resetting
     # all move histories, castling rights, etc.
     def deep_copy_board_pos(self,board):
-        fresh = Bitboard()
+        fresh = Board()
         for i in range(0,8):
             for j in range(0,8):
                 piece = board.piece_at(j*8+i)
