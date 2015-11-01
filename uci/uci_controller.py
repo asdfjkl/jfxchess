@@ -14,7 +14,7 @@ class Uci_controller(QObject):
         self.timer = QTimer()
 
         self.timer.timeout.connect(self.uci_worker.process_command)
-        self.timer.start(50)
+        self.timer.start(300)
 
         self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
         self.connect(self.uci_worker,SIGNAL("info(PyQt_PyObject)"),self.on_info)
