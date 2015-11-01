@@ -1,7 +1,7 @@
 import re
 from chess import WHITE, BLACK
 from chess import Move
-#from chess import Bitboard
+from chess import Board
 import copy
 
 class EngineInfo(object):
@@ -43,7 +43,7 @@ class EngineInfo(object):
         else:
             try:
                 pv_san = []
-                board = Bitboard(self.san_arr[0])
+                board = Board(self.san_arr[0])
                 moves = self.san_arr[1]
                 for uci in moves:
                     move = Move.from_uci(uci)
@@ -73,7 +73,7 @@ class EngineInfo(object):
     def update_from_string(self,line,fen=None):
         if(not fen==None):
             try:
-                b = Bitboard(fen)
+                b = Board(fen)
                 self.turn = b.turn
             except ValueError:
                 pass
