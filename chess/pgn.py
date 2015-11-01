@@ -19,6 +19,7 @@
 import chess
 import itertools
 import re
+from chess.nag_table import NagHashTable
 
 try:
     import backport_collections as collections
@@ -553,6 +554,8 @@ class StringExporter(object):
         self.columns = columns
         self.current_line = ""
 
+        self.nag_table = NagHashTable()
+
     def flush_current_line(self):
         if self.current_line:
             self.lines.append(self.current_line.rstrip())
@@ -658,6 +661,32 @@ class StringExporter(object):
 
     def return_move(self,board,move):
         return board.san(move) + " "
+
+    def put_nags(self, nags):
+        for nag in sorted(nags):
+            self.put_nag(nag)
+
+    def put_nags_as_char(self, nags):
+        for nag in sorted(nags):
+            self.put_nag_as_char(nag)
+
+    def put_nag(self, nag):
+        self.write_token("$" + str(nag) + " ")
+
+    def put_nag_as_char(self, nag):
+        self.write_token(self.nag_table.nag_to_str(nag)+" ")
+
+    def return_nags_as_char(self, nags):
+        s = ""
+        for nag in sorted(nags):
+            s += self.nag_table.nag_to_str(nag) + " "
+        return s
+
+    def put_comment(self, comment):
+        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
+
+    def return_comment(self, comment):
+        return "{ " + comment.replace("}", "").strip() + " } "
 
 
 class FileExporter(StringExporter):

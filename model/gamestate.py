@@ -91,6 +91,7 @@ class GameState():
             temp = temp.variations[0]
             mainline_nodes.append(temp)
         cnt = len(mainline_nodes)
+        """
         if(not mainAppWindow == None):
             pDialog = QProgressDialog(mainAppWindow.trUtf8("Initializing Game Tree"),None,0,cnt,mainAppWindow)
             pDialog.setWindowModality(Qt.WindowModal)
@@ -107,6 +108,7 @@ class GameState():
             for i,n in enumerate(mainline_nodes):
                 if(i > 0 and i % 25 == 0):
                     _ = n.cache_board()
+        """
 
     def is_current_position_in_book(self,node=None):
         if node == None:
