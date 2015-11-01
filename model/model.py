@@ -48,7 +48,6 @@ class Model():
             print(e)
             pass
         user_settings.load_from_file(fn+"/settings.ini")
-        print("on startup: "+str(user_settings.active_database))
         if(not user_settings.active_database == None):
             database = Database(user_settings.active_database)
         else:

@@ -42,43 +42,32 @@ class Database():
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
         f = open(filename, 'wb')
-        #print(" ",file=f)
         f.close()
         self.checksum = crc32_from_file(self.filename)
         self.filename = filename
 
     def reload_if_necessary(self, mainWindow):
-        print("MY FILENAME WHEN CALLED:"+self.filename)
-        print(os.path.isfile(self.filename))
         if not os.path.isfile(self.filename):
             self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
             self.index_current_game = None
         # if still path doesn't exist, we have to create
         # new default pgn from scratch
-        print("my filename is now:"+self.filename)
         if(not os.path.isfile(self.filename)):
             self.create_new_pgn()
         else:
             crc = crc32_from_file(self.filename)
-            print("crc caluclated: "+str(crc))
-            print(self.checksum)
             if not crc == self.checksum:
                 try:
                     self.init_from_pgn(mainWindow, mainWindow.trUtf8("Re-loading PGN File..."))
                 except BaseException as e:
-                    print(e)
-                    print("EXECPTION SO CHANING FILENAME")
+                    #print(e)
                     self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
                     self.index_current_game = None
                     self.create_new_pgn()
             else:
-                print("CHECKSUM EQUAL SO DOING NOTHING")
-                #self.filename = ad.user_data_dir(appname, appauthor) + "/mygames.pgn"
-                #self.index_current_game = None
-                #self.create_new_pgn()
+                pass
 
     def init_from_pgn(self, mainWindow, msg):
-        print("loading from: "+self.filename)
         with open(self.filename) as pgn:
             size = os.path.getsize(self.filename)
             self.entries = []
@@ -87,7 +76,6 @@ class Database():
             pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
             QApplication.processEvents()
             for offset, headers in chess.pgn.scan_headers(pgn):
-                print(headers)
                 QApplication.processEvents()
                 pDialog.setValue(offset)
                 self.entries.append(Entry(offset,headers))
@@ -103,7 +91,6 @@ class Database():
         with open(self.filename,'r') as pgn:
             pgn.seek(0,os.SEEK_END)
             end_offset = pgn.tell()
-        print("determined end offset: "+str(end_offset))
         return end_offset
 
     def delete_game_at(self,idx):
@@ -124,9 +111,7 @@ class Database():
         # game to be deleted was the only one in the database
         # just delete it
         current_filesize = os.stat(self.filename).st_size
-        print("current fs: "+str(current_filesize))
         if current_filesize == 0:
-            print("file is empty")
             pgn = open(self.filename, 'r+')
             pgn.close()
         else:
@@ -184,7 +169,6 @@ class Database():
         stop_offset = None
         if(idx == len(self.entries) -1):
             stop_offset = self.get_end_offset()
-            print("stop offset: "+str(stop_offset))
         else: # just take the start of the next game as end
             stop_offset = self.entries[idx+1].pgn_offset
 
@@ -224,9 +208,7 @@ class Database():
         # game was the only one in the database
         # just append it
         current_filesize = os.stat(self.filename).st_size
-        print("current fs: "+str(current_filesize))
         if current_filesize == 0:
-            print("file is empty")
             self.entries = []
             self.append_game(game_tree)
         else:
@@ -258,7 +240,6 @@ class Database():
         return len(self.entries)
 
     def load_game(self, index):
-        print(self.entries)
         if index >= 0 and index < len(self.entries):
             entry = self.entries[index]
             with open(self.filename) as pgn:

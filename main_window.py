@@ -45,7 +45,6 @@ class MainWindow(QMainWindow):
         """
 
         self.model = Model.create_on_startup(self)
-        print(self.model.database.index_current_game)
 
         self.chessboard_view = ChessboardView(self.model.gamestate,self.engine_controller)
         self.chessboard_view.on_statechanged()
@@ -268,11 +267,6 @@ class MainWindow(QMainWindow):
                       game.headers["Date"])
 
     def closeEvent(self, event):
-        print("close event")
         self.engine_controller.stop_engine()
         self.engine_controller.thread.exit()
-        #print("thread exit with return code"+str(ret))
-        #self.engine_controller.thread.quit()
-        #time.sleep(1)
         self.engine_controller.thread.wait()
-        #print("wait return is"+str(ret))

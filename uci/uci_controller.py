@@ -32,7 +32,6 @@ class Uci_controller(QObject):
 
     def on_error(self,msg):
         pass
-        #print("engine error: "+msg)
 
     def send_fen(self,fen_string):
         self.emit(SIGNAL("new_fen(QString)"),fen_string)
@@ -45,11 +44,9 @@ class Uci_controller(QObject):
 
     def stop_engine(self):
         self.emit(SIGNAL("new_command(QString)"),"quit")
-        print("emitted stop signal")
         self.foobar.kill()
         self.foobar.waitForFinished()
         #time.sleep(1)
-        #print("slept for 1")
         #self.thread.killTimer(1)
 
 

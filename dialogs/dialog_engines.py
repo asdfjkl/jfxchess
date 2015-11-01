@@ -17,7 +17,6 @@ class DialogEngines(QDialog):
         # so that when dialog is not accepted, we can
         # revert to original state w/o side-effects
         self.engines = deepcopy(user_settings.engines)
-        print(user_settings.engines[0].name)
         idx = user_settings.engines.index(user_settings.active_engine)
         # should point to the same from copied engines(!)
         self.active_engine = self.engines[idx]
@@ -53,16 +52,11 @@ class DialogEngines(QDialog):
                 item = QListWidgetItem(engine.name+" (internal)")
             else:
                 item = QListWidgetItem(engine.name)
-            print("adding "+engine.name)
             self.lstEngines.addItem(item)
-            print("user settings"+user_settings.active_engine.name)
-            print("engine"+engine.name)
             # made a deepcopy for self.engines, hence
             # need to check active engine of user-config
             # by index of user_settings_engines
-            print("selected: "+ user_settings.engines[idx].name + " active: "+user_settings.active_engine.name)
             if(user_settings.active_engine == user_settings.engines[idx]):
-                print("are the same: "+user_settings.engines[idx].name)
                 item.setSelected(True)
                 # if internal one is active, deactivate remove button
                 if(idx == 0):
@@ -90,12 +84,10 @@ class DialogEngines(QDialog):
                     self.btnRemove.setEnabled(False)
                 else:
                     self.btnRemove.setEnabled(True)
-                print("selected: "+self.engines[i].name)
 
     def on_parameters(self):
         dlgEngOpt = DialogEngineOptions(self.active_engine)
         if dlgEngOpt.exec_() == QDialog.Accepted:
-            print("accepted")
             # first delete all engine options from active
             # engine, then
             # pick up those engine options that are
@@ -148,9 +140,7 @@ class DialogEngines(QDialog):
                     item = QListWidgetItem(engine.name)
                     self.lstEngines.addItem(item)
                     item.setSelected(True)
-                    print("I am quitting. I quit.")
                     eng.quit()
-                    print("sine they have my stapler")
                     #self.active_engine = engine
                 except BaseException as e:
                     print(e)
