@@ -160,7 +160,7 @@ class ChessboardView(QWidget):
             # due to insufficient material
             display_mbox(self.trUtf8("Insufficient material to win."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
-        elif(self.gs.current.board().can_claim_threefold_repitition()): # due to threefold repetition
+        elif(self.gs.current.board().can_claim_threefold_repetition()): # due to threefold repetition
             display_mbox(self.trUtf8("Threefold repetition."),self.trUtf8("The game is drawn!"))
             self.emit(SIGNAL("drawn"))
         if(self.gs.mode == MODE_ANALYSIS):
