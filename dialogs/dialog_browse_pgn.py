@@ -79,13 +79,10 @@ class DialogBrowsePgn(QDialog):
         self.button_reset.clicked.connect(self.draw_all_items)
 
     def keyPressEvent(self,keyEvent):
-        print("captured key event")
         if(keyEvent.key() == Qt.Key_Return or keyEvent.key() == Qt.Key_Enter):
-            print("return was pressed in browse dialog")
             if(self.search_field.hasFocus()):
                 self.on_search()
             else:
-                print("... search field has no focus")
                 QDialog.keyPressEvent(self,keyEvent)
         else:
             QDialog.keyPressEvent(self,keyEvent)
@@ -95,7 +92,6 @@ class DialogBrowsePgn(QDialog):
         items = self.table.selectedItems()
         if(len(items) > 0):
             idx_selected_game = int(items[0].text())-1
-            print("selected: "+str(idx_selected_game))
             # load selected game
             game = self.database.load_game(idx_selected_game)
             dlg = DialogEditGameData(game.root())
@@ -128,7 +124,6 @@ class DialogBrowsePgn(QDialog):
         items = self.table.selectedItems()
         if(len(items) > 0):
             idx_selected_game = int(items[0].text())-1
-            print("selected: "+str(idx_selected_game))
 
             # ask user if he is sure
             ask_sure = QMessageBox()
@@ -141,7 +136,6 @@ class DialogBrowsePgn(QDialog):
                 self.table.removeRow(idx_selected_game)
                 for i in range(idx_selected_game, self.table.rowCount()):
                     old_idx = int(self.table.item(i,0).text())
-                    print(str(old_idx))
                     self.table.setItem(i,0,QTableWidgetItem(str(old_idx-1)))
                 self.database.delete_game_at(idx_selected_game)
 

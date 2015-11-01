@@ -74,7 +74,6 @@ class GameMenuController():
             if(not filename.endswith(".pgn")):
                 filename = filename + ".pgn"
             f = open(filename,'w')
-            print(self.model.gamestate.current.root(), file=f, end="\n\n")
             self.model.gamestate.pgn_filename = filename
             self.mainAppWindow.movesEdit.setFocus()
             f.close()
@@ -119,6 +118,5 @@ class GameMenuController():
 ###########
 
     def on_unsaved_changes(self):
-        print("received unsaved changes event")
         self.mainAppWindow.model.gamestate.unsaved_changes = True
         self.mainAppWindow.save.setEnabled(True)

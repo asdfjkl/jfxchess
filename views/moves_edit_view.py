@@ -272,7 +272,6 @@ class MovesEditView(QTextEdit):
         cursor.setPosition(idx)
         self.setTextCursor(cursor)
         #self.emit(SIGNAL("unsaved_changes()"))
-        print("updating san")
         self.update()
 
     def keyPressEvent(self, event):

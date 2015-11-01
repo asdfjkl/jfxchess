@@ -65,22 +65,16 @@ class FileMenuController():
 
     def browse_games(self):
         mainWindow = self.mainAppWindow
-        print("checksum is now: "+str(self.model.database.filename))
         self.model.database.reload_if_necessary(mainWindow)
         selectedGame = 0
-        #mainWindow.model.gamestate.mode = model.gamestate.MODE_ENTER_MOVES
         mainWindow.gamestateController.on_enter_moves_mode()
-        print("checksum is now0: "+self.model.database.filename)
 
         dlg = DialogBrowsePgn(self.model.database)
-        print("checksum is now1: "+self.model.database.filename)
         if dlg.exec_() == QDialog.Accepted:
             items = dlg.table.selectedItems()
             if(len(items) > 0):
                 selectedGame = int(items[0].text())-1
                 loaded_game = self.model.database.load_game(selectedGame)
-                print("checksum is now2: "+self.model.database.filename)
-                #print("loaded game: "+str(loaded_game))
                 if(not loaded_game == None):
                     # if the user wants to load a game, but the current open
                     # game has still unsaved changes or hasn't been saved at all,
@@ -94,8 +88,6 @@ class FileMenuController():
                                 self.gs_ctr.editGameData()
                                 self.model.database.append_game(self.model.gamestate.current)
                             else:
-                                print(self.model.gamestate.current)
-                                print(self.model.database.index_current_game)
                                 self.model.database.update_game(self.model.database.index_current_game,\
                                                         self.model.gamestate.current)
                             self.mainAppWindow.save.setEnabled(False)
@@ -110,11 +102,8 @@ class FileMenuController():
                         self.mainAppWindow.setLabels()
                         self.mainAppWindow.moves_edit_view.setFocus()
                         self.model.gamestate.init_game_tree(self.mainAppWindow)
-                        print("checksum is now5: "+self.model.database.checksum)
 
         self.mainAppWindow.moves_edit_view.setFocus()
-        print("checksum is now3: "+self.model.database.checksum)
-
 
     def save_image(self):
         q_widget = self.mainAppWindow

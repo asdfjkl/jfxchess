@@ -374,11 +374,6 @@ class GameNode(object):
                     exporter.put_starting_comment(variation.starting_comment)
 
                 # ab hier
-                #print(str(exporter))
-                #temp = re.sub('</dd>|<dd>','\n',str(exporter))
-                #print(temp)
-                #print(re.sub('<[^>]*>','',temp))
-                #offset_start = len(re.sub('<[^>]*>','',temp))
                 offset_start = len(str(exporter))
 
                 if(variation.invalidate == False):
