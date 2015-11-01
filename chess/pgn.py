@@ -16,24 +16,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# python-chess Lib Version 0.8
-# custom changes for printing w/ jerry GUI
-
 import chess
-import collections
-import copy
 import itertools
 import re
-from chess.nag_table import NagHashTable
 
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 NAG_NULL = 0
+
 NAG_GOOD_MOVE = 1
+"""A good move. Can also be indicated by ``!`` in PGN notation."""
+
 NAG_MISTAKE = 2
+"""A mistake. Can also be indicated by ``?`` in PGN notation."""
+
 NAG_BRILLIANT_MOVE = 3
+"""A brilliant move. Can also be indicated by ``!!`` in PGN notation."""
+
 NAG_BLUNDER = 4
+"""A blunder. Can also be indicated by ``??`` in PGN notation."""
+
 NAG_SPECULATIVE_MOVE = 5
+"""A speculative move. Can also be indicated by ``!?`` in PGN notation."""
+
 NAG_DUBIOUS_MOVE = 6
+"""A dubious move. Can also be indicated by ``?!`` in PGN notation."""
+
 NAG_FORCED_MOVE = 7
 NAG_SINGULAR_MOVE = 8
 NAG_WORST_MOVE = 9
@@ -87,30 +98,27 @@ class GameNode(object):
         self.variations = []
 
         self.board_cached = None
+
         self.invalidate = True
         self.san_cached = None
 
-    def board(self):
+    def board(self, _cache=True):
         """
-        Gets a bitboard with the position of the node.
+        Gets a board with the position of the node.
 
         It's a copy, so modifying the board will not alter the game.
         """
-        if not self.board_cached:
-            self.board_cached = self.parent.board()
-            self.board_cached.push(self.move)
+        if self.board_cached:
+            return self.board_cached.copy()
 
-        return copy.deepcopy(self.board_cached)
+        board = self.parent.board(_cache=False)
+        board.push(self.move)
 
-    def cache_board(self):
-        """
-        build the bitboard with the position of the board
-        and cache the computed version; but does not
-        return anything
-        """
-        if not self.board_cached:
-            self.board_cached = self.parent.board()
-            self.board_cached.push(self.move)
+        if _cache:
+            self.board_cached = board
+            return board.copy()
+        else:
+            return board
 
     def san(self):
         """
@@ -137,6 +145,10 @@ class GameNode(object):
             node = node.variations[0]
 
         return node
+
+    def is_end(self):
+        """Checks if this node is the last node in the current variation."""
+        return not self.variations
 
     def starts_variation(self):
         """
@@ -279,7 +291,7 @@ class GameNode(object):
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
-                variation.export(exporter, comments, variations, _board, False)
+                variation.export(exporter, comments, variations, _board, _after_variation=False)
                 _board.pop()
 
                 # End variation.
@@ -291,8 +303,13 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
-            main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
+            main_variation.export(exporter, comments, variations, _board, _after_variation=variations and len(self.variations) > 1)
             _board.pop()
+
+    def __str__(self):
+        exporter = StringExporter(columns=None)
+        self.export(exporter)
+        return exporter.__str__()
 
 
     def export_html(self, exporter, node_to_highlight, offset_table,
@@ -415,13 +432,6 @@ class GameNode(object):
 
 
 
-
-    def __str__(self):
-        exporter = StringExporter(columns=None)
-        self.export(exporter)
-        return exporter.__str__()
-
-
 class Game(GameNode):
     """
     The root node of a game with extra information such as headers and the
@@ -445,7 +455,8 @@ class Game(GameNode):
     >>> game.headers["Result"]
     '*'
 
-    Also has all the other properties and methods of `GameNode`.
+    Also has all the other properties and methods of
+    :class:`~chess.pgn.GameNode`.
     """
 
     def __init__(self):
@@ -460,34 +471,46 @@ class Game(GameNode):
         self.headers["Black"] = "?"
         self.headers["Result"] = "*"
 
-    def board(self):
+        self.errors = []
+
+    def board(self, _cache=False):
         """
-        Gets the starting position of the game as a bitboard.
+        Gets the starting position of the game.
 
         Unless the `SetUp` and `FEN` header tags are set this is the default
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            return chess.Board(self.headers["FEN"])
+            chess960 = self.headers.get("Variant", None) == "Chess960"
+            board = chess.Board(self.headers["FEN"], chess960=chess960)
+            board.chess960 = board.chess960 or board.has_chess960_castling_rights()
+            return board
         else:
             return chess.Board()
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the `SetUp`
-        and `FEN` header tags.
+        Setup a specific starting position. This sets (or resets) the *SetUp*,
+        *FEN* and *Variant* header tags.
         """
         try:
             fen = board.fen()
         except AttributeError:
-            fen = chess.Board(board).fen()
+            board = chess.Board(board)
+            board.chess960 = board.has_chess960_castling_rights()
+            fen = board.fen()
 
         if fen == chess.STARTING_FEN:
-            del self.headers["SetUp"]
-            del self.headers["FEN"]
+            self.headers.pop("SetUp", None)
+            self.headers.pop("FEN", None)
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
+
+        if board.chess960:
+            self.headers["Variant"] = "Chess960"
+        else:
+            self.headers.pop("Variant", None)
 
     def export(self, exporter, headers=True, comments=True, variations=True):
         exporter.start_game()
@@ -501,7 +524,7 @@ class Game(GameNode):
         if comments and self.comment:
             exporter.put_starting_comment(self.comment)
 
-        super(Game, self).export(exporter, comments=comments, variations=variations)
+        super(Game, self).export(exporter, comments=comments, variations=variations, _after_variation=True)
 
         exporter.put_result(self.headers["Result"])
         exporter.end_game()
@@ -511,16 +534,16 @@ class StringExporter(object):
     """
     Allows exporting a game as a string.
 
-    The export method of `Game` also provides options to include or exclude
+    :func:`chess.pgn.Game.export()` also provides options to include or exclude
     headers, variations or comments. By default everything is included.
 
     >>> exporter = chess.pgn.StringExporter()
     >>> game.export(exporter, headers=True, variations=True, comments=True)
     >>> pgn_string = str(exporter)
 
-    Only `columns` characters are written per line. If `columns` is `None` then
-    the entire movetext will be on a single line. This does not affect header
-    tags and comments.
+    Only `columns` characters are written per line. If `columns` is ``None``
+    then the entire movetext will be on a single line. This does not affect
+    header tags and comments.
 
     There will be no newlines at the end of the string.
     """
@@ -529,7 +552,6 @@ class StringExporter(object):
         self.lines = []
         self.columns = columns
         self.current_line = ""
-        self.nag_table = NagHashTable()
 
     def flush_current_line(self):
         if self.current_line:
@@ -554,6 +576,7 @@ class StringExporter(object):
     def start_headers(self):
         pass
 
+
     def put_header(self, tagname, tagvalue):
         self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
 
@@ -566,6 +589,37 @@ class StringExporter(object):
     def end_variation(self):
         self.write_token(") ")
 
+    def put_starting_comment(self, comment):
+        self.put_comment(comment)
+
+    def put_comment(self, comment):
+        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
+
+    def put_nags(self, nags):
+        for nag in sorted(nags):
+            self.put_nag(nag)
+
+    def put_nag(self, nag):
+        self.write_token("$" + str(nag) + " ")
+
+    def put_fullmove_number(self, turn, fullmove_number, variation_start):
+        if turn == chess.WHITE:
+            self.write_token(str(fullmove_number) + ". ")
+        elif variation_start:
+            self.write_token(str(fullmove_number) + "... ")
+
+    def put_move(self, board, move):
+        self.write_token(board.san(move) + " ")
+
+    def put_result(self, result):
+        self.write_token(result + " ")
+
+    def __str__(self):
+        if self.current_line:
+            return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
+        else:
+            return "\n".join(self.lines).rstrip()
+
     def start_snd_variation(self):
         #self.write_token('<dd><em><span style="color:gray">[ ')
         self.write_token('\n╔ ')
@@ -573,34 +627,6 @@ class StringExporter(object):
     def end_snd_variation(self):
         self.write_token('╚\n')
 
-    def put_starting_comment(self, comment):
-        self.put_comment(comment)
-
-    def put_comment(self, comment):
-        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
-
-    def return_comment(self, comment):
-        return "{ " + comment.replace("}", "").strip() + " } "
-
-    def put_nags(self, nags):
-        for nag in sorted(nags):
-            self.put_nag(nag)
-
-    def put_nags_as_char(self, nags):
-        for nag in sorted(nags):
-            self.put_nag_as_char(nag)
-
-    def put_nag(self, nag):
-        self.write_token("$" + str(nag) + " ")
-
-    def put_nag_as_char(self, nag):
-        self.write_token(self.nag_table.nag_to_str(nag)+" ")
-
-    def return_nags_as_char(self, nags):
-        s = ""
-        for nag in sorted(nags):
-            s += self.nag_table.nag_to_str(nag) + " "
-        return s
 
     def put_fullmove_number(self, turn, fullmove_number, variation_start):
         if turn == chess.WHITE:
@@ -620,11 +646,6 @@ class StringExporter(object):
         else:
             return ""
 
-    def put_move(self, board, move):
-        self.write_token(board.san(move) + " ")
-
-    def return_move(self, board, move):
-        return board.san(move) + " "
 
     def put_move_highlighted(self,board,move):
         self.write_token('<span style="color:darkgoldenrod">')
@@ -635,20 +656,14 @@ class StringExporter(object):
         return '<span style="color:darkgoldenrod">'+board.san(move)+' </span><a name="current"></a>'
         #return board.san(move)
 
-
-    def put_result(self, result):
-        self.write_token(result + " ")
-
-    def __str__(self):
-        if self.current_line:
-            return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] )).rstrip()
-        else:
-            return "\n".join(self.lines).rstrip()
+    def return_move(self,board,move):
+        return board.san(move) + " "
 
 
 class FileExporter(StringExporter):
     """
-    Like a StringExporter, but games are written directly to a text file.
+    Like a :class:`~chess.pgn.StringExporter`, but games are written directly
+    to a text file.
 
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
@@ -687,7 +702,7 @@ def read_game(handle, error_handler=_raise):
     According to the specification PGN files should be ASCII. Also UTF-8 is
     common. So this is usually not a problem.
 
-    >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>> first_game = chess.pgn.read_game(pgn)
     >>> second_game = chess.pgn.read_game(pgn)
     >>>
@@ -716,11 +731,12 @@ def read_game(handle, error_handler=_raise):
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. However it is difficult to handle illegal or
     ambiguous moves. If such a move is encountered the default behaviour is to
-    stop right in the middle of the game and raise `ValueError`. If you pass
-    `None` for `error_handler` all errors are silently ignored, instead. If you
-    pass a function this function will be called with the error as an argument.
+    stop right in the middle of the game and raise :exc:`ValueError`. If you
+    pass ``None`` for *error_handler* all errors are silently ignored, instead.
+    If you pass a function this function will be called with the error as an
+    argument.
 
-    Returns the parsed game or `None` if the EOF is reached.
+    Returns the parsed game or ``None`` if the EOF is reached.
     """
     game = Game()
     found_game = False
@@ -752,8 +768,8 @@ def read_game(handle, error_handler=_raise):
 
     # Movetext parser state.
     starting_comment = ""
-    variation_stack = collections.deque([ game ])
-    board_stack = collections.deque([ game.board() ])
+    variation_stack = collections.deque([game])
+    board_stack = collections.deque([game.board()])
     in_variation = False
 
     # Parse movetext.
@@ -777,7 +793,7 @@ def read_game(handle, error_handler=_raise):
             if token.startswith("{"):
                 # Consume until the end of the comment.
                 line = token[1:]
-                comment_lines = [ ]
+                comment_lines = []
                 while line and "}" not in line:
                     comment_lines.append(line.rstrip())
                     line = handle.readline()
@@ -788,9 +804,10 @@ def read_game(handle, error_handler=_raise):
                 else:
                     line = ""
 
-                if in_variation or not variation_stack[-1].parent:
-                    # Add the comment if in the middle of a variation or
-                    # directly to the game.
+                if in_variation or (not variation_stack[-1].parent and variation_stack[-1].is_end()):
+                    # Add as a comment for the current node if in the middle of
+                    # a variation. Add as a comment for the game, if the
+                    # comment starts before any move.
                     if variation_stack[-1].comment:
                         comment_lines.insert(0, variation_stack[-1].comment)
                     variation_stack[-1].comment = "\n".join(comment_lines).strip()
@@ -824,7 +841,7 @@ def read_game(handle, error_handler=_raise):
                 if variation_stack[-1].parent:
                     variation_stack.append(variation_stack[-1].parent)
 
-                    board = copy.deepcopy(board_stack[-1])
+                    board = board_stack[-1].copy()
                     board.pop()
                     board_stack.append(board)
 
@@ -840,7 +857,7 @@ def read_game(handle, error_handler=_raise):
                 found_content = True
 
                 # Set result header if not present, yet.
-                if "Result" not in game.headers:
+                if game.headers.get("Result", "*") == "*":
                     game.headers["Result"] = token
             else:
                 # Found a SAN token.
@@ -861,6 +878,7 @@ def read_game(handle, error_handler=_raise):
                     board_stack[-1].push(move)
                     starting_comment = ""
                 except ValueError as error:
+                    game.errors.append(error)
                     if error_handler:
                         error_handler(error)
 
@@ -903,8 +921,8 @@ def scan_headers(handle):
     >>> first_white_win = next(white_win_offsets)
     >>> second_white_win = next(white_win_offsets)
 
-    Be careful when seeking a game in the file while more offsets are being
-    generated.
+    :warning: Be careful when seeking a game in the file while more offsets are
+        being generated.
     """
     in_comment = False
 
@@ -913,7 +931,6 @@ def scan_headers(handle):
 
     last_pos = handle.tell()
     line = handle.readline()
-
 
     while line:
         # Skip single line comments.
@@ -968,10 +985,10 @@ def scan_offsets(handle):
     Scan a PGN file opened in text mode for game offsets.
 
     Yields the starting offsets of all the games, so that they can be seeked
-    later. This is just like `scan_headers()` but more efficient if you do
-    not actually need the header information.
+    later. This is just like :func:`~chess.pgn.scan_headers()` but more
+    efficient if you do not actually need the header information.
 
-    The PGN standard requires each game to start with an Event-tag. So does
+    The PGN standard requires each game to start with an *Event*-tag. So does
     this scanner.
     """
     in_comment = False

@@ -2,9 +2,9 @@ from views.piece_images import PieceImages
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode
-from chess import Piece, Bitboard, WHITE, BLACK
-from chess import CASTLING, CASTLING_BLACK_KINGSIDE, CASTLING_BLACK_QUEENSIDE, \
-    CASTLING_WHITE_KINGSIDE, CASTLING_WHITE_QUEENSIDE, CASTLING_NONE
+from chess import Piece, WHITE, BLACK #,Bitboard
+#from chess import CASTLING, CASTLING_BLACK_KINGSIDE, CASTLING_BLACK_QUEENSIDE, \
+#    CASTLING_WHITE_KINGSIDE, CASTLING_WHITE_QUEENSIDE, CASTLING_NONE
 
 class DisplayBoard(QWidget):
 
