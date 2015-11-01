@@ -33,7 +33,7 @@ class EditMenuController():
             #gamestate.initialize_headers()
             root.headers["FEN"] = ""
             root.headers["SetUp"] = ""
-            board = chess.Bitboard(clipboard.text())
+            board = chess.Board(clipboard.text())
             root.setup(board)
             if(root.board().status() == 0):
                 gamestate.current = root
