@@ -100,8 +100,10 @@ class GameNode(object):
 
         self.board_cached = None
 
+        # CUSTOM PATCH START
         self.invalidate = True
         self.san_cached = None
+        # CUSTOM PATCH STOP
 
     def board(self, _cache=True):
         """
@@ -312,7 +314,7 @@ class GameNode(object):
         self.export(exporter)
         return exporter.__str__()
 
-
+    # CUSTOM PATCH START
     def export_html(self, exporter, node_to_highlight, offset_table,
                     comments=True, variations=True, _board=None, _after_variation=False):
         if _board is None:
@@ -425,7 +427,7 @@ class GameNode(object):
             main_variation.export_html(exporter, node_to_highlight, offset_table, comments,
                                        variations, _board, variations and len(self.variations) > 1)
             _board.pop()
-
+    # CUSTOM PATCH STOP
 
 
 class Game(GameNode):
@@ -618,20 +620,13 @@ class StringExporter(object):
         else:
             return "\n".join(self.lines).rstrip()
 
+    # CUSTOM PATCH START
     def start_snd_variation(self):
         #self.write_token('<dd><em><span style="color:gray">[ ')
         self.write_token('\n╔ ')
 
     def end_snd_variation(self):
         self.write_token('╚\n')
-
-
-    def put_fullmove_number(self, turn, fullmove_number, variation_start):
-        if turn == chess.WHITE:
-            self.write_token(str(fullmove_number) + ". ")
-        elif variation_start:
-            self.write_token(str(fullmove_number) + ". ... ")
-
 
     def return_fullmove_number(self, turn, fullmove_number, variation_start, is_root):
         s = ""
@@ -643,7 +638,6 @@ class StringExporter(object):
             return str(fullmove_number) + ". ... "
         else:
             return ""
-
 
     def put_move_highlighted(self,board,move):
         self.write_token('<span style="color:darkgoldenrod">')
@@ -657,16 +651,9 @@ class StringExporter(object):
     def return_move(self,board,move):
         return board.san(move) + " "
 
-    def put_nags(self, nags):
-        for nag in sorted(nags):
-            self.put_nag(nag)
-
     def put_nags_as_char(self, nags):
         for nag in sorted(nags):
             self.put_nag_as_char(nag)
-
-    def put_nag(self, nag):
-        self.write_token("$" + str(nag) + " ")
 
     def put_nag_as_char(self, nag):
         self.write_token(self.nag_table.nag_to_str(nag)+" ")
@@ -677,11 +664,9 @@ class StringExporter(object):
             s += self.nag_table.nag_to_str(nag) + " "
         return s
 
-    def put_comment(self, comment):
-        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
-
     def return_comment(self, comment):
         return "{ " + comment.replace("}", "").strip() + " } "
+    # CUSTOM PATCH STOP
 
 
 class FileExporter(StringExporter):
