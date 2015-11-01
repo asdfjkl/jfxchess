@@ -24,8 +24,9 @@ import sys
 import threading
 
 
-UINT64 = struct.Struct("<Q")
+UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
+UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
@@ -115,9 +116,9 @@ INVFLAP = [
     11, 19, 27, 35, 43, 51,
 ]
 
-FILE_TO_FILE = [ 0, 1, 2, 3, 3, 2, 1, 0 ]
+FILE_TO_FILE = [0, 1, 2, 3, 3, 2, 1, 0]
 
-KK_IDX = [ [
+KK_IDX = [[
      -1,  -1,  -1,   0,   1,   2,   3,   4,
      -1,  -1,  -1,   5,   6,   7,   8,   9,
      10,  11,  12,  13,  14,  15,  16,  17,
@@ -207,7 +208,7 @@ KK_IDX = [ [
      -1,  -1,  -1,  -1,  -1, 459, 438, 439,
      -1,  -1,  -1,  -1,  -1,  -1, 460, 440,
      -1,  -1,  -1,  -1,  -1,  -1,  -1, 461,
-] ]
+]]
 
 BINOMIAL = []
 for i in range(5):
@@ -220,9 +221,9 @@ for i in range(5):
             l *= k + 1
         BINOMIAL[i].append(f // l)
 
-PAWNIDX = [ [ 0 for _ in range(24) ] for _ in range(5) ]
+PAWNIDX = [[0 for _ in range(24)] for _ in range(5)]
 
-PFACTOR = [ [ 0 for _ in range(4) ] for _ in range(5) ]
+PFACTOR = [[0 for _ in range(4)] for _ in range(5)]
 
 for i in range(5):
     j = 0
@@ -262,19 +263,6 @@ PA_FLAGS = [8, 0, 0, 0, 4]
 WDL_TO_DTZ = [-1, -101, 0, 101, 1]
 
 PCHR = ["K", "Q", "R", "B", "N", "P"]
-
-
-def bswap8(x):
-    return x & 0xff
-
-def bswap16(x):
-    return (bswap8(x) << 8) | bswap8(x >> 8)
-
-def bswap32(x):
-    return (bswap16(x) << 16) | bswap16(x >> 16)
-
-def bswap64(x):
-    return (bswap32(x) << 32) | bswap32(x >> 32)
 
 
 def filenames():
@@ -322,7 +310,7 @@ def calc_key(board, mirror=False):
     key = 0
 
     for color in chess.COLORS:
-        mirrored_color = color ^ 1 if mirror else color
+        mirrored_color = color ^ mirror
 
         for i in range(chess.pop_count(board.pawns & board.occupied_co[color])):
             key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 5 * 16 + i]
@@ -343,9 +331,7 @@ def calc_key(board, mirror=False):
 def calc_key_from_filename(filename, mirror=False):
     white, black = filename.split("v")
 
-    color = chess.WHITE
-    if mirror:
-        color ^= 1
+    color = chess.WHITE ^ mirror
 
     key = 0
 
@@ -353,7 +339,7 @@ def calc_key_from_filename(filename, mirror=False):
         for i in range(white.count(piece)):
             key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
 
-    color ^= 1
+    color = not color
 
     for piece_index, piece in enumerate(PCHR):
         for i in range(black.count(piece)):
@@ -622,7 +608,7 @@ class Table(object):
             for i in range(n):
                 pos[i] = FLIPDIAG[pos[i]]
 
-        if self.enc_type == 0: # 111
+        if self.enc_type == 0:  # 111
             i = int(pos[1] > pos[0])
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
@@ -635,7 +621,7 @@ class Table(object):
             else:
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
             i = 3
-        elif self.enc_type == 1: # K3
+        elif self.enc_type == 1:  # K3
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
@@ -646,7 +632,7 @@ class Table(object):
                 if not OFFDIAG[pos[2]]:
                     idx -= j * 21
             i = 3
-        else: # K2
+        else:  # K2
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
             i = 2
 
@@ -757,11 +743,10 @@ class Table(object):
         base_idx = -m
         symlen_idx = 0
 
-        code = self.read_uint64(ptr)
-        code = bswap64(code) # if little endian
+        code = self.read_uint64_be(ptr)
 
         ptr += 2 * 4
-        bitcnt = 0 # Number of empty bits in code
+        bitcnt = 0  # Number of empty bits in code
         while True:
             l = m
             while code < d.base[base_idx + l]:
@@ -775,10 +760,8 @@ class Table(object):
             bitcnt += l
             if bitcnt >= 32:
                 bitcnt -= 32
-                tmp = self.read_uint32(ptr)
+                code |= self.read_uint32_be(ptr) << bitcnt
                 ptr += 4
-                tmp = bswap32(tmp) # if little endian
-                code |= tmp << bitcnt
 
             # Cut off at 64bit.
             code &= 0xffffffffffffffff
@@ -795,11 +778,14 @@ class Table(object):
 
         return self.read_ubyte(sympat + 3 * sym)
 
-    def read_uint64(self, data_ptr):
-        return UINT64.unpack_from(self.data, data_ptr)[0]
+    def read_uint64_be(self, data_ptr):
+        return UINT64_BE.unpack_from(self.data, data_ptr)[0]
 
     def read_uint32(self, data_ptr):
         return UINT32.unpack_from(self.data, data_ptr)[0]
+
+    def read_uint32_be(self, data_ptr):
+        return UINT32_BE.unpack_from(self.data, data_ptr)[0]
 
     def read_ushort(self, data_ptr):
         return USHORT.unpack_from(self.data, data_ptr)[0]
@@ -815,7 +801,7 @@ class Table(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
     def __getstate__(self):
@@ -859,12 +845,12 @@ class WdlTable(Table):
             self.pieces = {}
 
             self.factor = {}
-            self.factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
-            self.factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
+            self.factor[0] = [0, 0, 0, 0, 0, 0]  # White
+            self.factor[1] = [0, 0, 0, 0, 0, 0]  # Black
 
             self.norm = {}
-            self.norm[chess.WHITE] = [0 for _ in range(self.num)]
-            self.norm[chess.BLACK] = [0 for _ in range(self.num)]
+            self.norm[0] = [0 for _ in range(self.num)]  # White
+            self.norm[1] = [0 for _ in range(self.num)]  # Black
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
@@ -883,32 +869,32 @@ class WdlTable(Table):
                 data_ptr += self.num + 1
                 data_ptr += data_ptr & 0x01
 
-                self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
+                self.precomp[0] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
                 data_ptr = self._next
                 if split:
-                    self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
+                    self.precomp[1] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
                     data_ptr = self._next
                 else:
-                    self.precomp[chess.BLACK] = None
+                    self.precomp[1] = None
 
-                self.precomp[chess.WHITE].indextable = data_ptr
+                self.precomp[0].indextable = data_ptr
                 data_ptr += self.size[0]
                 if split:
-                    self.precomp[chess.BLACK].indextable = data_ptr
+                    self.precomp[1].indextable = data_ptr
                     data_ptr += self.size[3]
 
-                self.precomp[chess.WHITE].sizetable = data_ptr
+                self.precomp[0].sizetable = data_ptr
                 data_ptr += self.size[1]
                 if split:
-                    self.precomp[chess.BLACK].sizetable = data_ptr
+                    self.precomp[1].sizetable = data_ptr
                     data_ptr += self.size[4]
 
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
-                self.precomp[chess.WHITE].data = data_ptr
+                self.precomp[0].data = data_ptr
                 data_ptr += self.size[2]
                 if split:
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
-                    self.precomp[chess.BLACK].data = data_ptr
+                    self.precomp[1].data = data_ptr
             else:
                 s = 1 + int(self.pawns[1] > 0)
                 for f in range(4):
@@ -917,67 +903,67 @@ class WdlTable(Table):
                 data_ptr += data_ptr & 0x01
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
+                    self.files[f].precomp[0] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
                     data_ptr = self._next
                     if split:
-                        self.files[f].precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
+                        self.files[f].precomp[1] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
                         data_ptr = self._next
                     else:
-                        self.files[f].precomp[chess.BLACK] = None
+                        self.files[f].precomp[1] = None
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE].indextable = data_ptr
+                    self.files[f].precomp[0].indextable = data_ptr
                     data_ptr += self.size[6 * f]
                     if split:
-                        self.files[f].precomp[chess.BLACK].indextable = data_ptr
+                        self.files[f].precomp[1].indextable = data_ptr
                         data_ptr += self.size[6 * f + 3]
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE].sizetable = data_ptr
+                    self.files[f].precomp[0].sizetable = data_ptr
                     data_ptr += self.size[6 * f + 1]
                     if split:
-                        self.files[f].precomp[chess.BLACK].sizetable = data_ptr
+                        self.files[f].precomp[1].sizetable = data_ptr
                         data_ptr += self.size[6 * f + 4]
 
                 for f in range(files):
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
-                    self.files[f].precomp[chess.WHITE].data = data_ptr
+                    self.files[f].precomp[0].data = data_ptr
                     data_ptr += self.size[6 * f + 2]
                     if split:
                         data_ptr = (data_ptr + 0x3f) & ~0x3f
-                        self.files[f].precomp[chess.BLACK].data = data_ptr
+                        self.files[f].precomp[1].data = data_ptr
                         data_ptr += self.size[6 * f + 5]
 
             self.initialized = True
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
-        j = 1 + int(self.pawns[chess.BLACK] > 0)
+        j = 1 + int(self.pawns[1] > 0)
         order = self.read_ubyte(p_data) & 0x0f
-        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[chess.BLACK] else 0x0f
-        self.files[f].pieces[chess.WHITE] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
-        self.files[f].norm[chess.WHITE] = [0 for _ in range(self.num)]
-        self.set_norm_pawn(self.files[f].norm[chess.WHITE], self.files[f].pieces[chess.WHITE])
-        self.files[f].factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
-        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[chess.WHITE], order, order2, self.files[f].norm[chess.WHITE], f)
+        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[1] else 0x0f
+        self.files[f].pieces[0] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
+        self.files[f].norm[0] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[0], self.files[f].pieces[0])
+        self.files[f].factor[0] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[0], order, order2, self.files[f].norm[0], f)
 
         order = self.read_ubyte(p_data) >> 4
         order2 = self.read_ubyte(p_data + 1) >> 4 if self.pawns[1] else 0x0f
-        self.files[f].pieces[chess.BLACK] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
-        self.files[f].norm[chess.BLACK] = [0 for _ in range(self.num)]
-        self.set_norm_pawn(self.files[f].norm[chess.BLACK], self.files[f].pieces[chess.BLACK])
-        self.files[f].factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
-        self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[chess.BLACK], order, order2, self.files[f].norm[chess.BLACK], f)
+        self.files[f].pieces[1] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
+        self.files[f].norm[1] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[1], self.files[f].pieces[1])
+        self.files[f].factor[1] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
     def setup_pieces_piece(self, p_data):
-        self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
+        self.pieces[0] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
         order = self.read_ubyte(p_data) & 0x0f
-        self.set_norm_piece(self.norm[chess.WHITE], self.pieces[chess.WHITE])
-        self.tb_size[chess.WHITE] = self.calc_factors_piece(self.factor[chess.WHITE], order, self.norm[chess.WHITE])
+        self.set_norm_piece(self.norm[0], self.pieces[0])
+        self.tb_size[0] = self.calc_factors_piece(self.factor[0], order, self.norm[0])
 
-        self.pieces[chess.BLACK] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
+        self.pieces[1] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
         order = self.read_ubyte(p_data) >> 4
-        self.set_norm_piece(self.norm[chess.BLACK], self.pieces[chess.BLACK])
-        self.tb_size[chess.BLACK] = self.calc_factors_piece(self.factor[chess.BLACK], order, self.norm[chess.BLACK])
+        self.set_norm_piece(self.norm[1], self.pieces[1])
+        self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
     def probe_wdl_table(self, board):
         self.init_table_wdl()
@@ -1003,7 +989,7 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1019,7 +1005,7 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = board.pieces_mask(piece_type, color)
+            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
             square = chess.bit_scan(bb)
             while square != -1 and square is not None:
@@ -1032,7 +1018,7 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1155,7 +1141,7 @@ class DtzTable(Table):
                 bside = int(board.turn != chess.WHITE)
         else:
             cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if  board.turn == chess.WHITE else 0x38
+            mirror = 0 if board.turn == chess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -1168,7 +1154,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1188,7 +1174,7 @@ class DtzTable(Table):
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
-            bb = board.pieces_mask(piece_type, color)
+            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
             i = 0
             p = [0, 0, 0, 0, 0, 0]
@@ -1205,7 +1191,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1250,7 +1236,8 @@ class Tablebases(object):
     Syzygy tables come in files like *KQvKN.rtbw* or *KRBvK.rtbz*, one WDL
     (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
 
-    Directly loads tables from *directory*. See *open_directory*.
+    Directly loads tables from *directory*. See
+    :func:`~chess.syzygy.Tablebases.open_directory`.
     """
     def __init__(self, directory=None, load_wdl=True, load_dtz=True):
         self.wdl = {}
@@ -1305,18 +1292,13 @@ class Tablebases(object):
         return self.wdl[key].probe_wdl_table(board)
 
     def probe_ab(self, board, alpha, beta):
-        for move in board.generate_pseudo_legal_moves():
+        for move in board.generate_legal_moves():
             # Only look at non-ep captures.
             if not board.piece_type_at(move.to_square):
                 continue
 
             # Do the move.
             board.push(move)
-
-            # Only look at legal moves.
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v_plus, success = self.probe_ab(board, -beta, -alpha)
             board.pop()
@@ -1347,23 +1329,23 @@ class Tablebases(object):
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
 
-        Returns *None* if the position was not found in any of the loaded
+        Returns ``None`` if the position was not found in any of the loaded
         tables.
 
-        Returns *2* if the side to move is winning, *0* if the position is
-        a draw and *-2* if the side to move is losing.
+        Returns ``2`` if the side to move is winning, ``0`` if the position is
+        a draw and ``-2`` if the side to move is losing.
 
-        Returns *1* in case of a cursed win and *-1* in case of a blessed
+        Returns ``1`` in case of a cursed win and ``-1`` in case of a blessed
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
-        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        >>> with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
         ...     tablebases.probe_wdl(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -2
         """
         # Positions with castling rights are not in the tablebase.
-        if board.castling_rights != chess.CASTLING_NONE:
+        if board.castling_rights:
             return None
 
         # Probe.
@@ -1371,27 +1353,21 @@ class Tablebases(object):
         if v is None or not success:
             return None
 
-        # If en-passant is not possible, we are done.
+        # If en passant is not possible, we are done.
         if not board.ep_square:
             return v
 
-        # Now handle en-passant.
+        # Now handle en passant.
         v1 = -3
 
-        # Look at least at all legal en-passant captures.
-        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+        # Look at least at all legal en passant captures.
+        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
-            diff = abs(move.to_square - move.from_square)
-            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+            if not board.is_en_passant(move):
                 continue
 
             # Do the move.
             board.push(move)
-
-            # Filter out illegal moves.
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v0_plus, success = self.probe_ab(board, -2, 2)
             board.pop()
@@ -1408,21 +1384,10 @@ class Tablebases(object):
             if v1 >= v:
                 v = v1
             elif v == 0:
-                # Check whether there is at least one legal non-ep move.
-                found_move = False
-                for move in board.generate_legal_moves():
-                    if board.piece_type_at(move.from_square) != chess.PAWN:
-                        found_move = True
-                        break
-
-                    diff = abs(move.to_square - move.from_square)
-                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
-                        found_move = True
-                        break
-
-                    # If not, then we are forced to play the losing ep capture.
-                    if not found_move:
-                        v = v1
+                # If there is not at least one legal non-en-passant move we are
+                # forced to play the losing en passant cature.
+                if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
+                    v = v1
 
         return v
 
@@ -1446,16 +1411,12 @@ class Tablebases(object):
             return 1 if wdl == 2 else 101
 
         if wdl > 0:
-            # Generate all legal non capturing pawn moves.
-            for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
-                diff = abs(move.to_square - move.from_square)
-                if diff == 7 or diff == 9:
+            # Generate all legal non-capturing pawn moves.
+            for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+                if board.is_capture(move):
                     continue
 
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 v_plus, success = self.probe_ab(board, -2, -wdl + 1)
                 board.pop()
@@ -1479,14 +1440,11 @@ class Tablebases(object):
         if wdl > 0:
             best = 0xffff
 
-            for move in board.generate_pseudo_legal_moves(pawns=False):
-                if board.piece_type_at(move.to_square) != chess.NONE:
+            for move in board.generate_legal_moves(pawns=False):
+                if board.piece_type_at(move.to_square):
                     continue
 
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 v_plus = self.probe_dtz(board)
                 board.pop()
@@ -1503,11 +1461,8 @@ class Tablebases(object):
         else:
             best = -1
 
-            for move in board.generate_pseudo_legal_moves():
+            for move in board.generate_legal_moves():
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 if board.halfmove_clock == 0:
                     if wdl == -2:
@@ -1541,21 +1496,22 @@ class Tablebases(object):
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
 
-        Return *None* if the position was not found in any of the loaded tables.
-        Both DTZ and WDL tables are required in order to probe for DTZ values.
+        Return ``None`` if the position was not found in any of the loaded
+        tables. Both DTZ and WDL tables are required in order to probe for DTZ
+        values.
 
-        Returns a positive value if the side to move is winning, *0* if the
+        Returns a positive value if the side to move is winning, ``0`` if the
         position is a draw and a negative value if the side to move is losing.
 
         A non-zero distance to zero means the number of halfmoves until the
         next pawn move or capture can be forced, keeping a won position.
         Minmaxing the DTZ values guarantees winning a won position (and drawing
         a drawn position), because it makes progress keeping the win in hand.
-        However the lines are not always the most straight forward ways to win.
+        However the lines are not always the most straightforward ways to win.
         Engines like Stockfish calculate themselves, checking with DTZ, but only
         play according to DTZ if they can not manage on their own.
 
-        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        >>> with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
         ...     tablebases.probe_dtz(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -53
@@ -1569,16 +1525,12 @@ class Tablebases(object):
 
         v1 = -3
 
-        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
-            diff = abs(move.to_square - move.from_square)
-            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+            if not board.is_en_passant(move):
                 continue
 
             board.push(move)
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v0_plus, success = self.probe_ab(board, -2, 2)
             board.pop()
@@ -1597,7 +1549,7 @@ class Tablebases(object):
                 if v1 >= 0:
                     v = v1
             elif v < 0:
-                if v1 >= 0 or v1 < 100:
+                if v1 >= 0 or v1 < -100:
                     v = v1
             elif v > 100:
                 if v1 > 0:
@@ -1608,18 +1560,7 @@ class Tablebases(object):
             elif v1 >= 0:
                 v = v1
             else:
-                found_move = False
-                for move in board.generate_legal_moves():
-                    if board.piece_type_at(move.from_square) != chess.PAWN:
-                        found_move = True
-                        break
-
-                    diff = abs(move.to_square - move.from_square)
-                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
-                        found_move = True
-                        break
-
-                if not found_move:
+                if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
                     v = v1
 
         return v
@@ -1637,5 +1578,12 @@ class Tablebases(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.close()
+
+
+def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
+    """
+    Opens a collection of tablebases for probing. See
+    :class:`~chess.syzygy.Tablebases`."""
+    return Tablebases(directory, load_wdl, load_dtz)

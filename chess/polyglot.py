@@ -17,9 +17,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import struct
+import os
+import mmap
+import random
+import itertools
 
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
@@ -27,182 +34,199 @@ ENTRY_STRUCT = struct.Struct(">QHHI")
 class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
     """An entry from a polyglot opening book."""
 
-    def move(self):
-        """Gets the move (as a `Move` object)."""
+    def move(self, chess960=False):
+        """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
         from_square = (self.raw_move >> 6) & 0x3f
 
-        # Replace non standard castling moves.
-        if from_square == chess.E1:
-            if to_square == chess.H1:
-                return chess.Move(chess.E1, chess.G1)
-            elif to_square == chess.A1:
-                return chess.Move(chess.E1, chess.C1)
-        elif from_square == chess.E8:
-            if to_square == chess.H8:
-                return chess.Move(chess.E8, chess.G8)
-            elif to_square == chess.A8:
-                return chess.Move(chess.E8, chess.C8)
-
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
-        if promotion_part == 4:
-            return chess.Move(from_square, to_square, chess.QUEEN)
-        elif promotion_part == 3:
-            return chess.Move(from_square, to_square, chess.ROOK)
-        elif promotion_part == 2:
-            return chess.Move(from_square, to_square, chess.BISHOP)
-        elif promotion_part == 1:
-            return chess.Move(from_square, to_square, chess.KNIGHT)
-        else:
-            return chess.Move(from_square, to_square)
+        promotion = promotion_part + 1 if promotion_part else None
+
+        # Convert castling moves.
+        if not chess960 and not promotion:
+            if from_square == chess.E1:
+                if to_square == chess.H1:
+                    return chess.Move(chess.E1, chess.G1)
+                elif to_square == chess.A1:
+                    return chess.Move(chess.E1, chess.C1)
+            elif from_square == chess.E8:
+                if to_square == chess.H8:
+                    return chess.Move(chess.E8, chess.G8)
+                elif to_square == chess.A8:
+                    return chess.Move(chess.E8, chess.C8)
+
+        return chess.Move(from_square, to_square, promotion)
 
 
-class Reader(object):
-    """
-    A reader for a polyglot opening book opened in binary mode. The file has to
-    be seekable.
+class MemoryMappedReader(object):
+    """Maps a polyglot opening book to memory."""
 
-    Provides methods to seek entries for specific positions but also ways to
-    efficiently use the opening book like a list.
+    def __init__(self, filename):
+        self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
-    >>> # Get the number of entries
-    >>> len(reader)
-    92954
-
-    >>> # Get the nth entry
-    >>> entry = reader[n]
-
-    >>> # Iteration
-    >>> for entry in reader:
-    >>>     pass
-
-    >>> # Backwards iteration
-    >>> for entry in reversed(reader):
-    >>>     pass
-    """
-
-    def __init__(self, handle):
-        self.handle = handle
-
-        self.seek_entry(0, 2)
-        self.__entry_count = int(self.handle.tell() / ENTRY_STRUCT.size)
-
-    def __len__(self):
-        return self.__entry_count
-
-    def __getitem__(self, key):
-        if key >= self.__entry_count:
-            raise IndexError()
-        self.seek_entry(key)
-        return self.next()
-
-    def __iter__(self):
-        self.seek_entry(0)
-        return self
-
-    def seek_entry(self, offset, whence=0):
-        """
-        Seek an entry by its index.
-
-        Translated directly to a low level seek on the binary file. `whence` is
-        equivalent."""
-        self.handle.seek(offset * ENTRY_STRUCT.size, whence)
-
-    def seek_position(self, position):
-        """
-        Seek the first entry for the given position.
-
-        Raises `KeyError` if there are no entries for the position.
-        """
-        # Calculate the position hash.
-        key = position.zobrist_hash()
-
-        # Do a binary search.
-        start = 0
-        end = len(self) - 1
-        while end >= start:
-            middle = int((start + end) / 2)
-
-            self.seek_entry(middle)
-            raw_entry = self.next_raw()
-
-            if raw_entry[0] < key:
-                start = middle + 1
-            elif raw_entry[0] > key:
-                end = middle - 1
-            else:
-                # Position found. Move back to the first occurence.
-                self.seek_entry(-1, 1)
-                while raw_entry[0] == key and middle > start:
-                    middle -= 1
-                    self.seek_entry(middle)
-                    raw_entry = self.next_raw()
-
-                    if middle == start and raw_entry[0] == key:
-                        self.seek_entry(-1, 1)
-
-                return
-
-        raise KeyError()
-
-    def next_raw(self):
-        """
-        Reads the next raw entry as a tuple.
-
-        Raises `StopIteration` at the EOF.
-        """
         try:
-            return ENTRY_STRUCT.unpack(self.handle.read(ENTRY_STRUCT.size))
-        except struct.error:
-            raise StopIteration()
-
-    def next(self):
-        """
-        Reads the next `Entry`.
-
-        Raises `StopIteration` at the EOF.
-        """
-        key, raw_move, weight, learn = self.next_raw()
-        return Entry(key, raw_move, weight, learn)
-
-    def get_entries_for_position(self, position):
-        """Seeks a specific position and yields all entries."""
-        zobrist_hash = position.zobrist_hash()
-
-        # Seek the position. Stop iteration if not entry exists.
-        try:
-            self.seek_position(position)
-        except KeyError:
-            raise StopIteration()
-
-        # Iterate.
-        entry = self.next()
-        while entry.key == zobrist_hash:
-            if entry.move() in position.legal_moves:
-                yield entry
-
-            entry = self.next()
-
-
-class ClosableReader(Reader):
-
-    def close(self):
-        self.handle.close()
+            self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+        except (ValueError, mmap.error):
+            # Can not memory map empty opening books.
+            self.mmap = None
 
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
-        self.close()
+    def __exit__(self, exc_type, exc_value, traceback):
+        return self.close()
+
+    def close(self):
+        """Closes the reader."""
+        if self.mmap is not None:
+            self.mmap.close()
+
+        try:
+            os.close(self.fd)
+        except OSError:
+            pass
+
+    def __len__(self):
+        if self.mmap is None:
+            return 0
+        else:
+            return self.mmap.size() // ENTRY_STRUCT.size
+
+    def __getitem__(self, key):
+        if self.mmap is None:
+            raise IndexError()
+
+        if key < 0:
+            key = len(self) + key
+
+        try:
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)
+        except struct.error:
+            raise IndexError()
+
+        return Entry(key, raw_move, weight, learn)
+
+    def __iter__(self):
+        i = 0
+        size = len(self)
+        while i < size:
+            yield self[i]
+            i += 1
+
+    def bisect_key_left(self, key):
+        lo = 0
+        hi = len(self)
+
+        while lo < hi:
+            mid = (lo + hi) // 2
+            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)
+            if mid_key < key:
+                lo = mid + 1
+            else:
+                hi = mid
+
+        return lo
+
+    def __contains__(self, entry):
+        return any(current == entry for current in self.find_all(entry.key, entry.weight))
+
+    def find_all(self, board, minimum_weight=1, exclude_moves=()):
+        """Seeks a specific position and yields corresponding entries."""
+        try:
+            zobrist_hash = board.zobrist_hash()
+        except AttributeError:
+            zobrist_hash = int(board)
+            board = None
+
+        i = self.bisect_key_left(zobrist_hash)
+        size = len(self)
+
+        while i < size:
+            entry = self[i]
+            i += 1
+
+            if entry.key != zobrist_hash:
+                break
+
+            if entry.weight < minimum_weight:
+                continue
+
+            if board:
+                move = entry.move(chess960=board.chess960)
+            elif exclude_moves:
+                move = entry.move()
+
+            if exclude_moves and move in exclude_moves:
+                continue
+
+            if board and not board.is_legal(move):
+                continue
+
+            yield entry
+
+    def find(self, board, minimum_weight=1, exclude_moves=()):
+        """
+        Finds the main entry for the given position or zobrist hash.
+
+        The main entry is the first entry with the highest weight.
+
+        By default entries with weight ``0`` are excluded. This is a common way
+        to delete entries from an opening book without compacting it. Pass
+        *minimum_weight* ``0`` to select all entries.
+
+        Raises :exc:`IndexError` if no entries are found.
+        """
+        try:
+            return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
+        except ValueError:
+            raise IndexError()
+
+    def choice(self, board, minimum_weight=1, exclude_moves=(), random=random):
+        """
+        Uniformly selects a random entry for the given position.
+
+        Raises :exc:`IndexError` if no entries are found.
+        """
+        total_entries = sum(1 for entry in self.find_all(board, minimum_weight, exclude_moves))
+        if not total_entries:
+            raise IndexError()
+
+        choice = random.randint(0, total_entries - 1)
+        return next(itertools.islice(self.find_all(board, minimum_weight, exclude_moves), choice, None))
+
+    def weighted_choice(self, board, exclude_moves=(), random=random):
+        """
+        Selects a random entry for the given position, distributed by the
+        weights of the entries.
+
+        Raises :exc:`IndexError` if no entries are found.
+        """
+        total_weights = sum(entry.weight for entry in self.find_all(board, exclude_moves=exclude_moves))
+        if not total_weights:
+            raise IndexError()
+
+        choice = random.randint(0, total_weights - 1)
+
+        current_sum = 0
+        for entry in self.find_all(board, exclude_moves=exclude_moves):
+            current_sum += entry.weight
+            if current_sum > choice:
+                return entry
+
+        assert False
 
 
 def open_reader(path):
     """
     Creates a reader for the file at the given path.
 
-    >>> with open_reader("data/opening-books/performance.bin") as reader:
-    >>>    entries = reader.get_entries_for_position(board)
+    >>> with open_reader("data/polyglot/performance.bin") as reader:
+    ...    for entry in reader.find_all(board):
+    ...        print(entry.move(), entry.weight, entry.learn)
+    e2e4 1 0
+    d2d4 1 0
+    c2c4 1 0
     """
-    return ClosableReader(open(path, "rb"))
+    return MemoryMappedReader(path)
