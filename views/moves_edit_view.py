@@ -274,6 +274,18 @@ class MovesEditView(QTextEdit):
         #self.emit(SIGNAL("unsaved_changes()"))
         self.update()
 
+    def update_pos(self):
+        scroll_pos = self.verticalScrollBar().value()
+        txt = self.gs.printer.update_pos(self.gs.current)
+        self.setHtml(txt)
+        self.verticalScrollBar().setValue(scroll_pos)
+        idx = self._get_offset_for_current_state()
+        cursor = self.textCursor()
+        cursor.setPosition(idx)
+        self.setTextCursor(cursor)
+        #self.emit(SIGNAL("unsaved_changes()"))
+        self.update()
+
     def keyPressEvent(self, event):
         #QCoreApplication.processEvents()
         mode = self.gs.mode
@@ -282,7 +294,8 @@ class MovesEditView(QTextEdit):
             if key == Qt.Key_Left:
                 if(self.gs.current.parent):
                     self.gs.current = self.gs.current.parent
-                self.update_san()
+                #self.update_san()
+                self.update_pos()
                 self.emit(SIGNAL("statechanged()"))
             elif key == Qt.Key_Right:
                 variations = self.gs.current.variations
@@ -298,7 +311,8 @@ class MovesEditView(QTextEdit):
                         self.gs.current = self.gs.current.variation(idx)
                 elif(len(variations) == 1):
                     self.gs.current = self.gs.current.variation(0)
-                self.update_san()
+                #self.update_san()
+                self.update_pos()
                 self.emit(SIGNAL("statechanged()"))
         self.ensureCursorVisible()
 
