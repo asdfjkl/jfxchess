@@ -115,7 +115,6 @@ class ModeMenuController():
             mainWindow.engine_controller.uci_go_movetime(gs.computer_think_time)
             gs.mode = MODE_GAME_ANALYSIS
             gs.best_score = None
-            print("game analysis started")
         else:
             self.on_enter_moves_mode()
 

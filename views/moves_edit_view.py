@@ -275,7 +275,7 @@ class MovesEditView(QTextEdit):
         self.update()
 
     def keyPressEvent(self, event):
-        QCoreApplication.processEvents()
+        #QCoreApplication.processEvents()
         mode = self.gs.mode
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             key = event.key()
