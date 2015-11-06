@@ -37,14 +37,12 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_fen(QString)"),fen_string)
 
     def on_bestmove(self,msg):
-        print("bestmove "+msg)
         self.emit(SIGNAL("bestmove(QString)"),msg)
 
     def on_info(self,engine_info):
         self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),engine_info)
 
     def stop_engine(self):
-        print("sending stop engine")
         self.emit(SIGNAL("new_command(QString)"),"quit")
         #self.foobar.kill()
         #self.foobar.waitForFinished()
@@ -56,7 +54,6 @@ class Uci_controller(QObject):
         self.foobar.waitForFinished()
 
     def start_engine(self,path):
-        print("starting up engine")
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
 #    def reset_engine(self,path):
@@ -67,7 +64,6 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("new_command(QString)"),"ucinewgame")
 
     def uci_send_command(self, command):
-        print("sending command "+command)
         self.emit(SIGNAL("new_command(QString)"),command)
 
     def uci_send_position(self,uci_string):
