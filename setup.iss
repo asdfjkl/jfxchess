@@ -32,6 +32,7 @@ Source: "C:\Users\user\Documents\jerry\dist\_ctypes.pyd"; DestDir: "{app}"; Flag
 Source: "C:\Users\user\Documents\jerry\dist\_hashlib.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\_lzma.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\_socket.pyd"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\user\Documents\jerry\dist\_multiprocessing.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\_ssl.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\_win32sysloader.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\jerry.exe"; DestDir: "{app}"; Flags: ignoreversion
