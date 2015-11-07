@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{E7E68CDA-C809-4440-AD45-51CB6CF7F7E7}
 AppName=Jerry
-AppVersion=1.01
+AppVersion=2.00
 ;AppVerName=Jerry 1.0 (beta)
 AppPublisher=Dominik Klein
 AppPublisherURL=https://github.com/asdfjkl/jerry
