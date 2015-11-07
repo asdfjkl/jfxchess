@@ -4,6 +4,7 @@ from util.proc import set_lowpriority
 import time
 from uci.uci_worker import Uci_worker
 import time
+from util.messages import display_mbox
 
 class Uci_controller(QObject):
 
