@@ -7,7 +7,7 @@ def get_platform_wordsize():
         if 'PROGRAMFILES(X86)' in os.environ:
             return ('win',64)
         else:
-            return ('wina',32)
+            return ('win',32)
     elif 'linux' in  sys.platform:
         wordsize = subprocess.check_output(["uname", "-m"]).decode("utf-8")
         if 'x86_64' in wordsize:
