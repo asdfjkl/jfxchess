@@ -267,6 +267,6 @@ class MainWindow(QMainWindow):
                       game.headers["Date"])
 
     def closeEvent(self, event):
-        self.engine_controller.stop_engine()
+        self.engine_controller.kill_engine()
         self.engine_controller.thread.exit()
         self.engine_controller.thread.wait()

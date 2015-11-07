@@ -50,8 +50,9 @@ class Uci_controller(QObject):
         #self.thread.killTimer(1)
 
     def kill_engine(self):
+        #self.emit(SIGNAL("new_command(QString)"),"quit")
         self.foobar.kill()
-        self.foobar.waitForFinished()
+        self.foobar.waitForFinished(-1)
 
     def start_engine(self,path):
         print("emitting startm")
