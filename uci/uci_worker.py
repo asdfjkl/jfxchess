@@ -74,7 +74,7 @@ class Uci_worker(QObject):
                     self.process.write(bytes(msg+"\n","utf-8"))
                     self.process.waitForBytesWritten()
 
-                
+
     def add_command(self,command):
         self.command_queue.put(command)
 
