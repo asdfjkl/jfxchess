@@ -26,6 +26,7 @@ class Uci_worker(QObject):
     def process_command(self):
         if(self.process.state() == QProcess.NotRunning and not self.command_queue.empty()):
             msg = self.command_queue.get()
+            print("processing command: "+msg)
             if(msg.startswith("start_engine?")):
                 path = msg.split("?")[1]
                 self.process.start(path+"\n")
@@ -33,6 +34,7 @@ class Uci_worker(QObject):
         elif(self.process.state() == QProcess.Running):
             #time.sleep(0.001)
             output = str(self.process.readAllStandardOutput(),"utf-8")
+            print("processing output: "+output)
             self.engine_info.update_from_string(output,self.current_fen)
             self.emit(SIGNAL("info(PyQt_PyObject)"),deepcopy(self.engine_info))
             lines = output.splitlines()
@@ -105,6 +107,7 @@ class Uci_worker(QObject):
 
 
     def add_command(self,command):
+        print("receiving command: "+command)
         self.command_queue.put(command)
 
     def update_fen(self,fen_string):
