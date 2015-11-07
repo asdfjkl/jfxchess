@@ -248,7 +248,8 @@ class MovesEditView(QTextEdit):
                 self.gs.current = selected_state
                 self.emit(SIGNAL("statechanged()"))
                 scroll_pos = self.verticalScrollBar().value()
-                self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                #self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+                self.setHtml(self.gs.printer.update_pos(self.gs.current))
                 mini = max(scroll_pos,self.verticalScrollBar().maximum())
 
                 cursor = self.textCursor()

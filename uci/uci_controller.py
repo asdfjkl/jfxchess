@@ -43,10 +43,10 @@ class Uci_controller(QObject):
         self.emit(SIGNAL("updateinfo(PyQt_PyObject)"),engine_info)
 
     def stop_engine(self):
+        print("emitting quit")
         self.emit(SIGNAL("new_command(QString)"),"quit")
         #self.foobar.kill()
         #self.foobar.waitForFinished()
-        #time.sleep(1)
         #self.thread.killTimer(1)
 
     def kill_engine(self):
@@ -54,6 +54,7 @@ class Uci_controller(QObject):
         self.foobar.waitForFinished()
 
     def start_engine(self,path):
+        print("emitting startm")
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
 
 #    def reset_engine(self,path):
