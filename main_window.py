@@ -240,6 +240,13 @@ class MainWindow(QMainWindow):
         self.connect(self.chessboard_view,SIGNAL("drawn"),self.gamestateController.draw_game)
         self.connect(self.chessboard_view,SIGNAL("checkmate"),self.gamestateController.on_checkmate)
 
+        for i in range(0,0):
+            self.engine_controller.stop_engine()
+            time.sleep(1)
+            self.engine_controller.start_engine(self.model.user_settings.active_engine.path)
+            time.sleep(1)
+        print("OK")
+
     def set_display_info(self):
         if(self.display_info.isChecked()):
             self.model.gamestate.display_engine_info = True
