@@ -1,6 +1,10 @@
 ver 2 alpha, bug list
 ---------------------
 
+- castling rights in 12.5 (enter position)
+- spaces in engine path on windows
+- japanese translation
+
 - bug when loading game snd time
 - focus lost when clicking on analysis window       [done]
 - switching to analysis mode after game analysis
