@@ -108,7 +108,7 @@ class InternalEngine(Engine):
         self.path = os.path.dirname(os.path.realpath(sys.argv[0]))
         # get filename of engine depending on os
         platform, wordsize = get_platform_wordsize()
-        if(platform == 'win32'):
+        if(platform == 'win'):
             self.path += '\\engine\\stockfish_' + platform + '_' + str(wordsize)+'.exe'
             self.path = '"' + self.path + '"'
         else:
