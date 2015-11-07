@@ -73,7 +73,7 @@ class ModeMenuController():
     def on_enter_moves_mode(self):
         # stop any engine
         mainWindow = self.mainAppWindow
-        mainWindow.engine_controller.stop_engine()
+        mainWindow.engine_controller.soft_stop_engine()
         mainWindow.engineOutput.setHtml("")
         mainWindow.give_up.setEnabled(False)
         mainWindow.offer_draw.setEnabled(False)

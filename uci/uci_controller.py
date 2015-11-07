@@ -14,7 +14,7 @@ class Uci_controller(QObject):
         self.timer = QTimer()
 
         self.timer.timeout.connect(self.uci_worker.process_command)
-        self.timer.start(300)
+        self.timer.start(50)
 
         self.connect(self.uci_worker,SIGNAL("bestmove(QString)"),self.on_bestmove)
         self.connect(self.uci_worker,SIGNAL("info(PyQt_PyObject)"),self.on_info)
@@ -29,6 +29,8 @@ class Uci_controller(QObject):
         self.uci_worker.moveToThread(self.thread)
 
         self.thread.start(QThread.LowestPriority)
+        self.engine_running = False
+
 
     def on_error(self,msg):
         pass
@@ -48,15 +50,28 @@ class Uci_controller(QObject):
         #self.foobar.kill()
         #self.foobar.waitForFinished()
         #self.thread.killTimer(1)
+        self.engine_running = False
+
+    def soft_stop_engine(self):
+        self.emit(SIGNAL("new_command(QString)"),"stop")
+        print("emitting soft stop")
+
+        #self.foobar.kill()
+        #self.foobar.waitForFinished()
+        #self.thread.killTimer(1)
+        #self.engine_running = False
 
     def kill_engine(self):
         #self.emit(SIGNAL("new_command(QString)"),"quit")
         self.foobar.kill()
         self.foobar.waitForFinished(-1)
+        self.engine_running = False
 
     def start_engine(self,path):
-        print("emitting startm")
         self.emit(SIGNAL("new_command(QString)"),"start_engine?"+path)
+        self.engine_running = True
+        print("cold start engine")
+
 
 #    def reset_engine(self,path):
 #        self.stop_engine()
@@ -92,6 +107,19 @@ class Uci_controller(QObject):
                 self.uci_send_command("setoption name "+option.name+" value "+str(val).lower())
             else:
                 self.uci_send_command("setoption name "+option.name+" value "+val)
+
+    def soft_reset_engine(self, engine):
+        #self.stop_engine()
+        #self.start_engine(engine.path)
+        if(self.engine_running):
+            print("soft stopping (resetting) engine")
+            self.uci_send_command("stop")
+            self.uci_newgame()
+            self.uci_ok()
+            self.send_engine_options(engine.options)
+        else:
+            self.hard_reset_engine(engine)
+        #self.uci_newgame()
 
     def reset_engine(self, engine):
         self.stop_engine()
