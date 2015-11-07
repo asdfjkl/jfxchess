@@ -109,7 +109,8 @@ class InternalEngine(Engine):
         # get filename of engine depending on os
         platform, wordsize = get_platform_wordsize()
         if(platform == 'win32'):
-            self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)+".exe"
+            self.path += '\\engine\\stockfish_' + platform + '_' + str(wordsize)+'.exe'
+            self.path = '"' + self.path + '"'
         else:
             self.path += "/engine/stockfish_" + platform + "_" + str(wordsize)
         self.options = []

@@ -39,7 +39,7 @@ class Model():
         fn = ad.user_data_dir(appname, appauthor)
         save_dir = fn
         try:
-            with open(fn+"/current.pgn") as pgn:
+            with open(fn+os.sep+"current.pgn") as pgn:
                 game = chess.pgn.read_game(pgn)
                 gamestate.current = game
                 gamestate.init_game_tree(mainAppWindow=parentWidget)
@@ -47,11 +47,11 @@ class Model():
         except BaseException as e:
             print(e)
             pass
-        user_settings.load_from_file(fn+"/settings.ini")
+        user_settings.load_from_file(fn+os.sep+"settings.ini")
         if(not user_settings.active_database == None):
             database = Database(user_settings.active_database)
         else:
-            default_db_path = fn + "/mygames.pgn"
+            default_db_path = fn + os.sep + "mygames.pgn"
             database = Database(default_db_path)
 
         return Model(gamestate,database,user_settings, save_dir)
@@ -62,10 +62,10 @@ class Model():
         try:
             if not os.path.exists(self.save_dir):
                 os.makedirs(self.save_dir)
-            with open(self.save_dir+"/current.pgn",'w') as f:
+            with open(self.save_dir+os.sep+"current.pgn",'w') as f:
                 print(self.gamestate.current.root(), file=f)
             f.close()
-            self.user_settings.save_to_file(self.save_dir+"/settings.ini")
+            self.user_settings.save_to_file(self.save_dir+os.sep+"settings.ini")
             #self.database.dump_to_file(self.save_dir+"/database.ini")
             #self.database.save_to_file(self.save_dir+"/database.idx")
         except BaseException as e:
