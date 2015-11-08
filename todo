@@ -14,6 +14,8 @@ ver 2 alpha, bug list
   information processing too slow
   prob. due to GIL, i.e. python code that processes
   output of engine in qthread "fights" with GUI
+  profiling revealed: _not_ due to gil, but rather
+  redrawing of game-notation in gui
 
 
 todo before releasing alpha:
