@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de_DE" sourcelanguage="en_US">
+<!DOCTYPE TS>
+<TS version="2.0" language="de_DE" sourcelanguage="en_US">
 <context>
     <name>ChessboardView</name>
     <message>
@@ -18,34 +19,34 @@
         <translation>Patt</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="165"/>
+        <location filename="views/chessboard_view.py" line="164"/>
         <source>The game is drawn!</source>
         <translation>Das Spiel ist remis!</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="162"/>
+        <location filename="views/chessboard_view.py" line="161"/>
         <source>Insufficient material to win.</source>
         <translation>Ungenügendes Material für Gewinn.</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="165"/>
+        <location filename="views/chessboard_view.py" line="164"/>
         <source>Threefold repetition.</source>
         <translation>Dreifache Stellungswiederholung.</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>DialogAbout</name>
     <message>
         <location filename="dialogs/dialog_about.py" line="10"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
         <translation type="obsolete">&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figurenbilder&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0 ALPHA&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
         <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0 ALPHA&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;lizensiert unter GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;vom Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;von Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; Eröffnungsbuch&lt;br&gt;von Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida Figuren&lt;br&gt;vom pychess/pychess-team&lt;br&gt;&lt;br&gt;alle lizensiert unter GNU GPL 3</translation>
@@ -142,17 +143,17 @@
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="136"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="131"/>
         <source>Please confirm.</source>
         <translation>Bitte bestätigen.</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="137"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="132"/>
         <source>This will delete the selected game permanently.</source>
         <translation>Dies wird die markierten Spiele unwiderruflich löschen.</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="171"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="165"/>
         <source>Searching...</source>
         <translation>Suche...</translation>
     </message>
@@ -186,27 +187,27 @@
         <translation>Schach-Engine</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="26"/>
+        <location filename="dialogs/dialog_engines.py" line="25"/>
         <source>Add...</source>
         <translation>Hinzufügen...</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="27"/>
+        <location filename="dialogs/dialog_engines.py" line="26"/>
         <source>Remove...</source>
         <translation>Entfernen...</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="28"/>
+        <location filename="dialogs/dialog_engines.py" line="27"/>
         <source>Edit Parameters...</source>
         <translation>Parameter editieren...</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="29"/>
+        <location filename="dialogs/dialog_engines.py" line="28"/>
         <source>Reset Parameters...</source>
         <translation>Parameter zurücksetzen...</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="138"/>
+        <location filename="dialogs/dialog_engines.py" line="130"/>
         <source>Select Engine</source>
         <translation>Engine auswählen</translation>
     </message>
@@ -214,62 +215,62 @@
 <context>
     <name>DialogEnterPosition</name>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="181"/>
+        <location filename="dialogs/dialog_enter_position.py" line="180"/>
         <source>Enter Position</source>
         <translation>Stellung eingeben</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="192"/>
+        <location filename="dialogs/dialog_enter_position.py" line="191"/>
         <source>White O-O</source>
         <translation>Weiß O-O</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="193"/>
+        <location filename="dialogs/dialog_enter_position.py" line="192"/>
         <source>White O-O-O</source>
         <translation>Weiß O-O-O</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="194"/>
+        <location filename="dialogs/dialog_enter_position.py" line="193"/>
         <source>Black O-O</source>
         <translation>Schwarz O-O</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="195"/>
+        <location filename="dialogs/dialog_enter_position.py" line="194"/>
         <source>Black O-O-O</source>
         <translation>Schwarz O-O-O</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="196"/>
+        <location filename="dialogs/dialog_enter_position.py" line="195"/>
         <source>Castling Rights</source>
         <translation>Rochaderechte</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="205"/>
+        <location filename="dialogs/dialog_enter_position.py" line="204"/>
         <source>White To Move</source>
         <translation>Weiß am Zug</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="206"/>
+        <location filename="dialogs/dialog_enter_position.py" line="205"/>
         <source>Black To Move</source>
         <translation>Schwarz am Zug</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="207"/>
+        <location filename="dialogs/dialog_enter_position.py" line="206"/>
         <source>Turn</source>
         <translation>Zugrecht</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="214"/>
+        <location filename="dialogs/dialog_enter_position.py" line="213"/>
         <source>Initial Position</source>
         <translation>Grundstellung</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="215"/>
+        <location filename="dialogs/dialog_enter_position.py" line="214"/>
         <source>Clear Board</source>
         <translation>Brett leeren</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_enter_position.py" line="216"/>
+        <location filename="dialogs/dialog_enter_position.py" line="215"/>
         <source>Current Position</source>
         <translation>aktuelle Stellung</translation>
     </message>
@@ -373,7 +374,7 @@
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="94"/>
         <source> sec(s)</source>
-        <translation type="unfinished"> Sekunde(n)</translation>
+        <translation> Sekunde(n)</translation>
     </message>
 </context>
 <context>
@@ -632,37 +633,37 @@
         <source>Position Annotation</source>
         <translation>Stellungsbewertung</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="41"/>
         <source>∞ Unclear</source>
         <translation>∞ Unklar</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="43"/>
         <source>=/∞ With Compensation for White</source>
         <translation>=/∞ Mit Kompensation für Weiß</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="45"/>
         <source>∞/= With Compensation for Black</source>
         <translation>∞/= Mit Kompensation für Schwarz</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="47"/>
         <source>⩲ White Slightly Better</source>
         <translation>⩲ Weiß steht etwas besser</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="49"/>
         <source>⩱ Black Slightly Better</source>
         <translation>⩱ Schwarz steht etwas besser</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="51"/>
         <source>± White Better</source>
         <translation>± Weiß steht besser</translation>
     </message>
-    <message encoding="UTF-8">
+    <message utf8="true">
         <location filename="views/moves_edit_view.py" line="53"/>
         <source>∓ Black Better</source>
         <translation>∓ Schwarz steht besser</translation>
@@ -728,13 +729,13 @@
     <message>
         <location filename="model/gamestate.py" line="97"/>
         <source>Initializing Game Tree</source>
-        <translation>Initalisiere Partiebaum</translation>
+        <translation type="obsolete">Initalisiere Partiebaum</translation>
     </message>
 </context>
 <context>
     <name>mainWindow</name>
     <message>
-        <location filename="model/database.py" line="67"/>
+        <location filename="model/database.py" line="61"/>
         <source>Re-loading PGN File...</source>
         <translation>Lade PGN Datei...</translation>
     </message>
@@ -742,7 +743,7 @@
 <context>
     <name>q_widget</name>
     <message>
-        <location filename="controller/file_mnu_ctr.py" line="120"/>
+        <location filename="controller/file_mnu_ctr.py" line="110"/>
         <source>Save Image</source>
         <translation>Bild speichern</translation>
     </message>
