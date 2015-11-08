@@ -11,7 +11,7 @@
     <message>
         <location filename="views/chessboard_view.py" line="154"/>
         <source>The game is over!</source>
-        <translation>ゲームが決めた。</translation>
+        <translation>終了</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="157"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="views/chessboard_view.py" line="163"/>
         <source>The game is drawn!</source>
-        <translation>ドロウ</translation>
+        <translation>ドロー</translation>
     </message>
     <message>
         <location filename="views/chessboard_view.py" line="160"/>
@@ -39,7 +39,7 @@
     <message>
         <location filename="dialogs/dialog_about.py" line="10"/>
         <source>About</source>
-        <translation>Jerryについで</translation>
+        <translation>Jerryについて</translation>
     </message>
     <message utf8="true">
         <location filename="dialogs/dialog_about.py" line="22"/>
@@ -62,17 +62,17 @@
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="17"/>
         <source>Threshold (in pawns):</source>
-        <translation>閾値（ポーン）</translation>
+        <translation>極限値（ポーン）</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="18"/>
         <source>Side:</source>
-        <translation>手</translation>
+        <translation>プレーヤー</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="35"/>
         <source>Both</source>
-        <translation>白と黒</translation>
+        <translation>両方</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_analyze_game.py" line="37"/>
@@ -110,7 +110,7 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Date</source>
-        <translation>対局が始まった日付</translation>
+        <translation>日付</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
@@ -120,7 +120,7 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="29"/>
         <source>Site</source>
-        <translation>対局が行われた場所</translation>
+        <translation>場所</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="47"/>
@@ -135,12 +135,12 @@
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="62"/>
         <source>Delete</source>
-        <translation>作条</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="136"/>
         <source>Please confirm.</source>
-        <translation>本当に削除しますか。</translation>
+        <translation>確認してください</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_browse_pgn.py" line="137"/>
@@ -158,7 +158,7 @@
     <message>
         <location filename="dialogs/dialog_edit_game_data.py" line="8"/>
         <source>Edit Game Data</source>
-        <translation>ゲームの情報を変化する</translation>
+        <translation>ゲームの情報を編集</translation>
     </message>
 </context>
 <context>
@@ -174,7 +174,7 @@
     <message>
         <location filename="dialogs/dialog_engines.py" line="15"/>
         <source>Chess Engines</source>
-        <translation>チェッスエンジン</translation>
+        <translation>チェスエンジン</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="26"/>
@@ -189,12 +189,12 @@
     <message>
         <location filename="dialogs/dialog_engines.py" line="28"/>
         <source>Edit Parameters...</source>
-        <translation>エンジンオプションを変化する</translation>
+        <translation>エンジンオプションを編集</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="29"/>
         <source>Reset Parameters...</source>
-        <translation>エンジンオプションをリセットする</translation>
+        <translation>エンジンオプションをリセット</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_engines.py" line="138"/>
@@ -207,7 +207,7 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="181"/>
         <source>Enter Position</source>
-        <translation>局面を作成する</translation>
+        <translation>局面を作成</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="192"/>
@@ -232,7 +232,7 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="196"/>
         <source>Castling Rights</source>
-        <translation>キャスリングの可能</translation>
+        <translation>キャスリング</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="205"/>
@@ -257,7 +257,7 @@
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="215"/>
         <source>Clear Board</source>
-        <translation>ボードを消す</translation>
+        <translation>ボードを空にする</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_enter_position.py" line="216"/>
@@ -285,17 +285,17 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="14"/>
         <source>Choose your side:</source>
-        <translation>手</translation>
+        <translation>色を選択</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="24"/>
         <source>Computer Strength</source>
-        <translation>エンジン能力</translation>
+        <translation>コンピューターのレベル</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="36"/>
         <source>Computer&apos;s Time per Move</source>
-        <translation>エンジン　秒／手</translation>
+        <translation>コンピューター　秒／手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_new_game.py" line="38"/>
@@ -318,7 +318,7 @@
     <message>
         <location filename="dialogs/dialog_promotion.py" line="10"/>
         <source>Promotion</source>
-        <translation>プロモーション</translation>
+        <translation>昇格</translation>
     </message>
 </context>
 <context>
@@ -326,12 +326,12 @@
     <message>
         <location filename="dialogs/dialog_save_changes.py" line="10"/>
         <source>Save changes now?</source>
-        <translation>変わった事をセブか</translation>
+        <translation>変更を保存しますか</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_save_changes.py" line="11"/>
         <source>Otherwise, the changes to the current game will be lost.</source>
-        <translation>セーブしなかったら、変わった事がなくなる。</translation>
+        <translation>保存しない場合、変更は破棄されます</translation>
     </message>
 </context>
 <context>
@@ -339,17 +339,17 @@
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="8"/>
         <source>Set Strength Level</source>
-        <translation>エンジン能力設定</translation>
+        <translation>レベルを設定</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="10"/>
         <source>Computer Strength</source>
-        <translation>エンジン能力</translation>
+        <translation>コンピューターのレベル</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="22"/>
         <source>Computer&apos;s Time per Move</source>
-        <translation>エンジン　秒／手</translation>
+        <translation>コンピューター　秒／手</translation>
     </message>
     <message>
         <location filename="dialogs/dialog_strength_level.py" line="24"/>
@@ -408,22 +408,22 @@
     <message>
         <location filename="main_window.py" line="111"/>
         <source>Browse Games...</source>
-        <translation>PGNを拾い読みする</translation>
+        <translation>ゲームを表示</translation>
     </message>
     <message>
         <location filename="main_window.py" line="115"/>
         <source>Save Position as Image</source>
-        <translation>配置の図をセーブ</translation>
+        <translation>配置をイメージで保存</translation>
     </message>
     <message>
         <location filename="main_window.py" line="118"/>
         <source>Print Game</source>
-        <translation>ゲム印刷</translation>
+        <translation>ゲームを印刷</translation>
     </message>
     <message>
         <location filename="main_window.py" line="121"/>
         <source>Print Position</source>
-        <translation>局面印刷</translation>
+        <translation>局面を印刷</translation>
     </message>
     <message>
         <location filename="main_window.py" line="124"/>
@@ -438,12 +438,12 @@
     <message>
         <location filename="main_window.py" line="131"/>
         <source>Copy Game</source>
-        <translation>ゲームコピー</translation>
+        <translation>ゲームをコピー</translation>
     </message>
     <message>
         <location filename="main_window.py" line="134"/>
         <source>Copy Position</source>
-        <translation>局面コピー</translation>
+        <translation>局面をコピー</translation>
     </message>
     <message>
         <location filename="main_window.py" line="136"/>
@@ -453,7 +453,7 @@
     <message>
         <location filename="main_window.py" line="140"/>
         <source>&amp;Enter Position</source>
-        <translation>局面を作成する(&amp;E)</translation>
+        <translation>局面を作成(&amp;E)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="143"/>
@@ -468,17 +468,17 @@
     <message>
         <location filename="main_window.py" line="149"/>
         <source>Show Search &amp;Info</source>
-        <translation>検索情報を見せる</translation>
+        <translation>検索情報を表示(&amp;I)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="155"/>
         <source>Offer Draw</source>
-        <translation>ドローを提案する</translation>
+        <translation>ドローを提案</translation>
     </message>
     <message>
         <location filename="main_window.py" line="158"/>
         <source>Resign</source>
-        <translation>リザイン</translation>
+        <translation>投了</translation>
     </message>
     <message>
         <location filename="main_window.py" line="165"/>
@@ -488,17 +488,17 @@
     <message>
         <location filename="main_window.py" line="166"/>
         <source>New Game</source>
-        <translation>ゲーム作成</translation>
+        <translation>新規ゲーム作成</translation>
     </message>
     <message>
         <location filename="main_window.py" line="169"/>
         <source>Save</source>
-        <translation>セーブ</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="main_window.py" line="173"/>
         <source>Save As New...</source>
-        <translation>新しいゲームでセーブ</translation>
+        <translation>新しいゲームとして保存</translation>
     </message>
     <message>
         <location filename="main_window.py" line="175"/>
@@ -508,17 +508,17 @@
     <message>
         <location filename="main_window.py" line="178"/>
         <source>Edit Game Data</source>
-        <translation>ゲームの情報を変化する</translation>
+        <translation>ゲームの情報を編集</translation>
     </message>
     <message>
         <location filename="main_window.py" line="181"/>
         <source>Next in Database</source>
-        <translation>データベースの次のゲーム</translation>
+        <translation>次のゲーム</translation>
     </message>
     <message>
         <location filename="main_window.py" line="183"/>
         <source>Previous in Database</source>
-        <translation>データベースの前のゲーム</translation>
+        <translation>前のゲーム</translation>
     </message>
     <message>
         <location filename="main_window.py" line="189"/>
@@ -533,32 +533,32 @@
     <message>
         <location filename="main_window.py" line="195"/>
         <source>Play as &amp;White</source>
-        <translation>白でさす(&amp;W)</translation>
+        <translation>白でプレイ(&amp;W)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="200"/>
         <source>Play as &amp;Black</source>
-        <translation>黒でさす(&amp;B)</translation>
+        <translation>黒でプレイ(&amp;B)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="205"/>
         <source>Enter &amp;Moves</source>
-        <translation>手を書く(&amp;M)</translation>
+        <translation>手を入力(&amp;M)</translation>
     </message>
     <message>
         <location filename="main_window.py" line="212"/>
         <source>Full Game Analysis</source>
-        <translation>分析をさせる</translation>
+        <translation>分析</translation>
     </message>
     <message>
         <location filename="main_window.py" line="215"/>
         <source>Play out Position</source>
-        <translation>配置から自動でさす</translation>
+        <translation>自動でプレイ</translation>
     </message>
     <message>
         <location filename="main_window.py" line="220"/>
         <source>Strength Level</source>
-        <translation>エンジン能力</translation>
+        <translation>コンピューターのレベル</translation>
     </message>
     <message>
         <location filename="main_window.py" line="223"/>
@@ -573,7 +573,7 @@
     <message>
         <location filename="main_window.py" line="228"/>
         <source>About</source>
-        <translation>Jerryについで</translation>
+        <translation>Jerryについて</translation>
     </message>
 </context>
 <context>
@@ -591,7 +591,7 @@
     <message>
         <location filename="views/moves_edit_view.py" line="26"/>
         <source>? Mistake</source>
-        <translation>? 疑問手</translation>
+        <translation>? 悪手</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="28"/>
@@ -621,7 +621,7 @@
     <message>
         <location filename="views/moves_edit_view.py" line="40"/>
         <source>Position Annotation</source>
-        <translation>配置注記</translation>
+        <translation>局面注記</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="41"/>
@@ -631,12 +631,12 @@
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="43"/>
         <source>=/∞ With Compensation for White</source>
-        <translation>=/∞ 白は補償持っています</translation>
+        <translation>=/∞ 白代償</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="45"/>
         <source>∞/= With Compensation for Black</source>
-        <translation>∞/= 黒は補償持っています</translation>
+        <translation>∞/= 黒代償</translation>
     </message>
     <message utf8="true">
         <location filename="views/moves_edit_view.py" line="47"/>
@@ -661,57 +661,57 @@
     <message>
         <location filename="views/moves_edit_view.py" line="55"/>
         <source>+- White Much Better</source>
-        <translation>+- 白が勝勢</translation>
+        <translation>+- 白が大勝勢</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="57"/>
         <source>-+ Black Much Better</source>
-        <translation>-+ 黒が勝勢</translation>
+        <translation>-+ 黒が大勝勢</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="147"/>
         <source>Add/Edit Comment</source>
-        <translation>コメント編集</translation>
+        <translation>コメントを追加/編集</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="64"/>
         <source>Delete Comment</source>
-        <translation>コメント作条</translation>
+        <translation>コメントを削除</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="68"/>
         <source>Remove Annotations</source>
-        <translation>注記なし</translation>
+        <translation>注記を削除</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="71"/>
         <source>Move Variant Up</source>
-        <translation>変化を上がる</translation>
+        <translation>変化を上げる</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="73"/>
         <source>Move Variant Down</source>
-        <translation>変化を下がる</translation>
+        <translation>変化を下げる</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="75"/>
         <source>Delete Variant</source>
-        <translation>変化を作条する</translation>
+        <translation>変化を削除</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="77"/>
         <source>Delete From Here</source>
-        <translation>ここから作条</translation>
+        <translation>ここから削除</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="80"/>
         <source>Delete All Comments</source>
-        <translation>全部のコメントを作条する</translation>
+        <translation>全部のコメントを削除</translation>
     </message>
     <message>
         <location filename="views/moves_edit_view.py" line="82"/>
         <source>Delete All Variants</source>
-        <translation>全部の変化を作条する</translation>
+        <translation>全部の変化を削除</translation>
     </message>
 </context>
 <context>
@@ -735,7 +735,7 @@
     <message>
         <location filename="controller/file_mnu_ctr.py" line="120"/>
         <source>Save Image</source>
-        <translation>局面図画像をセーブ</translation>
+        <translation>局面図の画像を保存</translation>
     </message>
 </context>
 <context>
@@ -743,12 +743,12 @@
     <message>
         <location filename="controller/file_mnu_ctr.py" line="20"/>
         <source>Create New PGN</source>
-        <translation>PGNファイル作成</translation>
+        <translation>PGNファイルを作成</translation>
     </message>
     <message>
         <location filename="controller/file_mnu_ctr.py" line="38"/>
         <source>Open PGN</source>
-        <translation>PGNファイル開く</translation>
+        <translation>PGNファイルを開く</translation>
     </message>
     <message>
         <location filename="controller/file_mnu_ctr.py" line="42"/>
@@ -758,7 +758,7 @@
     <message>
         <location filename="controller/game_mnu_ctr.py" line="71"/>
         <source>Save PGN</source>
-        <translation>PGNファイルセーブ</translation>
+        <translation>PGNファイルを保存</translation>
     </message>
     <message>
         <location filename="controller/gamestate_ctr.py" line="203"/>
