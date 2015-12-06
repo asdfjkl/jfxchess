@@ -178,7 +178,7 @@ class ChessboardView(QWidget):
             #msgBox.exec_()
             with open_reader("./books/varied.bin") as reader:
                 #self.debug_msg("ok, openend file")
-                entries = reader.get_entries_for_position(self.gs.current.board())
+                entries = reader.find_all(self.gs.current.board())
                 moves = []
                 for entry in entries:
                     move = entry.move().uci()
