@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         m_file.addSeparator()
         exit_item = m_file.addAction(self.trUtf8("Quit"))
         exit_item.setShortcut(QKeySequence.Quit)
-        exit_item.triggered.connect(QApplication.quit)
+        exit_item.triggered.connect(self.close)
 
         # EDIT MENU
         self.editMenuController = EditMenuController(self)
@@ -268,6 +268,7 @@ class MainWindow(QMainWindow):
                       game.headers["Date"])
 
     def closeEvent(self, event):
+        # print("received close event")
         self.engine_controller.kill_engine()
         self.engine_controller.thread.exit()
         self.engine_controller.thread.wait()
