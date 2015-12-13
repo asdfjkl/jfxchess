@@ -6,6 +6,10 @@ from dialogs.dialog_engines import DialogEngines
 from uci.engine_info import EngineInfo
 from  PyQt4.QtGui import QDialog
 import chess
+from chess.polyglot import *
+import random
+#from  PyQt4.QtGui import *
+from  PyQt4.QtCore import *
 
 class ModeMenuController():
 
@@ -44,10 +48,32 @@ class ModeMenuController():
         mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
         self.mainAppWindow.engine_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
         if(mainWindow.model.gamestate.current.board().turn == chess.BLACK):
-            fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
-            mainWindow.engine_controller.send_fen(fen)
-            mainWindow.engine_controller.uci_send_position(uci_string)
-            mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
+            book_move = None
+            s = (str(os.listdir(".")))
+            #msgBox = QMessageBox()
+            #msgBox.setText(s)
+            #msgBox.exec_()
+            with open_reader("./books/varied.bin") as reader:
+                #self.debug_msg("ok, openend file")
+                entries = reader.find_all(mainWindow.model.gamestate.current.board())
+                moves = []
+                for entry in entries:
+                    move = entry.move().uci()
+                    moves.append(move)
+                    #self.emit(SIGNAL("bestmove(QString)"),move)
+                l = len(moves)
+                if(l > 0):
+                    book_move = True
+                    n = random.randint(0,l-1)
+                    book_move = moves[n]
+            if(book_move != None):
+                #self.debug_msg("ok, sending book move")
+                mainWindow.engine_controller.emit(SIGNAL("bestmove(QString)"),book_move)
+            else:
+                fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
+                mainWindow.engine_controller.send_fen(fen)
+                mainWindow.engine_controller.uci_send_position(uci_string)
+                mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
 
     def on_play_as_black(self):
         mainWindow = self.mainAppWindow
@@ -65,10 +91,32 @@ class ModeMenuController():
         mainWindow.model.gamestate.engine_info.strength = str((mainWindow.model.gamestate.strength_level * 100)+1200)
         self.mainAppWindow.engine_controller.send_engine_options(mainWindow.model.user_settings.active_engine.options)
         if(mainWindow.model.gamestate.current.board().turn == chess.WHITE):
-            fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
-            mainWindow.engine_controller.send_fen(fen)
-            mainWindow.engine_controller.uci_send_position(uci_string)
-            mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
+            book_move = None
+            s = (str(os.listdir(".")))
+            #msgBox = QMessageBox()
+            #msgBox.setText(s)
+            #msgBox.exec_()
+            with open_reader("./books/varied.bin") as reader:
+                #self.debug_msg("ok, openend file")
+                entries = reader.find_all(mainWindow.model.gamestate.current.board())
+                moves = []
+                for entry in entries:
+                    move = entry.move().uci()
+                    moves.append(move)
+                    #self.emit(SIGNAL("bestmove(QString)"),move)
+                l = len(moves)
+                if(l > 0):
+                    book_move = True
+                    n = random.randint(0,l-1)
+                    book_move = moves[n]
+            if(book_move != None):
+                #self.debug_msg("ok, sending book move")
+                mainWindow.engine_controller.emit(SIGNAL("bestmove(QString)"),book_move)
+            else:
+                fen, uci_string = mainWindow.model.gamestate.printer.to_uci(mainWindow.model.gamestate.current)
+                mainWindow.engine_controller.send_fen(fen)
+                mainWindow.engine_controller.uci_send_position(uci_string)
+                mainWindow.engine_controller.uci_go_movetime(mainWindow.model.gamestate.computer_think_time)
 
     def on_enter_moves_mode(self):
         # stop any engine

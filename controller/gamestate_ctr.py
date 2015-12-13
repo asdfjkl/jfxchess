@@ -33,11 +33,12 @@ class GamestateController():
 
     def on_checkmate(self):
         mainWindow = self.mainAppWindow
-        root = mainWindow.model.gamestate.current.root()
-        if(root.board().turn == chess.WHITE):
-            root.headers["Result"] = "1-0"
-        else:
+        current = mainWindow.model.gamestate.current
+        root = current.root()
+        if(current.board().turn == chess.WHITE):
             root.headers["Result"] = "0-1"
+        else:
+            root.headers["Result"] = "1-0"
         self.on_enter_moves_mode()
 
     def draw_game(self):
