@@ -22,7 +22,8 @@ mkdir release/jerry_linux_x32/engine
 cp engine/* ./release/jerry_linux_x32/engine/
 
 mkdir release/jerry_linux_x32/i18n
-cp i18n/*.py ./release/jerry_linux_x32/i18n/
+mkdir release/jerry_linux_x32/i18n/qm
+cp i18n/qm/*.qm ./release/jerry_linux_x32/i18n/qm
 
 mkdir release/jerry_linux_x32/model
 cp model/*.py ./release/jerry_linux_x32/model/
