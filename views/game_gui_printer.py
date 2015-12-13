@@ -25,6 +25,7 @@ class GUIPrinter():
     def update_pos(self,current):
         self.current = current
         game = self.san_html
+        start_idx = -1
         for i in range(0,len(self.offset_table)):
             if(self.offset_table[i][2] == current):
                 start_idx = self.offset_table[i][0]
