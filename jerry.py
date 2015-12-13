@@ -41,6 +41,9 @@ app.processEvents()
 # get locale
 #qm = 'qt_' + QLocale().name() + 's.qm'
 lan = QLocale().name()[0:2]
+# on osx, sometimes jp_JP, whereas on linux ja_JP
+if(lan == 'ja'):
+    lan = 'jp'
 qt_translation = "qt_"+lan+".qm"
 jerry_translation = "jerry_"+lan+".qm"
 
