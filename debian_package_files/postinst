@@ -1,0 +1,6 @@
+
+!/bin/sh
+set -e
+chmod 755 /usr/bin/jerry
+chmod 755 /usr/share/jerry/jerry.py
+exit 0
