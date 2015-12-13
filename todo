@@ -1,6 +1,7 @@
 ver 2 alpha, bug list
 ---------------------
 
+- missing translation when giving up/offering draw [done]
 - when playing with black against computer, computer calculates
   instead of using opening book on the very first move          [done]
 - after computer checkmates black player, game result is 1-0    [done]

@@ -68,14 +68,14 @@ class GamestateController():
             or (self.model.gamestate.mode == MODE_PLAY_BLACK and self.model.gamestate.score < -1.1))
             and self.count_moves(self.model.gamestate.current) > 40):
             self.model.gamestate.current.root().headers["Result"] = "1/2-1/2"
-            display_mbox("The computer accepts.","The game ends in a draw.")
+            display_mbox(self.mainAppWindow.trUtf8("The computer accepts."),self.mainAppWindow.trUtf8("The game ends in a draw."))
             self.on_enter_moves_mode()
             self.mainAppWindow.moves_edit_view.update_san()
         else:
-            display_mbox("The computer rejects your offer.","The game continues.")
+            display_mbox(self.mainAppWindow.trUtf8("The computer rejects your offer."),self.mainAppWindow.trUtf8("The game continues."))
 
     def on_player_resigns(self):
-        display_mbox("The computer thanks you.","Better luck next time!")
+        display_mbox(self.mainAppWindow.trUtf8("The computer thanks you."),self.mainAppWindow.trUtf8("Better luck next time!"))
         if(self.model.gamestate.mode == MODE_PLAY_WHITE):
             self.model.gamestate.current.root().headers["Result"] = "0-1"
         elif(self.model.gamestate.mode == MODE_PLAY_BLACK):
@@ -158,7 +158,7 @@ class GamestateController():
            (mode == MODE_PLAY_WHITE and gs.current.board().turn == chess.BLACK) or
            (mode == MODE_PLAYOUT_POS)):
             if(self.is_lost_by_comp(gs)):
-                display_mbox("The computer resigns.","Congratulations!")
+                display_mbox(self.mainAppWindow.trUtf8("The computer resigns.","Congratulations!"))
                 self.give_up_game()
             else:
                 # continue normal play
