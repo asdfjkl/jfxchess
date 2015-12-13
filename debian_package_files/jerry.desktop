@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=1.0
+Version=2.0
 Name=Jerry - Chess
 Comment=Jerry is a chess program build around the powerful chess engine Stockfish
 Exec=/usr/bin/jerry
