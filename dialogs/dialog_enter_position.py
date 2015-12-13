@@ -3,6 +3,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from chess.pgn import Game, GameNode
 from chess import Piece, WHITE, BLACK,Board
+import chess
 #from chess import CASTLING, CASTLING_BLACK_KINGSIDE, CASTLING_BLACK_QUEENSIDE, \
 #    CASTLING_WHITE_KINGSIDE, CASTLING_WHITE_QUEENSIDE, CASTLING_NONE
 
@@ -15,7 +16,7 @@ class DisplayBoard(QWidget):
 
         if(board == None):
             board = Board()
-            board.castling_rights = CASTLING_NONE
+            board.castling_rights = 0
 
         self.board = board
 
@@ -257,20 +258,16 @@ class DialogEnterPosition(QDialog):
         self.set_turn()
 
     def set_castling_rights(self):
-        self.displayBoard.board.castling_rights = CASTLING
-        #if(not self.cbWhiteShort.isChecked() or not self.cbWhiteLong.isChecked()):
-        #    self.displayBoard.board.castling_rights &= ~CASTLING_WHITE
-        #if(not self.cbBlackShort.isChecked() or not self.cbBlackLong.isChecked()):
-        #    self.displayBoard.board.castling_rights &= ~CASTLING_BLACK
-        if(not self.cbWhiteShort.isChecked()):
-            self.displayBoard.board.castling_rights &= ~CASTLING_WHITE_KINGSIDE
-        if(not self.cbWhiteLong.isChecked()):
-            self.displayBoard.board.castling_rights &= ~CASTLING_WHITE_QUEENSIDE
-        if(not self.cbBlackShort.isChecked()):
-            self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_KINGSIDE
-        if(not self.cbBlackLong.isChecked()):
-            self.displayBoard.board.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
-        if(self.displayBoard.board.status() == 0):
+        self.displayBoard.board.castling_rights = 0
+        if(self.cbWhiteShort.isChecked()):
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights  | chess.BB_A1
+        if(self.cbWhiteLong.isChecked()):
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_H1
+        if(self.cbBlackShort.isChecked()):
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_A8
+        if(self.cbBlackLong.isChecked()):
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_H8
+        if(self.displayBoard.board.status() == chess.STATUS_VALID):
             self.enable_ok_button()
         else:
             self.disable_ok_button()
