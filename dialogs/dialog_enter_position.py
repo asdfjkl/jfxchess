@@ -260,13 +260,13 @@ class DialogEnterPosition(QDialog):
     def set_castling_rights(self):
         self.displayBoard.board.castling_rights = 0
         if(self.cbWhiteShort.isChecked()):
-            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights  | chess.BB_A1
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights  | chess.BB_H1
         if(self.cbWhiteLong.isChecked()):
-            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_H1
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_A1
         if(self.cbBlackShort.isChecked()):
-            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_A8
-        if(self.cbBlackLong.isChecked()):
             self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_H8
+        if(self.cbBlackLong.isChecked()):
+            self.displayBoard.board.castling_rights = self.displayBoard.board.castling_rights | chess.BB_A8
         if(self.displayBoard.board.status() == chess.STATUS_VALID):
             self.enable_ok_button()
         else:
