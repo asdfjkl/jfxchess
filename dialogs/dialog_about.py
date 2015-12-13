@@ -20,8 +20,9 @@ class DialogAbout(QDialog):
         #vbox.addWidget(labelImg)
 
         label0 = QLabel(self.trUtf8("<b>Jerry</b><br><br>"+
-                        "Version 2.0 ALPHA<br><br>"+
-                        "Copyright © 2014, 2015 Dominik Klein<br>"+
+                        "Version 2.0<br><br>"+
+                        "Copyright © 2014 - 2016<br>"+
+                        "Dominik Klein, Karl Josef Klein<br>"+
                         "licensed under GNU GPL 3<br><br>"+
                         "<b>Credits</b><br><br>"+
                         "Stockfish Chess Engine<br>"+
