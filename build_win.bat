@@ -5,4 +5,6 @@ mkdir dist\engine
 xcopy engine dist\engine /e
 mkdir dist\books
 xcopy books dist\books /e
+mkdir dist\i18n
+xcopy i18n dist\i18n /e
 
