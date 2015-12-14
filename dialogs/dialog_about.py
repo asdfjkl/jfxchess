@@ -19,7 +19,7 @@ class DialogAbout(QDialog):
 
         #vbox.addWidget(labelImg)
 
-        label0 = QLabel(self.trUtf8("<b>Jerry</b><br><br>"+
+        label0 = QLabel("<b>Jerry</b><br><br>"+
                         "Version 2.0<br><br>"+
                         "Copyright © 2014 - 2016<br>"+
                         "Dominik Klein, Karl Josef Klein<br>"+
@@ -33,7 +33,7 @@ class DialogAbout(QDialog):
                         "by Heinz van Saanen<br><br>"+
                         "Merida piece images<br>"+
                         "from pychess/pychess-team<br><br>"+
-                        "all licensed under GNU GPL 3"))
+                        "all licensed under GNU GPL 3")
         label0.setAlignment(Qt.AlignCenter)
         vbox.addWidget(label0)
 

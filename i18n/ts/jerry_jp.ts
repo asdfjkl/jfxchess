@@ -19,17 +19,17 @@
         <translation>ステイルメイト</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="163"/>
+        <location filename="views/chessboard_view.py" line="164"/>
         <source>The game is drawn!</source>
         <translation>ドロー</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="160"/>
+        <location filename="views/chessboard_view.py" line="161"/>
         <source>Insufficient material to win.</source>
         <translation>戦力不足</translation>
     </message>
     <message>
-        <location filename="views/chessboard_view.py" line="163"/>
+        <location filename="views/chessboard_view.py" line="164"/>
         <source>Threefold repetition.</source>
         <translation>同形三復</translation>
     </message>
@@ -44,7 +44,7 @@
     <message utf8="true">
         <location filename="dialogs/dialog_about.py" line="22"/>
         <source>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</source>
-        <translation>&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</translation>
+        <translation type="obsolete">&lt;b&gt;Jerry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Version 2.0&lt;br&gt;&lt;br&gt;Copyright © 2014, 2015 Dominik Klein&lt;br&gt;licensed under GNU GPL 3&lt;br&gt;&lt;br&gt;&lt;b&gt;Credits&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stockfish Chess Engine&lt;br&gt;by the Stockfish-Team&lt;br&gt;&lt;br&gt;python-chess library&lt;br&gt;by Niklas Fiekas&lt;br&gt;&lt;br&gt;&apos;VARIED.BIN&apos; opening book&lt;br&gt;by Heinz van Saanen&lt;br&gt;&lt;br&gt;Merida piece images&lt;br&gt;from pychess/pychess-team&lt;br&gt;&lt;br&gt;all licensed under GNU GPL 3</translation>
     </message>
 </context>
 <context>
@@ -138,19 +138,24 @@
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="136"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="131"/>
         <source>Please confirm.</source>
         <translation>確認してください</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="137"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="132"/>
         <source>This will delete the selected game permanently.</source>
         <translation>削除したゲームは復元できません。</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_browse_pgn.py" line="171"/>
+        <location filename="dialogs/dialog_browse_pgn.py" line="165"/>
         <source>Searching...</source>
         <translation>検索中</translation>
+    </message>
+    <message>
+        <location filename="dialogs/dialog_browse_pgn.py" line="61"/>
+        <source>Edit Headers</source>
+        <translation>ゲームの情報を編集</translation>
     </message>
 </context>
 <context>
@@ -177,27 +182,27 @@
         <translation>チェスエンジン</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="26"/>
+        <location filename="dialogs/dialog_engines.py" line="25"/>
         <source>Add...</source>
         <translation>追加</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="27"/>
+        <location filename="dialogs/dialog_engines.py" line="26"/>
         <source>Remove...</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="28"/>
+        <location filename="dialogs/dialog_engines.py" line="27"/>
         <source>Edit Parameters...</source>
         <translation>エンジンオプションを編集</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="29"/>
+        <location filename="dialogs/dialog_engines.py" line="28"/>
         <source>Reset Parameters...</source>
         <translation>エンジンオプションをリセット</translation>
     </message>
     <message>
-        <location filename="dialogs/dialog_engines.py" line="138"/>
+        <location filename="dialogs/dialog_engines.py" line="130"/>
         <source>Select Engine</source>
         <translation>エンジンを選択</translation>
     </message>
@@ -310,7 +315,7 @@
     <message>
         <location filename="dialogs/dialog_new_game.py" line="120"/>
         <source> sec(s)</source>
-        <translation>秒</translation>
+        <translation> 秒</translation>
     </message>
 </context>
 <context>
@@ -719,13 +724,13 @@
     <message>
         <location filename="model/gamestate.py" line="97"/>
         <source>Initializing Game Tree</source>
-        <translation>ゲーム木構造初期化中</translation>
+        <translation type="obsolete">ゲーム木構造初期化中</translation>
     </message>
 </context>
 <context>
     <name>mainWindow</name>
     <message>
-        <location filename="model/database.py" line="67"/>
+        <location filename="model/database.py" line="61"/>
         <source>Re-loading PGN File...</source>
         <translation>PGNファイルを読み込んでいます.</translation>
     </message>
@@ -733,7 +738,7 @@
 <context>
     <name>q_widget</name>
     <message>
-        <location filename="controller/file_mnu_ctr.py" line="120"/>
+        <location filename="controller/file_mnu_ctr.py" line="110"/>
         <source>Save Image</source>
         <translation>局面図の画像を保存</translation>
     </message>
@@ -761,14 +766,50 @@
         <translation>PGNファイルを保存</translation>
     </message>
     <message>
-        <location filename="controller/gamestate_ctr.py" line="203"/>
+        <location filename="controller/gamestate_ctr.py" line="208"/>
         <source>Game Analysis Finished</source>
         <translation>分析が終わりました。</translation>
     </message>
     <message>
-        <location filename="controller/gamestate_ctr.py" line="203"/>
+        <location filename="controller/gamestate_ctr.py" line="208"/>
         <source>The analysis is finished.</source>
         <translation>分析が終わりました。</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="71"/>
+        <source>The computer accepts.</source>
+        <translation>コンピゅウー手ーが受け入れ</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="71"/>
+        <source>The game ends in a draw.</source>
+        <translation>ドロー</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="75"/>
+        <source>The computer rejects your offer.</source>
+        <translation>コンピューターが拒否します</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="75"/>
+        <source>The game continues.</source>
+        <translation>ゲームが続けます</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="78"/>
+        <source>The computer thanks you.</source>
+        <translation>ありがとう</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="78"/>
+        <source>Better luck next time!</source>
+        <translation>惜しかったね。次頑張って。</translation>
+    </message>
+    <message>
+        <location filename="controller/gamestate_ctr.py" line="161"/>
+        <source>The computer resigns.</source>
+        <comment>Congratulations!</comment>
+        <translation>コンピューターが辞任します</translation>
     </message>
 </context>
 </TS>
