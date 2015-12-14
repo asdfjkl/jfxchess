@@ -1,26 +1,27 @@
 ver 2 alpha, bug list
 ---------------------
 
-- missing translation when giving up/offering draw [done]
+- need to update translations because of next
+- missing translation when giving up/offering draw              [done]
 - when playing with black against computer, computer calculates
   instead of using opening book on the very first move          [done]
 - after computer checkmates black player, game result is 1-0    [done]
 
-- castling rights in 12.5 (enter position)          [done]
-- japanese translation                              [done]
+- castling rights in 12.5 (enter position)                      [done]
+- japanese translation                                          [done]
 
 - bug when loading game snd time
-- focus lost when clicking on analysis window       [done]
+- focus lost when clicking on analysis window                   [done]
 - switching to analysis mode after game analysis
-- offering draw and resigning not working           [done]
-- on_enter_moves_mode wasn't called before          [done]
+- offering draw and resigning not working                       [done]
+- on_enter_moves_mode wasn't called before                      [done]
   browsing database
 - performance issue on old computer systems:
   information processing too slow
   prob. due to GIL, i.e. python code that processes
   output of engine in qthread "fights" with GUI
   profiling revealed: _not_ due to gil, but rather
-  redrawing of game-notation in gui
+  redrawing of game-notation in gui                             [done]
 
 
 todo before releasing alpha:
