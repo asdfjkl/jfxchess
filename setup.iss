@@ -54,6 +54,7 @@ Source: "C:\Users\user\Documents\jerry\dist\win32api.pyd"; DestDir: "{app}"; Fla
 Source: "C:\Users\user\Documents\jerry\dist\win32com.shell.shell.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\user\Documents\jerry\dist\engine\*"; DestDir: "{app}\engine"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\user\Documents\jerry\dist\res\*"; DestDir: "{app}\res"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\user\Documents\jerry\dist\i18n\*"; DestDir: "{app}\i18n"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\user\Documents\jerry\dist\books\*"; DestDir: "{app}\books"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\user\Documents\jerry\dist\Microsoft.VC90.CRT\*"; DestDir: "{app}\Microsoft.VC90.CRT"; Flags: ignoreversion recursesubdirs createallsubdirs
 
