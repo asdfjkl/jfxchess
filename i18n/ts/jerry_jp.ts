@@ -777,7 +777,7 @@
     <message>
         <location filename="controller/gamestate_ctr.py" line="71"/>
         <source>The computer accepts.</source>
-        <translation>コンピゅウー手ーが受け入れ</translation>
+        <translation>コンピューターが受け入れ</translation>
     </message>
     <message>
         <location filename="controller/gamestate_ctr.py" line="71"/>
