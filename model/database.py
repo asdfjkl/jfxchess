@@ -9,6 +9,8 @@ import mmap as mm
 import configparser
 import json
 import util.appdirs as ad
+import codecs
+
 
 appname = 'jerry200'
 appauthor = 'dkl'
@@ -68,7 +70,8 @@ class Database():
                 pass
 
     def init_from_pgn(self, mainWindow, msg):
-        with open(self.filename) as pgn:
+        with codecs.open(self.filename,"r", "iso-8859-15") as pgn:
+            print(pgn)
             size = os.path.getsize(self.filename)
             self.entries = []
             pDialog = QProgressDialog(msg,None,0,size,mainWindow)
@@ -242,7 +245,9 @@ class Database():
     def load_game(self, index):
         if index >= 0 and index < len(self.entries):
             entry = self.entries[index]
-            with open(self.filename) as pgn:
+            with codecs.open(self.filename,"r", "iso-8859-15") as pgn:
+
+            #with open(self.filename) as pgn:
                 offset = entry.pgn_offset
                 pgn.seek(offset)
                 game = chess.pgn.read_game(pgn)
