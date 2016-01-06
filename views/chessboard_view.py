@@ -312,11 +312,13 @@ class ChessboardView(QWidget):
 
         darkBlue = QColor(56,66,91)
         #Fritz 13
-        #lightBlue = QtGui.QColor(111,132,181)
+        #dark_square = QtGui.QColor(111,132,181)
         #darkWhite = QtGui.QColor(239,239,239)
         #Fritz 6
-        lightBlue = QColor(90,106,173)
-        lightBlue2 = QColor(166,188,231)
+        # dark_square = QColor(90,106,173)
+
+        dark_square = QBrush(QPixmap("./res/board/dark/marble_252.jpg"))
+        light_square = QBrush(QPixmap("./res/board/light/marble_166.jpg"))
         darkWhite = QColor(239,239,239)
 
         qp.setBrush(darkBlue)
@@ -325,18 +327,19 @@ class ChessboardView(QWidget):
 
         qp.drawRect(1,1,boardSize,boardSize)
 
-        boardOffsetX = self.borderWidth;
-        boardOffsetY = self.borderWidth;
+        boardOffsetX = self.borderWidth
+        boardOffsetY = self.borderWidth
 
         # if the board is flipped, also
         # flip colors so that the board
         # loop works without any change/additional
         # if-checks
-        dark = lightBlue2
-        light = lightBlue
+        dark = light_square
+
+        light = dark_square
         if(self.flippedBoard):
-            dark = lightBlue
-            light = lightBlue2
+            dark = dark_square
+            light = light_square
 
         # draw Board
         #board = self.cache.get(self.gs.current)
@@ -377,17 +380,17 @@ class ChessboardView(QWidget):
 
 
         qp.setPen(darkWhite)
-        qp.setFont(QFont('Decorative',8))
+        qp.setFont(QFont('Decorative', 8))
 
         for i in range(0,8):
             if(self.flippedBoard):
                 idx = str(chr(65+(7-i)))
-                qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
-                            boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
-                qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
+                # qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
+                #             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
+                # qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(i+1))
             else:
                 idx = str(chr(65+i))
-                qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
-                            boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
-                qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
+                # qp.drawText(boardOffsetX+(i*squareSize)+(squareSize/2)-4,
+                #             boardOffsetY+(8*squareSize)+(self.borderWidth-3),idx)
+                # qp.drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,str(8-i))
 
