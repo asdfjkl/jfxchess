@@ -28,6 +28,7 @@ def module_path():
 sys.setrecursionlimit(3000)
 
 app = QApplication(sys.argv)
+QFontDatabase.addApplicationFont("res/fonts/CAChess.ttf")
 
 # show splash screen until we're ready
 #splash_pix = QPixmap('startup_test.png')

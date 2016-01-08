@@ -329,11 +329,11 @@ class GameNode(object):
             #offset_start = len(re.sub('<[^>]*>','',temp))
             offset_start = len(str(exporter))
 
-            if(main_variation.invalidate == False):
+            if main_variation.invalidate == False:
                 exporter.write_token(main_variation.san_cached)
-                offset_table.append((offset_start,offset_start+len(main_variation.san_cached),main_variation))
+                offset_table.append((offset_start,offset_start+len(main_variation.san_cached), main_variation))
             else:
-                s = ""
+                s = ''
                 s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation, self.parent == None)
 
                 # Append fullmove number.
@@ -357,6 +357,10 @@ class GameNode(object):
 
                 main_variation.san_cached = s
                 main_variation.invalidate = False
+                # s+='</style>'
+                if main_variation.is_main_line():
+                    s = '<span style="color:black;font-size:12pt;font-family:CAChess;"> ' + s + ' </span>'
+                # print(s)
                 exporter.write_token(s)
                 offset_table.append((offset_start,offset_start+len(s),main_variation))
 

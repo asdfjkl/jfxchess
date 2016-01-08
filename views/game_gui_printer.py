@@ -23,31 +23,32 @@ class GUIPrinter():
         return fen_current, uci
 
     def update_pos(self,current):
-        self.current = current
-        game = self.san_html
-        start_idx = -1
-        for i in range(0,len(self.offset_table)):
-            if(self.offset_table[i][2] == current):
-                start_idx = self.offset_table[i][0]
-                end_idx = self.offset_table[i][1]
-        # mark the move leading to the current state
-        if(not start_idx == -1):
-            game = game[:end_idx] + "</span>" + game[end_idx:]
-            game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
-        # do formatting of plain text with regexp here by
-        # making all variations grey
-        # [ ] must be then blocked for comments, otherwise
-        # highlighting doesn't work
-        # for highlighting current move, look up current move in offset table
-        # then insert highlighting at offsets
-        game1 = re.sub("╔",'<dd><em><span style="color:gray">[',game)
-        game2 = re.sub("╚",']</dd></em></span>',game1)
-        try:
-            game2 += " "+current.root().headers['Result']
-            pass
-        except KeyError:
-            pass
-        return game2
+        return self.to_san_html(current)
+        # self.current = current
+        # game = self.san_html
+        # start_idx = -1
+        # for i in range(0,len(self.offset_table)):
+        #     if(self.offset_table[i][2] == current):
+        #         start_idx = self.offset_table[i][0]
+        #         end_idx = self.offset_table[i][1]
+        # # mark the move leading to the current state
+        # if(not start_idx == -1):
+        #     game = game[:end_idx] + "</span>" + game[end_idx:]
+        #     game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
+        # # do formatting of plain text with regexp here by
+        # # making all variations grey
+        # # [ ] must be then blocked for comments, otherwise
+        # # highlighting doesn't work
+        # # for highlighting current move, look up current move in offset table
+        # # then insert highlighting at offsets
+        # game1 = re.sub("╔",'<dd><em><span style="color:gray">[',game)
+        # game2 = re.sub("╚",']</dd></em></span>',game1)
+        # try:
+        #     game2 += " "+current.root().headers['Result']
+        #     pass
+        # except KeyError:
+        #     pass
+        # return game2
 
     def to_san_html(self,current):
         self.current = current
@@ -59,12 +60,12 @@ class GUIPrinter():
         end_idx = - 1
         game = exporter.__str__()
         self.san_html = game
-        for i in range(0,len(self.offset_table)):
-            if(self.offset_table[i][2] == current):
+        for i in range(0, len(self.offset_table)):
+            if self.offset_table[i][2] == current:
                 start_idx = self.offset_table[i][0]
                 end_idx = self.offset_table[i][1]
         # mark the move leading to the current state
-        if(not start_idx == -1):
+        if not start_idx == -1:
             game = game[:end_idx] + "</span>" + game[end_idx:]
             game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
         # do formatting of plain text with regexp here by
@@ -73,8 +74,10 @@ class GUIPrinter():
         # highlighting doesn't work
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
-        game1 = re.sub("╔",'<dd><em><span style="color:gray">[',game)
-        game2 = re.sub("╚",']</dd></em></span>',game1)
+        # print (re.findall('(?!((╔)(.*?)(╚))).*', game, re.DOTALL | re.M))
+        game1 = re.sub("╔",'<dd><em><span style="color:blue;font-size:11pt;font-family:CAChess">[', game)
+        game2 = re.sub("╚",']</dd></em></span>', game1)
+
         try:
             game2 += " "+current.root().headers['Result']
             pass
