@@ -359,7 +359,7 @@ class GameNode(object):
                 main_variation.invalidate = False
                 # s+='</style>'
                 if main_variation.is_main_line():
-                    s = '<span style="color:black;font-size:12pt;font-family:CAChess;"> ' + s + ' </span>'
+                    s = '<span style="color:black;font-size:13pt;font-family:CAChess;"> ' + s + ' </span>'
                 # print(s)
                 exporter.write_token(s)
                 offset_table.append((offset_start,offset_start+len(s),main_variation))

@@ -67,14 +67,13 @@ class GUIPrinter():
         # mark the move leading to the current state
         if not start_idx == -1:
             game = game[:end_idx] + "</span>" + game[end_idx:]
-            game = game[:start_idx] + '<span style="color:darkgoldenrod">' + game[start_idx:]
+            game = game[:start_idx] + '<span style="background-color:yellow">' + game[start_idx:]
         # do formatting of plain text with regexp here by
         # making all variations grey
         # [ ] must be then blocked for comments, otherwise
         # highlighting doesn't work
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
-        # print (re.findall('(?!((╔)(.*?)(╚))).*', game, re.DOTALL | re.M))
         game1 = re.sub("╔",'<dd><em><span style="color:blue;font-size:11pt;font-family:CAChess">[', game)
         game2 = re.sub("╚",']</dd></em></span>', game1)
 
