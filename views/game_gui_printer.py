@@ -58,8 +58,8 @@ class GUIPrinter():
         # then insert highlighting at offsets
 
         game = '<span style="color:black;font-size:13pt;font-family:CAChess"> ' + game + ' </span>'
-        game1 = re.sub("╔",'</span><br><em><span style="color:blue;font-size:11pt;font-family:CAChess">[', game)
-        game2 = re.sub("╚",']<br></em></span> <span style="color:black;font-size:13pt;font-family:CAChess">', game1)
+        game1 = re.sub("╔",'</span><br><br><em><span style="color:blue;font-size:11pt;font-family:CAChess">[', game)
+        game2 = re.sub("╚",']<br><br></em></span> <span style="color:black;font-size:13pt;font-family:CAChess">', game1)
 
         try:
             game2 += " "+current.root().headers['Result']
