@@ -220,7 +220,7 @@ class MovesEditView(QTextEdit):
 
     def _get_state_from_offset(self, offset):
         # next is to update to current status
-        text = self.gs.printer.to_san_html(self.gs.current)
+        # text = self.gs.printer.to_san_html(self.gs.current)
         offset_index = self.gs.printer.offset_table
         j = 0
         for i in range(0,len(offset_index)):
