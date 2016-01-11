@@ -69,22 +69,38 @@ class Database():
             else:
                 pass
 
-    def init_from_pgn(self, mainWindow, msg):
-        with codecs.open(self.filename,"r", "iso-8859-15") as pgn:
-            print(pgn)
-            size = os.path.getsize(self.filename)
-            self.entries = []
-            pDialog = QProgressDialog(msg,None,0,size,mainWindow)
-            pDialog.show()
-            pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
+    def process_pgn_header(self, mainWindow, msg, pgn):
+        print(pgn)
+        size = os.path.getsize(self.filename)
+        self.entries = []
+        pDialog = QProgressDialog(msg, None, 0, size, mainWindow)
+        pDialog.show()
+        pDialog.setWindowModality(PyQt4.QtCore.Qt.WindowModal)
+        QApplication.processEvents()
+        for offset, headers in chess.pgn.scan_headers(pgn):
             QApplication.processEvents()
-            for offset, headers in chess.pgn.scan_headers(pgn):
-                QApplication.processEvents()
-                pDialog.setValue(offset)
-                self.entries.append(Entry(offset,headers))
-            pDialog.close()
-        self.checksum = crc32_from_file(self.filename)
+            pDialog.setValue(offset)
+            self.entries.append(Entry(offset, headers))
+        pDialog.close()
 
+    def init_from_pgn(self, mainWindow, msg):
+        self.encoding = None
+        try:
+            with open(self.filename,"r") as pgn:
+                pgn.read()
+                # self.process_pgn_header(ainWindow, msg, pgn)
+                # self.encoding = None
+        except UnicodeDecodeError:
+            self.encoding = "iso-8859-15"
+            print(self.encoding)
+        if self.encoding:
+            with codecs.open(self.filename,"r", self.encoding) as pgn:
+                self.process_pgn_header(mainWindow, msg, pgn)
+        else:
+            with open(self.filename,"r") as pgn:
+                self.process_pgn_header(mainWindow, msg, pgn)
+
+        self.checksum = crc32_from_file(self.filename)
     def init_from_cache(self):
         filename = self.filename[:-4] + ".idx"
         with open(filename,"rb") as f:
@@ -242,16 +258,24 @@ class Database():
     def no_of_games(self):
         return len(self.entries)
 
+    def process_game(self, entry, index, pgn):
+        offset = entry.pgn_offset
+        pgn.seek(offset)
+        game = chess.pgn.read_game(pgn)
+        self.index_current_game = index
+        return game
+
     def load_game(self, index):
         if index >= 0 and index < len(self.entries):
             entry = self.entries[index]
-            with codecs.open(self.filename,"r", "iso-8859-15") as pgn:
-
-            #with open(self.filename) as pgn:
-                offset = entry.pgn_offset
-                pgn.seek(offset)
-                game = chess.pgn.read_game(pgn)
-                self.index_current_game = index
+            if self.encoding:
+                # print (self.encoding)
+                with codecs.open(self.filename,"r", self.encoding) as pgn:
+                    game = self.process_game(entry, index, pgn)
+            else:
+                # print ("default encoding")
+                with open(self.filename, "r") as pgn:
+                    game = self.process_game(entry, index, pgn)
             return game
         else:
             raise ValueError("no game for supplied index in database")
