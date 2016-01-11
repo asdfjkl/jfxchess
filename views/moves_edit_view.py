@@ -261,7 +261,6 @@ class MovesEditView(QTextEdit):
 
 
     def on_statechanged(self):
-        # pass
         self.update_san()
 
     def update_san(self):
