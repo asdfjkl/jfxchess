@@ -17,6 +17,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import copy
+import pickle
+
 import itertools
 import re
 from chess.nag_table import NagHashTable
@@ -235,6 +238,9 @@ class GameNode(object):
         node.comment = comment
         node.starting_comment = starting_comment
         self.variations.append(node)
+        Game.positions[str(node.board().zobrist_hash())] = node
+
+
         return node
 
     def add_main_variation(self, move, comment=""):
@@ -327,11 +333,12 @@ class GameNode(object):
             # before adding san, store in offset_table offset number + node
             #temp = re.sub('</dd>|<dd>','\n',str(exporter))
             #offset_start = len(re.sub('<[^>]*>','',temp))
-            offset_start = len(str(exporter))
+            # offset_start = len(str(exporter))
 
             if main_variation.invalidate == False:
                 exporter.write_token(main_variation.san_cached)
-                offset_table.append((offset_start,offset_start+len(main_variation.san_cached), main_variation))
+                # offset_table[str(_board.zobrist_hash())] = main_variation
+                # offset_table.append((offset_start, offset_start+len(main_variation.san_cached), main_variation))
             else:
                 s = ''
                 s += exporter.return_fullmove_number(_board.turn, _board.fullmove_number, _after_variation, self.parent == None)
@@ -358,13 +365,14 @@ class GameNode(object):
                 main_variation.san_cached = s
                 main_variation.invalidate = False
                 exporter.write_token(s)
-                offset_table.append((offset_start,offset_start+len(s),main_variation))
+                # offset_table[str(_board.zobrist_hash())] = main_variation
+
+                # offset_table.append((offset_start,offset_start+len(s),main_variation))
 
 
         # Then export sidelines.
         if variations:
             for variation in itertools.islice(self.variations, 1, None):
-
                 # Start variation.
                 if variation.parent.is_main_line():
                     exporter.start_snd_variation()
@@ -376,11 +384,13 @@ class GameNode(object):
                     exporter.put_starting_comment(variation.starting_comment)
 
                 # ab hier
-                offset_start = len(str(exporter))
+                # offset_start = len(str(exporter))
 
                 if(variation.invalidate == False):
                     exporter.write_token(variation.san_cached)
-                    offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
+                    # offset_table[str(_board.zobrist_hash())] = variation
+
+                    # offset_table.append((offset_start,offset_start+len(variation.san_cached),variation))
                 else:
                     s = ""
                     # Append fullmove number.
@@ -405,10 +415,13 @@ class GameNode(object):
                     variation.invalidate = False
                     variation.san_cached = s
                     exporter.write_token(s)
-                    offset_table.append((offset_start,offset_start+len(s),variation))
+                    # offset_table[str(_board.zobrist_hash())] = variation
 
+                    # offset_table.append((offset_start, offset_start+len(s), variation))
                 # Recursively append the next moves.
                 _board.push(variation.move)
+                # offset_table[str(_board.zobrist_hash())] = variation.parent
+
                 variation.export_html(exporter, node_to_highlight, offset_table, comments, variations, _board, False)
                 _board.pop()
 
@@ -424,6 +437,7 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
+
             main_variation.export_html(exporter, node_to_highlight, offset_table, comments,
                                        variations, _board, variations and len(self.variations) > 1)
             _board.pop()
@@ -470,6 +484,8 @@ class Game(GameNode):
         self.headers["Result"] = "*"
 
         self.errors = []
+        Game.positions = {}
+
 
     def board(self, _cache=False):
         """
@@ -576,7 +592,6 @@ class StringExporter(object):
     def start_headers(self):
         pass
 
-
     def put_header(self, tagname, tagvalue):
         self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
 
@@ -608,8 +623,18 @@ class StringExporter(object):
         elif variation_start:
             self.write_token(str(fullmove_number) + "... ")
 
-    def put_move(self, board, move):
-        self.write_token(board.san(move) + " ")
+    # def put_move(self, board, move, main_line=True):
+    #     print "main_line : {0}".format(main_line)
+    #     _board = pickle.loads(pickle.dumps(board, -1))
+    #     #_board = marshal.loads(marshal.dumps(board, -1))
+    #
+    #     #_board = copy.deepcopy(board)
+    #     _board.push(move)
+    #     san = board.san(move)
+    #     move_string = u"[ref={0}][size={1}] {2} [/size][/ref]".format(_board.zobrist_hash(), self.depth_font(), ChessProgram_app.convert_san_to_figurine(san))
+    #     print (move_string)
+    #     self.write_token(move_string)
+
 
     def put_result(self, result):
         self.write_token(result + " ")
@@ -647,8 +672,24 @@ class StringExporter(object):
         return '<span style="color:darkgoldenrod">'+board.san(move)+' </span><a name="current"></a>'
         #return board.san(move)
 
-    def return_move(self,board,move):
-        return board.san(move) + " "
+    # def return_move(self,board,move):
+    #     return board.san(move) + " "
+
+    def return_move(self, board, move):
+        # self.write_token(board.san(move) + " ")
+        # print("<a href='#{0}'>{1}</a>".format(_board.zobrist_hash(), _board.san(move)))
+        _board = copy.deepcopy(board)
+        _board.push(move)
+        san = board.san(move)
+
+        # move_string = u"[ref={0}][size={1}] {2} [/size][/ref]".format(_board.zobrist_hash(), self.depth_font(), ChessProgram_app.convert_san_to_figurine(san))
+
+        return "<span style='color:black;font-size:13pt;font-family:CAChess'><a href='{0}'> {1} </a></span>".format(str(_board.zobrist_hash()), san)
+
+    def put_move(self, board, move):
+        self.write_token(board.san(move) + " ")
+        # print("<a href='#{0}'>{1}</a>".format(_board.zobrist_hash(), _board.san(move)))
+        # self.write_token("<a href='{0}'>{1}</a>".format(str(board.zobrist_hash()), board.san(move)))
 
     def put_nags_as_char(self, nags):
         for nag in sorted(nags):

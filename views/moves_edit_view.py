@@ -1,6 +1,8 @@
 from  PyQt4.QtGui import *
 from  PyQt4.QtCore import *
 
+from chess.pgn import Game
+
 from dialogs.dialog_with_listview import DialogWithListView
 from dialogs.dialog_with_plaintext import DialogWithPlainText
 from model.gamestate import MODE_GAME_ANALYSIS, MODE_PLAYOUT_POS
@@ -92,7 +94,8 @@ class MovesEditView(QTextEdit):
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             cursor = self.cursorForPosition(mouseEvent.pos())
             cursor_pos = cursor.position()
-            self.go_to_pos(cursor_pos)
+            # self.go_to_pos(cursor_pos)
+            self.go_to_pos(self.anchorAt(mouseEvent.pos()))
             self.old_cursor_pos = cursor_pos
 
     def move_annotation(self,nag):
@@ -220,7 +223,8 @@ class MovesEditView(QTextEdit):
 
     def _get_state_from_offset(self, offset):
         # next is to update to current status
-        # text = self.gs.printer.to_san_html(self.gs.current)
+        # self.gs.printer.to_san_html(self.gs.current)
+        # print (offset)
         offset_index = self.gs.printer.offset_table
         j = 0
         for i in range(0,len(offset_index)):
@@ -234,30 +238,51 @@ class MovesEditView(QTextEdit):
     def _get_offset_for_current_state(self):
         offset_index = self.gs.printer.offset_table
         idx = 0
-        for i in range(0,len(offset_index)):
-            if(offset_index[i][2] == self.gs.current):
-                idx = offset_index[i][0]
+        # for i in range(0,len(offset_index)):
+        #     if(offset_index[i][2] == self.gs.current):
+        #         idx = offset_index[i][0]
         return idx
 
-    def go_to_pos(self,cursor_pos):
-        offset = self.textCursor().position()
-        if(cursor_pos > 0):
-            if(offset != self.old_cursor_pos):
-                self.old_cursor_pos = offset
-                selected_state = self._get_state_from_offset(cursor_pos)
-                self.gs.current = selected_state
-                self.emit(SIGNAL("statechanged()"))
-                scroll_pos = self.verticalScrollBar().value()
-                #self.setHtml(self.gs.printer.to_san_html(self.gs.current))
-                self.setHtml(self.gs.printer.update_pos(self.gs.current))
-                mini = max(scroll_pos,self.verticalScrollBar().maximum())
+    def go_to_pos(self, cursor_pos):
+        # print(cursor_pos)
+        # print(self.gs.printer.offset_table)
+        # print(self.gs.printer.offset_table)
+        # selected_state = self.gs.printer.offset_table[cursor_pos]
+        selected_state = Game.positions[cursor_pos]
 
-                cursor = self.textCursor()
-                idx = self._get_offset_for_current_state()
-                cursor.setPosition(idx)
-                self.setTextCursor(cursor)
-                self.verticalScrollBar().setValue(scroll_pos)
-                QApplication.processEvents()
+        # self._get_state_from_offset(cursor_pos)
+        self.gs.current = selected_state
+        self.emit(SIGNAL("statechanged()"))
+        scroll_pos = self.verticalScrollBar().value()
+        #self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+        self.setHtml(self.gs.printer.update_pos(self.gs.current))
+        mini = max(scroll_pos,self.verticalScrollBar().maximum())
+
+        cursor = self.textCursor()
+        idx = self._get_offset_for_current_state()
+        cursor.setPosition(idx)
+        self.setTextCursor(cursor)
+        self.verticalScrollBar().setValue(scroll_pos)
+        QApplication.processEvents()
+
+        # offset = self.textCursor().position()
+        # if(cursor_pos > 0):
+        #     if(offset != self.old_cursor_pos):
+        #         self.old_cursor_pos = offset
+        #         selected_state = self._get_state_from_offset(cursor_pos)
+        #         self.gs.current = selected_state
+        #         self.emit(SIGNAL("statechanged()"))
+        #         scroll_pos = self.verticalScrollBar().value()
+        #         #self.setHtml(self.gs.printer.to_san_html(self.gs.current))
+        #         self.setHtml(self.gs.printer.update_pos(self.gs.current))
+        #         mini = max(scroll_pos,self.verticalScrollBar().maximum())
+        #
+        #         cursor = self.textCursor()
+        #         idx = self._get_offset_for_current_state()
+        #         cursor.setPosition(idx)
+        #         self.setTextCursor(cursor)
+        #         self.verticalScrollBar().setValue(scroll_pos)
+        #         QApplication.processEvents()
 
 
     def on_statechanged(self):

@@ -27,7 +27,7 @@ class GUIPrinter():
 
     def generate_game(self, current):
         self.current = current
-        self.offset_table = []
+        self.offset_table = {}
         self.san_html = ""
         exporter = StringExporter(columns=None)
         current.root().export_html(exporter, current, self.offset_table)
@@ -42,11 +42,11 @@ class GUIPrinter():
         start_idx = -1
         end_idx = - 1
 
-        for i in range(0, len(self.offset_table)):
-            if self.offset_table[i][2] == current:
-                start_idx = self.offset_table[i][0]
-                end_idx = self.offset_table[i][1]
-        # mark the move leading to the current state
+        # for i in range(0, len(self.offset_table)):
+        #     if self.offset_table[i][2] == current:
+        #         start_idx = self.offset_table[i][0]
+        #         end_idx = self.offset_table[i][1]
+        # # mark the move leading to the current state
         if not start_idx == -1:
             game = game[:end_idx] + "</span>" + game[end_idx:]
             game = game[:start_idx] + ' <span style="background-color:yellow;font-family:CAChess">' + game[start_idx:]
@@ -57,7 +57,7 @@ class GUIPrinter():
         # for highlighting current move, look up current move in offset table
         # then insert highlighting at offsets
 
-        game = '<span style="color:black;font-size:13pt;font-family:CAChess"> ' + game + ' </span>'
+        # game = '<span style="color:black;font-size:13pt;font-family:CAChess">' + game + '</span>'
         game1 = re.sub("╔",'</span><br><br><em><span style="color:blue;font-size:11pt;font-family:CAChess">[', game)
         game2 = re.sub("╚",']<br><br></em></span> <span style="color:black;font-size:13pt;font-family:CAChess">', game1)
 
