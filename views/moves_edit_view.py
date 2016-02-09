@@ -94,8 +94,19 @@ class MovesEditView(QTextEdit):
         if(mode != MODE_PLAYOUT_POS and mode != MODE_GAME_ANALYSIS):
             cursor = self.cursorForPosition(mouseEvent.pos())
             cursor_pos = cursor.position()
-            # self.go_to_pos(cursor_pos)
-            self.go_to_pos(self.anchorAt(mouseEvent.pos()))
+            anchor = self.anchorAt(mouseEvent.pos())
+            if anchor:
+                self.go_to_pos(anchor)
+
+                keyword_format = QTextCharFormat()
+                keyword_format.setBackground(Qt.yellow)
+                keyword_format.setFontWeight(QFont.Bold)
+
+                textCursor = self.textCursor()
+                textCursor.setPosition(cursor_pos)
+                textCursor.select(0)
+                textCursor.mergeCharFormat(keyword_format)
+
             self.old_cursor_pos = cursor_pos
 
     def move_annotation(self,nag):
@@ -244,10 +255,6 @@ class MovesEditView(QTextEdit):
         return idx
 
     def go_to_pos(self, cursor_pos):
-        # print(cursor_pos)
-        # print(self.gs.printer.offset_table)
-        # print(self.gs.printer.offset_table)
-        # selected_state = self.gs.printer.offset_table[cursor_pos]
         selected_state = Game.positions[cursor_pos]
 
         # self._get_state_from_offset(cursor_pos)
