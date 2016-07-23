@@ -3,7 +3,7 @@
 
 ### Screenshot
 
-![Jerry 3.04 running on Windows 10](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.jpg)
+![Jerry 3.04 running on Windows 10](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.png)
 
 Jerry 3.04 on Windows 10
 
