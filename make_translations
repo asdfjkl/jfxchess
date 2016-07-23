@@ -1,5 +1,0 @@
-#!/bin/sh
-pylupdate4 jerry.pro 
-/usr/share/qt4/bin/lrelease i18n/ts/jerry_jp.ts 
-/usr/share/qt4/bin/lrelease i18n/ts/jerry_de.ts
-mv i18n/ts/*.qm i18n/qm/
