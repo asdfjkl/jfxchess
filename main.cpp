@@ -27,6 +27,7 @@
 #include <bitset>
 #include "funct.h"
 #include "main_window.h"
+#include <ctime>
 
 using namespace std;
 
