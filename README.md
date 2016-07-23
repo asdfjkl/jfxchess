@@ -3,9 +3,9 @@
 
 ### Screenshot
 
-![Jerry 3.02 running on Ubuntu 14.04](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.jpg)
+![Jerry 3.04 running on Windows 10](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.jpg)
 
-Jerry 3.02 running on Ubuntu 14.04
+Jerry 3.04 on Windows 10
 
 ### About
 
