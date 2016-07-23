@@ -1,0 +1,141 @@
+\hypertarget{classchess_1_1Move}{\section{chess\-:\-:Move Class Reference}
+\label{classchess_1_1Move}\index{chess\-::\-Move@{chess\-::\-Move}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Move_a72979236310a7c8638ce163d8a140341}{\hyperlink{classchess_1_1Move_a72979236310a7c8638ce163d8a140341}{Move} ()}\label{classchess_1_1Move_a72979236310a7c8638ce163d8a140341}
+
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Move}{Move} creates a null move. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Move_ae9a0a49737f36d5bcc6f0a80e7b6ae99}{Move} (uint8\-\_\-t from, uint8\-\_\-t to)
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Move}{Move} creates move, supplied parameters in internal board coordinate format, i.\-e. in range 21...98. \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Move_a1298f3f0cd28e307cd79ffe0555f890c}{{\bfseries Move} (uint8\-\_\-t from, uint8\-\_\-t to, uint8\-\_\-t promotion\-\_\-piece)}\label{classchess_1_1Move_a1298f3f0cd28e307cd79ffe0555f890c}
+
+\item 
+\hypertarget{classchess_1_1Move_aa1a208ecf98dc32c4dfa1b585d640045}{{\bfseries Move} (uint8\-\_\-t from, uint8\-\_\-t to, bool en\-\_\-passent)}\label{classchess_1_1Move_aa1a208ecf98dc32c4dfa1b585d640045}
+
+\item 
+\hyperlink{classchess_1_1Move_a46cebe775f30d4a02fbbcfbf1d1547ec}{Move} (Q\-String \hyperlink{classchess_1_1Move_a808b107f197231153d98d10251d9096e}{uci})
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Move}{Move} creates move from uci string (e.\-g. g1f3, d7d8\-Q etc.) \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Move_a0be2b00f7d600057abd837af8e733bd9}{{\bfseries Move} (const \hyperlink{classchess_1_1Move}{Move} \&m)}\label{classchess_1_1Move_a0be2b00f7d600057abd837af8e733bd9}
+
+\item 
+Q\-String \hyperlink{classchess_1_1Move_a808b107f197231153d98d10251d9096e}{uci} ()
+\begin{DoxyCompactList}\small\item\em uci get uci string (e.\-g. g1f3, d7d8\-Q etc.) of current move \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Move_aafc06139dc4aa8ab46cd7edd0bfb44dd}{bool {\bfseries operator==} (const \hyperlink{classchess_1_1Move}{Move} \&other) const }\label{classchess_1_1Move_aafc06139dc4aa8ab46cd7edd0bfb44dd}
+
+\item 
+\hypertarget{classchess_1_1Move_a9578fdf68e54b3e3f645c06193e284e5}{bool {\bfseries operator!=} (const \hyperlink{classchess_1_1Move}{Move} \&other) const }\label{classchess_1_1Move_a9578fdf68e54b3e3f645c06193e284e5}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Move_a8f8469b837fff9baad07e0dd572bbb1b}{uint8\-\_\-t {\bfseries from}}\label{classchess_1_1Move_a8f8469b837fff9baad07e0dd572bbb1b}
+
+\item 
+\hypertarget{classchess_1_1Move_a0a754e25cda786475b39e8d53a484740}{uint8\-\_\-t {\bfseries to}}\label{classchess_1_1Move_a0a754e25cda786475b39e8d53a484740}
+
+\item 
+\hypertarget{classchess_1_1Move_a7ebe3729053a5a9db82f4d74564cb7dc}{uint8\-\_\-t {\bfseries promotion\-\_\-piece}}\label{classchess_1_1Move_a7ebe3729053a5a9db82f4d74564cb7dc}
+
+\item 
+\hypertarget{classchess_1_1Move_ae69eda740543725180831fb5f76ea87d}{Q\-String {\bfseries uci\-\_\-string}}\label{classchess_1_1Move_ae69eda740543725180831fb5f76ea87d}
+
+\item 
+\hypertarget{classchess_1_1Move_a7eed53bc8f23dedc3baf77f66c57b2e6}{bool {\bfseries is\-\_\-null}}\label{classchess_1_1Move_a7eed53bc8f23dedc3baf77f66c57b2e6}
+
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\-::ostream \& \hyperlink{classchess_1_1Move_a390a2a6cfc5460a906a7d5861fd9374f}{operator$<$$<$} (std\-::ostream \&strm, const \hyperlink{classchess_1_1Move}{Move} \&m)
+\begin{DoxyCompactList}\small\item\em operator $<$$<$ \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classchess_1_1Move_ae9a0a49737f36d5bcc6f0a80e7b6ae99}{\index{chess\-::\-Move@{chess\-::\-Move}!Move@{Move}}
+\index{Move@{Move}!chess::Move@{chess\-::\-Move}}
+\subsubsection[{Move}]{\setlength{\rightskip}{0pt plus 5cm}chess\-::\-Move\-::\-Move (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{from, }
+\item[{uint8\-\_\-t}]{to}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Move_ae9a0a49737f36d5bcc6f0a80e7b6ae99}
+
+
+\hyperlink{classchess_1_1Move}{Move} creates move, supplied parameters in internal board coordinate format, i.\-e. in range 21...98. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from} & \\
+\hline
+{\em to} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Move_a46cebe775f30d4a02fbbcfbf1d1547ec}{\index{chess\-::\-Move@{chess\-::\-Move}!Move@{Move}}
+\index{Move@{Move}!chess::Move@{chess\-::\-Move}}
+\subsubsection[{Move}]{\setlength{\rightskip}{0pt plus 5cm}chess\-::\-Move\-::\-Move (
+\begin{DoxyParamCaption}
+\item[{Q\-String}]{uci}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Move_a46cebe775f30d4a02fbbcfbf1d1547ec}
+
+
+\hyperlink{classchess_1_1Move}{Move} creates move from uci string (e.\-g. g1f3, d7d8\-Q etc.) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uci} & supplied uci string \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classchess_1_1Move_a808b107f197231153d98d10251d9096e}{\index{chess\-::\-Move@{chess\-::\-Move}!uci@{uci}}
+\index{uci@{uci}!chess::Move@{chess\-::\-Move}}
+\subsubsection[{uci}]{\setlength{\rightskip}{0pt plus 5cm}Q\-String chess\-::\-Move\-::uci (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Move_a808b107f197231153d98d10251d9096e}
+
+
+uci get uci string (e.\-g. g1f3, d7d8\-Q etc.) of current move 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classchess_1_1Move_a390a2a6cfc5460a906a7d5861fd9374f}{\index{chess\-::\-Move@{chess\-::\-Move}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!chess::Move@{chess\-::\-Move}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}std\-::ostream\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{std\-::ostream \&}]{strm, }
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}}\label{classchess_1_1Move_a390a2a6cfc5460a906a7d5861fd9374f}
+
+
+operator $<$$<$ 
+
+
+\begin{DoxyParams}{Parameters}
+{\em strm} & \\
+\hline
+{\em m} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+prints move as uci string
+
+Example\-: \hyperlink{classchess_1_1Move}{Move} m = \hyperlink{classchess_1_1Move}{Move}(\char`\"{}g1f3\char`\"{}); std\-::cout $<$$<$ m $<$$<$ std\-::endl; 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+chess/move.\-h\item 
+chess/move.\-cpp\end{DoxyCompactItemize}

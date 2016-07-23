@@ -1,0 +1,397 @@
+\hypertarget{classchess_1_1GameNode}{\section{chess\-:\-:Game\-Node Class Reference}
+\label{classchess_1_1GameNode}\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1GameNode_ae0efe18314ec18e2a5cd2c1e5c3bd741}{\hyperlink{classchess_1_1GameNode_ae0efe18314ec18e2a5cd2c1e5c3bd741}{$\sim$\-Game\-Node} ()}\label{classchess_1_1GameNode_ae0efe18314ec18e2a5cd2c1e5c3bd741}
+
+\begin{DoxyCompactList}\small\item\em The destructor does N\-O\-T delete child nodes. You are responsible yourself for deleting child nodes. In general, member functions from Game() to manage the tree should be used. \end{DoxyCompactList}\item 
+int \hyperlink{classchess_1_1GameNode_a8ca2222d9ea74fa3c3e581b90b446f20}{get\-Id} ()
+\begin{DoxyCompactList}\small\item\em get\-Id each game node is assigned a unique id automatically during construction. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Board}{Board} $\ast$ \hyperlink{classchess_1_1GameNode_a68758d5555d7e01f13dd7e5685fa7fdc}{get\-Board} ()
+\begin{DoxyCompactList}\small\item\em get\-Board \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_a285593d02086c1c6bb30c852b0b41d5f}{set\-Board} (\hyperlink{classchess_1_1Board}{Board} $\ast$b)
+\begin{DoxyCompactList}\small\item\em set\-Board deletes the old board of this node, and sets the supplied board as the new one. Does no validity checks of the board position \end{DoxyCompactList}\item 
+Q\-String \hyperlink{classchess_1_1GameNode_aa56312861ca85710a7979b66427fd1cd}{get\-San} ()
+\begin{DoxyCompactList}\small\item\em get\-San returns san string of move that lead to this node. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1GameNode_a3893ddd950c675600e030d8e3817e48a}{root} ()
+\begin{DoxyCompactList}\small\item\em root returns root node of the game \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1GameNode_ac35bd1ef7f0ba9ce43306d224d9b6839}{get\-Parent} ()
+\begin{DoxyCompactList}\small\item\em get\-Parent returns the parent of the node. null if there is no parent (e.\-g. root node or freshly created) \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Move}{Move} $\ast$ \hyperlink{classchess_1_1GameNode_a7ca0e6953eef522ac8dbfd5869ed99a8}{get\-Move} ()
+\begin{DoxyCompactList}\small\item\em get\-Move returns move leading to this node. Null if there is no move (e.\-g. root node) \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_a7c501e59559bf59aac7cb5337151e6c5}{set\-Move} (\hyperlink{classchess_1_1Move}{Move} $\ast$m)
+\begin{DoxyCompactList}\small\item\em set\-Move set the move that leads to this game node to m. There is no validity or consistency check. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_a8a3dcdb5d5dedc45e1cbf78405f137e7}{set\-Parent} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$g)
+\begin{DoxyCompactList}\small\item\em set\-Parent Set the parent to the supplied \hyperlink{classchess_1_1Game}{Game} Node. No validity / consistency checks. Old parent is not deleted. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_a706311ef7dfc985b5bb9afc1802371e2}{set\-Comment} (Q\-String \&c)
+\begin{DoxyCompactList}\small\item\em set\-Comment Set comment for this node to supplied textstring. \end{DoxyCompactList}\item 
+Q\-String \hyperlink{classchess_1_1GameNode_af9256a164fa665dda2b6310af1d3a7d3}{get\-Comment} ()
+\begin{DoxyCompactList}\small\item\em get\-Comment returns the comment for this node. Empty text string if there is no comment. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1GameNode_a181e93f7fdb90e82f259f4add006f389}{get\-Variation} (int i)
+\begin{DoxyCompactList}\small\item\em get\-Variation get the variation (i.\-e. the child) at index i \end{DoxyCompactList}\item 
+Q\-List$<$ \hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ $>$ $\ast$ \hyperlink{classchess_1_1GameNode_a901705a202fb5d5b7795e9c49e1f003c}{get\-Variations} ()
+\begin{DoxyCompactList}\small\item\em get\-Variations returns list of all child nodes, i.\-e. all variations starting in this position. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_a79a49a66ec0ad97dfa1f86af3135c1b4}{add\-Variation} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$g)
+\begin{DoxyCompactList}\small\item\em add\-Variation adds a new variation by putting the supplied game node at the end of the list of all variations. sets parent of g to this node. Does N\-O\-T check whether the variation already exists. \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1GameNode_a53453fb45ecf163d4b7c09d7f7d7166d}{has\-Variations} ()
+\begin{DoxyCompactList}\small\item\em has\-Variations checks whether the node as variations, i.\-e. more than one (mainline) variations \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1GameNode_a727d2e54a5c38bb082e356f254e15400}{is\-Leaf} ()
+\begin{DoxyCompactList}\small\item\em is\-Leaf checks whether node is leaf. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_aa2e6bfdf0cedd649fd643b8d27be885a}{add\-Nag} (int n)
+\begin{DoxyCompactList}\small\item\em add\-Nag add numeric annotation glyph (see P\-G\-N standard) \end{DoxyCompactList}\item 
+Q\-List$<$ int $>$ $\ast$ \hyperlink{classchess_1_1GameNode_a7a96e223a5f25429e001646d51404704}{get\-Nags} ()
+\begin{DoxyCompactList}\small\item\em get\-Nags returns all numeric annotation glyphs (see P\-G\-N standard) \end{DoxyCompactList}\item 
+Q\-List$<$ \hyperlink{structchess_1_1Arrow}{Arrow} $\ast$ $>$ $\ast$ \hyperlink{classchess_1_1GameNode_a4a5615b47f4f284d60b501e3f546f8da}{get\-Arrows} ()
+\begin{DoxyCompactList}\small\item\em get\-Arrows returns a list with all arrows for this node. Arrows are just annotations done by the user for illustrations. \end{DoxyCompactList}\item 
+Q\-List$<$ \hyperlink{structchess_1_1ColoredField}{Colored\-Field} $\ast$ $>$ $\ast$ \hyperlink{classchess_1_1GameNode_a4971268bae92d4341b59fc3b73b1031d}{get\-Colored\-Fields} ()
+\begin{DoxyCompactList}\small\item\em get\-Colored\-Fields returns list of colored fields. Such fields are juts highlighted fields done by the user for illustration. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_ae339f67fc19405804df8c5ba8a63bd50}{add\-Or\-Del\-Arrow} (\hyperlink{structchess_1_1Arrow}{Arrow} $\ast$a)
+\begin{DoxyCompactList}\small\item\em add\-Or\-Del\-Arrow adds (if the supplied arrow does not exist) or removes (if the node has that arrow already) and arrow from the board \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1GameNode_ae8846b9c88b9b59075e84e4346576f1d}{add\-Or\-Del\-Colored\-Field} (\hyperlink{structchess_1_1ColoredField}{Colored\-Field} $\ast$c)
+\begin{DoxyCompactList}\small\item\em add\-Or\-Del\-Colored\-Field deletes color (field is already highlighted) or colorizes (field is plain) a board field. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1GameNode_aa9d35a6c543e11213bdd0f49d5a3520e}{static int {\bfseries init\-Id} ()}\label{classchess_1_1GameNode_aa9d35a6c543e11213bdd0f49d5a3520e}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classchess_1_1GameNode_aa2e6bfdf0cedd649fd643b8d27be885a}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!add\-Nag@{add\-Nag}}
+\index{add\-Nag@{add\-Nag}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{add\-Nag}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::add\-Nag (
+\begin{DoxyParamCaption}
+\item[{int}]{n}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_aa2e6bfdf0cedd649fd643b8d27be885a}
+
+
+add\-Nag add numeric annotation glyph (see P\-G\-N standard) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & N\-A\-G code \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_ae339f67fc19405804df8c5ba8a63bd50}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!add\-Or\-Del\-Arrow@{add\-Or\-Del\-Arrow}}
+\index{add\-Or\-Del\-Arrow@{add\-Or\-Del\-Arrow}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{add\-Or\-Del\-Arrow}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::add\-Or\-Del\-Arrow (
+\begin{DoxyParamCaption}
+\item[{{\bf Arrow} $\ast$}]{a}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_ae339f67fc19405804df8c5ba8a63bd50}
+
+
+add\-Or\-Del\-Arrow adds (if the supplied arrow does not exist) or removes (if the node has that arrow already) and arrow from the board 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & the arrow that is supposed to be deleted or added \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_ae8846b9c88b9b59075e84e4346576f1d}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!add\-Or\-Del\-Colored\-Field@{add\-Or\-Del\-Colored\-Field}}
+\index{add\-Or\-Del\-Colored\-Field@{add\-Or\-Del\-Colored\-Field}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{add\-Or\-Del\-Colored\-Field}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::add\-Or\-Del\-Colored\-Field (
+\begin{DoxyParamCaption}
+\item[{{\bf Colored\-Field} $\ast$}]{c}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_ae8846b9c88b9b59075e84e4346576f1d}
+
+
+add\-Or\-Del\-Colored\-Field deletes color (field is already highlighted) or colorizes (field is plain) a board field. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c} & the colored field that is supposed to be deleted or added \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_a79a49a66ec0ad97dfa1f86af3135c1b4}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!add\-Variation@{add\-Variation}}
+\index{add\-Variation@{add\-Variation}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{add\-Variation}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::add\-Variation (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{g}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a79a49a66ec0ad97dfa1f86af3135c1b4}
+
+
+add\-Variation adds a new variation by putting the supplied game node at the end of the list of all variations. sets parent of g to this node. Does N\-O\-T check whether the variation already exists. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em g} & the (new) child node. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_a4a5615b47f4f284d60b501e3f546f8da}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Arrows@{get\-Arrows}}
+\index{get\-Arrows@{get\-Arrows}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Arrows}]{\setlength{\rightskip}{0pt plus 5cm}Q\-List$<$ {\bf Arrow} $\ast$ $>$ $\ast$ chess\-::\-Game\-Node\-::get\-Arrows (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a4a5615b47f4f284d60b501e3f546f8da}
+
+
+get\-Arrows returns a list with all arrows for this node. Arrows are just annotations done by the user for illustrations. 
+
+\begin{DoxyReturn}{Returns}
+list of arrows 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a68758d5555d7e01f13dd7e5685fa7fdc}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Board@{get\-Board}}
+\index{get\-Board@{get\-Board}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Board}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Board} $\ast$ chess\-::\-Game\-Node\-::get\-Board (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a68758d5555d7e01f13dd7e5685fa7fdc}
+
+
+get\-Board 
+
+\begin{DoxyReturn}{Returns}
+\hyperlink{classchess_1_1Board}{Board} of current node 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a4971268bae92d4341b59fc3b73b1031d}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Colored\-Fields@{get\-Colored\-Fields}}
+\index{get\-Colored\-Fields@{get\-Colored\-Fields}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Colored\-Fields}]{\setlength{\rightskip}{0pt plus 5cm}Q\-List$<$ {\bf Colored\-Field} $\ast$ $>$ $\ast$ chess\-::\-Game\-Node\-::get\-Colored\-Fields (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a4971268bae92d4341b59fc3b73b1031d}
+
+
+get\-Colored\-Fields returns list of colored fields. Such fields are juts highlighted fields done by the user for illustration. 
+
+\begin{DoxyReturn}{Returns}
+list of color fields 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_af9256a164fa665dda2b6310af1d3a7d3}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Comment@{get\-Comment}}
+\index{get\-Comment@{get\-Comment}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Comment}]{\setlength{\rightskip}{0pt plus 5cm}Q\-String chess\-::\-Game\-Node\-::get\-Comment (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_af9256a164fa665dda2b6310af1d3a7d3}
+
+
+get\-Comment returns the comment for this node. Empty text string if there is no comment. 
+
+\begin{DoxyReturn}{Returns}
+The comment. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a8ca2222d9ea74fa3c3e581b90b446f20}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Id@{get\-Id}}
+\index{get\-Id@{get\-Id}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Id}]{\setlength{\rightskip}{0pt plus 5cm}int chess\-::\-Game\-Node\-::get\-Id (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a8ca2222d9ea74fa3c3e581b90b446f20}
+
+
+get\-Id each game node is assigned a unique id automatically during construction. 
+
+\begin{DoxyReturn}{Returns}
+the unique id of this node 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a7ca0e6953eef522ac8dbfd5869ed99a8}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Move@{get\-Move}}
+\index{get\-Move@{get\-Move}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Move}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Move} $\ast$ chess\-::\-Game\-Node\-::get\-Move (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a7ca0e6953eef522ac8dbfd5869ed99a8}
+
+
+get\-Move returns move leading to this node. Null if there is no move (e.\-g. root node) 
+
+\begin{DoxyReturn}{Returns}
+pointer to \hyperlink{classchess_1_1Move}{Move} or null. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a7a96e223a5f25429e001646d51404704}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Nags@{get\-Nags}}
+\index{get\-Nags@{get\-Nags}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Nags}]{\setlength{\rightskip}{0pt plus 5cm}Q\-List$<$ int $>$ $\ast$ chess\-::\-Game\-Node\-::get\-Nags (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a7a96e223a5f25429e001646d51404704}
+
+
+get\-Nags returns all numeric annotation glyphs (see P\-G\-N standard) 
+
+\begin{DoxyReturn}{Returns}
+list with all N\-A\-Gs 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_ac35bd1ef7f0ba9ce43306d224d9b6839}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Parent@{get\-Parent}}
+\index{get\-Parent@{get\-Parent}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Parent}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-Node\-::get\-Parent (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_ac35bd1ef7f0ba9ce43306d224d9b6839}
+
+
+get\-Parent returns the parent of the node. null if there is no parent (e.\-g. root node or freshly created) 
+
+\begin{DoxyReturn}{Returns}
+parent node or null 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_aa56312861ca85710a7979b66427fd1cd}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-San@{get\-San}}
+\index{get\-San@{get\-San}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-San}]{\setlength{\rightskip}{0pt plus 5cm}Q\-String chess\-::\-Game\-Node\-::get\-San (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_aa56312861ca85710a7979b66427fd1cd}
+
+
+get\-San returns san string of move that lead to this node. 
+
+\begin{DoxyReturn}{Returns}
+san string or null for move node. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a181e93f7fdb90e82f259f4add006f389}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Variation@{get\-Variation}}
+\index{get\-Variation@{get\-Variation}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Variation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-Node\-::get\-Variation (
+\begin{DoxyParamCaption}
+\item[{int}]{i}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a181e93f7fdb90e82f259f4add006f389}
+
+
+get\-Variation get the variation (i.\-e. the child) at index i 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & index position of variation. M\-U\-S\-T be a legal index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the game node at position i 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a901705a202fb5d5b7795e9c49e1f003c}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!get\-Variations@{get\-Variations}}
+\index{get\-Variations@{get\-Variations}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{get\-Variations}]{\setlength{\rightskip}{0pt plus 5cm}Q\-List$<$ {\bf Game\-Node} $\ast$ $>$ $\ast$ chess\-::\-Game\-Node\-::get\-Variations (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a901705a202fb5d5b7795e9c49e1f003c}
+
+
+get\-Variations returns list of all child nodes, i.\-e. all variations starting in this position. 
+
+\begin{DoxyReturn}{Returns}
+list with all child nodes. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a53453fb45ecf163d4b7c09d7f7d7166d}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!has\-Variations@{has\-Variations}}
+\index{has\-Variations@{has\-Variations}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{has\-Variations}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Game\-Node\-::has\-Variations (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a53453fb45ecf163d4b7c09d7f7d7166d}
+
+
+has\-Variations checks whether the node as variations, i.\-e. more than one (mainline) variations 
+
+\begin{DoxyReturn}{Returns}
+true if there are at least two (mainline + x) childs, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a727d2e54a5c38bb082e356f254e15400}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!is\-Leaf@{is\-Leaf}}
+\index{is\-Leaf@{is\-Leaf}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{is\-Leaf}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Game\-Node\-::is\-Leaf (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a727d2e54a5c38bb082e356f254e15400}
+
+
+is\-Leaf checks whether node is leaf. 
+
+\begin{DoxyReturn}{Returns}
+true if node has no children, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a3893ddd950c675600e030d8e3817e48a}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!root@{root}}
+\index{root@{root}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{root}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-Node\-::root (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a3893ddd950c675600e030d8e3817e48a}
+
+
+root returns root node of the game 
+
+\begin{DoxyReturn}{Returns}
+the root node 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1GameNode_a285593d02086c1c6bb30c852b0b41d5f}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!set\-Board@{set\-Board}}
+\index{set\-Board@{set\-Board}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{set\-Board}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::set\-Board (
+\begin{DoxyParamCaption}
+\item[{{\bf Board} $\ast$}]{b}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a285593d02086c1c6bb30c852b0b41d5f}
+
+
+set\-Board deletes the old board of this node, and sets the supplied board as the new one. Does no validity checks of the board position 
+
+
+\begin{DoxyParams}{Parameters}
+{\em b} & The board. Must not be null. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_a706311ef7dfc985b5bb9afc1802371e2}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!set\-Comment@{set\-Comment}}
+\index{set\-Comment@{set\-Comment}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{set\-Comment}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::set\-Comment (
+\begin{DoxyParamCaption}
+\item[{Q\-String \&}]{c}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a706311ef7dfc985b5bb9afc1802371e2}
+
+
+set\-Comment Set comment for this node to supplied textstring. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c} & The comment. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_a7c501e59559bf59aac7cb5337151e6c5}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!set\-Move@{set\-Move}}
+\index{set\-Move@{set\-Move}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{set\-Move}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::set\-Move (
+\begin{DoxyParamCaption}
+\item[{{\bf Move} $\ast$}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a7c501e59559bf59aac7cb5337151e6c5}
+
+
+set\-Move set the move that leads to this game node to m. There is no validity or consistency check. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & Pointer to the move. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1GameNode_a8a3dcdb5d5dedc45e1cbf78405f137e7}{\index{chess\-::\-Game\-Node@{chess\-::\-Game\-Node}!set\-Parent@{set\-Parent}}
+\index{set\-Parent@{set\-Parent}!chess::GameNode@{chess\-::\-Game\-Node}}
+\subsubsection[{set\-Parent}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-Node\-::set\-Parent (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{g}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1GameNode_a8a3dcdb5d5dedc45e1cbf78405f137e7}
+
+
+set\-Parent Set the parent to the supplied \hyperlink{classchess_1_1Game}{Game} Node. No validity / consistency checks. Old parent is not deleted. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em g} & Pointer to the (new) parent node. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+chess/game\-\_\-node.\-h\item 
+chess/game\-\_\-node.\-cpp\end{DoxyCompactItemize}

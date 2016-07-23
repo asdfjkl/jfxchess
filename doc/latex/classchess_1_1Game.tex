@@ -1,0 +1,318 @@
+\hypertarget{classchess_1_1Game}{\section{chess\-:\-:Game Class Reference}
+\label{classchess_1_1Game}\index{chess\-::\-Game@{chess\-::\-Game}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Game_adca9940d7473dcac562c2934d0e762a9}{\hyperlink{classchess_1_1Game_adca9940d7473dcac562c2934d0e762a9}{Game} ()}\label{classchess_1_1Game_adca9940d7473dcac562c2934d0e762a9}
+
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Game}{Game} essentially a tree of \hyperlink{classchess_1_1GameNode}{Game\-Node} objects that represents a game. Default root node has a board position which is empty. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1Game_ac8425c271f2d8365f813e5e169f7d1ed}{get\-Root\-Node} ()
+\begin{DoxyCompactList}\small\item\em get\-Root\-Node returns the root node of the game \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1Game_a77233d7bfe997d113300b3c4333258d4}{get\-Current\-Node} ()
+\begin{DoxyCompactList}\small\item\em get\-Current\-Node returns the current node. The current node is a pointer to a node in the tree and used e.\-g. for the node of the last move \end{DoxyCompactList}\item 
+int \hyperlink{classchess_1_1Game_aae095f72d044192f348c1f0b740aae32}{get\-Result} ()
+\begin{DoxyCompactList}\small\item\em get\-Result returns the result of the game \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a9b10980b3b16b19c73e07034840ea3ea}{set\-Result} (int r)
+\begin{DoxyCompactList}\small\item\em set\-Result sets the result of the game \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a5a5346e8f2b6d5063c2e1c8f892a08ed}{apply\-Move} (\hyperlink{classchess_1_1Move}{Move} $\ast$m)
+\begin{DoxyCompactList}\small\item\em apply\-Move apply a move to the current node, and change the node to the resulting new node (or existing node) if a child node for this move already exists. There is no check if the supplied move is legal! \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$ \hyperlink{classchess_1_1Game_ac018e45f806510247404ba56feda568c}{find\-Node\-By\-Id} (int id)
+\begin{DoxyCompactList}\small\item\em find\-Node\-By\-Id each \hyperlink{classchess_1_1GameNode}{Game\-Node} has a unique id (see class definition) this searches for and find the node given the supplied id throw std\-::invalid\-\_\-argument if there exists no node with the id \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a07156dfe4b3dff8991350dcb38c9508e}{set\-Current} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$new\-\_\-current)
+\begin{DoxyCompactList}\small\item\em set\-Current set the current pointer to the supplied node. There is no validity check whether the node is actually a node in the game tree. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_af508607bc605b8974c2a393f0b3ecae1}{set\-Root} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$new\-\_\-root)
+\begin{DoxyCompactList}\small\item\em set\-Root sets the root node pointer to the supplied node. Really just that. Beware of memory leaks when using this function, as nodes below the old root might become inaccessible \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a254acf6e5423d9f9332f6f43f0455cb7}{void \hyperlink{classchess_1_1Game_a254acf6e5423d9f9332f6f43f0455cb7}{go\-To\-Main\-Line\-Child} ()}\label{classchess_1_1Game_a254acf6e5423d9f9332f6f43f0455cb7}
+
+\begin{DoxyCompactList}\small\item\em go\-To\-Main\-Line\-Child moves the current node pointer one down to the mainline (zeroth) variation (if it exists), otherwise keeps the pointer at the current node \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a6b634132c4549290bd1bedd2444f7072}{go\-To\-Child} (int idx\-\_\-child)
+\begin{DoxyCompactList}\small\item\em go\-To\-Child moves the current node poiner to the child at index idx\-\_\-child. If the index is out of range, keeps the pointer at the current node. \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a192a5708f9cc181ceff6bfd0eb2fc883}{void \hyperlink{classchess_1_1Game_a192a5708f9cc181ceff6bfd0eb2fc883}{go\-To\-Parent} ()}\label{classchess_1_1Game_a192a5708f9cc181ceff6bfd0eb2fc883}
+
+\begin{DoxyCompactList}\small\item\em go\-To\-Parent moves current node pointer to the parent node (if exists). keeps pointer at existing node if already at root \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_aa14b8365fc4c0a472b00a214fd67e302}{void \hyperlink{classchess_1_1Game_aa14b8365fc4c0a472b00a214fd67e302}{go\-To\-Root} ()}\label{classchess_1_1Game_aa14b8365fc4c0a472b00a214fd67e302}
+
+\begin{DoxyCompactList}\small\item\em go\-To\-Root moves current pointer to the root node of the game \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_ad421efa010dedf785ad2c6211910167f}{void \hyperlink{classchess_1_1Game_ad421efa010dedf785ad2c6211910167f}{go\-To\-End} ()}\label{classchess_1_1Game_ad421efa010dedf785ad2c6211910167f}
+
+\begin{DoxyCompactList}\small\item\em go\-To\-End starting at the current node, moves the current node pointer down among all mainline until reaching a leaf \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a5232c5b68052202aa8167df619837912}{move\-Up} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$node)
+\begin{DoxyCompactList}\small\item\em move\-Up Suppose the supplied node is a child referenced at parent with index i, and there is another child of the parent with index i-\/1. Then this function switches these indexes. In other word, moves the supplied node variation one up. Has no effect, if node is root (i.\-e. has no parent) or is already the mainline (i.\-e. the zeroth) child of parent. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_a0c87b025f3d1aceaded403d62c40f567}{move\-Down} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$node)
+\begin{DoxyCompactList}\small\item\em move\-Down Reverse of \hyperlink{classchess_1_1Game_a5232c5b68052202aa8167df619837912}{move\-Up()}. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_aaca844dd847f3e163e9da9e990f30931}{del\-Variant} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$node)
+\begin{DoxyCompactList}\small\item\em del\-Variant deletes the whole variation on which the supplied node exists. I.\-e. moves up the tree to the root of the variation, and deletes everything below. sets current node pointer to the root of the variation. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_afb049584b03af5ce0d58f5feb6806a1f}{del\-Below} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$node)
+\begin{DoxyCompactList}\small\item\em del\-Below delete the subtree below the supplied node. Afterwards sets current node pointer to the supplied node. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_acb9da8af7684660ec3880f15143e051b}{remove\-Comment\-Rec} (\hyperlink{classchess_1_1GameNode}{Game\-Node} $\ast$node)
+\begin{DoxyCompactList}\small\item\em remove\-Comment\-Rec removes comment at supplied node and recursively removes at all comments at nodes below the supplied node. \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a37f62be6e55d2e3415f5e08016e9c038}{void \hyperlink{classchess_1_1Game_a37f62be6e55d2e3415f5e08016e9c038}{go\-To\-Leaf} ()}\label{classchess_1_1Game_a37f62be6e55d2e3415f5e08016e9c038}
+
+\begin{DoxyCompactList}\small\item\em go\-To\-Leaf from the current node pointer, go down the mainlines until there are no more childs. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Game_ae7d450a354b5943cca2a60380f5152b4}{reset\-With\-New\-Root\-Board} (\hyperlink{classchess_1_1Board}{chess\-::\-Board} $\ast$new\-\_\-root\-\_\-board)
+\begin{DoxyCompactList}\small\item\em reset\-With\-New\-Root\-Board delete the whole game tree, and set a new root node constructed with the supplied move. Essentially call this, if a new game has been requrested by the user, especially if the user has set up a custom board position. The supplied board M\-U\-S\-T be a valid board position. \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a18ab6e0fd6ee734a9810886f57e87b5a}{void \hyperlink{classchess_1_1Game_a18ab6e0fd6ee734a9810886f57e87b5a}{remove\-All\-Comments} ()}\label{classchess_1_1Game_a18ab6e0fd6ee734a9810886f57e87b5a}
+
+\begin{DoxyCompactList}\small\item\em remove\-All\-Comments iterates through the tree, and removes every comment from each \hyperlink{classchess_1_1GameNode}{Game\-Node} \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a0bad886ab7d0041ae777afa84667dca3}{void \hyperlink{classchess_1_1Game_a0bad886ab7d0041ae777afa84667dca3}{remove\-All\-Variants} ()}\label{classchess_1_1Game_a0bad886ab7d0041ae777afa84667dca3}
+
+\begin{DoxyCompactList}\small\item\em remove\-All\-Variants iterates through the tree and keeps only the mainlines (i.\-e. zeroth) variations if there are more than one child in a \hyperlink{classchess_1_1GameNode}{Game\-Node} \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_afa39fec09e0c6aa13b0c03e7ce1dbc44}{void \hyperlink{classchess_1_1Game_afa39fec09e0c6aa13b0c03e7ce1dbc44}{clear\-Headers} ()}\label{classchess_1_1Game_afa39fec09e0c6aa13b0c03e7ce1dbc44}
+
+\begin{DoxyCompactList}\small\item\em clear\-Headers deletes all headers entries. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Game_a80169885e34540646a724431673067e5}{bool \hyperlink{classchess_1_1Game_a80169885e34540646a724431673067e5}{tree\-Was\-Changed}}\label{classchess_1_1Game_a80169885e34540646a724431673067e5}
+
+\begin{DoxyCompactList}\small\item\em tree\-Was\-Changed this variable is set to true (either by a member function of \hyperlink{classchess_1_1Game}{Game} or manually) if an operation was carried out that changed fundamentally the tree structure In other words, if the this variable is true, an existing G\-U\-I representation of the \hyperlink{classchess_1_1Game}{Game} tree must be likely be reconstructed \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Game_a6c48e9e2ec4e304baf425dc9ab493b17}{Q\-Map$<$ Q\-String, Q\-String $>$ $\ast$ \hyperlink{classchess_1_1Game_a6c48e9e2ec4e304baf425dc9ab493b17}{headers}}\label{classchess_1_1Game_a6c48e9e2ec4e304baf425dc9ab493b17}
+
+\begin{DoxyCompactList}\small\item\em headers contains the game headers. During construction of a \hyperlink{classchess_1_1Game}{Game} object there will always be the 7tag roster index entries (albeit initialized to empty field) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classchess_1_1Game_a5a5346e8f2b6d5063c2e1c8f892a08ed}{\index{chess\-::\-Game@{chess\-::\-Game}!apply\-Move@{apply\-Move}}
+\index{apply\-Move@{apply\-Move}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{apply\-Move}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::apply\-Move (
+\begin{DoxyParamCaption}
+\item[{{\bf Move} $\ast$}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a5a5346e8f2b6d5063c2e1c8f892a08ed}
+
+
+apply\-Move apply a move to the current node, and change the node to the resulting new node (or existing node) if a child node for this move already exists. There is no check if the supplied move is legal! 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & the move to apply on the current board. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_afb049584b03af5ce0d58f5feb6806a1f}{\index{chess\-::\-Game@{chess\-::\-Game}!del\-Below@{del\-Below}}
+\index{del\-Below@{del\-Below}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{del\-Below}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::del\-Below (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{node}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_afb049584b03af5ce0d58f5feb6806a1f}
+
+
+del\-Below delete the subtree below the supplied node. Afterwards sets current node pointer to the supplied node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_aaca844dd847f3e163e9da9e990f30931}{\index{chess\-::\-Game@{chess\-::\-Game}!del\-Variant@{del\-Variant}}
+\index{del\-Variant@{del\-Variant}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{del\-Variant}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::del\-Variant (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{node}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_aaca844dd847f3e163e9da9e990f30931}
+
+
+del\-Variant deletes the whole variation on which the supplied node exists. I.\-e. moves up the tree to the root of the variation, and deletes everything below. sets current node pointer to the root of the variation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_ac018e45f806510247404ba56feda568c}{\index{chess\-::\-Game@{chess\-::\-Game}!find\-Node\-By\-Id@{find\-Node\-By\-Id}}
+\index{find\-Node\-By\-Id@{find\-Node\-By\-Id}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{find\-Node\-By\-Id}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-::find\-Node\-By\-Id (
+\begin{DoxyParamCaption}
+\item[{int}]{id}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_ac018e45f806510247404ba56feda568c}
+
+
+find\-Node\-By\-Id each \hyperlink{classchess_1_1GameNode}{Game\-Node} has a unique id (see class definition) this searches for and find the node given the supplied id throw std\-::invalid\-\_\-argument if there exists no node with the id 
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & the node id \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+gamenode with the supplied id 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Game_a77233d7bfe997d113300b3c4333258d4}{\index{chess\-::\-Game@{chess\-::\-Game}!get\-Current\-Node@{get\-Current\-Node}}
+\index{get\-Current\-Node@{get\-Current\-Node}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{get\-Current\-Node}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-::get\-Current\-Node (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a77233d7bfe997d113300b3c4333258d4}
+
+
+get\-Current\-Node returns the current node. The current node is a pointer to a node in the tree and used e.\-g. for the node of the last move 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Game_aae095f72d044192f348c1f0b740aae32}{\index{chess\-::\-Game@{chess\-::\-Game}!get\-Result@{get\-Result}}
+\index{get\-Result@{get\-Result}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{get\-Result}]{\setlength{\rightskip}{0pt plus 5cm}int chess\-::\-Game\-::get\-Result (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_aae095f72d044192f348c1f0b740aae32}
+
+
+get\-Result returns the result of the game 
+
+\begin{DoxyReturn}{Returns}
+R\-E\-S\-\_\-\-B\-L\-A\-C\-K\-\_\-\-W\-I\-N\-S or R\-E\-S\-\_\-\-D\-R\-A\-W or R\-E\-S\-\_\-\-W\-H\-I\-T\-E\-\_\-\-W\-I\-N\-S or R\-E\-S\-\_\-\-U\-N\-D\-E\-F 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Game_ac8425c271f2d8365f813e5e169f7d1ed}{\index{chess\-::\-Game@{chess\-::\-Game}!get\-Root\-Node@{get\-Root\-Node}}
+\index{get\-Root\-Node@{get\-Root\-Node}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{get\-Root\-Node}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Game\-Node} $\ast$ chess\-::\-Game\-::get\-Root\-Node (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_ac8425c271f2d8365f813e5e169f7d1ed}
+
+
+get\-Root\-Node returns the root node of the game 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Game_a6b634132c4549290bd1bedd2444f7072}{\index{chess\-::\-Game@{chess\-::\-Game}!go\-To\-Child@{go\-To\-Child}}
+\index{go\-To\-Child@{go\-To\-Child}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{go\-To\-Child}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::go\-To\-Child (
+\begin{DoxyParamCaption}
+\item[{int}]{idx\-\_\-child}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a6b634132c4549290bd1bedd2444f7072}
+
+
+go\-To\-Child moves the current node poiner to the child at index idx\-\_\-child. If the index is out of range, keeps the pointer at the current node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx\-\_\-child} & the index of the variation of the child node \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_a0c87b025f3d1aceaded403d62c40f567}{\index{chess\-::\-Game@{chess\-::\-Game}!move\-Down@{move\-Down}}
+\index{move\-Down@{move\-Down}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{move\-Down}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::move\-Down (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{node}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a0c87b025f3d1aceaded403d62c40f567}
+
+
+move\-Down Reverse of \hyperlink{classchess_1_1Game_a5232c5b68052202aa8167df619837912}{move\-Up()}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_a5232c5b68052202aa8167df619837912}{\index{chess\-::\-Game@{chess\-::\-Game}!move\-Up@{move\-Up}}
+\index{move\-Up@{move\-Up}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{move\-Up}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::move\-Up (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{node}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a5232c5b68052202aa8167df619837912}
+
+
+move\-Up Suppose the supplied node is a child referenced at parent with index i, and there is another child of the parent with index i-\/1. Then this function switches these indexes. In other word, moves the supplied node variation one up. Has no effect, if node is root (i.\-e. has no parent) or is already the mainline (i.\-e. the zeroth) child of parent. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & The node that should be moved up \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_acb9da8af7684660ec3880f15143e051b}{\index{chess\-::\-Game@{chess\-::\-Game}!remove\-Comment\-Rec@{remove\-Comment\-Rec}}
+\index{remove\-Comment\-Rec@{remove\-Comment\-Rec}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{remove\-Comment\-Rec}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::remove\-Comment\-Rec (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{node}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_acb9da8af7684660ec3880f15143e051b}
+
+
+remove\-Comment\-Rec removes comment at supplied node and recursively removes at all comments at nodes below the supplied node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & the node to start with. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_ae7d450a354b5943cca2a60380f5152b4}{\index{chess\-::\-Game@{chess\-::\-Game}!reset\-With\-New\-Root\-Board@{reset\-With\-New\-Root\-Board}}
+\index{reset\-With\-New\-Root\-Board@{reset\-With\-New\-Root\-Board}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{reset\-With\-New\-Root\-Board}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::reset\-With\-New\-Root\-Board (
+\begin{DoxyParamCaption}
+\item[{{\bf chess\-::\-Board} $\ast$}]{new\-\_\-root\-\_\-board}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_ae7d450a354b5943cca2a60380f5152b4}
+
+
+reset\-With\-New\-Root\-Board delete the whole game tree, and set a new root node constructed with the supplied move. Essentially call this, if a new game has been requrested by the user, especially if the user has set up a custom board position. The supplied board M\-U\-S\-T be a valid board position. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\-\_\-root\-\_\-board} & The chess board to construct the root node. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_a07156dfe4b3dff8991350dcb38c9508e}{\index{chess\-::\-Game@{chess\-::\-Game}!set\-Current@{set\-Current}}
+\index{set\-Current@{set\-Current}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{set\-Current}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::set\-Current (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{new\-\_\-current}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a07156dfe4b3dff8991350dcb38c9508e}
+
+
+set\-Current set the current pointer to the supplied node. There is no validity check whether the node is actually a node in the game tree. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\-\_\-current} & pointer to the node \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_a9b10980b3b16b19c73e07034840ea3ea}{\index{chess\-::\-Game@{chess\-::\-Game}!set\-Result@{set\-Result}}
+\index{set\-Result@{set\-Result}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{set\-Result}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::set\-Result (
+\begin{DoxyParamCaption}
+\item[{int}]{r}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_a9b10980b3b16b19c73e07034840ea3ea}
+
+
+set\-Result sets the result of the game 
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & see \hyperlink{classchess_1_1Game_aae095f72d044192f348c1f0b740aae32}{get\-Result()} \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Game_af508607bc605b8974c2a393f0b3ecae1}{\index{chess\-::\-Game@{chess\-::\-Game}!set\-Root@{set\-Root}}
+\index{set\-Root@{set\-Root}!chess::Game@{chess\-::\-Game}}
+\subsubsection[{set\-Root}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Game\-::set\-Root (
+\begin{DoxyParamCaption}
+\item[{{\bf Game\-Node} $\ast$}]{new\-\_\-root}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Game_af508607bc605b8974c2a393f0b3ecae1}
+
+
+set\-Root sets the root node pointer to the supplied node. Really just that. Beware of memory leaks when using this function, as nodes below the old root might become inaccessible 
+
+
+\begin{DoxyParams}{Parameters}
+{\em new\-\_\-root} & \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+chess/game.\-h\item 
+chess/game.\-cpp\end{DoxyCompactItemize}
