@@ -32,8 +32,8 @@ Source: "C:\Deployment\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{commonprograms}\Jerry - Chess GUI"; Filename: "{app}\jerry3.exe"; IconFilename: "{app}\res\icons\win_icon.ico"
-Name: "{commondesktop}\Jerry - Chess GUI"; Filename: "{app}\jerry3.exe"; Tasks: desktopicon; IconFilename: "{app}\res\icons\win_icon.ico"
+Name: "{commonprograms}\Jerry - Chess GUI"; Filename: "{app}\Jerry.exe"; IconFilename: "{app}\res\icons\win_icon.ico"
+Name: "{commondesktop}\Jerry - Chess GUI"; Filename: "{app}\Jerry.exe"; Tasks: desktopicon; IconFilename: "{app}\res\icons\win_icon.ico"
 
 [Run]
 Filename: "{app}\Jerry.exe"; Description: "{cm:LaunchProgram,Jerry - Chess GUI}"; Flags: nowait postinstall skipifsilent
