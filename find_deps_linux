@@ -1,0 +1,37 @@
+# copied from https://github.com/williamhallatt/qtscripts
+# licensed under GNU GPL
+
+if [ $# -ne 1 ]
+then
+        echo "Usage: $0 <executable name>"
+        exit 1
+fi
+
+executable=$1
+
+# Obtain the Linux flavour and version.
+distro=`lsb_release -d | awk '{print $2$3$4}' | sed 's/\./_/g'`
+
+# Create the directory that will be tarred up for distribution.
+tardir=`echo $executable"_"$distro | awk '{print tolower($0)}'`
+mkdir $tardir
+echo "Created tar ball directory: "$tardir
+
+# Copy executable across.
+chmod u+x $executable
+cp $executable $tardir
+echo "Copied executable "$executable" to "$tardir
+
+# Create the libs directory.
+libsdir=$PWD/$tardir/libs
+mkdir $libsdir 
+echo "Created libs directory: "$libsdir
+
+# Copy all dependencies across to the tar directory.
+echo "Copying dependencies..."
+
+for dep in `ldd ./$executable | awk '{print $3}' | grep -v "("`
+do
+  cp $dep $libsdir
+  echo "Copied dependency "$dep" to "$libsdir
+done

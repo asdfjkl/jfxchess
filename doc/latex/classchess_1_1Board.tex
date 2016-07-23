@@ -1,0 +1,809 @@
+\hypertarget{classchess_1_1Board}{\section{chess\-:\-:Board Class Reference}
+\label{classchess_1_1Board}\index{chess\-::\-Board@{chess\-::\-Board}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Board_aa18fed833d071775910da2cebd65ccef}{\hyperlink{classchess_1_1Board_aa18fed833d071775910da2cebd65ccef}{Board} ()}\label{classchess_1_1Board_aa18fed833d071775910da2cebd65ccef}
+
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Board}{Board} creates empty board, no castling rights. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Board_af172f8f4202f976b9e08a602f7f7e104}{Board} (bool initial\-\_\-position)
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Board}{Board} creates board w/ initial position, castling rights set if called with true creates empty board board, no castling rights if called with false. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Board_a147c213c864ad018056ca446e2de46b7}{Board} (const Q\-String \&fen\-\_\-string)
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Board}{Board}. \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Board_a98009c374d8ca3778124a2618ef1b36b}{Board} (\hyperlink{classchess_1_1Board}{Board} $\ast$board)
+\begin{DoxyCompactList}\small\item\em \hyperlink{classchess_1_1Board}{Board} creates new \hyperlink{classchess_1_1Board}{Board} copying position of the pieces of the supplied board. Parameters (i.\-e. undo history, move numbers etc. are {\itshape not} copied, just the position of the pieces. \end{DoxyCompactList}\item 
+Q\-String \hyperlink{classchess_1_1Board_acf162aeb9ab6abbb3e4d6a868e3a07e7}{fen} ()
+\begin{DoxyCompactList}\small\item\em fen returns F\-E\-N string of current board \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Board}{Board} $\ast$ \hyperlink{classchess_1_1Board_afff07e23bb49d912617caf276323443e}{copy\-\_\-and\-\_\-apply} (const \hyperlink{classchess_1_1Move}{Move} \&m)
+\begin{DoxyCompactList}\small\item\em copy\-\_\-and\-\_\-apply applies move and returns a deep copy of current board no check of legality. always call board.\-is\-\_\-legal(m) before applying move \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_a5d17441690ffdf9a1000309e2272f6de}{apply} (const \hyperlink{classchess_1_1Move}{Move} \&m)
+\begin{DoxyCompactList}\small\item\em apply applies supplied move. doesn't check for legality no check of legality. always call board.\-is\-\_\-legal(m) before applying move \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}{void \hyperlink{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}{undo} ()}\label{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}
+
+\begin{DoxyCompactList}\small\item\em undo undoes the very last move. undoing can only be done once for the very last move that was applied before, i.\-e. apply undo apply undo is ok, but apply apply undo undo is not. throws logic error if called in wrong fashion. check with \hyperlink{classchess_1_1Board_a0c19f4ee4fed148786b1215790f62a0e}{is\-\_\-undo\-\_\-available()} when in doubt \end{DoxyCompactList}\item 
+Moves $\ast$ \hyperlink{classchess_1_1Board_ac9aa7f45517551baa208ed49ede59d97}{pseudo\-\_\-legal\-\_\-moves} ()
+\begin{DoxyCompactList}\small\item\em pseudo\-\_\-legal\-\_\-moves returns move list with all pseudo-\/legal moves of current position \end{DoxyCompactList}\item 
+Moves $\ast$ \hyperlink{classchess_1_1Board_a9d573f32784dd7744640a5709c44de50}{pseudo\-\_\-legal\-\_\-moves\-\_\-from} (int from\-\_\-square\-\_\-idx, bool with\-\_\-castles, bool turn\-\_\-color)
+\begin{DoxyCompactList}\small\item\em pseudo\-\_\-legal\-\_\-moves\-\_\-from returns move list with pseudo legal moves from supplied square index \end{DoxyCompactList}\item 
+Moves $\ast$ \hyperlink{classchess_1_1Board_af33abea2f6fba7df0e683fa1198a8520}{legal\-\_\-moves} ()
+\begin{DoxyCompactList}\small\item\em legal\-\_\-moves returns move list of all legal moves in position \end{DoxyCompactList}\item 
+Moves $\ast$ \hyperlink{classchess_1_1Board_a354b83ee53ba1f0ff7a7d0bac148d758}{legal\-\_\-moves\-\_\-from} (int from\-\_\-square)
+\begin{DoxyCompactList}\small\item\em legal\-\_\-moves\-\_\-from computes all legal moves originating in from square \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a804f9b6cceeef5f3f5d866d16e1097a2}{pseudo\-\_\-is\-\_\-legal\-\_\-move} (const \hyperlink{classchess_1_1Move}{Move} \&)
+\begin{DoxyCompactList}\small\item\em pseudo\-\_\-is\-\_\-legal\-\_\-move checks whether supplied pseudo legal move is legal in current position. Does N\-O\-T check whether supplied move is pseudo legal!!! \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_acd8243ca7cdd3fa72f07aa5f225a750a}{is\-\_\-legal\-\_\-move} (const \hyperlink{classchess_1_1Move}{Move} \&)
+\begin{DoxyCompactList}\small\item\em is\-\_\-legal\-\_\-move checks whether the supplied move is legal in the board position. Always call before applying a move on a board! \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_ae338726c0c954644b99342c9760d5924}{is\-\_\-legal\-\_\-and\-\_\-promotes} (const \hyperlink{classchess_1_1Move}{Move} \&)
+\begin{DoxyCompactList}\small\item\em is\-\_\-legal\-\_\-and\-\_\-promotes checks whether supplied move is legal and is a pawn move promoting to another piece \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_af12b1804d1edf018dbb348055cf88025}{is\-\_\-check} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-check checks if the player whose on the move in the current position is in check \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a24673c511d27445702013a7569f7291b}{is\-\_\-checkmate} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-checkmate tests whether player who is on the move in current position is in checkmate (i.\-e. is in check but has not legal move escaping the check) \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a7ff751702f53df82a8af55d66f187f66}{is\-\_\-stalemate} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-stalemate tests whether player who is on the move in current position is in stalemate (i.\-e. is not in check but all legal moves would result in check) \end{DoxyCompactList}\item 
+Q\-String \hyperlink{classchess_1_1Board_a2c498a11b0432a8c41a9dcece41612b7}{san} (const \hyperlink{classchess_1_1Move}{Move} \&m)
+\begin{DoxyCompactList}\small\item\em san computes the standard algebraic notation for the supplied move given the current position. the supplied move M\-U\-S\-T be legal on this board \end{DoxyCompactList}\item 
+\hyperlink{classchess_1_1Move}{Move} \hyperlink{classchess_1_1Board_a872aeef9bac835b88393092229685410}{parse\-\_\-san} (Q\-String s)
+\begin{DoxyCompactList}\small\item\em parse\-\_\-san Given board position and san string, parses the san string and computes a move for it. Throws std\-::invalid\-\_\-argument if the supplied san string cannot be parsed successfully (i.\-e. illegal move, illegal formatted string etc.) \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a422f4f975a7946ad593e870aa46cec89}{move\-Promotes} (const \hyperlink{classchess_1_1Move}{Move} \&m)
+\begin{DoxyCompactList}\small\item\em move\-Promotes checks if the supplied move (ignoring the promotion value stored in the move is a pawn move to the 8th / 1st rank, i.\-e. promoting) \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_af20f52e22fd1f61458f523eb6c1e9c7b}{is\-\_\-initial\-\_\-position} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-initial\-\_\-position checks whether the current placement of the pieces corresponds to the inital chess position. \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a89e8eecec4bae12a4018228fbb94ff1c}{can\-\_\-castle\-\_\-wking} ()
+\begin{DoxyCompactList}\small\item\em can\-\_\-castle\-\_\-wking checks whether the castling rights for the position are such that the White king is allowed to castle kingside in this position. \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a2c840ad4473c74959ed396773b98e3b9}{can\-\_\-castle\-\_\-bking} ()
+\begin{DoxyCompactList}\small\item\em can\-\_\-castle\-\_\-bking see can\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_ad233634a43bcaee9ef7490563e119500}{can\-\_\-castle\-\_\-wqueen} ()
+\begin{DoxyCompactList}\small\item\em can\-\_\-castle\-\_\-wqueen see can\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a08c869f01bdb5dbedbe1247a7ef6e081}{can\-\_\-castle\-\_\-bqueen} ()
+\begin{DoxyCompactList}\small\item\em can\-\_\-castle\-\_\-bqueen see can\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a0c19f4ee4fed148786b1215790f62a0e}{is\-\_\-undo\-\_\-available} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-undo\-\_\-available checks whether the current board position has enough information to apply the \hyperlink{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}{undo()} operation, i.\-e. take back the last move and return to the previous board state. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_af9caaf507db0ebca5530dfbeaa1de4d1}{set\-\_\-castle\-\_\-wking} (bool can\-\_\-do)
+\begin{DoxyCompactList}\small\item\em set\-\_\-castle\-\_\-wking set/unset the right of the white king to castle kingside. \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_a3b44c135a8d202fba74d0420bfbb1ece}{set\-\_\-castle\-\_\-bking} (bool can\-\_\-do)
+\begin{DoxyCompactList}\small\item\em set\-\_\-castle\-\_\-bking see set\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_aea1a6532bae11d8c2b1e54786082243a}{set\-\_\-castle\-\_\-wqueen} (bool can\-\_\-do)
+\begin{DoxyCompactList}\small\item\em set\-\_\-castle\-\_\-wqueen see set\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_abb70e7236fa809317a98453a2195c336}{set\-\_\-castle\-\_\-bqueen} (bool can\-\_\-do)
+\begin{DoxyCompactList}\small\item\em set\-\_\-castle\-\_\-bqueen see set\-\_\-castle\-\_\-wking \end{DoxyCompactList}\item 
+void \hyperlink{classchess_1_1Board_a8b86c20aa1698b9418e95517da36f49a}{set\-\_\-piece\-\_\-at} (int x, int y, uint8\-\_\-t piece)
+\begin{DoxyCompactList}\small\item\em set\-\_\-piece\-\_\-at sets a piece a the supplied board position (x,y) \end{DoxyCompactList}\item 
+uint8\-\_\-t \hyperlink{classchess_1_1Board_a11ee306cf1bed5aa97c99b90fa2462e9}{get\-\_\-piece\-\_\-at} (int x, int y)
+\begin{DoxyCompactList}\small\item\em get\-\_\-piece\-\_\-at gets piece a the supplied board position (x,y) \end{DoxyCompactList}\item 
+uint8\-\_\-t \hyperlink{classchess_1_1Board_a335cf36085d8de6a2ad784f12fa3ea87}{get\-\_\-piece\-\_\-type\-\_\-at} (int x, int y)
+\begin{DoxyCompactList}\small\item\em get\-\_\-piece\-\_\-type\-\_\-at get the piece type as uint8\-\_\-t at supplied position. piece type is always the piece encoded as if it were are white piece (see K\-I\-N\-G, Q\-U\-E\-E\-N, or empty). \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a0cc8ee041129aee3d29d8dca68379f5e}{get\-\_\-piece\-\_\-color\-\_\-at} (int x, int y)
+\begin{DoxyCompactList}\small\item\em get\-\_\-piece\-\_\-color\-\_\-at returns color (i.\-e. W\-H\-I\-T\-E or B\-L\-A\-C\-K) at supplied position. Don't call if there is is no piece at the position! (check with piece\-\_\-type first) \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a8b8cad6d67c80c279fb79d6438571c31}{piece\-\_\-color} (uint8\-\_\-t idx)
+\begin{DoxyCompactList}\small\item\em piece\-\_\-color same as get\-\_\-piece\-\_\-color\-\_\-at but uses here the internal position encoding to specify the field of the board. see this header file \end{DoxyCompactList}\item 
+uint8\-\_\-t \hyperlink{classchess_1_1Board_a72d50dca97ed1da2254f37d6635eb8af}{piece\-\_\-type} (uint8\-\_\-t idx)
+\begin{DoxyCompactList}\small\item\em piece\-\_\-type see piece\-\_\-color and \hyperlink{classchess_1_1Board_a335cf36085d8de6a2ad784f12fa3ea87}{get\-\_\-piece\-\_\-type\-\_\-at()} \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a56972d814d398cdcb152b09aa4156965}{is\-\_\-consistent} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-consistent rudimentary check of position consistency \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost does not return castling rights of current position (for that call \hyperlink{classchess_1_1Board_a2c840ad4473c74959ed396773b98e3b9}{can\-\_\-castle\-\_\-bking()} etc. ) instead checks whether black king and rook are in initial position or have moved \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_ac92f5282b668129747f57993528f4e0a}{is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a9a959761717852a29b9d07964146c28e}{is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} \end{DoxyCompactList}\item 
+bool \hyperlink{classchess_1_1Board_a872cf3888b3b7456f0f641d10a614e5c}{is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost} ()
+\begin{DoxyCompactList}\small\item\em is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classchess_1_1Board_a1726413a7710da68c1d87c190d59ff2d}{bool \hyperlink{classchess_1_1Board_a1726413a7710da68c1d87c190d59ff2d}{turn}}\label{classchess_1_1Board_a1726413a7710da68c1d87c190d59ff2d}
+
+\begin{DoxyCompactList}\small\item\em turn is either == W\-H\-I\-T\-E or == B\-L\-A\-C\-K \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Board_a5560fe97c8de0895aad63a16f2fe989d}{int \hyperlink{classchess_1_1Board_a5560fe97c8de0895aad63a16f2fe989d}{halfmove\-\_\-clock}}\label{classchess_1_1Board_a5560fe97c8de0895aad63a16f2fe989d}
+
+\begin{DoxyCompactList}\small\item\em halfmove\-\_\-clock number of halfmoves from beginning. automatically updated after applying a move \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Board_a2e62bd7f7c8a08a06f60b0a5c4d9f0f9}{int \hyperlink{classchess_1_1Board_a2e62bd7f7c8a08a06f60b0a5c4d9f0f9}{fullmove\-\_\-number}}\label{classchess_1_1Board_a2e62bd7f7c8a08a06f60b0a5c4d9f0f9}
+
+\begin{DoxyCompactList}\small\item\em fullmove\-\_\-number \end{DoxyCompactList}\item 
+\hypertarget{classchess_1_1Board_ab804a92f19458640a977ec4a713e4f7b}{bool \hyperlink{classchess_1_1Board_ab804a92f19458640a977ec4a713e4f7b}{last\-\_\-was\-\_\-null}}\label{classchess_1_1Board_ab804a92f19458640a977ec4a713e4f7b}
+
+\begin{DoxyCompactList}\small\item\em last\-\_\-was\-\_\-null set to true, if last the last move leading to this board position was a null move \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\-::ostream \& \hyperlink{classchess_1_1Board_a12c9a3f04eea162630a1cffdb8560667}{operator$<$$<$} (std\-::ostream \&strm, const \hyperlink{classchess_1_1Board}{Board} \&b)
+\begin{DoxyCompactList}\small\item\em operator $<$$<$ \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classchess_1_1Board_af172f8f4202f976b9e08a602f7f7e104}{\index{chess\-::\-Board@{chess\-::\-Board}!Board@{Board}}
+\index{Board@{Board}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{Board}]{\setlength{\rightskip}{0pt plus 5cm}chess\-::\-Board\-::\-Board (
+\begin{DoxyParamCaption}
+\item[{bool}]{initial\-\_\-position}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_af172f8f4202f976b9e08a602f7f7e104}
+
+
+\hyperlink{classchess_1_1Board}{Board} creates board w/ initial position, castling rights set if called with true creates empty board board, no castling rights if called with false. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em initial\-\_\-position} & triggers wether initial position or empty should be created \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_a147c213c864ad018056ca446e2de46b7}{\index{chess\-::\-Board@{chess\-::\-Board}!Board@{Board}}
+\index{Board@{Board}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{Board}]{\setlength{\rightskip}{0pt plus 5cm}chess\-::\-Board\-::\-Board (
+\begin{DoxyParamCaption}
+\item[{const Q\-String \&}]{fen\-\_\-string}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a147c213c864ad018056ca446e2de46b7}
+
+
+\hyperlink{classchess_1_1Board}{Board}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fen\-\_\-string} & creates board from F\-E\-N string \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_a98009c374d8ca3778124a2618ef1b36b}{\index{chess\-::\-Board@{chess\-::\-Board}!Board@{Board}}
+\index{Board@{Board}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{Board}]{\setlength{\rightskip}{0pt plus 5cm}chess\-::\-Board\-::\-Board (
+\begin{DoxyParamCaption}
+\item[{{\bf Board} $\ast$}]{board}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a98009c374d8ca3778124a2618ef1b36b}
+
+
+\hyperlink{classchess_1_1Board}{Board} creates new \hyperlink{classchess_1_1Board}{Board} copying position of the pieces of the supplied board. Parameters (i.\-e. undo history, move numbers etc. are {\itshape not} copied, just the position of the pieces. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em board} & The board where the position of pieces is taken from \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classchess_1_1Board_a5d17441690ffdf9a1000309e2272f6de}{\index{chess\-::\-Board@{chess\-::\-Board}!apply@{apply}}
+\index{apply@{apply}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{apply}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::apply (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a5d17441690ffdf9a1000309e2272f6de}
+
+
+apply applies supplied move. doesn't check for legality no check of legality. always call board.\-is\-\_\-legal(m) before applying move 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & move to apply \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_a2c840ad4473c74959ed396773b98e3b9}{\index{chess\-::\-Board@{chess\-::\-Board}!can\-\_\-castle\-\_\-bking@{can\-\_\-castle\-\_\-bking}}
+\index{can\-\_\-castle\-\_\-bking@{can\-\_\-castle\-\_\-bking}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{can\-\_\-castle\-\_\-bking}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::can\-\_\-castle\-\_\-bking (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a2c840ad4473c74959ed396773b98e3b9}
+
+
+can\-\_\-castle\-\_\-bking see can\-\_\-castle\-\_\-wking 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a08c869f01bdb5dbedbe1247a7ef6e081}{\index{chess\-::\-Board@{chess\-::\-Board}!can\-\_\-castle\-\_\-bqueen@{can\-\_\-castle\-\_\-bqueen}}
+\index{can\-\_\-castle\-\_\-bqueen@{can\-\_\-castle\-\_\-bqueen}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{can\-\_\-castle\-\_\-bqueen}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::can\-\_\-castle\-\_\-bqueen (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a08c869f01bdb5dbedbe1247a7ef6e081}
+
+
+can\-\_\-castle\-\_\-bqueen see can\-\_\-castle\-\_\-wking 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a89e8eecec4bae12a4018228fbb94ff1c}{\index{chess\-::\-Board@{chess\-::\-Board}!can\-\_\-castle\-\_\-wking@{can\-\_\-castle\-\_\-wking}}
+\index{can\-\_\-castle\-\_\-wking@{can\-\_\-castle\-\_\-wking}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{can\-\_\-castle\-\_\-wking}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::can\-\_\-castle\-\_\-wking (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a89e8eecec4bae12a4018228fbb94ff1c}
+
+
+can\-\_\-castle\-\_\-wking checks whether the castling rights for the position are such that the White king is allowed to castle kingside in this position. 
+
+\begin{DoxyReturn}{Returns}
+true if king may castle, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_ad233634a43bcaee9ef7490563e119500}{\index{chess\-::\-Board@{chess\-::\-Board}!can\-\_\-castle\-\_\-wqueen@{can\-\_\-castle\-\_\-wqueen}}
+\index{can\-\_\-castle\-\_\-wqueen@{can\-\_\-castle\-\_\-wqueen}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{can\-\_\-castle\-\_\-wqueen}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::can\-\_\-castle\-\_\-wqueen (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_ad233634a43bcaee9ef7490563e119500}
+
+
+can\-\_\-castle\-\_\-wqueen see can\-\_\-castle\-\_\-wking 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_afff07e23bb49d912617caf276323443e}{\index{chess\-::\-Board@{chess\-::\-Board}!copy\-\_\-and\-\_\-apply@{copy\-\_\-and\-\_\-apply}}
+\index{copy\-\_\-and\-\_\-apply@{copy\-\_\-and\-\_\-apply}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{copy\-\_\-and\-\_\-apply}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Board} $\ast$ chess\-::\-Board\-::copy\-\_\-and\-\_\-apply (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_afff07e23bb49d912617caf276323443e}
+
+
+copy\-\_\-and\-\_\-apply applies move and returns a deep copy of current board no check of legality. always call board.\-is\-\_\-legal(m) before applying move 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & move to apply \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+copy of board 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_acf162aeb9ab6abbb3e4d6a868e3a07e7}{\index{chess\-::\-Board@{chess\-::\-Board}!fen@{fen}}
+\index{fen@{fen}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{fen}]{\setlength{\rightskip}{0pt plus 5cm}Q\-String chess\-::\-Board\-::fen (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_acf162aeb9ab6abbb3e4d6a868e3a07e7}
+
+
+fen returns F\-E\-N string of current board 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a11ee306cf1bed5aa97c99b90fa2462e9}{\index{chess\-::\-Board@{chess\-::\-Board}!get\-\_\-piece\-\_\-at@{get\-\_\-piece\-\_\-at}}
+\index{get\-\_\-piece\-\_\-at@{get\-\_\-piece\-\_\-at}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{get\-\_\-piece\-\_\-at}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t chess\-::\-Board\-::get\-\_\-piece\-\_\-at (
+\begin{DoxyParamCaption}
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a11ee306cf1bed5aa97c99b90fa2462e9}
+
+
+get\-\_\-piece\-\_\-at gets piece a the supplied board position (x,y) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & int in the range (0,7) representing the column (i.\-e. a -\/ h) \\
+\hline
+{\em y} & int in the range (0,7) representing the row (i.\-e. 0 -\/ 7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+piece type encoded as uint8\-\_\-t (i.\-e. B\-L\-A\-C\-K\-\_\-\-Q\-U\-E\-E\-N or E\-M\-P\-T\-Y) 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a0cc8ee041129aee3d29d8dca68379f5e}{\index{chess\-::\-Board@{chess\-::\-Board}!get\-\_\-piece\-\_\-color\-\_\-at@{get\-\_\-piece\-\_\-color\-\_\-at}}
+\index{get\-\_\-piece\-\_\-color\-\_\-at@{get\-\_\-piece\-\_\-color\-\_\-at}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{get\-\_\-piece\-\_\-color\-\_\-at}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::get\-\_\-piece\-\_\-color\-\_\-at (
+\begin{DoxyParamCaption}
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a0cc8ee041129aee3d29d8dca68379f5e}
+
+
+get\-\_\-piece\-\_\-color\-\_\-at returns color (i.\-e. W\-H\-I\-T\-E or B\-L\-A\-C\-K) at supplied position. Don't call if there is is no piece at the position! (check with piece\-\_\-type first) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & column \\
+\hline
+{\em y} & row \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+piece color 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a335cf36085d8de6a2ad784f12fa3ea87}{\index{chess\-::\-Board@{chess\-::\-Board}!get\-\_\-piece\-\_\-type\-\_\-at@{get\-\_\-piece\-\_\-type\-\_\-at}}
+\index{get\-\_\-piece\-\_\-type\-\_\-at@{get\-\_\-piece\-\_\-type\-\_\-at}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{get\-\_\-piece\-\_\-type\-\_\-at}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t chess\-::\-Board\-::get\-\_\-piece\-\_\-type\-\_\-at (
+\begin{DoxyParamCaption}
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a335cf36085d8de6a2ad784f12fa3ea87}
+
+
+get\-\_\-piece\-\_\-type\-\_\-at get the piece type as uint8\-\_\-t at supplied position. piece type is always the piece encoded as if it were are white piece (see K\-I\-N\-G, Q\-U\-E\-E\-N, or empty). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & int in the range (0,7) representing the column (i.\-e. a -\/ h) \\
+\hline
+{\em y} & int in the range (0,7) representing the column (i.\-e. a -\/ h) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+piece encoding 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}}
+\index{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}
+
+
+is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost does not return castling rights of current position (for that call \hyperlink{classchess_1_1Board_a2c840ad4473c74959ed396773b98e3b9}{can\-\_\-castle\-\_\-bking()} etc. ) instead checks whether black king and rook are in initial position or have moved 
+
+Board\-::is\-\_\-black\-\_\-castle\-\_\-right\-\_\-lost.
+
+\begin{DoxyReturn}{Returns}
+false, if black king or rook have moved from inital pos, true otherwise.
+
+true if black king and kingside rook are on initial position, false otherwise i.\-e. checks the {\itshape possibility} whether castling could be possible (to check consistency when entering a board position) to call board status, use can\-\_\-castle\-\_\-$\ast$ functions 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_ac92f5282b668129747f57993528f4e0a}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}}
+\index{is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_ac92f5282b668129747f57993528f4e0a}
+
+
+is\-\_\-black\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_af12b1804d1edf018dbb348055cf88025}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-check@{is\-\_\-check}}
+\index{is\-\_\-check@{is\-\_\-check}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-check}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-check (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_af12b1804d1edf018dbb348055cf88025}
+
+
+is\-\_\-check checks if the player whose on the move in the current position is in check 
+
+\begin{DoxyReturn}{Returns}
+true, if player in check, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a24673c511d27445702013a7569f7291b}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-checkmate@{is\-\_\-checkmate}}
+\index{is\-\_\-checkmate@{is\-\_\-checkmate}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-checkmate}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-checkmate (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a24673c511d27445702013a7569f7291b}
+
+
+is\-\_\-checkmate tests whether player who is on the move in current position is in checkmate (i.\-e. is in check but has not legal move escaping the check) 
+
+\begin{DoxyReturn}{Returns}
+true, if player in checkmate, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a56972d814d398cdcb152b09aa4156965}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-consistent@{is\-\_\-consistent}}
+\index{is\-\_\-consistent@{is\-\_\-consistent}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-consistent}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-consistent (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a56972d814d398cdcb152b09aa4156965}
+
+
+is\-\_\-consistent rudimentary check of position consistency 
+
+\begin{DoxyReturn}{Returns}
+true if the conditions below are true, false otherwise
+\end{DoxyReturn}
+N\-O\-T\-E\-: this doesn't capture {\itshape all} invalid positions, but the most common reasons there exists one white and one black king \mbox{[}ok\mbox{]} kings are $>$= 1 field apart \mbox{[}ok\mbox{]} side not to move is not in check \mbox{[}ok\mbox{]} side to move has less than three attackers who give check if side to move is in check w/ two attackers\-: following must not hold\-: pawn+(pawn, bishop, knight), bishop+bishop, knight+knight each side has less than 8 pawns \mbox{[}ok\mbox{]} no pawns in first or last row \mbox{[}ok\mbox{]} extra pieces = Math.\-max(0, num\-\_\-queens-\/1) + Math.\-max(0, num\-\_\-rooks-\/2)... and extra\-\_\-pieces $<$= (8-\/num\-\_\-pawns)) no more than 5 pawns in a or h line checks consistency of castling rights. if set, then verify w/ is\-\_\-black\-\_\-castle\-\_\-right\-\_\-lost() and is\-\_\-white\-\_\-castle\-\_\-lost() \hypertarget{classchess_1_1Board_af20f52e22fd1f61458f523eb6c1e9c7b}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-initial\-\_\-position@{is\-\_\-initial\-\_\-position}}
+\index{is\-\_\-initial\-\_\-position@{is\-\_\-initial\-\_\-position}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-initial\-\_\-position}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-initial\-\_\-position (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_af20f52e22fd1f61458f523eb6c1e9c7b}
+
+
+is\-\_\-initial\-\_\-position checks whether the current placement of the pieces corresponds to the inital chess position. 
+
+\begin{DoxyReturn}{Returns}
+true if initial position, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_ae338726c0c954644b99342c9760d5924}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-legal\-\_\-and\-\_\-promotes@{is\-\_\-legal\-\_\-and\-\_\-promotes}}
+\index{is\-\_\-legal\-\_\-and\-\_\-promotes@{is\-\_\-legal\-\_\-and\-\_\-promotes}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-legal\-\_\-and\-\_\-promotes}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-legal\-\_\-and\-\_\-promotes (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_ae338726c0c954644b99342c9760d5924}
+
+
+is\-\_\-legal\-\_\-and\-\_\-promotes checks whether supplied move is legal and is a pawn move promoting to another piece 
+
+\begin{DoxyReturn}{Returns}
+true only if both move is legal and pawn move and promotes. false, otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_acd8243ca7cdd3fa72f07aa5f225a750a}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-legal\-\_\-move@{is\-\_\-legal\-\_\-move}}
+\index{is\-\_\-legal\-\_\-move@{is\-\_\-legal\-\_\-move}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-legal\-\_\-move}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-legal\-\_\-move (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_acd8243ca7cdd3fa72f07aa5f225a750a}
+
+
+is\-\_\-legal\-\_\-move checks whether the supplied move is legal in the board position. Always call before applying a move on a board! 
+
+\begin{DoxyReturn}{Returns}
+true, if the move is legal, otherwise false 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a7ff751702f53df82a8af55d66f187f66}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-stalemate@{is\-\_\-stalemate}}
+\index{is\-\_\-stalemate@{is\-\_\-stalemate}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-stalemate}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-stalemate (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a7ff751702f53df82a8af55d66f187f66}
+
+
+is\-\_\-stalemate tests whether player who is on the move in current position is in stalemate (i.\-e. is not in check but all legal moves would result in check) 
+
+\begin{DoxyReturn}{Returns}
+true, if position is stalemate, false otherwise. 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a0c19f4ee4fed148786b1215790f62a0e}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-undo\-\_\-available@{is\-\_\-undo\-\_\-available}}
+\index{is\-\_\-undo\-\_\-available@{is\-\_\-undo\-\_\-available}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-undo\-\_\-available}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-undo\-\_\-available (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a0c19f4ee4fed148786b1215790f62a0e}
+
+
+is\-\_\-undo\-\_\-available checks whether the current board position has enough information to apply the \hyperlink{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}{undo()} operation, i.\-e. take back the last move and return to the previous board state. 
+
+\begin{DoxyReturn}{Returns}
+true if info is available (i.\-e. \hyperlink{classchess_1_1Board_afbd72bf71259ba08016f6b547075d19b}{undo()} may be called), false otherwise 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a9a959761717852a29b9d07964146c28e}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}}
+\index{is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a9a959761717852a29b9d07964146c28e}
+
+
+is\-\_\-white\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a872cf3888b3b7456f0f641d10a614e5c}{\index{chess\-::\-Board@{chess\-::\-Board}!is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}}
+\index{is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost@{is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a872cf3888b3b7456f0f641d10a614e5c}
+
+
+is\-\_\-white\-\_\-queen\-\_\-castle\-\_\-right\-\_\-lost see \hyperlink{classchess_1_1Board_a4d4dcba09aa3863ad90bb170d7d928be}{is\-\_\-black\-\_\-king\-\_\-castle\-\_\-right\-\_\-lost()} 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_af33abea2f6fba7df0e683fa1198a8520}{\index{chess\-::\-Board@{chess\-::\-Board}!legal\-\_\-moves@{legal\-\_\-moves}}
+\index{legal\-\_\-moves@{legal\-\_\-moves}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{legal\-\_\-moves}]{\setlength{\rightskip}{0pt plus 5cm}Moves $\ast$ chess\-::\-Board\-::legal\-\_\-moves (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_af33abea2f6fba7df0e683fa1198a8520}
+
+
+legal\-\_\-moves returns move list of all legal moves in position 
+
+\begin{DoxyReturn}{Returns}
+move list 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a354b83ee53ba1f0ff7a7d0bac148d758}{\index{chess\-::\-Board@{chess\-::\-Board}!legal\-\_\-moves\-\_\-from@{legal\-\_\-moves\-\_\-from}}
+\index{legal\-\_\-moves\-\_\-from@{legal\-\_\-moves\-\_\-from}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{legal\-\_\-moves\-\_\-from}]{\setlength{\rightskip}{0pt plus 5cm}Moves $\ast$ chess\-::\-Board\-::legal\-\_\-moves\-\_\-from (
+\begin{DoxyParamCaption}
+\item[{int}]{from\-\_\-square}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a354b83ee53ba1f0ff7a7d0bac148d758}
+
+
+legal\-\_\-moves\-\_\-from computes all legal moves originating in from square 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from\-\_\-square} & move originates from this square. must be in range 21...98 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+move list of legal moves 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a422f4f975a7946ad593e870aa46cec89}{\index{chess\-::\-Board@{chess\-::\-Board}!move\-Promotes@{move\-Promotes}}
+\index{move\-Promotes@{move\-Promotes}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{move\-Promotes}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::move\-Promotes (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a422f4f975a7946ad593e870aa46cec89}
+
+
+move\-Promotes checks if the supplied move (ignoring the promotion value stored in the move is a pawn move to the 8th / 1st rank, i.\-e. promoting) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & move of concern \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if move promotes, false otherwise 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a872aeef9bac835b88393092229685410}{\index{chess\-::\-Board@{chess\-::\-Board}!parse\-\_\-san@{parse\-\_\-san}}
+\index{parse\-\_\-san@{parse\-\_\-san}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{parse\-\_\-san}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Move} chess\-::\-Board\-::parse\-\_\-san (
+\begin{DoxyParamCaption}
+\item[{Q\-String}]{s}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a872aeef9bac835b88393092229685410}
+
+
+parse\-\_\-san Given board position and san string, parses the san string and computes a move for it. Throws std\-::invalid\-\_\-argument if the supplied san string cannot be parsed successfully (i.\-e. illegal move, illegal formatted string etc.) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em s} & string containing a san representation of a move (no move number!) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+move object (if parsed successfully) 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a8b8cad6d67c80c279fb79d6438571c31}{\index{chess\-::\-Board@{chess\-::\-Board}!piece\-\_\-color@{piece\-\_\-color}}
+\index{piece\-\_\-color@{piece\-\_\-color}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{piece\-\_\-color}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::piece\-\_\-color (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{idx}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a8b8cad6d67c80c279fb79d6438571c31}
+
+
+piece\-\_\-color same as get\-\_\-piece\-\_\-color\-\_\-at but uses here the internal position encoding to specify the field of the board. see this header file 
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & internal board encoding specifying field position \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+piece color 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a72d50dca97ed1da2254f37d6635eb8af}{\index{chess\-::\-Board@{chess\-::\-Board}!piece\-\_\-type@{piece\-\_\-type}}
+\index{piece\-\_\-type@{piece\-\_\-type}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{piece\-\_\-type}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t chess\-::\-Board\-::piece\-\_\-type (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{idx}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a72d50dca97ed1da2254f37d6635eb8af}
+
+
+piece\-\_\-type see piece\-\_\-color and \hyperlink{classchess_1_1Board_a335cf36085d8de6a2ad784f12fa3ea87}{get\-\_\-piece\-\_\-type\-\_\-at()} 
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a804f9b6cceeef5f3f5d866d16e1097a2}{\index{chess\-::\-Board@{chess\-::\-Board}!pseudo\-\_\-is\-\_\-legal\-\_\-move@{pseudo\-\_\-is\-\_\-legal\-\_\-move}}
+\index{pseudo\-\_\-is\-\_\-legal\-\_\-move@{pseudo\-\_\-is\-\_\-legal\-\_\-move}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{pseudo\-\_\-is\-\_\-legal\-\_\-move}]{\setlength{\rightskip}{0pt plus 5cm}bool chess\-::\-Board\-::pseudo\-\_\-is\-\_\-legal\-\_\-move (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a804f9b6cceeef5f3f5d866d16e1097a2}
+
+
+pseudo\-\_\-is\-\_\-legal\-\_\-move checks whether supplied pseudo legal move is legal in current position. Does N\-O\-T check whether supplied move is pseudo legal!!! 
+
+\begin{DoxyReturn}{Returns}
+result of checking legality 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_ac9aa7f45517551baa208ed49ede59d97}{\index{chess\-::\-Board@{chess\-::\-Board}!pseudo\-\_\-legal\-\_\-moves@{pseudo\-\_\-legal\-\_\-moves}}
+\index{pseudo\-\_\-legal\-\_\-moves@{pseudo\-\_\-legal\-\_\-moves}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{pseudo\-\_\-legal\-\_\-moves}]{\setlength{\rightskip}{0pt plus 5cm}Moves $\ast$ chess\-::\-Board\-::pseudo\-\_\-legal\-\_\-moves (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_ac9aa7f45517551baa208ed49ede59d97}
+
+
+pseudo\-\_\-legal\-\_\-moves returns move list with all pseudo-\/legal moves of current position 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a9d573f32784dd7744640a5709c44de50}{\index{chess\-::\-Board@{chess\-::\-Board}!pseudo\-\_\-legal\-\_\-moves\-\_\-from@{pseudo\-\_\-legal\-\_\-moves\-\_\-from}}
+\index{pseudo\-\_\-legal\-\_\-moves\-\_\-from@{pseudo\-\_\-legal\-\_\-moves\-\_\-from}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{pseudo\-\_\-legal\-\_\-moves\-\_\-from}]{\setlength{\rightskip}{0pt plus 5cm}Moves $\ast$ chess\-::\-Board\-::pseudo\-\_\-legal\-\_\-moves\-\_\-from (
+\begin{DoxyParamCaption}
+\item[{int}]{from\-\_\-square\-\_\-idx, }
+\item[{bool}]{with\-\_\-castles, }
+\item[{bool}]{turn\-\_\-color}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a9d573f32784dd7744640a5709c44de50}
+
+
+pseudo\-\_\-legal\-\_\-moves\-\_\-from returns move list with pseudo legal moves from supplied square index 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from\-\_\-square\-\_\-idx} & square from which move originates must be in internal board representation, i.\-e. in range 21 ... 98 \\
+\hline
+{\em with\-\_\-castles} & include castling in returned list \\
+\hline
+{\em turn\-\_\-color} & either W\-H\-I\-T\-E or B\-L\-A\-C\-K, i.\-e. the player to move \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pseudo legal move list 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a2c498a11b0432a8c41a9dcece41612b7}{\index{chess\-::\-Board@{chess\-::\-Board}!san@{san}}
+\index{san@{san}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{san}]{\setlength{\rightskip}{0pt plus 5cm}Q\-String chess\-::\-Board\-::san (
+\begin{DoxyParamCaption}
+\item[{const {\bf Move} \&}]{m}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a2c498a11b0432a8c41a9dcece41612b7}
+
+
+san computes the standard algebraic notation for the supplied move given the current position. the supplied move M\-U\-S\-T be legal on this board 
+
+
+\begin{DoxyParams}{Parameters}
+{\em m} & \hyperlink{classchess_1_1Move}{Move} to get the san for \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string containing san representation of move (no move number!) 
+\end{DoxyReturn}
+\hypertarget{classchess_1_1Board_a3b44c135a8d202fba74d0420bfbb1ece}{\index{chess\-::\-Board@{chess\-::\-Board}!set\-\_\-castle\-\_\-bking@{set\-\_\-castle\-\_\-bking}}
+\index{set\-\_\-castle\-\_\-bking@{set\-\_\-castle\-\_\-bking}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{set\-\_\-castle\-\_\-bking}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::set\-\_\-castle\-\_\-bking (
+\begin{DoxyParamCaption}
+\item[{bool}]{can\-\_\-do}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a3b44c135a8d202fba74d0420bfbb1ece}
+
+
+set\-\_\-castle\-\_\-bking see set\-\_\-castle\-\_\-wking 
+
+
+\begin{DoxyParams}{Parameters}
+{\em can\-\_\-do} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_abb70e7236fa809317a98453a2195c336}{\index{chess\-::\-Board@{chess\-::\-Board}!set\-\_\-castle\-\_\-bqueen@{set\-\_\-castle\-\_\-bqueen}}
+\index{set\-\_\-castle\-\_\-bqueen@{set\-\_\-castle\-\_\-bqueen}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{set\-\_\-castle\-\_\-bqueen}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::set\-\_\-castle\-\_\-bqueen (
+\begin{DoxyParamCaption}
+\item[{bool}]{can\-\_\-do}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_abb70e7236fa809317a98453a2195c336}
+
+
+set\-\_\-castle\-\_\-bqueen see set\-\_\-castle\-\_\-wking 
+
+
+\begin{DoxyParams}{Parameters}
+{\em can\-\_\-do} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_af9caaf507db0ebca5530dfbeaa1de4d1}{\index{chess\-::\-Board@{chess\-::\-Board}!set\-\_\-castle\-\_\-wking@{set\-\_\-castle\-\_\-wking}}
+\index{set\-\_\-castle\-\_\-wking@{set\-\_\-castle\-\_\-wking}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{set\-\_\-castle\-\_\-wking}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::set\-\_\-castle\-\_\-wking (
+\begin{DoxyParamCaption}
+\item[{bool}]{can\-\_\-do}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_af9caaf507db0ebca5530dfbeaa1de4d1}
+
+
+set\-\_\-castle\-\_\-wking set/unset the right of the white king to castle kingside. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em can\-\_\-do} & true to allow white to castle, false otherwise. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_aea1a6532bae11d8c2b1e54786082243a}{\index{chess\-::\-Board@{chess\-::\-Board}!set\-\_\-castle\-\_\-wqueen@{set\-\_\-castle\-\_\-wqueen}}
+\index{set\-\_\-castle\-\_\-wqueen@{set\-\_\-castle\-\_\-wqueen}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{set\-\_\-castle\-\_\-wqueen}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::set\-\_\-castle\-\_\-wqueen (
+\begin{DoxyParamCaption}
+\item[{bool}]{can\-\_\-do}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_aea1a6532bae11d8c2b1e54786082243a}
+
+
+set\-\_\-castle\-\_\-wqueen see set\-\_\-castle\-\_\-wking 
+
+
+\begin{DoxyParams}{Parameters}
+{\em can\-\_\-do} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classchess_1_1Board_a8b86c20aa1698b9418e95517da36f49a}{\index{chess\-::\-Board@{chess\-::\-Board}!set\-\_\-piece\-\_\-at@{set\-\_\-piece\-\_\-at}}
+\index{set\-\_\-piece\-\_\-at@{set\-\_\-piece\-\_\-at}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{set\-\_\-piece\-\_\-at}]{\setlength{\rightskip}{0pt plus 5cm}void chess\-::\-Board\-::set\-\_\-piece\-\_\-at (
+\begin{DoxyParamCaption}
+\item[{int}]{x, }
+\item[{int}]{y, }
+\item[{uint8\-\_\-t}]{piece}
+\end{DoxyParamCaption}
+)}}\label{classchess_1_1Board_a8b86c20aa1698b9418e95517da36f49a}
+
+
+set\-\_\-piece\-\_\-at sets a piece a the supplied board position (x,y) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & int in the range (0,7) representing the column (i.\-e. a -\/ h) \\
+\hline
+{\em y} & int in the range (0,7) representing the row (i.\-e. 0 -\/ 7) \\
+\hline
+{\em piece} & the piece type (constants such as W\-H\-I\-T\-E\-\_\-\-K\-I\-N\-G, B\-L\-A\-C\-K\-\_\-\-Q\-U\-E\-E\-N, E\-M\-P\-T\-Y etc.) \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classchess_1_1Board_a12c9a3f04eea162630a1cffdb8560667}{\index{chess\-::\-Board@{chess\-::\-Board}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!chess::Board@{chess\-::\-Board}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}std\-::ostream\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{std\-::ostream \&}]{strm, }
+\item[{const {\bf Board} \&}]{b}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}}\label{classchess_1_1Board_a12c9a3f04eea162630a1cffdb8560667}
+
+
+operator $<$$<$ 
+
+
+\begin{DoxyParams}{Parameters}
+{\em strm} & \\
+\hline
+{\em b} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+prints board as ascii output.
+
+Example\-: \hyperlink{classchess_1_1Board}{Board} b(); std\-::cout $<$$<$ b $<$$<$ std\-::endl; 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+chess/board.\-h\item 
+chess/board.\-cpp\end{DoxyCompactItemize}

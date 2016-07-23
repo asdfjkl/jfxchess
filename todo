@@ -1,0 +1,51 @@
+message box hat kein parent, daher
+kann focus verlieren!
+
+Blunder: 300 centipawns
+Mistake: 100 centipawns
+Inaccuracy: 50 centipawns
+
+option blind zu spielen
+
+markierung letzter zug
+
+Kommentar: Big mistake / Blunder / Mistake
+
+Graph: Partieverlauf
+
+board view simply & veerbung von 
+funk (base board view, darauf display board view, 
+darauf enter pos boardview, und auf display board dann viewcontroller)
+[done, but needs cleanup!]
+
+an/aus button durch eigenkonstruktion ersetzen
+
+weitere destruktoren schreiben (insb. mittelbar durch
+konstruktion von gui elementen innnerhalb von klassen
+mit parent call) und memory leaks auffinden mit valgrind
+
+halfmove counter bei zügen in board.cpp korrekt implementieren
+darauf aufbauen 50 züge regel implementieren
+
+uhren + timed-game hinzufügen
+
+polyglot opening book hinzuüfgen; computer wählt randomisiert
+eröffnungen aus (evtl. einfachere eröffnungen gegen schwache spieler)
+[done, braucht evtl. noch tuning für schwache spieler]
+
+fritz-artigen "Friend-Mode" mit Handicap implementieren (ggf. über
+multipv)
+
+eröffnungs-code detektor implementieren [done]
+
+scid-dateiformart debuggen & dokumentieren. Implementierung 
+dagegen schreiben
+
+database view bzw. bei multiplen daten in pgn anzeige
+aller partien durch einmal-click
+
+architektur-dokument (signals, slots, game-model) schreiben
+
+weitere klassen dokumentieren
+
++ improved analysis = next 3.0.x release?
