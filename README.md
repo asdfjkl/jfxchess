@@ -1,5 +1,5 @@
 # Jerry
-#### Your friendly chess program from Germany
+#### Your chess program from Germany
 
 ### Screenshot
 
