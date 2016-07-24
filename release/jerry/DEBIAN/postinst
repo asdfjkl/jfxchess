@@ -1,5 +1,0 @@
-
-#!/bin/sh
-set -e
-chmod 755 /usr/bin/jerry
-exit 0
