@@ -253,6 +253,7 @@ void BoardViewController::mouseReleaseEvent(QMouseEvent *m) {
 
 
 void BoardViewController::onStateChange() {
+    this->lastMove = this->gameModel->getGame()->getCurrentNode()->getMove();
     this->style = this->gameModel->colorStyle;
     this->update();
 }

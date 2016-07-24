@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <tuple>
+#include <QPoint>
 
 
 namespace chess {
@@ -118,6 +119,9 @@ public:
      * @return
      */
     bool operator!=(const Move &other) const;
+
+    QPoint fromAsXY();
+    QPoint toAsXY();
 
 private:
 
