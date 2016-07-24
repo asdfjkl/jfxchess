@@ -27,8 +27,14 @@ Chessboard::Chessboard(QWidget *parent) :
     this->arrowGrabColor = new QColor(70,130,0);
     this->grabbedArrow = new chess::Arrow{QPoint(-1,-1), QPoint(-1,-1), *arrowGrabColor};
 
+    this->lastMoveColor = new QColor(200,200,0,64);
+
+    this->arrowGrabColor = new QColor(70,130,0);
+
     this->currentArrows = 0;
     this->currentColoredFields = 0;
+
+    this->lastMove = 0;
 }
 
 void Chessboard::calculateBoardSize(int *boardSize, int *squareSize) {
@@ -152,20 +158,47 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
             // whereas chess coords are from bottom left
             int y = boardOffsetY+((7-j)*squareSize);
             painter->drawRect(x,y,squareSize,squareSize);
+        }
+    }
 
-            // draw the actual piece
-            // calculate the board index for
-            // the chess::board internal representation
-            // uint8_t board_idx = this->xyToBoardIdx(i,j);
-            /*
-            uint8_t board_idx = ((j+2)*10)+i+1;
-            if(this->gameModel->flipBoard) {
-                board_idx = 119 - board_idx;
+    // draw colored field of last move
+    if(this->lastMove != 0) {
+        QPoint xyFrom = lastMove->fromAsXY();
+        int x = 0;
+        int y = 0;
+        if(this->flipBoard) {
+            x = boardOffsetX+((7-xyFrom.x())*squareSize);
+        } else {
+            x = boardOffsetX+(xyFrom.x()*squareSize);
+        }
+        y = boardOffsetY+((7-xyFrom.y())*squareSize);
+        painter->setBrush(*this->lastMoveColor);
+        painter->drawRect(x,y,squareSize,squareSize);
+
+        QPoint xyTo = lastMove->toAsXY();
+        if(this->flipBoard) {
+            x = boardOffsetX+((7-xyTo.x())*squareSize);
+        } else {
+            x = boardOffsetX+(xyTo.x()*squareSize);
+        }
+        y = boardOffsetY+((7-xyTo.y())*squareSize);
+        painter->drawRect(x,y,squareSize,squareSize);
+    }
+
+    for(int i=0;i<8;i++) {
+        for(int j=0;j<8;j++) {
+            // get square coords
+            int x = 0;
+            if(this->flipBoard) {
+                x = boardOffsetX+((7-i)*squareSize);
+            } else {
+                x = boardOffsetX+(i*squareSize);
             }
+            // drawing coordinates are from top left
+            // whereas chess coords are from bottom left
+            int y = boardOffsetY+((7-j)*squareSize);
 
-            uint8_t piece_type = board->piece_type(board_idx);
-            bool piece_color = board->piece_color(board_idx);
-            */
+            // draw the pieces
             uint8_t piece_type = 0;
             bool piece_color = 0;
             if(this->flipBoard) {
@@ -205,8 +238,8 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
                                                              this->grabbedPiece->color, squareSize, this->style->pieceType));
     }
 
-    // draw colored fields
 
+    // draw colored fields
     if(this->currentColoredFields != 0) {
         for(int i=0; i<this->currentColoredFields->size();i++) {
             chess::ColoredField *ci = this->currentColoredFields->at(i);

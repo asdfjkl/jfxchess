@@ -38,6 +38,7 @@ private:
 
 protected:
 
+    chess::Move *lastMove;
     QPoint* moveSrc;
     bool drawGrabbedPiece;
     bool drawGrabbedArrow;
@@ -46,6 +47,7 @@ protected:
     bool flipBoard;
 
     QColor *arrowGrabColor;
+    QColor *lastMoveColor;
 
     ColorStyle *style;
     int borderWidth;

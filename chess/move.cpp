@@ -144,6 +144,18 @@ QString Move::uci() {
     }
 }
 
+QPoint Move::fromAsXY() {
+    int col_from = (this->from % 10) - 1;
+    int row_from = (this->from / 10) - 2;
+    return QPoint(col_from, row_from);
+}
+
+QPoint Move::toAsXY() {
+    int col_to = (this->to % 10) - 1;
+    int row_to = (this->to / 10) - 2;
+    return QPoint(col_to, row_to);
+}
+
 // create deep copy
 Move::Move(const Move& m) {
     this->from = m.from;
