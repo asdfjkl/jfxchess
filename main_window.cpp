@@ -132,7 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QSize btnSize = QSize(this->height()/19, this->height()/19);
     QSize btnSizeLR = QSize(this->height()/14, this->height()/14);
     QPushButton *left = new QPushButton();
-    QPushButton *right = new QPushButton("▶");
+    QPushButton *right = new QPushButton();
     QPushButton *stepleft = new QPushButton();
     QPushButton *beginning = new QPushButton();
     QPushButton *stepright = new QPushButton();
@@ -147,7 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     left->setIcon(QIcon(pxLeft));
     left->setIconSize(btnSizeLR);
-    //right->setIcon(QIcon(pxRight));
+    right->setIcon(QIcon(pxRight));
     right->setIconSize(btnSizeLR);
     stepleft->setIcon(QIcon(pxStepLeft));
     stepleft->setIconSize(btnSize);
