@@ -168,20 +168,22 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
         int y = 0;
         if(this->flipBoard) {
             x = boardOffsetX+((7-xyFrom.x())*squareSize);
+            y = boardOffsetY+((xyFrom.y())*squareSize);
         } else {
             x = boardOffsetX+(xyFrom.x()*squareSize);
+            y = boardOffsetY+((7-xyFrom.y())*squareSize);
         }
-        y = boardOffsetY+((7-xyFrom.y())*squareSize);
         painter->setBrush(*this->lastMoveColor);
         painter->drawRect(x,y,squareSize,squareSize);
 
         QPoint xyTo = lastMove->toAsXY();
         if(this->flipBoard) {
             x = boardOffsetX+((7-xyTo.x())*squareSize);
+            y = boardOffsetY+(xyTo.y()*squareSize);
         } else {
             x = boardOffsetX+(xyTo.x()*squareSize);
+            y = boardOffsetY+((7-xyTo.y())*squareSize);
         }
-        y = boardOffsetY+((7-xyTo.y())*squareSize);
         painter->drawRect(x,y,squareSize,squareSize);
     }
 
