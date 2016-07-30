@@ -27,7 +27,7 @@ Chessboard::Chessboard(QWidget *parent) :
     this->arrowGrabColor = new QColor(70,130,0);
     this->grabbedArrow = new chess::Arrow{QPoint(-1,-1), QPoint(-1,-1), *arrowGrabColor};
 
-    this->lastMoveColor = new QColor(200,200,0,64);
+    this->lastMoveColor = new QColor(200,200,0,100);
 
     this->arrowGrabColor = new QColor(70,130,0);
 
