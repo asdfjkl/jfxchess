@@ -672,6 +672,9 @@ Board::Board(const QString &fen_string) {
     }
     this->halfmove_clock = fen_parts.at(4).toInt();
     this->fullmove_number = fen_parts.at(5).toInt();
+    qDebug() << "fen: " << fen_string;
+    qDebug() << "no: " << fen_parts.at(5);
+    qDebug() << "as int: " << this->fullmove_number;
     this->undo_available = false;
     this->last_was_null = false;
     if(!this->is_consistent()) {
@@ -750,6 +753,8 @@ QString Board::fen() {
     // add halfmove clock and fullmove counter
     fen_string.append(" ").append(QString::number(this->halfmove_clock));
     fen_string.append(" ").append(QString::number(this->fullmove_number));
+    qDebug() << "fmn: " << this->fullmove_number;
+    qDebug() << "as str: " << QString::number(this->fullmove_number);
     return fen_string;
 }
 
@@ -1357,12 +1362,12 @@ void Board::apply(const Move &m) {
     bool color = this->piece_color(m.from);
     // increase halfmove clock only if no capture or pawn advance
     // happended
-    if(old_piece_type != PAWN && this->board[m.to] != EMPTY) {
-        this->halfmove_clock++;
-        this->prev_inced_hm_clock = true;
-    } else {
+    if(old_piece_type == PAWN || this->board[m.to] != EMPTY) {
         this->halfmove_clock = 0;
         this->prev_inced_hm_clock = false;
+    } else {
+        this->halfmove_clock++;
+        this->prev_inced_hm_clock = true;
     }
     // if we move a pawn two steps up, set the en_passent field
     if(old_piece_type == PAWN) {
@@ -1532,7 +1537,7 @@ void Board::undo() {
                 this->halfmove_clock = 0;
             }
             this->prev_inced_hm_clock = false;
-            if(this->turn == BLACK) {
+            if(this->turn == WHITE) {
                 this->fullmove_number--;
             }
         }
@@ -1550,6 +1555,7 @@ Board* Board::copy_and_apply(const Move &m) {
     b->fullmove_number = this->fullmove_number;
     b->undo_available = this->undo_available;
     b->last_was_null = this->last_was_null;
+    b->prev_inced_hm_clock = this->prev_inced_hm_clock;
     for(int i=0;i<120;i++) {
         b->board[i] = this->board[i];
         b->old_board[i] = this->old_board[i];
