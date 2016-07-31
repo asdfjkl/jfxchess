@@ -49,6 +49,7 @@ Board::Board() {
     this->fullmove_number = 1;
     this->undo_available = false;
     this->last_was_null = false;
+    this->prev_inced_hm_clock = false;
 }
 
 Board::Board(Board *b) {
@@ -62,6 +63,7 @@ Board::Board(Board *b) {
         this->board[i] = b->board[i];
     }
     this->last_was_null = false;
+    this->prev_inced_hm_clock = false;
 }
 
 Board::Board(bool initial_position) {
@@ -83,6 +85,7 @@ Board::Board(bool initial_position) {
     this->fullmove_number = 1;
     this->undo_available = false;
     this->last_was_null = false;
+    this->prev_inced_hm_clock = false;
 }
 
 bool Board::is_initial_position() {
@@ -476,11 +479,7 @@ QString Board::fen() {
         fen_string.append(" -");
     }
     // add halfmove clock and fullmove counter
-    //fen_string.append(" ").append(QString::number(this->halfmove_clock));
-    // for now just append 0, since we do not have proper halfmove detection
-    // in fen strings (i.e. halfmoves since last pawn move or since
-    // piece was taken #todo)
-    fen_string.append(" 0");
+    fen_string.append(" ").append(QString::number(this->halfmove_clock));
     fen_string.append(" ").append(QString::number(this->fullmove_number));
     return fen_string;
 }
@@ -1045,6 +1044,11 @@ bool Board::is_offside(uint8_t idx) {
     }
 }
 
+bool Board::can_claim_fifty_moves() {
+    return this->halfmove_clock >= 50;
+}
+
+
 
 // returns true (== Black) if not occupied!
 bool Board::is_white_at(uint8_t idx) {
@@ -1074,8 +1078,7 @@ void Board::apply(const Move &m) {
     this->prev_en_passent_target = this->en_passent_target;
     this->prev_castling_rights = this->castling_rights;
     this->en_passent_target = 0;
-    this->halfmove_clock ++;
-    if(this->turn == WHITE) {
+    if(this->turn == BLACK) {
         this->fullmove_number++;
     }
     for(int i=0;i<120;i++) {
@@ -1083,6 +1086,14 @@ void Board::apply(const Move &m) {
     }
     uint8_t old_piece_type = this->piece_type(m.from);
     bool color = this->piece_color(m.from);
+    // increase halfmove clock only if no capture or pawn advance
+    // happended
+    if(old_piece_type != PAWN && this->board[m.to] != EMPTY) {
+        this->halfmove_clock++;
+        this->prev_inced_hm_clock = true;
+    } else {
+        this->prev_inced_hm_clock = false;
+    }
     // if we move a pawn two steps up, set the en_passent field
     if(old_piece_type == PAWN) {
         // white pawn moved two steps up
@@ -1245,7 +1256,10 @@ void Board::undo() {
             this->prev_en_passent_target = 0;
             this->castling_rights = this->prev_castling_rights;
             this->turn = !this->turn;
-            this->halfmove_clock--;
+            if(this->prev_inced_hm_clock) {
+                this->halfmove_clock--;
+            }
+            this->prev_inced_hm_clock = false;
             if(this->turn == BLACK) {
                 this->fullmove_number--;
             }
