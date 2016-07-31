@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <QRegularExpression>
+#include <QMap>
 #include "move.h"
 
 namespace chess {
@@ -590,6 +591,8 @@ public:
 
     bool can_claim_fifty_moves();
 
+    quint64 zobrist();
+
 private:
 
     /**
@@ -641,6 +644,10 @@ private:
     QChar piece_to_symbol(uint8_t idx);
     QString idx_to_str(int idx);
     uint8_t alpha_to_pos(QChar alpha);
+
+    QMap<quint64, int> *transpositionTable;
+
+    int zobrist_piece_type(uint8_t piece);
 
     friend std::ostream& operator<<(std::ostream& strm, const Board &b);
 

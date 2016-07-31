@@ -6,8 +6,6 @@
 #include <QMap>
 #include <QDebug>
 
-#include "zobristhash.h"
-
 namespace chess {
 
 /*
@@ -1292,8 +1290,7 @@ EcoCode::EcoCode()
 
 EcoInfo* EcoCode::classify(Board *b) {
     EcoInfo* ret = new EcoInfo{"",""};
-    ZobristHash *zh = new ZobristHash();
-    quint64 b_zobrist = zh->compute(b);
+    quint64 b_zobrist = b->zobrist();
     if(ECOINFOS.contains(b_zobrist)) {
         EcoInfo e = ECOINFOS[b_zobrist];
         ret->code = e.code;

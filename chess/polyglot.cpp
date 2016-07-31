@@ -3,7 +3,6 @@
 #include <iostream>
 #include <QDebug>
 #include <QDataStream>
-#include "zobristhash.h"
 
 namespace chess {
 
@@ -11,7 +10,6 @@ char promote_pieces[6] = " nbrq";
 
 Polyglot::Polyglot(QString &bookname)
 {
-    this->zh = new ZobristHash();
     this->readFile = false;
     QFile file(bookname);
     quint64 size = file.size();
@@ -100,7 +98,7 @@ Move Polyglot::moveFromEntry(Entry e) {
 Moves* Polyglot::findMoves(Board *board) {
     Moves* bookMoves = new Moves();
     if(this->book != 0 && this->readFile) {
-        quint64 zh_board = this->zh->compute(board);
+        quint64 zh_board = board->zobrist();
         quint64 low = 0;
         quint64 high = this->book->size() / 16;
         // find entry fast
@@ -135,7 +133,7 @@ bool Polyglot::inBook(Board *board) {
     int cntBookMoves = 0;
 
     if(this->book != 0 && this->readFile) {
-        quint64 zh_board = this->zh->compute(board);
+        quint64 zh_board = board->zobrist();
         quint64 low = 0;
         quint64 high = this->book->size() / 16;
         // find entry fast
