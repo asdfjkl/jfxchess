@@ -630,7 +630,7 @@ private:
     uint8_t en_passent_target;
     uint8_t prev_en_passent_target;
 
-    bool prev_inced_hm_clock;
+    int prev_halfmove_clock;
 
     bool is_empty(uint8_t idx);
     bool is_offside(uint8_t idx);

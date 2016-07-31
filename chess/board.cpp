@@ -318,7 +318,7 @@ Board::Board() {
     this->fullmove_number = 1;
     this->undo_available = false;
     this->last_was_null = false;
-    this->prev_inced_hm_clock = false;
+    this->prev_halfmove_clock = 0;
 }
 
 Board::Board(Board *b) {
@@ -332,7 +332,7 @@ Board::Board(Board *b) {
         this->board[i] = b->board[i];
     }
     this->last_was_null = false;
-    this->prev_inced_hm_clock = false;
+    this->prev_halfmove_clock = 0;
 }
 
 Board::Board(bool initial_position) {
@@ -354,7 +354,7 @@ Board::Board(bool initial_position) {
     this->fullmove_number = 1;
     this->undo_available = false;
     this->last_was_null = false;
-    this->prev_inced_hm_clock = false;
+    this->prev_halfmove_clock = 0;
 }
 
 bool Board::is_initial_position() {
@@ -1362,12 +1362,16 @@ void Board::apply(const Move &m) {
     bool color = this->piece_color(m.from);
     // increase halfmove clock only if no capture or pawn advance
     // happended
+    this->prev_halfmove_clock = this->halfmove_clock;
     if(old_piece_type == PAWN || this->board[m.to] != EMPTY) {
+        qDebug() << "opt: " << old_piece_type;
+        qDebug() << "op p: " << +(old_piece_type == PAWN);
+        qDebug() << "to e: " << +(this->board[m.to] != EMPTY);
+        qDebug() << "resetting hm c";
         this->halfmove_clock = 0;
-        this->prev_inced_hm_clock = false;
     } else {
+        qDebug() << "inc hm c";
         this->halfmove_clock++;
-        this->prev_inced_hm_clock = true;
     }
     // if we move a pawn two steps up, set the en_passent field
     if(old_piece_type == PAWN) {
@@ -1531,12 +1535,8 @@ void Board::undo() {
             this->prev_en_passent_target = 0;
             this->castling_rights = this->prev_castling_rights;
             this->turn = !this->turn;
-            if(this->prev_inced_hm_clock) {
-                this->halfmove_clock--;
-            } else {
-                this->halfmove_clock = 0;
-            }
-            this->prev_inced_hm_clock = false;
+            this->halfmove_clock = this->prev_halfmove_clock;
+            this->prev_halfmove_clock = 0;
             if(this->turn == WHITE) {
                 this->fullmove_number--;
             }
@@ -1555,7 +1555,7 @@ Board* Board::copy_and_apply(const Move &m) {
     b->fullmove_number = this->fullmove_number;
     b->undo_available = this->undo_available;
     b->last_was_null = this->last_was_null;
-    b->prev_inced_hm_clock = this->prev_inced_hm_clock;
+    b->prev_halfmove_clock = this->prev_halfmove_clock;
     for(int i=0;i<120;i++) {
         b->board[i] = this->board[i];
         b->old_board[i] = this->old_board[i];
