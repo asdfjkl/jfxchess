@@ -63,7 +63,6 @@ SOURCES += main.cpp \
     viewController/enterposboard.cpp \
     viewController/pickcolorboard.cpp \
     chess/ecocode.cpp \
-    chess/zobristhash.cpp \
     chess/polyglot.cpp
 
 HEADERS += \
@@ -110,5 +109,4 @@ HEADERS += \
     viewController/enterposboard.h \
     viewController/pickcolorboard.h \
     chess/ecocode.h \
-    chess/zobristhash.h \
     chess/polyglot.h

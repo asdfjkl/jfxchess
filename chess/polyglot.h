@@ -5,7 +5,6 @@
 #include <QFile>
 #include "move.h"
 #include "board.h"
-#include "zobristhash.h"
 
 namespace chess {
 
@@ -26,7 +25,6 @@ public:
 
 private:
     QByteArray* book;
-    ZobristHash *zh;
     Entry entryFromOffset(int offset);
     Move moveFromEntry(Entry e);
     bool readFile;
