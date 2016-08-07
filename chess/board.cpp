@@ -1314,6 +1314,7 @@ bool Board::is_offside(uint8_t idx) {
 }
 
 bool Board::can_claim_fifty_moves() {
+    //qDebug() << this->halfmove_clock;
     return this->halfmove_clock >= 100;
 }
 

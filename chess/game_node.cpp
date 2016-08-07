@@ -41,6 +41,8 @@ GameNode::GameNode() {
     this->arrows = new QList<Arrow*>();
     this->coloredFields = new QList<ColoredField*>();
     this->depthCache = 0;
+    this->userWasInformedAboutResult = false;
+
 }
 
 GameNode::~GameNode() {

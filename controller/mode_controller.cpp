@@ -25,6 +25,7 @@
 #include "dialogs/dialog_engines.h"
 #include "dialogs/dialog_gameanalysis.h"
 #include "various/messagebox.h"
+#include "chess/game_node.h"
 #include <stdlib.h>
 
 ModeController::ModeController(GameModel *gameModel, UciController *controller, QWidget *parent) :
@@ -381,25 +382,40 @@ void ModeController::onStateChange() {
     int turn = this->gameModel->getGame()->getCurrentNode()->getBoard()->turn;
 
     MessageBox *msg = new MessageBox(this->parentWidget);
+    chess::GameNode *current = this->gameModel->getGame()->getCurrentNode();
     // check if the game has ended by checkmate or stalemate
     // only show message if
     // human plays: show info, change mode to enter moves
-    // enter moves mode & analysis mode: show info but don't change mode
-    if(this->gameModel->getGame()->getCurrentNode()->getBoard()->is_checkmate()) {
+    // enter moves mode & analysis mode: show info but only
+    // if the node was just created
+    if(current->getBoard()->is_checkmate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
             this->onStateChangeEnterMoves();
-        } else if(mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) {
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) && !current->userWasInformedAboutResult) {
+            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
         }
     }
     // same for stalemate
-    if(this->gameModel->getGame()->getCurrentNode()->getBoard()->is_stalemate()) {
+    if(current->getBoard()->is_stalemate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
             this->onStateChangeEnterMoves();
-        } else if(mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) {
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) && !current->userWasInformedAboutResult) {
+            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
+        }
+    }
+    // 50 moves rule
+    if(current->getBoard()->can_claim_fifty_moves()) {
+        if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
+            msg->showMessage(tr("Draw"), tr("50 moves rule"));
+            this->onStateChangeEnterMoves();
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
+                  && !current->userWasInformedAboutResult) {
+            current->userWasInformedAboutResult = true;
+            msg->showMessage(tr("Draw"), tr("50 moves rule"));
         }
     }
     if(mode == MODE_ANALYSIS) {
