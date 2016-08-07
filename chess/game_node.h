@@ -210,6 +210,8 @@ public:
 
     int getDepth();
 
+    bool userWasInformedAboutResult;
+
 protected:
     static int initId() { return id++; }
 
