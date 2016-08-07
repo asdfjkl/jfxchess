@@ -418,6 +418,16 @@ void ModeController::onStateChange() {
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
         }
     }
+    if(current->getBoard()->is_threefold_repetition()) {
+        if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
+            msg->showMessage(tr("Draw"), tr("Threefold repetition"));
+            this->onStateChangeEnterMoves();
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
+                  && !current->userWasInformedAboutResult) {
+            current->userWasInformedAboutResult = true;
+            msg->showMessage(tr("Draw"), tr("Threefold repetition"));
+        }
+    }
     if(mode == MODE_ANALYSIS) {
         this->onStateChangeAnalysis();
     } else if(mode == MODE_ENTER_MOVES) {
