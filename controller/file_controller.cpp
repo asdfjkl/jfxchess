@@ -124,7 +124,9 @@ void FileController::openGame() {
         quint64 size = file.size();
         file.close();
         if(size > 1048576) {
-            MessageBox::showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
+            MessageBox *msg = new MessageBox(this->parentWidget);
+            msg->showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
+            delete msg;
         } else {
             QString *complete_file = reader->readFileIntoString(filename);
             QList<chess::HeaderOffset*>* header_offsets = reader->scan_headersFromString(complete_file);
@@ -173,7 +175,9 @@ void FileController::saveGameTo(QString &filename) {
         pgn->writeGame(this->gameModel->getGame(), filename);
     } catch (std::exception &e) {
         this->gameModel->wasSaved = false;
-        MessageBox::showMessage("Error", e.what());
+        MessageBox *msg = new MessageBox(this->parentWidget);
+        msg->showMessage("Error", e.what());
+        delete msg;
         this->gameModel->triggerStateChange();
     }
 }

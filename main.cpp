@@ -41,6 +41,9 @@ int main(int argc, char *argv[])
     // p->run_ucit();
     //p.run_pertf();
 
+    //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
+    // from Qt 5.6 onwards
+
     QApplication app(argc, argv);
     app.setOrganizationName("dkl");
     app.setApplicationName("Jerry");

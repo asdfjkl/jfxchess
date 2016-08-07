@@ -194,18 +194,19 @@ void ModeController::onStateChangeAnalysis() {
 
 void ModeController::onStateChangeGameAnalysis() {
 
+    MessageBox *msg = new MessageBox(this->parentWidget);
     // go to the parent node, if there is any. if root, then abort
     chess::GameNode *parent = this->gameModel->getGame()->getCurrentNode()->getParent();
     if(parent == 0) {
         this->gameModel->setMode(MODE_ENTER_MOVES);
-        MessageBox::showMessage(tr("Game Analysis"), tr("The analysis is finished."));
+        msg->showMessage(tr("Game Analysis"), tr("The analysis is finished."));
     } else if(this->gameModel->isInBook(parent)) {
         QString cmt = QString("last book move");
         parent->setComment(cmt);
         this->gameModel->getGame()->treeWasChanged = true;
         this->gameModel->setMode(MODE_ENTER_MOVES);
         this->gameModel->triggerStateChange();
-        MessageBox::showMessage(tr("Game Analysis"), tr("The analysis is finished."));
+        msg->showMessage(tr("Game Analysis"), tr("The analysis is finished."));
     } else {
         this->gameModel->getGame()->setCurrent(parent);
         QString fen = parent->getBoard()->fen();
@@ -215,6 +216,7 @@ void ModeController::onStateChangeGameAnalysis() {
         this->uci_controller->uciSendPosition(position);
         this->uci_controller->uciGoMovetime(this->gameModel->engineThinkTimeMs);
     }
+    delete msg;
 }
 
 void ModeController::onActivateAnalysisMode() {
@@ -378,25 +380,26 @@ void ModeController::onStateChange() {
     int mode = this->gameModel->getMode();
     int turn = this->gameModel->getGame()->getCurrentNode()->getBoard()->turn;
 
+    MessageBox *msg = new MessageBox(this->parentWidget);
     // check if the game has ended by checkmate or stalemate
     // only show message if
     // human plays: show info, change mode to enter moves
     // enter moves mode & analysis mode: show info but don't change mode
     if(this->gameModel->getGame()->getCurrentNode()->getBoard()->is_checkmate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
-            MessageBox::showMessage(tr("Checkmate"), tr("The game is over!"));
+            msg->showMessage(tr("Checkmate"), tr("The game is over!"));
             this->onStateChangeEnterMoves();
         } else if(mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) {
-            MessageBox::showMessage(tr("Checkmate"), tr("The game is over!"));
+            msg->showMessage(tr("Checkmate"), tr("The game is over!"));
         }
     }
     // same for stalemate
     if(this->gameModel->getGame()->getCurrentNode()->getBoard()->is_stalemate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
-            MessageBox::showMessage(tr("Stalemate"), tr("The game is drawn!"));
+            msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
             this->onStateChangeEnterMoves();
         } else if(mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) {
-            MessageBox::showMessage(tr("Stalemate"), tr("The game is drawn!"));
+            msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
         }
     }
     if(mode == MODE_ANALYSIS) {
@@ -412,5 +415,5 @@ void ModeController::onStateChange() {
     } else if(mode == MODE_GAME_ANALYSIS) {
         this->onStateChangeGameAnalysis();
     }
-
+    delete msg;
 }

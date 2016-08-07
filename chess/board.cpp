@@ -672,9 +672,6 @@ Board::Board(const QString &fen_string) {
     }
     this->halfmove_clock = fen_parts.at(4).toInt();
     this->fullmove_number = fen_parts.at(5).toInt();
-    qDebug() << "fen: " << fen_string;
-    qDebug() << "no: " << fen_parts.at(5);
-    qDebug() << "as int: " << this->fullmove_number;
     this->undo_available = false;
     this->last_was_null = false;
     if(!this->is_consistent()) {
@@ -753,8 +750,6 @@ QString Board::fen() {
     // add halfmove clock and fullmove counter
     fen_string.append(" ").append(QString::number(this->halfmove_clock));
     fen_string.append(" ").append(QString::number(this->fullmove_number));
-    qDebug() << "fmn: " << this->fullmove_number;
-    qDebug() << "as str: " << QString::number(this->fullmove_number);
     return fen_string;
 }
 
@@ -1319,7 +1314,7 @@ bool Board::is_offside(uint8_t idx) {
 }
 
 bool Board::can_claim_fifty_moves() {
-    return this->halfmove_clock >= 50;
+    return this->halfmove_clock >= 100;
 }
 
 
@@ -1364,13 +1359,8 @@ void Board::apply(const Move &m) {
     // happended
     this->prev_halfmove_clock = this->halfmove_clock;
     if(old_piece_type == PAWN || this->board[m.to] != EMPTY) {
-        qDebug() << "opt: " << old_piece_type;
-        qDebug() << "op p: " << +(old_piece_type == PAWN);
-        qDebug() << "to e: " << +(this->board[m.to] != EMPTY);
-        qDebug() << "resetting hm c";
         this->halfmove_clock = 0;
     } else {
-        qDebug() << "inc hm c";
         this->halfmove_clock++;
     }
     // if we move a pawn two steps up, set the en_passent field
