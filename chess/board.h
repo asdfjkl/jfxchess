@@ -590,6 +590,7 @@ public:
     uint8_t get_ep_target();
 
     bool can_claim_fifty_moves();
+    bool is_threefold_repetition();
 
     quint64 zobrist();
 
@@ -648,6 +649,8 @@ private:
     QMap<quint64, int> *transpositionTable;
 
     int zobrist_piece_type(uint8_t piece);
+
+    void update_transposition_table();
 
     friend std::ostream& operator<<(std::ostream& strm, const Board &b);
 

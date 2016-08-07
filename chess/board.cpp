@@ -319,6 +319,8 @@ Board::Board() {
     this->undo_available = false;
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
+    this->transpositionTable = new QMap<quint64, int>();
+    this->update_transposition_table();
 }
 
 Board::Board(Board *b) {
@@ -333,6 +335,8 @@ Board::Board(Board *b) {
     }
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
+    this->transpositionTable = new QMap<quint64, int>();
+    this->update_transposition_table();
 }
 
 Board::Board(bool initial_position) {
@@ -355,6 +359,8 @@ Board::Board(bool initial_position) {
     this->undo_available = false;
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
+    this->transpositionTable = new QMap<quint64, int>();
+    this->update_transposition_table();
 }
 
 bool Board::is_initial_position() {
@@ -677,6 +683,8 @@ Board::Board(const QString &fen_string) {
     if(!this->is_consistent()) {
         throw std::invalid_argument("board position from supplied fen is inconsistent");
     }
+    this->transpositionTable = new QMap<quint64, int>();
+    this->update_transposition_table();
 }
 
 QString Board::idx_to_str(int idx) {
@@ -1547,11 +1555,13 @@ Board* Board::copy_and_apply(const Move &m) {
     b->undo_available = this->undo_available;
     b->last_was_null = this->last_was_null;
     b->prev_halfmove_clock = this->prev_halfmove_clock;
+    b->transpositionTable = new QMap<quint64, int>(*this->transpositionTable);
     for(int i=0;i<120;i++) {
         b->board[i] = this->board[i];
         b->old_board[i] = this->old_board[i];
     }
     b->apply(m);
+    b->update_transposition_table();
     return b;
 }
 
@@ -1576,6 +1586,16 @@ bool Board::is_stalemate() {
         }
     }
     return false;
+}
+
+bool Board::is_threefold_repetition() {
+    quint64 current_zobrist = this->zobrist();
+    if(this->transpositionTable->contains(current_zobrist)) {
+        int cnt = this->transpositionTable->value(current_zobrist);
+        return cnt >= 3;
+    } else {
+        return false;
+    }
 }
 
 bool Board::is_checkmate() {
@@ -2215,6 +2235,16 @@ int Board::zobrist_piece_type(uint8_t piece) {
             return 11;
     }
     throw std::invalid_argument("piece type out of range in ZobristHash:kind_of_piece");
+}
+
+void Board::update_transposition_table() {
+    quint64 current_zobrist = this->zobrist();
+    if(this->transpositionTable->contains(current_zobrist)) {
+        int cnt = this->transpositionTable->value(current_zobrist);
+        this->transpositionTable->insert(current_zobrist, cnt+1);
+    } else {
+        this->transpositionTable->insert(current_zobrist, 1);
+    }
 }
 
 quint64 Board::zobrist() {
