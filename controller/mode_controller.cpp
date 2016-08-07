@@ -391,42 +391,44 @@ void ModeController::onStateChange() {
     if(current->getBoard()->is_checkmate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
-            this->onStateChangeEnterMoves();
-        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) && !current->userWasInformedAboutResult) {
-            current->userWasInformedAboutResult = true;
+            this->onActivateEnterMovesMode();
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
+                  && !current->userWasInformedAboutResult) {
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
         }
+        current->userWasInformedAboutResult = true;
     }
     // same for stalemate
     if(current->getBoard()->is_stalemate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
-            this->onStateChangeEnterMoves();
-        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES) && !current->userWasInformedAboutResult) {
-            current->userWasInformedAboutResult = true;
+            this->onActivateEnterMovesMode();
+        } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
+                  && !current->userWasInformedAboutResult) {
             msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
         }
+        current->userWasInformedAboutResult = true;
     }
     // 50 moves rule
     if(current->getBoard()->can_claim_fifty_moves()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
-            this->onStateChangeEnterMoves();
+            this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
                   && !current->userWasInformedAboutResult) {
-            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
         }
+        current->userWasInformedAboutResult = true;
     }
     if(current->getBoard()->is_threefold_repetition()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Draw"), tr("Threefold repetition"));
-            this->onStateChangeEnterMoves();
+            this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
                   && !current->userWasInformedAboutResult) {
-            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Draw"), tr("Threefold repetition"));
         }
+        current->userWasInformedAboutResult = true;
     }
     if(mode == MODE_ANALYSIS) {
         this->onStateChangeAnalysis();
