@@ -119,8 +119,10 @@ void DialogBrowseHeaders::onResetSearch() {
 
 void DialogBrowseHeaders::onSearch() {
     this->table->clear();
-    QString searchTerm = this->searchField->text();
+    this->table->clearContents();
+    QString searchTerm = this->searchField->text().toLower();
     QRegularExpression searchRegExp = QRegularExpression(searchTerm);
+    int idx = 0;
     for(int i=0;i<this->header_offsets->size();i++) {
         QString white = this->header_offsets->at(i)->headers->value("White");
         QString black = this->header_offsets->at(i)->headers->value("Black");
@@ -129,28 +131,30 @@ void DialogBrowseHeaders::onSearch() {
         QString eco = this->header_offsets->at(i)->headers->value("ECO");
         QString site = this->header_offsets->at(i)->headers->value("Site");
 
-        QRegularExpressionMatch m_white = searchRegExp.match(white);
-        QRegularExpressionMatch m_black = searchRegExp.match(black);
+        QRegularExpressionMatch m_white = searchRegExp.match(white.toLower());
+        QRegularExpressionMatch m_black = searchRegExp.match(black.toLower());
         QRegularExpressionMatch m_result = searchRegExp.match(result);
         QRegularExpressionMatch m_date = searchRegExp.match(date);
-        QRegularExpressionMatch m_eco = searchRegExp.match(eco);
-        QRegularExpressionMatch m_site = searchRegExp.match(site);
+        QRegularExpressionMatch m_eco = searchRegExp.match(eco.toLower());
+        QRegularExpressionMatch m_site = searchRegExp.match(site.toLower());
 
         if(m_white.hasMatch() || m_black.hasMatch() || m_result.hasMatch() ||
                 m_date.hasMatch() || m_eco.hasMatch() || m_site.hasMatch()) {
-            this->table->setItem(i,0,new QTableWidgetItem(QString::number(i+1)));
-            this->table->setItem(i,1,new QTableWidgetItem(white));
-            this->table->setItem(i,2,new QTableWidgetItem(black));
-            this->table->setItem(i,3,new QTableWidgetItem(result));
-            this->table->setItem(i,4,new QTableWidgetItem(date));
-            this->table->setItem(i,5,new QTableWidgetItem(eco));
-            this->table->setItem(i,6,new QTableWidgetItem(site));
+            this->table->setItem(idx,0,new QTableWidgetItem(QString::number(i+1)));
+            this->table->setItem(idx,1,new QTableWidgetItem(white));
+            this->table->setItem(idx,2,new QTableWidgetItem(black));
+            this->table->setItem(idx,3,new QTableWidgetItem(result));
+            this->table->setItem(idx,4,new QTableWidgetItem(date));
+            this->table->setItem(idx,5,new QTableWidgetItem(eco));
+            this->table->setItem(idx,6,new QTableWidgetItem(site));
+            idx++;
         }
     }
     // if nothing contained, then reset to first game
     if(this->table->rowCount() == 0) {
         this->gameOffset = 0;
     }
+    this->table->setRowCount(idx);
 }
 
 void DialogBrowseHeaders::onItemSelectionChanged() {

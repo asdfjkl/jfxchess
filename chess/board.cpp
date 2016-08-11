@@ -323,6 +323,11 @@ Board::Board() {
     this->update_transposition_table();
 }
 
+Board::~Board() {
+    this->transpositionTable->clear();
+    delete this->transpositionTable;
+}
+
 Board::Board(Board *b) {
     this->turn = b->turn;
     this->castling_rights = 0;

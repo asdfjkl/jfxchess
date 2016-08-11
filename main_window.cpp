@@ -138,12 +138,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QPushButton *stepright = new QPushButton();
     QPushButton *end = new QPushButton();
 
-    QPixmap pxRight(resDir + "/res/icons/media-playback-start.png");
-    QPixmap pxLeft(resDir + "/res/icons/media-playback-rev.png");
+    QPixmap pxRight(resDir + "/res/icons/go-next.png");
+    QPixmap pxLeft(resDir + "/res/icons/go-previous.png");
     QPixmap pxStepRight(resDir + "/res/icons/media-seek-forward.png");
     QPixmap pxStepLeft(resDir + "/res/icons/media-seek-backward.png");
-    QPixmap pxBeginning(resDir + "/res/icons/media-skip-backward.png");
-    QPixmap pxEnd(resDir + "/res/icons/media-skip-forward.png");
+    QPixmap pxBeginning(resDir + "/res/icons/go-first.png");
+    QPixmap pxEnd(resDir + "/res/icons/go-last.png");
 
     left->setIcon(QIcon(pxLeft));
     left->setIconSize(btnSizeLR);
@@ -178,10 +178,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *hbox_buttons = new QHBoxLayout();
     hbox_buttons->addStretch(1);
     hbox_buttons->addWidget(beginning);
-    hbox_buttons->addWidget(stepleft);
+    //hbox_buttons->addWidget(stepleft);
     hbox_buttons->addWidget(left);
     hbox_buttons->addWidget(right);
-    hbox_buttons->addWidget(stepright);
+    //hbox_buttons->addWidget(stepright);
     hbox_buttons->addWidget(end);
     hbox_buttons->addStretch(1);
 

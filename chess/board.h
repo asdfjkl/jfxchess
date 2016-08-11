@@ -277,6 +277,11 @@ public:
     Board(Board *board);
 
     /**
+     *@brief destructor, clean up memory
+     */
+    ~Board();
+
+    /**
      * @brief fen returns FEN string of current board
      * @return
      */
