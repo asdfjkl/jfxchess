@@ -143,6 +143,7 @@ void ModeController::onSetEnginesClicked() {
     // temp. stop current mode, reset after
     // user finished selecting engines
     this->gameModel->setMode(MODE_ENTER_MOVES);
+    this->onActivateEnterMovesMode();
     this->gameModel->triggerStateChange();
     DialogEngines *dlg = new DialogEngines(this->gameModel);
     int result = dlg->exec();
