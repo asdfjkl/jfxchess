@@ -63,8 +63,8 @@ public slots:
     void deleteFromHere();
     void removeAllComments();
     void removeAllVariants();
-    void onSeekBackwardClick();
-    void onSeekForwardClick();
+    void onScrollBack();
+    void onScrollForward();
     void onSeekToBeginning();
     void onSeekToEnd();
     chess::GameNode* findNodeOnRightclick();

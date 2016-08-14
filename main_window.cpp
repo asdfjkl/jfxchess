@@ -506,8 +506,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileController, &FileController::newGamePlayBlack, modeController, &ModeController::onActivatePlayBlackMode);
     connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);
 
-    connect(stepleft, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekBackwardClick);
-    connect(stepright, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekForwardClick);
+    //connect(stepleft, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekBackwardClick);
+    //connect(stepright, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekForwardClick);
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
 
@@ -631,4 +631,25 @@ void MainWindow::aboutToQuit() {
     this->gameModel->saveGameState();
 }
 
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+    QPoint numPixels = event->pixelDelta();
+    QPoint numDegrees = event->angleDelta() / 8;
+    if (!numPixels.isNull()) {
+        if(numPixels.y() > 10 && numPixels.y() < 200) {
+            this->moveViewController->onScrollBack();
+        } else if(numPixels.y() < 0) {
+            this->moveViewController->onScrollForward();
+        }
+    } else if (!numDegrees.isNull()) {
+        QPoint numSteps = numDegrees / 15;
+        if(numSteps.y() >= 1) {
+            this->moveViewController->onScrollBack();
+        } else if(numSteps.y() < 0) {
+            this->moveViewController->onScrollForward();
+        }
+    }
+
+    event->accept();
+}
 

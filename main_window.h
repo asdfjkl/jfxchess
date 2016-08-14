@@ -75,6 +75,8 @@ private:
     QAction *play_black;
     QAction *play_white;
 
+protected:
+    void wheelEvent(QWheelEvent *event);
 
 signals:
 

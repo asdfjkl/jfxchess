@@ -355,17 +355,13 @@ void MoveViewController::onForwardClick() {
     this->gameModel->triggerStateChange();
 }
 
-void MoveViewController::onSeekBackwardClick() {
-    for(int i=0;i<10;i++) {
-        this->gameModel->getGame()->goToParent();
-    }
+void MoveViewController::onScrollBack() {
+    this->gameModel->getGame()->goToParent();
     this->gameModel->triggerStateChange();
 }
 
-void MoveViewController::onSeekForwardClick() {
-    for(int i=0;i<10;i++) {
-        this->gameModel->getGame()->goToMainLineChild();
-    }
+void MoveViewController::onScrollForward() {
+    this->gameModel->getGame()->goToMainLineChild();
     this->gameModel->triggerStateChange();
 }
 
@@ -421,3 +417,4 @@ void MoveViewController::onStateChange() {
     }
     this->setFocus();
 }
+
