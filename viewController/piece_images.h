@@ -27,7 +27,7 @@ class PieceImages
 {
 public:
     PieceImages(QString resourcePath);
-    QImage* getPieceImage(uint8_t piece_type, bool color, int size, int type=0);
+    QImage* getPieceImage(uint8_t piece_type, bool color, int size, qreal dpr, int type=0);
 
 private:
     QString resourcePath;

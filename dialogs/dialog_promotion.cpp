@@ -37,6 +37,8 @@ DialogPromotion::DialogPromotion(bool color, QWidget *parent) :
     this->setWindowTitle(this->tr("Promotion"));
     this->resizeTo(0.15);
 
+    this->dpr = this->devicePixelRatio();
+
     int h = this->size().height() - (2*this->border);
     int w = (this->size().width()-(2*this->border))/4;
     // piece size
@@ -93,7 +95,7 @@ void DialogPromotion::paintEvent(QPaintEvent *) {
             painter->drawRect(this->border+i*s,this->border,s,s);
         }
         painter->drawImage(this->border+i*s, this->border,
-                           *this->img->getPieceImage(this->piecetype_by_idx(i),this->color,s));
+                           *this->img->getPieceImage(this->piecetype_by_idx(i),this->color,s,this->dpr));
     }
     painter->end();
     delete painter;

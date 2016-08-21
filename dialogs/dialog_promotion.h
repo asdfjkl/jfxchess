@@ -35,6 +35,7 @@ public:
 private:
     int border;
     int pieceSize;
+    qreal dpr;
     bool color;
     int selectedIndex;
     PieceImages *img;

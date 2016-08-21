@@ -83,7 +83,8 @@ void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &piece
     }
 }
 
-QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, int type) {
+QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, qreal dpr, int type) {
+
     QHash<int, QSvgRenderer*> *svg_images;
     QHash<QString, QImage*> *rendered_svg_images;
     if(type == PIECE_STYLE_OLD) {
@@ -102,7 +103,7 @@ QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, int
     if(rendered_svg_images->contains(idx)) {
         return rendered_svg_images->value(idx);
     } else {
-        QImage* img = new QImage(size,size,QImage::Format_ARGB32);
+        QImage* img = new QImage(size*dpr,size*dpr,QImage::Format_ARGB32);
         QColor fill = QColor(1,1,1,1);
         img->fill(fill);
         QPainter *painter = new QPainter();
@@ -119,6 +120,7 @@ QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, int
             ren->render(painter);
         }
         painter->end();
+        img->setDevicePixelRatio(dpr);
         delete painter;
         rendered_svg_images->insert(idx,img);
         return img;

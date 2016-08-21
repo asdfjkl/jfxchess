@@ -4,6 +4,7 @@
 #include "assert.h"
 #include <QSizePolicy>
 #include <QPainter>
+#include <QWindow>
 #include <QDebug>
 #include <math.h>
 
@@ -34,6 +35,9 @@ Chessboard::Chessboard(QWidget *parent) :
     this->currentArrows = 0;
     this->currentColoredFields = 0;
 
+    this->dpr = this->devicePixelRatio();
+    qDebug() << dpr;
+
     this->lastMove = 0;
 }
 
@@ -45,6 +49,7 @@ void Chessboard::calculateBoardSize(int *boardSize, int *squareSize) {
     }
     int sSize = (bSize-(2*this->borderWidth))/8;
     bSize = 8 * sSize + 2 * this->borderWidth;
+
     *boardSize = bSize;
     *squareSize = sSize;
 }
@@ -215,12 +220,12 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
                 // skip piece that is currently picked up
                 if(!this->flipBoard) {
                     if(!(this->drawGrabbedPiece && i==this->moveSrc->x() && j== this->moveSrc->y())) {
-                        QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, pieceStyle);
+                        QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
                         painter->drawImage(x,y,*piece_image);
                     }
                 } else {
                     if(!(this->drawGrabbedPiece && (7-i)==this->moveSrc->x() && j == this->moveSrc->y())) {
-                        QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, pieceStyle);
+                        QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
                         painter->drawImage(x,y,*piece_image);
                     }
                 }
