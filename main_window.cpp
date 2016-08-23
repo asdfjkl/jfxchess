@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *hbox_name_editHeader = new QHBoxLayout();
     QPushButton *editHeader = new QPushButton();
 
-    QPixmap pxEditHeader(resDir + "/res/icons/document-properties.png");
+    QPixmap pxEditHeader(resDir + "/res/icons/document-properties.svg");
     editHeader->setIcon(QIcon(pxEditHeader));
 
     hbox_name_editHeader->addStretch(1);
@@ -133,26 +133,26 @@ MainWindow::MainWindow(QWidget *parent) :
     QSize btnSizeLR = QSize(this->height()/14, this->height()/14);
     QPushButton *left = new QPushButton();
     QPushButton *right = new QPushButton();
-    QPushButton *stepleft = new QPushButton();
+    //QPushButton *stepleft = new QPushButton();
     QPushButton *beginning = new QPushButton();
-    QPushButton *stepright = new QPushButton();
+    //QPushButton *stepright = new QPushButton();
     QPushButton *end = new QPushButton();
 
-    QPixmap pxRight(resDir + "/res/icons/go-next.png");
-    QPixmap pxLeft(resDir + "/res/icons/go-previous.png");
-    QPixmap pxStepRight(resDir + "/res/icons/media-seek-forward.png");
-    QPixmap pxStepLeft(resDir + "/res/icons/media-seek-backward.png");
-    QPixmap pxBeginning(resDir + "/res/icons/go-first.png");
-    QPixmap pxEnd(resDir + "/res/icons/go-last.png");
+    QPixmap pxRight(resDir + "/res/icons/go-next.svg");
+    QPixmap pxLeft(resDir + "/res/icons/go-previous.svg");
+    //QPixmap pxStepRight(resDir + "/res/icons/media-seek-forward.png");
+    //QPixmap pxStepLeft(resDir + "/res/icons/media-seek-backward.png");
+    QPixmap pxBeginning(resDir + "/res/icons/go-first.svg");
+    QPixmap pxEnd(resDir + "/res/icons/go-last.svg");
 
     left->setIcon(QIcon(pxLeft));
     left->setIconSize(btnSizeLR);
     right->setIcon(QIcon(pxRight));
     right->setIconSize(btnSizeLR);
-    stepleft->setIcon(QIcon(pxStepLeft));
-    stepleft->setIconSize(btnSize);
-    stepright->setIcon(QIcon(pxStepRight));
-    stepright->setIconSize(btnSize);
+    //stepleft->setIcon(QIcon(pxStepLeft));
+    //stepleft->setIconSize(btnSize);
+    //stepright->setIcon(QIcon(pxStepRight));
+    //stepright->setIconSize(btnSize);
     beginning->setIcon(QIcon(pxBeginning));
     beginning->setIconSize(btnSize);
     end->setIcon(QIcon(pxEnd));
@@ -191,7 +191,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->pbEngineOnOff = new OnOffButton(this); //new QPushButton("OFF");
     QPushButton *editEngines = new QPushButton();
 
-    QPixmap pxEditPgnHeader(resDir + "/res/icons/document-properties.png");
+    QPixmap pxEditPgnHeader(resDir + "/res/icons/document-properties.svg");
     editEngines->setIcon(QIcon(pxEditPgnHeader));
     //editPgnHeader->setIconSize(pbEngineOnOff->size());
 
@@ -226,32 +226,32 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QToolBar *toolbar = addToolBar("main toolbar");
 
-    QPixmap *tbNew = new QPixmap(resDir + "/res/icons/document-new.png");
+    QPixmap *tbNew = new QPixmap(resDir + "/res/icons/document-new.svg");
     QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New Game"));
 
-    QPixmap *tbOpen = new QPixmap(resDir + "/res/icons/document-open.png");
+    QPixmap *tbOpen = new QPixmap(resDir + "/res/icons/document-open.svg");
     QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open Game"));
 
-    QPixmap *tbSave = new QPixmap(resDir + "/res/icons/document-save.png");
+    QPixmap *tbSave = new QPixmap(resDir + "/res/icons/document-save.svg");
     QAction *tbActionSave = toolbar->addAction(QIcon(*tbSave), this->tr("Save Game"));
 
-    //QPixmap *tbPrint = new QPixmap("res/icons/document-print.png");
+    //QPixmap *tbPrint = new QPixmap("res/icons/document-print.svg");
     //QAction *tbActionPrint = toolbar->addAction(QIcon(*tbPrint), this->tr("Print Game"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbFlip = new QPixmap(resDir + "/res/icons/view-refresh.png");
+    QPixmap *tbFlip = new QPixmap(resDir + "/res/icons/view-refresh.svg");
     QAction *tbActionFlip = toolbar->addAction(QIcon(*tbFlip), this->tr("Flip Board"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbCopyGame = new QPixmap(resDir + "/res/icons/edit-copy.png");
+    QPixmap *tbCopyGame = new QPixmap(resDir + "/res/icons/edit-copy.svg");
     QAction *tbActionCopyGame = toolbar->addAction(QIcon(*tbCopyGame), this->tr("Copy Game"));
 
     QPixmap *tbCopyPosition = new QPixmap(resDir + "/res/icons/edit-copy-fen.png");
     QAction *tbActionCopyPosition = toolbar->addAction(QIcon(*tbCopyPosition), this->tr("Copy Position"));
 
-    QPixmap *tbPaste = new QPixmap(resDir + "/res/icons/edit-paste.png");
+    QPixmap *tbPaste = new QPixmap(resDir + "/res/icons/edit-paste.svg");
     QAction *tbActionPaste = toolbar->addAction(QIcon(*tbPaste), this->tr("Paste Game/Position"));
 
     QPixmap *tbEnterPosition = new QPixmap(resDir + "/res/icons/document-new-board.png");
@@ -259,12 +259,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     toolbar->addSeparator();
 
-    QPixmap *tbAnalysis = new QPixmap(resDir + "/res/icons/dialog-information-on.png");
+    QPixmap *tbAnalysis = new QPixmap(resDir + "/res/icons/emblem-system.svg");
     QAction *tbActionAnalysis = toolbar->addAction(QIcon(*tbAnalysis), this->tr("Full Game Analysis"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbStyle = new QPixmap(resDir + "/res/icons/applications-graphics.png");
+    QPixmap *tbStyle = new QPixmap(resDir + "/res/icons/applications-graphics.svg");
     QAction *tbActionStyle = toolbar->addAction(QIcon(*tbStyle), this->tr("Colorstyle"));
 
     QWidget* spacer = new QWidget();
@@ -272,7 +272,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // toolBar is a pointer to an existing toolbar
     toolbar->addWidget(spacer);
 
-    QPixmap *tbHelp = new QPixmap(resDir + "/res/icons/help-browser.png");
+    QPixmap *tbHelp = new QPixmap(resDir + "/res/icons/help-browser.svg");
     QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
 
     mainWidget->setLayout(hbox);
