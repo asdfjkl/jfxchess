@@ -224,8 +224,9 @@ MainWindow::MainWindow(QWidget *parent) :
     hbox->setStretch(0,1);
     hbox->setStretch(1,2);
 
-    QToolBar *toolbar = addToolBar("main toolbar");
+    this->toolbar = addToolBar("main toolbar");
     QSize iconSize = toolbar->iconSize();
+    this->toolbar->setIconSize(QSize(24,24));
 
     QString doc_new(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
@@ -233,7 +234,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QString doc_open(resDir + "/res/pieces/merida/bb.svg");
     QPixmap *tbOpen = this->fromSvgToPixmap(iconSize, doc_open);
-    toolbar->setIconSize(iconSize);
+    //toolbar->setIconSize(iconSize);
 
     //tbOpen->setDevicePixelRatio(this->devicePixelRatio());
     //tbOpen->load(resDir + "/res/icons/document-open.svg");
@@ -551,6 +552,10 @@ void MainWindow::centerAndResize() {
 
 
 void MainWindow::showAbout() {
+     qDebug() << this->toolbar->iconSize();
+     QPixmap *tbSave = this->fromSvgToPixmap(this->toolbar->iconSize(), QString("res/icons/document-save.svg"));
+     QAction *tbActionSave = toolbar->addAction(QIcon(*tbSave), this->tr("Save Game"));
+
     DialogAbout *dlg = new DialogAbout(this, JERRY_VERSION);
     dlg->exec();
     delete dlg;

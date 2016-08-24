@@ -50,6 +50,7 @@ public:
 
 private:
     QMenuBar *menu;
+    QToolBar *toolbar;
     GameModel *gameModel;
     QWidget *mainWidget;
     QHBoxLayout *hbox;
