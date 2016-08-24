@@ -225,11 +225,20 @@ MainWindow::MainWindow(QWidget *parent) :
     hbox->setStretch(1,2);
 
     QToolBar *toolbar = addToolBar("main toolbar");
+    QSize iconSize = toolbar->iconSize();
 
-    QPixmap *tbNew = new QPixmap(resDir + "/res/icons/document-new.svg");
+    QString doc_new(resDir + "/res/icons/document-new.svg");
+    QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
     QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New Game"));
 
-    QPixmap *tbOpen = new QPixmap(resDir + "/res/icons/document-open.svg");
+    QString doc_open(resDir + "/res/pieces/merida/bb.svg");
+    QPixmap *tbOpen = this->fromSvgToPixmap(iconSize, doc_open);
+    toolbar->setIconSize(iconSize);
+
+    //tbOpen->setDevicePixelRatio(this->devicePixelRatio());
+    //tbOpen->load(resDir + "/res/icons/document-open.svg");
+    //tbOpen->setDevicePixelRatio(this->devicePixelRatio());
+
     QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open Game"));
 
     QPixmap *tbSave = new QPixmap(resDir + "/res/icons/document-save.svg");
@@ -653,3 +662,22 @@ void MainWindow::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
+QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile)
+{
+ const qreal PixelRatio = this->devicePixelRatio();
+ QSvgRenderer svgRenderer(SvgFile);
+ qDebug() << ImageSize;
+ qDebug() << PixelRatio;
+ QPixmap *img = new QPixmap(ImageSize*PixelRatio);
+ QPainter Painter;
+
+ img->fill(Qt::transparent);
+
+ Painter.begin(img);
+ svgRenderer.render(&Painter);
+ Painter.end();
+
+ img->setDevicePixelRatio(PixelRatio);
+
+ return img;
+}

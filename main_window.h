@@ -74,6 +74,8 @@ private:
     QAction *enter_moves;
     QAction *play_black;
     QAction *play_white;
+    QPixmap* fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile);
+
 
 protected:
     void wheelEvent(QWheelEvent *event);
