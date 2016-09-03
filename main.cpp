@@ -28,6 +28,7 @@
 #include "funct.h"
 #include "main_window.h"
 #include <ctime>
+#include <QDebug>
 
 using namespace std;
 
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
     //p.run_pertf();
 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     // from Qt 5.6 onwards
 
     QApplication app(argc, argv);
@@ -58,10 +60,11 @@ int main(int argc, char *argv[])
     app.setWindowIcon(*app_icon);
 
     MainWindow mainWin;
+    qDebug() << mainWin.devicePixelRatio();
 
     QObject::connect(&app, &QApplication::aboutToQuit, &mainWin, &MainWindow::aboutToQuit);
 
-    mainWin.centerAndResize();
+    //mainWin.centerAndResize();
     mainWin.show();
     return app.exec();
 

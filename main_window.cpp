@@ -138,15 +138,20 @@ MainWindow::MainWindow(QWidget *parent) :
     //QPushButton *stepright = new QPushButton();
     QPushButton *end = new QPushButton();
 
-    QPixmap pxRight(resDir + "/res/icons/go-next.svg");
-    QPixmap pxLeft(resDir + "/res/icons/go-previous.svg");
-    //QPixmap pxStepRight(resDir + "/res/icons/media-seek-forward.png");
-    //QPixmap pxStepLeft(resDir + "/res/icons/media-seek-backward.png");
+    //QString doc_new(resDir + "/res/icons/document-new.svg");
+    //QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
+
+    qDebug() << "LR: " << btnSizeLR;
+    left->setIconSize(btnSizeLR);
+    qDebug() << "then: " << left->iconSize();
+
+    QPixmap pxRight(*this->fromSvgToPixmap(beginning->iconSize(),resDir + "/res/icons/go-next.svg"));
+    QPixmap pxLeft(*this->fromSvgToPixmap(QSize(70,70),resDir + "/res/icons/go-previous.svg"));
+    QIcon *foo = new QIcon(pxLeft);
     QPixmap pxBeginning(resDir + "/res/icons/go-first.svg");
     QPixmap pxEnd(resDir + "/res/icons/go-last.svg");
 
-    left->setIcon(QIcon(pxLeft));
-    left->setIconSize(btnSizeLR);
+    left->setIcon(*foo);
     right->setIcon(QIcon(pxRight));
     right->setIconSize(btnSizeLR);
     //stepleft->setIcon(QIcon(pxStepLeft));
@@ -225,64 +230,70 @@ MainWindow::MainWindow(QWidget *parent) :
     hbox->setStretch(1,2);
 
     this->toolbar = addToolBar("main toolbar");
-    QSize iconSize = toolbar->iconSize();
-    this->toolbar->setIconSize(QSize(24,24));
+    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
+    //this->toolbar->setIconSize(QSize(24,24));
+    qDebug() << "icon size on startup: " << iconSize;
 
     QString doc_new(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
     QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New Game"));
 
-    QString doc_open(resDir + "/res/pieces/merida/bb.svg");
+    QString doc_open(resDir + "/res/icons/document-open.svg");
     QPixmap *tbOpen = this->fromSvgToPixmap(iconSize, doc_open);
-    //toolbar->setIconSize(iconSize);
-
-    //tbOpen->setDevicePixelRatio(this->devicePixelRatio());
-    //tbOpen->load(resDir + "/res/icons/document-open.svg");
-    //tbOpen->setDevicePixelRatio(this->devicePixelRatio());
-
     QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open Game"));
 
-    QPixmap *tbSave = new QPixmap(resDir + "/res/icons/document-save.svg");
+    QString doc_save(resDir + "/res/icons/document-save.svg");
+    QPixmap *tbSave = this->fromSvgToPixmap(iconSize, doc_save);
     QAction *tbActionSave = toolbar->addAction(QIcon(*tbSave), this->tr("Save Game"));
 
-    //QPixmap *tbPrint = new QPixmap("res/icons/document-print.svg");
-    //QAction *tbActionPrint = toolbar->addAction(QIcon(*tbPrint), this->tr("Print Game"));
+    QString doc_print(resDir + "/res/icons/document-print.svg");
+    QPixmap *tbPrint = this->fromSvgToPixmap(iconSize, doc_print);
+    QAction *tbActionPrint = toolbar->addAction(QIcon(*tbPrint), this->tr("Print Game"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbFlip = new QPixmap(resDir + "/res/icons/view-refresh.svg");
+    QString view_ref(resDir + "/res/icons/view-refresh.svg");
+    QPixmap *tbFlip = this->fromSvgToPixmap(iconSize, view_ref);
     QAction *tbActionFlip = toolbar->addAction(QIcon(*tbFlip), this->tr("Flip Board"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbCopyGame = new QPixmap(resDir + "/res/icons/edit-copy.svg");
+    QString edt_cpy(resDir + "/res/icons/edit-copy.svg");
+    QPixmap *tbCopyGame = this->fromSvgToPixmap(iconSize, edt_cpy);
     QAction *tbActionCopyGame = toolbar->addAction(QIcon(*tbCopyGame), this->tr("Copy Game"));
 
-    QPixmap *tbCopyPosition = new QPixmap(resDir + "/res/icons/edit-copy-fen.png");
+    QString cpy_fen(resDir + "/res/icons/edit-copy.svg");
+    QPixmap *tbCopyPosition = this->fromSvgToPixmap(iconSize, cpy_fen);
     QAction *tbActionCopyPosition = toolbar->addAction(QIcon(*tbCopyPosition), this->tr("Copy Position"));
 
-    QPixmap *tbPaste = new QPixmap(resDir + "/res/icons/edit-paste.svg");
+    QString edt_pst(resDir + "/res/icons/edit-paste.svg");
+    QPixmap *tbPaste = this->fromSvgToPixmap(iconSize, edt_pst);
     QAction *tbActionPaste = toolbar->addAction(QIcon(*tbPaste), this->tr("Paste Game/Position"));
 
-    QPixmap *tbEnterPosition = new QPixmap(resDir + "/res/icons/document-new-board.png");
+    QString new_brd(resDir + "/res/icons/document-new.svg");
+    QPixmap *tbEnterPosition = this->fromSvgToPixmap(iconSize, new_brd);
     QAction *tbActionEnterPosition = toolbar->addAction(QIcon(*tbEnterPosition), this->tr("Enter Position"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbAnalysis = new QPixmap(resDir + "/res/icons/emblem-system.svg");
+    QString brd_ana(resDir + "/res/icons/emblem-system.svg");
+    QPixmap *tbAnalysis = this->fromSvgToPixmap(iconSize, brd_ana);
     QAction *tbActionAnalysis = toolbar->addAction(QIcon(*tbAnalysis), this->tr("Full Game Analysis"));
 
     toolbar->addSeparator();
 
-    QPixmap *tbStyle = new QPixmap(resDir + "/res/icons/applications-graphics.svg");
+    QString app_grp(resDir + "/res/icons/applications-graphics.svg");
+    QPixmap *tbStyle =  this->fromSvgToPixmap(iconSize, app_grp);
     QAction *tbActionStyle = toolbar->addAction(QIcon(*tbStyle), this->tr("Colorstyle"));
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // toolBar is a pointer to an existing toolbar
     toolbar->addWidget(spacer);
 
-    QPixmap *tbHelp = new QPixmap(resDir + "/res/icons/help-browser.svg");
+    qDebug() << "exp: " << toolbar->iconSize();
+
+    QString hlp_clc(resDir + "/res/icons/help-browser.svg");
+    QPixmap *tbHelp = this->fromSvgToPixmap(iconSize, hlp_clc);
     QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
 
     mainWidget->setLayout(hbox);
@@ -540,6 +551,7 @@ void MainWindow::centerAndResize() {
     height = 0.7*height;
     QSize newSize( width, height );
 
+    /*
     setGeometry(
         QStyle::alignedRect(
             Qt::LeftToRight,
@@ -548,6 +560,7 @@ void MainWindow::centerAndResize() {
             qApp->desktop()->availableGeometry()
         )
     );
+    */
 }
 
 
