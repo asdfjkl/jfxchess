@@ -60,11 +60,10 @@ int main(int argc, char *argv[])
     app.setWindowIcon(*app_icon);
 
     MainWindow mainWin;
-    qDebug() << mainWin.devicePixelRatio();
 
     QObject::connect(&app, &QApplication::aboutToQuit, &mainWin, &MainWindow::aboutToQuit);
 
-    //mainWin.centerAndResize();
+    mainWin.centerAndResize();
     mainWin.show();
     return app.exec();
 

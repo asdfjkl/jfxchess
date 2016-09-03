@@ -36,7 +36,6 @@ Chessboard::Chessboard(QWidget *parent) :
     this->currentColoredFields = 0;
 
     this->dpr = this->devicePixelRatio();
-    qDebug() << dpr;
 
     this->lastMove = 0;
 }

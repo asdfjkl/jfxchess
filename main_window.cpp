@@ -72,30 +72,10 @@ MainWindow::MainWindow(QWidget *parent) :
     f->run_pgn_scant();
     */
 
-    // chess::EcoCode *e = new chess::EcoCode();
-
-    // test: nakmura game
-    // chess::PgnReader *reader = new chess::PgnReader();
-    //chess::Game* g_test = reader->readGame("/home/user/workspace/jerryv3/data/nakamura_rybka_ascii_linux.pgn");
-    //chess::Game* g_test = reader->readGame("/home/user/workspace/jerryv3/data/complex.pgn");
-
-    //chess::Game* g_test = reader->readGameFromFile("/home/user/pgns/spieler8_vs_ttconnor153_2016_02_08.pgn");
-
-    //chess::Board *b = new chess::Board(QString("7k/7P/8/6K1/8/8/8/8 w - - 0 1"));
-    //chess::GameNode *gn = new chess::GameNode();
-    //gn->setBoard(b);
-    //g_test->setCurrent(gn);
-    //g_test->setRoot(gn);
-
     // reconstruct gameModel
     this->gameModel = new GameModel();
-    //this->gameModel->setGame(g_test);
     this->gameModel->restoreGameState();
     this->gameModel->getGame()->treeWasChanged = true;
-
-    //chess::GameNode *root = this->gameModel->getGame()->getRootNode();
-    //root->setBoard(new chess::Board(true));
-    //root->setBoard(b);
 
     this->boardViewController = new BoardViewController(gameModel, this);
     this->moveViewController = new MoveViewController(gameModel, this);
@@ -111,17 +91,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QHBoxLayout *hbox_name_editHeader = new QHBoxLayout();
     QPushButton *editHeader = new QPushButton();
-
-    QPixmap pxEditHeader(resDir + "/res/icons/document-properties.svg");
+    QPixmap pxEditHeader(*this->fromSvgToPixmap(editHeader->iconSize(),resDir + "/res/icons/document-properties.svg"));
     editHeader->setIcon(QIcon(pxEditHeader));
 
     hbox_name_editHeader->addStretch(1);
     hbox_name_editHeader->addWidget(this->name);
     hbox_name_editHeader->addStretch(1);
     hbox_name_editHeader->addWidget(editHeader);
-    //hbox_right_engine_buttons->addStretch(1);
-
-
 
     this->uciController = new UciController();
 
@@ -133,35 +109,23 @@ MainWindow::MainWindow(QWidget *parent) :
     QSize btnSizeLR = QSize(this->height()/14, this->height()/14);
     QPushButton *left = new QPushButton();
     QPushButton *right = new QPushButton();
-    //QPushButton *stepleft = new QPushButton();
     QPushButton *beginning = new QPushButton();
-    //QPushButton *stepright = new QPushButton();
     QPushButton *end = new QPushButton();
 
-    //QString doc_new(resDir + "/res/icons/document-new.svg");
-    //QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
-
-    qDebug() << "LR: " << btnSizeLR;
     left->setIconSize(btnSizeLR);
-    qDebug() << "then: " << left->iconSize();
-
-    QPixmap pxRight(*this->fromSvgToPixmap(beginning->iconSize(),resDir + "/res/icons/go-next.svg"));
-    QPixmap pxLeft(*this->fromSvgToPixmap(QSize(70,70),resDir + "/res/icons/go-previous.svg"));
-    QIcon *foo = new QIcon(pxLeft);
-    QPixmap pxBeginning(resDir + "/res/icons/go-first.svg");
-    QPixmap pxEnd(resDir + "/res/icons/go-last.svg");
-
-    left->setIcon(*foo);
-    right->setIcon(QIcon(pxRight));
     right->setIconSize(btnSizeLR);
-    //stepleft->setIcon(QIcon(pxStepLeft));
-    //stepleft->setIconSize(btnSize);
-    //stepright->setIcon(QIcon(pxStepRight));
-    //stepright->setIconSize(btnSize);
-    beginning->setIcon(QIcon(pxBeginning));
     beginning->setIconSize(btnSize);
-    end->setIcon(QIcon(pxEnd));
     end->setIconSize(btnSize);
+
+    QPixmap pxRight(*this->fromSvgToPixmap(right->iconSize(),resDir + "/res/icons/go-next.svg"));
+    QPixmap pxLeft(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-previous.svg"));
+    QPixmap pxBeginning(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-first.svg"));
+    QPixmap pxEnd(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-last.svg"));
+
+    right->setIcon(QIcon(pxRight));
+    left->setIcon(QIcon(pxLeft));
+    beginning->setIcon(QIcon(pxBeginning));
+    end->setIcon(QIcon(pxEnd));
 
     QWidget *mainWidget = new QWidget();
 
@@ -183,29 +147,23 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *hbox_buttons = new QHBoxLayout();
     hbox_buttons->addStretch(1);
     hbox_buttons->addWidget(beginning);
-    //hbox_buttons->addWidget(stepleft);
     hbox_buttons->addWidget(left);
     hbox_buttons->addWidget(right);
-    //hbox_buttons->addWidget(stepright);
     hbox_buttons->addWidget(end);
     hbox_buttons->addStretch(1);
 
     QHBoxLayout *hbox_right_engine_buttons = new QHBoxLayout();
-    //this->pbEngineOnOff = new SwitchButton(); //new QPushButton("OFF");
-    //this->pbEngineOnOff->setColors(Qt::darkGray, Qt::darkGray);
+
     this->pbEngineOnOff = new OnOffButton(this); //new QPushButton("OFF");
     QPushButton *editEngines = new QPushButton();
-
-    QPixmap pxEditPgnHeader(resDir + "/res/icons/document-properties.svg");
-    editEngines->setIcon(QIcon(pxEditPgnHeader));
-    //editPgnHeader->setIconSize(pbEngineOnOff->size());
+    QPixmap pxEditEngines(*this->fromSvgToPixmap(editEngines->iconSize(),resDir + "/res/icons/document-properties.svg"));
+    editEngines->setIcon(QIcon(pxEditEngines));
 
     hbox_right_engine_buttons->addWidget(pbEngineOnOff);
     hbox_right_engine_buttons->addStretch(1);
     hbox_right_engine_buttons->addWidget(editEngines);
 
     QVBoxLayout *vbox_right = new QVBoxLayout();
-    //vbox_right->addWidget(name);
     vbox_right->addLayout(hbox_name_editHeader);
     vbox_right->addWidget(moveViewController);
     vbox_right->addLayout(hbox_buttons);
@@ -221,8 +179,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QVBoxLayout *vbox_left = new QVBoxLayout();
     vbox_left->addWidget(boardViewController);
 
-    //vbox_left->addLayout(hbox_buttons);
-
     this->hbox = new QHBoxLayout();
     hbox->addLayout(vbox_left);
     hbox->addLayout(vbox_right);
@@ -231,8 +187,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->toolbar = addToolBar("main toolbar");
     QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
-    //this->toolbar->setIconSize(QSize(24,24));
-    qDebug() << "icon size on startup: " << iconSize;
 
     QString doc_new(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
@@ -290,8 +244,6 @@ MainWindow::MainWindow(QWidget *parent) :
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
 
-    qDebug() << "exp: " << toolbar->iconSize();
-
     QString hlp_clc(resDir + "/res/icons/help-browser.svg");
     QPixmap *tbHelp = this->fromSvgToPixmap(iconSize, hlp_clc);
     QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
@@ -326,26 +278,7 @@ MainWindow::MainWindow(QWidget *parent) :
     print_game->setShortcut(QKeySequence::Print);
     quit->setShortcut(QKeySequence::Quit);
 
-    //QShortcut *sc_new_game = new QShortcut(QKeySequence::New, this);
-    //sc_new_game->setContext(Qt::ApplicationShortcut);
-
-    //QShortcut *sc_open_game = new QShortcut(QKeySequence::Open, this);
-    //sc_open_game->setContext(Qt::ApplicationShortcut);
-
-    //QShortcut *sc_save_game = new QShortcut(QKeySequence::Save, this);
-    //sc_save_game->setContext(Qt::ApplicationShortcut);
-
-    //QShortcut *sc_save_game_as = new QShortcut(QKeySequence::SaveAs, this);
-    //sc_save_game_as->setContext(Qt::ApplicationShortcut);
-
-    //QShortcut *sc_print_game = new QShortcut(QKeySequence::Print, this);
-    //sc_print_game->setContext(Qt::ApplicationShortcut);
-
-    //QShortcut *sc_quit = new QShortcut(QKeySequence::Quit, this);
-    //sc_quit->setContext(Qt::ApplicationShortcut);
-
     connect(quit, &QAction::triggered, this, &QWidget::close);
-    //connect(sc_quit, &QShortcut::activated, quit, &QAction::trigger);
 
     // EDIT MENU
     QMenu *m_edit = this->menuBar()->addMenu(this->tr("Edit"));
@@ -357,15 +290,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QAction *edit_headers = m_edit->addAction(this->tr("Edit Game Data"));
     QAction *enter_position = m_edit->addAction(this->tr("&Enter Position"));
-    //QAction *reset_to_initial = m_edit->addAction(this->tr("Reset to Initial"));
 
     m_edit->addSeparator();
     QAction *flip_board = m_edit->addAction(this->tr("&Flip Board"));
     this->show_info = m_edit->addAction(this->tr("Show Search &Info"));
-
-    //m_edit->addSeparator();
-    //QAction *offer_draw = m_edit->addAction(this->tr("Offer Draw"));
-    //QAction *resign = m_edit->addAction(this->tr("Resign"));
 
     copy_game->setShortcut(QKeySequence::Copy);
     paste->setShortcut(QKeySequence::Paste);
@@ -376,13 +304,6 @@ MainWindow::MainWindow(QWidget *parent) :
     show_info->setCheckable(true);
     show_info->setChecked(true);
 
-    //offer_draw->setEnabled(false);
-    //resign->setEnabled(false);
-
-    //QShortcut *sc_copy = new QShortcut(QKeySequence::Copy, this);
-    //sc_copy->setContext(Qt::ApplicationShortcut);
-    //QShortcut *sc_paste = new QShortcut(QKeySequence::Paste, this);
-    //sc_paste->setContext(Qt::ApplicationShortcut);
     QShortcut *sc_flip = new QShortcut(QKeySequence(Qt::Key_F), this);
     sc_flip->setContext(Qt::ApplicationShortcut);
     QShortcut *sc_enter_pos = new QShortcut(QKeySequence(Qt::Key_E), this);
@@ -443,34 +364,27 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(sc_flip, &QShortcut::activated, flip_board, &QAction::trigger);
 
     connect(copy_game, &QAction::triggered, this->editController, &EditController::copyGameToClipBoard);
-    //connect(sc_copy, &QShortcut::activated, copy_game, &QAction::trigger);
     connect(tbActionCopyGame, &QAction::triggered, copy_game, &QAction::trigger);
     connect(copy_position, &QAction::triggered, this->editController, &EditController::copyPositionToClipBoard);
     connect(tbActionCopyPosition, &QAction::triggered, copy_position, &QAction::trigger);
 
     connect(paste, &QAction::triggered, this->editController, &EditController::paste);
-    //connect(sc_paste, &QShortcut::activated, paste, &QAction::trigger);
     connect(tbActionPaste, &QAction::triggered, paste, &QAction::trigger);
 
     connect(print_game, &QAction::triggered, this->fileController, &FileController::printGame);
-    //connect(sc_print_game, &QShortcut::activated, print_game, &QAction::trigger);
 
     connect(print_position, &QAction::triggered, this->fileController, &FileController::printPosition);
-    //connect(tbActionPrint, &QAction::triggered, print_position, &QAction::trigger);
+    connect(tbActionPrint, &QAction::triggered, print_position, &QAction::trigger);
 
     connect(new_game, &QAction::triggered, this->fileController, &FileController::newGame);
-    //connect(sc_new_game, &QShortcut::activated, new_game, &QAction::trigger);
     connect(tbActionNew, &QAction::triggered, new_game, &QAction::trigger);
 
     connect(open_game, &QAction::triggered, this->fileController, &FileController::openGame);
-    //connect(sc_open_game, &QShortcut::activated, open_game, &QAction::trigger);
     connect(tbActionOpen, &QAction::triggered, open_game, &QAction::trigger);
 
     connect(save_game, &QAction::triggered, this->fileController, &FileController::saveGame);
-    //connect(sc_save_game, &QShortcut::activated, save_game, &QAction::trigger);
 
     connect(save_game_as, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
-    //connect(sc_save_game_as, &QShortcut::activated, open_game, &QAction::trigger);
     connect(tbActionSave, &QAction::triggered, this->fileController, &FileController::toolbarSaveGame);
 
     connect(gameModel, &GameModel::stateChange, this, &MainWindow::onStateChange);
@@ -527,8 +441,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileController, &FileController::newGamePlayBlack, modeController, &ModeController::onActivatePlayBlackMode);
     connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);
 
-    //connect(stepleft, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekBackwardClick);
-    //connect(stepright, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekForwardClick);
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
 
@@ -565,10 +477,6 @@ void MainWindow::centerAndResize() {
 
 
 void MainWindow::showAbout() {
-     qDebug() << this->toolbar->iconSize();
-     QPixmap *tbSave = this->fromSvgToPixmap(this->toolbar->iconSize(), QString("res/icons/document-save.svg"));
-     QAction *tbActionSave = toolbar->addAction(QIcon(*tbSave), this->tr("Save Game"));
-
     DialogAbout *dlg = new DialogAbout(this, JERRY_VERSION);
     dlg->exec();
     delete dlg;
@@ -582,21 +490,14 @@ void MainWindow::onEngineToggle() {
     if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
         this->analysis_mode->setChecked(true);
         this->modeController->onActivateAnalysisMode();
-        //this->pbEngineOnOff->setText("ON");
-        //this->pbEngineOnOff->setChecked(true);
     } else {
         this->enter_moves->setChecked(true);
         this->modeController->onActivateEnterMovesMode();
-        //this->pbEngineOnOff->setText("OFF");
-        //this->pbEngineOnOff->setStyleSheet("background-color: red");
-        //this->pbEngineOnOff->setChecked(false);
     }
 }
 
-
 void MainWindow::saveImage() {
     QPixmap p = QPixmap::grabWindow(this->boardViewController->winId());
-
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"),"" ,"JPG (*.jpg)");
     if(!filename.isEmpty()) {
         p.save(filename,"jpg");
@@ -684,8 +585,6 @@ QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgF
 {
  const qreal PixelRatio = this->devicePixelRatio();
  QSvgRenderer svgRenderer(SvgFile);
- qDebug() << ImageSize;
- qDebug() << PixelRatio;
  QPixmap *img = new QPixmap(ImageSize*PixelRatio);
  QPainter Painter;
 
