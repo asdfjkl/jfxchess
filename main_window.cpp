@@ -463,7 +463,6 @@ void MainWindow::centerAndResize() {
     height = 0.7*height;
     QSize newSize( width, height );
 
-    /*
     setGeometry(
         QStyle::alignedRect(
             Qt::LeftToRight,
@@ -472,7 +471,6 @@ void MainWindow::centerAndResize() {
             qApp->desktop()->availableGeometry()
         )
     );
-    */
 }
 
 
