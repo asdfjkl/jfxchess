@@ -212,11 +212,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     toolbar->addSeparator();
 
-    QString edt_cpy(resDir + "/res/icons/edit-copy.svg");
+    QString edt_cpy(resDir + "/res/icons/edit-copy-pgn.svg");
     QPixmap *tbCopyGame = this->fromSvgToPixmap(iconSize, edt_cpy);
     QAction *tbActionCopyGame = toolbar->addAction(QIcon(*tbCopyGame), this->tr("Copy Game"));
 
-    QString cpy_fen(resDir + "/res/icons/edit-copy.svg");
+    QString cpy_fen(resDir + "/res/icons/edit-copy-fen.svg");
     QPixmap *tbCopyPosition = this->fromSvgToPixmap(iconSize, cpy_fen);
     QAction *tbActionCopyPosition = toolbar->addAction(QIcon(*tbCopyPosition), this->tr("Copy Position"));
 
@@ -224,7 +224,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QPixmap *tbPaste = this->fromSvgToPixmap(iconSize, edt_pst);
     QAction *tbActionPaste = toolbar->addAction(QIcon(*tbPaste), this->tr("Paste Game/Position"));
 
-    QString new_brd(resDir + "/res/icons/document-new.svg");
+    QString new_brd(resDir + "/res/icons/document-enter-position.svg");
     QPixmap *tbEnterPosition = this->fromSvgToPixmap(iconSize, new_brd);
     QAction *tbActionEnterPosition = toolbar->addAction(QIcon(*tbEnterPosition), this->tr("Enter Position"));
 
