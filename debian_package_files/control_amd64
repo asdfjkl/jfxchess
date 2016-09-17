@@ -1,9 +1,9 @@
 Package: jerry
-Version: 3.0.4
+Version: 3.0.5
 Maintainer: Dominik Klein <dominik.klein@outlook.com>
 Architecture: amd64
-Depends: libqt5core5a (>= 5.2.1), libqt5gui5 (>= 5.2.1), libqt5printsupport5 (>= 5.2.1), libqt5svg5 (>= 5.2.1), libqt5widgets5 (>= 5.2.1) 
-Installed-Size: 14600
+Depends:  
+Installed-Size: 60000
 Description: A chess GUI
  Jerry is a simple and efficient chess GUI (graphical user interface) offering the following features:
  .

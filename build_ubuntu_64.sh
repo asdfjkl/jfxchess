@@ -1,8 +1,14 @@
 #!/bin/bash
 echo 'cleaning up'
-rm -r -f jerry3_ubuntu14_04_4lts
 rm -r -f release
+rm -r -f ~/workspace/build-jerry3-Desktop-Release/jerry_ubuntu16_04_1lts
 
+echo 'collecting shared libs'
+cp find_deps_linux ../build-jerry3-Desktop-Release/
+cd ~/workspace/build-jerry3-Desktop-Release/
+./find_deps_linux jerry
+
+cd ~/workspace/jerry
 mkdir release
 
 echo 'setting up release directory...'
@@ -14,7 +20,8 @@ cp ./engine/* ./release/ubuntu64/engine
 cp ./books/* ./release/ubuntu64/books
 cp -r ./res/* ./release/ubuntu64/res
 cp ~/workspace/build-jerry3-Desktop-Release/Jerry ./release/ubuntu64/jerry
-cp ./jerry.sh ./release/ubuntu64/jerry.sh
+cp ~/workspace/jerry/jerry.sh ./release/ubuntu64/jerry.sh
+cp ~/workspace/build-jerry3-Desktop-Release/jerry_ubuntu16_04_1lts/libs/* ./release/ubuntu64
 
 mkdir release/jerry
 mkdir release/jerry/DEBIAN
