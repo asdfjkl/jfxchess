@@ -22,6 +22,13 @@ cp -r ./res/* ./release/ubuntu64/res
 cp ~/workspace/build-jerry3-Desktop-Release/Jerry ./release/ubuntu64/jerry
 cp ~/workspace/jerry/jerry.sh ./release/ubuntu64/jerry.sh
 cp ~/workspace/build-jerry3-Desktop-Release/jerry_ubuntu16_04_1lts/libs/* ./release/ubuntu64
+# copy plugins and related libs that are not detected by ldd on jerry executable
+# directly
+mkdir ./release/ubuntu64/platforms
+cp /opt/qt57/plugins/platforms/libqxcb.so ./release/ubuntu64/platforms/libqxcb.so
+cp /opt/qt57/lib/libQt5XcbQpa.so.* ./release/ubuntu64
+cp /opt/qt57/lib/libQt5DBus.so.* ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-xinerama.so.* ./release/ubuntu64
 
 mkdir release/jerry
 mkdir release/jerry/DEBIAN
