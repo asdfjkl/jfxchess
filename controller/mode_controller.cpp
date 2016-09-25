@@ -26,6 +26,7 @@
 #include "dialogs/dialog_gameanalysis.h"
 #include "various/messagebox.h"
 #include "chess/game_node.h"
+#include "chess/game.h"
 #include <stdlib.h>
 
 ModeController::ModeController(GameModel *gameModel, UciController *controller, QWidget *parent) :
@@ -246,7 +247,6 @@ void ModeController::onActivateEnterMovesMode() {
     this->uci_controller->uciSendCommand("stop");
     this->uci_controller->uciSendCommand("quit");
     // trigger statechange
-    qDebug() << "act: " << this->gameModel->flipBoard;
     this->gameModel->setMode(MODE_ENTER_MOVES);
     this->gameModel->triggerStateChange();
 }
@@ -392,13 +392,21 @@ void ModeController::onStateChange() {
     // if the node was just created
     if(current->getBoard()->is_checkmate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
+            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
+            if(mode == MODE_PLAY_WHITE) {
+                this->gameModel->getGame()->setResult(chess::RES_WHITE_WINS);
+                this->gameModel->getGame()->treeWasChanged = true;
+            } else {
+                this->gameModel->getGame()->setResult(chess::RES_BLACK_WINS);
+                this->gameModel->getGame()->treeWasChanged = true;
+            }
             this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
                   && !current->userWasInformedAboutResult) {
+            current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
         }
-        current->userWasInformedAboutResult = true;
     }
     // same for stalemate
     if(current->getBoard()->is_stalemate()) {
@@ -414,6 +422,7 @@ void ModeController::onStateChange() {
     // 50 moves rule
     if(current->getBoard()->can_claim_fifty_moves()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
+            this->gameModel->getGame()->treeWasChanged = true;
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
             this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
