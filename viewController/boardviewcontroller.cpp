@@ -255,6 +255,8 @@ void BoardViewController::mouseReleaseEvent(QMouseEvent *m) {
 void BoardViewController::onStateChange() {
     this->lastMove = this->gameModel->getGame()->getCurrentNode()->getMove();
     this->style = this->gameModel->colorStyle;
+    qDebug() << "Flip board: " << this->gameModel->flipBoard;
+    this->setFlipBoard(this->gameModel->flipBoard);
     this->update();
 }
 

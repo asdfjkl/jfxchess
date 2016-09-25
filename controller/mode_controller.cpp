@@ -246,6 +246,7 @@ void ModeController::onActivateEnterMovesMode() {
     this->uci_controller->uciSendCommand("stop");
     this->uci_controller->uciSendCommand("quit");
     // trigger statechange
+    qDebug() << "act: " << this->gameModel->flipBoard;
     this->gameModel->setMode(MODE_ENTER_MOVES);
     this->gameModel->triggerStateChange();
 }

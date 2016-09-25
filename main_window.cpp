@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QStyle>
-#include <QPrintDialog>
+//#include <QPrintDialog>
 #include <QTextEdit>
 #include <QFileDialog>
 #include <QHBoxLayout>

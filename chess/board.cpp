@@ -590,11 +590,11 @@ Board::Board(const QString &fen_string) {
         if(fen_parts.at(1) == QChar('w')) {
             // should be something like "e6" etc. if white is to move
             // check that int value part is sixth rank
-            if(!fen_parts.at(3).size() == 2 || fen_parts.at(3).at(1) != QChar('6')) {
+            if(fen_parts.at(3).size() != 2 || fen_parts.at(3).at(1) != QChar('6')) {
                 throw std::invalid_argument("invalid e.p. encoding (white to move)");
             }
         } else {
-            if(!fen_parts.at(3).size() == 2 || fen_parts.at(3).at(1) != QChar('3')) {
+            if(fen_parts.at(3).size() != 2 || fen_parts.at(3).at(1) != QChar('3')) {
                 throw std::invalid_argument("invalid e.p. encoding (black to move)");
             }
         }

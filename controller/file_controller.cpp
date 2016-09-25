@@ -96,6 +96,11 @@ void FileController::newGame() {
         chess::Game *g = new chess::Game();
         this->gameModel->setGame(g);
         this->gameModel->getGame()->treeWasChanged = true;
+        if(dlg->playsWhite) {
+            this->gameModel->flipBoard = false;
+        } else {
+            this->gameModel->flipBoard = true;
+        }
         if(dlg->playsComputer) {
             if(dlg->playsWhite) {
                 emit(newGamePlayWhite());
