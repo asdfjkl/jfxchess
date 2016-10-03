@@ -113,7 +113,7 @@ void EditController::editHeaders() {
             this->gameModel->getGame()->headers->insert("Result", "*");
         }
         this->gameModel->getGame()->treeWasChanged = true;
-        this->gameModel->triggerStateChange();
     }
     delete dlg;
+    this->gameModel->triggerStateChange();
 }
