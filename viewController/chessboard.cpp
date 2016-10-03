@@ -250,12 +250,14 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
         for(int i=0; i<this->currentColoredFields->size();i++) {
             chess::ColoredField *ci = this->currentColoredFields->at(i);
             int x = 0;
+            int y = 0;
             if(this->flipBoard) {
                 x = boardOffsetX+((7-ci->field.x())*squareSize);
+                y = boardOffsetY+(ci->field.y()*squareSize);
             } else {
-                x = boardOffsetX+(ci->field.x()*squareSize);
+                x = boardOffsetX+(ci->field.x()*squareSize);                
+                y = boardOffsetY+((7-ci->field.y())*squareSize);
             }
-            int y = boardOffsetY+((7-ci->field.y())*squareSize);
             painter->setBrush(ci->color);
             painter->drawRect(x,y,squareSize,squareSize);
         }
@@ -306,15 +308,19 @@ void Chessboard::drawArrow(chess::Arrow *ai, int boardOffsetX,
                                     int boardOffsetY, int squareSize, QPainter *painter) {
     int x_from = 0;
     int x_to = 0;
+    int y_from = 0;
+    int y_to = 0;
     if(this->flipBoard) {
         x_from = boardOffsetX+((7-ai->from.x())*squareSize) + (squareSize/2);
         x_to = boardOffsetX+((7-ai->to.x())*squareSize) + (squareSize/2);
+        y_from = boardOffsetY+((ai->from.y())*squareSize)+ (squareSize/2);
+        y_to = boardOffsetY+((ai->to.y())*squareSize)+ (squareSize/2);
     } else {
         x_from = boardOffsetX+(ai->from.x()*squareSize)+ (squareSize/2);
         x_to = boardOffsetX+(ai->to.x()*squareSize)+ (squareSize/2);
+        y_from = boardOffsetY+((7-ai->from.y())*squareSize)+ (squareSize/2);
+        y_to = boardOffsetY+((7-ai->to.y())*squareSize)+ (squareSize/2);
     }
-    int y_from = boardOffsetY+((7-ai->from.y())*squareSize)+ (squareSize/2);
-    int y_to = boardOffsetY+((7-ai->to.y())*squareSize)+ (squareSize/2);
 
     //QPen pen = QPen(this->green, squareSize / 10);
     //painter->setPen(pen);

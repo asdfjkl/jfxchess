@@ -125,6 +125,10 @@ uint8_t BoardViewController::xyToBoardIdx(int x, int y) {
 void BoardViewController::handleColoringOnKeyPress(QPoint *pos) {
         // user clicked and is going to draw arrow or mark a field
         if(pos->x() != -1 && pos->y() != -1 && !this->colorClick) {
+            if(this->gameModel->flipBoard) {
+                pos->setX(7-pos->x());
+                pos->setY(7-pos->y());
+            }
             this->colorClickSrc->setX(pos->x());
             this->colorClickSrc->setY(pos->y());
             this->colorClick = true;
@@ -190,6 +194,10 @@ void BoardViewController::mouseMoveEvent(QMouseEvent *m) {
     }
     if(button == Qt::NoButton && this->drawGrabbedArrow) {
         QPoint *xy = this->getBoardPosition(m->x(),m->y());
+        if(this->gameModel->flipBoard) {
+            xy->setX(7-xy->x());
+            xy->setY(7-xy->y());
+        }
         this->setGrabbedArrowTo(xy->x(), xy->y());
         this->update();
     }
@@ -199,6 +207,10 @@ void BoardViewController::mouseMoveEvent(QMouseEvent *m) {
 void BoardViewController::handleColoringonKeyRelease(QPoint *pos) {
         // user clicked and is going to draw arrow
         if(pos->x() != -1 && pos->y() != -1 && this->colorClick) {
+            if(this->gameModel->flipBoard) {
+                pos->setX(7-pos->x());
+                pos->setY(7-pos->y());
+            }
             // arrow case
             if(pos->x() != this->colorClickSrc->x() || pos->y() != this->colorClickSrc->y()) {
                 chess::Arrow *a = new chess::Arrow();
