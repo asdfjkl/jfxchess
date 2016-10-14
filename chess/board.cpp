@@ -1472,7 +1472,7 @@ void Board::apply(const Move &m) {
             if(m.from == A1) {
                 this->set_castle_wqueen(false);
             }
-            if(m.from == A8) {
+            if(m.from == H1) {
                 this->set_castle_wking(false);
             }
         }

@@ -46,6 +46,9 @@ EngineInfo::EngineInfo()
 }
 
 void EngineInfo::update(QString engine_feedback, QString fen) {
+
+    //qDebug() << engine_feedback;
+    //qDebug() << fen;
     // update turn
     if(!fen.isEmpty()) {
         try{
@@ -55,7 +58,7 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             this->halfmoves = b.halfmove_clock;
             this->fullmove_no = b.fullmove_number;
         } catch(std::logic_error e) {
-
+            //qDebug() << "error: chess logic in parsing engine output!";
         }
     }
     // revert lines, to get the latest output first
@@ -126,6 +129,7 @@ void EngineInfo::updateSan() {
 
         this->pv_san = QString("");
         chess::Board b = chess::Board(this->fen);
+        //std::cout << b << std::endl;
 
         bool whiteMoves = true;
         int moveNo = this->fullmove_no;

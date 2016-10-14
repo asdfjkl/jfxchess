@@ -80,12 +80,19 @@ void ModeController::onBestMove(QString uci_move) {
         // first check if the first move in the bestpv
         // of this node is the same move as the first
         // child move
+        qDebug() << "at node: " << current->getMove()->uci();
+        //qDebug() << "best pv: " << this->gameModel->currentBestPv;
+        //qDebug() << "current eval: " << this->gameModel->currentEval;
+        qDebug() << "current mate: " << this->gameModel->currentMateInMoves;
+        //qDebug() << "prev best pv: " << this->gameModel->prevBestPv;
+        //qDebug() << "prev eval: " << this->gameModel->prevEval;
+        qDebug() << "prev mate: " << this->gameModel->prevMateInMoves;
         QString first_move_current_pv = this->gameModel->currentBestPv.split(" ")[0];
         if(!first_move_current_pv.isEmpty() && !current->isLeaf()
                 && first_move_current_pv != current->getVariation(0)->getMove()->uci()) {
             if( ((abs(this->gameModel->currentEval - this->gameModel->prevEval) > this->gameModel->analysisThreshold)
                     && this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves < 0)
-                    || (this->gameModel->prevMateInMoves >= 0 && this->gameModel->currentMateInMoves == -1)) {
+                    || (this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0)) {
             // add best pv variation
             QStringList pv_list = this->gameModel->currentBestPv.split(" ");
             for(int i=0;i<pv_list.count();i++) {
@@ -104,7 +111,7 @@ void ModeController::onBestMove(QString uci_move) {
             current = this->gameModel->getGame()->getCurrentNode();
             // set the evals as a comment
             if(current->getVariations()->count() >= 2) {
-                if(this->gameModel->prevMateInMoves >= 0 && this->gameModel->currentMateInMoves < 0) {
+                if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves >= 0) {
                     /*
                     if(this->gameModel->prevMateInMoves >= 0) {
                         // both were mate, but one was still better
@@ -113,8 +120,8 @@ void ModeController::onBestMove(QString uci_move) {
                         current->getVariation(0)->setComment(c0);
                         current->getVariation(1)->setComment(c1);
                     } else {*/
-                        QString c1 = QString::number(this->gameModel->currentEval, 'f', 2);
-                        QString c0 = QString("#").append(QString::number(this->gameModel->prevMateInMoves));
+                        QString c0 = QString::number(this->gameModel->currentEval, 'f', 2);
+                        QString c1 = QString("#").append(QString::number(this->gameModel->currentMateInMoves));
                         current->getVariation(0)->setComment(c0);
                         current->getVariation(1)->setComment(c1);
 
