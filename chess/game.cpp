@@ -173,7 +173,6 @@ void Game::applyMove(Move *m) {
     if(!exists_child) {
         GameNode *current = this->getCurrentNode();
         Board *b_current = current->getBoard();
-        qDebug() << m->uci() << " on: " << b_current->fullmove_number;
         Board *b_child = b_current->copy_and_apply(*m);
         GameNode *new_current = new GameNode();
         new_current->setBoard(b_child);
