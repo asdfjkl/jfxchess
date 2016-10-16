@@ -1361,7 +1361,7 @@ void Board::apply(const Move &m) {
     this->prev_en_passent_target = this->en_passent_target;
     this->prev_castling_rights = this->castling_rights;
     this->en_passent_target = 0;
-    if(this->turn == BLACK) {
+    if(this->turn == WHITE) {
         this->fullmove_number++;
     }
     for(int i=0;i<120;i++) {
@@ -1541,7 +1541,7 @@ void Board::undo() {
             this->turn = !this->turn;
             this->halfmove_clock = this->prev_halfmove_clock;
             this->prev_halfmove_clock = 0;
-            if(this->turn == WHITE) {
+            if(this->turn == BLACK) {
                 this->fullmove_number--;
             }
         }
