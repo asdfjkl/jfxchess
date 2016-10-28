@@ -40,7 +40,7 @@ void PgnPrinter::reset() {
     this->pgn->clear();
     this->currentLine = QString("");
     this->variationDepth = 0;
-    this->forceMoveNumber = true;
+    this->forceMoveNumber = false;
 }
 
 void PgnPrinter::flushCurrentLine() {
@@ -198,7 +198,7 @@ void PgnPrinter::printComment(const QString &comment) {
     QString temp_c = QString(comment);
     QString write = QString("{ ").append(temp_c.replace("}","").trimmed()).append(" } ");
     this->writeToken(write);
-    this->forceMoveNumber = true;
+    //this->forceMoveNumber = false;
 }
 
 

@@ -80,13 +80,13 @@ void ModeController::onBestMove(QString uci_move) {
         // first check if the first move in the bestpv
         // of this node is the same move as the first
         // child move
-        qDebug() << "at node: " << current->getMove()->uci();
+        //qDebug() << "at node: " << current->getMove()->uci();
         //qDebug() << "best pv: " << this->gameModel->currentBestPv;
         //qDebug() << "current eval: " << this->gameModel->currentEval;
-        qDebug() << "current mate: " << this->gameModel->currentMateInMoves;
+        //qDebug() << "current mate: " << this->gameModel->currentMateInMoves;
         //qDebug() << "prev best pv: " << this->gameModel->prevBestPv;
         //qDebug() << "prev eval: " << this->gameModel->prevEval;
-        qDebug() << "prev mate: " << this->gameModel->prevMateInMoves;
+        //qDebug() << "prev mate: " << this->gameModel->prevMateInMoves;
         QString first_move_current_pv = this->gameModel->currentBestPv.split(" ")[0];
         if(!first_move_current_pv.isEmpty() && !current->isLeaf()
                 && first_move_current_pv != current->getVariation(0)->getMove()->uci()) {
@@ -114,7 +114,7 @@ void ModeController::onBestMove(QString uci_move) {
             if(current->getVariations()->count() >= 2) {
                 if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0) {
                     // player missed a mate
-                    qDebug() << "missed mate: " << this->gameModel->prevEval;
+                    //qDebug() << "missed mate: " << this->gameModel->prevEval;
                     QString c0 = QString::number(this->gameModel->prevEval, 'f', 2);
                     current->getVariation(0)->setComment(c0);
                     // skip variation comment, if we have mate in 0
