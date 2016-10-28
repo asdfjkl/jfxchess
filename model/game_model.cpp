@@ -64,6 +64,8 @@ GameModel::GameModel(QObject *parent) :
 
     this->showEval = true;
 
+    this->gameAnalysisStarted = false;
+
     this->gameAnalysisForPlayer = ANALYSE_BOTH_PLAYERS;
 
     this->company = QString("dkl");

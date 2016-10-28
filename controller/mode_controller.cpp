@@ -92,7 +92,8 @@ void ModeController::onBestMove(QString uci_move) {
                 && first_move_current_pv != current->getVariation(0)->getMove()->uci()) {
             if( ((abs(this->gameModel->currentEval - this->gameModel->prevEval) > this->gameModel->analysisThreshold)
                     && this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves < 0)
-                    || (this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0)) {
+                    || (this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0) // player missed mate
+                    || (this->gameModel->prevMateInMoves > 0 && this->gameModel->currentMateInMoves < 0)) { // player allowed mate
             // add best pv variation
             QStringList pv_list = this->gameModel->currentBestPv.split(" ");
             for(int i=0;i<pv_list.count();i++) {
@@ -111,20 +112,22 @@ void ModeController::onBestMove(QString uci_move) {
             current = this->gameModel->getGame()->getCurrentNode();
             // set the evals as a comment
             if(current->getVariations()->count() >= 2) {
-                if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves >= 0) {
-                    /*
-                    if(this->gameModel->prevMateInMoves >= 0) {
-                        // both were mate, but one was still better
-                        QString c0 = QString("#").append(QString::number(this->gameModel->prevMateInMoves));
-                        QString c1 = QString("#").append(QString::number(this->gameModel->currentMateInMoves));
-                        current->getVariation(0)->setComment(c0);
+                if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0) {
+                    // player missed a mate
+                    qDebug() << "missed mate: " << this->gameModel->prevEval;
+                    QString c0 = QString::number(this->gameModel->prevEval, 'f', 2);
+                    current->getVariation(0)->setComment(c0);
+                    // skip variation comment, if we have mate in 0
+                    if(this->gameModel->currentMateInMoves-1 > 0) {
+                        QString c1 = QString("#").append(QString::number(this->gameModel->currentMateInMoves-1));
                         current->getVariation(1)->setComment(c1);
-                    } else {*/
-                        QString c0 = QString::number(this->gameModel->currentEval, 'f', 2);
-                        QString c1 = QString("#").append(QString::number(this->gameModel->currentMateInMoves));
-                        current->getVariation(0)->setComment(c0);
-                        current->getVariation(1)->setComment(c1);
-
+                    }
+                } else if(this->gameModel->prevMateInMoves >= 0 && this->gameModel->currentMateInMoves < 0) {
+                    // player allowed a mate against him
+                    QString c0 = QString::number(this->gameModel->currentEval, 'f', 2);
+                    QString c1 = QString("#").append(QString::number(this->gameModel->prevMateInMoves));
+                    current->getVariation(0)->setComment(c1);
+                    current->getVariation(1)->setComment(c0);
                 } else if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves < 0){
                 QString c0 = QString::number(this->gameModel->prevEval, 'f', 2);
                 QString c1 = QString::number(this->gameModel->currentEval, 'f', 2);
@@ -218,7 +221,14 @@ void ModeController::onStateChangeGameAnalysis() {
         this->gameModel->triggerStateChange();
         msg->showMessage(tr("Game Analysis"), tr("The analysis is finished."));
     } else {
-        this->gameModel->getGame()->setCurrent(parent);
+        // if we just started game analysis, first get the
+        // evaluation for the leaf node. Only afterwards go
+        // to the parent node.
+        if(!this->gameModel->gameAnalysisStarted) {
+            this->gameModel->getGame()->setCurrent(parent);
+        } else {
+            this->gameModel->gameAnalysisStarted = false;
+        }
         QString fen = parent->getBoard()->fen();
         this->uci_controller->uciSendCommand("stop");
         this->uci_controller->uciSendFen(fen);
@@ -334,6 +344,7 @@ void ModeController::onActivateGameAnalysisMode() {
         this->gameModel->setMode(MODE_GAME_ANALYSIS);
         this->gameModel->flipBoard = false;
         this->gameModel->getGame()->goToLeaf();
+        this->gameModel->gameAnalysisStarted = true;
         this->gameModel->triggerStateChange();
     }
 }

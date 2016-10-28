@@ -109,7 +109,9 @@ public:
 
     bool canAndMayUseBook(chess::GameNode *node);
     chess::Moves* getBookMoves(chess::GameNode *node);
-    bool isInBook(chess::GameNode *node);
+    bool isInBook(chess::GameNode *node);    
+
+    bool gameAnalysisStarted;
 
 private:
     void loadOpeningBook();
