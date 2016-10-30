@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{36B3AE1D-DBD1-4B2E-BC2C-629F5FC30B21}
 AppName=Jerry - Chess GUI
-AppVersion=3.0.4
+AppVersion=3.0.5
 ;AppVerName=Jerry - Chess GUI 3.0.4
 AppPublisher=dkl
 AppPublisherURL=https://github.com/asdfjkl/jerry
@@ -27,7 +27,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\user\Projects\build-jerry3-Desktop_Qt_5_6_0_MinGW_32bit-Release\release\Jerry.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\user\Projects\build-jerry3-Desktop_Qt_5_7_0_MinGW_32bit-Release\release\Jerry.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Deployment\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
