@@ -37,6 +37,7 @@ DialogGameanalysis::DialogGameanalysis(int secsPerMove, float threshold, QWidget
     QDoubleSpinBox *spinThreshold = new QDoubleSpinBox(this);
     spinThreshold->setValue(this->threshold);
     spinThreshold->setRange(0.1,1.0);
+    spinThreshold->setSingleStep(0.1);
 
     this->rbAnalyseBoth = new QRadioButton(this->tr("Both"));
     this->rbAnalyseWhite = new QRadioButton(this->tr("White"));

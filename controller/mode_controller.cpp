@@ -314,6 +314,7 @@ void ModeController::onActivateGameAnalysisMode() {
         run = true;
         this->gameModel->engineThinkTimeMs = dlg->secsPerMove;
         this->gameModel->analysisThreshold = dlg->threshold;
+        qDebug() << this->gameModel->analysisThreshold;
         if(dlg->rbAnalyseBoth->isChecked()) {
             this->gameModel->gameAnalysisForPlayer = ANALYSE_BOTH_PLAYERS;
         } else if(dlg->rbAnalyseWhite->isChecked()) {
