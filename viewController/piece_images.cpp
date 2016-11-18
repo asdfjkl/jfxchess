@@ -109,6 +109,7 @@ QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, qre
         QPainter *painter = new QPainter();
         //qDebug() << "make piece image 3b";
         //qDebug() << "piece type: " << piece_type;
+        assert(!img->isNull());
         painter->begin(img);
         if(color == chess::BLACK) {
             QSvgRenderer *ren = svg_images->value((piece_type*10)+1);

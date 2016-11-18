@@ -185,7 +185,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             }
             int pieceStyle = this->style->pieceType;
 
-            QImage *piece_image = Chessboard::pieceImages->getPieceImage(piece_type, piece_color, squareSize, pieceStyle);
+            QImage *piece_image = Chessboard::pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
             assert(piece_image != 0);
             painter->drawImage(x,y,*piece_image);
         }
