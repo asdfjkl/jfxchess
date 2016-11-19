@@ -1,5 +1,5 @@
 Package: jerry
-Version: 3.0.5
+Version: 3.0.6
 Maintainer: Dominik Klein <dominik.klein@outlook.com>
 Architecture: amd64
 Depends:  
