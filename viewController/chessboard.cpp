@@ -241,7 +241,7 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
         assert(this->pieceImages != 0);
         painter->drawImage(this->grabbedPiece->x - offset, this->grabbedPiece->y - offset,
                            *this->pieceImages->getPieceImage(this->grabbedPiece->piece_type,
-                                                             this->grabbedPiece->color, squareSize, this->style->pieceType));
+                                                             this->grabbedPiece->color, squareSize, this->dpr, this->style->pieceType));
     }
 
 
