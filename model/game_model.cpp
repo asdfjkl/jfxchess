@@ -40,7 +40,7 @@ GameModel::GameModel(QObject *parent) :
     this->lastOpenDir = "";
     this->lastSaveDir = "";
     this->game = new chess::Game();   
-    this->colorStyle = new ColorStyle();
+    this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
     this->engines = new QList<Engine*>();
     this->active_engine = new InternalEngine();

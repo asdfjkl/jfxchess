@@ -15,7 +15,7 @@ Chessboard::Chessboard(QWidget *parent) :
     this->setSizePolicy(policy);
 
     this->borderWidth = 12;
-    this->style = new ColorStyle();
+    this->style = new ColorStyle(ResourceFinder::getPath());
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
     this->board = new chess::Board(true);
 
