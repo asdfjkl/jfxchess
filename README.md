@@ -3,9 +3,9 @@
 
 ### Screenshot
 
-![Jerry 3.04 running on Ubuntu](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.jpg)
+![Jerry 3.0.6 running on Ubuntu](https://github.com/asdfjkl/jerry/raw/master/various/screenshot.jpg)
 
-Jerry 3.04 on Ubuntu Linux
+Jerry 3.0.6 on Ubuntu Linux
 
 ### About
 
