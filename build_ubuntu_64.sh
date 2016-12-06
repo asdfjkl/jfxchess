@@ -28,7 +28,18 @@ mkdir ./release/ubuntu64/platforms
 cp /opt/qt57/plugins/platforms/libqxcb.so ./release/ubuntu64/platforms/libqxcb.so
 cp /opt/qt57/lib/libQt5XcbQpa.so.* ./release/ubuntu64
 cp /opt/qt57/lib/libQt5DBus.so.* ./release/ubuntu64
-cp /usr/lib/x86_64-linux-gnu/libxcb-xinerama.so.* ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-xinerama.so.*    ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-render.so.*      ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-image.so.*       ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxkbcommon-x11.so.*   ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxkbcommon.so.*       ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-randr.so.*       ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-util.so.1*       ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-xfixes.so.*      ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-render-util.so.* ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-icccm.so.4*      ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-keysyms.so.*     ./release/ubuntu64
+cp /usr/lib/x86_64-linux-gnu/libxcb-xkb.so.*          ./release/ubuntu64
 
 mkdir release/jerry
 mkdir release/jerry/DEBIAN
