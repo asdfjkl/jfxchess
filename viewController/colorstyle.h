@@ -71,7 +71,7 @@ const QColor COORDINATE_COLOR_MARBLE_BLUE = QColor(239,239,239);
 class ColorStyle
 {
 public:
-    ColorStyle();
+    ColorStyle(QString resourcePath);
 
     QColor borderColor;
     QColor darkSquare;
@@ -80,6 +80,7 @@ public:
     QPixmap darkSquareTexture;
     QPixmap lightSquareTexture;
 
+    QString resPath;
     int boardStyle;
     int pieceType;
     int styleType;

@@ -25,6 +25,7 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QDebug>
+#include "various/resource_finder.h"
 
 DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
     QDialog(parent)
@@ -170,22 +171,22 @@ void DialogGuiOptions::onBrownColor(){
 }
 
 void DialogGuiOptions::onWood(){
-    this->displayBoard->setBoardColors(BORDER_WOOD, QPixmap(DARK_SQUARE_WOOD),
-                                       QPixmap(LIGHT_SQUARE_WOOD), COORDINATE_COLOR_WOOD, STYLE_WOOD);
+    this->displayBoard->setBoardColors(BORDER_WOOD, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_WOOD),
+                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_WOOD), COORDINATE_COLOR_WOOD, STYLE_WOOD);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
 
 void DialogGuiOptions::onBlueMarbles() {
-    this->displayBoard->setBoardColors(BORDER_MARLBE_BLUE, QPixmap(DARK_SQUARE_MARBLE_BLUE),
-                                       QPixmap(LIGHT_SQUARE_MARBLE_BLUE), COORDINATE_COLOR_MARBLE_BLUE, STYLE_MARBLE_BLUE);
+    this->displayBoard->setBoardColors(BORDER_MARLBE_BLUE, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_MARBLE_BLUE),
+                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_MARBLE_BLUE), COORDINATE_COLOR_MARBLE_BLUE, STYLE_MARBLE_BLUE);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
 
 void DialogGuiOptions::onGreenMarbles(){
-    this->displayBoard->setBoardColors(BORDER_MARBLE_GREEN, QPixmap(DARK_SQUARE_MARBLE_GREEN),
-                                       QPixmap(LIGHT_SQUARE_MARBLE_GREEN), COORDINATE_COLOR_MARBLE_GREEN, STYLE_MARBLE_GREEN);
+    this->displayBoard->setBoardColors(BORDER_MARBLE_GREEN, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_MARBLE_GREEN),
+                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_MARBLE_GREEN), COORDINATE_COLOR_MARBLE_GREEN, STYLE_MARBLE_GREEN);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
