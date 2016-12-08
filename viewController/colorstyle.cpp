@@ -21,6 +21,7 @@
 #include "colorstyle.h"
 #include "various/resource_finder.h"
 #include "various/messagebox.h"
+#include <QDebug>
 
 ColorStyle::ColorStyle(QString resourcePath)
 {

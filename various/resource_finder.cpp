@@ -11,5 +11,5 @@ QString ResourceFinder::getPath() {
     appPath = appPath.left(l - SUBTRACT_DIR_PATH);
     appPath.append(QString(RES_PATH));
 
-    return appPath;
+    return appPath.append(QDir::separator());
 }
