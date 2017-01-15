@@ -24,6 +24,7 @@ public:
     void loadIndex();
     void loadSites();
     void loadNames();
+    void loadEvents();
     chess::Game* getGameAt(int i);
     int countGames();
 
@@ -64,7 +65,7 @@ private:
 
     int decodeLength(QDataStream *stream);
     chess::DcgEncoder *dcgencoder;
-    chess::DcgEncoder *dcgdecoder;
+    chess::DcgDecoder *dcgdecoder;
     chess::PgnReader *pgnreader;
     
 };

@@ -26,10 +26,6 @@ public:
     void appendStartTag();
     void appendEndTag();
 
-
-
-    Game* decodeGame();
-
 private:
     QByteArray* gameBytes;
 

@@ -133,7 +133,8 @@ void FileController::openGame() {
             msg->showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
             delete msg;
         } else {
-            QString *complete_file = reader->readFileIntoString(filename);
+            const char* encoding = reader->detect_encoding(filename);
+            QString *complete_file = reader->readFileIntoString(filename, encoding);
             QList<chess::HeaderOffset*>* header_offsets = reader->scan_headersFromString(complete_file);
             if(header_offsets->size() == 1) {
                 chess::Game *g = reader->readGameFromString(complete_file);

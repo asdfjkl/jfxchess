@@ -9,6 +9,12 @@ chess::DcgDecoder::DcgDecoder()
     //this->game = new chess::Game();
 }
 
+chess::DcgDecoder::~DcgDecoder()
+{
+    //this->game = new chess::Game();
+}
+
+
 int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
     int idx = *index;
     quint8 len1 = ba->at(idx);

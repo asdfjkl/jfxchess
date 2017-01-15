@@ -133,7 +133,7 @@ void FuncT::rwrw_pgn(const QString &fn_in, const QString &fn_out) {
     pgn_p->writeGame(g, fn_out);
 
 }
-
+/*
 void FuncT::run_pgn_scant() {
 
     PgnReader* pgn_r = new PgnReader();
@@ -161,7 +161,7 @@ void FuncT::run_pgn_scant() {
     }
 
 }
-
+*/
 
 void FuncT::run_pgnt() {
 
