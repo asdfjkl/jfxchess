@@ -81,13 +81,26 @@ class PgnReader
 public:
 
     /**
+     * @brief detect_encoding tries to heuristically detect the encoding of a text file
+     *                        this function is only able to distinguish UTF8 (with or
+     *                        without BOM from ISO 8859-1. However this should handle
+     *                        most available PGN files - modern chess programs usually
+     *                        store PGNs in UTF-8.
+     * @param filename        filename
+     * @return                const char* = "ISO 8859-1" or "UTF-8". Can be used to
+     *                        set encoding for QTextStream
+     */
+    const char* detect_encoding(const QString &filename);
+
+
+    /**
      * @brief readGameFromFile read the (first) game from the PGN filename
      *                throws std::invalid_argument if impossible to read from
      *                that PGN a valid game
      * @param filename name of the file
      * @return pointer to the generated game
      */
-    Game* readGameFromFile(const QString &filename);
+    Game* readGameFromFile(const QString &filename, const char* encoding);
 
     /**
      * @brief readGameFromFile read the game at supplied offset from the PGN filename
@@ -97,7 +110,14 @@ public:
      * @param offset integer denoting the offset position to seek to prior reading the file
      * @return pointer to generated game
      */
-    Game* readGameFromFile(const QString &filename, qint64 offset);
+    Game* readGameFromFile(const QString &filename, const char* encoding, qint64 offset);
+
+    QList<HeaderOffset*>* scan_headers_fast(const QString &filename, const char* encoding);
+
+    int readNextHeader(const QString &filename, const char* encoding,
+                                  quint64 *offset, HeaderOffset* headerOffset);
+
+
 
     /**
      * @brief readFileIntoString read the PGN file from disk into memory
@@ -106,7 +126,7 @@ public:
      * @param filename name of the file
      * @return pointer to string
      */
-    QString* readFileIntoString(const QString &filename);
+    QString* readFileIntoString(const QString &filename, const char* encoding);
 
     /**
      * @brief readGameFromString reads (first) PGN game from supplied pgn string
@@ -139,7 +159,7 @@ public:
      * @param filename name of the PGN file
      * @return list of headers and offset pairs
      */
-    QList<HeaderOffset*>* scan_headers(const QString &filename);
+    QList<HeaderOffset*>* scan_headers(const QString &filename, const char* encoding);
 
     /**
      * @brief scan_headersFromString scans a PGN string, reads the headers and
@@ -151,6 +171,7 @@ public:
     QList<HeaderOffset*>* scan_headersFromString(QString *content);
 
 private:
+
 
 };
 

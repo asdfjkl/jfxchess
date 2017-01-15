@@ -1186,8 +1186,7 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                         int lookup_idx;
                         if(piece == KNIGHT) {
                             lookup_idx = IDX_KNIGHT;
-                        }
-                        if(piece == KING) {
+                        } else {
                             lookup_idx = IDX_KING;
                         }
                         for(int j=1;j<=DIR_TABLE[lookup_idx][0];j++) {
@@ -1560,6 +1559,7 @@ Board* Board::copy_and_apply(const Move &m) {
     b->undo_available = this->undo_available;
     b->last_was_null = this->last_was_null;
     b->prev_halfmove_clock = this->prev_halfmove_clock;
+    delete b->transpositionTable;
     b->transpositionTable = new QMap<quint64, int>(*this->transpositionTable);
     for(int i=0;i<120;i++) {
         b->board[i] = this->board[i];
@@ -1938,6 +1938,7 @@ Move Board::parse_san(QString san) {
             m.uci_string = mi.uci_string;
         }
     }
+    delete legals;
     return m;
 }
 

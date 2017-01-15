@@ -26,11 +26,56 @@
 #include <iostream>
 #include <QStack>
 #include <QDebug>
+#include <QTextCodec>
+#include <QDataStream>
 
 namespace chess {
 
-/*
-QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
+const char* PgnReader::detect_encoding(const QString &filename) {
+    // very simple way to detecting majority of encodings:
+    // first try ISO 8859-1
+    // open the file and read a max of 100 first bytes
+    // if conversion to unicode works, try some more bytes (at most 40 * 100)
+    // if conversion errors occur, we simply assume UTF-8
+    const char* iso = "ISO 8859-1";
+    const char* utf8 = "UTF-8";
+    QFile file(filename);
+    if(!file.open(QFile::ReadOnly)) {
+        return utf8;
+    }
+    QDataStream in(&file);
+    // init some char array to read bytes
+    char first100arr[100];
+    for(int i=0;i<100;i++) {
+        first100arr[i] = 0x00;
+    }
+    char *first100 = first100arr;
+    // prep conversion tools
+    QTextCodec::ConverterState state;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+
+    int iterations = 40;
+    int i=0;
+    int l = 100;
+    bool isUtf8 = true;
+    while(i<iterations && l>=100) {
+        l = in.readRawData(first100, 100);
+        const QString text = codec->toUnicode(first100, 100, &state);
+        if (state.invalidChars > 0) {
+            isUtf8 = false;
+            //qDebug() << "I think this is not UTF-8";
+            break;
+        }
+        i++;
+    }
+    if(isUtf8) {
+        return utf8;
+    } else {
+        return iso;
+    }
+}
+
+QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const char* encoding) {
 
     QList<HeaderOffset*> *header_offsets = new QList<HeaderOffset*>();
     QFile file(filename);
@@ -44,10 +89,12 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
     qint64 game_pos = -1;
 
     QTextStream in(&file);
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    in.setCodec(codec);
     QString line = QString("");
     qint64 last_pos = in.pos();
 
-    qDebug() << "before while loop";
+    //qDebug() << "before while loop";
     int i= 0;
     while(!in.atEnd()) {
 
@@ -82,6 +129,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
 
                 QString tag = match_t.captured(1);
                 QString value = match_t.captured(2);
+
                 game_header->insert(tag,value);
 
                 last_pos = in.pos();
@@ -119,20 +167,207 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
     }
 
     return header_offsets;
-}*/
+}
 
-QString* PgnReader::readFileIntoString(const QString &filename) {
+int PgnReader::readNextHeader(const QString &filename, const char* encoding,
+                              quint64 *offset, HeaderOffset* headerOffset) {
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return -1;
+
+    file.seek(*offset);
+
+    bool inComment = false;
+
+    //qDebug() << "kk0";
+    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    qint64 game_pos = -1;
+
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+
+    QString line = QString("");
+    qint64 last_pos = file.pos();
+
+    QByteArray raw_line;
+    //qDebug() << "kk";
+
+    // first seek until we have new tags
+    bool foundTag = false;
+    while(!file.atEnd() && !foundTag) {
+        last_pos = file.pos();
+        raw_line = file.readLine();
+        line = codec->toUnicode(raw_line);
+        if(line.startsWith("%")) {
+            raw_line = file.readLine();
+            line = codec->toUnicode(raw_line);
+            continue;
+        }
+        if(!inComment && line.startsWith("[")) {
+            QRegularExpressionMatch match_t = TAG_REGEX.match(line);
+            if(match_t.hasMatch()) {
+                foundTag = true;
+                game_pos = last_pos;
+                continue;
+            }
+        }
+    }
+    // if foundTag is true, we need to scan all remaining headers
+    // read until we encounter a comment line
+    if(foundTag) {
+        bool stop = false;
+        game_header->insert("Event","?");
+        game_header->insert("Site","?");
+        game_header->insert("Date","????.??.??");
+        game_header->insert("Round","?");
+        game_header->insert("White","?");
+        game_header->insert("Black","?");
+        game_header->insert("Result","*");
+        while(!file.atEnd() && !stop) {
+            if(line.startsWith("[")) {
+                QRegularExpressionMatch match_t = TAG_REGEX.match(line);
+                if(match_t.hasMatch()) {
+                    QString tag = match_t.captured(1);
+                    QString value = match_t.captured(2);
+                    game_header->insert(tag,value);
+                }
+            } else {
+                stop = true;
+                continue;
+            }
+            raw_line = file.readLine();
+            line = codec->toUnicode(raw_line);
+        }
+        headerOffset->headers = game_header;
+        headerOffset->offset = game_pos;
+        //headerOffset = ho;
+    } else {
+        delete game_header;
+        return -1;
+    }
+    // set offset to last encountered line
+    *offset = file.pos();
+    return 0;
+}
+
+QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, const char* encoding) {
+
+    QList<HeaderOffset*> *header_offsets = new QList<HeaderOffset*>();
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return header_offsets;
+
+    bool inComment = false;
+
+    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    qint64 game_pos = -1;
+
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+
+    QString line = QString("");
+    qint64 last_pos = file.pos();
+
+    qDebug() << "before while loop";
+    int i= 0;
+
+    QByteArray raw_line;
+
+    while(!file.atEnd()) {
+        i++;
+        raw_line = file.readLine();
+        line = codec->toUnicode(raw_line);
+
+        if(i%1000==0) {
+            qDebug() << "read next line: " << i;
+        }
+        // skip comments
+        if(line.startsWith("%")) {
+            raw_line = file.readLine();
+            line = codec->toUnicode(raw_line);
+            continue;
+        }
+
+        if(!inComment && line.startsWith("[")) {
+            QRegularExpressionMatch match_t = TAG_REGEX.match(line);
+
+            if(match_t.hasMatch()) {
+
+                if(game_pos == -1) {
+                    game_header->insert("Event","?");
+                    game_header->insert("Site","?");
+                    game_header->insert("Date","????.??.??");
+                    game_header->insert("Round","?");
+                    game_header->insert("White","?");
+                    game_header->insert("Black","?");
+                    game_header->insert("Result","*");
+
+                    game_pos = last_pos;
+                }
+
+                QString tag = match_t.captured(1);
+                QString value = match_t.captured(2);
+
+                game_header->insert(tag,value);
+
+                last_pos = file.pos();
+                // line = in.readLine();
+                raw_line = file.readLine();
+                line = codec->toUnicode(raw_line);
+                continue;
+            }
+        }
+        if((!inComment && line.contains("{"))
+                || (inComment && line.contains("}"))) {
+            inComment = line.lastIndexOf("{") > line.lastIndexOf("}");
+        }
+
+        if(game_pos != -1) {
+            HeaderOffset *ho = new HeaderOffset();
+            ho->headers = game_header;
+            ho->offset = game_pos;
+
+            header_offsets->append(ho);
+            game_pos = -1;
+            game_header = new QMap<QString,QString>();
+        }
+
+        last_pos = file.pos();
+        raw_line = file.readLine();
+        line = codec->toUnicode(raw_line);
+
+    }
+    // for the last game
+    if(game_pos != -1) {
+        HeaderOffset *ho = new HeaderOffset();
+        ho->headers = game_header;
+        ho->offset = game_pos;
+
+        header_offsets->append(ho);
+        game_pos = -1;
+        game_header = new QMap<QString,QString>();
+    }
+
+    return header_offsets;
+}
+
+
+QString* PgnReader::readFileIntoString(const QString &filename, const char* encoding) {
 
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         throw std::invalid_argument("could readGameIntoString w/ supplied filename");
 
     QTextStream in(&file);
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    in.setCodec(codec);
     QString everything = in.readAll();
     QString *everything_on_heap = new QString(everything);
     return everything_on_heap;
 }
 
+/*
 QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
 
     QFile file(filename);
@@ -144,7 +379,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename) {
     QString everything = in.readAll();
     file.close();
     return this->scan_headersFromString(&everything);
-}
+}*/
 
 QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
 
@@ -230,8 +465,8 @@ QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
 }
 
 
-Game* PgnReader::readGameFromFile(const QString &filename) {
-    return this->readGameFromFile(filename,0);
+Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding) {
+    return this->readGameFromFile(filename, encoding, 0);
 }
 
 Game* PgnReader::readGameFromString(QString *pgn_string) {
@@ -246,7 +481,7 @@ Game* PgnReader::readGameFromString(QString *pgn_string, quint64 offset) {
 }
 
 
-Game* PgnReader::readGameFromFile(const QString &filename, qint64 offset) {
+Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding, qint64 offset) {
 
     QFile file(filename);
 
@@ -254,6 +489,8 @@ Game* PgnReader::readGameFromFile(const QString &filename, qint64 offset) {
         throw std::invalid_argument("unable to open file w/ supplied filename");
     }
     QTextStream in(&file);
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    in.setCodec(codec);
     if(offset != 0 && offset > 0) {
         in.seek(offset);
     }
@@ -262,6 +499,7 @@ Game* PgnReader::readGameFromFile(const QString &filename, qint64 offset) {
         file.close();
         return g;
     } catch(std::invalid_argument e) {
+        qDebug() << "stuff happened";
         file.close();
         throw e;
     }
@@ -269,6 +507,7 @@ Game* PgnReader::readGameFromFile(const QString &filename, qint64 offset) {
 
 Game* PgnReader::readGame(QTextStream& in) {
 
+    //qDebug() << "read game 1";
     Game* g = new Game();
     QString starting_fen = QString("");
 
@@ -277,6 +516,7 @@ Game* PgnReader::readGame(QTextStream& in) {
     GameNode* current = g->getRootNode();
 
     QString line = in.readLine();
+    //qDebug() << "line @ offset: " << line;
     while (!in.atEnd()) {
         if(line.startsWith("%") || line.isEmpty()) {
             line = in.readLine();
@@ -298,16 +538,20 @@ Game* PgnReader::readGame(QTextStream& in) {
 
         line = in.readLine();
     }
+    //qDebug() << "tags ok";
     // set starting fen, if available
     if(!starting_fen.isEmpty()) {
         chess::Board *b_fen = new chess::Board(starting_fen);
         if(!b_fen->is_consistent()) {
+            if(b_fen != 0) {
+                delete b_fen;
+            }
             throw std::invalid_argument("starting fen position is not consistent");
         } else {
             current->setBoard(b_fen);
         }
     }
-
+    //qDebug() << "initial board ok";
     // Get the next non-empty line.
     while(line.trimmed() == QString("") && !line.isEmpty()) {
         line = in.readLine();
@@ -316,11 +560,15 @@ Game* PgnReader::readGame(QTextStream& in) {
     bool foundContent = false;
     bool last_line = false;
     while(!in.atEnd() || !last_line || !line.isEmpty()) {
+        //qDebug() << line;
+        //qDebug() << +(line.isEmpty());
         if(in.atEnd()) {
             last_line = true;
+            //qDebug() << "last line";
         }
         bool readNextLine = true;
         if(line.trimmed().isEmpty() && foundContent) {
+            delete game_stack;
             return g;
         }
         QRegularExpressionMatchIterator i = MOVETEXT_REGEX.globalMatch(line);
@@ -364,6 +612,7 @@ Game* PgnReader::readGame(QTextStream& in) {
                 if(!line.trimmed().isEmpty()) {
                     readNextLine = false;
                 }
+                delete comment_lines;
                 break;
             }
             else if(token.startsWith("$")) {
@@ -425,15 +674,17 @@ Game* PgnReader::readGame(QTextStream& in) {
                 } else if(token ==QString("0-0-0")) {
                     token = QString("O-O-O");
                 }
+                Move *m = 0;
+                GameNode *next = new GameNode();
+                Board *b_next = 0;
                 try {
                     Board *b = current->getBoard();
                     //qDebug() << "token: " << token;
-                    Move *m = new Move(b->parse_san(token));
+                    m = new Move(b->parse_san(token));
                     //qDebug() << "uci: " << m->uci_string;
                     //qDebug() << "san:" << b->san(*m);
                     //qDebug() << "--";
-                    Board *b_next = b->copy_and_apply(*m);
-                    GameNode *next = new GameNode();
+                    b_next = b->copy_and_apply(*m);
                     next->setMove(m);
                     next->setBoard(b_next);
                     next->setParent(current);
@@ -446,7 +697,18 @@ Game* PgnReader::readGame(QTextStream& in) {
                     }*/
                 }
                 catch(std::invalid_argument a) {
-                    // just silently fail...
+                    // just silently fail... but first clean up
+                    if(m!=0) {
+                        //delete m;
+                    }
+                    //delete next;
+                    if(b_next!=0) {
+                        //delete b_next;
+                    }
+                    qDebug() << "error catch";
+                    delete g;
+                    game_stack->clear();
+                    delete game_stack;
                     std::cout << a.what() << std::endl;
                     throw std::invalid_argument("unable to parse game fen@ " + token.toStdString());
                 }
@@ -456,6 +718,9 @@ Game* PgnReader::readGame(QTextStream& in) {
             line = in.readLine();
         }
     }
+    //qDebug() << "standard return";
+    game_stack->clear();
+    delete game_stack;
     return g;
 }
 }
