@@ -72,7 +72,7 @@ void chess::Database::loadIndex() {
             QByteArray idx;
             idx.resize(35);
             idx.fill(char(0x00));
-            if(gi.readRawData(idx.data(), 35) < 0) {
+            if(gi.readRawData(idx.data(), 39) < 0) {
                 error = true;
                 continue;
             }
