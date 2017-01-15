@@ -58,6 +58,11 @@ GameNode::~GameNode() {
     delete this->coloredFields;
     delete this->nags;
     delete this->board;
+    for(int i=0;i<this->variations->size();i++) {
+        delete this->variations->at(i);
+    }
+    this->variations->clear();
+    delete this->variations;
 }
 
 void GameNode::setMove(Move *m) {

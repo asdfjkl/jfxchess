@@ -161,8 +161,8 @@ Move::Move(const Move& m) {
     this->from = m.from;
     this->to = m.to;
     this->promotion_piece = m.promotion_piece;
-    this->uci_string = this->uci(); // QString::fromUtf16(m.uci_string.utf16());
     this->is_null = m.is_null;
+    this->uci_string = this->uci(); // QString::fromUtf16(m.uci_string.utf16());
 }
 
 
