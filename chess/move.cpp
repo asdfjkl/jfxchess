@@ -54,7 +54,6 @@ Move::Move() {
 }
 
 Move::Move(uint8_t from, uint8_t to, uint8_t promotion_piece) {
-
     QChar col_from = QChar((from % 10) + 96);
     QChar row_from = QChar((from / 10) + 47);
 

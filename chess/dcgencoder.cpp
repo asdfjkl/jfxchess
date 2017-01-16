@@ -98,12 +98,19 @@ void DcgEncoder::appendMove(Move *move) {
         QPoint fromPoint = move->fromAsXY();
         QPoint toPoint = move->toAsXY();
         quint8 from = fromPoint.y() * 8 + fromPoint.x();
-        qint8 to = toPoint.y() * 8 + toPoint.x();
+        quint8 to = toPoint.y() * 8 + toPoint.x();
         quint16 move_binary = qint16(to) + (quint16(from) << 6);
+        //qDebug() << "MOVE: "<< (qint16(to) + (quint16(from) << 6));
         if(move->promotion_piece != 0) {
-            move_binary += quint16(move->promotion_piece << 12);
+            qDebug() << "FROM POINT " << fromPoint;
+            qDebug() << "FROM  " << from;
+            qDebug() << "PROMOTION PIECE: "<< quint16((move->promotion_piece) << 12);
+            qDebug() << "promotion move bin: " << move_binary;
+            move_binary += quint16((move->promotion_piece) << 12);
+            qDebug() << "promotion move bin: " << move_binary;
         }
         ByteUtil::append_as_uint16(this->gameBytes, move_binary);
+        qDebug() << this->gameBytes->mid(this->gameBytes->length()-2, 2).toHex();
     }
 }
 

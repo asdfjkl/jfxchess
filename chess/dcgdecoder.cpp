@@ -163,14 +163,21 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
             } else {
                 qDebug() << "move dec";
                 quint16 move = byte*256 + quint8((ba->at(idx+1)));
-                quint8 from = quint8((move << 4) >> 10);
+                quint8 from = quint8(quint16(move << 4) >> 10);
                 quint8 to = quint8((quint8(move) << 2)) >> 2;
                 // ((from % 8) + 1) is x column, (from/8) + 2 is row, cf.
                 // Spracklen: "First steps in chess programming", BYTE 1978
                 // for internal format
                 quint8 from_internal = ((from % 8) + 1) + (((from / 8) + 2) * 10);
                 quint8 to_internal = ((to % 8) + 1) + (((to / 8) + 2) * 10);
-                quint8 promotion_piece = quint8((move << 2) >> 14);
+                quint8 promotion_piece = quint8((move << 1) >> 13);
+                if(promotion_piece != 0) {
+                    qDebug() << "FROM: " << (move << 4);
+                    qDebug() << "TO: " << to;
+                    qDebug() << "PROM PIECE: " << promotion_piece;
+                    qDebug() << (chess::ROOK == 4);
+                    qDebug() << chess::ROOK;
+                }
                 Move *m = new Move();
                 GameNode *next = new GameNode();
                 Board *b_next = 0;
@@ -178,8 +185,12 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                     Board *b = current->getBoard();
                     if(promotion_piece != 0) {
                         m = new chess::Move(from_internal, to_internal, promotion_piece);
+                        qDebug() << ba->mid(idx-1, 3).toHex();
+                        qDebug() << move;
+                        qDebug() << m->uci();
                     } else {
                         m = new chess::Move(from_internal, to_internal);
+                        qDebug() << m->uci();
                     }
                     if(b->is_legal_move(*m)) {
                         b_next = b->copy_and_apply(*m);

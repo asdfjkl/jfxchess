@@ -70,7 +70,7 @@ void chess::Database::loadIndex() {
         }
         while(!gi.atEnd() && !error) {
             QByteArray idx;
-            idx.resize(35);
+            idx.resize(39);
             idx.fill(char(0x00));
             if(gi.readRawData(idx.data(), 39) < 0) {
                 error = true;
@@ -213,6 +213,12 @@ chess::Game* chess::Database::getGameAt(int i) {
     game->headers->insert("Black", blackName);
     game->headers->insert("Site", site);
     game->headers->insert("Event", event);
+    if(ie->eloWhite != 0) {
+        game->headers->insert("WhiteElo", QString::number(ie->eloWhite));
+    }
+    if(ie->eloBlack != 0) {
+        game->headers->insert("BlackElo", QString::number(ie->eloBlack));
+    }
     qDebug() << "EVENT IS: " << event;
     QString date("");
     if(ie->year != 0) {
@@ -663,6 +669,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                     QStringList dd_mm_yy = date.split(".");
                     if(dd_mm_yy.size() > 0 && dd_mm_yy.at(0).length() == 4) {
                         quint16 prob_year = dd_mm_yy.at(0).toInt();
+                        qDebug() << "PROb YEAR:" << prob_year;
                         if(prob_year > 0 && prob_year < 2100) {
                             year = prob_year;
                         }
@@ -680,6 +687,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                             }
                         }
                     }
+                    qDebug() << "YEAR: " << year;
                     ByteUtil::append_as_uint16(&iEntry, year);
                     ByteUtil::append_as_uint8(&iEntry, month);
                     ByteUtil::append_as_uint8(&iEntry, day);
