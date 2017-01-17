@@ -42,6 +42,7 @@ private:
     QByteArray magicGamesString;
     QByteArray magicSitesString;
     QByteArray magicEventString;
+    QByteArray version;
     QMap<quint32, QString> *offsetNames;
     QMap<quint32, QString> *offsetSites;
     QMap<quint32, QString> *offsetEvents;
@@ -67,7 +68,8 @@ private:
     chess::DcgEncoder *dcgencoder;
     chess::DcgDecoder *dcgdecoder;
     chess::PgnReader *pgnreader;
-    
+
+    quint64 loadUponOpen;
 };
 
 }
