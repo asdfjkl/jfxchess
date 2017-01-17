@@ -82,6 +82,10 @@ QByteArray* DcgEncoder::encodeGame(Game *game) {
         this->gameBytes->append((char) (0x00));
     }
     //qDebug() << "before traversal";
+    // if the root node has a comment, append first
+    if(!(game->getRootNode()->getComment().isEmpty())) {
+        this->appendComment(game->getRootNode());
+    }
     this->traverseNodes(game->getRootNode());
     // prepend length
     int l = this->gameBytes->size();
@@ -168,9 +172,11 @@ void DcgEncoder::appendNags(GameNode* node) {
 void DcgEncoder::appendComment(GameNode* node) {
     const QByteArray comment_utf8 = node->getComment().toUtf8();
     int l = comment_utf8.size();
+    qDebug() << "COMMENT LENGTH: " << l;
     if(l>0) {
         this->gameBytes->append(quint8(0x86));
         this->appendLength(l);
+        qDebug() << "COMMENT LEN: " << this->gameBytes->mid(this->gameBytes->size()-4, 4);
         this->gameBytes->append(comment_utf8);
     }
 }

@@ -20,26 +20,29 @@ int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
     quint8 len1 = ba->at(idx);
     qDebug() << "len1 is: " << len1;
     if(len1 < 127) {
+        qDebug() << "case 0: " << len1;
         (*index)++;
         return int(len1);
     }
-    if(len1 == 0x81) {
+    if(len1 == 0x81) {        
         quint8 len2 = ba->at(idx+1);
+        qDebug() << "LEN2, case 1: " << len2;
         *index += 2;
         return int(len2);
     }
     if(len1 == 0x82) {
-        quint16 len2 = ba->at(idx+1) * 256 + ba->at(idx+2);
+        quint16 len2 = quint8(ba->at(idx+1))*256 + quint8(ba->at(idx+2));
         *index+=3;
         return int(len2);
     }
     if(len1 == 0x83) {
-        quint32 ret = ba->at(idx+1) * 256 * 256 + ba->at(idx+2) * 256 + ba->at(idx+1);
+        quint32 ret = quint8(ba->at(idx+1)) * 256 * 256 + quint8(ba->at(idx+2)) * 256 + quint8(ba->at(idx+3));
         *index+=4;
         return ret;
     }
     if(len1 == 0x84) {
-        quint32 ret = ba->at(idx+1) * 256*256*256 +  ba->at(idx+2) * 256 * 256 + ba->at(idx+3) * 256 + ba->at(idx+1);
+        quint32 ret = quint8(ba->at(idx+1)) * 256*256*256 + quint8(ba->at(idx+2)) * 256 * 256
+                + quint8(ba->at(idx+3)) * 256 + quint8(ba->at(idx+4));
         *index+=5;
         return int(ret);
     }
