@@ -61,7 +61,7 @@ void chess::Database::loadIndex() {
     } else {
         // read index file into QList of IndexEntries
         // (basically memory mapping file)
-        qDebug() << "open file: ";
+        //qDebug() << "open file: ";
         dciFile.open(QFile::ReadOnly);
         QDataStream gi(&dciFile);
         bool error = false;
@@ -72,17 +72,17 @@ void chess::Database::loadIndex() {
         if(QString::fromUtf8(magic) != this->magicIndexString) {
             error = true;
         }
-        qDebug() << magic.toHex();
+        //qDebug() << magic.toHex();
         QByteArray version;
         version.resize(1);;
         version.fill(char(0x00));
         gi.readRawData(version.data(), 1);
-        qDebug() << "VERSION: " << version.at(0);
+        //qDebug() << "VERSION: " << version.at(0);
         if(version.at(0) != 0x00) {
             error = true;
         }
         gi >> this->loadUponOpen;
-        qDebug() << "LOAD UPON: " << this->loadUponOpen;
+        //qDebug() << "LOAD UPON: " << this->loadUponOpen;
         while(!gi.atEnd() && !error) {
             QByteArray idx;
             idx.resize(39);
@@ -96,38 +96,38 @@ void chess::Database::loadIndex() {
 
             quint8 status;
             ds_entry_i >> status;
-            qDebug() << "status: " << status;
+            //qDebug() << "status: " << status;
             if(status == GAME_DELETED) {
                 entry_i->deleted = true;
             } else {
                 entry_i->deleted = false;
             }
             ds_entry_i >> entry_i->gameOffset;
-            qDebug() << "gameOffset: " << entry_i->gameOffset;
+            //qDebug() << "gameOffset: " << entry_i->gameOffset;
             ds_entry_i >> entry_i->whiteOffset;
-            qDebug() << "whiteOffset: " << entry_i->whiteOffset;
+            //qDebug() << "whiteOffset: " << entry_i->whiteOffset;
             ds_entry_i >> entry_i->blackOffset;
-            qDebug() << "whiteOffset: " << entry_i->blackOffset;
+            //qDebug() << "whiteOffset: " << entry_i->blackOffset;
             ds_entry_i >> entry_i->round;
-            qDebug() << "round: " << entry_i->round;
+            //qDebug() << "round: " << entry_i->round;
             ds_entry_i >> entry_i->siteRef;
-            qDebug() << "site ref: " << entry_i->siteRef;
+            //qDebug() << "site ref: " << entry_i->siteRef;
             ds_entry_i >> entry_i->eventRef;
-            qDebug() << "event ref: " << entry_i->eventRef;
+            //qDebug() << "event ref: " << entry_i->eventRef;
             ds_entry_i >> entry_i->eloWhite;
-            qDebug() << "eloWhite: " << entry_i->eloWhite;
+            //qDebug() << "eloWhite: " << entry_i->eloWhite;
             ds_entry_i >> entry_i->eloBlack;
-            qDebug() << "eloBlack: " << entry_i->eloBlack;
+            //qDebug() << "eloBlack: " << entry_i->eloBlack;
             ds_entry_i >> entry_i->result;
-            qDebug() << "result: " << entry_i->result;
+            //qDebug() << "result: " << entry_i->result;
             char *eco = new char[sizeof "A00"];
             ds_entry_i.readRawData(eco, 3);
             entry_i->eco = eco;
-            qDebug() << QString::fromLocal8Bit(eco);
+            //qDebug() << QString::fromLocal8Bit(eco);
             ds_entry_i >> entry_i->year;
             ds_entry_i >> entry_i->month;
             ds_entry_i >> entry_i->day;
-            qDebug() << "yy.mm.dd " << entry_i->year << entry_i->month << entry_i->day;
+            //qDebug() << "yy.mm.dd " << entry_i->year << entry_i->month << entry_i->day;
             this->indices->append(entry_i);
         }
         dciFile.close();
@@ -199,7 +199,7 @@ void chess::Database::loadEvents() {
             break;
         }
         QString event = QString::fromUtf8(event_bytes).trimmed();
-        qDebug() << "READ EVENT: " << pos << "at " << event;
+        //qDebug() << "READ EVENT: " << pos << "at " << event;
         this->offsetEvents->insert(pos, event);
     }
     dceFile.close();
@@ -225,7 +225,7 @@ chess::Game* chess::Database::getGameAt(int i) {
     QString whiteName = this->offsetNames->value(ie->whiteOffset);
     QString blackName = this->offsetNames->value(ie->blackOffset);
     QString site = this->offsetSites->value(ie->siteRef);
-    qDebug() << "EVENT REF: " << ie->eventRef;
+    //qDebug() << "EVENT REF: " << ie->eventRef;
     QString event = this->offsetEvents->value(ie->eventRef);
     game->headers->insert("White",whiteName);
     game->headers->insert("Black", blackName);
@@ -237,7 +237,7 @@ chess::Game* chess::Database::getGameAt(int i) {
     if(ie->eloBlack != 0) {
         game->headers->insert("BlackElo", QString::number(ie->eloBlack));
     }
-    qDebug() << "EVENT IS: " << event;
+    //qDebug() << "EVENT IS: " << event;
     QString date("");
     if(ie->year != 0) {
         date.append(QString::number(ie->year).rightJustified(4,'0'));
@@ -257,7 +257,7 @@ chess::Game* chess::Database::getGameAt(int i) {
         date.append("??");
     }
     game->headers->insert("Date", date);
-    qDebug() << "RESULT: " << ie->result;
+    //qDebug() << "RESULT: " << ie->result;
     if(ie->result == RES_WHITE_WINS) {
         game->headers->insert("Result", "1-0");
         game->setResult(RES_WHITE_WINS);
@@ -286,7 +286,7 @@ chess::Game* chess::Database::getGameAt(int i) {
         game_raw.resize(length);
         game_raw.fill(char(0x20));
         gi.readRawData(game_raw.data(), length);
-        qDebug() << "length" << length << " arr: " << game_raw.toHex();
+        //qDebug() << "length" << length << " arr: " << game_raw.toHex();
         this->dcgdecoder->decodeGame(game, &game_raw);
     }
     return game;
@@ -295,7 +295,7 @@ chess::Game* chess::Database::getGameAt(int i) {
 int chess::Database::decodeLength(QDataStream *stream) {
     quint8 len1 = 0;
     *stream >> len1;
-    qDebug() << "len1 is this: " << QString("%1").arg(len1 , 0, 16);
+    //qDebug() << "len1 is this: " << QString("%1").arg(len1 , 0, 16);
     if(len1 < 127) {
         return int(len1);
     }
@@ -330,7 +330,7 @@ int chess::Database::decodeLength(QDataStream *stream) {
           *stream >> byte;
           buffer.append(byte);
     }
-    qDebug() << "error here: " << buffer.toHex();
+    //qDebug() << "error here: " << buffer.toHex();
     throw std::invalid_argument("length decoding called with illegal byte value");
 }
 
@@ -501,7 +501,7 @@ void chess::Database::importPgnAppendNames(QMap<QString, quint32> *names) {
                 }
             }
             quint32 offset = fnNames.pos();
-            qDebug() << "writing pos: " << offset << " for " << name_i;
+            //qDebug() << "writing pos: " << offset << " for " << name_i;
             fnNames.write(name_i,36);
             names->insert(name_i.trimmed(), offset);
         }
@@ -574,7 +574,7 @@ void chess::Database::importPgnAppendEvents(QMap<QString, quint32> *events) {
                 }
             }
         quint32 offset = fnEvents.pos();
-        qDebug() << "ADDING OFFSET: " << offset;
+        //qDebug() << "ADDING OFFSET: " << offset;
         fnEvents.write(event_i,36);
         events->insert(event_i.trimmed(), offset);
         }
@@ -609,7 +609,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 //openDefault.resize(8);
                 //openDefault.fill(0x00);
                 ByteUtil::append_as_uint64(&openDefault, this->loadUponOpen);
-                qDebug() << "OFFSET0: " << openDefault.toHex();
+                //qDebug() << "OFFSET0: " << openDefault.toHex();
                 fnIndex.write(openDefault, 8);
             }
             if(fnGames.pos() == 0) {
@@ -636,11 +636,13 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 ByteUtil::append_as_uint64(&iEntry, fnGames.pos());
                 // white offset
                 QString white = header->headers->value("White");
+                //qDebug() << "WHITE: " << white;
                 quint32 whiteOffset = names->value(white);
                 ByteUtil::append_as_uint32(&iEntry, whiteOffset);
                 // black offset
                 QString black = header->headers->value("Black");
                 quint32 blackOffset = names->value(black);
+                //qDebug() << "BLACK: " << black;
                 ByteUtil::append_as_uint32(&iEntry, blackOffset);
                 // round
                 quint16 round = header->headers->value("Round").toUInt();
@@ -651,10 +653,10 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 // event offset
                 quint32 event_offset = events->value(header->headers->value("Event"));
                 ByteUtil::append_as_uint32(&iEntry, event_offset);
-                qDebug() << "EVENT OFFSET: " << event_offset;
+                //qDebug() << "EVENT OFFSET: " << event_offset;
                 // elo white
                 quint16 elo_white = header->headers->value("WhiteElo").toUInt();
-                qDebug() << "elo white: " << elo_white;
+                //qDebug() << "elo white: " << elo_white;
                 ByteUtil::append_as_uint16(&iEntry, elo_white);
                 quint16 elo_black = header->headers->value("BlackElo").toUInt();
                 ByteUtil::append_as_uint16(&iEntry, elo_black);
@@ -673,17 +675,17 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 } else  {
                     ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
                 }
-                qDebug() << iEntry.size();
+                //qDebug() << iEntry.size();
                 // ECO
                 if(header->headers->contains("ECO")) {
                     QByteArray eco = header->headers->value("ECO").toUtf8().left(3);
-                    qDebug() << eco;
+                    //qDebug() << eco;
                     iEntry.append(eco);
                 } else {
                     QByteArray eco = QByteArrayLiteral("\x00\x00\x00");
                     iEntry.append(eco);
                 }
-                qDebug() << iEntry.size();
+                //qDebug() << iEntry.size();
                 // parse date
                 if(header->headers->contains("Date")) {
                     QString date = header->headers->value("Date");
@@ -694,13 +696,13 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                     QStringList dd_mm_yy = date.split(".");
                     if(dd_mm_yy.size() > 0 && dd_mm_yy.at(0).length() == 4) {
                         quint16 prob_year = dd_mm_yy.at(0).toInt();
-                        qDebug() << "PROb YEAR:" << prob_year;
+                        //qDebug() << "PROb YEAR:" << prob_year;
                         if(prob_year > 0 && prob_year < 2100) {
                             year = prob_year;
                         }
                         if(dd_mm_yy.size() > 1 && dd_mm_yy.at(1).length() == 2) {
                             quint8 prob_month = dd_mm_yy.at(1).toInt();
-                            qDebug() << "prob monath: " << prob_month;
+                            //qDebug() << "prob monath: " << prob_month;
                             if(prob_month > 0 && prob_month <= 12) {
                                 month = prob_month;
                             }
@@ -712,7 +714,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                             }
                         }
                     }
-                    qDebug() << "YEAR: " << year;
+                    //qDebug() << "YEAR: " << year;
                     ByteUtil::append_as_uint16(&iEntry, year);
                     ByteUtil::append_as_uint8(&iEntry, month);
                     ByteUtil::append_as_uint8(&iEntry, day);
@@ -721,7 +723,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                     ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
                     ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
                 }
-                qDebug() << iEntry.size();
+                //qDebug() << iEntry.size();
                 assert(iEntry.size() == 39);
                 fnIndex.write(iEntry, iEntry.length());
                 //qDebug() << "just before reading back file";
@@ -729,7 +731,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 //qDebug() << "READ file ok";
                 QByteArray *g_enc = dcgencoder->encodeGame(g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
                 //qDebug() << "enc ok";
-                qDebug() << "writing game: " << g_enc->toHex();
+                //qDebug() << "writing game: " << g_enc->toHex();
                 fnGames.write(*g_enc, g_enc->length());
                 delete g_enc;
                 header->headers->clear();

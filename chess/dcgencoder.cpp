@@ -89,9 +89,9 @@ QByteArray* DcgEncoder::encodeGame(Game *game) {
     this->traverseNodes(game->getRootNode());
     // prepend length
     int l = this->gameBytes->size();
-    qDebug() << "len: " << l;
+    // qDebug() << "len: " << l;
     this->prependLength(l);
-    qDebug() << "game: " << this->gameBytes->toHex();
+    // qDebug() << "game: " << this->gameBytes->toHex();
     return new QByteArray(*this->gameBytes);
 }
 
@@ -106,15 +106,15 @@ void DcgEncoder::appendMove(Move *move) {
         quint16 move_binary = qint16(to) + (quint16(from) << 6);
         //qDebug() << "MOVE: "<< (qint16(to) + (quint16(from) << 6));
         if(move->promotion_piece != 0) {
-            qDebug() << "FROM POINT " << fromPoint;
-            qDebug() << "FROM  " << from;
-            qDebug() << "PROMOTION PIECE: "<< quint16((move->promotion_piece) << 12);
-            qDebug() << "promotion move bin: " << move_binary;
+            //qDebug() << "FROM POINT " << fromPoint;
+            //qDebug() << "FROM  " << from;
+            //qDebug() << "PROMOTION PIECE: "<< quint16((move->promotion_piece) << 12);
+            //qDebug() << "promotion move bin: " << move_binary;
             move_binary += quint16((move->promotion_piece) << 12);
-            qDebug() << "promotion move bin: " << move_binary;
+            //qDebug() << "promotion move bin: " << move_binary;
         }
         ByteUtil::append_as_uint16(this->gameBytes, move_binary);
-        qDebug() << this->gameBytes->mid(this->gameBytes->length()-2, 2).toHex();
+        //qDebug() << this->gameBytes->mid(this->gameBytes->length()-2, 2).toHex();
     }
 }
 
@@ -172,11 +172,11 @@ void DcgEncoder::appendNags(GameNode* node) {
 void DcgEncoder::appendComment(GameNode* node) {
     const QByteArray comment_utf8 = node->getComment().toUtf8();
     int l = comment_utf8.size();
-    qDebug() << "COMMENT LENGTH: " << l;
+    //qDebug() << "COMMENT LENGTH: " << l;
     if(l>0) {
         this->gameBytes->append(quint8(0x86));
         this->appendLength(l);
-        qDebug() << "COMMENT LEN: " << this->gameBytes->mid(this->gameBytes->size()-4, 4);
+        //qDebug() << "COMMENT LEN: " << this->gameBytes->mid(this->gameBytes->size()-4, 4);
         this->gameBytes->append(comment_utf8);
     }
 }

@@ -18,7 +18,7 @@ chess::DcgDecoder::~DcgDecoder()
 int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
     int idx = *index;
     quint8 len1 = ba->at(idx);
-    qDebug() << "len1 is: " << len1;
+    //qDebug() << "len1 is: " << len1;
     if(len1 < 127) {
         qDebug() << "case 0: " << len1;
         (*index)++;
@@ -26,7 +26,7 @@ int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
     }
     if(len1 == 0x81) {        
         quint8 len2 = ba->at(idx+1);
-        qDebug() << "LEN2, case 1: " << len2;
+        //qDebug() << "LEN2, case 1: " << len2;
         *index += 2;
         return int(len2);
     }
@@ -55,7 +55,7 @@ void chess::DcgDecoder::decodeAnnotations(QByteArray *ba, int *idx, int len, Gam
     int stop = (*idx) + len;
     for(int i=start;i<stop;i++) {
         quint8 ann_i = ba->at(i);
-        qDebug() << "decoding annotation byte: " << ann_i;
+        //qDebug() << "decoding annotation byte: " << ann_i;
         current->addNag(int(ann_i));
         (*idx)++;
     }
@@ -63,7 +63,7 @@ void chess::DcgDecoder::decodeAnnotations(QByteArray *ba, int *idx, int len, Gam
 
 chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
     // to remember variations
-    qDebug() << "called decode game with: " << ba->toHex();
+    //qDebug() << "called decode game with: " << ba->toHex();
     QStack<GameNode*> *game_stack = new QStack<GameNode*>();
     game_stack->push(g->getRootNode());
     GameNode* current = g->getRootNode();
@@ -87,14 +87,14 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
     }
     while(idx < ba->length() && !error) {
         quint8 byte = ba->at(idx);
-        qDebug() << "next byte: " << byte;
+        //qDebug() << "next byte: " << byte;
         // >= 0x84: we have a marker, not a move
         if(byte >= 0x84) {
             if(byte == 0x84) {
                 // start of variation
                 // put current node on stack so that we
                 // can go back when we reach end of variation
-                qDebug() << "var start";
+                //qDebug() << "var start";
                 game_stack->push(current);
                 current = current->getParent();
                 idx++;
@@ -105,8 +105,8 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                 // one node, otherwise game is malformated (when closing
                 // variation we must have started one before)
                 // so pop from stack (but always leave root)
-                qDebug() << "end of variation, popping from stack @";
-                qDebug() << ba->mid(idx, 20).toHex();
+                //qDebug() << "end of variation, popping from stack @";
+                //qDebug() << ba->mid(idx, 20).toHex();
                 if(game_stack->size() > 1) {
                     current = game_stack->pop();
                 }
@@ -115,21 +115,21 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
             else if(byte == 0x86) {
                 idx++;
                 // start of comment
-                qDebug() << "comment start, trying to get len";
+                //qDebug() << "comment start, trying to get len";
                 int len = this->decodeLength(ba, &idx);
-                qDebug() << ba->mid(idx, len+2).toHex();
+                //qDebug() << ba->mid(idx, len+2).toHex();
                 QString comment = QString::fromUtf8(QByteArray(ba->mid(idx,len)));
                 current->setComment(comment);
-                qDebug () << "got comment";
+                //qDebug () << "got comment";
                 idx+=len;
             }
             else if(byte == 0x87) {
                 idx++;
                 // annotations follow
-                qDebug() << "ANNOTATIONS follow...";
-                qDebug() << ba->mid(idx, 10).toHex();
+                //qDebug() << "ANNOTATIONS follow...";
+                //qDebug() << ba->mid(idx, 10).toHex();
                 int len = this->decodeLength(ba, &idx);
-                qDebug() << "len is: " << len;
+                //qDebug() << "len is: " << len;
                 this->decodeAnnotations(ba, &idx, len, current);
                 //idx+=len;
             } else if(byte == 0x88) {
@@ -164,7 +164,7 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
             if(idx+1 >= ba->size()) {
                 error = true;
             } else {
-                qDebug() << "move dec";
+                //qDebug() << "move dec";
                 quint16 move = byte*256 + quint8((ba->at(idx+1)));
                 quint8 from = quint8(quint16(move << 4) >> 10);
                 quint8 to = quint8((quint8(move) << 2)) >> 2;
@@ -175,11 +175,11 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                 quint8 to_internal = ((to % 8) + 1) + (((to / 8) + 2) * 10);
                 quint8 promotion_piece = quint8((move << 1) >> 13);
                 if(promotion_piece != 0) {
-                    qDebug() << "FROM: " << (move << 4);
-                    qDebug() << "TO: " << to;
-                    qDebug() << "PROM PIECE: " << promotion_piece;
-                    qDebug() << (chess::ROOK == 4);
-                    qDebug() << chess::ROOK;
+                    //qDebug() << "FROM: " << (move << 4);
+                    //qDebug() << "TO: " << to;
+                    //qDebug() << "PROM PIECE: " << promotion_piece;
+                    //qDebug() << (chess::ROOK == 4);
+                    //qDebug() << chess::ROOK;
                 }
                 Move *m = new Move();
                 GameNode *next = new GameNode();
@@ -188,12 +188,12 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                     Board *b = current->getBoard();
                     if(promotion_piece != 0) {
                         m = new chess::Move(from_internal, to_internal, promotion_piece);
-                        qDebug() << ba->mid(idx-1, 3).toHex();
-                        qDebug() << move;
-                        qDebug() << m->uci();
+                        //qDebug() << ba->mid(idx-1, 3).toHex();
+                        //qDebug() << move;
+                        //qDebug() << m->uci();
                     } else {
                         m = new chess::Move(from_internal, to_internal);
-                        qDebug() << m->uci();
+                        //qDebug() << m->uci();
                     }
                     if(b->is_legal_move(*m)) {
                         b_next = b->copy_and_apply(*m);
@@ -203,7 +203,7 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                         current->addVariation(next);
                         current = next;
                     } else {
-                        qDebug() << "illegal move";
+                        //qDebug() << "illegal move";
                         error = true;
                     }
                 } catch(std::invalid_argument a) {

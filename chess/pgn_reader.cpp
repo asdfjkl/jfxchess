@@ -710,7 +710,7 @@ Game* PgnReader::readGame(QTextStream& in) {
                     game_stack->clear();
                     delete game_stack;
                     std::cout << a.what() << std::endl;
-                    throw std::invalid_argument("unable to parse game fen@ " + token.toStdString());
+                    throw std::invalid_argument("unable to parse game san@ " + token.toStdString());
                 }
             }
         }

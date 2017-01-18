@@ -1681,6 +1681,7 @@ QString Board::san(const Move &m) {
     Board *b_temp = this->copy_and_apply(m);
     bool is_check = b_temp->is_check();
     bool is_checkmate = b_temp->is_checkmate();
+    delete b_temp;
 
     if(this->castles_wking(m) || this->castles_bking(m)) {
         san.append("O-O");
@@ -1763,9 +1764,13 @@ QString Board::san(const Move &m) {
             delete col_disambig;
             delete row_disambig;
         }
+        legals->clear();
+        delete legals;
         // handle a capture, i.e. if destination field
         // is not empty
-        if(this->piece_type(m.to) != EMPTY) {
+        // in case of an en-passent capture, the destiation field
+        // is empty. But then the destination field is the e.p. square
+        if(this->piece_type(m.to) != EMPTY || m.to == this->en_passent_target) {
             if(piece_type == PAWN) {
                 san.append(QChar(this_col + 96));
             }

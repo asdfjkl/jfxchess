@@ -34,6 +34,7 @@ public:
      * @brief PgnPrinter prints a game to PGN format
      */
     PgnPrinter();
+    ~PgnPrinter();
 
     /**
      * @brief printGame prints the supplied game to PGN format and saves the
