@@ -127,7 +127,7 @@ QStringList* PgnPrinter::printGame(Game *g) {
 
     this->reset();
 
-    pgn = new QStringList();
+    //pgn = new QStringList();
 
     // first print the headers
     this->printHeaders(pgn, g);
@@ -162,7 +162,9 @@ void PgnPrinter::printMove(Board *b, Move *m) {
     }
     //qDebug() << "Move: " << m->uci_string;
     //qDebug() << "san: " << b->san(*m);
+    //qDebug() << "before san";
     this->writeToken((b->san(*m)).append(QString(" ")));
+    //qDebug() << "after san";
     this->forceMoveNumber = false;
 }
 

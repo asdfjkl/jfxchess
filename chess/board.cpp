@@ -1826,6 +1826,8 @@ Move Board::parse_san(QString san) {
                 return Move(E8,G8);
             }
         }
+        delete legals;
+        throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else if(san==QString("O-O-O") || san == QString("O-O-O+") || san==QString("O-O-O#")) {
         //qDebug() << "castles long";
         for(int i=0;i<legals->count();i++) {
@@ -1839,6 +1841,8 @@ Move Board::parse_san(QString san) {
                 return Move(E8,C8);
             }
         }
+        delete legals;
+        throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else { // we don't have a castles move
         QRegularExpressionMatch match = SAN_REGEX.match(san);
         if(!match.hasMatch()) {
