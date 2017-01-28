@@ -120,10 +120,22 @@ void chess::Database::loadIndex() {
             //qDebug() << "eloBlack: " << entry_i->eloBlack;
             ds_entry_i >> entry_i->result;
             //qDebug() << "result: " << entry_i->result;
-            char *eco = new char[sizeof "A00"];
-            ds_entry_i.readRawData(eco, 3);
-            entry_i->eco = eco;
-            //qDebug() << QString::fromLocal8Bit(eco);
+            char *eco = new char[sizeof "A00a"];
+            QByteArray ec;
+            ec.resize(3);
+            quint8 a;
+            quint8 b;
+            quint8 c;
+            //ds_entry_i.readRawData(ec.data, 3);
+            ds_entry_i >> a;
+            ds_entry_i >> b;
+            ds_entry_i >> c;
+            QString abc = QString("abc");
+            abc[0] = char(a);
+            abc[1] = char(b);
+            abc[2] = char(c);
+            //entry_i->eco = eco;
+            qDebug() << abc;
             ds_entry_i >> entry_i->year;
             ds_entry_i >> entry_i->month;
             ds_entry_i >> entry_i->day;
@@ -279,14 +291,25 @@ chess::Game* chess::Database::getGameAt(int i) {
     }
     QFile fnGames(this->filenameGames);
     if(fnGames.open(QFile::ReadOnly)) {
-        fnGames.seek(ie->gameOffset);
+        bool ok = fnGames.seek(ie->gameOffset);
+        if(!ok) {
+            std::cerr << "seeking to game offset failed!" << std::endl;
+            return game;
+        }
         QDataStream gi(&fnGames);
         int length = this->decodeLength(&gi);
+        if(length < 0) {
+            std::cerr << "length decoding at game offset position failed!" << std::endl;
+            return game;
+        }
         QByteArray game_raw;
         game_raw.resize(length);
         game_raw.fill(char(0x20));
         gi.readRawData(game_raw.data(), length);
-        //qDebug() << "length" << length << " arr: " << game_raw.toHex();
+        if(gi.status() != QDataStream::Ok) {
+            std::cerr << "reading game bytes at game offset failed!" << std::endl;
+            return game;
+        }
         this->dcgdecoder->decodeGame(game, &game_raw);
     }
     return game;
@@ -295,6 +318,9 @@ chess::Game* chess::Database::getGameAt(int i) {
 int chess::Database::decodeLength(QDataStream *stream) {
     quint8 len1 = 0;
     *stream >> len1;
+    if(stream->status() != QDataStream::Ok) {
+        return -1;
+    }
     //qDebug() << "len1 is this: " << QString("%1").arg(len1 , 0, 16);
     if(len1 < 127) {
         return int(len1);
@@ -302,12 +328,20 @@ int chess::Database::decodeLength(QDataStream *stream) {
     if(len1 == 0x81) {
         quint8 len2 = 0;
         *stream >> len2;
+        if(stream->status() != QDataStream::Ok) {
+            return -1;
+        } else {
         return int(len2);
+        }
     }
     if(len1 == 0x82) {
         quint16 len2 = 0;
         *stream >> len2;
-        return int(len2);
+        if(stream->status() != QDataStream::Ok) {
+            return -1;
+        } else {
+            return int(len2);
+        }
     }
     if(len1 == 0x83) {
         quint8 len2=0;
@@ -317,21 +351,22 @@ int chess::Database::decodeLength(QDataStream *stream) {
         quint32 ret = 0;
         ret = len2 << 16;
         ret = ret + len3;
-        return ret;
+        if(stream->status() != QDataStream::Ok) {
+            return -1;
+        } else {
+            return ret;
+        }
     }
     if(len1 == 0x84) {
         quint32 len = 0;
         *stream >> len;
-        return int(len);
+        if(stream->status() != QDataStream::Ok) {
+            return -1;
+        } else {
+            return int(len);
+        }
     }
-    QByteArray buffer;
-    quint8 byte;
-    for (uint i=0; i<50; ++i) {
-          *stream >> byte;
-          buffer.append(byte);
-    }
-    //qDebug() << "error here: " << buffer.toHex();
-    throw std::invalid_argument("length decoding called with illegal byte value");
+    return -1;
 }
 
 void chess::Database::loadNames() {
@@ -678,7 +713,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 //qDebug() << iEntry.size();
                 // ECO
                 if(header->headers->contains("ECO")) {
-                    QByteArray eco = header->headers->value("ECO").toUtf8().left(3);
+                    QByteArray eco = header->headers->value("ECO").toLatin1().left(3);
                     //qDebug() << eco;
                     iEntry.append(eco);
                 } else {

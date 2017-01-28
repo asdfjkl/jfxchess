@@ -16,7 +16,7 @@ public:
 
 private:
     Game* game;
-    void decodeAnnotations(QByteArray *ba, int *idx, int len, GameNode *current);
+    int decodeAnnotations(QByteArray *ba, int *idx, int len, GameNode *current);
 };
 
 }

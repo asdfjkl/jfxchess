@@ -17,48 +17,67 @@ chess::DcgDecoder::~DcgDecoder()
 
 int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
     int idx = *index;
+    if(idx >= ba->size()) {
+        return -1;
+    }
     quint8 len1 = ba->at(idx);
     //qDebug() << "len1 is: " << len1;
     if(len1 < 127) {
-        qDebug() << "case 0: " << len1;
+        //qDebug() << "case 0: " << len1;
         (*index)++;
         return int(len1);
     }
     if(len1 == 0x81) {        
+        if(idx + 1 >= ba->size()) {
+            return -1;
+        }
         quint8 len2 = ba->at(idx+1);
         //qDebug() << "LEN2, case 1: " << len2;
         *index += 2;
         return int(len2);
     }
     if(len1 == 0x82) {
+        if(idx + 2 >= ba->size()) {
+            return -1;
+        }
         quint16 len2 = quint8(ba->at(idx+1))*256 + quint8(ba->at(idx+2));
         *index+=3;
         return int(len2);
     }
     if(len1 == 0x83) {
+        if(idx + 3 >= ba->size()) {
+            return -1;
+        }
         quint32 ret = quint8(ba->at(idx+1)) * 256 * 256 + quint8(ba->at(idx+2)) * 256 + quint8(ba->at(idx+3));
         *index+=4;
         return ret;
     }
     if(len1 == 0x84) {
+        if(idx + 4 >= ba->size()) {
+            return -1;
+        }
         quint32 ret = quint8(ba->at(idx+1)) * 256*256*256 + quint8(ba->at(idx+2)) * 256 * 256
                 + quint8(ba->at(idx+3)) * 256 + quint8(ba->at(idx+4));
         *index+=5;
         return int(ret);
     }
     qDebug() << "error here: " << ba->mid(*index, 30).toHex();
-    throw std::invalid_argument("length decoding called with illegal byte value");
+    return -1;
 }
 
-void chess::DcgDecoder::decodeAnnotations(QByteArray *ba, int *idx, int len, GameNode *current) {
+int chess::DcgDecoder::decodeAnnotations(QByteArray *ba, int *idx, int len, GameNode *current) {
     int start = *idx;
     int stop = (*idx) + len;
+    if(start + stop >= ba->size()) {
+        return -1;
+    }
     for(int i=start;i<stop;i++) {
         quint8 ann_i = ba->at(i);
         //qDebug() << "decoding annotation byte: " << ann_i;
         current->addNag(int(ann_i));
         (*idx)++;
     }
+    return 0;
 }
 
 chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
@@ -74,9 +93,26 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
     if(fenmarker == 0x01) {
         idx++;
         int len = this->decodeLength(ba, &idx);
+        if(len < 0 || idx+len >= ba->size()) {
+            error = true;
+            // making Dijkstra proud
+            goto read_fenmarker;
+        }
         QByteArray fen = ba->mid(idx, len);
         QString fen_string = QString::fromUtf8(fen);
-        chess::Board *b = new chess::Board(fen_string);
+        chess::Board *b = 0;
+        try {
+            b = new chess::Board(fen_string);
+        } catch(std::invalid_argument a)
+        {
+            std::cerr << "encountered illegal fen when decoding game " << a.what() << std::endl;
+            error = true;
+            if(b != 0) {
+                error = true;
+                delete b;
+                goto read_fenmarker;
+            }
+        }
         g->getCurrentNode()->setBoard(b);
         idx += len;
     } else if(fenmarker == 0x00) {
@@ -85,6 +121,7 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
         error = true;
         idx++;
     }
+    read_fenmarker:
     while(idx < ba->length() && !error) {
         quint8 byte = ba->at(idx);
         //qDebug() << "next byte: " << byte;
@@ -117,6 +154,10 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                 // start of comment
                 //qDebug() << "comment start, trying to get len";
                 int len = this->decodeLength(ba, &idx);
+                if(len < 0) {
+                    error = true;
+                    continue;
+                }
                 //qDebug() << ba->mid(idx, len+2).toHex();
                 QString comment = QString::fromUtf8(QByteArray(ba->mid(idx,len)));
                 current->setComment(comment);
@@ -129,8 +170,16 @@ chess::Game* chess::DcgDecoder::decodeGame(Game *g, QByteArray *ba) {
                 //qDebug() << "ANNOTATIONS follow...";
                 //qDebug() << ba->mid(idx, 10).toHex();
                 int len = this->decodeLength(ba, &idx);
+                if(len < 0) {
+                    error = true;
+                    continue;
+                }
                 //qDebug() << "len is: " << len;
-                this->decodeAnnotations(ba, &idx, len, current);
+                int res = this->decodeAnnotations(ba, &idx, len, current);
+                if(res < 0) {
+                    error = true;
+                    continue;
+                }
                 //idx+=len;
             } else if(byte == 0x88) {
                 // null move

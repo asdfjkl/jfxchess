@@ -317,6 +317,8 @@ public:
      */
     Moves* pseudo_legal_moves();
 
+    Moves* pseudo_legal_moves(uint8_t to_square, uint8_t piece_type);
+
     /**
      * @brief pseudo_legal_moves_from returns move list with pseudo legal moves
      *                                from supplied square index
@@ -328,12 +330,14 @@ public:
      * @return pseudo legal move list
      */
     Moves* pseudo_legal_moves_from(int from_square_idx, bool with_castles, bool turn_color);
+    Moves* pseudo_legal_moves_from_pt(int from_square, uint8_t to_square, uint8_t piece_type, bool with_castles, bool turn);
 
     /**
      * @brief legal_moves returns move list of all legal moves in position
      * @return move list
      */
     Moves* legal_moves();
+    Moves* legal_moves(uint8_t to_square, uint8_t piece_type);
 
     /**
      * @brief legal_moves_from computes all legal moves originating in from square
