@@ -1913,7 +1913,7 @@ QString Board::san(const Move &m) {
         return san;
     } else {
         uint8_t piece_type = this->piece_type(m.from);
-        Moves* legals = this->legal_moves();
+        Moves* legals = this->legal_moves(m.to, piece_type);
         if(piece_type == KNIGHT) {
             san.append("N");
         }

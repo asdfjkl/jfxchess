@@ -120,22 +120,18 @@ void chess::Database::loadIndex() {
             //qDebug() << "eloBlack: " << entry_i->eloBlack;
             ds_entry_i >> entry_i->result;
             //qDebug() << "result: " << entry_i->result;
-            char *eco = new char[sizeof "A00a"];
-            QByteArray ec;
-            ec.resize(3);
-            quint8 a;
-            quint8 b;
-            quint8 c;
-            //ds_entry_i.readRawData(ec.data, 3);
-            ds_entry_i >> a;
-            ds_entry_i >> b;
-            ds_entry_i >> c;
-            QString abc = QString("abc");
-            abc[0] = char(a);
-            abc[1] = char(b);
-            abc[2] = char(c);
-            //entry_i->eco = eco;
-            qDebug() << abc;
+            // next is slightly cumbersome but works
+            quint8 eco_0;
+            quint8 eco_1;
+            quint8 eco_2;
+            ds_entry_i >> eco_0;
+            ds_entry_i >> eco_1;
+            ds_entry_i >> eco_2;
+            entry_i->eco = QString("A00");
+            entry_i->eco[0] = QChar(eco_0);
+            entry_i->eco[1] = QChar(eco_1);
+            entry_i->eco[2] = QChar(eco_2);
+            // ymd
             ds_entry_i >> entry_i->year;
             ds_entry_i >> entry_i->month;
             ds_entry_i >> entry_i->day;
@@ -520,6 +516,7 @@ void chess::Database::importPgnAppendNames(QMap<QString, quint32> *names) {
             // value != 0 means the value exists
             // already in the existing database maps
             quint32 ex_offset = names->value(keys.at(i));
+            qDebug() << keys.at(i);
             if(ex_offset != 0) {
                 continue;
             }
@@ -650,11 +647,14 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
             if(fnGames.pos() == 0) {
                 fnGames.write(magicGamesString, magicGamesString.length());
             }
-            std::cout << "\nsaving games: 0/"<< size;
+            std::cout << "\nsaving games: 0.00 % finished";
             int i = 0;
             while(!stop) {
                 if(i%100==0) {
-                    std::cout << "\rsaving games: "<<offset<< "/"<<size << std::flush;
+                    if(i%100==0) {
+                        QString finished = QString::number( float(offset) * 100. / float(size), 'f', 2 );
+                        std::cout << "\rsaving games: "<< finished.toStdString() << " %" << std::flush;
+                    }
                 }
                 i++;
                 int res = pgnreader->readNextHeader(pgnfile, encoding, &offset, header);

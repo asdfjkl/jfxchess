@@ -19,7 +19,7 @@ public:
     quint16 eloWhite;
     quint16 eloBlack;
     quint8 result;
-    char* eco;
+    QString eco;
     quint16 year;
     quint8 month;
     quint8 day;

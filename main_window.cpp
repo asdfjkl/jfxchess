@@ -51,6 +51,7 @@
 #include "dialogs/dialog_about.h"
 #include "various/resource_finder.h"
 #include "various/messagebox.h"
+#include "dialogs/dialog_database.h"
 
 #include "funct.h"
 
@@ -104,6 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->modeController = new ModeController(gameModel, uciController, this);
     this->editController = new EditController(gameModel, this);
     this->fileController = new FileController(gameModel, this);
+    this->databaseController = new DatabaseController(this);
 
     QSize btnSize = QSize(this->height()/19, this->height()/19);
     QSize btnSizeLR = QSize(this->height()/14, this->height()/14);
@@ -236,6 +238,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     toolbar->addSeparator();
 
+    QString db_icn(resDir + "/res/icons/database.svg");
+    QPixmap *tbDatabase = this->fromSvgToPixmap(iconSize, db_icn);
+    QAction *tbActionDatabase = toolbar->addAction(QIcon(*tbDatabase), this->tr("Database"));
+
+    toolbar->addSeparator();
+
     QString app_grp(resDir + "/res/icons/applications-graphics.svg");
     QPixmap *tbStyle =  this->fromSvgToPixmap(iconSize, app_grp);
     QAction *tbActionStyle = toolbar->addAction(QIcon(*tbStyle), this->tr("Colorstyle"));
@@ -351,6 +359,12 @@ MainWindow::MainWindow(QWidget *parent) :
     sc_enter_move_mode_m->setContext(Qt::ApplicationShortcut);
     sc_enter_move_mode_esc->setContext(Qt::ApplicationShortcut);
 
+    // MODE MENU
+    QMenu *m_database = this->menuBar()->addMenu(this->tr("Database"));
+    QAction *db_mode = m_database->addAction(this->tr("Search Games..."));
+    m_database->addSeparator();
+    QAction *db_next = m_database->addAction(this->tr("Next Game"));
+    QAction *db_prev = m_database->addAction(this->tr("Previous Game"));
 
     // HELP MENU
     QMenu *m_help = this->menuBar()->addMenu(this->tr("Help "));
@@ -443,6 +457,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
+
+    connect(db_mode, &QAction::triggered, this->databaseController, &DatabaseController::showDatabase);
+    connect(tbActionDatabase, &QAction::triggered, db_mode, &QAction::trigger);
 
     this->gameModel->setMode(MODE_ENTER_MOVES);
     enter_moves->setChecked(true);

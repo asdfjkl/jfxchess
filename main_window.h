@@ -38,6 +38,7 @@
 #include "controller/mode_controller.h"
 #include "controller/edit_controller.h"
 #include "controller/file_controller.h"
+#include "controller/database_controller.h"
 #include <QShortcut>
 #include <QComboBox>
 
@@ -63,6 +64,7 @@ private:
     ModeController *modeController;
     EditController *editController;
     FileController *fileController;
+    DatabaseController *databaseController;
     void setupStandardLayout();
     void setupVerticalLayout();
     QAction *flip_board;
