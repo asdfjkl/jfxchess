@@ -359,12 +359,14 @@ MainWindow::MainWindow(QWidget *parent) :
     sc_enter_move_mode_m->setContext(Qt::ApplicationShortcut);
     sc_enter_move_mode_esc->setContext(Qt::ApplicationShortcut);
 
-    // MODE MENU
+    // DATABASE MENU
     QMenu *m_database = this->menuBar()->addMenu(this->tr("Database"));
     QAction *db_mode = m_database->addAction(this->tr("Search Games..."));
     m_database->addSeparator();
     QAction *db_next = m_database->addAction(this->tr("Next Game"));
     QAction *db_prev = m_database->addAction(this->tr("Previous Game"));
+    m_database->addSeparator();
+    QAction *save_as_new_to_db = m_database->addAction(this->tr("Add as New Game"));
 
     // HELP MENU
     QMenu *m_help = this->menuBar()->addMenu(this->tr("Help "));

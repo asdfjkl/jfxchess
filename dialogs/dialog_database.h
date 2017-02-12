@@ -2,6 +2,7 @@
 #define DIALOGDATABASE_H
 
 #include <QDialog>
+#include <QTableWidget>
 
 class DialogDatabase : public QDialog
 {
@@ -11,6 +12,12 @@ public:
 
 private:
     void resizeTo(float ratio);
+    void drawAllItems();
+
+    QTableWidget *gameTable;
+    QStringList *gameTableHeaders;
+    QPushButton *btnOpenGame;
+    QPushButton *btnCancel;
 
 signals:
 

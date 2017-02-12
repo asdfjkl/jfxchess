@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QToolBar>
+#include <QDialogButtonBox>
+#include <QHeaderView>
 #include "various/resource_finder.h"
 #include "various/helper.h"
 
@@ -56,9 +58,51 @@ DialogDatabase::DialogDatabase(QWidget* parent) :
 
     toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolbar->setIconSize(iconSize);
+
+    int rows = 10;
+    int columns = 7;
+    this->gameTable = new QTableWidget(rows, columns);
+
+    this->gameTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    this->gameTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->gameTable->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    this->gameTableHeaders = new QStringList();
+    this->gameTableHeaders->append("No.");
+    this->gameTableHeaders->append("White");
+    this->gameTableHeaders->append("Black");
+    this->gameTableHeaders->append("Result");
+    this->gameTableHeaders->append("Date");
+    this->gameTableHeaders->append("ECO");
+    this->gameTableHeaders->append("Site");
+
+    this->gameTable->verticalHeader()->hide();
+    this->gameTable->setShowGrid(false);
+
+    //this->drawAllItems();
+    this->gameTable->resizeColumnsToContents();;
+    this->gameTable->horizontalHeader()->setStretchLastSection(true);
+    this->gameTable->selectRow(0);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
+    this->btnOpenGame = new QPushButton();
+    this->btnCancel = new QPushButton();
+
+    btnOpenGame->setText(this->tr("Open Game"));
+    btnCancel->setText("Cancel");
+
+    buttonBox->addButton(btnOpenGame, QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(btnCancel, QDialogButtonBox::RejectRole);
+
+    // putting it all together
+
     QVBoxLayout *layoutAll = new QVBoxLayout();
     layoutAll->addWidget(toolbar);
-    layoutAll->addStretch();
+    layoutAll->addWidget(this->gameTable);
+
+    //layoutAll->addStretch();
+
+    layoutAll->addWidget(buttonBox);
 
     this->setLayout(layoutAll);
 
