@@ -9,6 +9,7 @@
 #include <QHeaderView>
 #include "various/resource_finder.h"
 #include "various/helper.h"
+#include "dialogs/dialog_search.h"
 
 DialogDatabase::DialogDatabase(QWidget* parent) :
     QDialog(parent)
@@ -106,6 +107,8 @@ DialogDatabase::DialogDatabase(QWidget* parent) :
 
     this->setLayout(layoutAll);
 
+    connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
+
 }
 
 void DialogDatabase::resizeTo(float ratio) {
@@ -127,4 +130,11 @@ void DialogDatabase::resizeTo(float ratio) {
     }
     QSize newSize( width, height );
     this->resize(newSize);
+}
+
+void DialogDatabase::onClickSearch() {
+
+    DialogSearch *dlg = new DialogSearch();
+    dlg->show();
+
 }

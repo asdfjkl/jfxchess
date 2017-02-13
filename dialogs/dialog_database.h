@@ -23,6 +23,8 @@ signals:
 
 public slots:
 
+    void onClickSearch();
+
 };
 
 
