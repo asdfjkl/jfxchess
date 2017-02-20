@@ -145,8 +145,8 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     resultButtons->setExclusive(false);
     QCheckBox *btnWhiteWins = new QCheckBox("1-0");
     QCheckBox *btnBlackWins = new QCheckBox("0-1");
-    QCheckBox *btnDraw = new QCheckBox("1/2-1/2");
     QCheckBox *btnUndecided = new QCheckBox("*");
+    QCheckBox *btnDraw = new QCheckBox("1/2-1/2");
     resultButtons->addButton(btnWhiteWins);
     resultButtons->addButton(btnBlackWins);
     resultButtons->addButton(btnDraw);
@@ -154,8 +154,8 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     QGridLayout *layoutResult = new QGridLayout();
     layoutResult->addWidget(btnWhiteWins, 0, 0);
     layoutResult->addWidget(btnBlackWins, 0, 1);
-    layoutResult->addWidget(btnDraw, 1, 0);
-    layoutResult->addWidget(btnUndecided, 1, 1);
+    layoutResult->addWidget(btnDraw, 1, 1);
+    layoutResult->addWidget(btnUndecided, 1, 0);
     gbResult->setLayout(layoutResult);
 
     QPushButton *btnReset = new QPushButton(tr("Reset"));

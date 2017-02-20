@@ -7,6 +7,7 @@
 #include <QToolBar>
 #include <QDialogButtonBox>
 #include <QHeaderView>
+#include <QAction>
 #include "various/resource_finder.h"
 #include "various/helper.h"
 #include "dialogs/dialog_search.h"
