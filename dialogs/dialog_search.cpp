@@ -1,5 +1,6 @@
 #include "dialog_search.h"
 #include "tab_header_search.h"
+#include "tab_comment_search.h"
 #include <QTabWidget>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
@@ -9,9 +10,11 @@ DialogSearch::DialogSearch(QWidget *parent) :
 {
 
     TabHeaderSearch* ths = new TabHeaderSearch(this);
+    TabCommentSearch *tcs = new TabCommentSearch(this);
 
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->addTab(ths, tr("Game Data"));
+    tabWidget->addTab(tcs, tr("Comments"));
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
 
