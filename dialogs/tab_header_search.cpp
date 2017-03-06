@@ -32,6 +32,7 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     layoutWhiteName->addWidget(whiteSurname);
     layoutWhiteName->addWidget(colonWhite);
     layoutWhiteName->addWidget(whiteFirstname);
+    layoutWhiteName->addStretch(1);
     nameWhite->setBuddy(whiteSurname);
     colonWhite->setBuddy(whiteFirstname);
 
@@ -45,6 +46,7 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     layoutBlackName->addWidget(blackSurname);
     layoutBlackName->addWidget(colonBlack);
     layoutBlackName->addWidget(blackFirstname);
+    layoutBlackName->addStretch(1);
     nameBlack->setBuddy(blackSurname);
     colonBlack->setBuddy(blackFirstname);
 

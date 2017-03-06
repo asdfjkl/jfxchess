@@ -2,12 +2,16 @@
 #define DATABASECONTROLLER_H
 
 #include <QObject>
+#include "model/game_model.h"
 
 class DatabaseController : public QObject
 {
     Q_OBJECT
 public:
-    explicit DatabaseController(QWidget *parent = 0);
+    explicit DatabaseController(GameModel *model, QWidget *parent = 0);
+
+private:
+    GameModel *gameModel;
 
 signals:
 

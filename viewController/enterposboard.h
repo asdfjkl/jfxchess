@@ -27,7 +27,7 @@ private:
 
     chess::Board *currentGameBoard;
     void drawBoard(QPaintEvent *e, QPainter *q);
-    void calculateBoardSize(int *boardSize, int *squareSize);
+    //void calculateBoardSize(int *boardSize, int *squareSize);
     void resizeTo(float ratio);
 
     uint8_t pickupPieces[6][2] = {{chess::WHITE_PAWN, chess::BLACK_PAWN},

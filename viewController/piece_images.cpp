@@ -85,6 +85,7 @@ void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &piece
 
 QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, qreal dpr, int type) {
 
+    //qDebug() << "piece type  + " << piece_type << "color "  << color  << "size: " << size;
     QHash<int, QSvgRenderer*> *svg_images;
     QHash<QString, QImage*> *rendered_svg_images;
     if(type == PIECE_STYLE_OLD) {

@@ -15,6 +15,7 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board, QWidget *pa
 
     this->currentGameBoard = new chess::Board(board);
     this->selectedPiece = chess::WHITE_PAWN;
+
 }
 
 
@@ -102,15 +103,17 @@ QPoint EnterPosBoard::getBoardPosition(int x, int y) {
 }
 
 
+/*
 void EnterPosBoard::calculateBoardSize(int *boardSize, int *squareSize) {
 
     QSize size = this->size();
+    qDebug() << "EnterPosBoard Size:  " << size;
     int bSize = std::min(size.width(), size.height());
     int sSize = (bSize-(2*this->borderWidth))/8;
     bSize = 8 * sSize + 2 * this->borderWidth;
     *boardSize = bSize;
     *squareSize = sSize;
-}
+}*/
 
 void EnterPosBoard::setToInitialPosition() {
     delete this->board;

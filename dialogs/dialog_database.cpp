@@ -12,9 +12,11 @@
 #include "various/helper.h"
 #include "dialogs/dialog_search.h"
 
-DialogDatabase::DialogDatabase(QWidget* parent) :
+DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
 {
+    this->gameModel = gameModel;
+
     this->resizeTo(0.9);
 
     QToolBar *toolbar = new QToolBar(this);
@@ -135,7 +137,7 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
-    DialogSearch *dlg = new DialogSearch();
+    DialogSearch *dlg = new DialogSearch(this->gameModel);
     dlg->show();
 
 }

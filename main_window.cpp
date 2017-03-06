@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->modeController = new ModeController(gameModel, uciController, this);
     this->editController = new EditController(gameModel, this);
     this->fileController = new FileController(gameModel, this);
-    this->databaseController = new DatabaseController(this);
+    this->databaseController = new DatabaseController(gameModel, this);
 
     QSize btnSize = QSize(this->height()/19, this->height()/19);
     QSize btnSizeLR = QSize(this->height()/14, this->height()/14);

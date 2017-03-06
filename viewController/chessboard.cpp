@@ -5,13 +5,12 @@
 #include <QSizePolicy>
 #include <QPainter>
 #include <QWindow>
-#include <QDebug>
 #include <math.h>
 
 Chessboard::Chessboard(QWidget *parent) :
     QWidget(parent)
 {
-    QSizePolicy policy = QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    QSizePolicy policy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setSizePolicy(policy);
 
     this->borderWidth = 12;
@@ -46,8 +45,8 @@ void Chessboard::calculateBoardSize(int *boardSize, int *squareSize) {
     if(this->height() < bSize) {
         bSize = this->height();
     }
-    int sSize = (bSize-(2*this->borderWidth))/8;
-    bSize = 8 * sSize + 2 * this->borderWidth;
+    int sSize = qMax((bSize-(2*this->borderWidth))/8,1);
+    bSize = qMax(8 * sSize + 2 * this->borderWidth,1);
 
     *boardSize = bSize;
     *squareSize = sSize;

@@ -1,15 +1,15 @@
 #include "database_controller.h"
 #include "dialogs/dialog_database.h"
 
-DatabaseController::DatabaseController(QWidget *parent) :
+DatabaseController::DatabaseController(GameModel *model, QWidget *parent) :
     QObject(parent)
 {
-
+    this->gameModel = model;
 }
 
 void DatabaseController::showDatabase() {
 
-    DialogDatabase *ddb = new DialogDatabase();
+    DialogDatabase *ddb = new DialogDatabase(this->gameModel);
     ddb->show();
 
 }
