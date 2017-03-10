@@ -51,6 +51,7 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
 
 }
 
-void DialogSearch::updatePattern() {
+SearchPattern* DialogSearch::getPattern() {
 
+    return this->pattern;
 }

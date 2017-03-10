@@ -16,9 +16,6 @@ public:
 private:
     SearchPattern *pattern;
 
-private slots:
-    void updatePattern();
-
 };
 
 #endif // DIALOGSEARCH_H
