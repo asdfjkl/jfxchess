@@ -23,10 +23,10 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     QLabel *lblText1 = new QLabel(tr("Text1:"));
-    QLineEdit* text1 = new QLineEdit(this);
+    this->text1 = new QLineEdit(this);
 
     QLabel* lblText2 = new QLabel(tr("Text2:"));
-    QLineEdit* text2 = new QLineEdit(this);
+    this->text2 = new QLineEdit(this);
 
     text1->setFixedWidth(len_surname);
     text2->setFixedWidth(len_surname);
@@ -34,7 +34,7 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     lblText1->setBuddy(text1);
     lblText2->setBuddy(text2);
 
-    QCheckBox *wholeWord = new QCheckBox(tr("Whole Word"));
+    this->wholeWord = new QCheckBox(tr("Whole Word"));
 
     layoutText1->addWidget(lblText1);
     layoutText1->addWidget(text1);
@@ -46,9 +46,9 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     layoutText2->addWidget(text2);
     layoutText2->addStretch(1);
 
-    QCheckBox *notInitialPos = new QCheckBox(tr("must NOT start in intial position"));
-    QCheckBox *arrows = new QCheckBox(tr("must contain arrows"));
-    QCheckBox *colorFields = new QCheckBox(tr("must contain colored fields"));
+    this->notInitialPos = new QCheckBox(tr("must NOT start in intial position"));
+    this->arrows = new QCheckBox(tr("must contain arrows"));
+    this->colorFields = new QCheckBox(tr("must contain colored fields"));
 
     mainLayout->addLayout(layoutText1);
     mainLayout->addLayout(layoutText2);

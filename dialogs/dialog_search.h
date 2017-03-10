@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "model/game_model.h"
+#include "model/search_pattern.h"
 
 class DialogSearch : public QDialog
 {
@@ -10,6 +11,13 @@ class DialogSearch : public QDialog
 
 public:
     explicit DialogSearch(GameModel *gameModel, QWidget *parent = 0);
+    SearchPattern* getPattern();
+
+private:
+    SearchPattern *pattern;
+
+private slots:
+    void updatePattern();
 
 };
 

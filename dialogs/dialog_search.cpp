@@ -11,6 +11,7 @@
 DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     QDialog(parent)
 {
+    this->pattern = new SearchPattern();
 
     TabHeaderSearch* ths = new TabHeaderSearch(this);
     TabCommentSearch *tcs = new TabCommentSearch(this);
@@ -47,5 +48,9 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     this->setMinimumWidth(this->height()*1.35);
 
     setWindowTitle(tr("Search for Games"));
+
+}
+
+void DialogSearch::updatePattern() {
 
 }

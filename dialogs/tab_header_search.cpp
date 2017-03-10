@@ -1,15 +1,11 @@
 #include "tab_header_search.h"
-#include <QLineEdit>
 #include <QLabel>
-#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QSpinBox>
 #include <QRadioButton>
 #include <QButtonGroup>
-#include <QPushButton>
 
 TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
 {
@@ -23,8 +19,8 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     int len_space = f.width("  ");
 
     QLabel *nameWhite = new QLabel(tr("White:"));
-    QLineEdit* whiteSurname = new QLineEdit(this);
-    QLineEdit* whiteFirstname = new QLineEdit(this);
+    this->whiteSurname = new QLineEdit(this);
+    this->whiteFirstname = new QLineEdit(this);
     QLabel* colonWhite = new QLabel(",", this);
     QHBoxLayout *layoutWhiteName = new QHBoxLayout();
     whiteFirstname->setFixedWidth(len_firstname);
@@ -37,8 +33,8 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     colonWhite->setBuddy(whiteFirstname);
 
     QLabel* nameBlack = new QLabel(tr("Black:"), this);
-    QLineEdit* blackSurname = new QLineEdit(this);
-    QLineEdit* blackFirstname = new QLineEdit(this);
+    this->blackSurname = new QLineEdit(this);
+    this->blackFirstname = new QLineEdit(this);
     QLabel* colonBlack = new QLabel(",", this);
     QHBoxLayout *layoutBlackName = new QHBoxLayout();
     blackFirstname->setFixedWidth(len_firstname);
@@ -60,28 +56,28 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     QFormLayout *layoutNameSite = new QFormLayout();
 
     QLabel *lblEvent = new QLabel(tr("Event:"));
-    QLineEdit *event = new QLineEdit(this);
+    this->event = new QLineEdit(this);
     lblEvent->setBuddy(event);
     event->setFixedWidth(len_surname);
 
     QLabel *lblSite = new QLabel(tr("Site:"));
-    QLineEdit *site = new QLineEdit(this);
+    this->site = new QLineEdit(this);
     lblSite->setBuddy(site);
     site->setFixedWidth(len_surname);
 
     layoutNameSite->addRow(lblEvent, event);
     layoutNameSite->addRow(lblSite, site);
 
-    QCheckBox *cbYear = new QCheckBox(tr("Year:"));
-    QCheckBox *cbEco = new QCheckBox("ECO:");
-    QCheckBox *cbMoves = new QCheckBox("Moves:");
+    this->cbYear = new QCheckBox(tr("Year:"));
+    this->cbEco = new QCheckBox("ECO:");
+    this->cbMoves = new QCheckBox("Moves:");
 
-    QSpinBox *minYear = new QSpinBox();
-    QSpinBox *maxYear = new QSpinBox();
-    QLineEdit *startEco = new QLineEdit();
-    QLineEdit *stopEco = new QLineEdit();
-    QSpinBox *minMove = new QSpinBox();
-    QSpinBox *maxMove = new QSpinBox();
+    this->minYear = new QSpinBox();
+    this->maxYear = new QSpinBox();
+    this->startEco = new QLineEdit();
+    this->stopEco = new QLineEdit();
+    this->minMove = new QSpinBox();
+    this->maxMove = new QSpinBox();
 
     minYear->setFixedWidth(len_year);
     maxYear->setFixedWidth(len_year);
@@ -115,8 +111,8 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     layoutYearEcoMoves->addWidget(maxMove, 2, 3);
 
     QGroupBox *gbElo = new QGroupBox("Elo");
-    QSpinBox *minElo = new QSpinBox();
-    QSpinBox *maxElo = new QSpinBox();
+    this->minElo = new QSpinBox();
+    this->maxElo = new QSpinBox();
     minElo->setFixedWidth(len_year);
     maxElo->setFixedWidth(len_year);
     minElo->setRange(1,3000);
@@ -160,42 +156,7 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     layoutResult->addWidget(btnUndecided, 1, 0);
     gbResult->setLayout(layoutResult);
 
-    QPushButton *btnReset = new QPushButton(tr("Reset"));
-
-/*
-
-
-
-    gridLayout->addWidget(cbYear, 5, 0);
-    gridLayout->addWidget(minYear, 5, 1);
-    gridLayout->addWidget(new QLabel("-"), 5, 2);
-    gridLayout->addWidget(maxYear, 5, 3);
-
-
-    gridLayout->addWidget(cbEco, 6, 0);
-    gridLayout->addWidget(startEco, 6, 1);
-    gridLayout->addWidget(new QLabel("-"), 6, 2);
-    gridLayout->addWidget(stopEco, 6, 3);
-
-
-    gridLayout->addWidget(cbMoves, 7, 0);
-    gridLayout->addWidget(minMove, 7, 1);
-    gridLayout->addWidget(new QLabel("-"), 7, 2);
-    gridLayout->addWidget(maxMove, 7, 3);
-
-    QPushButton *btnReset = new QPushButton(tr("Reset"));
-
-
-    gridLayout->addWidget(gbElo, 3, 5, 3, 1);
-
-    gridLayout->addWidget(lblEvent, 4,0);
-    gridLayout->addWidget(event, 4,1);
-
-
-    gridLayout->addWidget(gbResult, 6, 5, 3, 1);
-
-    gridLayout->addWidget(btnReset, 10, 5);
-*/
+    this->btnReset = new QPushButton(tr("Reset"));
 
     QVBoxLayout *layoutLeft = new QVBoxLayout();
     QVBoxLayout *layoutRight = new QVBoxLayout();
