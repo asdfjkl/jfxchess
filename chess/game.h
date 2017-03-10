@@ -30,6 +30,7 @@ const int RES_UNDEF = 0;
 const int RES_WHITE_WINS = 1;
 const int RES_BLACK_WINS = 2;
 const int RES_DRAW = 3;
+const int RES_ANY = 4;
 
 class Game
 {

@@ -4,6 +4,9 @@
 #include <QDialog>
 #include "model/game_model.h"
 #include "model/search_pattern.h"
+#include "tab_comment_search.h"
+#include "tab_header_search.h"
+#include "tab_search_pos.h"
 
 class DialogSearch : public QDialog
 {
@@ -15,6 +18,14 @@ public:
 
 private:
     SearchPattern *pattern;
+    TabHeaderSearch* ths;
+    TabCommentSearch *tcs;
+    TabSearchPos *tsp;
+
+    QCheckBox *optGameData;
+    QCheckBox *optComments;
+    QCheckBox *optPosition;
+    QCheckBox *optVariants;
 
 };
 
