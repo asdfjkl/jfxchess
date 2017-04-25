@@ -35,6 +35,7 @@
 #include "chess/game.h"
 #include "chess/board.h"
 #include "chess/move.h"
+#include "chess/database.h"
 #include "viewController/colorstyle.h"
 #include <QPixmap>
 #include <QList>
@@ -112,6 +113,8 @@ public:
     bool isInBook(chess::GameNode *node);    
 
     bool gameAnalysisStarted;
+
+    chess::Database *database;
 
 private:
     void loadOpeningBook();

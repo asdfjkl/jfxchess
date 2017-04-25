@@ -24,8 +24,8 @@ TabSearchPos::TabSearchPos(GameModel* model, QWidget *parent) : QWidget(parent)
     lastMove->setRange(0,999);
     occursAtLeast->setRange(0,999);
 
-    QLabel *lblFirstMove = new QLabel("after ply:");
-    QLabel *lblLastMove = new QLabel("before ply:");
+    QLabel *lblFirstMove = new QLabel("after move:");
+    QLabel *lblLastMove = new QLabel("before move:");
     QLabel *lblOccursLast = new QLabel("occurs at least:");
 
     firstMove->setValue(1);

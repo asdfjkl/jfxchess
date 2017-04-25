@@ -27,6 +27,7 @@ signals:
 public slots:
 
     void onClickSearch();
+    void onClickOpen();
 
 };
 

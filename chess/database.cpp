@@ -9,6 +9,12 @@
 #include <QFile>
 #include <QDataStream>
 #include <QDebug>
+#include <QProgressDialog>
+#include <QFileDialog>
+#include <QDir>
+#include <QApplication>
+
+#include <ctime>
 
 chess::Database::Database(QString &filename)
 {
@@ -50,99 +56,194 @@ chess::Database::~Database()
     delete this->indices;
 }
 
+void chess::Database::open(QWidget* parent = 0) {
 
-void chess::Database::loadIndex() {
+    QString filename = QFileDialog::getOpenFileName(parent,
+            QApplication::tr("Open Database"), QApplication::tr("*.dci"));
+        if(!filename.isEmpty()) {
+        QDir dir = QDir::root();
+        QString path = dir.absoluteFilePath(filename);
 
+        int err = 0;
+        err = this->loadIndex(path, parent);
+        if(err < 0) {
+            // handle errors here
+        }
+        //err = this->loadNames(path, parent);
+        //err = this->loadEvents(path, parent);
+        //err = this->loadSites(path, parent);
+    }
+
+}
+
+int chess::Database::loadIndex(QString &filename, QWidget* parent) {
+
+    qDebug() << "ok, loading index";
     this->indices->clear();
     QFile dciFile;
-    dciFile.setFileName(this->filenameIndex);
+    //dciFile.setFileName(this->filenameIndex);
+    dciFile.setFileName(filename);
     if(!dciFile.exists()) {
         std::cout << "Error: can't open .dci file." << std::endl;
+        return -1;
     } else {
+        // create a memmap buffer for spedup
+
         // read index file into QList of IndexEntries
         // (basically memory mapping file)
         //qDebug() << "open file: ";
         dciFile.open(QFile::ReadOnly);
-        QDataStream gi(&dciFile);
-        bool error = false;
-        QByteArray magic;
-        magic.resize(10);
-        magic.fill(char(0x20));
-        gi.readRawData(magic.data(), 10);
-        if(QString::fromUtf8(magic) != this->magicIndexString) {
-            error = true;
-        }
-        //qDebug() << magic.toHex();
-        QByteArray version;
-        version.resize(1);;
-        version.fill(char(0x00));
-        gi.readRawData(version.data(), 1);
-        //qDebug() << "VERSION: " << version.at(0);
-        if(version.at(0) != 0x00) {
-            error = true;
-        }
-        gi >> this->loadUponOpen;
-        //qDebug() << "LOAD UPON: " << this->loadUponOpen;
-        while(!gi.atEnd() && !error) {
+        quint64 size = dciFile.size();
+
+        //QByteArray mapFile = dciFile.readAll();
+
+        qDebug() << "read all bytes";
+        //uchar *memory = dciFile.map(0, size);
+
+        //if(memory) {
+
+            // set up the progress dialog
+            QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
+            progress.setWindowModality(Qt::WindowModal);
+            //progress.show();
+
+            //QByteArray byteArray = dciFile.;
+            //byteArray.fromRawData(reinterpret_cast<const char*>(memory), size);
+
+            QDataStream gi(&dciFile);
+            //QDataStream gi(mapFile);
+
+            bool error = false;
+            QByteArray magic;
+            magic.resize(10);
+            magic.fill(char(0x20));
+            gi.readRawData(magic.data(), 10);
+            if(QString::fromUtf8(magic) != this->magicIndexString) {
+                error = true;
+            }
+            //qDebug() << magic.toHex();
+            QByteArray version;
+            version.resize(1);;
+            version.fill(char(0x00));
+            gi.readRawData(version.data(), 1);
+            //qDebug() << "VERSION: " << version.at(0);
+            if(version.at(0) != 0x00) {
+                error = true;
+            }
+            gi >> this->loadUponOpen;
+
             QByteArray idx;
             idx.resize(39);
             idx.fill(char(0x00));
-            if(gi.readRawData(idx.data(), 39) < 0) {
-                error = true;
-                continue;
-            }
-            QDataStream ds_entry_i(idx);
-            chess::IndexEntry *entry_i = new chess::IndexEntry();
 
-            quint8 status;
-            ds_entry_i >> status;
-            //qDebug() << "status: " << status;
-            if(status == GAME_DELETED) {
-                entry_i->deleted = true;
-            } else {
-                entry_i->deleted = false;
+            //qDebug() << "LOAD UPON: " << this->loadUponOpen;
+            double elapsed_memory_alloc = 0.0;
+
+            clock_t begin_all = clock();
+            quint64 progressCounter = 0;
+            quint64 one_percent = quint64(size / 100.);
+            quint64 percent_counter = 0;
+
+            while(!gi.atEnd() && !error) {
+
+                if(percent_counter >= one_percent) {
+                    progress.setValue(progressCounter);
+                    percent_counter = 0;
+                }
+
+                //qDebug() << "ok, reading index";
+                clock_t begin_alloc = clock();
+
+
+
+
+                if(gi.readRawData(idx.data(), 39) < 0) {
+                    error = true;
+                    continue;
+                }
+
+
+
+                QDataStream ds_entry_i(idx);
+                chess::IndexEntry *entry_i = new chess::IndexEntry();
+                clock_t end_alloc = clock();
+                elapsed_memory_alloc += double(end_alloc - begin_alloc) / CLOCKS_PER_SEC;
+                quint8 status;
+                ds_entry_i >> status;
+                //qDebug() << "status: " << status;
+
+
+                if(status == GAME_DELETED) {
+                    entry_i->deleted = true;
+                } else {
+                    entry_i->deleted = false;
+                }
+                ds_entry_i >> entry_i->gameOffset;
+                //qDebug() << "gameOffset: " << entry_i->gameOffset;
+                ds_entry_i >> entry_i->whiteOffset;
+                //qDebug() << "whiteOffset: " << entry_i->whiteOffset;
+                ds_entry_i >> entry_i->blackOffset;
+                //qDebug() << "whiteOffset: " << entry_i->blackOffset;
+                ds_entry_i >> entry_i->round;
+                //qDebug() << "round: " << entry_i->round;
+                ds_entry_i >> entry_i->siteRef;
+                //qDebug() << "site ref: " << entry_i->siteRef;
+                ds_entry_i >> entry_i->eventRef;
+                //qDebug() << "event ref: " << entry_i->eventRef;
+                ds_entry_i >> entry_i->eloWhite;
+                //qDebug() << "eloWhite: " << entry_i->eloWhite;
+                ds_entry_i >> entry_i->eloBlack;
+                //qDebug() << "eloBlack: " << entry_i->eloBlack;
+                ds_entry_i >> entry_i->result;
+                //qDebug() << "result: " << entry_i->result;
+                // next is slightly cumbersome but works
+                quint8 eco_0;
+                quint8 eco_1;
+                quint8 eco_2;
+                ds_entry_i >> eco_0;
+                ds_entry_i >> eco_1;
+                ds_entry_i >> eco_2;
+                entry_i->eco = QString("A00");
+                entry_i->eco[0] = QChar(eco_0);
+                entry_i->eco[1] = QChar(eco_1);
+                entry_i->eco[2] = QChar(eco_2);
+                // ymd
+                ds_entry_i >> entry_i->year;
+                ds_entry_i >> entry_i->month;
+                ds_entry_i >> entry_i->day;
+
+                //qDebug() << "yy.mm.dd " << entry_i->year << entry_i->month << entry_i->day;
+                this->indices->append(entry_i);
+                progressCounter += 39;
+                percent_counter += 39;
             }
-            ds_entry_i >> entry_i->gameOffset;
-            //qDebug() << "gameOffset: " << entry_i->gameOffset;
-            ds_entry_i >> entry_i->whiteOffset;
-            //qDebug() << "whiteOffset: " << entry_i->whiteOffset;
-            ds_entry_i >> entry_i->blackOffset;
-            //qDebug() << "whiteOffset: " << entry_i->blackOffset;
-            ds_entry_i >> entry_i->round;
-            //qDebug() << "round: " << entry_i->round;
-            ds_entry_i >> entry_i->siteRef;
-            //qDebug() << "site ref: " << entry_i->siteRef;
-            ds_entry_i >> entry_i->eventRef;
-            //qDebug() << "event ref: " << entry_i->eventRef;
-            ds_entry_i >> entry_i->eloWhite;
-            //qDebug() << "eloWhite: " << entry_i->eloWhite;
-            ds_entry_i >> entry_i->eloBlack;
-            //qDebug() << "eloBlack: " << entry_i->eloBlack;
-            ds_entry_i >> entry_i->result;
-            //qDebug() << "result: " << entry_i->result;
-            // next is slightly cumbersome but works
-            quint8 eco_0;
-            quint8 eco_1;
-            quint8 eco_2;
-            ds_entry_i >> eco_0;
-            ds_entry_i >> eco_1;
-            ds_entry_i >> eco_2;
-            entry_i->eco = QString("A00");
-            entry_i->eco[0] = QChar(eco_0);
-            entry_i->eco[1] = QChar(eco_1);
-            entry_i->eco[2] = QChar(eco_2);
-            // ymd
-            ds_entry_i >> entry_i->year;
-            ds_entry_i >> entry_i->month;
-            ds_entry_i >> entry_i->day;
-            //qDebug() << "yy.mm.dd " << entry_i->year << entry_i->month << entry_i->day;
-            this->indices->append(entry_i);
-        }
+            //progress.setValue(size);
+
+            //dciFile.unmap(memory);
+        //}
+        clock_t end_all = clock();
+        double elapsed_all = double(end_all - begin_all) / CLOCKS_PER_SEC;
+
+        qDebug() << "time complete: " << elapsed_all;
+        qDebug() << "time for alloc:" << elapsed_memory_alloc;
         dciFile.close();
         if(int(this->loadUponOpen) >= this->indices->size()) {
             this->loadUponOpen = 0;
         }
+
+        qDebug() << "ok, finished";
+
+        qDebug() << "list size: " << this->indices->size();
+        for(int i=0;i<1;i++) {
+            std::cout << this->indices->at(i)->eco.toStdString() << std::endl;
+            std::cout << (*this->indices->at(i)) << std::endl;
+        }
+
+        return 0;
     }
+
+
+
 }
 
 void chess::Database::loadSites() {

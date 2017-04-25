@@ -111,6 +111,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->setLayout(layoutAll);
 
     connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
+    connect(tbActionOpen, &QAction::triggered, this, &DialogDatabase::onClickOpen);
 
 }
 
@@ -139,5 +140,11 @@ void DialogDatabase::onClickSearch() {
 
     DialogSearch *dlg = new DialogSearch(this->gameModel);
     dlg->show();
+
+}
+
+void DialogDatabase::onClickOpen() {
+
+    this->gameModel->database->open(this);
 
 }

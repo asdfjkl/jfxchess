@@ -25,6 +25,9 @@ public:
     quint8 day;
 
 private:
+
+    friend std::ostream& operator<<(std::ostream& strm, const IndexEntry &entry);
+
 };
 
 }

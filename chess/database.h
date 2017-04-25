@@ -19,9 +19,13 @@ public:
     Database(QString &filename);
     ~Database();
 
+    void open(QWidget* parent);
+
     void importPgnAndSave(QString &pgnfile);
     void saveToFile();
-    void loadIndex();
+    //void loadIndex();
+    int loadIndex(QString &filename, QWidget* parent = 0);
+
     void loadSites();
     void loadNames();
     void loadEvents();
