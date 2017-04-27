@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QTableWidget>
 #include "model/game_model.h"
+#include "viewController/database_index_model.h"
 
 class DialogDatabase : public QDialog
 {
@@ -21,6 +22,9 @@ private:
     QPushButton *btnCancel;
 
     GameModel *gameModel;
+
+    QTableView *tableView;
+    DatabaseIndexModel *indexModel;
 
 signals:
 

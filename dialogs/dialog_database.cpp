@@ -11,6 +11,7 @@
 #include "various/resource_finder.h"
 #include "various/helper.h"
 #include "dialogs/dialog_search.h"
+#include "viewController/database_index_model.h"
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
@@ -63,6 +64,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolbar->setIconSize(iconSize);
 
+    /*
     int rows = 10;
     int columns = 7;
     this->gameTable = new QTableWidget(rows, columns);
@@ -87,6 +89,18 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->gameTable->resizeColumnsToContents();;
     this->gameTable->horizontalHeader()->setStretchLastSection(true);
     this->gameTable->selectRow(0);
+    */
+
+    this->indexModel = new DatabaseIndexModel(this);
+    indexModel->setIndex(this->gameModel->database->indices);
+
+    this->tableView = new QTableView();
+    tableView->setModel(indexModel);
+    //tableView.setAlternatingRowColors(true);
+
+    tableView->setWindowTitle(QObject::tr("Games"));
+    tableView->show();
+
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
     this->btnOpenGame = new QPushButton();
@@ -102,7 +116,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     QVBoxLayout *layoutAll = new QVBoxLayout();
     layoutAll->addWidget(toolbar);
-    layoutAll->addWidget(this->gameTable);
+    layoutAll->addWidget(this->tableView);
 
     //layoutAll->addStretch();
 
@@ -146,5 +160,9 @@ void DialogDatabase::onClickSearch() {
 void DialogDatabase::onClickOpen() {
 
     this->gameModel->database->open(this);
+
+    this->indexModel->setIndex(this->gameModel->database->indices);
+    this->indexModel->layoutChanged();
+
 
 }

@@ -29,6 +29,7 @@
 #include "main_window.h"
 #include <ctime>
 #include <QDebug>
+#include <QStyleFactory>
 
 using namespace std;
 
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
 
     mainWin.centerAndResize();
     mainWin.show();
+
     return app.exec();
 
 }

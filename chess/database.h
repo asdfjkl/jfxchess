@@ -31,6 +31,7 @@ public:
     void loadEvents();
     chess::Game* getGameAt(int i);
     int countGames();
+    QList<chess::IndexEntry*> *indices;
 
 
 private:
@@ -50,7 +51,6 @@ private:
     QMap<quint32, QString> *offsetNames;
     QMap<quint32, QString> *offsetSites;
     QMap<quint32, QString> *offsetEvents;
-    QList<chess::IndexEntry*> *indices;
     void writeSites();
     void writeNames();
     void writeIndex();
