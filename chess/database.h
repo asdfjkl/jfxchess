@@ -7,11 +7,9 @@
 #include "chess/dcgdecoder.h"
 #include "chess/indexentry.h"
 #include "chess/game.h"
+#include "chess/constants.h"
 
 namespace chess {
-
-const quint8 GAME_DELETED = 0xFF;
-const quint8 GAME_NOT_DELETED = 0x00;
 
 class Database
 {

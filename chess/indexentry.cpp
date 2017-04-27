@@ -1,4 +1,5 @@
 #include "indexentry.h"
+#include "constants.h"
 
 namespace chess {
 
@@ -6,6 +7,46 @@ IndexEntry::IndexEntry()
 {
 
 }
+
+QDataStream& operator>>(QDataStream& in, IndexEntry &entry) {
+
+    quint8 status;
+    in >> status;
+
+    if(status == GAME_DELETED) {
+        entry.deleted = true;
+    } else {
+        entry.deleted = false;
+    }
+    in >> entry.gameOffset;
+    in >> entry.whiteOffset;
+    in >> entry.blackOffset;
+    in >> entry.round;
+    in >> entry.siteRef;
+    in >> entry.eventRef;
+    in >> entry.eloWhite;
+    in >> entry.eloBlack;
+    in >> entry.result;
+
+    // next is slightly cumbersome but works
+    quint8 eco_0;
+    quint8 eco_1;
+    quint8 eco_2;
+    in >> eco_0;
+    in >> eco_1;
+    in >> eco_2;
+    entry.eco = QString("A00");
+    entry.eco[0] = QChar(eco_0);
+    entry.eco[1] = QChar(eco_1);
+    entry.eco[2] = QChar(eco_2);
+    // yy mm dd
+    in >> entry.year;
+    in >> entry.month;
+    in >> entry.day;
+
+    return in;
+}
+
 
 std::ostream& operator<<(std::ostream &strm, const IndexEntry &entry) {
 
@@ -26,6 +67,7 @@ std::ostream& operator<<(std::ostream &strm, const IndexEntry &entry) {
 
     return strm;
 }
+
 
 
 }

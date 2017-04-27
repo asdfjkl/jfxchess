@@ -2,6 +2,7 @@
 #define INDEXENTRY_H
 
 #include "game.h"
+#include <QDataStream>
 
 namespace chess {
 
@@ -27,6 +28,8 @@ public:
 private:
 
     friend std::ostream& operator<<(std::ostream& strm, const IndexEntry &entry);
+    friend QDataStream& operator>>(QDataStream& strm, IndexEntry &entry);
+
 
 };
 
