@@ -92,7 +92,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     */
 
     this->indexModel = new DatabaseIndexModel(this);
-    indexModel->setIndex(this->gameModel->database->indices);
+    this->indexModel->setDatabase(this->gameModel->database);
 
     this->tableView = new QTableView();
     tableView->setModel(indexModel);
@@ -161,7 +161,7 @@ void DialogDatabase::onClickOpen() {
 
     this->gameModel->database->open(this);
 
-    this->indexModel->setIndex(this->gameModel->database->indices);
+    this->indexModel->setDatabase(this->gameModel->database);
     this->indexModel->layoutChanged();
 
 

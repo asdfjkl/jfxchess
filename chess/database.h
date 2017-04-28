@@ -21,16 +21,20 @@ public:
 
     void importPgnAndSave(QString &pgnfile);
     void saveToFile();
-    //void loadIndex();
-    int loadIndex(QString &filename, QWidget* parent = 0);
 
-    void loadSites();
-    void loadNames();
-    void loadEvents();
+    int loadIndex(QString &filename, QWidget* parent = 0);
+    int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
+                     QByteArray &magicIndexString, QWidget* parent=0);
+
     chess::Game* getGameAt(int i);
     int countGames();
     QList<chess::IndexEntry*> *indices;
 
+    void updateBaseName(QString &basename);
+
+    QMap<quint32, QString> *offsetNames;
+    QMap<quint32, QString> *offsetSites;
+    QMap<quint32, QString> *offsetEvents;
 
 private:
     // filename is only the base, always append *.dcs, *.dcn, *.dcg, *.dci
@@ -46,9 +50,7 @@ private:
     QByteArray magicSitesString;
     QByteArray magicEventString;
     QByteArray version;
-    QMap<quint32, QString> *offsetNames;
-    QMap<quint32, QString> *offsetSites;
-    QMap<quint32, QString> *offsetEvents;
+
     void writeSites();
     void writeNames();
     void writeIndex();

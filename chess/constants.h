@@ -10,6 +10,8 @@ const int ERROR_OPENING_DCI = 100;
 const int ERROR_BROKEN_INDEX = 101;
 const int ERROR_UNKNOWN_FILETYPE = 102;
 const int ERROR_UNKNOWN_VERSION = 103;
+const int ERROR_OPENING_FILE = 104;
+const int ERROR_BROKEN_FILE = 105;
 
 }
 

@@ -69,10 +69,30 @@ void chess::Database::open(QWidget* parent = 0) {
         if(err < 0) {
             // handle errors here
         }
-        //err = this->loadNames(path, parent);
-        //err = this->loadEvents(path, parent);
-        //err = this->loadSites(path, parent);
+        err = this->loadMetaData(this->filenameNames, this->offsetNames, this->magicNameString, parent);
+        if(err < 0) {
+            // handle errors here
+        }
+        err = this->loadMetaData(this->filenameEvents, this->offsetEvents, this->magicEventString, parent);
+        if(err < 0) {
+            // handle errors here
+        }
+        err = this->loadMetaData(this->filenameSites, this->offsetSites, this->magicSitesString, parent);
+        if(err < 0) {
+            // handle errors here
+        }
     }
+
+}
+
+void chess::Database::updateBaseName(QString &basename) {
+
+    this->filenameBase = basename;
+    this->filenameGames = QString(basename).append(".dcg");
+    this->filenameIndex = QString(basename).append(".dci");
+    this->filenameNames = QString(basename).append(".dcn");
+    this->filenameSites = QString(basename).append(".dcs");
+    this->filenameEvents = QString(basename).append(".dce");
 
 }
 
@@ -156,79 +176,77 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
             this->loadUponOpen = 0;
         }
 
+        if(error == 0) {
+            int len = filename.length();
+            QString basename = QString(filename).left(len-4);
+            this->updateBaseName(basename);
+        }
+
         return error;
     }
 }
 
-void chess::Database::loadSites() {
-    this->offsetSites->clear();
-    // for name file and site file build QMaps to quickly
-    // access the data
-    // read index file into QList of IndexEntries
-    // (basically memory mapping file)
-    QFile dcsFile;
-    dcsFile.setFileName(this->filenameSites);
-    dcsFile.open(QFile::ReadOnly);
-    QDataStream ss(&dcsFile);
-    bool error = false;
-    QByteArray magic;
-    magic.resize(10);
-    magic.fill(char(0x20));
-    ss.readRawData(magic.data(), 10);
-    if(QString::fromUtf8(magic) != this->magicSitesString) {
-        error = true;
-    }
-    while(!ss.atEnd() && !error) {
-        quint32 pos = quint32(dcsFile.pos());
-        QByteArray site_bytes;
-        site_bytes.resize(36);
-        site_bytes.fill(char(0x20));
-        if(ss.readRawData(site_bytes.data(), 36) < 0) {
-            error = true;
-            break;
+int chess::Database::loadMetaData(QString &filename,
+                 QMap<quint32, QString> *offsetTextdata,
+                 QByteArray &magicIndexString, QWidget* parent) {
+
+    offsetTextdata->clear();
+
+    bool error_code = 0;
+
+    QFile dcxFile;
+    dcxFile.setFileName(filename);
+
+    if(!dcxFile.exists()) {
+        std::cerr << "Error: can't open data file: " << filename.toStdString() << std::endl;
+        return ERROR_OPENING_FILE;
+    } else {
+        dcxFile.open(QFile::ReadOnly);
+        QDataStream stream(&dcxFile);
+        bool error = false;
+        QByteArray magic;
+        magic.resize(10);
+        magic.fill(char(0x20));
+        stream.readRawData(magic.data(), 10);
+        if(QString::fromUtf8(magic) != magicIndexString) {
+            return ERROR_UNKNOWN_FILETYPE;
         }
-        QString site = QString::fromUtf8(site_bytes).trimmed();
-        this->offsetSites->insert(pos, site);
-    }
-    dcsFile.close();
 
-}
+        qint64 size = dcxFile.size();
+        quint64 progressCounter = 0;
+        quint64 one_percent = quint64(size / 100.);
+        quint64 percent_counter = 0;
 
-void chess::Database::loadEvents() {
-    this->offsetEvents->clear();
-    // for events file and site file build QMaps to quickly
-    // access the data
-    // read index file into QList of IndexEntries
-    // (basically memory mapping file)
-    QFile dceFile;
-    dceFile.setFileName(this->filenameEvents);
-    dceFile.open(QFile::ReadOnly);
-    QDataStream ss(&dceFile);
-    bool error = false;
-    QByteArray magic;
-    magic.resize(10);
-    magic.fill(char(0x20));
-    ss.readRawData(magic.data(), 10);
-    if(QString::fromUtf8(magic) != this->magicEventString) {
-        error = true;
-    }
-    while(!ss.atEnd() && !error) {
-        quint32 pos = quint32(dceFile.pos());
-        QByteArray event_bytes;
-        event_bytes.resize(36);
-        event_bytes.fill(char(0x20));
-        if(ss.readRawData(event_bytes.data(), 36) < 0) {
-            error = true;
-            break;
+        // set up the progress dialog
+        QProgressDialog progress("reading metadata...", "Cancel", 0, size, parent);
+        progress.setWindowModality(Qt::WindowModal);
+
+        while(!stream.atEnd() && !error) {
+
+            if(percent_counter >= one_percent) {
+                progress.setValue(progressCounter);
+                percent_counter = 0;
+            }
+
+            quint32 pos = quint32(dcxFile.pos());
+            QByteArray data_bytes;
+            data_bytes.resize(36);
+            data_bytes.fill(char(0x20));
+            if(stream.readRawData(data_bytes.data(), 36) < 0) {
+                error_code = ERROR_BROKEN_FILE;
+                error = true;
+                break;
+            }
+            QString data = QString::fromUtf8(data_bytes).trimmed();
+            offsetTextdata->insert(pos, data);
+
+            progressCounter += 36;
+            percent_counter += 36;
         }
-        QString event = QString::fromUtf8(event_bytes).trimmed();
-        //qDebug() << "READ EVENT: " << pos << "at " << event;
-        this->offsetEvents->insert(pos, event);
+        dcxFile.close();
     }
-    dceFile.close();
-
+    return error_code;
 }
-
 
 
 int chess::Database::countGames() {
@@ -380,35 +398,6 @@ int chess::Database::decodeLength(QDataStream *stream) {
     return -1;
 }
 
-void chess::Database::loadNames() {
-
-    this->offsetNames->clear();
-    QFile dcnFile;
-    dcnFile.setFileName(this->filenameNames);
-    dcnFile.open(QFile::ReadOnly);
-    QDataStream sn(&dcnFile);
-    bool error = false;
-    QByteArray magic;
-    magic.resize(10);
-    magic.fill(char(0x20));
-    sn.readRawData(magic.data(), 10);
-    if(QString::fromUtf8(magic) != this->magicNameString) {
-        error = true;
-    }
-    while(!sn.atEnd() && !error) {
-        quint32 pos = quint32(dcnFile.pos());
-        QByteArray name_bytes;
-        name_bytes.resize(36);
-        name_bytes.fill(char(0x20));
-        if(sn.readRawData(name_bytes.data(), 36) < 0) {
-            error = true;
-            break;
-        }
-        QString name = QString::fromUtf8(name_bytes).trimmed();
-        this->offsetNames->insert(pos, name);
-    }
-    dcnFile.close();
-}
 
 void chess::Database::importPgnAndSave(QString &pgnfile) {
 
