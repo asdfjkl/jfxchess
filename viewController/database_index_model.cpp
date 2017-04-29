@@ -29,6 +29,13 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::TextAlignmentRole) {
+        int column = index.column();
+        if(column == 0 || column == 1 || column == 2) {
+            return int(Qt::AlignLeft | Qt::AlignVCenter);
+        }
+        if(column == 3 || column == 4 || column == 5) {
+            return int(Qt::AlignCenter | Qt::AlignVCenter);
+        }
         return int(Qt::AlignRight | Qt::AlignVCenter);
     } else if (role == Qt::DisplayRole) {
 
@@ -38,54 +45,42 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         int column = index.column();
 
         // todo: depending on column return correct result
-        // White (ELO) | Black (Elo) | Site | Event (Round) | YYYYMMDD | Eco | Result
+        // White (ELO) | Black (Elo) | Event (Round) | Eco | Year | Result
         if(column == 0) {
             QString whiteName = this->database->offsetNames->value(entry_row->whiteOffset);
-            QString whiteElo = QString::number(entry_row->eloWhite);
-            QString tableEntry = QString(whiteName).append(" (").append(whiteElo).append(")");
+            QString tableEntry = QString(whiteName);
+            if(entry_row->eloWhite > 0) {
+                tableEntry.append(" (").append(QString::number(entry_row->eloWhite)).append(")");
+            }
             return tableEntry;
         }
         if(column == 1) {
             QString blackName = this->database->offsetNames->value(entry_row->blackOffset);
-            QString blackElo = QString::number(entry_row->eloBlack);
-            QString tableEntry = QString(blackName).append(" (").append(blackElo).append(")");
+            QString tableEntry = QString(blackName);
+            if(entry_row->eloBlack > 0) {
+                tableEntry.append(" (").append(QString::number(entry_row->eloBlack)).append(")");
+            }
             return tableEntry;
         }
         if(column == 2) {
-            QString site = this->database->offsetSites->value(entry_row->siteRef);
-            return site;
-        }
-        if(column == 3) {
             QString event = this->database->offsetEvents->value(entry_row->eventRef);
-            QString round = QString::number(entry_row->round);
-            QString tableEntry = QString(event).append(" (").append(round).append(")");
+            QString tableEntry = QString(event);
+            if(entry_row->round > 0) {
+                tableEntry.append(" (Round ").append(QString::number(entry_row->round)).append(")");
+            }
             return tableEntry;
         }
-        if(column == 4) {
-            QString date("");
-             if(entry_row->year != 0) {
-                date.append(QString::number(entry_row->year).rightJustified(4,'0'));
-             } else {
-                date.append("????");
-            }
-            date.append(".");
-            if(entry_row->month != 0) {
-                date.append(QString::number(entry_row->month).rightJustified(2,'0'));
-            } else {
-                date.append("??");
-            }
-            date.append(".");
-            if(entry_row->day != 0) {
-                date.append(QString::number(entry_row->day).rightJustified(2,'0'));
-            } else {
-                date.append("??");
-            }
-            return date;
-        }
-        if(column == 5) {
+        if(column == 3) {
             return entry_row->eco;
         }
-        if(column == 6) {
+        if(column == 4) {
+            if(entry_row->year != 0) {
+                return QString::number(entry_row->year);
+            } else {
+                return QString("");
+            }
+        }
+        if(column == 5) {
             QString result("");
             if(entry_row->result == chess::RES_WHITE_WINS) {
                 result.append("1-0");
@@ -102,14 +97,39 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-/*
+
 QVariant DatabaseIndexModel::headerData(int section,
-                                   Qt::Orientation, // orientation
+                                   Qt::Orientation orientation,
                                    int role) const
 {
     if (role != Qt::DisplayRole)
         return QVariant();
-    return
+    if(orientation == Qt::Horizontal) {
+        if(section == 0) {
+            return QString("White");
+        }
+        if(section == 1) {
+            return QString("Black");
+        }
+        if(section == 2) {
+            return QString("Event");
+        }
+        if(section == 3) {
+            return QString("ECO");
+        }
+        if(section == 4) {
+            return QString("Date");
+        }
+        if(section == 5) {
+            return QString("Result");
+        }
+
+    }
+    if(orientation == Qt::Vertical) {
+        return QString::number(section);
+    }
+
+    return QVariant();
 }
 
-*/
+

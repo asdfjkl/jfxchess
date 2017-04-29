@@ -95,10 +95,18 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->indexModel->setDatabase(this->gameModel->database);
 
     this->tableView = new QTableView();
-    tableView->setModel(indexModel);
-    //tableView.setAlternatingRowColors(true);
+    this->tableView->setModel(indexModel);
+
+    this->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    this->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    //this->tableView->verticalHeader()->hide();
+    this->tableView->setShowGrid(false);
+    this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->tableView->selectRow(0);
 
     tableView->setWindowTitle(QObject::tr("Games"));
+    tableView->resizeColumnsToContents();
     tableView->show();
 
 
@@ -163,6 +171,9 @@ void DialogDatabase::onClickOpen() {
 
     this->indexModel->setDatabase(this->gameModel->database);
     this->indexModel->layoutChanged();
+    this->tableView->resizeColumnsToContents();
+    this->tableView->selectRow(0);
+
 
 
 }
