@@ -149,6 +149,7 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
         // set up the progress dialog
         QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
         progress.setWindowModality(Qt::WindowModal);
+        progress.setCancelButton(0);
 
         QDataStream gi(&dciFile);
 
@@ -254,6 +255,7 @@ int chess::Database::loadMetaData(QString &filename,
         // set up the progress dialog
         QProgressDialog progress("reading metadata...", "Cancel", 0, size, parent);
         progress.setWindowModality(Qt::WindowModal);
+        progress.setCancelButton(0);
 
         while(!stream.atEnd() && !error) {
 
