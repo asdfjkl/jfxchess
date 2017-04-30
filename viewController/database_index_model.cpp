@@ -1,5 +1,6 @@
 #include "database_index_model.h"
 #include "chess/game.h"
+#include <QFont>
 
 DatabaseIndexModel::DatabaseIndexModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -38,7 +39,6 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         }
         return int(Qt::AlignRight | Qt::AlignVCenter);
     } else if (role == Qt::DisplayRole) {
-
         int row = index.row();
         chess::IndexEntry *entry_row = this->database->indices->at(row);
 
@@ -93,6 +93,16 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
             }
             return result;
         }
+    } else if(role == Qt::FontRole) {
+        int row = index.row();
+        chess::IndexEntry *entry_row = this->database->indices->at(row);
+        if(entry_row->deleted) {
+            QFont defaultFont;
+            defaultFont.setStrikeOut(true);
+            defaultFont.setItalic(true);
+            return defaultFont;
+        }
+        return QVariant();
     }
     return QVariant();
 }
