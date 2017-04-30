@@ -19,6 +19,8 @@ public:
 
     void open(QWidget* parent);
 
+    void reset();
+
     void importPgnAndSave(QString &pgnfile);
     void saveToFile();
 
@@ -36,13 +38,15 @@ public:
     QMap<quint32, QString> *offsetSites;
     QMap<quint32, QString> *offsetEvents;
 
+    QString lastOpenDir;
+    QString filenameIndex;
+
 private:
     // filename is only the base, always append *.dcs, *.dcn, *.dcg, *.dci
     QString filenameBase;
     QString filenameNames;
     QString filenameSites;
     QString filenameEvents;
-    QString filenameIndex;
     QString filenameGames;
     QByteArray magicNameString;
     QByteArray magicIndexString;

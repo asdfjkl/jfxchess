@@ -43,6 +43,14 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QPixmap *tbEdit = Helper::fromSvgToPixmap(iconSize,stringEdit, this->devicePixelRatio());
     QAction *tbActionEdit = toolbar->addAction(QIcon(*tbEdit), this->tr("Edit Header"));
 
+    QString stringDeleteGame(resDir + "/res/icons/mail-mark-junk.svg");
+    QPixmap *tbDeleteGame = Helper::fromSvgToPixmap(iconSize,stringDeleteGame, this->devicePixelRatio());
+    QAction *tbActionDeleteGame = toolbar->addAction(QIcon(*tbDeleteGame), this->tr("Delete Game"));
+
+    QString stringUndeleteGame(resDir + "/res/icons/mail-mark-not-junk.svg");
+    QPixmap *tbUndeleteGame = Helper::fromSvgToPixmap(iconSize,stringUndeleteGame, this->devicePixelRatio());
+    QAction *tbActionUndeleteGame = toolbar->addAction(QIcon(*tbUndeleteGame), this->tr("Undelete Game"));
+
     toolbar->addSeparator();
 
     QString stringImport(resDir + "/res/icons/edit-undo.svg");
@@ -52,6 +60,10 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QString stringExport(resDir + "/res/icons/edit-redo.svg");
     QPixmap *tbExport = Helper::fromSvgToPixmap(iconSize,stringExport, this->devicePixelRatio());
     QAction *tbActionExport = toolbar->addAction(QIcon(*tbExport), this->tr("Export"));
+
+    QString stringAddCurrent(resDir + "/res/icons/text-x-generic_with_pencil.svg");
+    QPixmap *tbAddCurrent = Helper::fromSvgToPixmap(iconSize,stringAddCurrent, this->devicePixelRatio());
+    QAction *tbActionAddCurrent = toolbar->addAction(QIcon(*tbAddCurrent), this->tr("Add Current Game"));
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -174,6 +186,6 @@ void DialogDatabase::onClickOpen() {
     this->tableView->resizeColumnsToContents();
     this->tableView->selectRow(0);
 
-
+    this->setWindowTitle(this->gameModel->database->filenameIndex);
 
 }

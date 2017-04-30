@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QApplication>
+#include "various/messagebox.h"
 
 #include <ctime>
 
@@ -37,6 +38,8 @@ chess::Database::Database(QString &filename)
     this->dcgdecoder = new chess::DcgDecoder();
     this->pgnreader = new chess::PgnReader();
 
+    this->lastOpenDir = QString("");
+
     this->loadUponOpen = 0;
         
     this->indices = new QList<chess::IndexEntry*>();
@@ -56,33 +59,64 @@ chess::Database::~Database()
     delete this->indices;
 }
 
+void chess::Database::reset() {
+
+    qDeleteAll(indices->begin(), indices->end());
+    indices->clear();
+
+    this->offsetNames->clear();
+    this->offsetSites->clear();
+    this->offsetEvents->clear();
+
+    QString dummy = QString("Untitled");
+    this->updateBaseName(dummy);
+
+    this->lastOpenDir = QString("");
+
+    this->loadUponOpen = 0;
+}
+
 void chess::Database::open(QWidget* parent = 0) {
 
     QString filename = QFileDialog::getOpenFileName(parent,
-            QApplication::tr("Open Database"), QApplication::tr("*.dci"));
-        if(!filename.isEmpty()) {
+                          QApplication::tr("Open Database"), this->lastOpenDir, QApplication::tr("*.dci"));
+    if(!filename.isEmpty() && filename.endsWith(".dci")) {
+
+        QString base = QString(filename).left(filename.size()-4);
+        this->updateBaseName(base);
+
         QDir dir = QDir::root();
         QString path = dir.absoluteFilePath(filename);
 
+        this->lastOpenDir = QString(path);
+
         int err = 0;
         err = this->loadIndex(path, parent);
-        if(err < 0) {
-            // handle errors here
+        if(err != 0) {
+            this->reset();
+            MessageBox *msg = new MessageBox(parent);
+            msg->showMessage("Error opening .dci", QString("Code: ").append(QString::number(err)));
         }
         err = this->loadMetaData(this->filenameNames, this->offsetNames, this->magicNameString, parent);
-        if(err < 0) {
-            // handle errors here
+        qDebug() << "error code of load data names" << err;
+        if(err != 0) {
+            this->reset();
+            MessageBox *msg = new MessageBox(parent);
+            msg->showMessage("Error opening .dcn", QString("Code: ").append(QString::number(err)));
         }
         err = this->loadMetaData(this->filenameEvents, this->offsetEvents, this->magicEventString, parent);
-        if(err < 0) {
-            // handle errors here
+        if(err != 0) {
+            this->reset();
+            MessageBox *msg = new MessageBox(parent);
+            msg->showMessage("Error opening .dce", QString("Code: ").append(QString::number(err)));
         }
         err = this->loadMetaData(this->filenameSites, this->offsetSites, this->magicSitesString, parent);
-        if(err < 0) {
-            // handle errors here
+        if(err != 0) {
+            this->reset();
+            MessageBox *msg = new MessageBox(parent);
+            msg->showMessage("Error opening .dcs", QString("Code: ").append(QString::number(err)));
         }
     }
-
 }
 
 void chess::Database::updateBaseName(QString &basename) {
