@@ -207,7 +207,6 @@ void DialogDatabase::onRowChanged() {
         if(selected_rows.size() > 0) {
             int row_index = selected_rows.at(0).row();
             this->selectedIndex = row_index;
-            qDebug() << "selected row: " << row_index;
         }
     }
 }

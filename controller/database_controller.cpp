@@ -14,7 +14,8 @@ void DatabaseController::showDatabase() {
     if(ddb->exec() == QDialog::Accepted && ddb->selectedIndex >= 0) {
         chess::Game *selected_game = this->gameModel->database->getGameAt(ddb->selectedIndex);
         this->gameModel->setGame(selected_game);
+        this->gameModel->getGame()->treeWasChanged = true;
     }
     delete ddb;
-    this->gameModel->stateChange();
+    this->gameModel->triggerStateChange();
 }
