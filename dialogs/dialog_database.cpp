@@ -12,11 +12,14 @@
 #include "various/helper.h"
 #include "dialogs/dialog_search.h"
 #include "viewController/database_index_model.h"
+#include <QDebug>
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
 {
     this->gameModel = gameModel;
+
+    this->selectedIndex = -1;
 
     this->resizeTo(0.9);
 
@@ -65,7 +68,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QPixmap *tbAddCurrent = Helper::fromSvgToPixmap(iconSize,stringAddCurrent, this->devicePixelRatio());
     QAction *tbActionAddCurrent = toolbar->addAction(QIcon(*tbAddCurrent), this->tr("Add Current Game"));
 
-    QWidget* spacer = new QWidget();
+    QWidget* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
 
@@ -106,7 +109,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->indexModel = new DatabaseIndexModel(this);
     this->indexModel->setDatabase(this->gameModel->database);
 
-    this->tableView = new QTableView();
+    this->tableView = new QTableView(this);
     this->tableView->setModel(indexModel);
 
     this->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -121,10 +124,9 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     tableView->resizeColumnsToContents();
     tableView->show();
 
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
-    this->btnOpenGame = new QPushButton();
-    this->btnCancel = new QPushButton();
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
+    this->btnOpenGame = new QPushButton(this);
+    this->btnCancel = new QPushButton(this);
 
     btnOpenGame->setText(this->tr("Open Game"));
     btnCancel->setText("Cancel");
@@ -134,7 +136,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     // putting it all together
 
-    QVBoxLayout *layoutAll = new QVBoxLayout();
+    QVBoxLayout *layoutAll = new QVBoxLayout(this);
     layoutAll->addWidget(toolbar);
     layoutAll->addWidget(this->tableView);
 
@@ -146,6 +148,13 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     connect(tbActionOpen, &QAction::triggered, this, &DialogDatabase::onClickOpen);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    QItemSelectionModel *model = this->tableView->selectionModel();
+    connect(model, &QItemSelectionModel::selectionChanged,
+            this, &DialogDatabase::onRowChanged);
 
 }
 
@@ -172,7 +181,7 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
-    DialogSearch *dlg = new DialogSearch(this->gameModel);
+    DialogSearch *dlg = new DialogSearch(this->gameModel, this);
     dlg->show();
 
 }
@@ -184,8 +193,24 @@ void DialogDatabase::onClickOpen() {
     this->indexModel->setDatabase(this->gameModel->database);
     this->indexModel->layoutChanged();
     this->tableView->resizeColumnsToContents();
-    this->tableView->selectRow(0);
-
+    if(this->gameModel->database->countGames() > 0) {
+        this->tableView->selectRow(0);
+    }
     this->setWindowTitle(this->gameModel->database->filenameIndex);
 
 }
+
+void DialogDatabase::onRowChanged() {
+    QItemSelectionModel *select = this->tableView->selectionModel();
+    if(select->hasSelection()) {
+        QModelIndexList selected_rows = select->selectedRows();
+        if(selected_rows.size() > 0) {
+            int row_index = selected_rows.at(0).row();
+            this->selectedIndex = row_index;
+            qDebug() << "selected row: " << row_index;
+        }
+    }
+}
+
+
+

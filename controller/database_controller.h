@@ -8,10 +8,11 @@ class DatabaseController : public QObject
 {
     Q_OBJECT
 public:
-    explicit DatabaseController(GameModel *model, QWidget *parent = 0);
+    explicit DatabaseController(GameModel *model, QWidget *parent);
 
 private:
     GameModel *gameModel;
+    QWidget *mainWindow;
 
 signals:
 

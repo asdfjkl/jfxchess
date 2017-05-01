@@ -11,10 +11,13 @@ class DialogDatabase : public QDialog
     Q_OBJECT
 public:
     explicit DialogDatabase(GameModel *gameModel, QWidget *parent = 0);
+    int selectedIndex;
 
 private:
     void resizeTo(float ratio);
     void drawAllItems();
+
+    QTableView *tableView;
 
     QTableWidget *gameTable;
     QStringList *gameTableHeaders;
@@ -23,7 +26,6 @@ private:
 
     GameModel *gameModel;
 
-    QTableView *tableView;
     DatabaseIndexModel *indexModel;
 
 signals:
@@ -32,6 +34,7 @@ public slots:
 
     void onClickSearch();
     void onClickOpen();
+    void onRowChanged();
 
 };
 

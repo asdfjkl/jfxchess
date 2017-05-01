@@ -18,7 +18,6 @@ int DatabaseIndexModel::rowCount(const QModelIndex & /* parent */) const
     return this->database->indices->count();
 }
 
-
 int DatabaseIndexModel::columnCount(const QModelIndex & /* parent */) const
 {
     return COLUMN_COUNT;

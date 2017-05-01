@@ -395,7 +395,7 @@ void MoveViewController::keyPressEvent(QKeyEvent *e) {
 }
 
 void MoveViewController::onStateChange() {
-
+    qDebug() << "mvc: on state change";
     if(this->gameModel->getGame()->treeWasChanged) {
         this->document->clear();
         this->document->setDefaultStyleSheet("a:link { color: #000000; text-decoration: none}");
