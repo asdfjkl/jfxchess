@@ -125,11 +125,12 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     tableView->show();
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
+
     this->btnOpenGame = new QPushButton(this);
     this->btnCancel = new QPushButton(this);
 
-    btnOpenGame->setText(this->tr("Open Game"));
-    btnCancel->setText("Cancel");
+    this->btnOpenGame->setText(this->tr("Open Game"));
+    this->btnCancel->setText(this->tr("Cancel"));
 
     buttonBox->addButton(btnOpenGame, QDialogButtonBox::AcceptRole);
     buttonBox->addButton(btnCancel, QDialogButtonBox::RejectRole);
