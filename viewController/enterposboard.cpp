@@ -2,8 +2,10 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include "assert.h"
+#include <QDebug>
 
-EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board, QWidget *parent) :
+EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board,
+                             QWidget *parent, bool incl_joker_piece) :
     Chessboard(parent)
 {
 
@@ -16,6 +18,7 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board, QWidget *pa
     this->currentGameBoard = new chess::Board(board);
     this->selectedPiece = chess::WHITE_PAWN;
 
+    this->incl_joker_piece = incl_joker_piece;
 }
 
 
@@ -35,6 +38,7 @@ void EnterPosBoard::mousePressEvent(QMouseEvent *m) {
     int y = m->y();
     if(this->clickedOnPiceceSelector(x,y)) {
         this->selectedPiece = this->getSelectedPiece(x,y);
+        qDebug() << "selected piece is now: " << this->selectedPiece;
     } else if(this->clickedOnBoard(x,y)) {
         QPoint q = this->getBoardPosition(x,y);
         if(this->board->get_piece_at(q.x(), q.y()) == this->selectedPiece) {
@@ -65,10 +69,14 @@ bool EnterPosBoard::clickedOnPiceceSelector(int x, int y) {
     int boardSize = 0;
     int squareSize = 0;
     this->calculateBoardSize(&boardSize, &squareSize);
+    int idx_pieces = 6;
+    if(this->incl_joker_piece) {
+        idx_pieces = 7;
+    }
     if(x > this->borderWidth + 9*squareSize
             && x < this->borderWidth + 11*squareSize
             && y > this->borderWidth
-            && y < this->borderWidth + 6*squareSize) {
+            && y < this->borderWidth + idx_pieces*squareSize) {
         return true;
     } else {
         return false;
@@ -150,7 +158,11 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     int squareSize = 0;
     this->calculateBoardSize(&boardSize, &squareSize);
 
-    painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,6 * squareSize + 2 * this->borderWidth);
+    if(this->incl_joker_piece) {
+        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,7 * squareSize + 2 * this->borderWidth);
+    } else {
+        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,6 * squareSize + 2 * this->borderWidth);
+    }
 
     int boardOffsetX = this->borderWidth;
     int boardOffsetY = this->borderWidth;
@@ -158,8 +170,15 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     QColor light = this->style->lightSquare;
     QColor dark = this->style->darkSquare;
 
+    // consider draw the selection icon for the "joker" pieces
+    // (i.e. any piece for black or white) only if this is
+    // class instance is configured like that
+    int max_piece_idx = 6;
+    if(this->incl_joker_piece) {
+        max_piece_idx = 7;
+    }
     // draw the piece selection fields
-    for(int i=0;i<6;i++) {
+    for(int i=0;i<max_piece_idx;i++) {
         for(int j=0;j<2;j++) {
             if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
                 painter->setBrush(QBrush(this->style->lightSquareTexture));

@@ -27,6 +27,9 @@ private:
     QCheckBox *optPosition;
     QCheckBox *optVariants;
 
+protected:
+    void resizeEvent(QResizeEvent *re);
+
 };
 
 #endif // DIALOGSEARCH_H

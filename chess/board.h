@@ -210,7 +210,7 @@ const uint8_t WHITE_ROOK = 0x04;
 const uint8_t WHITE_BISHOP = 0x03;
 const uint8_t WHITE_KNIGHT = 0x02;
 const uint8_t WHITE_PAWN = 0x01;
-const uint8_t WHITE_PIECE = 0x07;
+const uint8_t WHITE_ANY_PIECE = 0x07;
 
 const uint8_t BLACK_KING = 0x86;
 const uint8_t BLACK_QUEEN = 0x85;
@@ -218,7 +218,7 @@ const uint8_t BLACK_ROOK = 0x84;
 const uint8_t BLACK_BISHOP = 0x83;
 const uint8_t BLACK_KNIGHT = 0x82;
 const uint8_t BLACK_PAWN = 0x81;
-const uint8_t BLACK_PIECE = 0x87;
+const uint8_t BLACK_ANY_PIECE = 0x87;
 
 const QRegularExpression FEN_CASTLES_REGEX = QRegularExpression("^-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2}$");
 const QRegularExpression SAN_REGEX = QRegularExpression("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$");

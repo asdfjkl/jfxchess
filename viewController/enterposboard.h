@@ -8,7 +8,8 @@ class EnterPosBoard : public Chessboard
     Q_OBJECT
 
 public:
-    explicit EnterPosBoard(ColorStyle *style, chess::Board *board, QWidget *parent = 0);
+    explicit EnterPosBoard(ColorStyle *style, chess::Board *board,
+                           QWidget *parent = 0, bool incl_joker_piece = false);
     void setToInitialPosition();
     void setToCurrentBoard();
     void clearBoard();
@@ -17,6 +18,7 @@ public:
 private:
     bool clickedOnBoard(int x, int y);
     bool clickedOnPiceceSelector(int x, int y);
+    bool incl_joker_piece;
     // get selected piece for mouse coordinates
     // mouse coordinates must be on piece selector
     uint8_t getSelectedPiece(int x, int y);
@@ -30,12 +32,13 @@ private:
     //void calculateBoardSize(int *boardSize, int *squareSize);
     void resizeTo(float ratio);
 
-    uint8_t pickupPieces[6][2] = {{chess::WHITE_PAWN, chess::BLACK_PAWN},
+    uint8_t pickupPieces[7][2] = {{chess::WHITE_PAWN, chess::BLACK_PAWN},
                                   {chess::WHITE_KNIGHT, chess::BLACK_KNIGHT},
                                   {chess::WHITE_BISHOP, chess::BLACK_BISHOP},
                                   {chess::WHITE_ROOK, chess::BLACK_ROOK},
                                   {chess::WHITE_QUEEN, chess::BLACK_QUEEN},
-                                  {chess::WHITE_KING, chess::BLACK_KING}};
+                                  {chess::WHITE_KING, chess::BLACK_KING},
+                                  {chess::WHITE_ANY_PIECE, chess::BLACK_ANY_PIECE}};
     uint8_t selectedPiece;
 
 protected:

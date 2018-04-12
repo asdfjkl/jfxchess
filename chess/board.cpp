@@ -445,8 +445,8 @@ uint8_t Board::piece_from_symbol(QChar c) {
 
 void Board::set_piece_at(int x, int y, uint8_t piece) {
     if(x>=0 && x<8 && y>=0 && y <8 &&
-            ((piece >= 0x01 && piece <= 0x06) ||
-             (piece >= 0x81 && piece <= 0x86) || (piece == 0x00))) {
+            ((piece >= 0x01 && piece <= 0x07) ||
+             (piece >= 0x81 && piece <= 0x87) || (piece == 0x00))) {
         int idx = ((y+2)*10) + (x+1);
         this->board[idx] = piece;
     } else {

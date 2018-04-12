@@ -45,13 +45,19 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
-    this->setMinimumWidth(this->height()*1.35);
+    this->setMinimumWidth(this->height()*1.65);
+    qDebug() << "this height: " << this->height() << " and min width: " << (this->height()*1.65);
 
     setWindowTitle(tr("Search for Games"));
 
 }
 
+void DialogSearch::resizeEvent(QResizeEvent *) {
+    this->setMinimumWidth(this->height()*1.35);
+}
+
 SearchPattern* DialogSearch::getPattern() {
+    qDebug() << "this height: " << this->height() << " and min width: " << (this->height()*1.65);
 
     // game data search
     this->pattern->whiteName = this->ths->whiteSurname->text().append(", ").append(this->ths->whiteFirstname->text());
