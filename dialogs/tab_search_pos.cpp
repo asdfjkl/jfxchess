@@ -1,5 +1,5 @@
 #include "tab_search_pos.h"
-#include "viewController/enterposboard.h"
+#include "viewController/entersearchboard.h"
 #include "various/resource_finder.h"
 #include <QDebug>
 #include <QVBoxLayout>
@@ -34,7 +34,7 @@ TabSearchPos::TabSearchPos(GameModel* model, QWidget *parent) : QWidget(parent)
 
     chess::Board *board = new chess::Board(true);
     ColorStyle *cs = model->colorStyle;
-    EnterPosBoard *enterPos = new EnterPosBoard(cs, board, this);
+    EnterSearchBoard *enterPos = new EnterSearchBoard(cs, board, this);
 
     this->buttonInit = new QPushButton(tr("Initial Position"));
     this->buttonClear = new QPushButton(tr("Clear Board"));

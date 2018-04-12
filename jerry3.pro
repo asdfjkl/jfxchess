@@ -78,7 +78,8 @@ SOURCES += main.cpp \
     dialogs/tab_comment_search.cpp \
     dialogs/tab_search_pos.cpp \
     model/search_pattern.cpp \
-    viewController/database_index_model.cpp
+    viewController/database_index_model.cpp \
+    viewController/entersearchboard.cpp
 
 HEADERS += \
     chess/board.h \
@@ -139,4 +140,5 @@ HEADERS += \
     dialogs/tab_search_pos.h \
     model/search_pattern.h \
     viewController/database_index_model.h \
-    chess/constants.h
+    chess/constants.h \
+    viewController/entersearchboard.h

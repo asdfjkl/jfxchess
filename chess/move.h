@@ -36,6 +36,7 @@ const uint8_t BISHOP = 3;
 const uint8_t ROOK = 4;
 const uint8_t QUEEN = 5;
 const uint8_t KING = 6;
+const uint8_t ANY_PIECE = 7;
 
 
 class Move
