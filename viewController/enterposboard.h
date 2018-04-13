@@ -3,7 +3,7 @@
 
 #include "viewController/chessboard.h"
 
-class EnterPosBoard : public Chessboard
+class EnterPosBoard : public QWidget
 {
     Q_OBJECT
 
@@ -16,6 +16,13 @@ public:
     chess::Board *getCurrentBoard();
 
 private:
+    void calculateBoardSize(int *boardSize, int *squareSize);
+    ColorStyle *style;
+    int borderWidth;
+    PieceImages *pieceImages;
+    chess::Board* board;
+    double dpr = 1.0;
+
     bool clickedOnBoard(int x, int y);
     bool clickedOnPiceceSelector(int x, int y);
     bool incl_joker_piece;

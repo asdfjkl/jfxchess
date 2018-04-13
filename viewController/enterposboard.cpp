@@ -3,24 +3,39 @@
 #include <QMouseEvent>
 #include "assert.h"
 #include <QDebug>
+#include "various/resource_finder.h"
+
 
 EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board,
                              QWidget *parent, bool incl_joker_piece) :
-    Chessboard(parent)
+    QWidget(parent)
 {
 
-    delete this->style;
+    QSizePolicy policy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setSizePolicy(policy);
+
+    this->borderWidth = 12;
     this->style = style;
+    this->pieceImages = new PieceImages(ResourceFinder::getPath());
+    this->board = board;
 
-    delete this->board;
-    this->board = new chess::Board(board);
-
-    this->currentGameBoard = new chess::Board(board);
     this->selectedPiece = chess::WHITE_PAWN;
 
     this->incl_joker_piece = incl_joker_piece;
 }
 
+void EnterPosBoard::calculateBoardSize(int *boardSize, int *squareSize) {
+
+    int bSize = this->width();
+    if(this->height() < bSize) {
+        bSize = this->height();
+    }
+    int sSize = qMax((bSize-(2*this->borderWidth))/8,1);
+    bSize = qMax(8 * sSize + 2 * this->borderWidth,1);
+
+    *boardSize = bSize;
+    *squareSize = sSize;
+}
 
 void EnterPosBoard::paintEvent(QPaintEvent *e) {
     QPainter *painter = new QPainter();
@@ -147,7 +162,7 @@ chess::Board* EnterPosBoard::getCurrentBoard() {
 
 void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
-    Chessboard::drawBoard(event, painter);
+    //Chessboard::drawBoard(event, painter);
 
     // to have no border color when drawing board squares and pieces
     QPen penZero = QPen(Qt::black, 1, Qt::NoPen);
@@ -207,7 +222,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             }
             int pieceStyle = this->style->pieceType;
 
-            QImage *piece_image = Chessboard::pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
+            QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
             assert(piece_image != 0);
             painter->drawImage(x,y,*piece_image);
         }
