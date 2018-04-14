@@ -76,14 +76,15 @@ void EditController::paste() {
 }
 
 void EditController::enterPosition() {
-    DialogEnterPosition *dlg = new DialogEnterPosition(this->gameModel->getGame()->getCurrentNode()->getBoard(),
+    chess::Board *currentBoard = this->gameModel->getGame()->getCurrentNode()->getBoard();
+    DialogEnterPosition *dlg = new DialogEnterPosition(currentBoard,
                                                        this->gameModel->colorStyle,
                                                        this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
+
         this->gameModel->getGame()->resetWithNewRootBoard(dlg->getCurrentBoard());
 
-
-        //std::cout << *this->gameModel->getGame()->get << "\n";
+        std::cout << *this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
         this->gameModel->triggerStateChange();
     }
 }

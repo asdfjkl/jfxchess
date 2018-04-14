@@ -6,7 +6,8 @@
 #include "various/resource_finder.h"
 
 
-EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board,
+EnterPosBoard::EnterPosBoard(ColorStyle *style,
+                             chess::Board *currentBoard,
                              QWidget *parent, bool incl_joker_piece) :
     QWidget(parent)
 {
@@ -17,7 +18,8 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style, chess::Board *board,
     this->borderWidth = 12;
     this->style = style;
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
-    this->board = board;
+    this->board = new chess::Board(true);
+    this->currentGameBoard = board;
 
     this->selectedPiece = chess::WHITE_PAWN;
 
@@ -162,8 +164,6 @@ chess::Board* EnterPosBoard::getCurrentBoard() {
 
 void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
-    //Chessboard::drawBoard(event, painter);
-
     // to have no border color when drawing board squares and pieces
     QPen penZero = QPen(Qt::black, 1, Qt::NoPen);
     painter->setPen(penZero);
@@ -173,17 +173,88 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     int squareSize = 0;
     this->calculateBoardSize(&boardSize, &squareSize);
 
-    if(this->incl_joker_piece) {
-        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,7 * squareSize + 2 * this->borderWidth);
-    } else {
-        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,6 * squareSize + 2 * this->borderWidth);
-    }
+    painter->drawRect(1,1, boardSize, boardSize);
 
     int boardOffsetX = this->borderWidth;
     int boardOffsetY = this->borderWidth;
 
     QColor light = this->style->lightSquare;
     QColor dark = this->style->darkSquare;
+
+    QPixmap pxLight = this->style->lightSquareTexture;
+    QPixmap pxDark = this->style->darkSquareTexture;
+
+    chess::Board* board = this->board;
+
+    for(int i=0;i<8;i++) {
+        for(int j=0;j<8;j++) {
+            // draw alternatively light and dark squares
+            if((j%2 == 0 && i%2==1) || (j%2 == 1 && i%2==0)) {
+                if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
+                    painter->setBrush(QBrush(pxLight));
+                } else {
+                    painter->setBrush(light);
+                }
+            } else {
+                if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
+                    painter->setBrush(QBrush(pxDark));
+                } else {
+                    painter->setBrush(dark);
+                }
+            }
+            // draw the square
+            int x = boardOffsetX+(i*squareSize);
+            // drawing coordinates are from top left
+            // whereas chess coords are from bottom left
+            int y = boardOffsetY+((7-j)*squareSize);
+            painter->drawRect(x,y,squareSize,squareSize);
+        }
+    }
+
+    for(int i=0;i<8;i++) {
+        for(int j=0;j<8;j++) {
+            // get square coords
+            int x = boardOffsetX+(i*squareSize);
+
+            // drawing coordinates are from top left
+            // whereas chess coords are from bottom left
+            int y = boardOffsetY+((7-j)*squareSize);
+
+            // draw the pieces
+            uint8_t piece_type = 0;
+            bool piece_color = 0;
+
+            piece_type = board->get_piece_type_at(i,j);
+            piece_color = board->get_piece_color_at(i,j);
+
+            int pieceStyle = this->style->pieceType;
+            if(piece_type != chess::EMPTY)  {
+                QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
+                painter->drawImage(x,y,*piece_image);
+            }
+        }
+    }
+
+    // draw board coordinates
+    painter->setPen(penZero);
+    painter->setBrush(this->style->borderColor);
+
+    painter->setFont(QFont(QString("Decorative"),8));
+
+    for(int i=0;i<8;i++) {
+        QChar ch = QChar(65+i);
+        QString idx = QString(ch);
+        QString num = QString::number(8-i);
+        painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
+                          boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
+        painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+    }
+
+    if(this->incl_joker_piece) {
+        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,7 * squareSize + 2 * this->borderWidth);
+    } else {
+        painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,6 * squareSize + 2 * this->borderWidth);
+    }
 
     // consider draw the selection icon for the "joker" pieces
     // (i.e. any piece for black or white) only if this is
@@ -192,7 +263,10 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     if(this->incl_joker_piece) {
         max_piece_idx = 7;
     }
+
     // draw the piece selection fields
+    painter->setPen(penZero);
+
     for(int i=0;i<max_piece_idx;i++) {
         for(int j=0;j<2;j++) {
             if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {

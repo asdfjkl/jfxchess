@@ -21,6 +21,7 @@ private:
     int borderWidth;
     PieceImages *pieceImages;
     chess::Board* board;
+    chess::Board *currentGameBoard;
     double dpr = 1.0;
 
     bool clickedOnBoard(int x, int y);
@@ -34,7 +35,6 @@ private:
     // and y is y-axis
     QPoint getBoardPosition(int x, int y);
 
-    chess::Board *currentGameBoard;
     void drawBoard(QPaintEvent *e, QPainter *q);
     //void calculateBoardSize(int *boardSize, int *squareSize);
     void resizeTo(float ratio);
