@@ -2276,6 +2276,7 @@ bool Board::is_consistent() {
             } else if(piece_type == PAWN) {
                 if(piece_color == WHITE) {
                     if((i / 10) == 2) { // white pawn in first rank
+                        qDebug() << "ONE";
                         return false;
                     } else {
                         cnt_white_pawns++;
@@ -2294,6 +2295,7 @@ bool Board::is_consistent() {
     if(white_king_pos < 21 || white_king_pos >= 99
             || black_king_pos < 21 || black_king_pos >= 99
             || cnt_white_king != 1 || cnt_black_king != 1) {
+        qDebug() << "TWO";
         return false;
     }
     // white and black king at least on field apart
@@ -2305,6 +2307,7 @@ bool Board::is_consistent() {
     }
     int diff = larger - smaller;
     if(diff == 10 || diff == 1 || diff == 11 || diff == 9) {
+        qDebug() << "THREE";
         return false;
     }
     // side not to move must not be in check
@@ -2315,36 +2318,51 @@ bool Board::is_consistent() {
         idx_king_not_to_move = black_king_pos;
     }
     if(this->is_attacked(idx_king_not_to_move, to_move)) {
+        qDebug() << "FOUR";
         return false;
     }
     // each side has 8 pawns or less
     if(cnt_white_pawns > 8 || cnt_black_pawns > 8) {
+        qDebug() << "5";
+
         return false;
     }
     // check whether no. of promotions and pawn count fits for white
     int white_extra_pieces = std::max(0, cnt_white_queens-1) + std::max(0, cnt_white_rooks-2)
             + std::max(0, cnt_white_bishops - 2) + std::max(0, cnt_white_knights - 2);
     if(white_extra_pieces > (8-cnt_white_pawns)) {
+        qDebug() << "6";
+
         return false;
     }
     // ... for black
     int black_extra_pieces = std::max(0, cnt_black_queens-1) + std::max(0, cnt_black_rooks-2)
             + std::max(0, cnt_black_bishops - 2) + std::max(0, cnt_black_knights - 2);
     if(black_extra_pieces > (8-cnt_black_pawns)) {
+        qDebug() << "7";
+
         return false;
     }
     // compare encoded castling rights of this board w/ actual
     // position of king and rook
     if(this->can_castle_wking() && this->is_white_king_castle_right_lost()) {
+        qDebug() << "8";
+
         return false;
     }
     if(this->can_castle_wqueen() && this->is_white_queen_castle_right_lost()) {
+        qDebug() << "9";
+
         return false;
     }
     if(this->can_castle_bking() && this->is_black_king_castle_right_lost()) {
+        qDebug() << "10";
+
         return false;
     }
     if(this->can_castle_bqueen() && this->is_black_queen_castle_right_lost()) {
+        qDebug() << "11";
+
         return false;
     }
     return true;

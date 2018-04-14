@@ -140,16 +140,19 @@ void DialogEnterPosition::checkConsistency() {
 
 void DialogEnterPosition::setToInitialPosition() {
     this->sbv->setToInitialPosition();
+    this->setCastlingRights();
     this->checkConsistency();
 }
 
 void DialogEnterPosition::clearBoard() {
     this->sbv->clearBoard();
+    this->setCastlingRights();
     this->checkConsistency();
 }
 
 void DialogEnterPosition::setToCurrentBoard() {
     this->sbv->setToCurrentBoard();
+    this->setCastlingRights();
     this->checkConsistency();
 }
 

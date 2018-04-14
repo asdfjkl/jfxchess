@@ -18,8 +18,9 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style,
     this->borderWidth = 12;
     this->style = style;
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
-    this->board = new chess::Board(true);
-    this->currentGameBoard = board;
+
+    this->board = new chess::Board(currentBoard);
+    this->currentGameBoard = currentBoard;
 
     this->selectedPiece = chess::WHITE_PAWN;
 
