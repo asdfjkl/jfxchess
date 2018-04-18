@@ -96,7 +96,7 @@ Move Polyglot::moveFromEntry(Entry e) {
 }
 
 QVector<Move> Polyglot::findMoves(Board *board) {
-    QVector<Move> bookMoves(5);
+    QVector<Move> bookMoves;
     if(this->book != 0 && this->readFile) {
         quint64 zh_board = board->zobrist();
         quint64 low = 0;
