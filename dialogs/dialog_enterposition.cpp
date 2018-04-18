@@ -16,7 +16,7 @@ DialogEnterPosition::DialogEnterPosition(chess::Board *board, ColorStyle *style,
     this->resizeTo(0.8);
     this->setWindowTitle(tr("Enter Position"));
 
-    this->sbv = new EnterPosBoard(style, board, parent);
+    this->sbv = new EnterPosBoard(style, *board, parent);
 
 
          this->cbWhiteShort = new QCheckBox(tr("White O-O"));
@@ -131,7 +131,7 @@ void DialogEnterPosition::resizeTo(float ratio) {
 }
 
 void DialogEnterPosition::checkConsistency() {
-    if(this->sbv->getCurrentBoard()->is_consistent()) {
+    if(this->sbv->getCurrentBoard().is_consistent()) {
         this->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     } else {
         this->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -157,42 +157,19 @@ void DialogEnterPosition::setToCurrentBoard() {
 }
 
 void DialogEnterPosition::setTurn() {
-    if(this->rbWhite->isChecked()) {
-        this->sbv->getCurrentBoard()->turn = chess::WHITE;
-    } else {
-        this->sbv->getCurrentBoard()->turn = chess::BLACK;
-    }
+    this->sbv->setTurn(this->rbWhite->isChecked());
     this->checkConsistency();
 }
 
 void DialogEnterPosition::setCastlingRights() {
-    if(this->cbWhiteShort->isChecked()) {
-        this->sbv->getCurrentBoard()->set_castle_wking(true);
-    } else {
-        this->sbv->getCurrentBoard()->set_castle_wking(false);
-    }
-
-    if(this->cbWhiteLong->isChecked()) {
-        this->sbv->getCurrentBoard()->set_castle_wqueen(true);
-    } else {
-        this->sbv->getCurrentBoard()->set_castle_wqueen(false);
-    }
-
-    if(this->cbBlackShort->isChecked()) {
-        this->sbv->getCurrentBoard()->set_castle_bking(true);
-    } else {
-        this->sbv->getCurrentBoard()->set_castle_bking(false);
-    }
-
-    if(this->cbBlackLong->isChecked()) {
-        this->sbv->getCurrentBoard()->set_castle_bqueen(true);
-    } else {
-        this->sbv->getCurrentBoard()->set_castle_bqueen(false);
-    }
-
+    this->sbv->setCastlingRights(
+       this->cbWhiteShort->isChecked(),
+       this->cbWhiteLong->isChecked(),
+       this->cbBlackShort->isChecked(),
+       this->cbBlackLong->isChecked() );
     this->checkConsistency();
 }
 
 chess::Board* DialogEnterPosition::getCurrentBoard() {
-    return this->sbv->getCurrentBoard();
+    return new chess::Board(sbv->getCurrentBoard());
 }

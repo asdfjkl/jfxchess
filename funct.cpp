@@ -92,17 +92,20 @@ void FuncT::run_ucit() {
 int FuncT::count_moves(Board b, int depth) {
 
     int count = 0;
-    Moves* mvs = b.legal_moves();
+    QVector<Move> mvs = b.legal_moves();
+    for(int i=0;i<mvs.count();i++) {
+        Move mi = mvs.at(i);
+        QString mv_uci = mi.uci();
+        //qDebug() << "foo: "<< mv_uci;
+    }
     if(depth == 0) {
-        int cnt = mvs->count();
-        mvs->clear();
-        delete mvs;
+        int cnt = mvs.count();
         return cnt;
     } else {
         // recursive case: for each possible move, apply
         // the move, do the recursive call and undo the move
-        for(int i=0;i<mvs->count();i++) {
-            Move m = mvs->at(i);
+        for(int i=0;i<mvs.count();i++) {
+            Move m = mvs.at(i);
             QString old_fen = b.fen();
             b.apply(m);
             int cnt_i = count_moves(b, depth - 1);
@@ -117,8 +120,6 @@ int FuncT::count_moves(Board b, int depth) {
                 std::cout << "NEW: " << old_fen1.toStdString() << std::endl;
             }            
         }
-        mvs->clear();
-        delete mvs;
         return count;
     }
 
@@ -220,9 +221,9 @@ void FuncT::run_pgnt() {
 void FuncT::run_sant() {
     // some san tests
     Board b0 = Board(QString("rnbqkbnr/pppppppp/8/2R5/5R2/2R5/PPPPPPP1/1NBQKBN1 w - - 0 1"));
-    Moves* lgl_b0 = b0.legal_moves();
-    for(int i=0;i<lgl_b0->count();i++) {
-        Move mi = lgl_b0->at(i);
+    QVector<Move> lgl_b0 = b0.legal_moves();
+    for(int i=0;i<lgl_b0.count();i++) {
+        Move mi = lgl_b0.at(i);
         std::cout << "UCI: " << mi.uci().toStdString() << " SAN: " << b0.san(mi).toStdString() << std::endl;
     }
     std::cout << std::endl;
@@ -232,9 +233,9 @@ void FuncT::run_sant() {
     Board b1 = Board(QString("rnbqkbnr/pppppppp/8/2R2R2/8/2R5/PPPPPPP1/1NBQKBN1 w - - 0 1"));
     std::cout << b1 << std::endl;
     std::cout << std::endl;
-    Moves* lgl_b1 = b1.legal_moves();
-    for(int i=0;i<lgl_b1->count();i++) {
-        Move mi = lgl_b1->at(i);
+    QVector<Move> lgl_b1 = b1.legal_moves();
+    for(int i=0;i<lgl_b1.count();i++) {
+        Move mi = lgl_b1.at(i);
         std::cout << "UCI: " << mi.uci().toStdString() << " SAN: " << b1.san(mi).toStdString() << std::endl;
     }
 
@@ -244,9 +245,9 @@ void FuncT::run_sant() {
     Board b2 = Board(QString("rnbqkbnr/pppppppp/2Q2Q2/8/8/2Q5/PPPPPPP1/1NBQKBN1 w - - 0 1"));
     std::cout << b2 << std::endl;
     std::cout << std::endl;
-    Moves* lgl_b2 = b2.legal_moves();
-    for(int i=0;i<lgl_b2->count();i++) {
-        Move mi = lgl_b2->at(i);
+    QVector<Move> lgl_b2 = b2.legal_moves();
+    for(int i=0;i<lgl_b2.count();i++) {
+        Move mi = lgl_b2.at(i);
         std::cout << "UCI: " << mi.uci().toStdString() << std::endl;
         QString san = b2.san(mi);
         std::cout << " SAN: " << b2.san(mi).toStdString() << std::endl;
@@ -268,86 +269,77 @@ void FuncT::run_polyglot() {
     qDebug() << path;
     chess::Polyglot *p = new chess::Polyglot(path);
     qDebug() << "created polyglot book";
-    chess::Moves *mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    QVector<Move> mvs = p->findMoves(b);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
     b = new Board(QString("rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4"));
     mvs = p->findMoves(b);
-    for(int i=0;i<mvs->size();i++) {
-        chess::Move mi = mvs->at(i);
+    for(int i=0;i<mvs.size();i++) {
+        chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
         qDebug() << "move: " << uci;
     }
     delete b;
-    delete mvs;
 }
 
 void FuncT::run_rand() {

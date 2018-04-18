@@ -102,7 +102,7 @@ bool GameModel::canAndMayUseBook(chess::GameNode *node) {
     }
 }
 
-chess::Moves* GameModel::getBookMoves(chess::GameNode *node) {
+QVector<chess::Move> GameModel::getBookMoves(chess::GameNode *node) {
     return this->book->findMoves(node->getBoard());
 }
 

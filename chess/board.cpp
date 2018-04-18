@@ -319,13 +319,8 @@ Board::Board() {
     this->undo_available = false;
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
-    this->transpositionTable = new QMap<quint64, int>();
+    this->transpositionTable = QMap<quint64, int>();
     this->update_transposition_table();
-}
-
-Board::~Board() {
-    this->transpositionTable->clear();
-    delete this->transpositionTable;
 }
 
 Board::Board(Board *b) {
@@ -340,7 +335,7 @@ Board::Board(Board *b) {
     }
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
-    this->transpositionTable = new QMap<quint64, int>();
+    this->transpositionTable = QMap<quint64, int>();
     this->update_transposition_table();
 }
 
@@ -364,7 +359,7 @@ Board::Board(bool initial_position) {
     this->undo_available = false;
     this->last_was_null = false;
     this->prev_halfmove_clock = 0;
-    this->transpositionTable = new QMap<quint64, int>();
+    this->transpositionTable = QMap<quint64, int>();
     this->update_transposition_table();
 }
 
@@ -444,15 +439,16 @@ uint8_t Board::piece_from_symbol(QChar c) {
 }
 
 void Board::set_piece_at(int x, int y, uint8_t piece) {
+    // check wether x,y is a valid location on chess board
+    // and wether piece is a valid piece
     if(x>=0 && x<8 && y>=0 && y <8 &&
-            ((piece >= 0x01 && piece <= 0x07) ||
-             (piece >= 0x81 && piece <= 0x87) || (piece == 0x00))) {
+            ((piece >= 0x01 && piece <= 0x07) ||  // white piece
+             (piece >= 0x81 && piece <= 0x87) || (piece == 0x00))) { // black piece or empty
         int idx = ((y+2)*10) + (x+1);
         this->board[idx] = piece;
     } else {
         throw std::invalid_argument("called set_piece_at with invalid paramters");
     }
-
 }
 
 uint8_t Board::get_piece_at(int x, int y) {
@@ -688,7 +684,7 @@ Board::Board(const QString &fen_string) {
     if(!this->is_consistent()) {
         throw std::invalid_argument("board position from supplied fen is inconsistent");
     }
-    this->transpositionTable = new QMap<quint64, int>();
+    this->transpositionTable = QMap<quint64, int>();
     this->update_transposition_table();
 }
 
@@ -843,12 +839,11 @@ void Board::set_castle_bqueen(bool can_do) {
     this->castling_rights = static_cast<uint8_t>(cstle.to_ulong());
 }
 
-Moves* Board::pseudo_legal_moves() {
+QVector<Move> Board::pseudo_legal_moves() {
     return this->pseudo_legal_moves_from(0,true,this->turn);
 }
 
-Moves* Board::pseudo_legal_moves(uint8_t to_square, uint8_t piece_type) {
-    //qDebug() << "pseudo legal moves. " << to;
+QVector<Move> Board::pseudo_legal_moves(uint8_t to_square, uint8_t piece_type) {
     if(piece_type == KING) {
         return this->pseudo_legal_moves_from_pt(0, to_square, piece_type, true,this->turn);
     } else {
@@ -897,80 +892,65 @@ bool Board::castles_bqueen(const Move &m) {
 // to get legal moves, just get list of pseudo
 // legals and then filter by checking each move's
 // legality
-Moves* Board::legal_moves() {
-    Moves* pseudo_legals = this->pseudo_legal_moves();
-    Moves* legals = new Moves();
-    for(int i=0;i<pseudo_legals->size();i++) {
-        Move m = pseudo_legals->at(i);
+QVector<Move> Board::legal_moves() {
+    QVector<Move> pseudo_legals = this->pseudo_legal_moves();
+    QVector<Move> legals; // approx 40 legal moves in every pos?!
+    for(int i=0;i<pseudo_legals.size();i++) {
+        Move m = pseudo_legals.at(i);
         if(this->pseudo_is_legal_move(m)) {
-            legals->append(m);
+            legals.append(m);
         }
     }
-    pseudo_legals->clear();
-    delete(pseudo_legals);
     return legals;
 }
 
 // to speed up san parsing, check here
 // only moves where destination is hit.
-Moves* Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
-    //qDebug() << "calling: " << to_square;
-    Moves* pseudo_legals = this->pseudo_legal_moves(to_square, piece_type);
-    Moves* legals = new Moves();
-    for(int i=0;i<pseudo_legals->size();i++) {
-        Move m = pseudo_legals->at(i);
+QVector<Move> Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
+    QVector<Move> pseudo_legals = this->pseudo_legal_moves(to_square, piece_type);
+    QVector<Move> legals;
+    for(int i=0;i<pseudo_legals.size();i++) {
+        Move m = pseudo_legals.at(i);
         if(m.to == to_square) {
             if(this->pseudo_is_legal_move(m)) {
-                legals->append(m);
+                legals.append(m);
             }
         }
     }
-    pseudo_legals->clear();
-    delete(pseudo_legals);
     return legals;
 }
 
-Moves* Board::legal_moves_from(int from_square) {
-    Moves* pseudo_legals = this->pseudo_legal_moves_from(from_square, true,this->turn);
-    Moves* legals = new Moves();
-    for(int i=0;i<pseudo_legals->size();i++) {
-        Move m = pseudo_legals->at(i);
+QVector<Move> Board::legal_moves_from(int from_square) {
+    QVector<Move> pseudo_legals = this->pseudo_legal_moves_from(from_square, true,this->turn);
+    QVector<Move> legals;
+    for(int i=0;i<pseudo_legals.size();i++) {
+        Move m = pseudo_legals.at(i);
         if(this->pseudo_is_legal_move(m)) {
-            legals->append(m);
+            legals.append(m);
         }
     }
-    pseudo_legals->clear();
-    delete(pseudo_legals);
     return legals;
 }
 
 bool Board::is_legal_and_promotes(const Move &m) {
-    Moves* legals = this->legal_moves_from(m.from);
-    for(int i=0;i<legals->size();i++) {
-        Move mi = legals->at(i);
+    QVector<Move> legals = this->legal_moves_from(m.from);
+    for(int i=0;i<legals.size();i++) {
+        Move mi = legals.at(i);
         if(mi.from == m.from && mi.to == m.to && mi.promotion_piece != 0) {
-            legals->clear();
-            delete legals;
             return true;
         }
     }
-    legals->clear();
-    delete(legals);
     return false;
 }
 
 bool Board::is_legal_move(const Move &m) {
-    Moves* pseudo_legals = this->pseudo_legal_moves_from(m.from, true,this->turn);
-    for(int i=0;i<pseudo_legals->size();i++) {
-        Move mi = pseudo_legals->at(i);
+    QVector<Move> pseudo_legals = this->pseudo_legal_moves_from(m.from, true,this->turn);
+    for(int i=0;i<pseudo_legals.size();i++) {
+        Move mi = pseudo_legals.at(i);
         if(mi == m && this->pseudo_is_legal_move(m)) {
-            pseudo_legals->clear();
-            delete pseudo_legals;
             return true;
         }
     }
-    pseudo_legals->clear();
-    delete(pseudo_legals);
     return false;
 }
 
@@ -1103,16 +1083,12 @@ bool Board::is_attacked(int idx, bool attacker_color) {
                     // now just get all pseudo legal moves from i,
                     // excluding castling. If a move contains
                     // target idx, then we have an attacker
-                    Moves* targets = this->pseudo_legal_moves_from(i,false,attacker_color);
-                    for(int j=0;j<targets->size();j++) {
-                        if(targets->at(j).to == idx) {
-                            targets->clear();
-                            delete(targets);
+                    QVector<Move> targets = this->pseudo_legal_moves_from(i,false,attacker_color);
+                    for(int j=0;j<targets.size();j++) {
+                        if(targets.at(j).to == idx) {
                             return true;
                         }
                     }
-                    targets->clear();
-                    delete(targets);
                 }
             }
         }
@@ -1123,9 +1099,9 @@ bool Board::is_attacked(int idx, bool attacker_color) {
 // calling with from_square = 0 means all possible moves
 // will find all pseudo legal move for supplied player (turn must be
 // either WHITE or BLACK)
-Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool turn) {
+QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool turn) {
 
-    Moves* moves = new Moves();
+    QVector<Move> moves;
 
     for(int i=21;i<99;i++) {
         if(from_square == 0 || from_square == i) {
@@ -1149,12 +1125,12 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                                         (!this->is_empty(idx) && color==WHITE && !this->is_white_at(idx))) {
                                     // if it's a promotion square, add four moves
                                     if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                        moves->append(Move(i,idx,QUEEN));
-                                        moves->append(Move(i,idx,ROOK));
-                                        moves->append(Move(i,idx,BISHOP));
-                                        moves->append(Move(i,idx,KNIGHT));
+                                        moves.append(Move(i,idx,QUEEN));
+                                        moves.append(Move(i,idx,ROOK));
+                                        moves.append(Move(i,idx,BISHOP));
+                                        moves.append(Move(i,idx,KNIGHT));
                                     } else {
-                                        moves->append(Move(i,idx));
+                                        moves.append(Move(i,idx));
                                     }
                                 }
                             }
@@ -1167,7 +1143,7 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                                     // means we have a white/black pawn in inital position, direct square
                                     // in front is empty => allow to move two forward
                                     if(this->is_empty(idx)) {
-                                        moves->append(Move(i,idx));
+                                        moves.append(Move(i,idx));
                                     }
                                 }
                                 else if(j==1) {
@@ -1177,12 +1153,12 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                                     } else {
                                         // if it's a promotion square, add four moves
                                         if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                            moves->append(Move(i,idx,QUEEN));
-                                            moves->append(Move(i,idx,ROOK));
-                                            moves->append(Move(i,idx,BISHOP));
-                                            moves->append(Move(i,idx,KNIGHT));
+                                            moves.append(Move(i,idx,QUEEN));
+                                            moves.append(Move(i,idx,ROOK));
+                                            moves.append(Move(i,idx,BISHOP));
+                                            moves.append(Move(i,idx,KNIGHT));
                                         } else {
-                                            moves->append(Move(i,idx));
+                                            moves.append(Move(i,idx));
                                         }
                                     }
                                 }
@@ -1192,21 +1168,21 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                         // left up
                         if(color == WHITE && (this->en_passent_target - i)==9) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         // right up
                         if(color == WHITE && (this->en_passent_target - i)==11) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         // left down
                         if(color == BLACK && (this->en_passent_target - i)==-9) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         if(color == BLACK && (this->en_passent_target - i)==-11) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                     }
                     // handle case of knight
@@ -1222,7 +1198,7 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                             if(!this->is_offside(idx)) {
                                 if(this->is_empty(idx) ||
                                         (this->piece_color(idx) != color)) {
-                                    moves->append(Move(i,idx));
+                                    moves.append(Move(i,idx));
                                 }
                             }
                         }
@@ -1242,11 +1218,11 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                             while(!stop) {
                                 if(!this->is_offside(idx)) {
                                     if(this->is_empty(idx)) {
-                                        moves->append(Move(i,idx));
+                                        moves.append(Move(i,idx));
                                     } else {
                                         stop = true;
                                         if(this->piece_color(idx) != color) {
-                                            moves->append(Move(i,idx));
+                                            moves.append(Move(i,idx));
                                         }
                                     }
                                     idx = idx + DIR_TABLE[lookup_idx][j];
@@ -1266,14 +1242,14 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                             this->piece_color(E1) == WHITE && this->piece_color(H1) == WHITE
                             && this->piece_type(E1) == KING && this->piece_type(H1) == ROOK
                             && this->is_empty(F1) && this->is_empty(G1)) {
-                        moves->append(Move(E1,G1));
+                        moves.append(Move(E1,G1));
                     }
                     // white queenside
                     if(i==E1 && !this->is_empty(E1) && this->can_castle_wqueen() &&
                             this->piece_color(E1) == WHITE && this->piece_color(A1) == WHITE
                             && this->piece_type(E1) == KING && this->piece_type(A1) == ROOK
                             && this->is_empty(D1) && this->is_empty(C1) && this->is_empty(B1)) {
-                        moves->append(Move(E1,C1));
+                        moves.append(Move(E1,C1));
                     }
                 }
                 if(this->turn == BLACK) {
@@ -1282,14 +1258,14 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
                             this->piece_color(E8) == BLACK && this->piece_color(H8) == BLACK
                             && this->piece_type(E8) == KING && this->piece_type(H8) == ROOK
                             && this->is_empty(F8) && this->is_empty(G8)) {
-                        moves->append(Move(E8,G8));
+                        moves.append(Move(E8,G8));
                     }
                     // black queenside
                     if(i==E8 && !this->is_empty(E8) && this->can_castle_bqueen() &&
                             this->piece_color(E8) == BLACK && this->piece_color(A8) == BLACK
                             && this->piece_type(E8) == KING && this->piece_type(A8) == ROOK
                             && this->is_empty(D8) && this->is_empty(C8) && this->is_empty(B8)) {
-                        moves->append(Move(E8,C8));
+                        moves.append(Move(E8,C8));
                     }
                 }
             }
@@ -1301,9 +1277,9 @@ Moves* Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool t
 // calling with from_square = 0 means all possible moves
 // will find all pseudo legal move for supplied player (turn must be
 // either WHITE or BLACK)
-Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
+QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                          uint8_t piece_type, bool with_castles, bool turn) {
-    Moves* moves = new Moves();
+    QVector<Move> moves(30);
 
     for(int i=21;i<99;i++) {
         if(from_square == 0 || from_square == i) {
@@ -1327,12 +1303,12 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                         (!this->is_empty(idx) && color==WHITE && !this->is_white_at(idx))) {
                                     // if it's a promotion square, add four moves
                                     if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                        moves->append(Move(i,idx,QUEEN));
-                                        moves->append(Move(i,idx,ROOK));
-                                        moves->append(Move(i,idx,BISHOP));
-                                        moves->append(Move(i,idx,KNIGHT));
+                                        moves.append(Move(i,idx,QUEEN));
+                                        moves.append(Move(i,idx,ROOK));
+                                        moves.append(Move(i,idx,BISHOP));
+                                        moves.append(Move(i,idx,KNIGHT));
                                     } else {
-                                        moves->append(Move(i,idx));
+                                        moves.append(Move(i,idx));
                                     }
                                 }
                             }
@@ -1345,7 +1321,7 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                     // means we have a white/black pawn in inital position, direct square
                                     // in front is empty => allow to move two forward
                                     if(this->is_empty(idx)) {
-                                        moves->append(Move(i,idx));
+                                        moves.append(Move(i,idx));
                                     }
                                 }
                                 else if(j==1) {
@@ -1355,12 +1331,12 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                     } else {
                                         // if it's a promotion square, add four moves
                                         if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                            moves->append(Move(i,idx,QUEEN));
-                                            moves->append(Move(i,idx,ROOK));
-                                            moves->append(Move(i,idx,BISHOP));
-                                            moves->append(Move(i,idx,KNIGHT));
+                                            moves.append(Move(i,idx,QUEEN));
+                                            moves.append(Move(i,idx,ROOK));
+                                            moves.append(Move(i,idx,BISHOP));
+                                            moves.append(Move(i,idx,KNIGHT));
                                         } else {
-                                            moves->append(Move(i,idx));
+                                            moves.append(Move(i,idx));
                                         }
                                     }
                                 }
@@ -1370,21 +1346,21 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                         // left up
                         if(color == WHITE && (this->en_passent_target - i)==9) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         // right up
                         if(color == WHITE && (this->en_passent_target - i)==11) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         // left down
                         if(color == BLACK && (this->en_passent_target - i)==-9) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                         if(color == BLACK && (this->en_passent_target - i)==-11) {
                             Move m = (Move(i,this->en_passent_target));
-                            moves->append(m);
+                            moves.append(m);
                         }
                     }
                     // handle case of knight
@@ -1400,7 +1376,7 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                             if(idx == to_square && !this->is_offside(idx)) {
                                 if(this->is_empty(idx) ||
                                         (this->piece_color(idx) != color)) {
-                                    moves->append(Move(i,idx));
+                                    moves.append(Move(i,idx));
                                 }
                             }
                         }
@@ -1422,13 +1398,13 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                 if(!this->is_offside(idx)) {
                                     if(this->is_empty(idx)) {
                                         if(to_square == idx) {
-                                            moves->append(Move(i,idx));
+                                            moves.append(Move(i,idx));
                                         }
                                     } else {
                                         stop = true;
                                         if(this->piece_color(idx) != color) {
                                             if(to_square == idx) {
-                                                moves->append(Move(i,idx));
+                                                moves.append(Move(i,idx));
                                             }
                                         }
                                     }
@@ -1449,14 +1425,14 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                             this->piece_color(E1) == WHITE && this->piece_color(H1) == WHITE
                             && this->piece_type(E1) == KING && this->piece_type(H1) == ROOK
                             && this->is_empty(F1) && this->is_empty(G1)) {
-                        moves->append(Move(E1,G1));
+                        moves.append(Move(E1,G1));
                     }
                     // white queenside
                     if(i==E1 && !this->is_empty(E1) && this->can_castle_wqueen() &&
                             this->piece_color(E1) == WHITE && this->piece_color(A1) == WHITE
                             && this->piece_type(E1) == KING && this->piece_type(A1) == ROOK
                             && this->is_empty(D1) && this->is_empty(C1) && this->is_empty(B1)) {
-                        moves->append(Move(E1,C1));
+                        moves.append(Move(E1,C1));
                     }
                 }
                 if(this->turn == BLACK) {
@@ -1465,14 +1441,14 @@ Moves* Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                             this->piece_color(E8) == BLACK && this->piece_color(H8) == BLACK
                             && this->piece_type(E8) == KING && this->piece_type(H8) == ROOK
                             && this->is_empty(F8) && this->is_empty(G8)) {
-                        moves->append(Move(E8,G8));
+                        moves.append(Move(E8,G8));
                     }
                     // black queenside
                     if(i==E8 && !this->is_empty(E8) && this->can_castle_bqueen() &&
                             this->piece_color(E8) == BLACK && this->piece_color(A8) == BLACK
                             && this->piece_type(E8) == KING && this->piece_type(A8) == ROOK
                             && this->is_empty(D8) && this->is_empty(C8) && this->is_empty(B8)) {
-                        moves->append(Move(E8,C8));
+                        moves.append(Move(E8,C8));
                     }
                 }
             }
@@ -1537,7 +1513,6 @@ bool Board::is_offside(uint8_t idx) {
 }
 
 bool Board::can_claim_fifty_moves() {
-    //qDebug() << this->halfmove_clock;
     return this->halfmove_clock >= 100;
 }
 
@@ -1726,6 +1701,8 @@ void Board::apply(const Move &m) {
     }
     // after move is applied, can revert to the previous position
     this->undo_available = true;
+    // also update transposition table for 3fold repition detection
+    //this->update_transposition_table();
     }
 }
 
@@ -1770,15 +1747,30 @@ Board* Board::copy_and_apply(const Move &m) {
     b->undo_available = this->undo_available;
     b->last_was_null = this->last_was_null;
     b->prev_halfmove_clock = this->prev_halfmove_clock;
-    delete b->transpositionTable;
-    b->transpositionTable = new QMap<quint64, int>(*this->transpositionTable);
+    b->transpositionTable = QMap<quint64, int>(this->transpositionTable);
     for(int i=0;i<120;i++) {
         b->board[i] = this->board[i];
         b->old_board[i] = this->old_board[i];
     }
     b->apply(m);
-    b->update_transposition_table();
     return b;
+}
+
+Board::Board(const Board &other) {
+    turn = other.turn;
+    castling_rights = other.castling_rights;
+    turn = this->turn;
+    en_passent_target = other.en_passent_target;
+    halfmove_clock = other.halfmove_clock;
+    fullmove_number = other.fullmove_number;
+    undo_available = other.undo_available;
+    last_was_null = other.last_was_null;
+    prev_halfmove_clock = other.prev_halfmove_clock;
+    transpositionTable = QMap<quint64, int>(other.transpositionTable);
+    for(int i=0;i<120;i++) {
+        board[i] = other.board[i];
+        old_board[i] = other.old_board[i];
+    }
 }
 
 bool Board::is_stalemate() {
@@ -1787,10 +1779,8 @@ bool Board::is_stalemate() {
     for(int i=21;i<99;i++) {
         if((this->piece_type(i)==KING) && (this->piece_color(i)==this->turn)){
             if(!this->is_attacked(i,!this->turn)) {
-                Moves* legals = this->legal_moves();
-                int c = legals->count();
-                legals->clear();
-                delete legals;
+                QVector<Move> legals = this->legal_moves();
+                int c = legals.count();
                 if(c==0) {
                     return true;
                 } else {
@@ -1806,8 +1796,8 @@ bool Board::is_stalemate() {
 
 bool Board::is_threefold_repetition() {
     quint64 current_zobrist = this->zobrist();
-    if(this->transpositionTable->contains(current_zobrist)) {
-        int cnt = this->transpositionTable->value(current_zobrist);
+    if(this->transpositionTable.contains(current_zobrist)) {
+        int cnt = this->transpositionTable.value(current_zobrist);
         return cnt >= 3;
     } else {
         return false;
@@ -1820,10 +1810,8 @@ bool Board::is_checkmate() {
     for(int i=21;i<99;i++) {
         if((this->piece_type(i)==KING) && (this->piece_color(i)==this->turn)){
             if(this->is_attacked(i,!this->turn)) {
-                Moves* legals = this->legal_moves();
-                int c = legals->count();
-                legals->clear();
-                delete legals;
+                QVector<Move> legals = this->legal_moves();
+                int c = legals.count();
                 if(c==0) {
                     return true;
                 } else {
@@ -1889,7 +1877,7 @@ QString Board::san(const Move &m) {
     // testing for checkmate (which again needs
     // application of a move) makes it impossible
     // to undo (undo can only be done once, not twice in a row)
-    Board *b_temp = this->copy_and_apply(m);
+    Board* b_temp = this->copy_and_apply(m);
     bool is_check = b_temp->is_check();
     bool is_checkmate = b_temp->is_checkmate();
     delete b_temp;
@@ -1913,7 +1901,7 @@ QString Board::san(const Move &m) {
         return san;
     } else {
         uint8_t piece_type = this->piece_type(m.from);
-        Moves* legals = this->legal_moves(m.to, piece_type);
+        QVector<Move> legals = this->legal_moves(m.to, piece_type);
         if(piece_type == KNIGHT) {
             san.append("N");
         }
@@ -1929,33 +1917,29 @@ QString Board::san(const Move &m) {
         if(piece_type == KING) {
             san.append("K");
         }
-        Moves* col_disambig = new Moves();
-        Moves* row_disambig = new Moves();
+        QVector<Move> col_disambig(3);
+        QVector<Move> row_disambig(3);
         int this_row = (m.from / 10) - 1;
         int this_col = m.from % 10;
 
         // find amibguous moves (except for pawns)
         if(piece_type != PAWN) {
-            for(int i=0;i<legals->count();i++) {
-                Move mi = legals->at(i);
+            for(int i=0;i<legals.count();i++) {
+                Move mi = legals.at(i);
                 if(this->piece_type(mi.from) == piece_type && mi.to == m.to && mi.from != m.from) {
                     // found pontential amibg. move
                     if((mi.from % 10) != this_col) {
                         // can be resolved via row
-                        col_disambig->append(mi);
+                        col_disambig.append(mi);
                     } else { // otherwise resolve by col
-                        row_disambig->append(mi);
+                        row_disambig.append(mi);
                     }
                 }
             }
-            int cnt_col_disambig = col_disambig->count();
+            int cnt_col_disambig = col_disambig.count();
             //cout << "ambig cols: " << +cnt_col_disambig << endl;
-            int cnt_row_disambig = row_disambig->count();
+            int cnt_row_disambig = row_disambig.count();
             //cout << "ambig rows: " << +cnt_row_disambig << endl;
-            row_disambig->clear();
-            col_disambig->clear();
-            delete row_disambig;
-            delete col_disambig;
             // if there is an ambiguity
             if(cnt_col_disambig != 0 || cnt_row_disambig != 0) {
                 // preferred way: resolve via column
@@ -1971,12 +1955,7 @@ QString Board::san(const Move &m) {
                     san.append(QChar(this_row + 48));
                 }
             }
-        } else {
-            delete col_disambig;
-            delete row_disambig;
         }
-        legals->clear();
-        delete legals;
         // handle a capture, i.e. if destination field
         // is not empty
         // in case of an en-passent capture, the destiation field
@@ -2029,19 +2008,15 @@ Move Board::parse_san(QString san) {
         if(this->turn == BLACK) {
             to = G8;
         }
-        Moves* legals = this->legal_moves(to, KING);
-        for(int i=0;i<legals->count();i++) {
-            Move m = legals->at(i);
+        QVector<Move> legals = this->legal_moves(to, KING);
+        for(int i=0;i<legals.count();i++) {
+            Move m = legals.at(i);
             if(this->castles_wking(m)) {
-                legals->clear();
-                delete legals;
                 return Move(E1,G1);
             } else if(this->castles_bking(m)) {
-                delete legals;
                 return Move(E8,G8);
             }
         }
-        delete legals;
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else if(san==QString("O-O-O") || san == QString("O-O-O+") || san==QString("O-O-O#")) {
         //qDebug() << "castles long";
@@ -2049,19 +2024,15 @@ Move Board::parse_san(QString san) {
         if(this->turn == BLACK) {
             to = C8;
         }
-        Moves* legals = this->legal_moves(to, KING);
-        for(int i=0;i<legals->count();i++) {
-            Move m = legals->at(i);
+        QVector<Move> legals = this->legal_moves(to, KING);
+        for(int i=0;i<legals.count();i++) {
+            Move m = legals.at(i);
             if(this->castles_wqueen(m)) {
-                legals->clear();
-                delete legals;
                 return Move(E1,C1);
             } else if(this->castles_bqueen(m)) {
-                delete legals;
                 return Move(E8,C8);
             }
         }
-        delete legals;
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else { // we don't have a castles move
         QRegularExpressionMatch match = SAN_REGEX.match(san);
@@ -2110,7 +2081,7 @@ Move Board::parse_san(QString san) {
             piece_type = PAWN;
         }
 
-        Moves* legals = this->legal_moves(target, piece_type);
+        QVector<Move> legals = this->legal_moves(target, piece_type);
 
         // get target square
         uint8_t src_col = 0;
@@ -2128,9 +2099,9 @@ Move Board::parse_san(QString san) {
             //std::cout << "is WHITE: " << +(this->turn==WHITE) << std::endl;
         }
         // filter all moves
-        Moves lgl_piece = Moves();
-        for(int i=0;i<legals->count();i++) {
-            Move mi = legals->at(i);
+        QVector<Move> lgl_piece(10);
+        for(int i=0;i<legals.count();i++) {
+            Move mi = legals.at(i);
             if(m.promotion_piece!=0) {
              //std::cout << mi.uci().toStdString() << std::endl;
              //std::cout << "  mi: " << +mi.promotion_piece << std::endl;
@@ -2168,7 +2139,6 @@ Move Board::parse_san(QString san) {
             m.promotion_piece = mi.promotion_piece;
             m.uci_string = mi.uci_string;
         }
-        delete legals;
     }
     return m;
 }
@@ -2276,7 +2246,6 @@ bool Board::is_consistent() {
             } else if(piece_type == PAWN) {
                 if(piece_color == WHITE) {
                     if((i / 10) == 2) { // white pawn in first rank
-                        qDebug() << "ONE";
                         return false;
                     } else {
                         cnt_white_pawns++;
@@ -2295,7 +2264,6 @@ bool Board::is_consistent() {
     if(white_king_pos < 21 || white_king_pos >= 99
             || black_king_pos < 21 || black_king_pos >= 99
             || cnt_white_king != 1 || cnt_black_king != 1) {
-        qDebug() << "TWO";
         return false;
     }
     // white and black king at least on field apart
@@ -2307,7 +2275,6 @@ bool Board::is_consistent() {
     }
     int diff = larger - smaller;
     if(diff == 10 || diff == 1 || diff == 11 || diff == 9) {
-        qDebug() << "THREE";
         return false;
     }
     // side not to move must not be in check
@@ -2318,51 +2285,36 @@ bool Board::is_consistent() {
         idx_king_not_to_move = black_king_pos;
     }
     if(this->is_attacked(idx_king_not_to_move, to_move)) {
-        qDebug() << "FOUR";
         return false;
     }
     // each side has 8 pawns or less
     if(cnt_white_pawns > 8 || cnt_black_pawns > 8) {
-        qDebug() << "5";
-
         return false;
     }
     // check whether no. of promotions and pawn count fits for white
     int white_extra_pieces = std::max(0, cnt_white_queens-1) + std::max(0, cnt_white_rooks-2)
             + std::max(0, cnt_white_bishops - 2) + std::max(0, cnt_white_knights - 2);
     if(white_extra_pieces > (8-cnt_white_pawns)) {
-        qDebug() << "6";
-
         return false;
     }
     // ... for black
     int black_extra_pieces = std::max(0, cnt_black_queens-1) + std::max(0, cnt_black_rooks-2)
             + std::max(0, cnt_black_bishops - 2) + std::max(0, cnt_black_knights - 2);
     if(black_extra_pieces > (8-cnt_black_pawns)) {
-        qDebug() << "7";
-
         return false;
     }
     // compare encoded castling rights of this board w/ actual
     // position of king and rook
     if(this->can_castle_wking() && this->is_white_king_castle_right_lost()) {
-        qDebug() << "8";
-
         return false;
     }
     if(this->can_castle_wqueen() && this->is_white_queen_castle_right_lost()) {
-        qDebug() << "9";
-
         return false;
     }
     if(this->can_castle_bking() && this->is_black_king_castle_right_lost()) {
-        qDebug() << "10";
-
         return false;
     }
     if(this->can_castle_bqueen() && this->is_black_queen_castle_right_lost()) {
-        qDebug() << "11";
-
         return false;
     }
     return true;
@@ -2494,11 +2446,11 @@ int Board::zobrist_piece_type(uint8_t piece) {
 
 void Board::update_transposition_table() {
     quint64 current_zobrist = this->zobrist();
-    if(this->transpositionTable->contains(current_zobrist)) {
-        int cnt = this->transpositionTable->value(current_zobrist);
-        this->transpositionTable->insert(current_zobrist, cnt+1);
+    if(this->transpositionTable.contains(current_zobrist)) {
+        int cnt = this->transpositionTable.value(current_zobrist);
+        this->transpositionTable.insert(current_zobrist, cnt+1);
     } else {
-        this->transpositionTable->insert(current_zobrist, 1);
+        this->transpositionTable.insert(current_zobrist, 1);
     }
 }
 

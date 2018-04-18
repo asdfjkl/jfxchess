@@ -36,15 +36,16 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
+    chess::FuncT *p = new chess::FuncT();
     //p->run_zobrist_test();
     //p->run_pgnt();
     //p.run_pgn_scant();
     //p.run_sant();
     // p->run_ucit();
-    //p.run_pertf();
+    //p->run_pertf();
 
-    //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
-    //QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     // from Qt 5.6 onwards
 
     QApplication app(argc, argv);
@@ -59,6 +60,8 @@ int main(int argc, char *argv[])
     app_icon->addFile("res/icons/icon48.png", QSize(48,48));
     app_icon->addFile("res/icons/icon256.png",QSize(256,256));
     app.setWindowIcon(*app_icon);
+
+    //app.setStyle(QStyleFactory::create("Windows"));
 
     MainWindow mainWin;
 

@@ -95,8 +95,8 @@ Move Polyglot::moveFromEntry(Entry e) {
     return m;
 }
 
-Moves* Polyglot::findMoves(Board *board) {
-    Moves* bookMoves = new Moves();
+QVector<Move> Polyglot::findMoves(Board *board) {
+    QVector<Move> bookMoves(5);
     if(this->book != 0 && this->readFile) {
         quint64 zh_board = board->zobrist();
         quint64 low = 0;
@@ -122,7 +122,7 @@ Moves* Polyglot::findMoves(Board *board) {
                 break;
             }
             Move m = this->moveFromEntry(e);
-            bookMoves->append(m);
+            bookMoves.append(m);
             offset += 1;
         }
     }

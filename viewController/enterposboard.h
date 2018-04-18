@@ -8,20 +8,21 @@ class EnterPosBoard : public QWidget
     Q_OBJECT
 
 public:
-    explicit EnterPosBoard(ColorStyle *style, chess::Board *board,
+    explicit EnterPosBoard(ColorStyle *style, const chess::Board &board,
                            QWidget *parent = 0, bool incl_joker_piece = false);
     void setToInitialPosition();
     void setToCurrentBoard();
     void clearBoard();
-    chess::Board *getCurrentBoard();
-
+    chess::Board getCurrentBoard();
+    void setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen);
+    void setTurn(bool turn);
 private:
     void calculateBoardSize(int *boardSize, int *squareSize);
     ColorStyle *style;
     int borderWidth;
     PieceImages *pieceImages;
-    chess::Board* board;
-    chess::Board *currentGameBoard;
+    chess::Board board { true };
+    chess::Board currentGameBoard;
     double dpr = 1.0;
 
     bool clickedOnBoard(int x, int y);

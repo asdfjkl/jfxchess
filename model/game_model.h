@@ -109,7 +109,7 @@ public:
     QString ressourcePath;
 
     bool canAndMayUseBook(chess::GameNode *node);
-    chess::Moves* getBookMoves(chess::GameNode *node);
+    QVector<chess::Move> getBookMoves(chess::GameNode *node);
     bool isInBook(chess::GameNode *node);    
 
     bool gameAnalysisStarted;

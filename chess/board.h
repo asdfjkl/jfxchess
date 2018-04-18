@@ -223,8 +223,6 @@ const uint8_t BLACK_ANY_PIECE = 0x87;
 const QRegularExpression FEN_CASTLES_REGEX = QRegularExpression("^-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2}$");
 const QRegularExpression SAN_REGEX = QRegularExpression("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$");
 
-typedef QList<Move> Moves;
-
 class Board
 {
 
@@ -279,9 +277,10 @@ public:
     Board(Board *board);
 
     /**
-     *@brief destructor, clean up memory
+     * @brief copy constructor to create deep copy of board
+     * @param other
      */
-    ~Board();
+    Board(const Board &other);
 
     /**
      * @brief fen returns FEN string of current board
@@ -317,9 +316,9 @@ public:
      *                           current position
      * @return
      */
-    Moves* pseudo_legal_moves();
+    QVector<Move> pseudo_legal_moves();
 
-    Moves* pseudo_legal_moves(uint8_t to_square, uint8_t piece_type);
+    QVector<Move> pseudo_legal_moves(uint8_t to_square, uint8_t piece_type);
 
     /**
      * @brief pseudo_legal_moves_from returns move list with pseudo legal moves
@@ -331,22 +330,22 @@ public:
      * @param turn_color              either WHITE or BLACK, i.e. the player to move
      * @return pseudo legal move list
      */
-    Moves* pseudo_legal_moves_from(int from_square_idx, bool with_castles, bool turn_color);
-    Moves* pseudo_legal_moves_from_pt(int from_square, uint8_t to_square, uint8_t piece_type, bool with_castles, bool turn);
+    QVector<Move> pseudo_legal_moves_from(int from_square_idx, bool with_castles, bool turn_color);
+    QVector<Move> pseudo_legal_moves_from_pt(int from_square, uint8_t to_square, uint8_t piece_type, bool with_castles, bool turn);
 
     /**
      * @brief legal_moves returns move list of all legal moves in position
      * @return move list
      */
-    Moves* legal_moves();
-    Moves* legal_moves(uint8_t to_square, uint8_t piece_type);
+    QVector<Move> legal_moves();
+    QVector<Move> legal_moves(uint8_t to_square, uint8_t piece_type);
 
     /**
      * @brief legal_moves_from computes all legal moves originating in from square
      * @param from_square  move originates from this square. must be in range 21...98
      * @return move list of legal moves
      */
-    Moves* legal_moves_from(int from_square);
+    QVector<Move> legal_moves_from(int from_square);
 
     /**
      * @brief pseudo_is_legal_move checks whether supplied pseudo legal move is legal
@@ -657,7 +656,7 @@ private:
     QString idx_to_str(int idx);
     uint8_t alpha_to_pos(QChar alpha);
 
-    QMap<quint64, int> *transpositionTable;
+    QMap<quint64, int> transpositionTable;
 
     int zobrist_piece_type(uint8_t piece);
 

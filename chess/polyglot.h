@@ -20,7 +20,7 @@ class Polyglot
 {
 public:
     Polyglot(QString &bookname);
-    Moves* findMoves(Board *board);
+    QVector<Move> findMoves(Board *board);
     bool inBook(Board *board);
 
 private:

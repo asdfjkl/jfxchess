@@ -356,12 +356,11 @@ void ModeController::onStateChangePlayWhiteOrBlack() {
     bool usedBook = false;
     QString uci = QString("");
     if(this->gameModel->canAndMayUseBook(current)) {
-        chess::Moves* mvs = this->gameModel->getBookMoves(current);
-        if(mvs->size() > 0) {
-            int sel = (rand() % (int)(mvs->size()));
-            chess::Move mi = mvs->at(sel);
+        QVector<chess::Move> mvs = this->gameModel->getBookMoves(current);
+        if(mvs.size() > 0) {
+            int sel = (rand() % (int)(mvs.size()));
+            chess::Move mi = mvs.at(sel);
             uci = mi.uci();
-            delete mvs;
             usedBook = true;
         }
     }

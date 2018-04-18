@@ -7,7 +7,7 @@
 
 
 EnterPosBoard::EnterPosBoard(ColorStyle *style,
-                             chess::Board *currentBoard,
+                             const chess::Board &currentBoard,
                              QWidget *parent, bool incl_joker_piece) :
     QWidget(parent)
 {
@@ -19,12 +19,49 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style,
     this->style = style;
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
 
-    this->board = new chess::Board(currentBoard);
-    this->currentGameBoard = currentBoard;
+    // copy current board state
+    //this->currentGameBoard(currentBoard);
 
     this->selectedPiece = chess::WHITE_PAWN;
 
     this->incl_joker_piece = incl_joker_piece;
+}
+
+
+void EnterPosBoard::setTurn(bool turn) {
+    if(turn) {
+this->board.turn = chess::WHITE;
+} else {
+this->board.turn = chess::BLACK;
+}
+}
+
+void EnterPosBoard::setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen) {
+
+if(wking) {
+this->board.set_castle_wking(true);
+} else {
+this->board.set_castle_wking(false);
+}
+
+if(wqueen) {
+this->board.set_castle_wqueen(true);
+} else {
+this->board.set_castle_wqueen(false);
+}
+
+if(bking) {
+this->board.set_castle_bking(true);
+} else {
+this->board.set_castle_bking(false);
+}
+
+if(bqueen) {
+this->board.set_castle_bqueen(true);
+} else {
+this->board.set_castle_bqueen(false);
+}
+
 }
 
 void EnterPosBoard::calculateBoardSize(int *boardSize, int *squareSize) {
@@ -59,11 +96,11 @@ void EnterPosBoard::mousePressEvent(QMouseEvent *m) {
         qDebug() << "selected piece is now: " << this->selectedPiece;
     } else if(this->clickedOnBoard(x,y)) {
         QPoint q = this->getBoardPosition(x,y);
-        if(this->board->get_piece_at(q.x(), q.y()) == this->selectedPiece) {
-            this->board->set_piece_at(q.x(),q.y(),chess::EMPTY);
+        if(this->board.get_piece_at(q.x(), q.y()) == this->selectedPiece) {
+            this->board.set_piece_at(q.x(),q.y(),chess::EMPTY);
             emit squareChanged();
         } else {
-            this->board->set_piece_at(q.x(),q.y(),this->selectedPiece);
+            this->board.set_piece_at(q.x(),q.y(),this->selectedPiece);
             emit squareChanged();
         }
     }
@@ -142,24 +179,21 @@ void EnterPosBoard::calculateBoardSize(int *boardSize, int *squareSize) {
 }*/
 
 void EnterPosBoard::setToInitialPosition() {
-    delete this->board;
-    this->board = new chess::Board(true);
+    this->board = chess::Board(true);
     this->update();
 }
 
 void EnterPosBoard::setToCurrentBoard() {
-    delete this->board;
-    this->board = new chess::Board(this->currentGameBoard);
+    this->board = this->currentGameBoard;
     this->update();
 }
 
 void EnterPosBoard::clearBoard() {
-    delete this->board;
-    this->board = new chess::Board();
+    this->board = chess::Board();
     this->update();
 }
 
-chess::Board* EnterPosBoard::getCurrentBoard() {
+chess::Board EnterPosBoard::getCurrentBoard() {
     return this->board;
 }
 
@@ -185,7 +219,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     QPixmap pxLight = this->style->lightSquareTexture;
     QPixmap pxDark = this->style->darkSquareTexture;
 
-    chess::Board* board = this->board;
+    //chess::Board board = this->board;
 
     for(int i=0;i<8;i++) {
         for(int j=0;j<8;j++) {
@@ -225,8 +259,8 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             uint8_t piece_type = 0;
             bool piece_color = 0;
 
-            piece_type = board->get_piece_type_at(i,j);
-            piece_color = board->get_piece_color_at(i,j);
+            piece_type = board.get_piece_type_at(i,j);
+            piece_color = board.get_piece_color_at(i,j);
 
             int pieceStyle = this->style->pieceType;
             if(piece_type != chess::EMPTY)  {
