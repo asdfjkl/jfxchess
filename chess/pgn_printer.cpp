@@ -160,8 +160,8 @@ void PgnPrinter::printMove(Board *b, Move *m) {
         tkn.append(QString("... "));
         this->writeToken(tkn);
     }
-    //qDebug() << "Move: " << m->uci_string;
-    //qDebug() << "san: " << b->san(*m);
+    qDebug() << "Move: " << m->uci_string;
+    qDebug() << "san: " << b->san(*m);
     //qDebug() << "before san";
     this->writeToken((b->san(*m)).append(QString(" ")));
     //qDebug() << "after san";

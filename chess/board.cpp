@@ -1917,8 +1917,8 @@ QString Board::san(const Move &m) {
         if(piece_type == KING) {
             san.append("K");
         }
-        QVector<Move> col_disambig(3);
-        QVector<Move> row_disambig(3);
+        QVector<Move> col_disambig;
+        QVector<Move> row_disambig;
         int this_row = (m.from / 10) - 1;
         int this_col = m.from % 10;
 
