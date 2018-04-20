@@ -655,7 +655,6 @@ Game* PgnReader::readGame(QTextStream& in) {
                 GameNode *next = new GameNode();
                 Board *b_next = 0;
                 try {
-                    qDebug() << "next token: " << token;
                     Board *b = current->getBoard();
                     m = new Move(b->parse_san(token));
                     b_next = b->copy_and_apply(*m);

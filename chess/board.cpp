@@ -1994,7 +1994,6 @@ QString Board::san(const Move &m) {
 
 Move Board::parse_san(QString san) {
 
-    qDebug() << "san: " << san;
     // first check if null move
     if(san==QString("--")) {
         Move m = Move();
@@ -2036,7 +2035,6 @@ Move Board::parse_san(QString san) {
         }
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else { // we don't have a castles move
-        qDebug() << "san is still: " << san;
         QRegularExpressionMatch match = SAN_REGEX.match(san);
         if(!match.hasMatch()) {
             throw std::invalid_argument("invalid san: "+san.toStdString());
