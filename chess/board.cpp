@@ -1279,7 +1279,7 @@ QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles,
 // either WHITE or BLACK)
 QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                          uint8_t piece_type, bool with_castles, bool turn) {
-    QVector<Move> moves(30);
+    QVector<Move> moves;
 
     for(int i=21;i<99;i++) {
         if(from_square == 0 || from_square == i) {
@@ -1994,6 +1994,7 @@ QString Board::san(const Move &m) {
 
 Move Board::parse_san(QString san) {
 
+    qDebug() << "san: " << san;
     // first check if null move
     if(san==QString("--")) {
         Move m = Move();
@@ -2035,6 +2036,7 @@ Move Board::parse_san(QString san) {
         }
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else { // we don't have a castles move
+        qDebug() << "san is still: " << san;
         QRegularExpressionMatch match = SAN_REGEX.match(san);
         if(!match.hasMatch()) {
             throw std::invalid_argument("invalid san: "+san.toStdString());
@@ -2099,7 +2101,7 @@ Move Board::parse_san(QString san) {
             //std::cout << "is WHITE: " << +(this->turn==WHITE) << std::endl;
         }
         // filter all moves
-        QVector<Move> lgl_piece(10);
+        QVector<Move> lgl_piece;
         for(int i=0;i<legals.count();i++) {
             Move mi = legals.at(i);
             if(m.promotion_piece!=0) {
