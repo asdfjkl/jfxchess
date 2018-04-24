@@ -131,7 +131,7 @@ void FuncT::rwrw_pgn(const QString &fn_in, const QString &fn_out) {
     Game *g = pgn_r->readGameFromFile(fn_in,0);
     PgnPrinter* pgn_p = new PgnPrinter();
     //QStringList* pgn = pgn_p->printGame(g);
-    pgn_p->writeGame(g, fn_out);
+    pgn_p->writeGame(*g, fn_out);
 
 }
 /*

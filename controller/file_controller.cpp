@@ -47,7 +47,7 @@ void FileController::printGame() {
     dlg->setWindowTitle(tr("Print Game"));
     if(dlg->exec() == QDialog::Accepted) {
         chess::PgnPrinter *pgnPrinter = new chess::PgnPrinter();
-        QString pgn = pgnPrinter->printGame(this->gameModel->getGame())->join("\n");
+        QString pgn = pgnPrinter->printGame(*this->gameModel->getGame()).join("\n");
         QPlainTextEdit *textEdit = new QPlainTextEdit(pgn);
         textEdit->print(&printer);
         delete textEdit;
@@ -178,7 +178,7 @@ void FileController::saveGame() {
 void FileController::saveGameTo(QString &filename) {
     chess::PgnPrinter *pgn = new chess::PgnPrinter();
     try {
-        pgn->writeGame(this->gameModel->getGame(), filename);
+        pgn->writeGame(*this->gameModel->getGame(), filename);
     } catch (std::exception &e) {
         this->gameModel->wasSaved = false;
         MessageBox *msg = new MessageBox(this->parentWidget);

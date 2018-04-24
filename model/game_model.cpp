@@ -236,10 +236,9 @@ void GameModel::saveGameState() {
     settings.setValue("currentGame", "");
     chess::PgnPrinter *printer = new chess::PgnPrinter();
     try {
-        QStringList* pgnStringList = printer->printGame(this->getGame());
-        QString pgn = pgnStringList->join("\n");
+        QStringList pgnStringList = printer->printGame(*this->getGame());
+        QString pgn = pgnStringList.join("\n");
         settings.setValue("currentGame", pgn);
-        delete pgnStringList;
     } catch(std::exception e) {
         std::cerr << e.what() << std::endl;
     }

@@ -37,7 +37,7 @@ EditController::EditController(GameModel *gameModel, QWidget *parent) :
 void EditController::copyGameToClipBoard() {
 
     chess::PgnPrinter *pgnPrinter = new chess::PgnPrinter();
-    QString pgn = pgnPrinter->printGame(this->gameModel->getGame())->join("\n");
+    QString pgn = pgnPrinter->printGame(*this->gameModel->getGame()).join("\n");
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(pgn);
 
