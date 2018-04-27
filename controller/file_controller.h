@@ -34,6 +34,8 @@ private:
     QWidget *parentWidget;
     void saveGameTo(QString &filename);
     WId board;
+    void setupNewGame(std::unique_ptr<chess::Game> g);
+
 
 signals:
     void newGamePlayBlack();
@@ -46,7 +48,6 @@ public slots:
     void printPosition();
     void newGame();
     void openGame();
-    void setupNewGame(chess::Game *g);
     void saveGame();
     void saveAsNewGame();
     void toolbarSaveGame();

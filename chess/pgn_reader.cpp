@@ -74,9 +74,9 @@ const char* PgnReader::detect_encoding(const QString &filename) {
     }
 }
 
-QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const char* encoding) {
+QList<HeaderOffset> PgnReader::scan_headers(const QString &filename, const char* encoding) {
 
-    QList<HeaderOffset*> *header_offsets = new QList<HeaderOffset*>();
+    QList<HeaderOffset> header_offsets;
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -84,7 +84,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const cha
 
     bool inComment = false;
 
-    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    QMap<QString,QString> game_header;
     qint64 game_pos = -1;
 
     QTextStream in(&file);
@@ -111,13 +111,13 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const cha
             if(match_t.hasMatch()) {
 
                 if(game_pos == -1) {
-                    game_header->insert("Event","?");
-                    game_header->insert("Site","?");
-                    game_header->insert("Date","????.??.??");
-                    game_header->insert("Round","?");
-                    game_header->insert("White","?");
-                    game_header->insert("Black","?");
-                    game_header->insert("Result","*");
+                    game_header.insert("Event","?");
+                    game_header.insert("Site","?");
+                    game_header.insert("Date","????.??.??");
+                    game_header.insert("Round","?");
+                    game_header.insert("White","?");
+                    game_header.insert("Black","?");
+                    game_header.insert("Result","*");
 
                     game_pos = last_pos;
                 }
@@ -125,7 +125,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const cha
                 QString tag = match_t.captured(1);
                 QString value = match_t.captured(2);
 
-                game_header->insert(tag,value);
+                game_header.insert(tag,value);
 
                 last_pos = in.pos();
                 line = in.readLine();
@@ -138,13 +138,13 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const cha
         }
 
         if(game_pos != -1) {
-            HeaderOffset *ho = new HeaderOffset();
-            ho->headers = game_header;
-            ho->offset = game_pos;
+            HeaderOffset ho;
+            ho.headers = game_header;
+            ho.offset = game_pos;
 
-            header_offsets->append(ho);
+            header_offsets.append(ho);
             game_pos = -1;
-            game_header = new QMap<QString,QString>();
+            game_header = QMap<QString,QString>(); //new QMap<QString,QString>();
         }
 
         last_pos = in.pos();
@@ -152,31 +152,31 @@ QList<HeaderOffset*>* PgnReader::scan_headers(const QString &filename, const cha
     }
     // for the last game
     if(game_pos != -1) {
-        HeaderOffset *ho = new HeaderOffset();
-        ho->headers = game_header;
-        ho->offset = game_pos;
+        HeaderOffset ho;
+        ho.headers = game_header;
+        ho.offset = game_pos;
 
-        header_offsets->append(ho);
+        header_offsets.append(ho);
         game_pos = -1;
-        game_header = new QMap<QString,QString>();
+        game_header = QMap<QString,QString>();
     }
 
     return header_offsets;
 }
 
 int PgnReader::readNextHeader(const QString &filename, const char* encoding,
-                              quint64 *offset, HeaderOffset* headerOffset) {
+                              quint64 offset, HeaderOffset &headerOffset) {
 
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return -1;
 
-    file.seek(*offset);
+    file.seek(offset);
 
     bool inComment = false;
 
-    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    QMap<QString,QString> game_header;
     qint64 game_pos = -1;
 
     QTextCodec *codec = QTextCodec::codecForName(encoding);
@@ -210,20 +210,20 @@ int PgnReader::readNextHeader(const QString &filename, const char* encoding,
     // read until we encounter a comment line
     if(foundTag) {
         bool stop = false;
-        game_header->insert("Event","?");
-        game_header->insert("Site","?");
-        game_header->insert("Date","????.??.??");
-        game_header->insert("Round","?");
-        game_header->insert("White","?");
-        game_header->insert("Black","?");
-        game_header->insert("Result","*");
+        game_header.insert("Event","?");
+        game_header.insert("Site","?");
+        game_header.insert("Date","????.??.??");
+        game_header.insert("Round","?");
+        game_header.insert("White","?");
+        game_header.insert("Black","?");
+        game_header.insert("Result","*");
         while(!file.atEnd() && !stop) {
             if(line.startsWith("[")) {
                 QRegularExpressionMatch match_t = TAG_REGEX.match(line);
                 if(match_t.hasMatch()) {
                     QString tag = match_t.captured(1);
                     QString value = match_t.captured(2);
-                    game_header->insert(tag,value);
+                    game_header.insert(tag,value);
                 }
             } else {
                 stop = true;
@@ -232,20 +232,19 @@ int PgnReader::readNextHeader(const QString &filename, const char* encoding,
             raw_line = file.readLine();
             line = codec->toUnicode(raw_line);
         }
-        headerOffset->headers = game_header;
-        headerOffset->offset = game_pos;
+        headerOffset.headers = game_header;
+        headerOffset.offset = game_pos;
     } else {
-        delete game_header;
         return -1;
     }
     // set offset to last encountered line
-    *offset = file.pos();
+    offset = file.pos();
     return 0;
 }
 
-QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, const char* encoding) {
+QList<HeaderOffset> PgnReader::scan_headers_fast(const QString &filename, const char* encoding) {
 
-    QList<HeaderOffset*> *header_offsets = new QList<HeaderOffset*>();
+    QList<HeaderOffset> header_offsets;
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -253,7 +252,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, cons
 
     bool inComment = false;
 
-    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    QMap<QString,QString> game_header;
     qint64 game_pos = -1;
 
     QTextCodec *codec = QTextCodec::codecForName(encoding);
@@ -283,13 +282,13 @@ QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, cons
             if(match_t.hasMatch()) {
 
                 if(game_pos == -1) {
-                    game_header->insert("Event","?");
-                    game_header->insert("Site","?");
-                    game_header->insert("Date","????.??.??");
-                    game_header->insert("Round","?");
-                    game_header->insert("White","?");
-                    game_header->insert("Black","?");
-                    game_header->insert("Result","*");
+                    game_header.insert("Event","?");
+                    game_header.insert("Site","?");
+                    game_header.insert("Date","????.??.??");
+                    game_header.insert("Round","?");
+                    game_header.insert("White","?");
+                    game_header.insert("Black","?");
+                    game_header.insert("Result","*");
 
                     game_pos = last_pos;
                 }
@@ -297,7 +296,7 @@ QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, cons
                 QString tag = match_t.captured(1);
                 QString value = match_t.captured(2);
 
-                game_header->insert(tag,value);
+                game_header.insert(tag,value);
 
                 last_pos = file.pos();
                 // line = in.readLine();
@@ -312,13 +311,13 @@ QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, cons
         }
 
         if(game_pos != -1) {
-            HeaderOffset *ho = new HeaderOffset();
-            ho->headers = game_header;
-            ho->offset = game_pos;
+            HeaderOffset ho;
+            ho.headers = game_header;
+            ho.offset = game_pos;
 
-            header_offsets->append(ho);
+            header_offsets.append(ho);
             game_pos = -1;
-            game_header = new QMap<QString,QString>();
+            game_header = QMap<QString,QString>();
         }
 
         last_pos = file.pos();
@@ -328,20 +327,20 @@ QList<HeaderOffset*>* PgnReader::scan_headers_fast(const QString &filename, cons
     }
     // for the last game
     if(game_pos != -1) {
-        HeaderOffset *ho = new HeaderOffset();
-        ho->headers = game_header;
-        ho->offset = game_pos;
+        HeaderOffset ho;
+        ho.headers = game_header;
+        ho.offset = game_pos;
 
-        header_offsets->append(ho);
+        header_offsets.append(ho);
         game_pos = -1;
-        game_header = new QMap<QString,QString>();
+        game_header = QMap<QString,QString>();
     }
 
     return header_offsets;
 }
 
 
-QString* PgnReader::readFileIntoString(const QString &filename, const char* encoding) {
+QString PgnReader::readFileIntoString(const QString &filename, const char* encoding) {
 
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -351,20 +350,19 @@ QString* PgnReader::readFileIntoString(const QString &filename, const char* enco
     QTextCodec *codec = QTextCodec::codecForName(encoding);
     in.setCodec(codec);
     QString everything = in.readAll();
-    QString *everything_on_heap = new QString(everything);
-    return everything_on_heap;
+    return everything;
 }
 
-QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
+QList<HeaderOffset> PgnReader::scan_headersFromString(QString &contents) {
 
-    QList<HeaderOffset*> *header_offsets = new QList<HeaderOffset*>();
+    QList<HeaderOffset> header_offsets;
 
     bool inComment = false;
 
-    QMap<QString,QString> *game_header = new QMap<QString,QString>();
+    QMap<QString,QString> game_header;
     qint64 game_pos = -1;
 
-    QTextStream in(contents);
+    QTextStream in(&contents);
     QString line = QString("");
     qint64 last_pos = in.pos();
 
@@ -386,19 +384,19 @@ QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
             if(match_t.hasMatch()) {
 
                 if(game_pos == -1) {
-                    game_header->insert("Event","?");
-                    game_header->insert("Site","?");
-                    game_header->insert("Date","????.??.??");
-                    game_header->insert("Round","?");
-                    game_header->insert("White","?");
-                    game_header->insert("Black","?");
-                    game_header->insert("Result","*");
+                    game_header.insert("Event","?");
+                    game_header.insert("Site","?");
+                    game_header.insert("Date","????.??.??");
+                    game_header.insert("Round","?");
+                    game_header.insert("White","?");
+                    game_header.insert("Black","?");
+                    game_header.insert("Result","*");
                     game_pos = last_pos;
                 }
 
                 QString tag = match_t.captured(1);
                 QString value = match_t.captured(2);
-                game_header->insert(tag,value);
+                game_header.insert(tag,value);
 
 
                 last_pos = in.pos();
@@ -411,13 +409,13 @@ QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
         }
 
         if(game_pos != -1) {
-            HeaderOffset *ho = new HeaderOffset();
-            ho->headers = game_header;
-            ho->offset = game_pos;
+            HeaderOffset ho;
+            ho.headers = game_header;
+            ho.offset = game_pos;
 
-            header_offsets->append(ho);
+            header_offsets.append(ho);
             game_pos = -1;
-            game_header = new QMap<QString,QString>();
+            game_header = QMap<QString,QString>();
         }
 
         last_pos = in.pos();
@@ -425,36 +423,36 @@ QList<HeaderOffset*>* PgnReader::scan_headersFromString(QString *contents) {
     }
     // for the last game
     if(game_pos != -1) {
-        HeaderOffset *ho = new HeaderOffset();
-        ho->headers = game_header;
-        ho->offset = game_pos;
+        HeaderOffset ho;
+        ho.headers = game_header;
+        ho.offset = game_pos;
 
-        header_offsets->append(ho);
+        header_offsets.append(ho);
         game_pos = -1;
-        game_header = new QMap<QString,QString>();
+        game_header = QMap<QString,QString>();
     }
 
     return header_offsets;
 }
 
 
-Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding) {
-    return this->readGameFromFile(filename, encoding, 0);
+std::unique_ptr<Game> PgnReader::readGameFromFile(const QString &filename, const char* encoding) {
+    return move(this->readGameFromFile(filename, encoding, 0));
 }
 
-Game* PgnReader::readGameFromString(QString *pgn_string) {
-    QTextStream in(pgn_string);
-    return this->readGame(in);
+std::unique_ptr<Game> PgnReader::readGameFromString(QString &pgn_string) {
+    QTextStream in(&pgn_string);
+    return move(this->readGame(in));
 }
 
-Game* PgnReader::readGameFromString(QString *pgn_string, quint64 offset) {
-    QString *substring = new QString(pgn_string->mid(offset, pgn_string->size()));
-    QTextStream in(substring);
-    return this->readGame(in);
+std::unique_ptr<Game> PgnReader::readGameFromString(QString &pgn_string, quint64 offset) {
+    QString substring = QString(pgn_string.mid(offset, pgn_string.size()));
+    QTextStream in(&substring);
+    return move(this->readGame(in));
 }
 
 
-Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding, qint64 offset) {
+std::unique_ptr<Game> PgnReader::readGameFromFile(const QString &filename, const char* encoding, qint64 offset) {
 
     QFile file(filename);
 
@@ -467,14 +465,14 @@ Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding,
     if(offset != 0 && offset > 0) {
         in.seek(offset);
     }
-    chess::Game *g = this->readGame(in);
+    std::unique_ptr<Game> g = this->readGame(in);
     file.close();
-    return g;
+    return std::move(g);
 }
 
-Game* PgnReader::readGame(QTextStream& in) {
+std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
 
-    Game* g = new Game();
+    auto g = std::unique_ptr<Game>(new Game());
     QString starting_fen = QString("");
 
     QStack<GameNode*> *game_stack = new QStack<GameNode*>();
@@ -519,7 +517,7 @@ Game* PgnReader::readGame(QTextStream& in) {
                 std::cerr << "starting fen position is not consistent" << std::endl;
                 game_stack->clear();
                 delete game_stack;
-                return g;
+                return move(g);
             } else {
                 current->setBoard(b_fen);
             }
@@ -532,7 +530,7 @@ Game* PgnReader::readGame(QTextStream& in) {
             game_stack->clear();
             delete game_stack;
             std::cerr << a.what() << std::endl;
-            return g;
+            return move(g);
         }
     }
     // Get the next non-empty line.
@@ -549,7 +547,7 @@ Game* PgnReader::readGame(QTextStream& in) {
         bool readNextLine = true;
         if(line.trimmed().isEmpty() && foundContent) {
             delete game_stack;
-            return g;
+            return move(g);
         }
         QRegularExpressionMatchIterator i = MOVETEXT_REGEX.globalMatch(line);
         while (i.hasNext()) {
@@ -677,7 +675,7 @@ Game* PgnReader::readGame(QTextStream& in) {
                     game_stack->clear();
                     delete game_stack;
                     std::cerr << a.what() << std::endl;
-                    return g;
+                    return move(g);
                 }
             }
         }
@@ -687,6 +685,6 @@ Game* PgnReader::readGame(QTextStream& in) {
     }
     game_stack->clear();
     delete game_stack;
-    return g;
+    return move(g);
 }
 }

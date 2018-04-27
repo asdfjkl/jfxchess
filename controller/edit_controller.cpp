@@ -65,8 +65,8 @@ void EditController::paste() {
         // not a fen string. let's try pgn
         try {
             chess::PgnReader *reader = new chess::PgnReader();
-            chess::Game *g = reader->readGameFromString(&text);
-            this->gameModel->setGame(g);
+            std::unique_ptr<chess::Game> g = reader->readGameFromString(text);
+            this->gameModel->setGame(move(g));
             this->gameModel->getGame()->treeWasChanged = true;
             this->gameModel->triggerStateChange();
         }

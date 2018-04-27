@@ -28,7 +28,7 @@ public:
     int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
                      QByteArray &magicIndexString, QWidget* parent=0);
 
-    chess::Game* getGameAt(int i);
+    std::unique_ptr<chess::Game> getGameAt(int i);
     int countGames();
     QList<chess::IndexEntry*> *indices;
 

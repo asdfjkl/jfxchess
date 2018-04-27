@@ -128,7 +128,7 @@ int FuncT::count_moves(Board b, int depth) {
 void FuncT::rwrw_pgn(const QString &fn_in, const QString &fn_out) {
 
     PgnReader* pgn_r = new PgnReader();
-    Game *g = pgn_r->readGameFromFile(fn_in,0);
+    std::unique_ptr<Game> g = std::move(pgn_r->readGameFromFile(fn_in,0));
     PgnPrinter* pgn_p = new PgnPrinter();
     //QStringList* pgn = pgn_p->printGame(g);
     pgn_p->writeGame(*g, fn_out);

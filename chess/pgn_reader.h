@@ -22,6 +22,7 @@
 #define PGN_READER_H
 
 #include <QTextStream>
+#include <memory>
 #include "game.h"
 
 namespace chess {
@@ -72,7 +73,7 @@ const int NAG_BLACK_MODERATE_COUNTERPLAY = 133;
 struct HeaderOffset
 {
     qint64 offset;
-    QMap<QString, QString>* headers;
+    QMap<QString, QString> headers;
 };
 
 class PgnReader
@@ -100,7 +101,7 @@ public:
      * @param filename name of the file
      * @return pointer to the generated game
      */
-    Game* readGameFromFile(const QString &filename, const char* encoding);
+    std::unique_ptr<Game> readGameFromFile(const QString &filename, const char* encoding);
 
     /**
      * @brief readGameFromFile read the game at supplied offset from the PGN filename
@@ -110,12 +111,12 @@ public:
      * @param offset integer denoting the offset position to seek to prior reading the file
      * @return pointer to generated game
      */
-    Game* readGameFromFile(const QString &filename, const char* encoding, qint64 offset);
+    std::unique_ptr<Game> readGameFromFile(const QString &filename, const char* encoding, qint64 offset);
 
-    QList<HeaderOffset*>* scan_headers_fast(const QString &filename, const char* encoding);
+    QList<HeaderOffset> scan_headers_fast(const QString &filename, const char* encoding);
 
     int readNextHeader(const QString &filename, const char* encoding,
-                                  quint64 *offset, HeaderOffset* headerOffset);
+                                  quint64 offset, HeaderOffset &headerOffset);
 
 
 
@@ -126,14 +127,14 @@ public:
      * @param filename name of the file
      * @return pointer to string
      */
-    QString* readFileIntoString(const QString &filename, const char* encoding);
+    QString readFileIntoString(const QString &filename, const char* encoding);
 
     /**
      * @brief readGameFromString reads (first) PGN game from supplied pgn string
      * @param pgn_string string containing pgn file
      * @return pointer to generated game
      */
-    Game* readGameFromString(QString *pgn_string);
+    std::unique_ptr<Game> readGameFromString(QString &pgn_string);
 
     /**
      * @brief readGameFromString read game from string, but first
@@ -143,14 +144,14 @@ public:
      * @param offset denoting the offset in the string to start from
      * @return generated game
      */
-    Game* readGameFromString(QString *pgn_string, quint64 offset);
+    std::unique_ptr<Game> readGameFromString(QString &pgn_string, quint64 offset);
 
     /**
      * @brief readGame reads a game from supplied textstream
      * @param in the textstream to read from
      * @return generated game
      */
-    Game* readGame(QTextStream& in);
+    std::unique_ptr<Game> readGame(QTextStream& in);
 
     /**
      * @brief scan_headers scans a PGN file, reads the headers and
@@ -159,7 +160,7 @@ public:
      * @param filename name of the PGN file
      * @return list of headers and offset pairs
      */
-    QList<HeaderOffset*>* scan_headers(const QString &filename, const char* encoding);
+    QList<HeaderOffset> scan_headers(const QString &filename, const char* encoding);
 
     /**
      * @brief scan_headersFromString scans a PGN string, reads the headers and
@@ -168,7 +169,7 @@ public:
      * @param content pointer the pgn string to read from
      * @return list of headers and offset pairs
      */
-    QList<HeaderOffset*>* scan_headersFromString(QString *content);
+    QList<HeaderOffset> scan_headersFromString(QString &content);
 
 private:
 

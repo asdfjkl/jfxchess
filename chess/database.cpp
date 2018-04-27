@@ -289,16 +289,17 @@ int chess::Database::countGames() {
     return this->indices->length();
 }
 
-chess::Game* chess::Database::getGameAt(int i) {
+std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
 
     if(i >= this->indices->size()) {
-        return 0; // maybe throw out of range error or something instead of silently failing
+        //return 0; // maybe throw out of range error or something instead of silently failing
+        return move(std::unique_ptr<chess::Game>(nullptr));
     }
     chess::IndexEntry *ie = this->indices->at(i);
     if(ie->deleted) {
         // todo: jump to next valid entry
     }
-    chess::Game* game = new chess::Game();
+    auto game = std::make_unique<chess::Game>();
     QString whiteName = this->offsetNames->value(ie->whiteOffset);
     QString blackName = this->offsetNames->value(ie->blackOffset);
     QString site = this->offsetSites->value(ie->siteRef);
@@ -359,13 +360,13 @@ chess::Game* chess::Database::getGameAt(int i) {
         bool ok = fnGames.seek(ie->gameOffset);
         if(!ok) {
             std::cerr << "seeking to game offset failed!" << std::endl;
-            return game;
+            return move(game);
         }
         QDataStream gi(&fnGames);
         int length = this->decodeLength(&gi);
         if(length < 0) {
             std::cerr << "length decoding at game offset position failed!" << std::endl;
-            return game;
+            return move(game);
         }
         QByteArray game_raw;
         game_raw.resize(length);
@@ -373,11 +374,11 @@ chess::Game* chess::Database::getGameAt(int i) {
         gi.readRawData(game_raw.data(), length);
         if(gi.status() != QDataStream::Ok) {
             std::cerr << "reading game bytes at game offset failed!" << std::endl;
-            return game;
+            return move(game);
         }
-        this->dcgdecoder->decodeGame(game, &game_raw);
+        this->dcgdecoder->decodeGame(game.get(), &game_raw);
     }
-    return game;
+    return move(game);
 }
 
 int chess::Database::decodeLength(QDataStream *stream) {
@@ -460,7 +461,7 @@ void chess::Database::importPgnNamesSitesEvents(QString &pgnfile,
     std::cout << "scanning names and sites from " << pgnfile.toStdString() << std::endl;
     const char* encoding = pgnreader->detect_encoding(pgnfile);
 
-    chess::HeaderOffset* header = new chess::HeaderOffset();
+    chess::HeaderOffset header;
 
     quint64 offset = 0;
     bool stop = false;
@@ -472,7 +473,7 @@ void chess::Database::importPgnNamesSitesEvents(QString &pgnfile,
             std::cout << "\rscanning at " << offset;
         }
         i++;
-        int res = pgnreader->readNextHeader(pgnfile, encoding, &offset, header);
+        int res = pgnreader->readNextHeader(pgnfile, encoding, offset, header);
         if(res < 0) {
             stop = true;
             continue;
@@ -484,63 +485,58 @@ void chess::Database::importPgnNamesSitesEvents(QString &pgnfile,
         // file to 4294967295-1!
         // otherwise we add the key index of the existing database map files
         // these must then be skipped when writing the newly read sites and names
-        if(header->headers != 0) {
-            if(header->headers->contains("Site")) {
-                QString site = header->headers->value("Site");
+        //if(header.headers != 0) {
+            if(header.headers.contains("Site")) {
+                QString site = header.headers.value("Site");
                 if(site.size() > 36) {
                     site = site.left(36);
                 }
                 quint32 key = this->offsetSites->key(site, 4294967295);
                 if(key == 4294967295) {
-                    sites->insert(header->headers->value("Site"), 0);
+                    sites->insert(header.headers.value("Site"), 0);
                 } else {
-                    sites->insert(header->headers->value("Site"), key);
+                    sites->insert(header.headers.value("Site"), key);
                 }
             }
-            if(header->headers->contains("Event")) {
-                QString event = header->headers->value("Event");
+            if(header.headers.contains("Event")) {
+                QString event = header.headers.value("Event");
                 if(event.size() > 36) {
                     event = event.left(36);
                 }
                 quint32 key = this->offsetSites->key(event, 4294967295);
                 if(key == 4294967295) {
-                    events->insert(header->headers->value("Event"), 0);
+                    events->insert(header.headers.value("Event"), 0);
                 } else {
-                    events->insert(header->headers->value("Event"), key);
+                    events->insert(header.headers.value("Event"), key);
                 }
             }
-            if(header->headers->contains("White")) {
-                QString white = header->headers->value("White");
+            if(header.headers.contains("White")) {
+                QString white = header.headers.value("White");
                 quint32 key = this->offsetNames->key(white, 4294967295);
                 if(white.size() > 36) {
                     white = white.left(36);
                 }
                 if(key == 4294967295) {
-                    names->insert(header->headers->value("White"), 0);
+                    names->insert(header.headers.value("White"), 0);
                 } else {
-                    names->insert(header->headers->value("White"), key);
+                    names->insert(header.headers.value("White"), key);
                 }
             }
-            if(header->headers->contains("Black")) {
-                QString black = header->headers->value("Black");
+            if(header.headers.contains("Black")) {
+                QString black = header.headers.value("Black");
                 if(black.size() > 36) {
                     black = black.left(36);
                 }
                 quint32 key = this->offsetNames->key(black, 4294967295);
                 if(key == 4294967295) {
-                    names->insert(header->headers->value("Black"), 0);
+                    names->insert(header.headers.value("Black"), 0);
                 } else {
-                    names->insert(header->headers->value("Black"), key);
+                    names->insert(header.headers.value("Black"), key);
                 }
             }
-        }
-        header->headers->clear();
-        if(header->headers!=0) {
-           delete header->headers;
-        }
+        //}
     }
     std::cout << std::endl << "scanning finished" << std::flush;
-    delete header;
 }
 
 // save the map at the _end_ of file with filename (i.e. apend new names or sites)
@@ -661,7 +657,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                                                   QMap<QString, quint32> *events) {
 
     // now save everything
-    chess::HeaderOffset *header = new chess::HeaderOffset();
+    chess::HeaderOffset header;
     quint64 offset = 0;
     QFile pgnFile(pgnfile);
     quint64 size = pgnFile.size();
@@ -697,7 +693,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                     }
                 }
                 i++;
-                int res = pgnreader->readNextHeader(pgnfile, encoding, &offset, header);
+                int res = pgnreader->readNextHeader(pgnfile, encoding, offset, header);
                 if(res < 0) {
                     stop = true;
                     continue;
@@ -710,34 +706,34 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 // game offset
                 ByteUtil::append_as_uint64(&iEntry, fnGames.pos());
                 // white offset
-                QString white = header->headers->value("White");
+                QString white = header.headers.value("White");
                 //qDebug() << "WHITE: " << white;
                 quint32 whiteOffset = names->value(white);
                 ByteUtil::append_as_uint32(&iEntry, whiteOffset);
                 // black offset
-                QString black = header->headers->value("Black");
+                QString black = header.headers.value("Black");
                 quint32 blackOffset = names->value(black);
                 //qDebug() << "BLACK: " << black;
                 ByteUtil::append_as_uint32(&iEntry, blackOffset);
                 // round
-                quint16 round = header->headers->value("Round").toUInt();
+                quint16 round = header.headers.value("Round").toUInt();
                 ByteUtil::append_as_uint16(&iEntry, round);
                 // site offset
-                quint32 site_offset = sites->value(header->headers->value("Site"));
+                quint32 site_offset = sites->value(header.headers.value("Site"));
                 ByteUtil::append_as_uint32(&iEntry, site_offset);
                 // event offset
-                quint32 event_offset = events->value(header->headers->value("Event"));
+                quint32 event_offset = events->value(header.headers.value("Event"));
                 ByteUtil::append_as_uint32(&iEntry, event_offset);
                 //qDebug() << "EVENT OFFSET: " << event_offset;
                 // elo white
-                quint16 elo_white = header->headers->value("WhiteElo").toUInt();
+                quint16 elo_white = header.headers.value("WhiteElo").toUInt();
                 //qDebug() << "elo white: " << elo_white;
                 ByteUtil::append_as_uint16(&iEntry, elo_white);
-                quint16 elo_black = header->headers->value("BlackElo").toUInt();
+                quint16 elo_black = header.headers.value("BlackElo").toUInt();
                 ByteUtil::append_as_uint16(&iEntry, elo_black);
                 // result
-                if(header->headers->contains("Result")) {
-                    QString res = header->headers->value("Result");
+                if(header.headers.contains("Result")) {
+                    QString res = header.headers.value("Result");
                     if(res == "1-0") {
                         ByteUtil::append_as_uint8(&iEntry, quint8(0x01));
                     } else if(res == "0-1") {
@@ -752,8 +748,8 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 }
                 //qDebug() << iEntry.size();
                 // ECO
-                if(header->headers->contains("ECO")) {
-                    QByteArray eco = header->headers->value("ECO").toLatin1().left(3);
+                if(header.headers.contains("ECO")) {
+                    QByteArray eco = header.headers.value("ECO").toLatin1().left(3);
                     //qDebug() << eco;
                     iEntry.append(eco);
                 } else {
@@ -762,8 +758,8 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 }
                 //qDebug() << iEntry.size();
                 // parse date
-                if(header->headers->contains("Date")) {
-                    QString date = header->headers->value("Date");
+                if(header.headers.contains("Date")) {
+                    QString date = header.headers.value("Date");
                     // try to parse the date
                     quint16 year = 0;
                     quint8 month = 0;
@@ -802,25 +798,20 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 assert(iEntry.size() == 39);
                 fnIndex.write(iEntry, iEntry.length());
                 //qDebug() << "just before reading back file";
-                chess::Game *g = pgnreader->readGameFromFile(pgnfile, encoding, header->offset);
+                std::unique_ptr<chess::Game> g = pgnreader->readGameFromFile(pgnfile, encoding, header.offset);
                 //qDebug() << "READ file ok";
-                QByteArray *g_enc = dcgencoder->encodeGame(g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
+                QByteArray *g_enc = dcgencoder->encodeGame(g.get()); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
                 //qDebug() << "enc ok";
                 //qDebug() << "writing game: " << g_enc->toHex();
                 fnGames.write(*g_enc, g_enc->length());
                 delete g_enc;
-                header->headers->clear();
-                if(header->headers!=0) {
-                    delete header->headers;
-                }
-                delete g;
+
             }
             std::cout << "\rsaving games: "<<size<< "/"<<size << std::endl;
         }
         fnGames.close();
     }
     fnIndex.close();
-    delete header;
 }
 
 

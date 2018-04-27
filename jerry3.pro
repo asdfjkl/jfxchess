@@ -14,8 +14,9 @@ QT       -= gui
 TARGET = Jerry
 CONFIG   -= console
 CONFIG   -= app_bundle
+CONFIG   += c++14
 
-QMAKE_CXXFLAGS += -std=c++11
+
 
 TEMPLATE = app
 

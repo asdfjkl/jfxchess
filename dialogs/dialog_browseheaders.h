@@ -11,12 +11,12 @@ class DialogBrowseHeaders : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogBrowseHeaders(QList<chess::HeaderOffset*>* header_offsets,
+    explicit DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offsets,
                                  QString &filename, QWidget *parent = 0);
     int gameOffset;
 
 private:
-    QList<chess::HeaderOffset*>* header_offsets;
+    QList<chess::HeaderOffset> &header_offsets;
     QStringList *tableHeaders;
     QTableWidget *table;
     void drawAllItems();

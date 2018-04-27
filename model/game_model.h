@@ -67,7 +67,7 @@ public:
     QString lastSaveDir;
     GameModel(QObject *parent = 0);
     chess::Game* getGame();
-    void setGame(chess::Game *g);
+    void setGame(std::unique_ptr<chess::Game> g);
     void triggerStateChange();
     int getMode();
     void setMode(int mode);
@@ -120,7 +120,7 @@ private:
     void loadOpeningBook();
 
     chess::Polyglot* book;
-    chess::Game *game;
+    std::unique_ptr<chess::Game> game;
     int mode;
     QList<Engine*> *engines;
     Engine *active_engine;

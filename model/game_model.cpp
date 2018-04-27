@@ -39,7 +39,7 @@ GameModel::GameModel(QObject *parent) :
     this->lastSaveFilename = "";
     this->lastOpenDir = "";
     this->lastSaveDir = "";
-    this->game = new chess::Game();   
+    this->game = std::unique_ptr<chess::Game>(new chess::Game());
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
     this->engines = new QList<Engine*>();
@@ -127,13 +127,13 @@ void GameModel::setActiveEngine(Engine *engine) {
 }
 
 chess::Game* GameModel::getGame() {
-    return this->game;
+    return this->game.get();
 }
 
-void GameModel::setGame(chess::Game *g) {
-    assert(g != 0);
-    delete this->game;
-    this->game = g;
+void GameModel::setGame(std::unique_ptr<chess::Game> g) {
+    assert(g != nullptr);
+    //delete this->game;
+    this->game = std::move(g);
     //this->game->setCurrent(this->game->getRootNode());
 }
 
@@ -253,14 +253,11 @@ void GameModel::restoreGameState() {
     if(settings.contains("currentGame")) {
         QString pgnString = settings.value("currentGame").toString();
         chess::PgnReader *reader = new chess::PgnReader();
-        if(this->game != 0) {
-            delete this->game;
-        }
         try {
-            this->game = reader->readGameFromString(&pgnString);
+            this->game = reader->readGameFromString(pgnString);
             this->game->findEco();
         } catch(std::exception e) {
-            this->game = new chess::Game();
+            this->game.reset(new chess::Game());
             std::cerr << e.what() << std::endl;
         }
         delete reader;

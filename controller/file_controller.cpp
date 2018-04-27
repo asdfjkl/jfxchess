@@ -93,8 +93,9 @@ void FileController::newGame() {
         //qDebug() << "gameModel: " << this->gameModel->engineStrength;
         //qDebug() << "gameModel: " << this->gameModel->getEngineStrength();
         this->gameModel->engineThinkTimeMs = dlg->computerThinkTime*1000;
-        chess::Game *g = new chess::Game();
-        this->gameModel->setGame(g);
+        //auto g = std::unique_ptr<chess::Game>(new chess::Game());
+        auto g = std::make_unique<chess::Game>();
+        this->gameModel->setGame(move(g));
         this->gameModel->getGame()->treeWasChanged = true;
         if(dlg->playsWhite) {
             this->gameModel->flipBoard = false;
@@ -134,25 +135,25 @@ void FileController::openGame() {
             delete msg;
         } else {
             const char* encoding = reader->detect_encoding(filename);
-            QString *complete_file = reader->readFileIntoString(filename, encoding);
-            QList<chess::HeaderOffset*>* header_offsets = reader->scan_headersFromString(complete_file);
-            if(header_offsets->size() == 1) {
-                chess::Game *g = reader->readGameFromString(complete_file);
+            QString complete_file = reader->readFileIntoString(filename, encoding);
+            QList<chess::HeaderOffset> header_offsets = reader->scan_headersFromString(complete_file);
+            if(header_offsets.size() == 1) {
+                std::unique_ptr<chess::Game> g = reader->readGameFromString(complete_file);
                 this->gameModel->wasSaved = true;
                 this->gameModel->lastOpenDir = path;
                 this->gameModel->lastSaveFilename = filename;
                 // setup new game triggers statechange, so no need to call
-                this->setupNewGame(g);
+                this->setupNewGame(move(g));
                 // load and set new game
-            } else if(header_offsets->size() > 1) {
+            } else if(header_offsets.size() > 1) {
                 DialogBrowseHeaders* dlg = new DialogBrowseHeaders(header_offsets, filename, this->parentWidget);
                 if(dlg->exec() == QDialog::Accepted) {
-                    chess::Game *g = reader->readGameFromString(complete_file, dlg->gameOffset);
+                    std::unique_ptr<chess::Game> g = reader->readGameFromString(complete_file, dlg->gameOffset);
 
                     this->gameModel->wasSaved = false;
                     this->gameModel->lastOpenDir = path;
                     this->gameModel->lastSaveFilename = QString("");
-                    this->setupNewGame(g);
+                    this->setupNewGame(move(g));
                 }
                 delete dlg;
             }
@@ -164,9 +165,9 @@ void FileController::openGame() {
     }
 }
 
-void FileController::setupNewGame(chess::Game *g) {
+void FileController::setupNewGame(std::unique_ptr<chess::Game> g) {
     //delete this->gameModel->getGame();
-    this->gameModel->setGame(g);
+    this->gameModel->setGame(move(g));
     this->gameModel->getGame()->treeWasChanged = true;
     this->gameModel->triggerStateChange();
 }
