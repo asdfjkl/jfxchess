@@ -53,7 +53,7 @@ chess::Database::~Database()
     delete this->offsetNames;
     delete this->offsetSites;
     delete this->offsetEvents;
-    delete this->dcgencoder;
+    //delete this->dcgencoder;
     delete this->dcgdecoder;
     delete this->pgnreader;
     delete this->indices;
@@ -800,12 +800,10 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 //qDebug() << "just before reading back file";
                 std::unique_ptr<chess::Game> g = pgnreader->readGameFromFile(pgnfile, encoding, header.offset);
                 //qDebug() << "READ file ok";
-                QByteArray *g_enc = dcgencoder->encodeGame(g.get()); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
+                QByteArray g_enc = dcgencoder->encodeGame(*g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
                 //qDebug() << "enc ok";
                 //qDebug() << "writing game: " << g_enc->toHex();
-                fnGames.write(*g_enc, g_enc->length());
-                delete g_enc;
-
+                fnGames.write(g_enc, g_enc.length());
             }
             std::cout << "\rsaving games: "<<size<< "/"<<size << std::endl;
         }

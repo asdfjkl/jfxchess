@@ -11,13 +11,12 @@ class DcgEncoder
 {
 public:
     DcgEncoder();
-    ~DcgEncoder();
-    QByteArray* encodeGame(Game *game);
-    QByteArray* encodeHeader();
+    QByteArray encodeGame(Game &game);
+    QByteArray encodeHeader();
     void traverseNodes(GameNode *current);
     void reset();
 
-    void appendMove(Move *move);
+    void appendMove(Move &move);
     void appendLength(int len);
     void prependLength(int len);
     void appendNags(GameNode* node);
@@ -27,7 +26,7 @@ public:
     void appendEndTag();
 
 private:
-    QByteArray* gameBytes;
+    QByteArray gameBytes;
 
 };
 
