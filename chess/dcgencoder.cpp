@@ -113,46 +113,46 @@ void DcgEncoder::appendMove(Move *move) {
             move_binary += quint16((move->promotion_piece) << 12);
             //qDebug() << "promotion move bin: " << move_binary;
         }
-        ByteUtil::append_as_uint16(this->gameBytes, move_binary);
+        ByteUtil::append_as_uint16(*this->gameBytes, move_binary);
         //qDebug() << this->gameBytes->mid(this->gameBytes->length()-2, 2).toHex();
     }
 }
 
 void DcgEncoder::appendLength(int len) {
     if(len >= 0 && len < 127) {
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(len));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(len));
     } else if(len >= 0 && len < 255) {
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(0x81));
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(len));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(0x81));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(len));
     } else if(len >= 0 && len < 65535) {
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(0x82));
-        ByteUtil::append_as_uint16(this->gameBytes, quint16(len));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(0x82));
+        ByteUtil::append_as_uint16(*this->gameBytes, quint16(len));
     } else if(len >= 0 && len < 16777215) {
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(0x83));
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(len >> 16));
-        ByteUtil::append_as_uint16(this->gameBytes, quint16(len));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(0x83));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(len >> 16));
+        ByteUtil::append_as_uint16(*this->gameBytes, quint16(len));
     } else if(len >= 0 && len < 4294967) {
-        ByteUtil::append_as_uint8(this->gameBytes, quint8(0x84));
-        ByteUtil::append_as_uint32(this->gameBytes, quint32(len));
+        ByteUtil::append_as_uint8(*this->gameBytes, quint8(0x84));
+        ByteUtil::append_as_uint32(*this->gameBytes, quint32(len));
     }
 }
 
 void DcgEncoder::prependLength(int len) {
     if(len >= 0 && len < 127) {
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(len));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(len));
     } else if(len >= 0 && len < 255) {
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(len));
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(0x81));        
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(len));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(0x81));
     } else if(len >= 0 && len < 65535) {
-        ByteUtil::prepend_as_uint16(this->gameBytes, quint16(len));
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(0x82));
+        ByteUtil::prepend_as_uint16(*this->gameBytes, quint16(len));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(0x82));
     } else if(len >= 0 && len < 16777215) {
-        ByteUtil::prepend_as_uint16(this->gameBytes, quint16(len));
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(len >> 16));
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(0x83));
+        ByteUtil::prepend_as_uint16(*this->gameBytes, quint16(len));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(len >> 16));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(0x83));
     } else if(len >= 0 && len < 4294967) {
-        ByteUtil::prepend_as_uint32(this->gameBytes, quint32(len));
-        ByteUtil::prepend_as_uint8(this->gameBytes, quint8(0x84));
+        ByteUtil::prepend_as_uint32(*this->gameBytes, quint32(len));
+        ByteUtil::prepend_as_uint8(*this->gameBytes, quint8(0x84));
     }
 }
 

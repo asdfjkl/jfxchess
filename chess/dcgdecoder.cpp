@@ -15,7 +15,7 @@ chess::DcgDecoder::~DcgDecoder()
 }
 
 
-int chess::DcgDecoder::decodeLength(QByteArray *ba, int *index) {
+int chess::DcgDecoder::decodeLength(QByteArray &ba, int *index) {
     int idx = *index;
     if(idx >= ba->size()) {
         return -1;

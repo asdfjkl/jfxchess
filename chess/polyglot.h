@@ -20,11 +20,11 @@ class Polyglot
 {
 public:
     Polyglot(QString &bookname);
-    QVector<Move> findMoves(Board *board);
-    bool inBook(Board *board);
+    QVector<Move> findMoves(Board &board);
+    bool inBook(Board &board);
 
 private:
-    QByteArray* book;
+    QByteArray book;
     Entry entryFromOffset(int offset);
     Move moveFromEntry(Entry e);
     bool readFile;

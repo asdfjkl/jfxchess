@@ -103,11 +103,11 @@ bool GameModel::canAndMayUseBook(chess::GameNode *node) {
 }
 
 QVector<chess::Move> GameModel::getBookMoves(chess::GameNode *node) {
-    return this->book->findMoves(node->getBoard());
+    return this->book->findMoves(*node->getBoard());
 }
 
 bool GameModel::isInBook(chess::GameNode *node) {
-    return this->book->inBook(node->getBoard());
+    return this->book->inBook(*node->getBoard());
 }
 
 QString GameModel::getLastAddedEnginePath() {

@@ -16,7 +16,7 @@ Polyglot::Polyglot(QString &bookname)
     if(size <= 15728640) {
         if(file.open(QIODevice::ReadOnly)) {
             //qDebug() << "reading test ";
-            this->book = new QByteArray(file.readAll());
+            this->book = QByteArray(file.readAll());
             /*
             QByteArray foo = file.read(16ULL);
             QDataStream foobar(foo);
@@ -39,11 +39,11 @@ Polyglot::Polyglot(QString &bookname)
 }
 
 Entry Polyglot::entryFromOffset(int offset) {
-    if(this->book == 0 || offset > this->book->size()-16 || !this->readFile) {
+    if(offset > this->book.size()-16 || !this->readFile) {
         throw std::invalid_argument("called entryFromOffset with invalid offset");
     }
     Entry e = {0,0,0,0};
-    QByteArray ba = this->book->mid(offset, 16);
+    QByteArray ba = this->book.mid(offset, 16);
     QDataStream da(ba);
     da >> e.key;
     da >> e.move;
@@ -95,12 +95,12 @@ Move Polyglot::moveFromEntry(Entry e) {
     return m;
 }
 
-QVector<Move> Polyglot::findMoves(Board *board) {
+QVector<Move> Polyglot::findMoves(Board &board) {
     QVector<Move> bookMoves;
-    if(this->book != 0 && this->readFile) {
-        quint64 zh_board = board->zobrist();
+    if(this->readFile) {
+        quint64 zh_board = board.zobrist();
         quint64 low = 0;
-        quint64 high = this->book->size() / 16;
+        quint64 high = this->book.size() / 16;
         // find entry fast
         while(low < high) {
             quint64 middle = (low + high) / 2;
@@ -113,7 +113,7 @@ QVector<Move> Polyglot::findMoves(Board *board) {
             }
         }
         quint64 offset = low;
-        quint64 size = this->book->size() / 16;
+        quint64 size = this->book.size() / 16;
         // now we have the lowest key pos
         // where a possible entry is. collect all
         while(offset < size) {
@@ -129,13 +129,13 @@ QVector<Move> Polyglot::findMoves(Board *board) {
     return bookMoves;
 }
 
-bool Polyglot::inBook(Board *board) {
+bool Polyglot::inBook(Board &board) {
     int cntBookMoves = 0;
 
-    if(this->book != 0 && this->readFile) {
-        quint64 zh_board = board->zobrist();
+    if(this->readFile) {
+        quint64 zh_board = board.zobrist();
         quint64 low = 0;
-        quint64 high = this->book->size() / 16;
+        quint64 high = this->book.size() / 16;
         // find entry fast
         while(low < high) {
             quint64 middle = (low + high) / 2;
@@ -148,7 +148,7 @@ bool Polyglot::inBook(Board *board) {
             }
         }
         quint64 offset = low;
-        quint64 size = this->book->size() / 16;
+        quint64 size = this->book.size() / 16;
         // now we have the lowest key pos
         // where a possible entry is. collect all
         while(offset < size) {

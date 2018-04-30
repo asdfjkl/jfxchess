@@ -269,7 +269,7 @@ void FuncT::run_polyglot() {
     qDebug() << path;
     chess::Polyglot *p = new chess::Polyglot(path);
     qDebug() << "created polyglot book";
-    QVector<Move> mvs = p->findMoves(b);
+    QVector<Move> mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -277,7 +277,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -285,7 +285,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -293,7 +293,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -301,7 +301,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -309,7 +309,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -317,7 +317,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -325,7 +325,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
@@ -333,7 +333,7 @@ void FuncT::run_polyglot() {
     }
     delete b;
     b = new Board(QString("rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4"));
-    mvs = p->findMoves(b);
+    mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();

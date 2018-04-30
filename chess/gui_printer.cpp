@@ -53,11 +53,11 @@ void GuiPrinter::writeToken(const QString &token) {
     this->pgn.append(token);
 }
 
-QString GuiPrinter::printGame(Game *g) {
+QString GuiPrinter::printGame(Game &g) {
 
     this->reset();
 
-    GameNode *root = g->getRootNode();
+    GameNode *root = g.getRootNode();
 
     this->writeToken("<p style=\"line-height:110%\">");
 
@@ -67,7 +67,7 @@ QString GuiPrinter::printGame(Game *g) {
         this->printComment(root->getComment());
     }
     this->printGameContent(root, true);
-    this->printResult(g->getResult());
+    this->printResult(g.getResult());
     this->pgn.append(this->currentLine);
 
     return pgn;

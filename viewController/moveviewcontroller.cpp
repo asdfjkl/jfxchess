@@ -399,7 +399,7 @@ void MoveViewController::onStateChange() {
         this->document->clear();
         this->document->setDefaultStyleSheet("a:link { color: #000000; text-decoration: none}");
         chess::Game *g = this->gameModel->getGame();
-        QString sl = this->guiPrinter->printGame(g);
+        QString sl = this->guiPrinter->printGame(*g);
         this->document->setHtml(sl);
         this->setDocument(this->document);
         this->gameModel->getGame()->treeWasChanged = false;

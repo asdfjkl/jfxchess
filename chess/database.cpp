@@ -676,7 +676,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 QByteArray openDefault;
                 //openDefault.resize(8);
                 //openDefault.fill(0x00);
-                ByteUtil::append_as_uint64(&openDefault, this->loadUponOpen);
+                ByteUtil::append_as_uint64(openDefault, this->loadUponOpen);
                 //qDebug() << "OFFSET0: " << openDefault.toHex();
                 fnIndex.write(openDefault, 8);
             }
@@ -702,49 +702,49 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 QByteArray iEntry;
                 // first write index entry
                 // status
-                ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
+                ByteUtil::append_as_uint8(iEntry, quint8(0x00));
                 // game offset
-                ByteUtil::append_as_uint64(&iEntry, fnGames.pos());
+                ByteUtil::append_as_uint64(iEntry, fnGames.pos());
                 // white offset
                 QString white = header.headers.value("White");
                 //qDebug() << "WHITE: " << white;
                 quint32 whiteOffset = names->value(white);
-                ByteUtil::append_as_uint32(&iEntry, whiteOffset);
+                ByteUtil::append_as_uint32(iEntry, whiteOffset);
                 // black offset
                 QString black = header.headers.value("Black");
                 quint32 blackOffset = names->value(black);
                 //qDebug() << "BLACK: " << black;
-                ByteUtil::append_as_uint32(&iEntry, blackOffset);
+                ByteUtil::append_as_uint32(iEntry, blackOffset);
                 // round
                 quint16 round = header.headers.value("Round").toUInt();
-                ByteUtil::append_as_uint16(&iEntry, round);
+                ByteUtil::append_as_uint16(iEntry, round);
                 // site offset
                 quint32 site_offset = sites->value(header.headers.value("Site"));
-                ByteUtil::append_as_uint32(&iEntry, site_offset);
+                ByteUtil::append_as_uint32(iEntry, site_offset);
                 // event offset
                 quint32 event_offset = events->value(header.headers.value("Event"));
-                ByteUtil::append_as_uint32(&iEntry, event_offset);
+                ByteUtil::append_as_uint32(iEntry, event_offset);
                 //qDebug() << "EVENT OFFSET: " << event_offset;
                 // elo white
                 quint16 elo_white = header.headers.value("WhiteElo").toUInt();
                 //qDebug() << "elo white: " << elo_white;
-                ByteUtil::append_as_uint16(&iEntry, elo_white);
+                ByteUtil::append_as_uint16(iEntry, elo_white);
                 quint16 elo_black = header.headers.value("BlackElo").toUInt();
-                ByteUtil::append_as_uint16(&iEntry, elo_black);
+                ByteUtil::append_as_uint16(iEntry, elo_black);
                 // result
                 if(header.headers.contains("Result")) {
                     QString res = header.headers.value("Result");
                     if(res == "1-0") {
-                        ByteUtil::append_as_uint8(&iEntry, quint8(0x01));
+                        ByteUtil::append_as_uint8(iEntry, quint8(0x01));
                     } else if(res == "0-1") {
-                        ByteUtil::append_as_uint8(&iEntry, quint8(0x02));
+                        ByteUtil::append_as_uint8(iEntry, quint8(0x02));
                     } else if(res == "1/2-1/2") {
-                        ByteUtil::append_as_uint8(&iEntry, quint8(0x03));
+                        ByteUtil::append_as_uint8(iEntry, quint8(0x03));
                     } else {
-                        ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
+                        ByteUtil::append_as_uint8(iEntry, quint8(0x00));
                     }
                 } else  {
-                    ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
+                    ByteUtil::append_as_uint8(iEntry, quint8(0x00));
                 }
                 //qDebug() << iEntry.size();
                 // ECO
@@ -786,13 +786,13 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                         }
                     }
                     //qDebug() << "YEAR: " << year;
-                    ByteUtil::append_as_uint16(&iEntry, year);
-                    ByteUtil::append_as_uint8(&iEntry, month);
-                    ByteUtil::append_as_uint8(&iEntry, day);
+                    ByteUtil::append_as_uint16(iEntry, year);
+                    ByteUtil::append_as_uint8(iEntry, month);
+                    ByteUtil::append_as_uint8(iEntry, day);
                 } else {
-                    ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
-                    ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
-                    ByteUtil::append_as_uint8(&iEntry, quint8(0x00));
+                    ByteUtil::append_as_uint8(iEntry, quint8(0x00));
+                    ByteUtil::append_as_uint8(iEntry, quint8(0x00));
+                    ByteUtil::append_as_uint8(iEntry, quint8(0x00));
                 }
                 //qDebug() << iEntry.size();
                 assert(iEntry.size() == 39);

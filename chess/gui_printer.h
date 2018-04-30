@@ -42,7 +42,7 @@ public:
      * @param g pointer to a Game
      * @return text string of game using san notation.
      */
-    QString printGame(Game *g);
+    QString printGame(Game &g);
 
 private:
     bool newLine;
