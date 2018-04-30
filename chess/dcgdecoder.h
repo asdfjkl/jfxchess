@@ -11,12 +11,11 @@ class DcgDecoder
 public:
     DcgDecoder();
     ~DcgDecoder();
-    Game* decodeGame(Game *g, QByteArray *ba);
-    int decodeLength(QByteArray *ba, int *idx);
+    void decodeGame(Game &g, QByteArray &ba);
+    int decodeLength(QByteArray &ba, int &idx);
 
 private:
-    Game* game;
-    int decodeAnnotations(QByteArray *ba, int *idx, int len, GameNode *current);
+    int decodeAnnotations(QByteArray &ba, int &idx, int len, GameNode &current);
 };
 
 }

@@ -376,7 +376,7 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
             std::cerr << "reading game bytes at game offset failed!" << std::endl;
             return move(game);
         }
-        this->dcgdecoder->decodeGame(game.get(), &game_raw);
+        this->dcgdecoder->decodeGame(*game, game_raw);
     }
     return move(game);
 }
