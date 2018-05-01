@@ -15,7 +15,7 @@ class EcoCode
 {
 public:
     EcoCode();
-    EcoInfo* classify(Board *b);
+    EcoInfo classify(Board &b);
 
 };
 

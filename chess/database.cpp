@@ -305,15 +305,15 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
     QString site = this->offsetSites->value(ie->siteRef);
     //qDebug() << "EVENT REF: " << ie->eventRef;
     QString event = this->offsetEvents->value(ie->eventRef);
-    game->headers->insert("White",whiteName);
-    game->headers->insert("Black", blackName);
-    game->headers->insert("Site", site);
-    game->headers->insert("Event", event);
+    game->headers.insert("White",whiteName);
+    game->headers.insert("Black", blackName);
+    game->headers.insert("Site", site);
+    game->headers.insert("Event", event);
     if(ie->eloWhite != 0) {
-        game->headers->insert("WhiteElo", QString::number(ie->eloWhite));
+        game->headers.insert("WhiteElo", QString::number(ie->eloWhite));
     }
     if(ie->eloBlack != 0) {
-        game->headers->insert("BlackElo", QString::number(ie->eloBlack));
+        game->headers.insert("BlackElo", QString::number(ie->eloBlack));
     }
     //qDebug() << "EVENT IS: " << event;
     QString date("");
@@ -334,26 +334,26 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
     } else {
         date.append("??");
     }
-    game->headers->insert("Date", date);
+    game->headers.insert("Date", date);
     //qDebug() << "RESULT: " << ie->result;
     if(ie->result == RES_WHITE_WINS) {
-        game->headers->insert("Result", "1-0");
+        game->headers.insert("Result", "1-0");
         game->setResult(RES_WHITE_WINS);
     } else if(ie->result == RES_BLACK_WINS) {
-        game->headers->insert("Result", "0-1");
+        game->headers.insert("Result", "0-1");
         game->setResult(RES_BLACK_WINS);
     } else if(ie->result == RES_DRAW) {
-        game->headers->insert("Result", "1/2-1/2");
+        game->headers.insert("Result", "1/2-1/2");
         game->setResult(RES_DRAW);
     } else {
-        game->headers->insert("Result", "*");
+        game->headers.insert("Result", "*");
         game->setResult(RES_UNDEF);
     }
-    game->headers->insert("ECO", ie->eco);
+    game->headers.insert("ECO", ie->eco);
     if(ie->round != 0) {
-        game->headers->insert("Round", QString::number((ie->round)));
+        game->headers.insert("Round", QString::number((ie->round)));
     } else {
-        game->headers->insert("Round", "?");
+        game->headers.insert("Round", "?");
     }
     QFile fnGames(this->filenameGames);
     if(fnGames.open(QFile::ReadOnly)) {

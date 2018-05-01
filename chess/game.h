@@ -38,22 +38,29 @@ class Game
 public:
 
     /**
-     * @brief treeWasChanged this variable is set to true (either by
-     *                       a member function of Game or manually)
-     *                       if an operation was carried out that
-     *                       changed fundamentally the tree structure
-     *                       In other words, if the this variable is true,
-     *                       an existing GUI representation of the Game tree
-     *                       must be likely be reconstructed
+     * @brief returns true if a tree operation was recently carried
+     *                out that changed the tree structure (i.e. then
+     *                a redraw is required)
      */
-    bool treeWasChanged;
+    bool isTreeChanged();
+
+
+    /**
+     *  @brief call this function with true if an operation was carried
+     *         out that fundamentally changed the tree structure (i.e.
+     *         deleting nodes, adding comments etc.). Used to remember
+     *         if a GUI representation of the tree needs to be redrawn
+     *         call with false, after updating GUI representation
+     */
+    void setTreeWasChanged(bool status);
+
 
     /**
      * @brief headers contains the game headers. During construction of a Game
      *                object there will always be the 7tag roster index entries
      *                (albeit initialized to empty field)
      */
-    QMap<QString, QString>* headers;
+    QMap<QString, QString> headers;
 
     /**
      * @brief Game essentially a tree of GameNode objects that
@@ -240,6 +247,7 @@ public:
 
 private:
 
+    bool treeWasChanged;
     GameNode* root;
     GameNode* current;
     int result;

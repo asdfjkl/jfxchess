@@ -15,7 +15,7 @@ void DatabaseController::showDatabase() {
     if(ddb->exec() == QDialog::Accepted && ddb->selectedIndex >= 0) {
         std::unique_ptr <chess::Game> selected_game = this->gameModel->database->getGameAt(ddb->selectedIndex);
         this->gameModel->setGame(move(selected_game));
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
     }
     delete ddb;
     this->gameModel->triggerStateChange();

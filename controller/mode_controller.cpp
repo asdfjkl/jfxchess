@@ -135,7 +135,7 @@ void ModeController::onBestMove(QString uci_move) {
                 current->getVariation(1)->setComment(c1);
                 }
             }
-            this->gameModel->getGame()->treeWasChanged = true;
+            this->gameModel->getGame()->setTreeWasChanged(true);
             }
         }
         }
@@ -216,7 +216,7 @@ void ModeController::onStateChangeGameAnalysis() {
     } else if(this->gameModel->isInBook(parent)) {
         QString cmt = QString("last book move");
         parent->setComment(cmt);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->setMode(MODE_ENTER_MOVES);
         this->gameModel->triggerStateChange();
         msg->showMessage(tr("Game Analysis"), tr("The analysis is finished."));
@@ -328,7 +328,7 @@ void ModeController::onActivateGameAnalysisMode() {
         // delete all comments and variants
         this->gameModel->getGame()->removeAllComments();
         this->gameModel->getGame()->removeAllVariants();
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         // first change gamestate and reset engine
         this->uci_controller->uciSendCommand("quit");
         QString engine_path = this->gameModel->getActiveEngine()->getPath();
@@ -414,10 +414,10 @@ void ModeController::onStateChange() {
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
             if(mode == MODE_PLAY_WHITE) {
                 this->gameModel->getGame()->setResult(chess::RES_WHITE_WINS);
-                this->gameModel->getGame()->treeWasChanged = true;
+                this->gameModel->getGame()->setTreeWasChanged(true);
             } else {
                 this->gameModel->getGame()->setResult(chess::RES_BLACK_WINS);
-                this->gameModel->getGame()->treeWasChanged = true;
+                this->gameModel->getGame()->setTreeWasChanged(true);
             }
             this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)
@@ -440,7 +440,7 @@ void ModeController::onStateChange() {
     // 50 moves rule
     if(current->getBoard()->can_claim_fifty_moves()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
-            this->gameModel->getGame()->treeWasChanged = true;
+            this->gameModel->getGame()->setTreeWasChanged(true);
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
             this->onActivateEnterMovesMode();
         } else if((mode == MODE_ANALYSIS || mode == MODE_ENTER_MOVES)

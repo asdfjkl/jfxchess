@@ -58,7 +58,7 @@ void EditController::paste() {
     try {
         chess::Board *b = new chess::Board(text);
         this->gameModel->getGame()->resetWithNewRootBoard(b);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument e) {
         // std::cerr << e.what() << std::endl;
@@ -67,7 +67,7 @@ void EditController::paste() {
             chess::PgnReader *reader = new chess::PgnReader();
             std::unique_ptr<chess::Game> g = reader->readGameFromString(text);
             this->gameModel->setGame(move(g));
-            this->gameModel->getGame()->treeWasChanged = true;
+            this->gameModel->getGame()->setTreeWasChanged(true);
             this->gameModel->triggerStateChange();
         }
         catch(std::invalid_argument e) {
@@ -90,30 +90,30 @@ void EditController::enterPosition() {
 }
 
 void EditController::editHeaders() {
-    DialogEditHeaders *dlg = new DialogEditHeaders(this->gameModel->getGame()->headers, this->parentWidget);
+    DialogEditHeaders *dlg = new DialogEditHeaders(&this->gameModel->getGame()->headers, this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
 
-        this->gameModel->getGame()->headers->insert("Event", dlg->leEvent->text());
-        this->gameModel->getGame()->headers->insert("Site", dlg->leSite->text());
-        this->gameModel->getGame()->headers->insert("Date", dlg->leDate->text());
-        this->gameModel->getGame()->headers->insert("Round", dlg->leRound->text());
-        this->gameModel->getGame()->headers->insert("White", dlg->leWhite->text());
-        this->gameModel->getGame()->headers->insert("Black", dlg->leBlack->text());
-        this->gameModel->getGame()->headers->insert("ECO", dlg->leECO->text());
+        this->gameModel->getGame()->headers.insert("Event", dlg->leEvent->text());
+        this->gameModel->getGame()->headers.insert("Site", dlg->leSite->text());
+        this->gameModel->getGame()->headers.insert("Date", dlg->leDate->text());
+        this->gameModel->getGame()->headers.insert("Round", dlg->leRound->text());
+        this->gameModel->getGame()->headers.insert("White", dlg->leWhite->text());
+        this->gameModel->getGame()->headers.insert("Black", dlg->leBlack->text());
+        this->gameModel->getGame()->headers.insert("ECO", dlg->leECO->text());
         if(dlg->rbBlackWins->isChecked()) {
             this->gameModel->getGame()->setResult(chess::RES_BLACK_WINS);
-            this->gameModel->getGame()->headers->insert("Result", "0-1");
+            this->gameModel->getGame()->headers.insert("Result", "0-1");
         } else if(dlg->rbWhiteWins->isChecked()) {
             this->gameModel->getGame()->setResult(chess::RES_WHITE_WINS);
-            this->gameModel->getGame()->headers->insert("Result", "1-0");
+            this->gameModel->getGame()->headers.insert("Result", "1-0");
         } else if(dlg->rbDraw->isChecked()) {
             this->gameModel->getGame()->setResult(chess::RES_DRAW);
-            this->gameModel->getGame()->headers->insert("Result", "1/2-1/2");
+            this->gameModel->getGame()->headers.insert("Result", "1/2-1/2");
         } else if(dlg->rbUndefined->isChecked()) {
             this->gameModel->getGame()->setResult(chess::RES_UNDEF);
-            this->gameModel->getGame()->headers->insert("Result", "*");
+            this->gameModel->getGame()->headers.insert("Result", "*");
         }
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
     }
     delete dlg;
     this->gameModel->triggerStateChange();

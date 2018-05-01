@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // reconstruct gameModel
     this->gameModel = new GameModel();
     this->gameModel->restoreGameState();
-    this->gameModel->getGame()->treeWasChanged = true;
+    this->gameModel->getGame()->setTreeWasChanged(true);
 
     this->boardViewController = new BoardViewController(gameModel, this);
     this->moveViewController = new MoveViewController(gameModel, this);
@@ -522,10 +522,10 @@ void MainWindow::saveImage() {
 }
 
 void MainWindow::onStateChange() {
-    QString white = this->gameModel->getGame()->headers->value("White");
-    QString black = this->gameModel->getGame()->headers->value("Black");
-    QString site = this->gameModel->getGame()->headers->value("Site");
-    QString date = this->gameModel->getGame()->headers->value("Date");
+    QString white = this->gameModel->getGame()->headers.value("White");
+    QString black = this->gameModel->getGame()->headers.value("Black");
+    QString site = this->gameModel->getGame()->headers.value("Site");
+    QString date = this->gameModel->getGame()->headers.value("Date");
     QString line1 = QString("<b>").append(white).append(QString(" - ")).append(black).append(QString("</b><br/>"));
     QString line2 = site.append(QString(" ")).append(date);
     this->name->setText(line1.append(line2));

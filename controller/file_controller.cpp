@@ -96,7 +96,7 @@ void FileController::newGame() {
         //auto g = std::unique_ptr<chess::Game>(new chess::Game());
         auto g = std::make_unique<chess::Game>();
         this->gameModel->setGame(move(g));
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         if(dlg->playsWhite) {
             this->gameModel->flipBoard = false;
         } else {
@@ -168,7 +168,7 @@ void FileController::openGame() {
 void FileController::setupNewGame(std::unique_ptr<chess::Game> g) {
     //delete this->gameModel->getGame();
     this->gameModel->setGame(move(g));
-    this->gameModel->getGame()->treeWasChanged = true;
+    this->gameModel->getGame()->setTreeWasChanged(true);
     this->gameModel->triggerStateChange();
 }
 

@@ -161,7 +161,7 @@ void MoveViewController::annotation(int nag, int min, int max) {
             node->getNags()->append(nag);
         }
         std::sort(node->getNags()->begin(), node->getNags()->end());
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setResult(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -198,7 +198,7 @@ void MoveViewController::addComment() {
         bool answer = d->exec();
         if(answer) {
             node->setComment(d->savedText);
-            this->gameModel->getGame()->treeWasChanged = true;
+            this->gameModel->getGame()->setTreeWasChanged(true);
             this->gameModel->triggerStateChange();
         }
 
@@ -216,7 +216,7 @@ void MoveViewController::deleteComment() {
         chess::GameNode *node = this->findNodeOnRightclick();
         QString e = QString("");
         node->setComment(e);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -235,7 +235,7 @@ void MoveViewController::variantUp() {
     try {
         chess::GameNode *node = this->gameModel->getGame()->findNodeById(nodeNumber);
         this->gameModel->getGame()->moveUp(node);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -249,7 +249,7 @@ void MoveViewController::variantDown() {
     try {
         chess::GameNode *node = this->findNodeOnRightclick();
         this->gameModel->getGame()->moveDown(node);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -261,7 +261,7 @@ void MoveViewController::deleteVariant() {
     try {
         chess::GameNode *node = this->findNodeOnRightclick();
         this->gameModel->getGame()->delVariant(node);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -273,7 +273,7 @@ void MoveViewController::deleteFromHere() {
     try {
         chess::GameNode *node = this->findNodeOnRightclick();
         this->gameModel->getGame()->delBelow(node);
-        this->gameModel->getGame()->treeWasChanged = true;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
@@ -284,13 +284,13 @@ void MoveViewController::deleteFromHere() {
 
 void MoveViewController::removeAllComments() {
     this->gameModel->getGame()->removeAllComments();
-    this->gameModel->getGame()->treeWasChanged = true;
+    this->gameModel->getGame()->setTreeWasChanged(true);
     this->gameModel->triggerStateChange();
 }
 
 void MoveViewController::removeAllVariants() {
     this->gameModel->getGame()->removeAllVariants();
-    this->gameModel->getGame()->treeWasChanged = true;
+    this->gameModel->getGame()->setTreeWasChanged(true);
     this->gameModel->triggerStateChange();
 }
 
@@ -395,14 +395,14 @@ void MoveViewController::keyPressEvent(QKeyEvent *e) {
 }
 
 void MoveViewController::onStateChange() {
-    if(this->gameModel->getGame()->treeWasChanged) {
+    if(this->gameModel->getGame()->isTreeChanged()) {
         this->document->clear();
         this->document->setDefaultStyleSheet("a:link { color: #000000; text-decoration: none}");
         chess::Game *g = this->gameModel->getGame();
         QString sl = this->guiPrinter->printGame(*g);
         this->document->setHtml(sl);
         this->setDocument(this->document);
-        this->gameModel->getGame()->treeWasChanged = false;
+        this->gameModel->getGame()->setTreeWasChanged(false);
     }
     if(this->gameModel->getGame()->getCurrentNode()->getId() ==
             this->gameModel->getGame()->getRootNode()->getId()) {

@@ -27,7 +27,6 @@ namespace chess {
 Game::Game() {
 
     this->root = new GameNode();
-    this->headers = new QMap<QString, QString>();
     this->result = RES_UNDEF;
     this->current = root;
     this->treeWasChanged = false;
@@ -38,8 +37,6 @@ Game::Game() {
 }
 
 Game::~Game() {
-    this->headers->clear();
-    delete this->headers;
     this->delBelow(this->root);
     delete this->root;
     delete this->ecoInfo;
@@ -146,14 +143,14 @@ void Game::resetWithNewRootBoard(chess::Board *new_root_board) {
 }
 
 void Game::clearHeaders() {
-    this->headers->clear();
-    this->headers->insert(("Event"), "");
-    this->headers->insert("Site","");
-    this->headers->insert("Date","");
-    this->headers->insert("Round","");
-    this->headers->insert("White","");
-    this->headers->insert("Black","");
-    this->headers->insert("Result","*");
+    this->headers.clear();
+    this->headers.insert(("Event"), "");
+    this->headers.insert("Site","");
+    this->headers.insert("Date","");
+    this->headers.insert("Round","");
+    this->headers.insert("White","");
+    this->headers.insert("Black","");
+    this->headers.insert("Result","*");
 }
 
 void Game::goToLeaf() {
@@ -284,15 +281,14 @@ void Game::findEco() {
     }
     int maxdepth = depth;
     while(depth >= 2)  {
-        EcoInfo *e_temp = ec->classify(temp->getBoard());
-        if(!e_temp->code.isEmpty()) {
-            this->ecoInfo = e_temp;
+        EcoInfo e_temp = ec->classify(*temp->getBoard());
+        if(!e_temp.code.isEmpty()) {
+            this->ecoInfo = new EcoInfo(e_temp);
             this->wasEcoClassified = true;
-            this->headers->insert("ECO", e_temp->code);
+            this->headers.insert("ECO", e_temp.code);
             delete ec;
             break;
         } else {
-            delete e_temp;
             temp = temp->getParent();
             depth--;
         }
@@ -305,6 +301,14 @@ void Game::findEco() {
         this->ecoInfo->code = "A00";
         this->ecoInfo->info = "Unknown";
     }
+}
+
+bool Game::isTreeChanged() {
+    return this->treeWasChanged;
+}
+
+void Game::setTreeWasChanged(bool status) {
+    this->treeWasChanged = status;
 }
 
 EcoInfo* Game::getEcoInfo() {

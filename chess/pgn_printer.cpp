@@ -84,22 +84,22 @@ void PgnPrinter::writeGame(Game &g, const QString &filename) {
 }
 
 void PgnPrinter::printHeaders(QStringList &pgn, Game &g) {
-    QMap<QString, QString>* headers = g.headers;
-    QString tag = "[Event \"" + headers->value("Event") + "\"]";
+    QMap<QString, QString> headers = g.headers;
+    QString tag = "[Event \"" + headers.value("Event") + "\"]";
     pgn.append(tag);
-    tag = "[Site \"" + headers->value("Site") + "\"]";
+    tag = "[Site \"" + headers.value("Site") + "\"]";
     pgn.append(tag);
-    tag = "[Date \"" + headers->value("Date") + "\"]";
+    tag = "[Date \"" + headers.value("Date") + "\"]";
     pgn.append(tag);
-    tag = "[Round \"" + headers->value("Round") + "\"]";
+    tag = "[Round \"" + headers.value("Round") + "\"]";
     pgn.append(tag);
-    tag = "[White \"" + headers->value("White") + "\"]";
+    tag = "[White \"" + headers.value("White") + "\"]";
     pgn.append(tag);
-    tag = "[Black \"" + headers->value("Black") + "\"]";
+    tag = "[Black \"" + headers.value("Black") + "\"]";
     pgn.append(tag);
-    tag = "[Result \"" + headers->value("Result") + "\"]";
+    tag = "[Result \"" + headers.value("Result") + "\"]";
     pgn.append(tag);
-    QMapIterator<QString, QString> i(*(headers));
+    QMapIterator<QString, QString> i(headers);
     while (i.hasNext()) {
         i.next();
         if(i.key() != "Event" && i.key() != "Site" && i.key() != "Date" && i.key() != "Round"
