@@ -5,12 +5,13 @@
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QLabel>
+#include "chess/game.h"
 
 class DialogEditHeaders : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogEditHeaders(QMap<QString, QString> *headers, QWidget *parent = 0);
+    explicit DialogEditHeaders(chess::Game &g, QWidget *parent = 0);
     QLineEdit *leEvent;
     QLineEdit *leSite;
     QLineEdit *leDate;

@@ -497,7 +497,8 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
             if(tag == QString("FEN")) {
                 starting_fen = value;
             } else {
-                g->headers.insert(tag,value);
+                //g->headers.insert(tag,value);
+                g->setHeader(tag, value);
             }
         } else {
             break;

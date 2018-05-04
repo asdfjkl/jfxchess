@@ -55,12 +55,10 @@ public:
     void setTreeWasChanged(bool status);
 
 
-    /**
-     * @brief headers contains the game headers. During construction of a Game
-     *                object there will always be the 7tag roster index entries
-     *                (albeit initialized to empty field)
-     */
-    QMap<QString, QString> headers;
+    void setHeader(QString tag, QString value);
+    QString getHeader(QString tag);
+    void resetHeaders();
+    QStringList getTags();
 
     /**
      * @brief Game essentially a tree of GameNode objects that
@@ -247,6 +245,7 @@ public:
 
 private:
 
+    QMap<QString, QString> headers;
     bool treeWasChanged;
     GameNode* root;
     GameNode* current;

@@ -522,10 +522,10 @@ void MainWindow::saveImage() {
 }
 
 void MainWindow::onStateChange() {
-    QString white = this->gameModel->getGame()->headers.value("White");
-    QString black = this->gameModel->getGame()->headers.value("Black");
-    QString site = this->gameModel->getGame()->headers.value("Site");
-    QString date = this->gameModel->getGame()->headers.value("Date");
+    QString white = this->gameModel->getGame()->getHeader("White");
+    QString black = this->gameModel->getGame()->getHeader("Black");
+    QString site = this->gameModel->getGame()->getHeader("Site");
+    QString date = this->gameModel->getGame()->getHeader("Date");
     QString line1 = QString("<b>").append(white).append(QString(" - ")).append(black).append(QString("</b><br/>"));
     QString line2 = site.append(QString(" ")).append(date);
     this->name->setText(line1.append(line2));

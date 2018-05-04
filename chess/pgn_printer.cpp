@@ -84,29 +84,29 @@ void PgnPrinter::writeGame(Game &g, const QString &filename) {
 }
 
 void PgnPrinter::printHeaders(QStringList &pgn, Game &g) {
-    QMap<QString, QString> headers = g.headers;
-    QString tag = "[Event \"" + headers.value("Event") + "\"]";
+    QString tag = "[Event \"" + g.getHeader("Event") + "\"]";
     pgn.append(tag);
-    tag = "[Site \"" + headers.value("Site") + "\"]";
+    tag = "[Site \"" + g.getHeader("Site") + "\"]";
     pgn.append(tag);
-    tag = "[Date \"" + headers.value("Date") + "\"]";
+    tag = "[Date \"" + g.getHeader("Date") + "\"]";
     pgn.append(tag);
-    tag = "[Round \"" + headers.value("Round") + "\"]";
+    tag = "[Round \"" + g.getHeader("Round") + "\"]";
     pgn.append(tag);
-    tag = "[White \"" + headers.value("White") + "\"]";
+    tag = "[White \"" + g.getHeader("White") + "\"]";
     pgn.append(tag);
-    tag = "[Black \"" + headers.value("Black") + "\"]";
+    tag = "[Black \"" + g.getHeader("Black") + "\"]";
     pgn.append(tag);
-    tag = "[Result \"" + headers.value("Result") + "\"]";
+    tag = "[Result \"" + g.getHeader("Result") + "\"]";
     pgn.append(tag);
-    QMapIterator<QString, QString> i(headers);
-    while (i.hasNext()) {
-        i.next();
-        if(i.key() != "Event" && i.key() != "Site" && i.key() != "Date" && i.key() != "Round"
-                && i.key() != "White" && i.key() != "Black" && i.key() != "Result" )
+    QStringList all_tags = g.getTags();
+    for(int i=0;i<all_tags.count();i++) {
+        QString tag_i = all_tags.at(i);
+        if(tag_i != "Event" && tag_i != "Site" && tag_i != "Date" && tag_i != "Round"
+                && tag_i != "White" && tag_i != "Black" && tag_i != "Result" )
         {
-            QString tag = "[" + i.key() + " \"" + i.value() + "\"]";
-            pgn.append(tag);
+            QString value_i = g.getHeader(tag_i);
+            QString tag_val = "[" + tag_i + " \"" + value_i + "\"]";
+            pgn.append(tag_val);
         }
     }
     // add fen string tag if root is not initial position

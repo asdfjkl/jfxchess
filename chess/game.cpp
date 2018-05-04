@@ -66,6 +66,24 @@ void Game::setResult(int r) {
     this->result = r;
 }
 
+void Game::setHeader(QString tag, QString value) {
+    this->headers[tag] = value;
+}
+
+QString Game:: getHeader(QString tag) {
+    return this->headers[tag];
+}
+
+QStringList Game::getTags() {
+    QStringList tags;
+    QMapIterator<QString, QString> i(this->headers);
+    while (i.hasNext()) {
+        i.next();
+        tags.append(i.key());
+    }
+    return tags;
+}
+
 GameNode* Game::findNodeByIdRec(int id, GameNode *node) {
     if(node->getId() == id) {
         return node;

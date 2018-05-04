@@ -5,7 +5,7 @@
 #include <QDebug>
 
 
-DialogEditHeaders::DialogEditHeaders(QMap<QString, QString> *headers, QWidget *parent) :
+DialogEditHeaders::DialogEditHeaders(chess::Game &g, QWidget *parent) :
     QDialog(parent)
 {
 
@@ -60,16 +60,16 @@ DialogEditHeaders::DialogEditHeaders(QMap<QString, QString> *headers, QWidget *p
     layout->addWidget(grbRes);
     layout->addWidget(buttonBox);
 
-    leDate->setText(headers->value("Date"));
-    leSite->setText(headers->value("Site"));
-    leRound->setText(headers->value("Round"));
-    leEvent->setText(headers->value("Event"));
-    leWhite->setText(headers->value("White"));
-    leBlack->setText(headers->value("Black"));
-    leECO->setText(headers->value("ECO"));
+    leDate->setText(g.getHeader("Date"));
+    leSite->setText(g.getHeader("Site"));
+    leRound->setText(g.getHeader("Round"));
+    leEvent->setText(g.getHeader("Event"));
+    leWhite->setText(g.getHeader("White"));
+    leBlack->setText(g.getHeader("Black"));
+    leECO->setText(g.getHeader("ECO"));
 
     rbWhiteWins->setChecked(true);
-    QString res = headers->value("Result");
+    QString res = g.getHeader("Result");
 
     if(!res.isEmpty()) {
         if(res == QString("0-1")) {
