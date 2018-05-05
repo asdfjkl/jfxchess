@@ -546,9 +546,9 @@ void MainWindow::onStateChange() {
     if(!this->gameModel->getGame()->wasEcoClassified) {
         this->gameModel->getGame()->findEco();
     }
-    chess::EcoInfo* ei = this->gameModel->getGame()->getEcoInfo();
-    QString code = ei->code;
-    QString info = ei->info;
+    chess::EcoInfo ei = this->gameModel->getGame()->getEcoInfo();
+    QString code = ei.code;
+    QString info = ei.info;
     this->statusBar()->showMessage(code.append(" ").append(info));
     if(this->gameModel->getMode() == MODE_ANALYSIS) {
         this->analysis_mode->setChecked(true);

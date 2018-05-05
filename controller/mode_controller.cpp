@@ -63,7 +63,7 @@ void ModeController::onBestMove(QString uci_move) {
         chess::Move *m = new chess::Move(uci_move);
         chess::Board *b = this->gameModel->getGame()->getCurrentNode()->getBoard();
         if(b->is_legal_move(*m)) {
-            this->gameModel->getGame()->applyMove(m);
+            this->gameModel->getGame()->applyMove(*m);
             this->gameModel->triggerStateChange();
         }
     }

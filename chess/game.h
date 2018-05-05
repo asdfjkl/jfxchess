@@ -108,7 +108,7 @@ public:
      *                  There is no check if the supplied move is legal!
      * @param m the move to apply on the current board.
      */
-    void applyMove(Move *m);
+    void applyMove(Move &m);
 
     /**
      * @brief findNodeById each GameNode has a unique id (see class definition)
@@ -240,7 +240,7 @@ public:
     void clearHeaders();
 
     void findEco();
-    EcoInfo* getEcoInfo();
+    EcoInfo getEcoInfo();
     bool wasEcoClassified;
 
 private:
@@ -252,7 +252,7 @@ private:
     int result;
     GameNode* findNodeByIdRec(int id, GameNode* node);
 
-    EcoInfo* ecoInfo;
+    EcoInfo ecoInfo;
 
 };
 

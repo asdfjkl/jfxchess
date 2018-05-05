@@ -32,14 +32,13 @@ Game::Game() {
     this->treeWasChanged = false;
 
     this->wasEcoClassified = false;
-    this->ecoInfo = new EcoInfo{"",""};
+    //this->ecoInfo("","");
 
 }
 
 Game::~Game() {
     this->delBelow(this->root);
     delete this->root;
-    delete this->ecoInfo;
 }
 
 GameNode* Game::getRootNode() {
@@ -177,11 +176,11 @@ void Game::goToLeaf() {
     }
 }
 
-void Game::applyMove(Move *m) {
+void Game::applyMove(Move &m) {
     bool exists_child = false;
     for(int i=0;i<this->current->getVariations()->size();i++) {
         Move *mi = this->current->getVariations()->at(i)->getMove();
-        if(*m == *mi) {
+        if(m == *mi) {
             exists_child = true;
             this->current = this->current->getVariations()->at(i);
             break;
@@ -190,10 +189,10 @@ void Game::applyMove(Move *m) {
     if(!exists_child) {
         GameNode *current = this->getCurrentNode();
         Board *b_current = current->getBoard();
-        Board *b_child = b_current->copy_and_apply(*m);
+        Board *b_child = b_current->copy_and_apply(m);
         GameNode *new_current = new GameNode();
         new_current->setBoard(b_child);
-        new_current->setMove(m);
+        new_current->setMove(&m);
         new_current->setParent(current);
         current->getVariations()->append(new_current);
         this->current = new_current;
@@ -301,7 +300,7 @@ void Game::findEco() {
     while(depth >= 2)  {
         EcoInfo e_temp = ec->classify(*temp->getBoard());
         if(!e_temp.code.isEmpty()) {
-            this->ecoInfo = new EcoInfo(e_temp);
+            this->ecoInfo = EcoInfo(e_temp);
             this->wasEcoClassified = true;
             this->headers.insert("ECO", e_temp.code);
             delete ec;
@@ -316,8 +315,8 @@ void Game::findEco() {
     // is sufficiently long
     if(maxdepth > 4 && !this->wasEcoClassified) {
         this->wasEcoClassified = true;
-        this->ecoInfo->code = "A00";
-        this->ecoInfo->info = "Unknown";
+        this->ecoInfo.code = "A00";
+        this->ecoInfo.info = "Unknown";
     }
 }
 
@@ -329,7 +328,7 @@ void Game::setTreeWasChanged(bool status) {
     this->treeWasChanged = status;
 }
 
-EcoInfo* Game::getEcoInfo() {
+EcoInfo Game::getEcoInfo() {
     return this->ecoInfo;
 }
 

@@ -139,7 +139,7 @@ void BoardViewController::handleColoringOnKeyPress(QPoint *pos) {
 }
 
 void BoardViewController::applyMove(chess::Move *m) {
-    this->gameModel->getGame()->applyMove(m);
+    this->gameModel->getGame()->applyMove(*m);
     this->gameModel->triggerStateChange();
 }
 
