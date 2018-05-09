@@ -654,9 +654,9 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
                 GameNode *next = new GameNode();
                 Board *b_next = 0;
                 try {
-                    Board *b = current->getBoard();
-                    m = new Move(b->parse_san(token));
-                    b_next = b->copy_and_apply(*m);
+                    Board b = current->getBoard();
+                    Move m = Move(b.parse_san(token));
+                    b_next = b.copy_and_apply(m);
                     next->setMove(m);
                     next->setBoard(b_next);
                     next->setParent(current);

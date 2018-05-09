@@ -140,4 +140,6 @@ HEADERS += \
     dialogs/tab_search_pos.h \
     model/search_pattern.h \
     viewController/database_index_model.h \
-    chess/constants.h
+    chess/constants.h \
+    chess/arrow.h \
+    chess/colored_field.h

@@ -25,19 +25,12 @@
 #include "move.h"
 #include <QtGui/QColor>
 #include <QPoint>
+#include "arrow.h"
+#include "colored_field.h"
+#include <QVector>
 
 namespace chess {
 
-struct Arrow {
-    QPoint from;
-    QPoint to;
-    QColor color;
-};
-
-struct ColoredField {
-    QPoint field;
-    QColor color;
-};
 
 class GameNode
 {
@@ -65,7 +58,7 @@ public:
      * @brief getBoard
      * @return Board of current node
      */
-    Board* getBoard();
+    Board getBoard();
 
     /**
      * @brief setBoard deletes the old board of this node, and sets
@@ -73,7 +66,7 @@ public:
      *                 validity checks of the board position
      * @param b The board. Must not be null.
      */
-    void setBoard(Board *b);
+    void setBoard(Board b);
 
     /**
      * @brief getSan returns san string of move that
@@ -101,7 +94,7 @@ public:
      *                if there is no move (e.g. root node)
      * @return pointer to Move or null.
      */
-    Move* getMove();
+    Move getMove();
 
     /**
      * @brief setMove set the move that leads to this
@@ -109,7 +102,7 @@ public:
      *                or consistency check.
      * @param m Pointer to the move.
      */
-    void setMove(Move *m);
+    void setMove(Move m);
 
     /**
      * @brief setParent Set the parent to the supplied Game Node.
@@ -138,13 +131,14 @@ public:
      * @return the game node at position i
      */
     GameNode* getVariation(int i);
+    void deleteVariation(int i);
 
     /**
      * @brief getVariations returns list of all child nodes, i.e.
      *                      all variations starting in this position.
      * @return list with all child nodes.
      */
-    QList<GameNode*>* getVariations();
+    QVector<GameNode*> getVariations();
 
     /**
      * @brief addVariation adds a new variation by putting the supplied
@@ -178,57 +172,65 @@ public:
      * @brief getNags returns all numeric annotation glyphs (see PGN standard)
      * @return list with all NAGs
      */
-    QList<int> *getNags();
+    QVector<int> getNags();
 
     /**
      * @brief getArrows returns a list with all arrows for this node.
      *        Arrows are just annotations done by the user for illustrations.
      * @return list of arrows
      */
-    QList<Arrow*>* getArrows();
+    QVector<chess::Arrow> getArrows();
 
     /**
      * @brief getColoredFields returns list of colored fields. Such fields
      *        are juts highlighted fields done by the user for illustration.
      * @return list of color fields
      */
-    QList<ColoredField*> *getColoredFields();
+    QVector<ColoredField> getColoredFields();
 
     /**
      * @brief addOrDelArrow adds (if the supplied arrow does not exist) or removes
      *             (if the node has that arrow already) and arrow from the board
      * @param a the arrow that is supposed to be deleted or added
      */
-    void addOrDelArrow(Arrow *a);
+    void addOrDelArrow(Arrow &a);
 
     /**
      * @brief addOrDelColoredField deletes color (field is already highlighted) or
      *               colorizes (field is plain) a board field.
      * @param c the colored field that is supposed to be deleted or added
      */
-    void addOrDelColoredField(ColoredField *c);
+    void addOrDelColoredField(ColoredField &c);
 
     int getDepth();
 
     bool userWasInformedAboutResult;
 
+
+
+
 protected:
     static int initId() { return id++; }
 
 private:
-    QList<Arrow*> *arrows;
-    QList<ColoredField*> *coloredFields;
-    QString san_cache;
     static int id;
     int nodeId;
-    Move* m;
-    QList<GameNode*> *variations;
-    QList<int> *nags;
-    Board* board;
-    QString comment;
-    GameNode* parent;
     int depthCache;
+    Move m;
+    Board board;
+    QVector<int> nags;
+    QString comment;
+    QString san_cache;
 
+    QVector<Arrow> arrows;
+    QVector<ColoredField> coloredFields;
+
+    GameNode* parent;
+    QVector<GameNode*> variations;
+
+    QString getSan(Move &m);
+
+    friend class Game;
 };
 
 }

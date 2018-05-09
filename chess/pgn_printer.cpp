@@ -110,9 +110,9 @@ void PgnPrinter::printHeaders(QStringList &pgn, Game &g) {
         }
     }
     // add fen string tag if root is not initial position
-    chess::Board* root = g.getRootNode()->getBoard();
-    if(!root->is_initial_position()) {
-        QString tag = "[FEN \"" + root->fen() + "\"]";
+    chess::Board root = g.getRootNode()->getBoard();
+    if(!root.is_initial_position()) {
+        QString tag = "[FEN \"" + root.fen() + "\"]";
         pgn.append(tag);
     }
 
@@ -207,18 +207,18 @@ void PgnPrinter::printComment(const QString &comment) {
 
 void PgnPrinter::printGameContent(GameNode &g) {
 
-    Board *b = g.getBoard();
+    Board b = g.getBoard();
 
     // first write mainline move, if there are variations
-    int cntVar = g.getVariations()->count();
+    int cntVar = g.getVariations().count();
     if(cntVar > 0) {
         GameNode* main_variation = g.getVariation(0);
-        Move *m = main_variation->getMove();
-        this->printMove(*b,(*m));
+        Move m = main_variation->getMove();
+        this->printMove(b,m);
         // write nags
-        QList<int> *nags = main_variation->getNags();
-        for(int j=0;j<nags->count();j++) {
-            int n = nags->at(j);
+        QVector<int> nags = main_variation->getNags();
+        for(int j=0;j<nags.count();j++) {
+            int n = nags.at(j);
             this->printNag(n);
         }
         // write comments
@@ -232,11 +232,12 @@ void PgnPrinter::printGameContent(GameNode &g) {
         // first create variation start marker, and print the move
         GameNode *var_i = g.getVariation(i);
         this->beginVariation();
-        this->printMove(*b,*var_i->getMove());
+        chess::Move m_temp = var_i->getMove();
+        this->printMove(b,m_temp);
         // next print nags
-        QList<int> *nags = var_i->getNags();
-        for(int j=0;j<nags->count();j++) {
-            int n = nags->at(j);
+        QVector<int> nags = var_i->getNags();
+        for(int j=0;j<nags.count();j++) {
+            int n = nags.at(j);
             this->printNag(n);
         }
         // finally print comments

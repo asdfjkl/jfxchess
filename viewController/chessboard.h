@@ -24,21 +24,21 @@ public:
     ColorStyle* getColorStyle();
     void setFlipBoard(bool onOff);
     void setGrabbedPiece(int piece, int color);
-    void setBoard(chess::Board *b);
-    void setArrows(QList<chess::Arrow*> *arrows);
-    void setColoredFields(QList<chess::ColoredField*> *fields);
+    void setBoard(chess::Board b);
+    void setArrows(QVector<chess::Arrow> arrows);
+    void setColoredFields(QVector<chess::ColoredField> fields);
 
     void setGrabbedArrowFrom(int x, int y);
     void setGrabbedArrowTo(int x, int y);
 
 private:
 
-    QList<chess::Arrow*>* currentArrows;
-    QList<chess::ColoredField*>* currentColoredFields;
+    QVector<chess::Arrow> currentArrows;
+    QVector<chess::ColoredField> currentColoredFields;
 
 protected:
 
-    chess::Move *lastMove;
+    chess::Move lastMove;
     QPoint* moveSrc;
     bool drawGrabbedPiece;
     bool drawGrabbedArrow;

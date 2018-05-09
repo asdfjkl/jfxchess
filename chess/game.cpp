@@ -87,8 +87,8 @@ GameNode* Game::findNodeByIdRec(int id, GameNode *node) {
     if(node->getId() == id) {
         return node;
     } else {
-        for(int i=0;i < node->getVariations()->size();i++) {
-            GameNode *child_i = node->getVariations()->at(i);
+        for(int i=0;i < node->variations.size();i++) {
+            GameNode *child_i = node->variations.at(i);
             GameNode *result = this->findNodeByIdRec(id, child_i);
             if(result != 0) {
                 return result;
@@ -109,21 +109,21 @@ GameNode* Game::findNodeById(int id) {
 }
 
 void Game::goToMainLineChild() {
-    if(this->current->getVariations()->count() > 0) {
+    if(this->current->variations.count() > 0) {
         this->current = this->current->getVariation(0);
     }
 }
 
 GameNode* Game::getEndNode() {
     GameNode *temp = this->getRootNode();
-    while(temp->getVariations()->count() > 0) {
+    while(temp->variations.count() > 0) {
         temp = temp->getVariation(0);
     }
     return temp;
 }
 
 void Game::goToChild(int idx_child) {
-    if(this->current->getVariations()->count() > idx_child) {
+    if(this->current->variations.count() > idx_child) {
         this->current = this->current->getVariation(idx_child);
     }
 }
@@ -136,7 +136,7 @@ void Game::goToParent() {
 
 void Game::goToEnd() {
     GameNode *temp = this->root;
-    while(temp->getVariations()->count() > 0) {
+    while(temp->variations.count() > 0) {
         temp = temp->getVariation(0);
     }
     this->current = temp;
@@ -146,7 +146,7 @@ void Game::goToRoot() {
     this->current = this->root;
 }
 
-void Game::resetWithNewRootBoard(chess::Board *new_root_board) {
+void Game::resetWithNewRootBoard(chess::Board new_root_board) {
     chess::GameNode* old_root = this->getRootNode();
     this->delBelow(old_root);
     chess::GameNode* new_root = new chess::GameNode();
@@ -178,23 +178,23 @@ void Game::goToLeaf() {
 
 void Game::applyMove(Move &m) {
     bool exists_child = false;
-    for(int i=0;i<this->current->getVariations()->size();i++) {
-        Move *mi = this->current->getVariations()->at(i)->getMove();
-        if(m == *mi) {
+    for(int i=0;i<this->current->variations.size();i++) {
+        Move mi = this->current->variations.at(i)->getMove();
+        if(m == mi) {
             exists_child = true;
-            this->current = this->current->getVariations()->at(i);
+            this->current = this->current->variations.at(i);
             break;
         }
     }
     if(!exists_child) {
         GameNode *current = this->getCurrentNode();
-        Board *b_current = current->getBoard();
-        Board *b_child = b_current->copy_and_apply(m);
+        Board b_current = current->getBoard();
+        Board b_child = b_current.copy_and_apply(m);
         GameNode *new_current = new GameNode();
         new_current->setBoard(b_child);
-        new_current->setMove(&m);
+        new_current->setMove(m);
         new_current->setParent(current);
-        current->getVariations()->append(new_current);
+        current->variations.append(new_current);
         this->current = new_current;
         this->treeWasChanged = true;
     }
@@ -203,10 +203,10 @@ void Game::applyMove(Move &m) {
 void Game::moveUp(GameNode *node) {
     if(node->getParent() != 0) {
         GameNode *parent = node->getParent();
-        int i = parent->getVariations()->indexOf(node);
+        int i = parent->variations.indexOf(node);
         if(i > 0) {
-            parent->getVariations()->removeAt(i);
-            parent->getVariations()->insert(i-1,node);
+            parent->variations.removeAt(i);
+            parent->variations.insert(i-1,node);
         }
 
     }
@@ -215,10 +215,10 @@ void Game::moveUp(GameNode *node) {
 void Game::moveDown(GameNode *node) {
     if(node->getParent() != 0) {
         GameNode *parent = node->getParent();
-        int i = parent->getVariations()->indexOf(node);
-        if(i < parent->getVariations()->size() -1) {
-            parent->getVariations()->removeAt(i);
-            parent->getVariations()->insert(i+1,node);
+        int i = parent->variations.indexOf(node);
+        if(i < parent->variations.size() -1) {
+            parent->variations.removeAt(i);
+            parent->variations.insert(i+1,node);
         }
 
     }
@@ -229,7 +229,7 @@ void Game::delVariant(GameNode *node) {
     // find the root of the variation
     GameNode *child = node;
     GameNode *var_root = node;
-    while(var_root->getParent() != 0 && var_root->getParent()->getVariations()->size() == 1) {
+    while(var_root->getParent() != 0 && var_root->getParent()->variations.size() == 1) {
         child = var_root;
         var_root = var_root->getParent();
     }
@@ -238,19 +238,19 @@ void Game::delVariant(GameNode *node) {
     if(var_root->getParent() !=0) {
         child = var_root;
         var_root = var_root->getParent();
-        idx = var_root->getVariations()->indexOf(child);
+        idx = var_root->variations.indexOf(child);
     }
     if(idx != -1) {
-        var_root->getVariations()->removeAt(idx);
+        var_root->variations.removeAt(idx);
         delete child;
         this->current = var_root;
     }
 }
 
 void Game::delBelow(GameNode *node) {
-    for(int i=0;i<node->getVariations()->size();i++) {
-        GameNode *child_i = node->getVariations()->at(i);
-        node->getVariations()->removeAt(i);
+    for(int i=0;i<node->variations.size();i++) {
+        GameNode *child_i = node->variations.at(i);
+        node->variations.removeAt(i);
         delete child_i;
     }
     this->current = node;
@@ -259,8 +259,8 @@ void Game::delBelow(GameNode *node) {
 void Game::removeCommentRec(GameNode *node) {
     QString empty = QString("");
     node->setComment(empty);
-    for(int i=0;i<node->getVariations()->size();i++) {
-        GameNode *var_i = node->getVariations()->at(i);
+    for(int i=0;i<node->variations.size();i++) {
+        GameNode *var_i = node->variations.at(i);
         this->removeCommentRec(var_i);
     }
 }
@@ -271,18 +271,18 @@ void Game::removeAllComments() {
 
 void Game::removeAllVariants() {
     GameNode *temp = this->getRootNode();
-    int size = temp->getVariations()->size();
+    int size = temp->variations.size();
     while(size > 0) {
-        GameNode *main = temp->getVariations()->at(0);
+        GameNode *main = temp->variations.at(0);
         // delete all variants
         for(int i=1;i<size;i++) {
-            GameNode *ni = temp->getVariations()->at(i);
+            GameNode *ni = temp->variations.at(i);
             delete ni;
         }
-        temp->getVariations()->clear();
+        temp->variations.clear();
         temp->addVariation(main);
-        temp = temp->getVariation(0);
-        size = temp->getVariations()->size();
+        temp = temp->variations.at(0);
+        size = temp->variations.size();
     }
     this->current = this->getRootNode();
 }
@@ -292,13 +292,14 @@ void Game::findEco() {
     EcoCode *ec = new EcoCode();
     GameNode* temp = this->getRootNode();
     int depth = 0;
-    while(depth < 29 && temp->getVariations()->count() > 0) {
-        temp = temp->getVariation(0);
+    while(depth < 29 && temp->variations.count() > 0) {
+        temp = temp->variations.at(0);
         depth++;
     }
     int maxdepth = depth;
     while(depth >= 2)  {
-        EcoInfo e_temp = ec->classify(*temp->getBoard());
+        Board b_temp = temp->getBoard();
+        EcoInfo e_temp = ec->classify(b_temp);
         if(!e_temp.code.isEmpty()) {
             this->ecoInfo = EcoInfo(e_temp);
             this->wasEcoClassified = true;

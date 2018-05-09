@@ -278,6 +278,7 @@ public:
 
     /**
      * @brief copy constructor to create deep copy of board
+     *        TODO: do we really need this?! default might suffice after refactoring
      * @param other
      */
     Board(const Board &other);

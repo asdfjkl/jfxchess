@@ -83,8 +83,8 @@ void BoardViewController::touchPiece(int x, int y, int mouse_x, int mouse_y) {
     this->moveSrc->setX(x);
     this->moveSrc->setY(y);
     int idx = this->xyToBoardIdx(x, y);
-    this->grabbedPiece->piece_type = this->gameModel->getGame()->getCurrentNode()->getBoard()->piece_type(idx);
-    this->grabbedPiece->color = this->gameModel->getGame()->getCurrentNode()->getBoard()->piece_color(idx);
+    this->grabbedPiece->piece_type = this->gameModel->getGame()->getCurrentNode()->getBoard().piece_type(idx);
+    this->grabbedPiece->color = this->gameModel->getGame()->getCurrentNode()->getBoard().piece_color(idx);
     this->grabbedPiece->x = mouse_x;
     this->grabbedPiece->y = mouse_y;
     this->drawGrabbedPiece = true;
@@ -149,31 +149,30 @@ void BoardViewController::mousePressEvent(QMouseEvent *me) {
     {
         this->handleColoringOnKeyPress(pos);
     } else if(me->button() == Qt::LeftButton) {
-        chess::Board *b = this->gameModel->getGame()->getCurrentNode()->getBoard();
-        assert(b != 0);
+        chess::Board b = this->gameModel->getGame()->getCurrentNode()->getBoard();
         uint8_t to_idx = this->xyToBoardIdx(pos->x(), pos->y());
         if(pos->x() != -1 && pos->y() != -1) {
             if(this->grabbedPiece->piece_type != -1) {
                 uint8_t from_idx = this->xyToBoardIdx(this->moveSrc->x(), this->moveSrc->y());
                 chess::Move *m = new chess::Move(from_idx,to_idx);
-                if(b->is_legal_and_promotes(*m)) {
-                    DialogPromotion *d = new DialogPromotion(b->turn,this->parentWidget());
+                if(b.is_legal_and_promotes(*m)) {
+                    DialogPromotion *d = new DialogPromotion(b.turn,this->parentWidget());
                     d->exec();
                     m->promotion_piece = d->promotesTo;
                     delete d;
                     this->applyMove(m);
                     this->resetMove();
-                } else if(b->is_legal_move(*m)) {
+                } else if(b.is_legal_move(*m)) {
                     this->applyMove(m);
                     this->resetMove();
                 } else {
                     this->resetMove();
-                    if(b->piece_type(to_idx) != chess::EMPTY) {
+                    if(b.piece_type(to_idx) != chess::EMPTY) {
                         this->touchPiece(pos->x(),pos->y(),me->x(),me->y());
                     }
                 }
             } else {
-                if(b->piece_type(to_idx) != chess::EMPTY) {
+                if(b.piece_type(to_idx) != chess::EMPTY) {
                     this->touchPiece(pos->x(),pos->y(),me->x(),me->y());
                 }
             }
@@ -213,16 +212,16 @@ void BoardViewController::handleColoringonKeyRelease(QPoint *pos) {
             }
             // arrow case
             if(pos->x() != this->colorClickSrc->x() || pos->y() != this->colorClickSrc->y()) {
-                chess::Arrow *a = new chess::Arrow();
-                a->from = QPoint(this->colorClickSrc->x(), this->colorClickSrc->y());
-                a->to = QPoint(pos->x(), pos->y());
+                chess::Arrow a; // = new chess::Arrow();
+                a.from = QPoint(this->colorClickSrc->x(), this->colorClickSrc->y());
+                a.to = QPoint(pos->x(), pos->y());
                 //a->color = this->red;
-                a->color = this->green;
+                a.color = this->green;
                 this->gameModel->getGame()->getCurrentNode()->addOrDelArrow(a);
             } else {
-                chess::ColoredField *c = new chess::ColoredField();
-                c->field = QPoint(pos->x(), pos->y());
-                c->color = this->transpRed;
+                chess::ColoredField c; // = new chess::ColoredField();
+                c.field = QPoint(pos->x(), pos->y());
+                c.color = this->transpRed;
                 this->gameModel->getGame()->getCurrentNode()->addOrDelColoredField(c);
             }
         }
@@ -237,21 +236,20 @@ void BoardViewController::mouseReleaseEvent(QMouseEvent *m) {
         this->handleColoringonKeyRelease(pos);
 
     } else if(m->button() == Qt::LeftButton){
-        chess::Board *b = this->gameModel->getGame()->getCurrentNode()->getBoard();
-        assert(b != 0);
+        chess::Board b = this->gameModel->getGame()->getCurrentNode()->getBoard();
         if(pos->x() != -1 && pos->y() != -1 && this->grabbedPiece->piece_type != chess::EMPTY) {
             if(!(pos->x() == this->moveSrc->x() && pos->y() == this->moveSrc->y())) {
                 uint8_t from_idx = this->xyToBoardIdx(this->moveSrc->x(), this->moveSrc->y());
                 uint8_t to_idx = this->xyToBoardIdx(pos->x(), pos->y());
                 chess::Move *m = new chess::Move(from_idx,to_idx);
                 assert(m != 0);
-                if(b->is_legal_and_promotes(*m)) {
-                    DialogPromotion *d = new DialogPromotion(b->turn,this->parentWidget());
+                if(b.is_legal_and_promotes(*m)) {
+                    DialogPromotion *d = new DialogPromotion(b.turn,this->parentWidget());
                     d->exec();
                     m->promotion_piece = d->promotesTo;
                     delete d;
                     this->applyMove(m);
-                } else if(b->is_legal_move(*m)) {
+                } else if(b.is_legal_move(*m)) {
                     this->applyMove(m);
                 } else {
                     this->resetMove();

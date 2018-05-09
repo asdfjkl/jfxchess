@@ -219,7 +219,7 @@ public:
      *        a valid board position.
      * @param new_root_board The chess board to construct the root node.
      */
-    void resetWithNewRootBoard(chess::Board *new_root_board);
+    void resetWithNewRootBoard(Board new_root_board);
 
     /**
      * @brief removeAllComments iterates through the tree, and removes every
