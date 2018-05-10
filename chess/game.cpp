@@ -208,7 +208,7 @@ void Game::moveUp(GameNode *node) {
             parent->variations.removeAt(i);
             parent->variations.insert(i-1,node);
         }
-
+        this->treeWasChanged = true;
     }
 }
 
@@ -220,6 +220,7 @@ void Game::moveDown(GameNode *node) {
             parent->variations.removeAt(i);
             parent->variations.insert(i+1,node);
         }
+        this->treeWasChanged = true;
 
     }
 }
