@@ -45,7 +45,7 @@ void EditController::copyGameToClipBoard() {
 
 void EditController::copyPositionToClipBoard() {
 
-    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard()->fen();
+    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(fen);
 
@@ -76,15 +76,15 @@ void EditController::paste() {
 }
 
 void EditController::enterPosition() {
-    chess::Board *currentBoard = this->gameModel->getGame()->getCurrentNode()->getBoard();
-    DialogEnterPosition *dlg = new DialogEnterPosition(currentBoard,
+    chess::Board currentBoard = this->gameModel->getGame()->getCurrentNode()->getBoard();
+    DialogEnterPosition *dlg = new DialogEnterPosition(&currentBoard,
                                                        this->gameModel->colorStyle,
                                                        this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
 
         this->gameModel->getGame()->resetWithNewRootBoard(dlg->getCurrentBoard());
 
-        std::cout << *this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
+        std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
         this->gameModel->triggerStateChange();
     }
 }

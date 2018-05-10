@@ -61,7 +61,7 @@ void FileController::printPosition() {
     QPrintDialog *dlg = new QPrintDialog(&printer, this->parentWidget);
     dlg->setWindowTitle(tr("Print FEN"));
     if(dlg->exec() == QDialog::Accepted) {
-        QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard()->fen();
+        QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
         QPlainTextEdit *textEdit = new QPlainTextEdit(fen);
         textEdit->print(&printer);
         delete textEdit;

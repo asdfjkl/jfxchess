@@ -76,8 +76,7 @@ QString GuiPrinter::printGame(Game &g) {
 
 void GuiPrinter::printMove(GameNode *node) { //int nodeId, Board *b, Move *m) {
         int nodeId = node->getId();
-        Board *b = node->getParent()->getBoard();
-        assert(b != 0);
+        Board b = node->getParent()->getBoard();
         QString s_nodeId = QString::number(nodeId);
         this->writeToken("<a name=\"");
         this->writeToken(s_nodeId);
@@ -85,13 +84,13 @@ void GuiPrinter::printMove(GameNode *node) { //int nodeId, Board *b, Move *m) {
         this->writeToken(s_nodeId);
         this->writeToken("\">");
 
-        if(b->turn == WHITE) {
-            QString tkn = QString::number(b->fullmove_number);
+        if(b.turn == WHITE) {
+            QString tkn = QString::number(b.fullmove_number);
             tkn.append(QString(". "));
             this->writeToken(tkn);
         }
         else if(this->forceMoveNumber) {
-            QString tkn = QString::number(b->fullmove_number);
+            QString tkn = QString::number(b.fullmove_number);
             tkn.append(QString("... "));
             this->writeToken(tkn);
         }
@@ -224,7 +223,7 @@ void GuiPrinter::printComment(const QString &comment) {
 void GuiPrinter::printGameContent(GameNode* g, bool onMainLine) {
 
     // first write mainline move, if there are variations
-    int cntVar = g->getVariations()->count();
+    int cntVar = g->getVariations().count();
     if(cntVar > 0) {
         if(onMainLine) {
             this->writeToken("<b>");
@@ -232,9 +231,9 @@ void GuiPrinter::printGameContent(GameNode* g, bool onMainLine) {
         GameNode* main_variation = g->getVariation(0);
         this->printMove(main_variation);
         // write nags
-        QList<int> *nags = main_variation->getNags();
-        for(int j=0;j<nags->count();j++) {
-            int n = nags->at(j);
+        QVector<int> nags = main_variation->getNags();
+        for(int j=0;j<nags.count();j++) {
+            int n = nags.at(j);
             this->printNag(n);
         }
 
@@ -256,9 +255,9 @@ void GuiPrinter::printGameContent(GameNode* g, bool onMainLine) {
 
         // next print nags
 
-        QList<int> *nags = var_i->getNags();
-        for(int j=0;j<nags->count();j++) {
-            int n = nags->at(j);
+        QVector<int> nags = var_i->getNags();
+        for(int j=0;j<nags.count();j++) {
+            int n = nags.at(j);
             this->printNag(n);
         }
         // finally print comments

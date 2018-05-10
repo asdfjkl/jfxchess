@@ -206,7 +206,11 @@ public:
 
     bool userWasInformedAboutResult;
 
+    void removeNagsInRange(int min, int max);
 
+    void appendNag(int nag);
+
+    void sortNags();
 
 
 protected:

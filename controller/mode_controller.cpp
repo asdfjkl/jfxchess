@@ -60,10 +60,10 @@ void ModeController::onBestMove(QString uci_move) {
     if(this->gameModel->getMode() == MODE_PLAY_BLACK ||
             this->gameModel->getMode() == MODE_PLAY_WHITE ||
             this->gameModel->getMode() == MODE_PLAYOUT_POS) {
-        chess::Move *m = new chess::Move(uci_move);
-        chess::Board *b = this->gameModel->getGame()->getCurrentNode()->getBoard();
-        if(b->is_legal_move(*m)) {
-            this->gameModel->getGame()->applyMove(*m);
+        chess::Move m = chess::Move(uci_move);
+        chess::Board b = this->gameModel->getGame()->getCurrentNode()->getBoard();
+        if(b.is_legal_move(m)) {
+            this->gameModel->getGame()->applyMove(m);
             this->gameModel->triggerStateChange();
         }
     }
@@ -71,7 +71,7 @@ void ModeController::onBestMove(QString uci_move) {
         // completely skip that for black or white, if
         // that was chosen in the analysis
         chess::GameNode *current = this->gameModel->getGame()->getCurrentNode();
-        bool turn = current->getBoard()->turn;
+        bool turn = current->getBoard().turn;
         int analyse = this->gameModel->gameAnalysisForPlayer;
         if( (analyse == ANALYSE_BOTH_PLAYERS) ||
             (analyse==ANALYSE_WHITE_ONLY && turn == chess::WHITE) ||
@@ -89,7 +89,7 @@ void ModeController::onBestMove(QString uci_move) {
         //qDebug() << "prev mate: " << this->gameModel->prevMateInMoves;
         QString first_move_current_pv = this->gameModel->currentBestPv.split(" ")[0];
         if(!first_move_current_pv.isEmpty() && !current->isLeaf()
-                && first_move_current_pv != current->getVariation(0)->getMove()->uci()) {
+                && first_move_current_pv != current->getVariation(0)->getMove().uci()) {
             if( ((abs(this->gameModel->currentEval - this->gameModel->prevEval) > this->gameModel->analysisThreshold)
                     && this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves < 0)
                     || (this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0) // player missed mate
@@ -99,9 +99,9 @@ void ModeController::onBestMove(QString uci_move) {
             for(int i=0;i<pv_list.count();i++) {
                 QString uci = pv_list.at(i);
                 if(uci.size() == 4 || uci.size() == 5) {
-                    chess::Move *mi = new chess::Move(uci);
-                    chess::Board *current_board = current->getBoard();
-                    chess::Board *new_board = current_board->copy_and_apply(*mi);
+                    chess::Move mi = chess::Move(uci);
+                    chess::Board current_board = current->getBoard();
+                    chess::Board new_board = current_board.copy_and_apply(mi);
                     chess::GameNode *gn = new chess::GameNode();
                     gn->setBoard(new_board);
                     gn->setMove(mi);
@@ -111,7 +111,7 @@ void ModeController::onBestMove(QString uci_move) {
             }
             current = this->gameModel->getGame()->getCurrentNode();
             // set the evals as a comment
-            if(current->getVariations()->count() >= 2) {
+            if(current->getVariations().count() >= 2) {
                 if(this->gameModel->prevMateInMoves < 0 && this->gameModel->currentMateInMoves > 0) {
                     // player missed a mate
                     //qDebug() << "missed mate: " << this->gameModel->prevEval;
@@ -197,7 +197,7 @@ void ModeController::onStateChangeEnterMoves() {
 
 void ModeController::onStateChangeAnalysis() {
 
-    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard()->fen();
+    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
     this->uci_controller->uciSendCommand("stop");
     this->uci_controller->uciSendFen(fen);
     QString position = QString("position fen ").append(fen);
@@ -229,7 +229,7 @@ void ModeController::onStateChangeGameAnalysis() {
         } else {
             this->gameModel->gameAnalysisStarted = false;
         }
-        QString fen = parent->getBoard()->fen();
+        QString fen = parent->getBoard().fen();
         this->uci_controller->uciSendCommand("stop");
         this->uci_controller->uciSendFen(fen);
         QString position = QString("position fen ").append(fen);
@@ -365,7 +365,7 @@ void ModeController::onStateChangePlayWhiteOrBlack() {
         }
     }
     if(!usedBook) {
-        QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard()->fen();
+        QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
         this->uci_controller->uciSendFen(fen);
         QString position = QString("position fen ").append(fen);
         this->uci_controller->uciSendPosition(position);
@@ -390,7 +390,7 @@ void ModeController::onActivatePlayoutPositionMode() {
 }
 
 void ModeController::onStateChangePlayoutPosition() {
-    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard()->fen();
+    QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
     this->uci_controller->uciSendFen(fen);
     QString position = QString("position fen ").append(fen);
     this->uci_controller->uciSendPosition(position);
@@ -399,7 +399,7 @@ void ModeController::onStateChangePlayoutPosition() {
 
 void ModeController::onStateChange() {
     int mode = this->gameModel->getMode();
-    int turn = this->gameModel->getGame()->getCurrentNode()->getBoard()->turn;
+    int turn = this->gameModel->getGame()->getCurrentNode()->getBoard().turn;
 
     MessageBox *msg = new MessageBox(this->parentWidget);
     chess::GameNode *current = this->gameModel->getGame()->getCurrentNode();
@@ -408,7 +408,7 @@ void ModeController::onStateChange() {
     // human plays: show info, change mode to enter moves
     // enter moves mode & analysis mode: show info but only
     // if the node was just created
-    if(current->getBoard()->is_checkmate()) {
+    if(current->getBoard().is_checkmate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             current->userWasInformedAboutResult = true;
             msg->showMessage(tr("Checkmate"), tr("The game is over!"));
@@ -427,7 +427,7 @@ void ModeController::onStateChange() {
         }
     }
     // same for stalemate
-    if(current->getBoard()->is_stalemate()) {
+    if(current->getBoard().is_stalemate()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Stalemate"), tr("The game is drawn!"));
             this->onActivateEnterMovesMode();
@@ -438,7 +438,7 @@ void ModeController::onStateChange() {
         current->userWasInformedAboutResult = true;
     }
     // 50 moves rule
-    if(current->getBoard()->can_claim_fifty_moves()) {
+    if(current->getBoard().can_claim_fifty_moves()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             this->gameModel->getGame()->setTreeWasChanged(true);
             msg->showMessage(tr("Draw"), tr("50 moves rule"));
@@ -449,7 +449,7 @@ void ModeController::onStateChange() {
         }
         current->userWasInformedAboutResult = true;
     }
-    if(current->getBoard()->is_threefold_repetition()) {
+    if(current->getBoard().is_threefold_repetition()) {
         if(mode == MODE_PLAY_WHITE || mode == MODE_PLAY_BLACK) {
             msg->showMessage(tr("Draw"), tr("Threefold repetition"));
             this->onActivateEnterMovesMode();

@@ -157,6 +157,29 @@ void GameNode::moveVariationDown(GameNode *node) {
 }
 */
 
+void GameNode::removeNagsInRange(int min, int max) {
+    int i=0;
+    while(i<this->nags.count()) {
+        int nag_i = nags.at(i);
+        if(nag_i > min && nag_i <= max) {
+            nags.removeAt(i);
+        } else {
+            i++;
+        }
+    }
+}
+
+void GameNode::appendNag(int nag) {
+    if(nag != 0) {
+        this->nags.append(nag);
+    }
+}
+
+void GameNode::sortNags() {
+    std::sort(nags.begin(), nags.end());
+}
+
+
 GameNode* GameNode::root() {
     GameNode* root = this;
     while(root->parent!=nullptr) {

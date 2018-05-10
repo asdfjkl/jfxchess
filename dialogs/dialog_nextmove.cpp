@@ -33,11 +33,11 @@ DialogNextMove::DialogNextMove(chess::GameNode *node, QWidget *parent) :
     this->setWindowTitle(this->tr("Next Move"));
     this->moveList = new QListWidget();
     this->selectedIndex = 0;
-    int cnt_items = node->getVariations()->count();
-    chess::Board *b = node->getBoard();
+    int cnt_items = node->getVariations().count();
+    chess::Board b = node->getBoard();
     for(int i=0;i<cnt_items;i++) {
-        chess::Move* mi = node->getVariation(i)->getMove();
-        QString san_i = b->san(*mi);
+        chess::Move mi = node->getVariation(i)->getMove();
+        QString san_i = b.san(mi);
         this->moveList->addItem(san_i);
     }
 

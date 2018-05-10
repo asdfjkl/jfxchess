@@ -14,14 +14,15 @@ DcgEncoder::DcgEncoder() :gameBytes()
 }
 
 void DcgEncoder::traverseNodes(GameNode *current) {
-    int cntVar = current->getVariations()->count();
+    int cntVar = current->getVariations().count();
 
     // first handle mainline move, if there are variations
     if(cntVar > 0) {
         GameNode* main_variation = current->getVariation(0);
-        this->appendMove(*main_variation->getMove());
+        Move m_temp = main_variation->getMove();
+        this->appendMove(m_temp);
         // encode nags
-        int cntNags = main_variation->getNags()->count();
+        int cntNags = main_variation->getNags().count();
         if(cntNags > 0) {
             this->appendNags(main_variation);
         }
@@ -36,9 +37,10 @@ void DcgEncoder::traverseNodes(GameNode *current) {
         // first create variation start marker
         GameNode *var_i = current->getVariation(i);
         this->appendStartTag();
-        this->appendMove(*(var_i->getMove()));
+        Move m_temp = var_i->getMove();
+        this->appendMove(m_temp);
         // encode nags
-        int cntNags = var_i->getNags()->count();
+        int cntNags = var_i->getNags().count();
         if(cntNags > 0) {
             this->appendNags(var_i);
         }
@@ -66,9 +68,9 @@ QByteArray DcgEncoder::encodeGame(Game &game) {
     //qDebug() << "deleted gamebytes";
     this->gameBytes.clear(); // = new QByteArray();
     // add fen string tag if root is not initial position
-    chess::Board* root = game.getRootNode()->getBoard();
-    if(!root->is_initial_position()) {
-        const QByteArray fen = root->fen().toUtf8();
+    chess::Board root = game.getRootNode()->getBoard();
+    if(!root.is_initial_position()) {
+        const QByteArray fen = root.fen().toUtf8();
         int l = fen.length();
         this->gameBytes.append(quint8(0x01));
         this->appendLength(l);
@@ -152,13 +154,13 @@ void DcgEncoder::prependLength(int len) {
 }
 
 void DcgEncoder::appendNags(GameNode* node) {
-    QList<int>* nags = node->getNags();
-    int l = nags->length();
+    QVector<int> nags = node->getNags();
+    int l = nags.length();
     if(l>0) {
         this->gameBytes.append(quint8(0x87));
         this->appendLength(l);
-        for(int i=0;i<nags->length();i++) {
-            quint8 nag_i = quint8(nags->at(i));
+        for(int i=0;i<nags.length();i++) {
+            quint8 nag_i = quint8(nags.at(i));
             this->gameBytes.append(nag_i);
         }
     }

@@ -148,19 +148,9 @@ void MoveViewController::annotation(int nag, int min, int max) {
         chess::GameNode *node = this->findNodeOnRightclick();
         // first remove old relevant nags, which
         // are in min<n<max
-        int i=0;
-        while(i<node->getNags()->count()) {
-            int nag_i = node->getNags()->at(i);
-            if(nag_i > min && nag_i <= max) {
-                node->getNags()->removeAt(i);
-            } else {
-                i++;
-            }
-        }
-        if(nag != 0) {
-            node->getNags()->append(nag);
-        }
-        std::sort(node->getNags()->begin(), node->getNags()->end());
+        node->removeNagsInRange(min, max);
+        node->appendNag(nag);
+        node->sortNags();
         this->gameModel->getGame()->setResult(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {

@@ -182,13 +182,13 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                 }
                 //idx+=len;
             } else if(byte == 0x88) {
-                // null move
-                Move *m = new Move();
                 GameNode *next = new GameNode();
-                Board *b_next = 0;
                 try {
-                    Board *b = current->getBoard();
-                    b_next = b->copy_and_apply(*m);
+                    // null move
+                    Move m;
+                    Board *b_next;
+                    Board b = current->getBoard();
+                    b_next = b.copy_and_apply(m);
                     next->setMove(m);
                     next->setBoard(b_next);
                     next->setParent(current);
@@ -196,11 +196,7 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                     current = next;
                 } catch(std::invalid_argument a) {
                     std::cerr << a.what() << std::endl;
-                    delete m;
                     delete next;
-                    if(b_next != 0) {
-                        delete b_next;
-                    }
                     error = true;
                 }
                 idx++;
@@ -234,7 +230,7 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                 GameNode *next = new GameNode();
                 Board *b_next = 0;
                 try {
-                    Board *b = current->getBoard();
+                    Board b = current->getBoard();
                     if(promotion_piece != 0) {
                         m = new chess::Move(from_internal, to_internal, promotion_piece);
                         //qDebug() << ba->mid(idx-1, 3).toHex();
@@ -244,9 +240,9 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                         m = new chess::Move(from_internal, to_internal);
                         //qDebug() << m->uci();
                     }
-                    if(b->is_legal_move(*m)) {
-                        b_next = b->copy_and_apply(*m);
-                        next->setMove(m);
+                    if(b.is_legal_move(*m)) {
+                        b_next = b.copy_and_apply(*m);
+                        next->setMove(*m);
                         next->setBoard(b_next);
                         next->setParent(current);
                         current->addVariation(next);

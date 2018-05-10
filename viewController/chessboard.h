@@ -52,14 +52,14 @@ protected:
     ColorStyle *style;
     int borderWidth;
     PieceImages *pieceImages;
-    chess::Board* board;
+    chess::Board board;
 
     // device pixel ratio
     qreal dpr;
 
     void drawBoard(QPaintEvent *event, QPainter *painter);
     void calculateBoardSize(int *boardSize, int *squareSize);
-    void drawArrow(chess::Arrow *ai, int boardOffsetX, int boardOffsetY, int squareSize, QPainter *painter);
+    void drawArrow(const chess::Arrow &ai, int boardOffsetX, int boardOffsetY, int squareSize, QPainter *painter);
 
     void paintEvent(QPaintEvent *e);
     void resizeEvent(QResizeEvent *e);
