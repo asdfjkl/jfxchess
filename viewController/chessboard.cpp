@@ -165,7 +165,7 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
     }
 
     // draw colored field of last move
-    if(this->lastMove.is_null) {
+    if(!this->lastMove.is_null) {
         QPoint xyFrom = this->lastMove.fromAsXY();
         int x = 0;
         int y = 0;
