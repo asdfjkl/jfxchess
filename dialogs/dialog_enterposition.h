@@ -15,7 +15,7 @@ class DialogEnterPosition : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogEnterPosition(chess::Board *board, ColorStyle *style,
+    explicit DialogEnterPosition(const chess::Board &board, const ColorStyle &style,
                                  QWidget *parent = 0);
 
     chess::Board* getCurrentBoard();

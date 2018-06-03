@@ -15,7 +15,8 @@ class EngineOption
 {
 public:
     EngineOption();
-    EngineOption(EngineOption *other);
+    //EngineOption(EngineOption *other);
+    //EngineOption(const EngineOption &other);
     QString name;
     int type;
     int default_spin;
@@ -23,20 +24,22 @@ public:
     int max_spin;
     bool default_check;
     QString default_combo;
-    QList<QString> *combo_options;
+    QVector<QString> combo_options;
     QString default_string;
     QString toUciOptionString();
     QString toUciCommandString();
-    bool restoreFromString(const QString &optionString);
 
-    static bool compareByName(const EngineOption *a, const EngineOption *b);
     int spin_val;
     bool check_val;
     QString combo_val;
     QString string_val;
 
+    bool restoreFromString(const QString &optionString);
+    static bool compareByName(const EngineOption &a, const EngineOption &b);
+
+
 private:
-    bool operator<(EngineOption other) const;
+    bool operator<(const EngineOption &other) const;
 
 };
 

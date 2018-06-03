@@ -5,7 +5,7 @@
 #include <QHeaderView>
 #include <QDebug>
 
-DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offsets,
+DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offsets,
                                          QString &filename, QWidget *parent) :
     QDialog(parent), header_offsets(header_offsets)
 {
@@ -14,22 +14,22 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offs
 
     this->gameOffset = 0;
 
-    int rows = header_offsets.size();
+    int rows = header_offsets->size();
     int columns = 7;
-    this->table = new QTableWidget(rows, columns);
+    this->table = new QTableWidget(rows, columns, this);
 
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    this->tableHeaders = new QStringList();
-    tableHeaders->append("No.");
-    tableHeaders->append("White");
-    tableHeaders->append("Black");
-    tableHeaders->append("Result");
-    tableHeaders->append("Date");
-    tableHeaders->append("ECO");
-    tableHeaders->append("Site");
+    this->tableHeaders = QStringList();
+    tableHeaders.append("No.");
+    tableHeaders.append("White");
+    tableHeaders.append("Black");
+    tableHeaders.append("Result");
+    tableHeaders.append("Date");
+    tableHeaders.append("ECO");
+    tableHeaders.append("Site");
 
     this->table->verticalHeader()->hide();
     this->table->setShowGrid(false);
@@ -45,13 +45,14 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offs
     self.resize(min(650,rec.width()-100),min(rows*20+130,rec.height()-200))
 */
 
-    this->searchField = new QLineEdit();
-    this->btnSearch = new QPushButton(tr("Search"));
-    this->btnReset = new QPushButton(tr("Reset"));
+    this->searchField = new QLineEdit(this);
+    this->btnSearch = new QPushButton(tr("Search"), this);
+    this->btnReset = new QPushButton(tr("Reset"), this);
 
     QHBoxLayout *hbox_lbl = new QHBoxLayout();
     hbox_lbl->addWidget(this->searchField);
-    hbox_lbl->addSpacerItem(new QSpacerItem(20, 1));
+    hbox_lbl->addSpacing(20);
+    //hbox_lbl->addSpacerItem(new QSpacerItem(20, 1));
     hbox_lbl->addWidget(this->btnSearch);
     hbox_lbl->addWidget(this->btnReset);
 
@@ -59,7 +60,7 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offs
     vbox->addLayout(hbox_lbl);
     vbox->addWidget(this->table);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
     buttonBox->addButton(QDialogButtonBox::Ok);
     buttonBox->addButton(QDialogButtonBox::Cancel);
 
@@ -90,16 +91,16 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> &header_offs
 
 void DialogBrowseHeaders::drawAllItems() {
     this->table->clear();
-    this->table->setHorizontalHeaderLabels(*this->tableHeaders);
-    this->table->setRowCount(this->header_offsets.size());
-    for(int i=0;i<this->header_offsets.size();i++) {
+    this->table->setHorizontalHeaderLabels(this->tableHeaders);
+    this->table->setRowCount(this->header_offsets->size());
+    for(int i=0;i<this->header_offsets->size();i++) {
 
-        QString white = this->header_offsets.at(i).headers.value("White");
-        QString black = this->header_offsets.at(i).headers.value("Black");
-        QString result = this->header_offsets.at(i).headers.value("Result");
-        QString date = this->header_offsets.at(i).headers.value("Date");
-        QString eco = this->header_offsets.at(i).headers.value("ECO");
-        QString site = this->header_offsets.at(i).headers.value("Site");
+        QString white = this->header_offsets->at(i).headers.value("White");
+        QString black = this->header_offsets->at(i).headers.value("Black");
+        QString result = this->header_offsets->at(i).headers.value("Result");
+        QString date = this->header_offsets->at(i).headers.value("Date");
+        QString eco = this->header_offsets->at(i).headers.value("ECO");
+        QString site = this->header_offsets->at(i).headers.value("Site");
         this->table->setItem(i,0,new QTableWidgetItem(QString::number(i+1)));
         this->table->setItem(i,1,new QTableWidgetItem(white));
         this->table->setItem(i,2,new QTableWidgetItem(black));
@@ -123,13 +124,13 @@ void DialogBrowseHeaders::onSearch() {
     QString searchTerm = this->searchField->text().toLower();
     QRegularExpression searchRegExp = QRegularExpression(searchTerm);
     int idx = 0;
-    for(int i=0;i<this->header_offsets.size();i++) {
-        QString white = this->header_offsets.at(i).headers.value("White");
-        QString black = this->header_offsets.at(i).headers.value("Black");
-        QString result = this->header_offsets.at(i).headers.value("Result");
-        QString date = this->header_offsets.at(i).headers.value("Date");
-        QString eco = this->header_offsets.at(i).headers.value("ECO");
-        QString site = this->header_offsets.at(i).headers.value("Site");
+    for(int i=0;i<this->header_offsets->size();i++) {
+        QString white = this->header_offsets->at(i).headers.value("White");
+        QString black = this->header_offsets->at(i).headers.value("Black");
+        QString result = this->header_offsets->at(i).headers.value("Result");
+        QString date = this->header_offsets->at(i).headers.value("Date");
+        QString eco = this->header_offsets->at(i).headers.value("ECO");
+        QString site = this->header_offsets->at(i).headers.value("Site");
 
         QRegularExpressionMatch m_white = searchRegExp.match(white.toLower());
         QRegularExpressionMatch m_black = searchRegExp.match(black.toLower());
@@ -161,6 +162,6 @@ void DialogBrowseHeaders::onItemSelectionChanged() {
     QList<QTableWidgetItem *> selectedItems = this->table->selectedItems();
     if(selectedItems.size() > 0) {
         int idx = (selectedItems.at(0)->text()).toInt() - 1;
-        this->gameOffset = this->header_offsets.at(idx).offset;
+        this->gameOffset = this->header_offsets->at(idx).offset;
     }
 }

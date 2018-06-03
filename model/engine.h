@@ -26,21 +26,23 @@ class Engine
 {
 public:
     Engine();
-    Engine(Engine *e);
+    //Engine(Engine *e);
     QString getPath();
     QString getName();
     void setPath(QString &path);
     void setName(QString &name);
-    QList<EngineOption*> * getUciOptions();
-    bool isInternalEngine();
-    void setAsInternalEngine(bool val);
+    QVector<EngineOption> getUciOptions();
     int existsEngineOption(QString &name);
+    void addEngineOption(EngineOption o);
+    void removeEngineOption(int idx_option);
+    void clearAllEngineOptions();
 
 protected:
     QString name;
     QString path;
-    QList<EngineOption*> *uciOptions;
+    QVector<EngineOption> uciOptions;
     bool isInternal;
+    bool isActive;
 };
 
 #endif // ENGINE_H

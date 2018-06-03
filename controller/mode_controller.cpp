@@ -161,7 +161,7 @@ void ModeController::onSetEnginesClicked() {
     if(result == QDialog::Accepted) {
         // replace engine list with dialog list
         this->gameModel->setEngines(dlg->engines);
-        this->gameModel->setActiveEngine(dlg->active_engine);
+        this->gameModel->setActiveEngine(dlg->activeEngineIdx);
         // this->gameModel->triggerStateChange();
     }
     this->gameModel->setLastAddedEnginePath(dlg->lastAddedEnginePath);
@@ -243,17 +243,20 @@ void ModeController::onActivateAnalysisMode() {
 
     // first change gamestate and reset engine
     this->uci_controller->uciSendCommand("quit");
-    QString engine_path = this->gameModel->getActiveEngine()->getPath();
+    QString engine_path = this->gameModel->getActiveEngine().getPath();
     this->uci_controller->startEngine(engine_path);
     this->uci_controller->uciNewgame();
     this->uci_controller->uciSendCommand("uci");
     // set engine strength to MAX
     // since we use stockfish, this is 20
     // will be just ignored by other engines
-    if(this->gameModel->getActiveEngine()->isInternalEngine()) {
+    // internal engine is always at idx 0. todo: Add global const
+    // for 0, i.e. INTERNAL_ENGINE_IDX
+    if(this->gameModel->getActiveEngineIdx() == 0) {
         this->uci_controller->uciStrength(20);
     }
-    this->uci_controller->sendEngineOptions(this->gameModel->getActiveEngine()->getUciOptions());
+    QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
+    this->uci_controller->sendEngineOptions(en_opts);
     // then trigger state change
     this->gameModel->setMode(MODE_ANALYSIS);
     this->gameModel->triggerStateChange();
@@ -271,14 +274,15 @@ void ModeController::onActivateEnterMovesMode() {
 void ModeController::onActivatePlayWhiteMode() {
     // first change gamestate and reset engine
     this->uci_controller->uciSendCommand("quit");
-    QString engine_path = this->gameModel->getActiveEngine()->getPath();
+    QString engine_path = this->gameModel->getActiveEngine().getPath();
     this->uci_controller->startEngine(engine_path);
     this->uci_controller->uciNewgame();
     this->uci_controller->uciSendCommand("uci");
-    if(this->gameModel->getActiveEngine()->isInternalEngine()) {
+    if(this->gameModel->getActiveEngineIdx() == 0) {
         this->uci_controller->uciStrength(this->gameModel->getEngineStrength());
     }
-    this->uci_controller->sendEngineOptions(this->gameModel->getActiveEngine()->getUciOptions());
+    QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
+    this->uci_controller->sendEngineOptions(en_opts);
     // trigger statechange
     this->gameModel->setMode(MODE_PLAY_WHITE);
     this->gameModel->flipBoard = false;
@@ -289,14 +293,15 @@ void ModeController::onActivatePlayWhiteMode() {
 void ModeController::onActivatePlayBlackMode() {
     // first change gamestate and reset engine
     this->uci_controller->uciSendCommand("quit");
-    QString engine_path = this->gameModel->getActiveEngine()->getPath();
+    QString engine_path = this->gameModel->getActiveEngine().getPath();
     this->uci_controller->startEngine(engine_path);
     this->uci_controller->uciNewgame();
     this->uci_controller->uciSendCommand("uci");
-    if(this->gameModel->getActiveEngine()->isInternalEngine()) {
+    if(this->gameModel->getActiveEngineIdx() == 0) {
         this->uci_controller->uciStrength(this->gameModel->getEngineStrength());
     }
-    this->uci_controller->sendEngineOptions(this->gameModel->getActiveEngine()->getUciOptions());
+    QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
+    this->uci_controller->sendEngineOptions(en_opts);
     // trigger statechange
     this->gameModel->setMode(MODE_PLAY_BLACK);
     this->gameModel->humanPlayerColor = chess::BLACK;
@@ -331,14 +336,15 @@ void ModeController::onActivateGameAnalysisMode() {
         this->gameModel->getGame()->setTreeWasChanged(true);
         // first change gamestate and reset engine
         this->uci_controller->uciSendCommand("quit");
-        QString engine_path = this->gameModel->getActiveEngine()->getPath();
+        QString engine_path = this->gameModel->getActiveEngine().getPath();
         this->uci_controller->startEngine(engine_path);
         this->uci_controller->uciNewgame();
         this->uci_controller->uciSendCommand("uci");
-        this->uci_controller->sendEngineOptions(this->gameModel->getActiveEngine()->getUciOptions());
+        QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
+        this->uci_controller->sendEngineOptions(en_opts);
         // set engine strength to MAX
         // since we use stockfish, this is 20
-        if(this->gameModel->getActiveEngine()->isInternalEngine()) {
+        if(this->gameModel->getActiveEngineIdx() == 0) {
             this->uci_controller->uciStrength(20);
         }
         // trigger statechange
@@ -378,11 +384,12 @@ void ModeController::onStateChangePlayWhiteOrBlack() {
 void ModeController::onActivatePlayoutPositionMode() {
     // first change gamestate and reset engine
     this->uci_controller->uciSendCommand("quit");
-    QString engine_path = this->gameModel->getActiveEngine()->getPath();
+    QString engine_path = this->gameModel->getActiveEngine().getPath();
     this->uci_controller->startEngine(engine_path);
     this->uci_controller->uciNewgame();
     this->uci_controller->uciSendCommand("uci");
-    this->uci_controller->sendEngineOptions(this->gameModel->getActiveEngine()->getUciOptions());
+    QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
+    this->uci_controller->sendEngineOptions(en_opts);
     // trigger statechange
     this->gameModel->setMode(MODE_PLAYOUT_POS);
     this->gameModel->flipBoard = false;

@@ -30,7 +30,7 @@ class ModeController : public QObject
     Q_OBJECT
 
 public:
-    ModeController(GameModel *gameModel, UciController *controller, QWidget *parent = 0);
+    ModeController(GameModel *gameModel, UciController *controller, QWidget *parent);
 
 private:
     UciController *uci_controller;

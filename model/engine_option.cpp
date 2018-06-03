@@ -10,7 +10,7 @@ EngineOption::EngineOption()
     this->max_spin = 0;
     this->default_check = false;
     this->default_combo = QString("");
-    this->combo_options = new QList<QString>();
+    //this->combo_options = new QList<QString>();
     this->default_string = QString("");
 
     this->spin_val = 0;
@@ -19,6 +19,7 @@ EngineOption::EngineOption()
     this->string_val = QString("");
 }
 
+/*
 EngineOption::EngineOption(EngineOption *other)
 {
     this->name = other->name;
@@ -39,6 +40,9 @@ EngineOption::EngineOption(EngineOption *other)
     this->combo_val = other->combo_val;
     this->string_val = other->string_val;
 }
+*/
+
+
 
 
 QString EngineOption::toUciOptionString() {
@@ -63,8 +67,8 @@ QString EngineOption::toUciOptionString() {
         outstr.append("option name ").append(this->name);
         outstr.append(" type combo");
         outstr.append(" default ").append(this->default_combo);
-        for(int i=0;i<this->combo_options->size();i++) {
-            QString vari = this->combo_options->at(i);
+        for(int i=0;i<this->combo_options.size();i++) {
+            QString vari = this->combo_options.at(i);
             outstr.append(" var ").append(vari);
         }
     } else if(this->type == EN_OPT_TYPE_STRING && (this->string_val != this->default_string)) {
@@ -75,15 +79,15 @@ QString EngineOption::toUciOptionString() {
     return outstr;
 }
 
-bool EngineOption::compareByName(const EngineOption *a, const EngineOption *b) {
-    if(a->name < b->name) {
+bool EngineOption::compareByName(const EngineOption &a, const EngineOption &b) {
+    if(a.name < b.name) {
         return true;
     } else {
         return false;
     }
 }
 
-bool EngineOption::operator<(EngineOption other) const
+bool EngineOption::operator<(const EngineOption &other) const
 {
     return this->name > other.name;
 }
@@ -131,12 +135,12 @@ bool EngineOption::restoreFromString(const QString &optionString) {
         QRegularExpressionMatch m_combo = regExpTypeCombo.match(output_i);
         if(m_combo.hasMatch() && !m_combo.captured(1).isNull()) {
             QStringList def_plus_vals = m_combo.captured(1).split(" ");
-            this->combo_options->clear();
+            this->combo_options.clear();
             this->default_combo = def_plus_vals.at(0);
             int size = def_plus_vals.count();
             for(int i=1;i<size;i++) {
                 if(def_plus_vals.at(i) == QString("var") && i+1 < size) {
-                    this->combo_options->append(def_plus_vals.at(i+1));
+                    this->combo_options.append(def_plus_vals.at(i+1));
                 }
             }
             this->type = EN_OPT_TYPE_COMBO;

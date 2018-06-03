@@ -83,7 +83,8 @@ void FileController::printPosition() {
  */
 void FileController::newGame() {
 
-    bool customEngine = this->gameModel->getActiveEngine() != this->gameModel->getInternalEngine();
+    // internal engine is always at 0, so otherwise we have a custom engine
+    bool customEngine = this->gameModel->getActiveEngineIdx() != 0;
     DialogNewGame* dlg = new DialogNewGame(customEngine, this->gameModel->getEngineStrength(),
                                            this->gameModel->getEngineThinkTime(), this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
@@ -146,7 +147,7 @@ void FileController::openGame() {
                 this->setupNewGame(move(g));
                 // load and set new game
             } else if(header_offsets.size() > 1) {
-                DialogBrowseHeaders* dlg = new DialogBrowseHeaders(header_offsets, filename, this->parentWidget);
+                DialogBrowseHeaders* dlg = new DialogBrowseHeaders(&header_offsets, filename, this->parentWidget);
                 if(dlg->exec() == QDialog::Accepted) {
                     std::unique_ptr<chess::Game> g = reader->readGameFromString(complete_file, dlg->gameOffset);
 

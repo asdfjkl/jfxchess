@@ -112,9 +112,10 @@ void UciController::uciStrength(int level) {
     emit(newCommand(QString("setoption name Skill Level value ").append(lvl)));
 }
 
-void UciController::sendEngineOptions(QList<EngineOption*> *optList) {
-    for(int i=0;i<optList->size();i++) {
-        QString cmd = optList->at(i)->toUciCommandString();
+void UciController::sendEngineOptions(QVector<EngineOption> &optList) {
+    for(int i=0;i<optList.size();i++) {
+        EngineOption o = optList.at(i);
+        QString cmd = o.toUciCommandString();
         if(!cmd.isEmpty()) {
             emit(newCommand(cmd));
         }

@@ -9,81 +9,81 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 
-DialogEnterPosition::DialogEnterPosition(chess::Board *board, ColorStyle *style,
+DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorStyle &style,
                                          QWidget *parent) :
     QDialog(parent)
 {
     this->resizeTo(0.8);
     this->setWindowTitle(tr("Enter Position"));
 
-    this->sbv = new EnterPosBoard(style, *board, parent);
+    this->sbv = new EnterPosBoard(style, board, parent);
 
 
-         this->cbWhiteShort = new QCheckBox(tr("White O-O"));
-         this->cbWhiteLong = new QCheckBox(tr("White O-O-O"));
-         this->cbBlackShort = new QCheckBox(tr("Black O-O"));
-         this->cbBlackLong = new QCheckBox(tr("Black O-O-O"));
-         QGroupBox *grpBox_castle = new QGroupBox(tr("Castling Rights"));
-         QVBoxLayout *vbox_castle = new QVBoxLayout();
-         vbox_castle->addWidget(this->cbWhiteShort);
-         vbox_castle->addWidget(this->cbWhiteLong);
-         vbox_castle->addWidget(this->cbBlackShort);
-         vbox_castle->addWidget(this->cbBlackLong);
-         vbox_castle->addStretch(1);
-         grpBox_castle->setLayout(vbox_castle);
+    this->cbWhiteShort = new QCheckBox(tr("White O-O"));
+    this->cbWhiteLong = new QCheckBox(tr("White O-O-O"));
+    this->cbBlackShort = new QCheckBox(tr("Black O-O"));
+    this->cbBlackLong = new QCheckBox(tr("Black O-O-O"));
+    QGroupBox *grpBox_castle = new QGroupBox(tr("Castling Rights"));
+    QVBoxLayout *vbox_castle = new QVBoxLayout();
+    vbox_castle->addWidget(this->cbWhiteShort);
+    vbox_castle->addWidget(this->cbWhiteLong);
+    vbox_castle->addWidget(this->cbBlackShort);
+    vbox_castle->addWidget(this->cbBlackLong);
+    vbox_castle->addStretch(1);
+    grpBox_castle->setLayout(vbox_castle);
 
-         this->rbWhite = new QRadioButton(tr("White To Move"));
-         this->rbBlack = new QRadioButton(tr("Black To Move"));
-         QGroupBox *grpBox_turn = new QGroupBox(tr("Turn"));
-         QVBoxLayout *vbox_radio = new QVBoxLayout();
-         vbox_radio->addWidget(this->rbWhite);
-         vbox_radio->addWidget(this->rbBlack);
-         vbox_radio->addStretch(1);
-         grpBox_turn->setLayout(vbox_radio);
+    this->rbWhite = new QRadioButton(tr("White To Move"));
+    this->rbBlack = new QRadioButton(tr("Black To Move"));
+    QGroupBox *grpBox_turn = new QGroupBox(tr("Turn"));
+    QVBoxLayout *vbox_radio = new QVBoxLayout();
+    vbox_radio->addWidget(this->rbWhite);
+    vbox_radio->addWidget(this->rbBlack);
+    vbox_radio->addStretch(1);
+    grpBox_turn->setLayout(vbox_radio);
 
-         this->buttonInit = new QPushButton(tr("Initial Position"));
-         this->buttonClear = new QPushButton(tr("Clear Board"));
-         this->buttonCurrent = new QPushButton(tr("Current Position"));
+    this->buttonInit = new QPushButton(tr("Initial Position"));
+    this->buttonClear = new QPushButton(tr("Clear Board"));
+    this->buttonCurrent = new QPushButton(tr("Current Position"));
 
-         QVBoxLayout *vbox_config = new QVBoxLayout();
-         vbox_config->addWidget(grpBox_castle);
-         vbox_config->addWidget(grpBox_turn);
-         vbox_config->addStretch(1);
-         vbox_config->addWidget(this->buttonInit);
-         vbox_config->addWidget(this->buttonClear);
-         vbox_config->addWidget(this->buttonCurrent);
+    QVBoxLayout *vbox_config = new QVBoxLayout();
+    vbox_config->addWidget(grpBox_castle);
+    vbox_config->addWidget(grpBox_turn);
+    vbox_config->addStretch(1);
+    vbox_config->addWidget(this->buttonInit);
+    vbox_config->addWidget(this->buttonClear);
+    vbox_config->addWidget(this->buttonCurrent);
 
-         QHBoxLayout *hbox = new QHBoxLayout();
-         hbox->addWidget(this->sbv);
-         hbox->addLayout(vbox_config);
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(this->sbv);
+    hbox->addLayout(vbox_config);
 
-         QVBoxLayout *vbox = new QVBoxLayout();
-         vbox->addLayout(hbox);
-         this->buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
-         vbox->addWidget(this->buttonBox);
+    QVBoxLayout *vbox = new QVBoxLayout();
+    vbox->addLayout(hbox);
+    this->buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
+    vbox->addWidget(this->buttonBox);
 
-         this->setLayout(vbox);
+    this->setLayout(vbox);
 
-         connect(this->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-         connect(this->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(this->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(this->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-         connect(this->buttonInit, &QPushButton::clicked, this, &DialogEnterPosition::setToInitialPosition);
-         connect(this->buttonClear, &QPushButton::clicked, this, &DialogEnterPosition::clearBoard);
-         connect(this->buttonCurrent, &QPushButton::clicked, this, &DialogEnterPosition::setToCurrentBoard);
+    connect(this->buttonInit, &QPushButton::clicked, this, &DialogEnterPosition::setToInitialPosition);
+    connect(this->buttonClear, &QPushButton::clicked, this, &DialogEnterPosition::clearBoard);
+    connect(this->buttonCurrent, &QPushButton::clicked, this, &DialogEnterPosition::setToCurrentBoard);
 
-         connect(this->sbv, &EnterPosBoard::squareChanged, this, &DialogEnterPosition::checkConsistency);
+    connect(this->sbv, &EnterPosBoard::squareChanged, this, &DialogEnterPosition::checkConsistency);
 
-         connect(this->cbBlackLong, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
-         connect(this->cbBlackShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
-         connect(this->cbWhiteLong, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
-         connect(this->cbWhiteShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
+    connect(this->cbBlackLong, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
+    connect(this->cbBlackShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
+    connect(this->cbWhiteLong, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
+    connect(this->cbWhiteShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
 
-         connect(this->rbWhite, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
-         connect(this->rbBlack, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
+    connect(this->rbWhite, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
+    connect(this->rbBlack, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
 
-         this->rbWhite->toggle();
-         this->setTurn();
-/*
+    this->rbWhite->toggle();
+    this->setTurn();
+    /*
          self.connect(self.buttonBox, SIGNAL("accepted()"),
                   self, SLOT("accept()"))
          self.connect(self.buttonBox, SIGNAL("rejected()"),

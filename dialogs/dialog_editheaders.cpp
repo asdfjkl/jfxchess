@@ -9,28 +9,28 @@ DialogEditHeaders::DialogEditHeaders(chess::Game &g, QWidget *parent) :
     QDialog(parent)
 {
 
-    leEvent = new QLineEdit();
-    leSite = new QLineEdit();
-    leDate = new QLineEdit();
-    leRound = new QLineEdit();
-    leWhite = new QLineEdit();
-    leBlack = new QLineEdit();
-    leECO = new QLineEdit();
-    rbWhiteWins = new QRadioButton("1-0");
-    rbBlackWins = new QRadioButton("0-1");
-    rbDraw = new QRadioButton("1/2 - 1/2");
-    rbUndefined = new QRadioButton("*");
+    leEvent = new QLineEdit(this);
+    leSite = new QLineEdit(this);
+    leDate = new QLineEdit(this);
+    leRound = new QLineEdit(this);
+    leWhite = new QLineEdit(this);
+    leBlack = new QLineEdit(this);
+    leECO = new QLineEdit(this);
+    rbWhiteWins = new QRadioButton("1-0", this);
+    rbBlackWins = new QRadioButton("0-1", this);
+    rbDraw = new QRadioButton("1/2 - 1/2", this);
+    rbUndefined = new QRadioButton("*", this);
 
-    lblSite = new QLabel("Site");
-    lblDate = new QLabel("Date");
-    lblRound = new QLabel("Round");
-    lblEvent = new QLabel("Event");
-    lblWhite = new QLabel("White");
-    lblBlack = new QLabel("Black");
-    lblResult = new QLabel("Result");
-    lblEco = new QLabel("Eco");
+    lblSite = new QLabel("Site", this);
+    lblDate = new QLabel("Date", this);
+    lblRound = new QLabel("Round", this);
+    lblEvent = new QLabel("Event", this);
+    lblWhite = new QLabel("White", this);
+    lblBlack = new QLabel("Black", this);
+    lblResult = new QLabel("Result", this);
+    lblEco = new QLabel("Eco", this);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel, this);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &DialogEditHeaders::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &DialogEditHeaders::reject);
@@ -44,8 +44,8 @@ DialogEditHeaders::DialogEditHeaders(chess::Game &g, QWidget *parent) :
     formLayout->addRow(lblBlack, leBlack);
     formLayout->addRow(lblEco, leECO);
 
-    QGroupBox *grbData = new QGroupBox(tr("Game Data"));
-    QGroupBox *grbRes = new QGroupBox(tr("Result"));
+    QGroupBox *grbData = new QGroupBox(tr("Game Data"), this);
+    QGroupBox *grbRes = new QGroupBox(tr("Result"), this);
 
     grbData->setLayout(formLayout);
     QHBoxLayout *hbox = new QHBoxLayout();

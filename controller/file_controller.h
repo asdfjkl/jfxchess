@@ -27,13 +27,13 @@ class FileController : public QObject
 {
     Q_OBJECT
 public:
-    explicit FileController(GameModel *gameModel, QWidget *parent = 0);
+    explicit FileController(GameModel *gameModel, QWidget *parent);
 
 private:
     GameModel *gameModel;
     QWidget *parentWidget;
     void saveGameTo(QString &filename);
-    WId board;
+    WId board; //?
     void setupNewGame(std::unique_ptr<chess::Game> g);
 
 

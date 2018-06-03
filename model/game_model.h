@@ -73,13 +73,15 @@ public:
     void setMode(int mode);
 
     ColorStyle *colorStyle;
-    QList<Engine*> * getEngines();
-    Engine *getActiveEngine();
-    void setEngines(QList<Engine*> *engines);
-    void setActiveEngine(Engine *engine);
+    QVector<Engine> getEngines();
+    Engine getActiveEngine();
+    int getActiveEngineIdx();
+    void setEngines(QVector<Engine> engines);
+    void setActiveEngine(int engine_idx);
     void setLastAddedEnginePath(QString &path);
     QString getLastAddedEnginePath();
-    Engine* getInternalEngine();
+    void setInternalEngine(Engine e);
+    Engine getInternalEngine();
 
     bool humanPlayerColor;
     int engineStrength;
@@ -122,8 +124,9 @@ private:
     chess::Polyglot* book;
     std::unique_ptr<chess::Game> game;
     int mode;
-    QList<Engine*> *engines;
-    Engine *active_engine;
+    QVector<Engine> engines;
+    //Engine active_engine;
+    int activeEngineIdx;
     QString lastAddedEnginePath;
 
     QString company;

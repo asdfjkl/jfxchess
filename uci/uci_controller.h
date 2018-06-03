@@ -45,7 +45,7 @@ public:
     void uciGoMovetime(int milliseconds);
     void uciGoInfinite();
     void uciSendFen(const QString &fen);
-    void sendEngineOptions(QList<EngineOption*> *optList);
+    void sendEngineOptions(QVector<EngineOption> &optList);
 
     // todo
     // void uciSendEngineOptions();

@@ -31,10 +31,10 @@ class DialogEngines : public QDialog
     Q_OBJECT
 public:
     explicit DialogEngines(GameModel *gameModel, QWidget *parent = 0);
-    QList<Engine*> *engines;
-    Engine *active_engine;
-    QListWidget *lstEngines;
+    QVector<Engine> engines;
+    int activeEngineIdx;
     QString lastAddedEnginePath;
+    QListWidget *lstEngines;
 
 private:
     QPushButton *btnAdd;
@@ -42,7 +42,6 @@ private:
     QPushButton *btnParameters;
     QPushButton *btnResetParameters;
     void delay(int ms);
-    void clearOptions(Engine *e);
 
 signals:
 

@@ -6,10 +6,12 @@
 #include "various/resource_finder.h"
 
 
-EnterPosBoard::EnterPosBoard(ColorStyle *style,
+EnterPosBoard::EnterPosBoard(const ColorStyle &style,
                              const chess::Board &currentBoard,
                              QWidget *parent, bool incl_joker_piece) :
-    QWidget(parent)
+    QWidget(parent),
+    style(style),
+    currentGameBoard(currentBoard)
 {
 
     QSizePolicy policy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -18,9 +20,6 @@ EnterPosBoard::EnterPosBoard(ColorStyle *style,
     this->borderWidth = 12;
     this->style = style;
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
-
-    // copy current board state
-    //this->currentGameBoard(currentBoard);
 
     this->selectedPiece = chess::WHITE_PAWN;
 
@@ -202,7 +201,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     // to have no border color when drawing board squares and pieces
     QPen penZero = QPen(Qt::black, 1, Qt::NoPen);
     painter->setPen(penZero);
-    painter->setBrush(this->style->borderColor);
+    painter->setBrush(this->style.borderColor);
 
     int boardSize = 0;
     int squareSize = 0;
@@ -213,11 +212,11 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     int boardOffsetX = this->borderWidth;
     int boardOffsetY = this->borderWidth;
 
-    QColor light = this->style->lightSquare;
-    QColor dark = this->style->darkSquare;
+    QColor light = this->style.lightSquare;
+    QColor dark = this->style.darkSquare;
 
-    QPixmap pxLight = this->style->lightSquareTexture;
-    QPixmap pxDark = this->style->darkSquareTexture;
+    QPixmap pxLight = this->style.lightSquareTexture;
+    QPixmap pxDark = this->style.darkSquareTexture;
 
     //chess::Board board = this->board;
 
@@ -225,13 +224,13 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
         for(int j=0;j<8;j++) {
             // draw alternatively light and dark squares
             if((j%2 == 0 && i%2==1) || (j%2 == 1 && i%2==0)) {
-                if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
+                if(this->style.boardStyle == BOARD_STYLE_TEXTURE) {
                     painter->setBrush(QBrush(pxLight));
                 } else {
                     painter->setBrush(light);
                 }
             } else {
-                if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
+                if(this->style.boardStyle == BOARD_STYLE_TEXTURE) {
                     painter->setBrush(QBrush(pxDark));
                 } else {
                     painter->setBrush(dark);
@@ -262,7 +261,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             piece_type = board.get_piece_type_at(i,j);
             piece_color = board.get_piece_color_at(i,j);
 
-            int pieceStyle = this->style->pieceType;
+            int pieceStyle = this->style.pieceType;
             if(piece_type != chess::EMPTY)  {
                 QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
                 painter->drawImage(x,y,*piece_image);
@@ -272,7 +271,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
     // draw board coordinates
     painter->setPen(penZero);
-    painter->setBrush(this->style->borderColor);
+    painter->setBrush(this->style.borderColor);
 
     painter->setFont(QFont(QString("Decorative"),8));
 
@@ -304,14 +303,14 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
     for(int i=0;i<max_piece_idx;i++) {
         for(int j=0;j<2;j++) {
-            if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
-                painter->setBrush(QBrush(this->style->lightSquareTexture));
+            if(this->style.boardStyle == BOARD_STYLE_TEXTURE) {
+                painter->setBrush(QBrush(this->style.lightSquareTexture));
             } else {
                 painter->setBrush(light);
             }
             if(this->selectedPiece == this->pickupPieces[i][j]) {
-                if(this->style->boardStyle == BOARD_STYLE_TEXTURE) {
-                    painter->setBrush(QBrush(this->style->darkSquareTexture));
+                if(this->style.boardStyle == BOARD_STYLE_TEXTURE) {
+                    painter->setBrush(QBrush(this->style.darkSquareTexture));
                 } else {
                     painter->setBrush(dark);
                 }
@@ -329,7 +328,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             if(j==1) {
                 piece_color = chess::BLACK;
             }
-            int pieceStyle = this->style->pieceType;
+            int pieceStyle = this->style.pieceType;
 
             QImage *piece_image = this->pieceImages->getPieceImage(piece_type, piece_color, squareSize, this->dpr, pieceStyle);
             assert(piece_image != 0);

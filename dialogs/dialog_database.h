@@ -10,7 +10,7 @@ class DialogDatabase : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogDatabase(GameModel *gameModel, QWidget *parent = 0);
+    explicit DialogDatabase(GameModel *gameModel, QWidget *parent);
     int selectedIndex;
 
 private:

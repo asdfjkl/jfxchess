@@ -27,7 +27,7 @@ class EditController : public QObject
 {
     Q_OBJECT
 public:
-    explicit EditController(GameModel *gameModel, QWidget *parent = 0);
+    explicit EditController(GameModel *gameModel, QWidget *parent);
 
 private:
     GameModel *gameModel;

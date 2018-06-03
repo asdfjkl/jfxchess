@@ -31,9 +31,11 @@
 DialogEngineOptions::DialogEngineOptions(Engine *e, QWidget *parent) :
     QDialog(parent)
 {
+    /*
+
     this->setWindowTitle(this->tr("UCI Engine Options: ").append(e->getName()));
 
-    this->engine = e;
+    //this->engine = e;
 
     this->getOptionsFromEngine();
 
@@ -62,29 +64,29 @@ DialogEngineOptions::DialogEngineOptions(Engine *e, QWidget *parent) :
             }
             // crude way of adding spacing
             if(y!=0) {
-                grid->addWidget(new QLabel("    "),x,y);
+                grid->addWidget(new QLabel("    ", this),x,y);
                 y++;
             }
             y++;
 
-            QLabel *lbl = new QLabel(ei->name);
+            QLabel *lbl = new QLabel(ei->name, this);
             y++;
             grid->addWidget(lbl,x,y);
             y++;
             if(ei->type == EN_OPT_TYPE_SPIN) {
-                QSpinBox *widget = new QSpinBox();
+                QSpinBox *widget = new QSpinBox(this);
                 widget->setMinimum(ei->min_spin);
                 widget->setMaximum(ei->max_spin);
                 widget->setValue(ei->spin_val);
                 grid->addWidget(widget,x,y);
                 this->spin_widgets->insert(ei->name, widget);
             } else if(ei->type == EN_OPT_TYPE_CHECK) {
-                QCheckBox *widget = new QCheckBox();
+                QCheckBox *widget = new QCheckBox(this);
                 widget->setChecked(ei->check_val);
                 grid->addWidget(widget,x,y);
                 this->check_widgets->insert(ei->name,widget);
             } else if(ei->type == EN_OPT_TYPE_COMBO) {
-                QComboBox *widget = new QComboBox();
+                QComboBox *widget = new QComboBox(this);
                 QString active_setting = ei->combo_val;
                 for(int i=0;i<ei->combo_options->count();i++) {
                     widget->addItem(ei->combo_options->at(i));
@@ -95,7 +97,7 @@ DialogEngineOptions::DialogEngineOptions(Engine *e, QWidget *parent) :
                 grid->addWidget(widget,x,y);
                 this->combo_widgets->insert(ei->name,widget);
             } else if(ei->type == EN_OPT_TYPE_STRING) {
-                QLineEdit *widget = new QLineEdit();
+                QLineEdit *widget = new QLineEdit(this);
                 widget->setText(ei->string_val);
                 grid->addWidget(widget,x,y);
                 this->line_widgets->insert(ei->name,widget);
@@ -104,7 +106,7 @@ DialogEngineOptions::DialogEngineOptions(Engine *e, QWidget *parent) :
         }
     }
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel, this);
     QVBoxLayout *vbox = new QVBoxLayout();
     vbox->addLayout(grid);
 
@@ -114,11 +116,11 @@ DialogEngineOptions::DialogEngineOptions(Engine *e, QWidget *parent) :
     this->setLayout(vbox);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &DialogEngineOptions::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &DialogEngineOptions::reject);
-
+*/
 }
 
 void DialogEngineOptions::updateEngineOptionsFromEntries() {
-
+/*
     // iterate through all widgets and update values from
     // current state of widgets
     // first start with spin widgets
@@ -162,21 +164,26 @@ void DialogEngineOptions::updateEngineOptionsFromEntries() {
             this->engine->getUciOptions()->at(j)->string_val = i4.value()->text();
         }
     }
+    */
 }
 
 void DialogEngineOptions::delay(int ms)
 {
+    /*
     QTime dieTime= QTime::currentTime().addMSecs(ms);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        */
 }
 
 
 QFrame* DialogEngineOptions::hLine() {
-    QFrame *line = new QFrame();
+    /*
+    QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     return line;
+    */
 }
 
 
@@ -196,7 +203,7 @@ int DialogEngineOptions::existsEngineOption(QList<EngineOption*> *options, QStri
 // if option already exists take value from existing engine
 // otherwise create new option with queried default values
 void DialogEngineOptions::getOptionsFromEngine() {
-
+/*
     this->setEnabled(false);
 
     // execute engine, call uci, parse options
@@ -312,4 +319,5 @@ void DialogEngineOptions::getOptionsFromEngine() {
         }
     }
     this->setEnabled(true);
+    */
 }

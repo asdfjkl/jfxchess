@@ -36,27 +36,19 @@ DialogEngines::DialogEngines(GameModel *gameModel, QWidget *parent) :
 {
 
     this->setWindowTitle(this->trUtf8("Chess Engines"));
-    this->engines = new QList<Engine*>();
     // create copy of engines, so that if user
     // clicks cancel later on, nothing is changed
-    for(int i=0;i<gameModel->getEngines()->size();i++) {
-        this->engines->append(new Engine(*gameModel->getEngines()->at(i)));
-        if(gameModel->getActiveEngine() == gameModel->getEngines()->at(i)) {
-            this->active_engine = this->engines->at(i);
-        }
-    }
-    if(this->active_engine == 0) {
-        // there is always at least one engine (internal one)
-        this->active_engine = this->engines->at(0);
-    }
+    this->engines = gameModel->getEngines();
+    this->activeEngineIdx = gameModel->getActiveEngineIdx();
+
     this->lastAddedEnginePath = gameModel->getLastAddedEnginePath();
 
     QVBoxLayout *vbox_right = new QVBoxLayout();
 
-    this->btnAdd = new QPushButton(this->tr("Add..."));
-    this->btnRemove = new QPushButton(this->tr("Remove..."));
-    this->btnParameters = new QPushButton(this->tr("Edit Parameters..."));
-    this->btnResetParameters = new QPushButton(this->tr("Reset Parameters..."));
+    this->btnAdd = new QPushButton(this->tr("Add..."),this);
+    this->btnRemove = new QPushButton(this->tr("Remove..."),this);
+    this->btnParameters = new QPushButton(this->tr("Edit Parameters..."),this);
+    this->btnResetParameters = new QPushButton(this->tr("Reset Parameters..."),this);
     vbox_right->addWidget(btnAdd);
     vbox_right->addWidget(btnRemove);
     vbox_right->addStretch(0);
@@ -65,27 +57,30 @@ DialogEngines::DialogEngines(GameModel *gameModel, QWidget *parent) :
 
 
     QHBoxLayout *hbox_up = new QHBoxLayout();
-    this->lstEngines = new QListWidget();
+    this->lstEngines = new QListWidget(this);
     hbox_up->addStretch(0);
     hbox_up->addWidget(lstEngines);
     hbox_up->addLayout(vbox_right);
     hbox_up->addStretch(0);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel, this);
 
     QVBoxLayout *vbox = new QVBoxLayout();
     vbox->addLayout(hbox_up);
     vbox->addWidget(buttonBox);
 
-    for(int i=0;i<this->engines->size();i++) {
+    for(int i=0;i<this->engines.size();i++) {
         QListWidgetItem *item;
+        Engine engine_i = this->engines.at(i);
+        QString engine_name_i = engine_i.getName();
         if(i==0) {
-            item = new QListWidgetItem(this->engines->at(i)->getName().append((" (internal)")));
+            engine_name_i.append((" (internal"));
+            item = new QListWidgetItem(engine_name_i);
         } else {
-            item = new QListWidgetItem(this->engines->at(i)->getName());
+            item = new QListWidgetItem(engine_name_i);
         }
         this->lstEngines->addItem(item);
-        if(gameModel->getActiveEngine() == gameModel->getEngines()->at(i)) {
+        if(i == gameModel->getActiveEngineIdx()) {
             item->setSelected(true);
             if(i == 0) {
                 this->btnRemove->setEnabled(false);
@@ -166,11 +161,11 @@ void DialogEngines::onAddEngine() {
         // long as the engine provided us with a proper name, we
         // assume that we found a real uci engine
         if(!engine_name.isEmpty()) {
-            Engine *new_engine = new Engine();
-            new_engine->setName(engine_name);
-            new_engine->setPath(fileName);
-            this->engines->append(new_engine);
-            QListWidgetItem *item = new QListWidgetItem(new_engine->getName());
+            Engine new_engine = Engine();
+            new_engine.setName(engine_name);
+            new_engine.setPath(fileName);
+            this->engines.append(new_engine);
+            QListWidgetItem *item = new QListWidgetItem(new_engine.getName());
             this->lstEngines->addItem(item);
             item->setSelected(true);
             this->update();
@@ -180,20 +175,12 @@ void DialogEngines::onAddEngine() {
 
 }
 
-void DialogEngines::clearOptions(Engine *e) {
-    for(int i=0;i<e->getUciOptions()->count();i++) {
-        EngineOption* eo = e->getUciOptions()->at(i);
-        delete eo;
-    }
-    e->getUciOptions()->clear();
-}
-
 void DialogEngines::onRemoveEngine() {
     for(int i=0;i<this->lstEngines->count();i++) {
         if(this->lstEngines->item(i)->isSelected()) {
-            this->engines->removeAt(i);
+            this->engines.removeAt(i);
             this->lstEngines->takeItem(i);
-            this->active_engine = this->engines->at(i-1);
+            this->activeEngineIdx = i-1;
             this->lstEngines->item(i-1)->setSelected(true);
             this->lstEngines->update();
         }
@@ -201,11 +188,13 @@ void DialogEngines::onRemoveEngine() {
 }
 
 void DialogEngines::onEditParameters() {
-    DialogEngineOptions *dlg = new DialogEngineOptions(this->active_engine, this);
-    if(dlg->exec() == QDialog::Accepted) {
-        dlg->updateEngineOptionsFromEntries();
-    }
-    delete dlg;
+    //DialogEngineOptions *dlg = new DialogEngineOptions(this->active_engine, this);
+    //Engine active = this->engines.at(this->activeEngineIdx);
+    //DialogEngineOptions dlg(active, this);
+    //if(dlg.exec() == QDialog::Accepted) {
+        //dlg.updateEngineOptionsFromEntries();
+    //}
+    //delete dlg;
     /*
     dlgEngOpt = DialogEngineOptions(self.active_engine)
     if dlgEngOpt.exec_() == QDialog.Accepted:
@@ -232,13 +221,14 @@ void DialogEngines::onEditParameters() {
 }
 
 void DialogEngines::onResetParameters() {
-    this->clearOptions(this->active_engine);
+    this->engines[this->activeEngineIdx].clearAllEngineOptions();
 }
 
 void DialogEngines::onSelectEngine() {
     for(int i=0;i<this->lstEngines->count();i++) {
         if(this->lstEngines->item(i)->isSelected()) {
-            this->active_engine = this->engines->at(i);
+            //this->active_engine = this->engines.at(i);
+            this->activeEngineIdx = i;
             if(i==0) {
                 this->btnRemove->setEnabled(false);
             } else {

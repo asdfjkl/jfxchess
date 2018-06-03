@@ -42,9 +42,9 @@ GameModel::GameModel(QObject *parent) :
     this->game = std::unique_ptr<chess::Game>(new chess::Game());
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
-    this->engines = new QList<Engine*>();
-    this->active_engine = new InternalEngine();
-    this->engines->append(active_engine);
+    InternalEngine default_engine = InternalEngine();
+    this->engines.append(default_engine);
+    this->activeEngineIdx = this->engines.size() - 1;
     this->lastAddedEnginePath = QString("");
     this->humanPlayerColor = chess::WHITE;
     // stockfish specific: 0 (min), 20 (max)
@@ -120,12 +120,13 @@ void GameModel::setLastAddedEnginePath(QString &path) {
     this->lastAddedEnginePath = path;
 }
 
-void GameModel::setEngines(QList<Engine*> *engines) {
+void GameModel::setEngines(QVector<Engine> engines) {
     this->engines = engines;
 }
 
-void GameModel::setActiveEngine(Engine *engine) {
-    this->active_engine = engine;
+void GameModel::setActiveEngine(int activeEngineIdx) {
+    assert(activeEngineIdx > 0 && activeEngineIdx < this->engines.size());
+    this->activeEngineIdx = activeEngineIdx;
 }
 
 chess::Game* GameModel::getGame() {
@@ -151,17 +152,21 @@ void GameModel::setMode(int mode) {
     this->mode = mode;
 }
 
-QList<Engine*> * GameModel::getEngines() {
+QVector<Engine> GameModel::getEngines() {
     return this->engines;
 }
 
-Engine * GameModel::getActiveEngine() {
-    return this->active_engine;
+Engine GameModel::getActiveEngine() {
+    return this->engines.at(this->activeEngineIdx);
 }
 
-Engine* GameModel::getInternalEngine() {
-    assert(this->engines->size() > 0);
-    return this->engines->at(0);
+int GameModel::getActiveEngineIdx() {
+    return this->activeEngineIdx;
+}
+
+Engine GameModel::getInternalEngine() {
+    assert(this->engines.size() > 0);
+    return this->engines.at(0);
 }
 
 int GameModel::getEngineThinkTime() {
@@ -170,6 +175,10 @@ int GameModel::getEngineThinkTime() {
 
 int GameModel::getEngineStrength() {
     return this->engineStrength;
+}
+
+void GameModel::setInternalEngine(Engine e) {
+    this->engines[0] = e;
 }
 
 void GameModel::saveGameState() {
@@ -194,39 +203,40 @@ void GameModel::saveGameState() {
     settings.setValue("showEval", this->showEval);
 
     settings.beginWriteArray("engines");
-    for(int i=0;i<this->engines->size();i++) {
+    for(int i=0;i<this->engines.size();i++) {
         settings.setArrayIndex(i);
-        Engine *e = this->engines->at(i);
-        settings.setValue("engineName", e->getName());
-        settings.setValue("enginePath", e->getPath());
-        if(e->isInternalEngine()) {
+        Engine e = this->engines.at(i);
+        settings.setValue("engineName", e.getName());
+        settings.setValue("enginePath", e.getPath());
+        // internal engine must always be at position 0
+        if(i == 0) {
             settings.setValue("internalEngine", true);
         } else {
             settings.setValue("internalEngine", false);
         }
-        if(e == this->active_engine) {
+        if(i == this->activeEngineIdx) {
             settings.setValue("activeEngine", true);
         } else {
             settings.setValue("activeEngine", false);
         }
         settings.beginWriteArray("engineOptions");
-        for(int j=0;j<e->getUciOptions()->size();j++) {
+        for(int j=0;j<e.getUciOptions().size();j++) {
             settings.setArrayIndex(j);
-            EngineOption *o = e->getUciOptions()->at(j);
+            EngineOption o = e.getUciOptions().at(j);
             QString optNr = QString::number(j);
             QString option = optNr.append("option");
             QString val = optNr.append("value");
             QString type = optNr.append("type");
-            settings.setValue(type, o->type);
-            settings.setValue(option, o->toUciOptionString());
-            if(o->type == EN_OPT_TYPE_CHECK) {
-                settings.setValue(val, o->check_val);
-            } else if(o->type == EN_OPT_TYPE_COMBO) {
-                settings.setValue(val, o->combo_val);
-            } else if(o->type == EN_OPT_TYPE_SPIN) {
-                settings.setValue(val, o->spin_val);
-            } else if(o->type == EN_OPT_TYPE_STRING) {
-                settings.setValue(val, o->string_val);
+            settings.setValue(type, o.type);
+            settings.setValue(option, o.toUciOptionString());
+            if(o.type == EN_OPT_TYPE_CHECK) {
+                settings.setValue(val, o.check_val);
+            } else if(o.type == EN_OPT_TYPE_COMBO) {
+                settings.setValue(val, o.combo_val);
+            } else if(o.type == EN_OPT_TYPE_SPIN) {
+                settings.setValue(val, o.spin_val);
+            } else if(o.type == EN_OPT_TYPE_STRING) {
+                settings.setValue(val, o.string_val);
             }
         }
         settings.endArray();
@@ -303,29 +313,31 @@ void GameModel::restoreGameState() {
     int size = settings.beginReadArray("engines");
     for(int i=0;i<size;i++) {
         settings.setArrayIndex(i);
-        Engine* e = new Engine();
+        Engine e; // = new Engine();
         if(settings.contains("engineName")) {
             QString eName = settings.value("engineName").toString();
-            e->setName(eName);
+            e.setName(eName);
         }
         if(settings.contains("enginePath")) {
             QString ePath = settings.value("enginePath").toString();
-            e->setPath(ePath);
+            e.setPath(ePath);
         }
         bool isInternal = false;
         if(settings.contains("internalEngine")) {
             isInternal = settings.value("internalEngine").toBool();
         }
+        bool isActive = false;
         if(settings.contains("activeEngine")) {
-            bool isActive = settings.value("activeEngine").toBool();
-            if(isActive && !isInternal) {
-                this->active_engine = e;
-            }
+            isActive = settings.value("activeEngine").toBool();
+            //if(isActive && !isInternal) {
+            //
+            //    //this->active_engine = e; //TODO: proper serialization of engines & options
+            //}
         }
         int sizeOpts = settings.beginReadArray("engineOptions");
         for(int j=0;j<sizeOpts;j++) {
             settings.setArrayIndex(j);
-            EngineOption *o = new EngineOption();
+            EngineOption o; // = new EngineOption();
             QString optNr = QString::number(j);
             QString option = optNr.append("option");
             QString val = optNr.append("value");
@@ -334,46 +346,37 @@ void GameModel::restoreGameState() {
             if(settings.contains(option) && settings.contains(val) && settings.contains(type)) {
                 int typeCode = settings.value(type).toInt();
                 QString enopt = settings.value(option).toString();
-                if(o->restoreFromString(enopt)) {
+                if(o.restoreFromString(enopt)) {
                     if(typeCode == EN_OPT_TYPE_CHECK) {
-                        o->check_val = settings.value(val).toBool();
+                        o.check_val = settings.value(val).toBool();
                         restored = true;
                     } else if(typeCode == EN_OPT_TYPE_COMBO) {
-                        o->combo_val = settings.value(val).toString();
+                        o.combo_val = settings.value(val).toString();
                         restored = true;
                     } else if(typeCode == EN_OPT_TYPE_SPIN) {
-                        o->spin_val = settings.value(val).toInt();
+                        o.spin_val = settings.value(val).toInt();
                         restored = true;
                     } else if(typeCode == EN_OPT_TYPE_STRING) {
-                        o->string_val = settings.value(val).toString();
+                        o.string_val = settings.value(val).toString();
                         restored = true;
                     }
                 }
             }
             if(restored) {
-                if(isInternal) {
-                    Engine *internal = this->engines->at(0);
-                    int idx = internal->existsEngineOption(o->name);
-                    if(idx == -1) {
-                        internal->getUciOptions()->append(o);
-                    } else {
-                        EngineOption *ati = internal->getUciOptions()->at(i);
-                        delete ati;
-                        internal->getUciOptions()->removeAt(i);
-                        internal->getUciOptions()->append(o);
-                    }
-                } else {
-                    e->getUciOptions()->append(o);
-                }
-            } else {
-                delete o;
+                e.addEngineOption(o);
             }
         }
         settings.endArray();
+        // there should _always_ be at least one engine
+        // prior to recovering state, namely internal engine
         if(isInternal) {
-            delete e;
+            assert(this->engines.size() > 0);
+            this->setInternalEngine(e);
         } else {
-            this->engines->append(e);
+            this->engines.append(e);
+        }
+        if(isActive) {
+            this->setActiveEngine(engines.size() - 1);
         }
     }
     settings.endArray();

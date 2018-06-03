@@ -23,11 +23,13 @@ Engine::Engine()
 {
     this->name = QString("");
     this->path = QString("");
-    this->uciOptions = new QList<EngineOption*>();
+    //this->uciOptions = new QList<EngineOption*>();
     this->isInternal = false;
+    this->isActive = false;
 }
 
 // create deep copy
+/*
 Engine::Engine(Engine *e) {
     this->name = QString(e->getName());
     this->path = QString(e->getPath());
@@ -36,12 +38,25 @@ Engine::Engine(Engine *e) {
         EngineOption *copy = new EngineOption(*e->getUciOptions()->at(i));
         this->uciOptions->append(copy);
     }
+    this->isActive = e->isActive;
+}
+*/
+
+
+
+void Engine::addEngineOption(EngineOption o) {
+    this->uciOptions.append(o);
 }
 
-void Engine::setAsInternalEngine(bool val) {
-    this->isInternal = val;
+void Engine::removeEngineOption(int idx_option) {
+    if(idx_option > 0 && idx_option < this->uciOptions.size()) {
+        this->uciOptions.removeAt(idx_option);
+    }
 }
 
+void Engine::clearAllEngineOptions() {
+    this->uciOptions.clear();
+}
 
 QString Engine::getPath() {
     return this->path;
@@ -51,11 +66,7 @@ QString Engine::getName() {
     return this->name;
 }
 
-bool Engine::isInternalEngine() {
-    return this->isInternal;
-}
-
-QList<EngineOption*> * Engine::getUciOptions() {
+QVector<EngineOption> Engine::getUciOptions() {
     return this->uciOptions;
 }
 
@@ -69,9 +80,9 @@ void Engine::setName(QString &name) {
 
 // return -1 if not found, otherwise index of list
 int Engine::existsEngineOption(QString &name) {
-    for(int i=0;i<this->uciOptions->count();i++) {
-        EngineOption *ei = this->uciOptions->at(i);
-        if(ei->name == name) {
+    for(int i=0;i<this->uciOptions.count();i++) {
+        EngineOption ei = this->uciOptions.at(i);
+        if(ei.name == name) {
             return i;
         }
     }

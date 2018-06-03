@@ -78,7 +78,7 @@ void EditController::paste() {
 void EditController::enterPosition() {
     chess::Board currentBoard = this->gameModel->getGame()->getCurrentNode()->getBoard();
     DialogEnterPosition *dlg = new DialogEnterPosition(&currentBoard,
-                                                       this->gameModel->colorStyle,
+                                                       *this->gameModel->colorStyle,
                                                        this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
 

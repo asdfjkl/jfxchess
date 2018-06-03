@@ -8,7 +8,7 @@ class EnterPosBoard : public QWidget
     Q_OBJECT
 
 public:
-    explicit EnterPosBoard(ColorStyle *style, const chess::Board &board,
+    explicit EnterPosBoard(const ColorStyle &style, const chess::Board &board,
                            QWidget *parent = 0, bool incl_joker_piece = false);
     void setToInitialPosition();
     void setToCurrentBoard();
@@ -18,7 +18,7 @@ public:
     void setTurn(bool turn);
 private:
     void calculateBoardSize(int *boardSize, int *squareSize);
-    ColorStyle *style;
+    ColorStyle style;
     int borderWidth;
     PieceImages *pieceImages;
     chess::Board board { true };
