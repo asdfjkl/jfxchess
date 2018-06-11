@@ -189,7 +189,9 @@ void Game::applyMove(Move &m) {
     if(!exists_child) {
         GameNode *current = this->getCurrentNode();
         Board b_current = current->getBoard();
-        Board b_child = b_current.copy_and_apply(m);
+        //Board b_child = b_current.copy_and_apply(m);
+        qDebug() << "b_current fullmove" << b_current.fullmove_number;
+        qDebug() << "b_child fullmove" << b_child.fullmove_number;
         GameNode *new_current = new GameNode();
         new_current->setBoard(b_child);
         new_current->setMove(m);

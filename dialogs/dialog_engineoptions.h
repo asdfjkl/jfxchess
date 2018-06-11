@@ -37,18 +37,18 @@ class DialogEngineOptions : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogEngineOptions(Engine *e, QWidget *parent = 0);
+    explicit DialogEngineOptions(Engine &e, QWidget *parent = 0);
     void updateEngineOptionsFromEntries();
 
 private:
-    QMap<QString,QSpinBox*> *spin_widgets;
-    QMap<QString,QCheckBox*> *check_widgets;
-    QMap<QString,QComboBox*> *combo_widgets;
-    QMap<QString,QLineEdit*> *line_widgets;
+    QMap<QString,QSpinBox*> spin_widgets;
+    QMap<QString,QCheckBox*> check_widgets;
+    QMap<QString,QComboBox*> combo_widgets;
+    QMap<QString,QLineEdit*> line_widgets;
     QFrame* hLine();
-    Engine *engine;
+    Engine &engine;
     void getOptionsFromEngine();
-    int existsEngineOption(QList<EngineOption*> *options, QString &name);
+    int existsEngineOption(QVector<EngineOption> &options, QString &name);
     void delay(int ms);
 
 signals:

@@ -151,7 +151,7 @@ void DialogEngines::onAddEngine() {
         // if still running, kill it
         if(process.state()  == QProcess::Running) {
             // if engine doesn't response, it could mean that
-            // this is no engine _or_ (as in the case of arasanx-64
+            // this is no engine _or_ (as in the case of e.g arasanx-64
             // takes an extremely long time to respond to "quit".
             // kill it ...
             process.kill();
@@ -188,12 +188,15 @@ void DialogEngines::onRemoveEngine() {
 }
 
 void DialogEngines::onEditParameters() {
-    //DialogEngineOptions *dlg = new DialogEngineOptions(this->active_engine, this);
+    Engine active = this->engines.at(this->activeEngineIdx);
+    DialogEngineOptions *dlg = new DialogEngineOptions(active, this);
     //Engine active = this->engines.at(this->activeEngineIdx);
     //DialogEngineOptions dlg(active, this);
-    //if(dlg.exec() == QDialog::Accepted) {
-        //dlg.updateEngineOptionsFromEntries();
-    //}
+
+    if(dlg->exec() == QDialog::Accepted) {
+        dlg->updateEngineOptionsFromEntries();
+        this->engines[this->activeEngineIdx] = active;
+    }
     //delete dlg;
     /*
     dlgEngOpt = DialogEngineOptions(self.active_engine)

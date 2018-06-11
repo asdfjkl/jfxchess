@@ -125,7 +125,7 @@ void GameModel::setEngines(QVector<Engine> engines) {
 }
 
 void GameModel::setActiveEngine(int activeEngineIdx) {
-    assert(activeEngineIdx > 0 && activeEngineIdx < this->engines.size());
+    assert(activeEngineIdx >= 0 && activeEngineIdx < this->engines.size());
     this->activeEngineIdx = activeEngineIdx;
 }
 
@@ -369,6 +369,7 @@ void GameModel::restoreGameState() {
         settings.endArray();
         // there should _always_ be at least one engine
         // prior to recovering state, namely internal engine
+        qDebug() << this->engines.size();
         if(isInternal) {
             assert(this->engines.size() > 0);
             this->setInternalEngine(e);
@@ -376,6 +377,7 @@ void GameModel::restoreGameState() {
             this->engines.append(e);
         }
         if(isActive) {
+            qDebug() << this->engines.size();
             this->setActiveEngine(engines.size() - 1);
         }
     }

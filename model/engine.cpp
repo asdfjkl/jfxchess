@@ -18,6 +18,7 @@
  */
 
 #include "engine.h"
+#include <QDebug>
 
 Engine::Engine()
 {
@@ -43,19 +44,41 @@ Engine::Engine(Engine *e) {
 */
 
 
+void Engine::setUciSpinOption(int opt_idx, int value) {
+
+}
+
+void Engine::setUciComboOption(int opt_idx, QString value) {
+
+}
+
+void Engine::setUciCheckOption(int opt_idx, bool value) {
+    if(opt_idx >= 0 && opt_idx < this->uciOptions.size()) {
+        this->uciOptions[opt_idx].check_val = value;
+    }
+}
+
+void Engine::setUciStringOption(int opt_idx, QString value) {
+
+}
 
 void Engine::addEngineOption(EngineOption o) {
     this->uciOptions.append(o);
 }
 
 void Engine::removeEngineOption(int idx_option) {
-    if(idx_option > 0 && idx_option < this->uciOptions.size()) {
+    if(idx_option >= 0 && idx_option < this->uciOptions.size()) {
+        qDebug() << "REMOVED AT: " << idx_option;
         this->uciOptions.removeAt(idx_option);
     }
 }
 
 void Engine::clearAllEngineOptions() {
     this->uciOptions.clear();
+}
+
+void Engine::setEngineOptions(QVector<EngineOption> opts) {
+    this->uciOptions = opts;
 }
 
 QString Engine::getPath() {

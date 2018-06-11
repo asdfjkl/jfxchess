@@ -36,6 +36,12 @@ public:
     void addEngineOption(EngineOption o);
     void removeEngineOption(int idx_option);
     void clearAllEngineOptions();
+    void setUciSpinOption(int opt_idx, int value);
+    void setUciComboOption(int opt_idx, QString value);
+    void setUciCheckOption(int opt_idx, bool value);
+    void setUciStringOption(int opt_idx, QString value);
+    void setEngineOptions(QVector<EngineOption> opts);
+
 
 protected:
     QString name;
