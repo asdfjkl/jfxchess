@@ -1547,7 +1547,6 @@ void Board::apply(const Move &m) {
     this->prev_castling_rights = this->castling_rights;
     this->en_passent_target = 0;
     if(this->turn == WHITE) {
-        qDebug() << "incing fullmove number!";
         this->fullmove_number++;
     }
     for(int i=0;i<120;i++) {

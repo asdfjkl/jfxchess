@@ -221,23 +221,28 @@ void GameModel::saveGameState() {
         }
         settings.beginWriteArray("engineOptions");
         for(int j=0;j<e.getUciOptions().size();j++) {
-            settings.setArrayIndex(j);
             EngineOption o = e.getUciOptions().at(j);
-            QString optNr = QString::number(j);
-            QString option = optNr.append("option");
-            QString val = optNr.append("value");
-            QString type = optNr.append("type");
-            settings.setValue(type, o.type);
-            settings.setValue(option, o.toUciOptionString());
-            if(o.type == EN_OPT_TYPE_CHECK) {
-                settings.setValue(val, o.check_val);
-            } else if(o.type == EN_OPT_TYPE_COMBO) {
-                settings.setValue(val, o.combo_val);
-            } else if(o.type == EN_OPT_TYPE_SPIN) {
-                settings.setValue(val, o.spin_val);
-            } else if(o.type == EN_OPT_TYPE_STRING) {
-                settings.setValue(val, o.string_val);
-            }
+            QString uciOptStr = o.toUciOptionString();
+
+            //qDebug() << "Writing: " << o.name;
+                settings.setArrayIndex(j);
+                QString optNr = QString::number(j);
+                QString option = QString(optNr).append("option");
+                QString val = QString(optNr).append("value");
+                QString type = QString(optNr).append("type");
+                settings.setValue(type, o.type);
+                settings.setValue(option, uciOptStr);
+                if(o.type == EN_OPT_TYPE_CHECK) {
+                    settings.setValue(val, o.check_val);
+                } else if(o.type == EN_OPT_TYPE_COMBO) {
+                    settings.setValue(val, o.combo_val);
+                } else if(o.type == EN_OPT_TYPE_SPIN) {
+                    settings.setValue(val, o.spin_val);
+                } else if(o.type == EN_OPT_TYPE_STRING) {
+                    settings.setValue(val, o.string_val);
+                }
+
+
         }
         settings.endArray();
     }
@@ -335,13 +340,15 @@ void GameModel::restoreGameState() {
             //}
         }
         int sizeOpts = settings.beginReadArray("engineOptions");
+        qDebug() << "size opts: " << sizeOpts;
         for(int j=0;j<sizeOpts;j++) {
             settings.setArrayIndex(j);
+            qDebug() << "checking opt idx " << j;
             EngineOption o; // = new EngineOption();
             QString optNr = QString::number(j);
-            QString option = optNr.append("option");
-            QString val = optNr.append("value");
-            QString type = optNr.append("type");
+            QString option = QString(optNr).append("option");
+            QString val = QString(optNr).append("value");
+            QString type = QString(optNr).append("type");
             bool restored = false;
             if(settings.contains(option) && settings.contains(val) && settings.contains(type)) {
                 int typeCode = settings.value(type).toInt();

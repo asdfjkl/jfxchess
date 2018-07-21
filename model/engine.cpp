@@ -45,11 +45,15 @@ Engine::Engine(Engine *e) {
 
 
 void Engine::setUciSpinOption(int opt_idx, int value) {
-
+    if(opt_idx >= 0 && opt_idx < this->uciOptions.size()) {
+        this->uciOptions[opt_idx].spin_val = value;
+    }
 }
 
 void Engine::setUciComboOption(int opt_idx, QString value) {
-
+    if(opt_idx >= 0 && opt_idx < this->uciOptions.size()) {
+        this->uciOptions[opt_idx].combo_val = value;
+    }
 }
 
 void Engine::setUciCheckOption(int opt_idx, bool value) {
@@ -59,7 +63,9 @@ void Engine::setUciCheckOption(int opt_idx, bool value) {
 }
 
 void Engine::setUciStringOption(int opt_idx, QString value) {
-
+    if(opt_idx >= 0 && opt_idx < this->uciOptions.size()) {
+        this->uciOptions[opt_idx].string_val = value;
+    }
 }
 
 void Engine::addEngineOption(EngineOption o) {
