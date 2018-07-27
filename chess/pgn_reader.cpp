@@ -650,13 +650,14 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
                 } else if(token ==QString("0-0-0")) {
                     token = QString("O-O-O");
                 }
-                Move *m = 0;
+                //Move *m = 0;
                 GameNode *next = new GameNode();
-                Board *b_next = 0;
+                // Board *b_next = 0;
                 try {
                     Board b = current->getBoard();
                     Move m = Move(b.parse_san(token));
-                    b_next = b.copy_and_apply(m);
+                    Board b_next = Board(b);
+                    b_next.apply(m);
                     next->setMove(m);
                     next->setBoard(b_next);
                     next->setParent(current);
@@ -665,12 +666,12 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
                 }
                 catch(std::invalid_argument a) {
                     // just silently fail... but first clean up
-                    if(m!=0) {
-                        delete m;
-                    }
-                    if(b_next!=0) {
-                        delete b_next;
-                    }
+                    //if(m!=0) {
+                    //    delete m;
+                    //}
+                    //if(b_next!=0) {
+                    //    delete b_next;
+                    //}
                     delete next;
                     current = g->getRootNode();
                     game_stack->clear();
