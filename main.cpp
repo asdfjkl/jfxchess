@@ -35,6 +35,15 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+    chess::Board b;
+    qDebug() << "NOW TRY TO COPY:";
+    chess::Board c(b);
+    qDebug() << "is movable: " << std::is_move_constructible<chess::Board>::value;
+    qDebug() << "COPY FINISHED";
+    qDebug() << "NOW TRY TO MOVE:";
+    chess::Board d(std::move(b));
+    qDebug() << "MOVE FINISHED";
+
     srand(time(NULL));
     chess::FuncT *p = new chess::FuncT();
     //p->run_zobrist_test();

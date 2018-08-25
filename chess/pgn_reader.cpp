@@ -508,13 +508,10 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
     }
     // try to set starting fen, if available
     if(!starting_fen.isEmpty()) {
-        chess::Board *b_fen = 0;
+        //chess::Board b_fen = 0;
         try {
-            chess::Board *b_fen = new chess::Board(starting_fen);
-            if(!b_fen->is_consistent()) {
-                if(b_fen != 0) {
-                    delete b_fen;
-                }
+            chess::Board b_fen(starting_fen);
+            if(!b_fen.is_consistent()) {
                 std::cerr << "starting fen position is not consistent" << std::endl;
                 game_stack->clear();
                 delete game_stack;
@@ -525,9 +522,9 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
         }
         catch(std::invalid_argument a) {
             // just silently fail... but first clean up
-            if(b_fen != 0) {
-                delete b_fen;
-            }
+            //if(b_fen != 0) {
+            //    delete b_fen;
+            //}
             game_stack->clear();
             delete game_stack;
             std::cerr << a.what() << std::endl;

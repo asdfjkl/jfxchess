@@ -307,6 +307,7 @@ typedef std::bitset<sizeof(uint8_t)*8> IntBits;
 
 Board::Board() {
 
+    //qDebug() << "MAIN cons";
     this->turn = WHITE;
     for(int i=0;i<120;i++) {
         this->board[i] = EMPTY_POS[i];
@@ -323,6 +324,7 @@ Board::Board() {
     this->update_transposition_table();
 }
 
+/*
 Board::Board(Board *b) {
     this->turn = b->turn;
     this->castling_rights = 0;
@@ -337,9 +339,10 @@ Board::Board(Board *b) {
     this->prev_halfmove_clock = 0;
     this->transpositionTable = QMap<quint64, int>();
     this->update_transposition_table();
-}
+}*/
 
 Board::Board(bool initial_position) {
+    //qDebug() << "bool cons";
     this->turn = WHITE;
     if(initial_position) {
         for(int i=0;i<120;i++) {
@@ -527,16 +530,19 @@ QChar Board::piece_to_symbol(uint8_t piece) {
 }
 
 Board::Board(const QString &fen_string) {
-
+qDebug() << "FEN cons";
     for(int i=0;i<120;i++) {
         this->board[i] = EMPTY_POS[i];
         this->old_board[i] = 0xFF;
     }
 
     // check that we have six parts in fen, each separated by space
+    // if last two parts are missing (fullmove no. + halfmove clock)
+    // try to still parse the game
     QStringList fen_parts = fen_string.split(QChar(' '));
-    if(fen_parts.size() != 6) {
-        throw std::invalid_argument("fen: not 6 fen parts");
+    qDebug() << fen_parts.join(" <> ");
+    if(fen_parts.size() < 4) {
+        throw std::invalid_argument("fen: parts missing 6 fen parts");
     }
     // check that the first part consists of 8 rows, each sep. by /
     QStringList rows = fen_parts.at(0).split(QChar('/'));
@@ -595,12 +601,12 @@ Board::Board(const QString &fen_string) {
             }
         }
     }
-    // half-move counter validity
-    if(fen_parts.at(4).toInt() < 0) {
+    // half-move counter validity (if half-move is present)
+    if((fen_parts.size() >= 5) && fen_parts.at(4).toInt() < 0) {
         throw std::invalid_argument("negative half move clock or not a number");
     }
-    // full move number validity
-    if(fen_parts.at(5).toInt() < 0) {
+    // full move number validity (if full move number is present)
+    if((fen_parts.size() >= 6) && fen_parts.at(5).toInt() < 0) {
         throw std::invalid_argument("fullmove number not positive");
     }
     // set pieces
@@ -677,8 +683,16 @@ Board::Board(const QString &fen_string) {
         }
         this->en_passent_target = row + col;
     }
-    this->halfmove_clock = fen_parts.at(4).toInt();
-    this->fullmove_number = fen_parts.at(5).toInt();
+    if(fen_parts.size() >= 5) {
+        this->halfmove_clock = fen_parts.at(4).toInt();
+    } else {
+        this->halfmove_clock = 0;
+    }
+    if(fen_parts.size() >= 6) {
+        this->fullmove_number = fen_parts.at(5).toInt();
+    } else {
+        this->fullmove_number = 1;
+    }
     this->undo_available = false;
     this->last_was_null = false;
     if(!this->is_consistent()) {
@@ -1736,6 +1750,7 @@ void Board::undo() {
 }
 
 // doesn't check legality
+/*
 Board* Board::copy_and_apply(const Move &m) {
     Board *b = new Board();
     b->turn = this->turn;
@@ -1755,11 +1770,13 @@ Board* Board::copy_and_apply(const Move &m) {
     b->apply(m);
     return b;
 }
+*/
+
 
 Board::Board(const Board &other) {
     turn = other.turn;
     castling_rights = other.castling_rights;
-    turn = this->turn;
+    //turn = this->turn; ???
     en_passent_target = other.en_passent_target;
     halfmove_clock = other.halfmove_clock;
     fullmove_number = other.fullmove_number;
@@ -1771,6 +1788,9 @@ Board::Board(const Board &other) {
         board[i] = other.board[i];
         old_board[i] = other.old_board[i];
     }
+    qDebug() << "copy constructor called";
+    //qDebug() << "copy constructor called; old board has nr: " << other.fullmove_number;
+    //qDebug() << "copy constructor called; new board has nr: " << fullmove_number;
 }
 
 bool Board::is_stalemate() {
@@ -1877,10 +1897,16 @@ QString Board::san(const Move &m) {
     // testing for checkmate (which again needs
     // application of a move) makes it impossible
     // to undo (undo can only be done once, not twice in a row)
+
+    /*
     Board* b_temp = this->copy_and_apply(m);
     bool is_check = b_temp->is_check();
     bool is_checkmate = b_temp->is_checkmate();
     delete b_temp;
+    */
+    Board b_temp = Board(this);
+    bool is_check = b_temp.is_check();
+    bool is_checkmate = b_temp.is_checkmate();
 
     if(this->castles_wking(m) || this->castles_bking(m)) {
         san.append("O-O");
@@ -2264,6 +2290,7 @@ bool Board::is_consistent() {
     if(white_king_pos < 21 || white_king_pos >= 99
             || black_king_pos < 21 || black_king_pos >= 99
             || cnt_white_king != 1 || cnt_black_king != 1) {
+        qDebug() << "kings not present";
         return false;
     }
     // white and black king at least on field apart
@@ -2275,6 +2302,7 @@ bool Board::is_consistent() {
     }
     int diff = larger - smaller;
     if(diff == 10 || diff == 1 || diff == 11 || diff == 9) {
+        qDebug() << "diff check";
         return false;
     }
     // side not to move must not be in check
@@ -2285,36 +2313,44 @@ bool Board::is_consistent() {
         idx_king_not_to_move = black_king_pos;
     }
     if(this->is_attacked(idx_king_not_to_move, to_move)) {
+        qDebug() << "is attacked";
         return false;
     }
     // each side has 8 pawns or less
     if(cnt_white_pawns > 8 || cnt_black_pawns > 8) {
+        qDebug() << "pawn count";
         return false;
     }
     // check whether no. of promotions and pawn count fits for white
     int white_extra_pieces = std::max(0, cnt_white_queens-1) + std::max(0, cnt_white_rooks-2)
             + std::max(0, cnt_white_bishops - 2) + std::max(0, cnt_white_knights - 2);
     if(white_extra_pieces > (8-cnt_white_pawns)) {
+        qDebug() << "promotions and pawns, white";
         return false;
     }
     // ... for black
     int black_extra_pieces = std::max(0, cnt_black_queens-1) + std::max(0, cnt_black_rooks-2)
             + std::max(0, cnt_black_bishops - 2) + std::max(0, cnt_black_knights - 2);
     if(black_extra_pieces > (8-cnt_black_pawns)) {
+        qDebug() << "promotions and pawns, black";
         return false;
     }
     // compare encoded castling rights of this board w/ actual
     // position of king and rook
     if(this->can_castle_wking() && this->is_white_king_castle_right_lost()) {
+        qDebug() << "castling wking";
         return false;
     }
     if(this->can_castle_wqueen() && this->is_white_queen_castle_right_lost()) {
+        qDebug() << "castling wqueen";
         return false;
     }
     if(this->can_castle_bking() && this->is_black_king_castle_right_lost()) {
+        qDebug() << "castling bking";
         return false;
     }
     if(this->can_castle_bqueen() && this->is_black_queen_castle_right_lost()) {
+        qDebug() << "castling bqueen";
         return false;
     }
     return true;

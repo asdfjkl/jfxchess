@@ -274,14 +274,14 @@ public:
      *              copied, just the position of the pieces
      * @param board The board where the position of pieces is taken from
      */
-    Board(Board *board);
+    //Board(Board *board);
 
     /**
      * @brief copy constructor to create deep copy of board
      *        TODO: do we really need this?! default might suffice after refactoring
      * @param other
      */
-    Board(const Board &other);
+   Board(const Board &other);
 
     /**
      * @brief fen returns FEN string of current board
@@ -295,7 +295,7 @@ public:
      * @param m move to apply
      * @return copy of board
      */
-    Board* copy_and_apply(const Move &m);
+    //Board* copy_and_apply(const Move &m);
 
     /**
      * @brief apply applies supplied move. doesn't check for legality
@@ -606,7 +606,6 @@ public:
     quint64 zobrist();
 
 private:
-
     /**
      * @brief init_pos
      * is the inital board position

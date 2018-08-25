@@ -45,7 +45,7 @@ public:
     bool mustContainArrows;
     bool mustContainColoredFields;
 
-    chess::Board *search_board;
+    chess::Board search_board;
 
 };
 

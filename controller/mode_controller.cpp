@@ -100,13 +100,28 @@ void ModeController::onBestMove(QString uci_move) {
                 QString uci = pv_list.at(i);
                 if(uci.size() == 4 || uci.size() == 5) {
                     chess::Move mi = chess::Move(uci);
+
                     chess::Board current_board = current->getBoard();
-                    chess::Board new_board = current_board.copy_and_apply(mi);
+                     // chess::Board *new_board = current_board.copy_and_apply(mi);
+
+
+                    //chess::Board new_board = chess::Board(current);
+                    //new_board.apply(mi);
+                    current_board.apply(mi);
+
                     chess::GameNode *gn = new chess::GameNode();
-                    gn->setBoard(new_board);
+                    gn->setBoard(current_board);
                     gn->setMove(mi);
                     current->addVariation(gn);
+                    qDebug() << "current board nr: " << current_board.fullmove_number;
+                    //qDebug() << "new board: " << new_board.fullmove_number;
+                    //qDebug() << "gn board nr:" << new_board->fullmove_number;
+                    //qDebug() << "node san: " << gn->getSan();
                     current = gn;
+                    chess::Board current_board_temp = current->getBoard();
+                    qDebug() << "after setting: " << current_board_temp.fullmove_number;
+                    qDebug() << " ";
+
                 }
             }
             current = this->gameModel->getGame()->getCurrentNode();

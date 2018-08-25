@@ -66,7 +66,7 @@ public:
      *                 validity checks of the board position
      * @param b The board. Must not be null.
      */
-    void setBoard(Board b);
+    void setBoard(Board &b);
 
     /**
      * @brief getSan returns san string of move that
@@ -102,7 +102,7 @@ public:
      *                or consistency check.
      * @param m Pointer to the move.
      */
-    void setMove(Move m);
+    void setMove(Move &m);
 
     /**
      * @brief setParent Set the parent to the supplied Game Node.

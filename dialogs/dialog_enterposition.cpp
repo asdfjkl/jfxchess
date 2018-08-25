@@ -170,6 +170,6 @@ void DialogEnterPosition::setCastlingRights() {
     this->checkConsistency();
 }
 
-chess::Board* DialogEnterPosition::getCurrentBoard() {
-    return new chess::Board(sbv->getCurrentBoard());
+chess::Board DialogEnterPosition::getCurrentBoard() {
+    return std::move(sbv->getCurrentBoard());
 }

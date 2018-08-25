@@ -100,21 +100,17 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
         }
         QByteArray fen = ba.mid(idx, len);
         QString fen_string = QString::fromUtf8(fen);
-        chess::Board *b = 0;
+        //chess::Board *b = 0;
         try {
-            b = new chess::Board(fen_string);
+            chess::Board b(fen_string); // = new chess::Board(fen_string);
+            g.getCurrentNode()->setBoard(b);
+            idx += len;
         } catch(std::invalid_argument a)
         {
             std::cerr << "encountered illegal fen when decoding game " << a.what() << std::endl;
             error = true;
-            if(b != 0) {
-                error = true;
-                delete b;
-                goto read_fenmarker;
-            }
-        }
-        g.getCurrentNode()->setBoard(b);
-        idx += len;
+            goto read_fenmarker;
+        }        
     } else if(fenmarker == 0x00) {
         idx++;
     } else {
@@ -186,6 +182,17 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                 try {
                     // null move
                     Move m;
+                    Board b_next = current->getBoard();
+                    b_next.apply(m);
+
+                    next->setMove(m);
+                    next->setBoard(b_next);
+                    next->setParent(current);
+
+                    current->addVariation(next);
+                    current = next;
+                    /*
+                    Move m;                    
                     Board *b_next;
                     Board b = current->getBoard();
                     b_next = b.copy_and_apply(m);
@@ -194,9 +201,10 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                     next->setParent(current);
                     current->addVariation(next);
                     current = next;
+                    */
                 } catch(std::invalid_argument a) {
                     std::cerr << a.what() << std::endl;
-                    delete next;
+                    // delete next;
                     error = true;
                 }
                 idx++;
@@ -226,23 +234,25 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                     //qDebug() << (chess::ROOK == 4);
                     //qDebug() << chess::ROOK;
                 }
-                Move *m = new Move();
+                //Move m = new Move();
+                Move m;
                 GameNode *next = new GameNode();
-                Board *b_next = 0;
+                // Board *b_next = 0;
                 try {
-                    Board b = current->getBoard();
+                    Board b_next = current->getBoard();
                     if(promotion_piece != 0) {
-                        m = new chess::Move(from_internal, to_internal, promotion_piece);
+                        m = chess::Move(from_internal, to_internal, promotion_piece);
                         //qDebug() << ba->mid(idx-1, 3).toHex();
                         //qDebug() << move;
                         //qDebug() << m->uci();
                     } else {
-                        m = new chess::Move(from_internal, to_internal);
+                        m = chess::Move(from_internal, to_internal);
                         //qDebug() << m->uci();
                     }
-                    if(b.is_legal_move(*m)) {
-                        b_next = b.copy_and_apply(*m);
-                        next->setMove(*m);
+                    if(b_next.is_legal_move(m)) {
+                        //b_next = b.copy_and_apply(*m);
+                        b_next.apply(m);
+                        next->setMove(m);
                         next->setBoard(b_next);
                         next->setParent(current);
                         current->addVariation(next);
@@ -253,11 +263,11 @@ void chess::DcgDecoder::decodeGame(Game &g, QByteArray &ba) {
                     }
                 } catch(std::invalid_argument a) {
                     std::cerr << a.what() << std::endl;
-                    delete m;
+                    //delete m;
                     delete next;
-                    if(b_next != 0) {
-                        delete b_next;
-                    }
+                    //if(b_next != 0) {
+                    //    delete b_next;
+                    //}
                     error = true;
                 }
                 idx+=2;

@@ -18,7 +18,7 @@ public:
     explicit DialogEnterPosition(const chess::Board &board, const ColorStyle &style,
                                  QWidget *parent = 0);
 
-    chess::Board* getCurrentBoard();
+    chess::Board getCurrentBoard();
 
 private:
     void resizeTo(float ratio);

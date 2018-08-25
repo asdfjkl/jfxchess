@@ -56,12 +56,12 @@ void EditController::paste() {
     QString text = clipboard->text();
     // first check whether text is fen string, try to create a board
     try {
-        chess::Board *b = new chess::Board(text);
-        this->gameModel->getGame()->resetWithNewRootBoard(b);
+        chess::Board b(text);
+        this->gameModel->getGame()->resetWithNewRootBoard(std::move(b));
         this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument e) {
-        // std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         // not a fen string. let's try pgn
         try {
             chess::PgnReader *reader = new chess::PgnReader();
@@ -71,19 +71,24 @@ void EditController::paste() {
             this->gameModel->triggerStateChange();
         }
         catch(std::invalid_argument e) {
+            std::cerr << e.what() << std::endl;
+            qDebug() << "paste failure";
         }
     }
 }
 
 void EditController::enterPosition() {
     chess::Board currentBoard = this->gameModel->getGame()->getCurrentNode()->getBoard();
-    DialogEnterPosition *dlg = new DialogEnterPosition(&currentBoard,
+    DialogEnterPosition *dlg = new DialogEnterPosition(currentBoard,
                                                        *this->gameModel->colorStyle,
                                                        this->parentWidget);
     if(dlg->exec() == QDialog::Accepted) {
 
-        this->gameModel->getGame()->resetWithNewRootBoard(dlg->getCurrentBoard());
-
+        chess::Board new_board = dlg->getCurrentBoard();
+        std::cout << "GOT BOARD FROM DLG: " << std::endl;
+        std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
+        this->gameModel->getGame()->resetWithNewRootBoard(new_board);
+        std::cout << "CURRENT NODE BOARD: " << std::endl;
         std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
         this->gameModel->triggerStateChange();
     }

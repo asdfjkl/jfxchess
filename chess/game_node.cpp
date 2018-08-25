@@ -64,7 +64,7 @@ GameNode::~GameNode() {
     this->variations.clear();
 }
 
-void GameNode::setMove(Move m) {
+void GameNode::setMove(Move &m) {
     this->m = m;
 }
 
@@ -134,7 +134,7 @@ Board GameNode::getBoard() {
     return this->board;
 }
 
-void GameNode::setBoard(Board b) {
+void GameNode::setBoard(Board &b) {
     this->board = b;
 }
 

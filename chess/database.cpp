@@ -291,7 +291,9 @@ int chess::Database::countGames() {
 
 std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
 
+    qDebug() << "get game at called with: " << i;
     if(i >= this->indices->size()) {
+        qDebug() << "game not found, index mismatch";
         //return 0; // maybe throw out of range error or something instead of silently failing
         return move(std::unique_ptr<chess::Game>(nullptr));
     }
@@ -303,7 +305,7 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
     QString whiteName = this->offsetNames->value(ie->whiteOffset);
     QString blackName = this->offsetNames->value(ie->blackOffset);
     QString site = this->offsetSites->value(ie->siteRef);
-    //qDebug() << "EVENT REF: " << ie->eventRef;
+    qDebug() << "White name: " << whiteName;
     QString event = this->offsetEvents->value(ie->eventRef);
     game->setHeader("White",whiteName);
     game->setHeader("Black", blackName);
@@ -355,6 +357,7 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
     } else {
         game->setHeader("Round", "?");
     }
+    qDebug() << "header load finished";
     QFile fnGames(this->filenameGames);
     if(fnGames.open(QFile::ReadOnly)) {
         bool ok = fnGames.seek(ie->gameOffset);
