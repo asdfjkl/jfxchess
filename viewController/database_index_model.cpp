@@ -15,7 +15,7 @@ void DatabaseIndexModel::setDatabase(chess::Database *database)
 
 int DatabaseIndexModel::rowCount(const QModelIndex & /* parent */) const
 {
-    return this->database->indices->count();
+    return this->database->currentSearchIndices->count();
 }
 
 int DatabaseIndexModel::columnCount(const QModelIndex & /* parent */) const
@@ -39,7 +39,7 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         return int(Qt::AlignRight | Qt::AlignVCenter);
     } else if (role == Qt::DisplayRole) {
         int row = index.row();
-        chess::IndexEntry *entry_row = this->database->indices->at(row);
+        chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
 
         int column = index.column();
 
@@ -94,7 +94,7 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         }
     } else if(role == Qt::FontRole) {
         int row = index.row();
-        chess::IndexEntry *entry_row = this->database->indices->at(row);
+        chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
         if(entry_row->deleted) {
             QFont defaultFont;
             defaultFont.setStrikeOut(true);

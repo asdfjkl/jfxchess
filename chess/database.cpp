@@ -34,15 +34,16 @@ chess::Database::Database(QString &filename)
     this->offsetNames = new QMap<quint32, QString>();
     this->offsetSites = new QMap<quint32, QString>();
     this->offsetEvents = new QMap<quint32, QString>();
-    this->dcgencoder = new chess::DcgEncoder();
-    this->dcgdecoder = new chess::DcgDecoder();
-    this->pgnreader = new chess::PgnReader();
+    //this->dcgencoder = new chess::DcgEncoder();
+    //this->dcgdecoder = new chess::DcgDecoder();
+    //this->pgnreader = new chess::PgnReader();
 
     this->lastOpenDir = QString("");
 
     this->loadUponOpen = 0;
         
     this->indices = new QList<chess::IndexEntry*>();
+    this->currentSearchIndices = this->indices;
 }
 
 chess::Database::~Database()
@@ -54,9 +55,12 @@ chess::Database::~Database()
     delete this->offsetSites;
     delete this->offsetEvents;
     //delete this->dcgencoder;
-    delete this->dcgdecoder;
-    delete this->pgnreader;
+    //delete this->dcgdecoder;
+    //delete this->pgnreader;
+    // todo: this indices must be cleared first! ?! who is
+    // responsible for cleaning up?
     delete this->indices;
+    delete this->currentSearchIndices;
 }
 
 void chess::Database::reset() {
@@ -379,7 +383,7 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
             std::cerr << "reading game bytes at game offset failed!" << std::endl;
             return move(game);
         }
-        this->dcgdecoder->decodeGame(*game, game_raw);
+        this->dcgdecoder.decodeGame(*game, game_raw);
     }
     return move(game);
 }
@@ -462,7 +466,7 @@ void chess::Database::importPgnNamesSitesEvents(QString &pgnfile,
                                           QMap<QString, quint32> *events) {
 
     std::cout << "scanning names and sites from " << pgnfile.toStdString() << std::endl;
-    const char* encoding = pgnreader->detect_encoding(pgnfile);
+    const char* encoding = pgnreader.detect_encoding(pgnfile);
 
     chess::HeaderOffset header;
 
@@ -476,7 +480,7 @@ void chess::Database::importPgnNamesSitesEvents(QString &pgnfile,
             std::cout << "\rscanning at " << offset;
         }
         i++;
-        int res = pgnreader->readNextHeader(pgnfile, encoding, offset, header);
+        int res = pgnreader.readNextHeader(pgnfile, encoding, offset, header);
         if(res < 0) {
             stop = true;
             continue;
@@ -666,7 +670,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
     quint64 size = pgnFile.size();
     bool stop = false;
 
-    const char* encoding = this->pgnreader->detect_encoding(pgnfile);
+    const char* encoding = this->pgnreader.detect_encoding(pgnfile);
 
     QFile fnIndex(this->filenameIndex);
     QFile fnGames(this->filenameGames);
@@ -696,7 +700,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                     }
                 }
                 i++;
-                int res = pgnreader->readNextHeader(pgnfile, encoding, offset, header);
+                int res = pgnreader.readNextHeader(pgnfile, encoding, offset, header);
                 if(res < 0) {
                     stop = true;
                     continue;
@@ -801,9 +805,9 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 assert(iEntry.size() == 39);
                 fnIndex.write(iEntry, iEntry.length());
                 //qDebug() << "just before reading back file";
-                std::unique_ptr<chess::Game> g = pgnreader->readGameFromFile(pgnfile, encoding, header.offset);
+                std::unique_ptr<chess::Game> g = pgnreader.readGameFromFile(pgnfile, encoding, header.offset);
                 //qDebug() << "READ file ok";
-                QByteArray g_enc = dcgencoder->encodeGame(*g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
+                QByteArray g_enc = dcgencoder.encodeGame(*g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
                 //qDebug() << "enc ok";
                 //qDebug() << "writing game: " << g_enc->toHex();
                 fnGames.write(g_enc, g_enc.length());
@@ -814,6 +818,16 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
     }
     fnIndex.close();
 }
+
+void chess::Database::search(SearchPattern &sp) {
+
+    this->currentSearchIndices->clear();
+
+    // just as a test
+    this->currentSearchIndices[0] = this->indices[0];
+
+}
+
 
 
 

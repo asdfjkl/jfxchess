@@ -14,10 +14,9 @@ class DialogSearch : public QDialog
 
 public:
     explicit DialogSearch(GameModel *gameModel, QWidget *parent = 0);
-    SearchPattern* getPattern();
+    SearchPattern getPattern();
 
 private:
-    SearchPattern *pattern;
     TabHeaderSearch* ths;
     TabCommentSearch *tcs;
     TabSearchPos *tsp;

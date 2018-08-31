@@ -11,8 +11,6 @@
 DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     QDialog(parent)
 {
-    this->pattern = new SearchPattern();
-
     this->ths = new TabHeaderSearch(this);
     this->tcs = new TabCommentSearch(this);
     this->tsp = new TabSearchPos(gameModel, this);
@@ -56,66 +54,68 @@ void DialogSearch::resizeEvent(QResizeEvent *) {
     this->setMinimumWidth(this->height()*1.35);
 }
 
-SearchPattern* DialogSearch::getPattern() {
+SearchPattern DialogSearch::getPattern() {
     qDebug() << "this height: " << this->height() << " and min width: " << (this->height()*1.65);
 
+    SearchPattern sp;
+
     // game data search
-    this->pattern->whiteName = this->ths->whiteSurname->text().append(", ").append(this->ths->whiteFirstname->text());
-    this->pattern->blackName = this->ths->blackSurname->text().append(", ").append(this->ths->blackFirstname->text());
+    sp.whiteName = this->ths->whiteSurname->text().append(", ").append(this->ths->whiteFirstname->text());
+    sp.blackName = this->ths->blackSurname->text().append(", ").append(this->ths->blackFirstname->text());
 
-    this->pattern->ignoreNameColor = this->ths->cbIgnoreColors->isChecked();
+    sp.ignoreNameColor = this->ths->cbIgnoreColors->isChecked();
 
-    this->pattern->event = this->ths->event->text();
+    sp.event = this->ths->event->text();
 
-    this->pattern->site = this->ths->site->text();
+    sp.site = this->ths->site->text();
 
-    this->pattern->checkYear = this->ths->cbYear->isChecked();
-    this->pattern->checkEco = this->ths->cbEco->isChecked();
-    this->pattern->checkMoves = this->ths->cbEco->isChecked();
+    sp.checkYear = this->ths->cbYear->isChecked();
+    sp.checkEco = this->ths->cbEco->isChecked();
+    sp.checkMoves = this->ths->cbEco->isChecked();
 
-    this->pattern->year_min = this->ths->minYear->value();
-    this->pattern->year_max = this->ths->maxYear->value();
+    sp.year_min = this->ths->minYear->value();
+    sp.year_max = this->ths->maxYear->value();
 
-    this->pattern->ecoStart = this->ths->startEco->text();
-    this->pattern->ecoStop = this->ths->stopEco->text();
+    sp.ecoStart = this->ths->startEco->text();
+    sp.ecoStop = this->ths->stopEco->text();
 
-    this->pattern->move_min = this->ths->minMove->value();
-    this->pattern->move_max = this->ths->maxMove->value();
+    sp.move_min = this->ths->minMove->value();
+    sp.move_max = this->ths->maxMove->value();
 
-    this->pattern->elo_min = this->ths->minElo->value();
-    this->pattern->elo_max = this->ths->maxElo->value();
+    sp.elo_min = this->ths->minElo->value();
+    sp.elo_max = this->ths->maxElo->value();
 
-    this->pattern->result = chess::RES_ANY;
+    sp.result = chess::RES_ANY;
     if(this->ths->btnUndecided->isChecked()) {
-        this->pattern->result = chess::RES_UNDEF;
+        sp.result = chess::RES_UNDEF;
     }
     if(this->ths->btnWhiteWins->isChecked()) {
-        this->pattern->result = chess::RES_WHITE_WINS;
+        sp.result = chess::RES_WHITE_WINS;
     }
     if(this->ths->btnBlackWins->isChecked()) {
-        this->pattern->result = chess::RES_BLACK_WINS;
+        sp.result = chess::RES_BLACK_WINS;
     }
     if(this->ths->btnUndecided->isChecked()) {
-        this->pattern->result = chess::RES_UNDEF;
+        sp.result = chess::RES_UNDEF;
     }
     if(this->ths->btnDraw->isChecked()) {
-        this->pattern->result = chess::RES_DRAW;
+        sp.result = chess::RES_DRAW;
     }
 
     // comment search
-    this->pattern->comment_text1 = this->tcs->text1->text();
-    this->pattern->comment_text2 = this->tcs->text2->text();
+    sp.comment_text1 = this->tcs->text1->text();
+    sp.comment_text2 = this->tcs->text2->text();
 
-    this->pattern->wholeWord = this->tcs->wholeWord->isChecked();
-    this->pattern->mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
-    this->pattern->mustContainColoredFields = this->tcs->colorFields->isChecked();
-    this->pattern->mustContainArrows = this->tcs->arrows->isChecked();
+    sp.wholeWord = this->tcs->wholeWord->isChecked();
+    sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
+    sp.mustContainColoredFields = this->tcs->colorFields->isChecked();
+    sp.mustContainArrows = this->tcs->arrows->isChecked();
 
     // search options
-    this->pattern->searchGameData = this->optGameData->isChecked();
-    this->pattern->searchComments = this->optComments->isChecked();
-    this->pattern->searchPosition = this->optPosition->isChecked();
-    this->pattern->searchVariations = this->optVariants->isChecked();
+    sp.searchGameData = this->optGameData->isChecked();
+    sp.searchComments = this->optComments->isChecked();
+    sp.searchPosition = this->optPosition->isChecked();
+    sp.searchVariations = this->optVariants->isChecked();
 
-    return this->pattern;
+    return sp;
 }

@@ -8,6 +8,7 @@
 #include "chess/indexentry.h"
 #include "chess/game.h"
 #include "chess/constants.h"
+#include "model/search_pattern.h"
 
 namespace chess {
 
@@ -28,9 +29,12 @@ public:
     int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
                      QByteArray &magicIndexString, QWidget* parent=0);
 
+    void search(SearchPattern &sp);
+
     std::unique_ptr<chess::Game> getGameAt(int i);
     int countGames();
     QList<chess::IndexEntry*> *indices;
+    QList<chess::IndexEntry*> *currentSearchIndices;
 
     void updateBaseName(QString &basename);
 
@@ -73,9 +77,9 @@ private:
                                      QMap<QString, quint32> *events);
 
     int decodeLength(QDataStream *stream);
-    chess::DcgEncoder *dcgencoder;
-    chess::DcgDecoder *dcgdecoder;
-    chess::PgnReader *pgnreader;
+    chess::DcgEncoder dcgencoder;
+    chess::DcgDecoder dcgdecoder;
+    chess::PgnReader pgnreader;
 
     quint64 loadUponOpen;
 };
