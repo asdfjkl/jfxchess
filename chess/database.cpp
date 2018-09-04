@@ -842,6 +842,11 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
     for(int i=0;i<size;i++) {
         progress.setValue(i);
         //do search here
+        if(sp.searchGameData) {
+            IndexEntry *ei = this->indices->at(i);
+            //if(! (ei->) sp.whiteName )
+        }
+
 
     }
 
