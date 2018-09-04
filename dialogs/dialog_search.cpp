@@ -11,6 +11,7 @@
 DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     QDialog(parent)
 {
+    qDebug() << "dialog search constructor";
     this->ths = new TabHeaderSearch(this);
     this->tcs = new TabCommentSearch(this);
     this->tsp = new TabSearchPos(gameModel, this);
@@ -48,6 +49,7 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
 
     setWindowTitle(tr("Search for Games"));
 
+    qDebug() << "dialog search constructor finished";
 }
 
 void DialogSearch::resizeEvent(QResizeEvent *) {
@@ -59,11 +61,15 @@ SearchPattern DialogSearch::getPattern() {
 
     SearchPattern sp;
 
+    qDebug() << "names";
+
     // game data search
     sp.whiteName = this->ths->whiteSurname->text().append(", ").append(this->ths->whiteFirstname->text());
     sp.blackName = this->ths->blackSurname->text().append(", ").append(this->ths->blackFirstname->text());
 
+    qDebug() << "ignore colors: " << this->ths->cbIgnoreColors->isChecked();
     sp.ignoreNameColor = this->ths->cbIgnoreColors->isChecked();
+    qDebug() << "OK";
 
     sp.event = this->ths->event->text();
 
@@ -72,7 +78,7 @@ SearchPattern DialogSearch::getPattern() {
     sp.checkYear = this->ths->cbYear->isChecked();
     sp.checkEco = this->ths->cbEco->isChecked();
     sp.checkMoves = this->ths->cbEco->isChecked();
-
+qDebug() << "OK";
     sp.year_min = this->ths->minYear->value();
     sp.year_max = this->ths->maxYear->value();
 
@@ -84,11 +90,14 @@ SearchPattern DialogSearch::getPattern() {
 
     sp.elo_min = this->ths->minElo->value();
     sp.elo_max = this->ths->maxElo->value();
+    qDebug() << "OK1";
 
     sp.result = chess::RES_ANY;
     if(this->ths->btnUndecided->isChecked()) {
         sp.result = chess::RES_UNDEF;
     }
+    qDebug() << "OK2";
+
     if(this->ths->btnWhiteWins->isChecked()) {
         sp.result = chess::RES_WHITE_WINS;
     }
@@ -110,6 +119,8 @@ SearchPattern DialogSearch::getPattern() {
     sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
     sp.mustContainColoredFields = this->tcs->colorFields->isChecked();
     sp.mustContainArrows = this->tcs->arrows->isChecked();
+
+    qDebug() << "options";
 
     // search options
     sp.searchGameData = this->optGameData->isChecked();

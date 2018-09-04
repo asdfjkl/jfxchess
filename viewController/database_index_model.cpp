@@ -1,6 +1,7 @@
 #include "database_index_model.h"
 #include "chess/game.h"
 #include <QFont>
+#include <QDebug>
 
 DatabaseIndexModel::DatabaseIndexModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -15,6 +16,8 @@ void DatabaseIndexModel::setDatabase(chess::Database *database)
 
 int DatabaseIndexModel::rowCount(const QModelIndex & /* parent */) const
 {
+
+    //qDebug() << "ROW COUNT: " << this->database->currentSearchIndices->count();
     return this->database->currentSearchIndices->count();
 }
 
@@ -105,7 +108,6 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
     }
     return QVariant();
 }
-
 
 QVariant DatabaseIndexModel::headerData(int section,
                                    Qt::Orientation orientation,

@@ -182,17 +182,29 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
-    DialogSearch *dlg = new DialogSearch(this->gameModel, this);
-    dlg->show();
-    SearchPattern sp = dlg->getPattern();
-    this->gameModel->database->search(sp);
 
-    //
-    this->indexModel->setDatabase(this->gameModel->database);
-    this->indexModel->layoutChanged();
-    this->tableView->resizeColumnsToContents();
-    if(this->gameModel->database->countGames() > 0) {
-        this->tableView->selectRow(0);
+    DialogSearch *dlg = new DialogSearch(this->gameModel, nullptr);
+
+    qDebug() << "show calling";
+
+    if(dlg->exec() == QDialog::Accepted) {
+        qDebug() << "about to get pattern";
+        SearchPattern sp = dlg->getPattern();
+        qDebug() << "got pattern";
+        this->gameModel->database->search(sp);
+
+        qDebug() << "search finished";
+
+        qDebug() << "size: " << this->gameModel->database->currentSearchIndices->size();
+
+        this->indexModel->setDatabase(this->gameModel->database);
+        this->indexModel->layoutChanged();
+
+        this->tableView->resizeColumnsToContents();
+        if(this->gameModel->database->countGames() > 0) {
+            this->tableView->selectRow(0);
+        }
+
     }
 
 }

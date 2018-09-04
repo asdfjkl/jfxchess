@@ -43,7 +43,7 @@ chess::Database::Database(QString &filename)
     this->loadUponOpen = 0;
         
     this->indices = new QList<chess::IndexEntry*>();
-    this->currentSearchIndices = this->indices;
+    this->currentSearchIndices = new QList<chess::IndexEntry*>();
 }
 
 chess::Database::~Database()
@@ -67,6 +67,9 @@ void chess::Database::reset() {
 
     qDeleteAll(indices->begin(), indices->end());
     indices->clear();
+
+    qDeleteAll(currentSearchIndices->begin(), currentSearchIndices->end());
+    currentSearchIndices->clear();
 
     this->offsetNames->clear();
     this->offsetSites->clear();
@@ -205,6 +208,8 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
             ds_entry_i >> *entry_i;
 
             this->indices->append(entry_i);
+            // also add to the currentSearchIndex
+            this->currentSearchIndices->append(entry_i);
 
             progressCounter += 39;
             percent_counter += 39;
@@ -821,10 +826,16 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
 
 void chess::Database::search(SearchPattern &sp) {
 
-    this->currentSearchIndices->clear();
+    qDebug() << "about to clear search index";
 
+    this->currentSearchIndices->clear();
+    qDebug() << "size after clear" << this->currentSearchIndices->size();
+
+    qDebug() << "cleared search index";
     // just as a test
-    this->currentSearchIndices[0] = this->indices[0];
+    //this->currentSearchIndices[0] = this->indices[0];
+    this->currentSearchIndices->append(this->indices->at(0));
+    qDebug() << "set first element of search index";
 
 }
 
