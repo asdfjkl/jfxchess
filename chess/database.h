@@ -29,7 +29,7 @@ public:
     int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
                      QByteArray &magicIndexString, QWidget* parent=0);
 
-    void search(SearchPattern &sp);
+    void search(SearchPattern &sp, QWidget* parent=nullptr);
 
     std::unique_ptr<chess::Game> getGameAt(int i);
     int countGames();

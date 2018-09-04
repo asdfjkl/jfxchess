@@ -191,7 +191,7 @@ void DialogDatabase::onClickSearch() {
         qDebug() << "about to get pattern";
         SearchPattern sp = dlg->getPattern();
         qDebug() << "got pattern";
-        this->gameModel->database->search(sp);
+        this->gameModel->database->search(sp, this);
 
         qDebug() << "search finished";
 

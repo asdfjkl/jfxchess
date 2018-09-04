@@ -824,7 +824,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
     fnIndex.close();
 }
 
-void chess::Database::search(SearchPattern &sp) {
+void chess::Database::search(SearchPattern &sp, QWidget *parent) {
 
     qDebug() << "about to clear search index";
 
@@ -832,6 +832,19 @@ void chess::Database::search(SearchPattern &sp) {
     qDebug() << "size after clear" << this->currentSearchIndices->size();
 
     qDebug() << "cleared search index";
+
+    // set up a progress dialog
+    int size = this->indices->size();
+    QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setCancelButton(0);
+
+    for(int i=0;i<size;i++) {
+        progress.setValue(i);
+        //do search here
+
+    }
+
     // just as a test
     //this->currentSearchIndices[0] = this->indices[0];
     this->currentSearchIndices->append(this->indices->at(0));
