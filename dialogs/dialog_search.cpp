@@ -31,6 +31,8 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     this->optPosition = new QCheckBox(tr("Position"));
     this->optVariants = new QCheckBox(tr("Search in Variations"));
 
+    this->optGameData->setChecked(true);
+
     QHBoxLayout *layoutOptions = new QHBoxLayout();
     layoutOptions->addWidget(optGameData);
     layoutOptions->addWidget(optComments);

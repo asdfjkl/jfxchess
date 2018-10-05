@@ -39,7 +39,7 @@ GameModel::GameModel(QObject *parent) :
     this->lastSaveFilename = "";
     this->lastOpenDir = "";
     this->lastSaveDir = "";
-    this->game = std::unique_ptr<chess::Game>(new chess::Game());
+    this->game = new chess::Game();
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
     InternalEngine default_engine = InternalEngine();
@@ -130,13 +130,13 @@ void GameModel::setActiveEngine(int activeEngineIdx) {
 }
 
 chess::Game* GameModel::getGame() {
-    return this->game.get();
+    return this->game;
 }
 
-void GameModel::setGame(std::unique_ptr<chess::Game> g) {
+void GameModel::setGame(chess::Game *g) {
     assert(g != nullptr);
-    //delete this->game;
-    this->game = std::move(g);
+    delete this->game;
+    this->game = g;
     //this->game->setCurrent(this->game->getRootNode());
 }
 
@@ -274,13 +274,16 @@ void GameModel::restoreGameState() {
             this->game = reader->readGameFromString(pgnString);
             this->game->findEco();
         } catch(std::exception e) {
-            this->game.reset(new chess::Game());
+            if(this->game != nullptr) {
+                delete this->game;
+            }
+            this->game = new chess::Game();
             std::cerr << e.what() << std::endl;
         }
         delete reader;
     }
-    if(settings.contains("modalVersion")) {
-        this->modelVersion = settings.value("modalVersion").toInt();
+    if(settings.contains("modelVersion")) {
+        this->modelVersion = settings.value("modelVersion").toInt();
     }
     if(settings.contains("lastSaveFilename")) {
         this->lastSaveFilename = settings.value("lastSaveFilename").toString();

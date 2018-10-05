@@ -34,7 +34,7 @@ private:
     QWidget *parentWidget;
     void saveGameTo(QString &filename);
     WId board; //?
-    void setupNewGame(std::unique_ptr<chess::Game> g);
+    void setupNewGame(chess::Game* g);
 
 
 signals:

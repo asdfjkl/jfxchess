@@ -26,7 +26,7 @@ SearchPattern::SearchPattern()
     this->checkElo = SEARCH_IGNORE_ELO;
     this->elo_min = 1000;
     this->elo_max = 3000;
-    this->result = chess::RES_UNDEF;
+    this->result = chess::RES_ANY;
 
     this->comment_text1 = "";
     this->comment_text2 = "";

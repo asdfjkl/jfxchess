@@ -114,6 +114,17 @@ void Game::goToMainLineChild() {
     }
 }
 
+int Game::countHalfmoves() {
+    int halfmoves = 0;
+    GameNode *temp = this->root;
+    while(temp->variations.count() > 0) {
+        temp = temp->getVariation(0);
+        halfmoves += 1;
+    }
+    return halfmoves;
+}
+
+
 GameNode* Game::getEndNode() {
     GameNode *temp = this->getRootNode();
     while(temp->variations.count() > 0) {

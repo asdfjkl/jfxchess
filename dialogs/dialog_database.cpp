@@ -118,7 +118,15 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     //this->tableView->verticalHeader()->hide();
     this->tableView->setShowGrid(false);
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    this->tableView->selectRow(0);
+
+    // set index to currently open game
+    // if a game is currently opened
+    int idx = this->gameModel->database->currentOpenGameIdx;
+    if(idx > 0) {
+        this->tableView->selectRow(idx);
+    } else {
+        this->tableView->selectRow(0);
+    }
 
     tableView->setWindowTitle(QObject::tr("Games"));
     tableView->resizeColumnsToContents();

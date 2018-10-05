@@ -101,7 +101,7 @@ public:
      * @param filename name of the file
      * @return pointer to the generated game
      */
-    std::unique_ptr<Game> readGameFromFile(const QString &filename, const char* encoding);
+    chess::Game* readGameFromFile(const QString &filename, const char* encoding);
 
     /**
      * @brief readGameFromFile read the game at supplied offset from the PGN filename
@@ -111,7 +111,7 @@ public:
      * @param offset integer denoting the offset position to seek to prior reading the file
      * @return pointer to generated game
      */
-    std::unique_ptr<Game> readGameFromFile(const QString &filename, const char* encoding, qint64 offset);
+    chess::Game* readGameFromFile(const QString &filename, const char* encoding, qint64 offset);
 
     QList<HeaderOffset> scan_headers_fast(const QString &filename, const char* encoding);
 
@@ -134,7 +134,7 @@ public:
      * @param pgn_string string containing pgn file
      * @return pointer to generated game
      */
-    std::unique_ptr<Game> readGameFromString(QString &pgn_string);
+    chess::Game* readGameFromString(QString &pgn_string);
 
     /**
      * @brief readGameFromString read game from string, but first
@@ -144,14 +144,14 @@ public:
      * @param offset denoting the offset in the string to start from
      * @return generated game
      */
-    std::unique_ptr<Game> readGameFromString(QString &pgn_string, quint64 offset);
+    chess::Game* readGameFromString(QString &pgn_string, quint64 offset);
 
     /**
      * @brief readGame reads a game from supplied textstream
      * @param in the textstream to read from
      * @return generated game
      */
-    std::unique_ptr<Game> readGame(QTextStream& in);
+    chess::Game* readGame(QTextStream& in);
 
     /**
      * @brief scan_headers scans a PGN file, reads the headers and

@@ -31,7 +31,8 @@ public:
 
     void search(SearchPattern &sp, QWidget* parent=nullptr);
 
-    std::unique_ptr<chess::Game> getGameAt(int i);
+    chess::Game* getGameAt(int i);
+    chess::Game* getGameFromEntry(chess::IndexEntry *ie);
     int countGames();
     QList<chess::IndexEntry*> *indices;
     QList<chess::IndexEntry*> *currentSearchIndices;
@@ -43,6 +44,7 @@ public:
     QMap<quint32, QString> *offsetEvents;
 
     QString lastOpenDir;
+    int currentOpenGameIdx;
     QString filenameIndex;
 
 private:

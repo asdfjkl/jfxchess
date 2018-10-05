@@ -243,6 +243,12 @@ public:
     EcoInfo getEcoInfo();
     bool wasEcoClassified;
 
+    /**
+     * @brief countHalfmoves counts halfmoves of mainline
+     * @return
+     */
+    int countHalfmoves();
+
 private:
 
     QMap<QString, QString> headers;

@@ -39,6 +39,7 @@ chess::Database::Database(QString &filename)
     //this->pgnreader = new chess::PgnReader();
 
     this->lastOpenDir = QString("");
+    this->currentOpenGameIdx = -1;
 
     this->loadUponOpen = 0;
         
@@ -298,19 +299,8 @@ int chess::Database::countGames() {
     return this->indices->length();
 }
 
-std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
-
-    qDebug() << "get game at called with: " << i;
-    if(i >= this->indices->size()) {
-        qDebug() << "game not found, index mismatch";
-        //return 0; // maybe throw out of range error or something instead of silently failing
-        return move(std::unique_ptr<chess::Game>(nullptr));
-    }
-    chess::IndexEntry *ie = this->indices->at(i);
-    if(ie->deleted) {
-        // todo: jump to next valid entry
-    }
-    auto game = std::make_unique<chess::Game>();
+chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
+    chess::Game* game = new chess::Game();
     QString whiteName = this->offsetNames->value(ie->whiteOffset);
     QString blackName = this->offsetNames->value(ie->blackOffset);
     QString site = this->offsetSites->value(ie->siteRef);
@@ -372,13 +362,13 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
         bool ok = fnGames.seek(ie->gameOffset);
         if(!ok) {
             std::cerr << "seeking to game offset failed!" << std::endl;
-            return move(game);
+            return game;
         }
         QDataStream gi(&fnGames);
         int length = this->decodeLength(&gi);
         if(length < 0) {
             std::cerr << "length decoding at game offset position failed!" << std::endl;
-            return move(game);
+            return game;
         }
         QByteArray game_raw;
         game_raw.resize(length);
@@ -386,11 +376,27 @@ std::unique_ptr<chess::Game> chess::Database::getGameAt(int i) {
         gi.readRawData(game_raw.data(), length);
         if(gi.status() != QDataStream::Ok) {
             std::cerr << "reading game bytes at game offset failed!" << std::endl;
-            return move(game);
+            return game;
         }
         this->dcgdecoder.decodeGame(*game, game_raw);
     }
-    return move(game);
+    return game;
+}
+
+chess::Game* chess::Database::getGameAt(int i) {
+
+    qDebug() << "get game at called with: " << i;
+    if(i >= this->indices->size()) {
+        qDebug() << "game not found, index mismatch";
+        return nullptr; // maybe throw out of range error or something instead of silently failing
+    }
+    chess::IndexEntry *ie = this->indices->at(i);
+    if(ie->deleted) {
+        // todo: jump to next valid entry
+    }
+    chess::Game* gameAtI = this->getGameFromEntry(ie);
+    this->currentOpenGameIdx = i;
+    return gameAtI;
 }
 
 int chess::Database::decodeLength(QDataStream *stream) {
@@ -810,7 +816,7 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
                 assert(iEntry.size() == 39);
                 fnIndex.write(iEntry, iEntry.length());
                 //qDebug() << "just before reading back file";
-                std::unique_ptr<chess::Game> g = pgnreader.readGameFromFile(pgnfile, encoding, header.offset);
+                chess::Game* g = pgnreader.readGameFromFile(pgnfile, encoding, header.offset);
                 //qDebug() << "READ file ok";
                 QByteArray g_enc = dcgencoder.encodeGame(*g); //"<<<<<<<<<<<<<<<<<<<<<< this is the cause of mem acc fault"
                 //qDebug() << "enc ok";
@@ -844,10 +850,106 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
         //do search here
         if(sp.searchGameData) {
             IndexEntry *ei = this->indices->at(i);
-            //if(! (ei->) sp.whiteName )
+            if(!sp.ignoreNameColor) { // look for player names
+                if(!sp.whiteName.isEmpty()) {
+                    QString eiWhiteName = this->offsetNames->value(ei->whiteOffset);
+                    if(!eiWhiteName.contains(sp.whiteName, Qt::CaseInsensitive)) {
+                        continue;
+                    }
+                }
+                if(!sp.blackName.isEmpty()) {
+                    QString eiBlackName = this->offsetNames->value(ei->blackOffset);
+                    if(!eiBlackName.contains(sp.blackName, Qt::CaseInsensitive)) {
+                        continue;
+                    }
+                }
+            } else {  // look for player names, but ignore color
+                if(!sp.whiteName.isEmpty()) {
+                    QString eiWhiteName = this->offsetNames->value(ei->whiteOffset);
+                    QString eiBlackName = this->offsetNames->value(ei->blackOffset);
+                    if(!eiWhiteName.contains(sp.whiteName, Qt::CaseInsensitive) &&
+                       !eiBlackName.contains(sp.whiteName, Qt::CaseInsensitive)) {
+                        continue;
+                    }
+                }
+                if(!sp.blackName.isEmpty()) {
+                    QString eiWhiteName = this->offsetNames->value(ei->whiteOffset);
+                    QString eiBlackName = this->offsetNames->value(ei->blackOffset);
+                    if(!eiWhiteName.contains(sp.blackName, Qt::CaseInsensitive) &&
+                       !eiBlackName.contains(sp.blackName, Qt::CaseInsensitive)) {
+                       continue;
+                    }
+                }
+            }
+            // check event
+            if(!sp.event.isEmpty()) {
+                QString eiEvent = this->offsetEvents->value(ei->eventRef);
+                if(!eiEvent.contains(sp.event, Qt::CaseInsensitive)) {
+                    continue;
+                }
+            }
+            // site
+            if(!sp.site.isEmpty()) {
+                QString eiSite = this->offsetSites->value(ei->siteRef);
+                if(!eiSite.contains(sp.site, Qt::CaseInsensitive)) {
+                    continue;
+                }
+            }
+            if(sp.checkYear) {
+                quint16 spYearMin = sp.year_min;
+                quint16 spYearMax = sp.year_max;
+                if((ei->year != 0)
+                        && (spYearMin < ei->year || spYearMax > ei->year)) {
+                    continue;
+                }
+            }
+            if(sp.checkEco) {
+                if(!(ei->eco >= sp.ecoStart && ei->eco <= sp.ecoStop)) {
+                    continue;
+                }
+            }
+            if(sp.checkElo != SEARCH_IGNORE_ELO) {
+                if(sp.checkElo == SEARCH_ONE_ELO) {
+                    // black and white are outside range
+                    if( (ei->eloBlack < sp.elo_min || ei->eloBlack > sp.elo_max)
+                            && (ei->eloWhite < sp.elo_min || ei->eloWhite > sp.elo_max) ) {
+                        continue;
+                    }
+                } else {
+                    if(sp.checkElo == SEARCH_BOTH_ELO) {
+                        // either black or white is out of range
+                        if((ei->eloBlack < sp.elo_min || ei->eloBlack > sp.elo_max)
+                                || (ei->eloWhite < sp.elo_min || ei->eloWhite > sp.elo_max) ) {
+                            continue;
+                        }
+                    } else {
+                        // sp.checkElo must be SEARCH_AVERAGE_ELO
+                        quint16 average = quint16 ((float(ei->eloBlack) + float(ei->eloWhite)) / 2.0);
+                        // average must be in range, otherwise ignore
+                        if(average < sp.elo_min || average > sp.elo_max) {
+                            continue;
+                        }
+                    }
+                }
+            }
+            if(sp.result != chess::RES_ANY) {
+                if(sp.result != ei->result) {
+                    continue;
+                }
+            }
+            if(sp.checkMoves) {
+                chess::Game *gi = this->getGameFromEntry(ei);
+                int halfmoves = gi->countHalfmoves();
+                int moveMin = std::max( (sp.move_min - 1) * 2, 0);
+                int moveMax = sp.move_max * 2;
+                delete gi;
+                if(halfmoves < moveMin || halfmoves > moveMax) {
+                    continue;
+                }
+            }
+
         }
-
-
+        this->currentSearchIndices->append(this->indices->at(i));
     }
 
     // just as a test

@@ -436,23 +436,23 @@ QList<HeaderOffset> PgnReader::scan_headersFromString(QString &contents) {
 }
 
 
-std::unique_ptr<Game> PgnReader::readGameFromFile(const QString &filename, const char* encoding) {
-    return move(this->readGameFromFile(filename, encoding, 0));
+chess::Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding) {
+    return this->readGameFromFile(filename, encoding, 0);
 }
 
-std::unique_ptr<Game> PgnReader::readGameFromString(QString &pgn_string) {
+chess::Game* PgnReader::readGameFromString(QString &pgn_string) {
     QTextStream in(&pgn_string);
-    return move(this->readGame(in));
+    return this->readGame(in);
 }
 
-std::unique_ptr<Game> PgnReader::readGameFromString(QString &pgn_string, quint64 offset) {
+chess::Game* PgnReader::readGameFromString(QString &pgn_string, quint64 offset) {
     QString substring = QString(pgn_string.mid(offset, pgn_string.size()));
     QTextStream in(&substring);
-    return move(this->readGame(in));
+    return this->readGame(in);
 }
 
 
-std::unique_ptr<Game> PgnReader::readGameFromFile(const QString &filename, const char* encoding, qint64 offset) {
+chess::Game* PgnReader::readGameFromFile(const QString &filename, const char* encoding, qint64 offset) {
 
     QFile file(filename);
 
@@ -465,14 +465,14 @@ std::unique_ptr<Game> PgnReader::readGameFromFile(const QString &filename, const
     if(offset != 0 && offset > 0) {
         in.seek(offset);
     }
-    std::unique_ptr<Game> g = this->readGame(in);
+    chess::Game* g = this->readGame(in);
     file.close();
-    return std::move(g);
+    return g;
 }
 
-std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
+chess::Game* PgnReader::readGame(QTextStream& in) {
 
-    auto g = std::unique_ptr<Game>(new Game());
+    chess::Game* g = new Game();
     QString starting_fen = QString("");
 
     QStack<GameNode*> *game_stack = new QStack<GameNode*>();
@@ -515,7 +515,7 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
                 std::cerr << "starting fen position is not consistent" << std::endl;
                 game_stack->clear();
                 delete game_stack;
-                return move(g);
+                return g;
             } else {
                 current->setBoard(b_fen);
             }
@@ -528,7 +528,7 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
             game_stack->clear();
             delete game_stack;
             std::cerr << a.what() << std::endl;
-            return move(g);
+            return g;
         }
     }
     // Get the next non-empty line.
@@ -545,7 +545,7 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
         bool readNextLine = true;
         if(line.trimmed().isEmpty() && foundContent) {
             delete game_stack;
-            return move(g);
+            return g;
         }
         QRegularExpressionMatchIterator i = MOVETEXT_REGEX.globalMatch(line);
         while (i.hasNext()) {
@@ -674,7 +674,7 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
                     game_stack->clear();
                     delete game_stack;
                     std::cerr << a.what() << std::endl;
-                    return move(g);
+                    return g;
                 }
             }
         }
@@ -684,6 +684,6 @@ std::unique_ptr<Game> PgnReader::readGame(QTextStream& in) {
     }
     game_stack->clear();
     delete game_stack;
-    return move(g);
+    return g;
 }
 }
