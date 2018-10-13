@@ -15,10 +15,11 @@ public:
     QLineEdit* text2;
 
     QCheckBox *wholeWord;
-
+    QCheckBox *caseSensitive;
     QCheckBox *notInitialPos;
-    QCheckBox *arrows;
-    QCheckBox *colorFields;
+
+    //QCheckBox *arrows;
+    //QCheckBox *colorFields;
 
 signals:
 

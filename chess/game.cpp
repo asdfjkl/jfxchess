@@ -83,6 +83,33 @@ QStringList Game::getTags() {
     return tags;
 }
 
+bool Game::hasCommentSubstring(QString &s) {
+    GameNode *root = this->getRootNode();
+    return this->hasCommentSubstringBelow(s, root);
+}
+
+bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp) {
+
+    if(temp->getComment().contains(s)) {
+        return true;
+    }
+    for(int i=0;i < temp->variations.size(); i++) {
+        GameNode* child_i = temp->variations.at(i);
+        if(hasCommentSubstringBelow(s, child_i)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Game::hasCommentWord(QString &s) {
+    return false;
+}
+
+bool Game::hasCommentWordBelow(QString &s, GameNode* temp) {
+    return false;
+}
+
 GameNode* Game::findNodeByIdRec(int id, GameNode *node) {
     if(node->getId() == id) {
         return node;

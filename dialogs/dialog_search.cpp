@@ -119,8 +119,7 @@ qDebug() << "OK";
 
     sp.wholeWord = this->tcs->wholeWord->isChecked();
     sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
-    sp.mustContainColoredFields = this->tcs->colorFields->isChecked();
-    sp.mustContainArrows = this->tcs->arrows->isChecked();
+    sp.caseSensitive = this->tcs->caseSensitive->isChecked();
 
     qDebug() << "options";
 

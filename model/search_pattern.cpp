@@ -32,8 +32,7 @@ SearchPattern::SearchPattern()
     this->comment_text2 = "";
     this->wholeWord = false;
     this->mustNotStartInInitial = false;
-    this->mustContainArrows = false;
-    this->mustContainColoredFields = false;
+    this->caseSensitive = false;
 
     this->search_board = new chess::Board();
 

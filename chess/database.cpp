@@ -949,6 +949,14 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
             }
 
         }
+        if(sp.searchComments) {
+            IndexEntry *ei = this->indices->at(i);
+            chess::Game *gi = this->getGameFromEntry(ei);
+
+            delete gi;
+
+        }
+
         this->currentSearchIndices->append(this->indices->at(i));
     }
 

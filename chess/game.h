@@ -234,6 +234,12 @@ public:
      */
     void removeAllVariants();
 
+    bool hasCommentSubstring(QString &s);
+    bool hasCommentSubstringBelow(QString &s, GameNode* node);
+
+    bool hasCommentWord(QString &s);
+    bool hasCommentWordBelow(QString &s, GameNode* node);
+
     /**
      * @brief clearHeaders deletes all headers entries.
      */

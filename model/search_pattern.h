@@ -42,8 +42,7 @@ public:
     QString comment_text2;
     bool wholeWord;
     bool mustNotStartInInitial;
-    bool mustContainArrows;
-    bool mustContainColoredFields;
+    bool caseSensitive;
 
     chess::Board search_board;
 

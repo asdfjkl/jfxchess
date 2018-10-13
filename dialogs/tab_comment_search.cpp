@@ -17,15 +17,15 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     int len_surname = f.width(this->tr("abcdefghjlmnopqrstuvw"));
     int len_vertical_space = f.height();
 
-    QHBoxLayout *layoutText1 = new QHBoxLayout();
-    QHBoxLayout *layoutText2 = new QHBoxLayout();
+    QHBoxLayout *layoutText1 = new QHBoxLayout(this);
+    QHBoxLayout *layoutText2 = new QHBoxLayout(this);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout();
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    QLabel *lblText1 = new QLabel(tr("Text1:"));
+    QLabel *lblText1 = new QLabel(tr("Text1:"), this);
     this->text1 = new QLineEdit(this);
 
-    QLabel* lblText2 = new QLabel(tr("Text2:"));
+    QLabel* lblText2 = new QLabel(tr("Text2:"), this);
     this->text2 = new QLineEdit(this);
 
     text1->setFixedWidth(len_surname);
@@ -34,28 +34,24 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     lblText1->setBuddy(text1);
     lblText2->setBuddy(text2);
 
-    this->wholeWord = new QCheckBox(tr("Whole Word"));
+    this->wholeWord = new QCheckBox(tr("Whole Word"), this);
+    this->caseSensitive = new QCheckBox(tr("Case Sensitive"), this);
+    this->notInitialPos = new QCheckBox(tr("must NOT start in intial position"), this);
 
     layoutText1->addWidget(lblText1);
     layoutText1->addWidget(text1);
-    layoutText1->addSpacing(len_vertical_space);
-    layoutText1->addWidget(wholeWord);
     layoutText1->addStretch(1);
 
     layoutText2->addWidget(lblText2);
     layoutText2->addWidget(text2);
     layoutText2->addStretch(1);
 
-    this->notInitialPos = new QCheckBox(tr("must NOT start in intial position"));
-    this->arrows = new QCheckBox(tr("must contain arrows"));
-    this->colorFields = new QCheckBox(tr("must contain colored fields"));
-
     mainLayout->addLayout(layoutText1);
     mainLayout->addLayout(layoutText2);
     mainLayout->addSpacing(len_vertical_space);
     mainLayout->addWidget(notInitialPos);
-    mainLayout->addWidget(arrows);
-    mainLayout->addWidget(colorFields);
+    mainLayout->addWidget(caseSensitive);
+    mainLayout->addWidget(wholeWord);
     mainLayout->addStretch(1);
 
     this->setLayout(mainLayout);
