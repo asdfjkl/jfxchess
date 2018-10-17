@@ -842,6 +842,7 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
     // set up a progress dialog
     int size = this->indices->size();
     QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
+    progress.setMinimumDuration(100);
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);
 
@@ -947,22 +948,43 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                     continue;
                 }
             }
-
         }
         if(sp.searchComments) {
             IndexEntry *ei = this->indices->at(i);
             chess::Game *gi = this->getGameFromEntry(ei);
-
+            if(sp.mustNotStartInInitial) {
+                if(gi->getRootNode()->getBoard().is_initial_position()) {
+                    continue;
+                }
+            }
+            QString text1 = sp.comment_text1;
+            QString text2 = sp.comment_text2;
+            if(sp.wholeWord && (!sp.comment_text1.isEmpty())) {
+                text1 = sp.comment_text1.simplified().prepend((" ")).append(" ");
+            }
+            if(sp.wholeWord && (!sp.comment_text2.isEmpty())) {
+                text2 = sp.comment_text2.simplified().prepend((" ")).append(" ");
+            }
+            if(!sp.comment_text1.isEmpty()) {
+                if(!(gi->hasCommentSubstring(sp.comment_text1, !sp.caseSensitive))) {
+                    continue;
+                };
+            }
+            if(!sp.comment_text2.isEmpty()) {
+                if(!(gi->hasCommentSubstring(sp.comment_text2, !sp.caseSensitive))) {
+                    continue;
+                };
+            }
             delete gi;
-
         }
 
         this->currentSearchIndices->append(this->indices->at(i));
     }
 
+
     // just as a test
     //this->currentSearchIndices[0] = this->indices[0];
-    this->currentSearchIndices->append(this->indices->at(0));
+    //this->currentSearchIndices->append(this->indices->at(0));
     qDebug() << "set first element of search index";
 
 }

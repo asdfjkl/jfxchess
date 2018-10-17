@@ -83,30 +83,28 @@ QStringList Game::getTags() {
     return tags;
 }
 
-bool Game::hasCommentSubstring(QString &s) {
+bool Game::hasCommentSubstring(QString &s, bool caseSensitive) {
     GameNode *root = this->getRootNode();
-    return this->hasCommentSubstringBelow(s, root);
+    return this->hasCommentSubstringBelow(s, root, caseSensitive);
 }
 
-bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp) {
+bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp, bool caseSensitive) {
 
-    if(temp->getComment().contains(s)) {
-        return true;
-    }
-    for(int i=0;i < temp->variations.size(); i++) {
-        GameNode* child_i = temp->variations.at(i);
-        if(hasCommentSubstringBelow(s, child_i)) {
+    if(caseSensitive) {
+        if(temp->getComment().contains(s)) {
+            return true;
+        }
+    } else {
+        if(temp->getComment().contains(s, Qt::CaseInsensitive)) {
             return true;
         }
     }
-    return false;
-}
-
-bool Game::hasCommentWord(QString &s) {
-    return false;
-}
-
-bool Game::hasCommentWordBelow(QString &s, GameNode* temp) {
+    for(int i=0;i < temp->variations.size(); i++) {
+        GameNode* child_i = temp->variations.at(i);
+        if(hasCommentSubstringBelow(s, child_i, caseSensitive)) {
+            return true;
+        }
+    }
     return false;
 }
 

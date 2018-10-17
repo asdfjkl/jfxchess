@@ -234,11 +234,7 @@ public:
      */
     void removeAllVariants();
 
-    bool hasCommentSubstring(QString &s);
-    bool hasCommentSubstringBelow(QString &s, GameNode* node);
-
-    bool hasCommentWord(QString &s);
-    bool hasCommentWordBelow(QString &s, GameNode* node);
+    bool hasCommentSubstring(QString &s, bool caseSensitive);
 
     /**
      * @brief clearHeaders deletes all headers entries.
@@ -263,7 +259,7 @@ private:
     GameNode* current;
     int result;
     GameNode* findNodeByIdRec(int id, GameNode* node);
-
+    bool hasCommentSubstringBelow(QString &s, GameNode* node, bool caseSensitive);
     EcoInfo ecoInfo;
 
 };
