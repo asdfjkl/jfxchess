@@ -17,8 +17,13 @@ TabCommentSearch::TabCommentSearch(QWidget *parent) : QWidget(parent)
     int len_surname = f.width(this->tr("abcdefghjlmnopqrstuvw"));
     int len_vertical_space = f.height();
 
+<<<<<<< HEAD
     QHBoxLayout *layoutText1 = new QHBoxLayout();
     QHBoxLayout *layoutText2 = new QHBoxLayout();
+=======
+    QHBoxLayout *layoutText1 = new QHBoxLayout(this);
+    QHBoxLayout *layoutText2 = new QHBoxLayout(this);
+>>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
