@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 
     // setting dark style
     // todo: fix bold colors in textedit
+    // currently not activated
     //qApp->setStyle(QStyleFactory::create("Fusion"));
     /*
     QPalette darkPalette;
