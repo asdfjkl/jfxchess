@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     // setting dark style
     // todo: fix bold colors in textedit
     //qApp->setStyle(QStyleFactory::create("Fusion"));
-/*
+    /*
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
     darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
-qApp->setPalette(darkPalette);
-*/
+    qApp->setPalette(darkPalette);
+    */
     qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
 
     // dark style end
