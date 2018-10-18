@@ -83,7 +83,6 @@ QStringList Game::getTags() {
     return tags;
 }
 
-<<<<<<< HEAD
 bool Game::hasCommentSubstring(QString &s, bool caseSensitive) {
     GameNode *root = this->getRootNode();
     return this->hasCommentSubstringBelow(s, root, caseSensitive);
@@ -103,38 +102,12 @@ bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp, bool caseSensiti
     for(int i=0;i < temp->variations.size(); i++) {
         GameNode* child_i = temp->variations.at(i);
         if(hasCommentSubstringBelow(s, child_i, caseSensitive)) {
-=======
-bool Game::hasCommentSubstring(QString &s) {
-    GameNode *root = this->getRootNode();
-    return this->hasCommentSubstringBelow(s, root);
-}
-
-bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp) {
-
-    if(temp->getComment().contains(s)) {
-        return true;
-    }
-    for(int i=0;i < temp->variations.size(); i++) {
-        GameNode* child_i = temp->variations.at(i);
-        if(hasCommentSubstringBelow(s, child_i)) {
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
             return true;
         }
     }
     return false;
 }
 
-<<<<<<< HEAD
-=======
-bool Game::hasCommentWord(QString &s) {
-    return false;
-}
-
-bool Game::hasCommentWordBelow(QString &s, GameNode* temp) {
-    return false;
-}
-
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
 GameNode* Game::findNodeByIdRec(int id, GameNode *node) {
     if(node->getId() == id) {
         return node;

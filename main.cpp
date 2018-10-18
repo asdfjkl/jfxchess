@@ -98,11 +98,8 @@ int main(int argc, char *argv[])
     app_icon->addFile("res/icons/icon256.png",QSize(256,256));
     app.setWindowIcon(*app_icon);
 
-<<<<<<< HEAD
     //app.setStyle(QStyleFactory::create("Fusion"));
-=======
     //app.setStyle(QStyleFactory::create("Windows"));
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
 
     MainWindow mainWin;
 

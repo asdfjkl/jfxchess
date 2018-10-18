@@ -842,10 +842,9 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
     // set up a progress dialog
     int size = this->indices->size();
     QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
-<<<<<<< HEAD
+
     progress.setMinimumDuration(100);
-=======
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
+
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);
 
@@ -951,15 +950,10 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                     continue;
                 }
             }
-<<<<<<< HEAD
-=======
-
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
         }
         if(sp.searchComments) {
             IndexEntry *ei = this->indices->at(i);
             chess::Game *gi = this->getGameFromEntry(ei);
-<<<<<<< HEAD
             if(sp.mustNotStartInInitial) {
                 if(gi->getRootNode()->getBoard().is_initial_position()) {
                     continue;
@@ -984,26 +978,18 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                 };
             }
             delete gi;
-=======
-
-            delete gi;
-
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
         }
 
         this->currentSearchIndices->append(this->indices->at(i));
     }
 
-<<<<<<< HEAD
 
     // just as a test
     //this->currentSearchIndices[0] = this->indices[0];
     //this->currentSearchIndices->append(this->indices->at(0));
-=======
     // just as a test
     //this->currentSearchIndices[0] = this->indices[0];
-    this->currentSearchIndices->append(this->indices->at(0));
->>>>>>> c3f979a4f133596d772483c0fbd1cac4a0bdc496
+    //this->currentSearchIndices->append(this->indices->at(0));
     qDebug() << "set first element of search index";
 
 }
