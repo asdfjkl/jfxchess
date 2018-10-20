@@ -18,11 +18,11 @@ public:
 
 private:
     TabHeaderSearch* ths;
-    TabCommentSearch *tcs;
+    //TabCommentSearch *tcs;
     TabSearchPos *tsp;
 
     QCheckBox *optGameData;
-    QCheckBox *optComments;
+    //QCheckBox *optComments;
     QCheckBox *optPosition;
     QCheckBox *optVariants;
 

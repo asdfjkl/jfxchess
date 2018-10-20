@@ -13,12 +13,12 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
 {
     qDebug() << "dialog search constructor";
     this->ths = new TabHeaderSearch(this);
-    this->tcs = new TabCommentSearch(this);
+    //this->tcs = new TabCommentSearch(this);
     this->tsp = new TabSearchPos(gameModel, this);
 
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->addTab(ths, tr("Game Data"));
-    tabWidget->addTab(tcs, tr("Comments"));
+    //tabWidget->addTab(tcs, tr("Comments"));
     tabWidget->addTab(tsp, tr("Position"));
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
@@ -27,7 +27,7 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     connect(buttonBox, &QDialogButtonBox::rejected, this, &DialogSearch::reject);
 
     this->optGameData = new QCheckBox(tr("Game Data"));
-    this->optComments = new QCheckBox(tr("Comments"));
+    //this->optComments = new QCheckBox(tr("Comments"));
     this->optPosition = new QCheckBox(tr("Position"));
     this->optVariants = new QCheckBox(tr("Search in Variations"));
 
@@ -35,7 +35,7 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
 
     QHBoxLayout *layoutOptions = new QHBoxLayout();
     layoutOptions->addWidget(optGameData);
-    layoutOptions->addWidget(optComments);
+    //layoutOptions->addWidget(optComments);
     layoutOptions->addWidget(optPosition);
     layoutOptions->addWidget(optVariants);
     layoutOptions->addStretch(1);
@@ -114,18 +114,18 @@ qDebug() << "OK";
     }
 
     // comment search
-    sp.comment_text1 = this->tcs->text1->text();
-    sp.comment_text2 = this->tcs->text2->text();
+    //sp.comment_text1 = this->tcs->text1->text();
+    //sp.comment_text2 = this->tcs->text2->text();
 
-    sp.wholeWord = this->tcs->wholeWord->isChecked();
-    sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
-    sp.caseSensitive = this->tcs->caseSensitive->isChecked();
+    //sp.wholeWord = this->tcs->wholeWord->isChecked();
+    //sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
+    //sp.caseSensitive = this->tcs->caseSensitive->isChecked();
 
     qDebug() << "options";
 
     // search options
     sp.searchGameData = this->optGameData->isChecked();
-    sp.searchComments = this->optComments->isChecked();
+    //sp.searchComments = this->optComments->isChecked();
     sp.searchPosition = this->optPosition->isChecked();
     sp.searchVariations = this->optVariants->isChecked();
 

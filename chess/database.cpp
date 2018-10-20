@@ -15,6 +15,8 @@
 #include <QApplication>
 #include "various/messagebox.h"
 
+#include <QElapsedTimer>
+
 #include <ctime>
 
 chess::Database::Database(QString &filename)
@@ -38,6 +40,8 @@ chess::Database::Database(QString &filename)
     //this->dcgdecoder = new chess::DcgDecoder();
     //this->pgnreader = new chess::PgnReader();
 
+    this->cacheValid = false;
+
     this->lastOpenDir = QString("");
     this->currentOpenGameIdx = -1;
 
@@ -45,6 +49,14 @@ chess::Database::Database(QString &filename)
         
     this->indices = new QList<chess::IndexEntry*>();
     this->currentSearchIndices = new QList<chess::IndexEntry*>();
+
+    this->global_timer.start();
+
+    this->ns_decode_header = 0;
+    this->ns_seek = 0;
+    this->ns_decode_length = 0;
+    this->ns_decode_game = 0;
+
 }
 
 chess::Database::~Database()
@@ -156,6 +168,7 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
 
         // set up the progress dialog
         QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
+        progress.setMinimumDuration(400);
         progress.setWindowModality(Qt::WindowModal);
         progress.setCancelButton(0);
 
@@ -187,14 +200,14 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
         idx.fill(char(0x00));
 
         quint64 progressCounter = 0;
-        quint64 one_percent = quint64(size / 100.);
-        quint64 percent_counter = 0;
+        quint64 one_percent = quint64(size / 25.);
+        quint64 stepCounter = 0;
 
         while(!gi.atEnd() && !error) {
 
-            if(percent_counter >= one_percent) {
+            if(stepCounter >= one_percent) {
                 progress.setValue(progressCounter);
-                percent_counter = 0;
+                stepCounter = 0;
             }
 
             if(gi.readRawData(idx.data(), 39) < 0) {
@@ -213,7 +226,7 @@ int chess::Database::loadIndex(QString &filename, QWidget* parent) {
             this->currentSearchIndices->append(entry_i);
 
             progressCounter += 39;
-            percent_counter += 39;
+            stepCounter += 39;
         }
 
         dciFile.close();
@@ -259,7 +272,7 @@ int chess::Database::loadMetaData(QString &filename,
 
         qint64 size = dcxFile.size();
         quint64 progressCounter = 0;
-        quint64 one_percent = quint64(size / 100.);
+        quint64 progressInterval = quint64(size / 100.);
         quint64 percent_counter = 0;
 
         // set up the progress dialog
@@ -269,7 +282,7 @@ int chess::Database::loadMetaData(QString &filename,
 
         while(!stream.atEnd() && !error) {
 
-            if(percent_counter >= one_percent) {
+            if(percent_counter >= progressInterval) {
                 progress.setValue(progressCounter);
                 percent_counter = 0;
             }
@@ -300,11 +313,13 @@ int chess::Database::countGames() {
 }
 
 chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
+
+    global_timer.restart();
     chess::Game* game = new chess::Game();
     QString whiteName = this->offsetNames->value(ie->whiteOffset);
     QString blackName = this->offsetNames->value(ie->blackOffset);
     QString site = this->offsetSites->value(ie->siteRef);
-    qDebug() << "White name: " << whiteName;
+    //qDebug() << "White name: " << whiteName;
     QString event = this->offsetEvents->value(ie->eventRef);
     game->setHeader("White",whiteName);
     game->setHeader("Black", blackName);
@@ -356,7 +371,9 @@ chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
     } else {
         game->setHeader("Round", "?");
     }
-    qDebug() << "header load finished";
+    //qDebug() << "header load finished";
+    this->ns_decode_header += global_timer.nsecsElapsed();
+    global_timer.restart();
     QFile fnGames(this->filenameGames);
     if(fnGames.open(QFile::ReadOnly)) {
         bool ok = fnGames.seek(ie->gameOffset);
@@ -366,6 +383,7 @@ chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
         }
         QDataStream gi(&fnGames);
         int length = this->decodeLength(&gi);
+                //qDebug() << "decoded length: " << length;
         if(length < 0) {
             std::cerr << "length decoding at game offset position failed!" << std::endl;
             return game;
@@ -378,7 +396,10 @@ chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
             std::cerr << "reading game bytes at game offset failed!" << std::endl;
             return game;
         }
+        this->ns_seek += global_timer.nsecsElapsed();
+        global_timer.restart();
         this->dcgdecoder.decodeGame(*game, game_raw);
+        this->ns_decode_game += global_timer.nsecsElapsed();
     }
     return game;
 }
@@ -411,7 +432,9 @@ int chess::Database::decodeLength(QDataStream *stream) {
     }
     if(len1 == 0x81) {
         quint8 len2 = 0;
+
         *stream >> len2;
+        //qDebug() << "len2: (8bit) " << len2;
         if(stream->status() != QDataStream::Ok) {
             return -1;
         } else {
@@ -421,6 +444,7 @@ int chess::Database::decodeLength(QDataStream *stream) {
     if(len1 == 0x82) {
         quint16 len2 = 0;
         *stream >> len2;
+        //qDebug() << "len2: " << len2;
         if(stream->status() != QDataStream::Ok) {
             return -1;
         } else {
@@ -432,6 +456,8 @@ int chess::Database::decodeLength(QDataStream *stream) {
         quint16 len3=0;
         *stream >> len2;
         *stream >> len3;
+        //qDebug() << "len2: " << len2;
+        //qDebug() << "len3: " << len3;
         quint32 ret = 0;
         ret = len2 << 16;
         ret = ret + len3;
@@ -444,6 +470,7 @@ int chess::Database::decodeLength(QDataStream *stream) {
     if(len1 == 0x84) {
         quint32 len = 0;
         *stream >> len;
+        //qDebug() << "len2: (32 bit)" << len;
         if(stream->status() != QDataStream::Ok) {
             return -1;
         } else {
@@ -452,6 +479,61 @@ int chess::Database::decodeLength(QDataStream *stream) {
     }
     return -1;
 }
+
+/*
+int chess::Database::decodeLength(QByteArray &array, int &offset) {
+    if(array.length() - offset < 1) {
+        return -1;
+    }
+    quint8 len1 = array.at(offset);
+    qDebug() << "at decode length, len1: " << len1;
+    if(len1 < 127) {
+        offset += 1;
+        return int(len1);
+    }
+    if(len1 == 0x81) {
+        if(array.length() - offset < 2) {
+            return -1;
+        } else {
+            quint8 len2 = array.at(offset + 1);
+            offset += 2;
+            return int(len2);
+        }
+    }
+    if(len1 == 0x82) {
+        qDebug() << "at case 0x82";
+        if(array.length() - offset < 3) {
+            return -1;
+        } else {
+            quint8 offset1_val = array.at(offset + 1);
+            quint8 offset2_val = array.at(offset + 2);
+            quint16 len3 = offset1_val * 256 + offset2_val;
+            qDebug() << (int) array.at(offset + 1);
+            qDebug() << (int) array.at(offset + 2);
+            qDebug() << "calculated: " << len3;
+            offset += 3;
+            return int(len3);
+        }
+    }
+    if(len1 == 0x83) {
+        if(array.length() - offset < 4) {
+            return -1;
+        } else {
+            quint32 len4 = (array.at(offset + 1)*65535) + (array.at(offset + 2)*256 + array.at(offset + 3));
+            return int(len4);
+        }
+    }
+    if(len1 == 0x84) {
+        if(array.length() - offset < 5) {
+            return -1;
+        } else {
+            quint32 len5 = (array.at(offset + 1)*16776960) + (array.at(offset + 2)*65535) + (array.at(offset + 3)*256 + array.at(offset + 4));
+            return int(len5);
+        }
+    }
+    return -1;
+}
+*/
 
 
 void chess::Database::importPgnAndSave(QString &pgnfile) {
@@ -832,24 +914,35 @@ void chess::Database::importPgnAppendGamesIndices(QString &pgnfile,
 
 void chess::Database::search(SearchPattern &sp, QWidget *parent) {
 
-    qDebug() << "about to clear search index";
+    //qDebug() << "about to clear search index";
 
     this->currentSearchIndices->clear();
-    qDebug() << "size after clear" << this->currentSearchIndices->size();
+    //qDebug() << "size after clear" << this->currentSearchIndices->size();
+    /// TEMP
+    ///
 
     qDebug() << "cleared search index";
 
     // set up a progress dialog
     int size = this->indices->size();
-    QProgressDialog progress("reading index...", "Cancel", 0, size, parent);
 
-    progress.setMinimumDuration(100);
-
+    QProgressDialog progress("searching...", "Cancel", 0, size, parent);
+    progress.setMinimumDuration(400);
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);
 
+    quint64 progressInterval = 100;//quint64(progressSize / 25.);
+    quint64 stepCounter = 0;
+
+
     for(int i=0;i<size;i++) {
-        progress.setValue(i);
+        if(stepCounter >= progressInterval) {
+            progress.setValue(i);
+            stepCounter = 0;
+        }
+        stepCounter += 1;
+
+        //progress.setValue(i);
         //do search here
         if(sp.searchGameData) {
             IndexEntry *ei = this->indices->at(i);
@@ -952,8 +1045,11 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
             }
         }
         if(sp.searchComments) {
+
             IndexEntry *ei = this->indices->at(i);
+            //qDebug() << "CALLING CACHED ENTRY";
             chess::Game *gi = this->getGameFromEntry(ei);
+
             if(sp.mustNotStartInInitial) {
                 if(gi->getRootNode()->getBoard().is_initial_position()) {
                     continue;
@@ -968,18 +1064,30 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                 text2 = sp.comment_text2.simplified().prepend((" ")).append(" ");
             }
             if(!sp.comment_text1.isEmpty()) {
-                if(!(gi->hasCommentSubstring(sp.comment_text1, !sp.caseSensitive))) {
-                    continue;
-                };
+                if(sp.searchVariations) {
+                    if(!(gi->hasCommentSubstring(sp.comment_text1, !sp.caseSensitive))) {
+                        continue;
+                    }
+                } else {
+                    if(!(gi->hasCommentSubstringMainline(sp.comment_text1, !sp.caseSensitive))) {
+                        continue;
+                    }
+                }
             }
             if(!sp.comment_text2.isEmpty()) {
-                if(!(gi->hasCommentSubstring(sp.comment_text2, !sp.caseSensitive))) {
-                    continue;
-                };
+                if(sp.searchVariations) {
+                    if(!(gi->hasCommentSubstring(sp.comment_text2, !sp.caseSensitive))) {
+                        continue;
+                    }
+                }
+                else {
+                    if(!(gi->hasCommentSubstringMainline(sp.comment_text2, !sp.caseSensitive))) {
+                        continue;
+                    }
+                }
             }
             delete gi;
         }
-
         this->currentSearchIndices->append(this->indices->at(i));
     }
 
@@ -991,6 +1099,13 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
     //this->currentSearchIndices[0] = this->indices[0];
     //this->currentSearchIndices->append(this->indices->at(0));
     qDebug() << "set first element of search index";
+
+    //qDebug() << "time for reading/deleting game: " << ns_load;
+    //qDebug() << "time for searching comments   : " << ns_search;
+
+    qDebug() << "time for reading header  : " << this->ns_decode_header;
+    qDebug() << "time for seeking/loading : " << this->ns_seek;
+    qDebug() << "time for decoding in mem : " << this->ns_decode_game;
 
 }
 

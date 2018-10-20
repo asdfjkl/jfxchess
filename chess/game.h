@@ -236,6 +236,8 @@ public:
 
     bool hasCommentSubstring(QString &s, bool caseSensitive);
 
+    bool hasCommentSubstringMainline(QString &s, bool caseSensitive);
+
     /**
      * @brief clearHeaders deletes all headers entries.
      */

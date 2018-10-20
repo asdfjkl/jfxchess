@@ -530,7 +530,7 @@ QChar Board::piece_to_symbol(uint8_t piece) {
 }
 
 Board::Board(const QString &fen_string) {
-qDebug() << "FEN cons";
+    //qDebug() << "FEN cons";
     for(int i=0;i<120;i++) {
         this->board[i] = EMPTY_POS[i];
         this->old_board[i] = 0xFF;
@@ -540,7 +540,7 @@ qDebug() << "FEN cons";
     // if last two parts are missing (fullmove no. + halfmove clock)
     // try to still parse the game
     QStringList fen_parts = fen_string.split(QChar(' '));
-    qDebug() << fen_parts.join(" <> ");
+    //qDebug() << fen_parts.join(" <> ");
     if(fen_parts.size() < 4) {
         throw std::invalid_argument("fen: parts missing 6 fen parts");
     }
@@ -1788,7 +1788,7 @@ Board::Board(const Board &other) {
         board[i] = other.board[i];
         old_board[i] = other.old_board[i];
     }
-    qDebug() << "copy constructor called";
+    //qDebug() << "copy constructor called";
     //qDebug() << "copy constructor called; old board has nr: " << other.fullmove_number;
     //qDebug() << "copy constructor called; new board has nr: " << fullmove_number;
 }

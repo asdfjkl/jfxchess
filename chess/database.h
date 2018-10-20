@@ -10,6 +10,8 @@
 #include "chess/constants.h"
 #include "model/search_pattern.h"
 
+#include <QElapsedTimer>
+
 namespace chess {
 
 class Database
@@ -33,6 +35,7 @@ public:
 
     chess::Game* getGameAt(int i);
     chess::Game* getGameFromEntry(chess::IndexEntry *ie);
+
     int countGames();
     QList<chess::IndexEntry*> *indices;
     QList<chess::IndexEntry*> *currentSearchIndices;
@@ -61,6 +64,9 @@ private:
     QByteArray magicEventString;
     QByteArray version;
 
+    QByteArray cacheData;
+    bool cacheValid;
+
     void writeSites();
     void writeNames();
     void writeIndex();
@@ -84,6 +90,13 @@ private:
     chess::PgnReader pgnreader;
 
     quint64 loadUponOpen;
+
+    QElapsedTimer global_timer;
+    qint64 ns_seek;
+    qint64 ns_decode_header;
+    qint64 ns_decode_length;
+    qint64 ns_decode_game;
+
 };
 
 }

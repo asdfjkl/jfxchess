@@ -108,6 +108,34 @@ bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp, bool caseSensiti
     return false;
 }
 
+bool Game::hasCommentSubstringMainline(QString &s, bool caseSensitive) {
+
+    GameNode* temp = this->getRootNode();
+    if(caseSensitive) {
+        if(temp->getComment().contains(s)) {
+            return true;
+        }
+    } else {
+        if(temp->getComment().contains(s, Qt::CaseInsensitive)) {
+            return true;
+        }
+    }
+    while(temp->variations.count() > 0) {
+        temp = temp->getVariation(0);
+        if(caseSensitive) {
+            if(temp->getComment().contains(s)) {
+                return true;
+            }
+        } else {
+            if(temp->getComment().contains(s, Qt::CaseInsensitive)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
 GameNode* Game::findNodeByIdRec(int id, GameNode *node) {
     if(node->getId() == id) {
         return node;
