@@ -32,9 +32,9 @@ TabSearchPos::TabSearchPos(GameModel* model, QWidget *parent) : QWidget(parent)
     lastMove->setValue(40);
     occursAtLeast->setValue(1);
 
-    chess::Board *board = new chess::Board(true);
+    chess::Board board(model->getGame()->getCurrentNode()->getBoard());
     ColorStyle *cs = model->colorStyle;
-    EnterPosBoard *enterPos = new EnterPosBoard(*cs, board, this, true);
+    this->enterPos = new EnterPosBoard(*cs, board, this, true);
 
     this->buttonInit = new QPushButton(tr("Initial Position"));
     this->buttonClear = new QPushButton(tr("Clear Board"));
@@ -63,5 +63,9 @@ TabSearchPos::TabSearchPos(GameModel* model, QWidget *parent) : QWidget(parent)
     this->setLayout(hbox);
 
 
+}
+
+chess::Board TabSearchPos::getBoard() {
+    return this->enterPos->getCurrentBoard();
 }
 

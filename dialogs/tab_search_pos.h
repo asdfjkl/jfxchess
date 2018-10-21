@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include "model/game_model.h"
+#include "viewController/enterposboard.h"
 
 class TabSearchPos : public QWidget
 {
@@ -19,6 +20,12 @@ public:
     QPushButton *buttonInit;
     QPushButton *buttonClear;
     QPushButton *buttonCurrent;
+
+    chess::Board getBoard();
+
+private:
+    EnterPosBoard *enterPos;
+    chess::Board board;
 
 signals:
 

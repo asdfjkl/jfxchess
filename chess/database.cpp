@@ -934,6 +934,8 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
     quint64 progressInterval = 100;//quint64(progressSize / 25.);
     quint64 stepCounter = 0;
 
+    std::cout << "looking at: ";
+    std::cout << sp.search_board << std::endl;
 
     for(int i=0;i<size;i++) {
         if(stepCounter >= progressInterval) {
@@ -1033,6 +1035,7 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                     continue;
                 }
             }
+            // this should be in index!!!
             if(sp.checkMoves) {
                 chess::Game *gi = this->getGameFromEntry(ei);
                 int halfmoves = gi->countHalfmoves();
@@ -1044,6 +1047,8 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                 }
             }
         }
+        /* too slow without specific index
+         * disabled for now
         if(sp.searchComments) {
 
             IndexEntry *ei = this->indices->at(i);
@@ -1085,6 +1090,17 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
                         continue;
                     }
                 }
+            }
+            delete gi;
+        } */
+        if(sp.searchPosition) {
+
+            IndexEntry *ei = this->indices->at(i);
+            chess::Game *gi = this->getGameFromEntry(ei);
+
+            if(!sp.isInGame(gi)) {
+                delete gi;
+                continue;
             }
             delete gi;
         }

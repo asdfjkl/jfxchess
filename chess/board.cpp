@@ -298,7 +298,7 @@ quint64 POLYGLOT_RANDOM_64[781] = {
   Q_UINT64_C(0xF8D626AAAF278509)
 };
 
-const int RANDOM_PIECE = 0;
+//const int RANDOM_PIECE = 0xFE;
 const int RANDOM_CASTLE = 768;
 const int RANDOM_EN_PASSENT = 772;
 const int RANDOM_TURN = 780;
@@ -1499,7 +1499,7 @@ uint8_t Board::piece_type(uint8_t idx) {
     return static_cast<uint8_t>(piece.to_ulong());
 }
 
-uint8_t Board::piece_at(uint8_t idx) {
+uint8_t Board::piece_at(uint8_t idx) const {
     if(idx >= 21 && idx <= 98) {
         return this->board[idx];
     } else {

@@ -129,5 +129,7 @@ qDebug() << "OK";
     sp.searchPosition = this->optPosition->isChecked();
     sp.searchVariations = this->optVariants->isChecked();
 
+    sp.search_board = this->tsp->getBoard();
+
     return sp;
 }

@@ -83,6 +83,7 @@ QStringList Game::getTags() {
     return tags;
 }
 
+/*
 bool Game::hasCommentSubstring(QString &s, bool caseSensitive) {
     GameNode *root = this->getRootNode();
     return this->hasCommentSubstringBelow(s, root, caseSensitive);
@@ -107,7 +108,9 @@ bool Game::hasCommentSubstringBelow(QString &s, GameNode* temp, bool caseSensiti
     }
     return false;
 }
+*/
 
+/*
 bool Game::hasCommentSubstringMainline(QString &s, bool caseSensitive) {
 
     GameNode* temp = this->getRootNode();
@@ -134,6 +137,7 @@ bool Game::hasCommentSubstringMainline(QString &s, bool caseSensitive) {
     }
     return false;
 }
+*/
 
 
 GameNode* Game::findNodeByIdRec(int id, GameNode *node) {

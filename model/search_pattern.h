@@ -3,6 +3,8 @@
 
 #include <QString>
 #include "chess/board.h"
+#include "chess/game.h"
+#include "chess/game_node.h"
 
 const int SEARCH_IGNORE_ELO = 0;
 const int SEARCH_ONE_ELO = 1;
@@ -45,6 +47,12 @@ public:
     bool caseSensitive;
 
     chess::Board search_board;
+
+    bool isInGame(chess::Game *g);
+
+private:
+    bool isInGameRec(chess::GameNode *node);
+    bool compareToPattern(const chess::Board &board);
 
 };
 
