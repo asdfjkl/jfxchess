@@ -10,47 +10,28 @@
 TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
 {
     QFontMetrics f = this->fontMetrics();
-    int len_surname = f.width(this->tr("abcdefghjlmnopqrstuvw"));
-    int len_firstname = f.width(this->tr("abcdefghijklmnop"));
+    int len_name = f.width(this->tr("abcdefghjlmnopqrstuvw"));
     int len_vertical_space = f.height();
     int len_year = f.width("2222")*2;
     int len_eco = f.width("EEE")*2;
     int len_moves = f.width("99")*3;
     int len_space = f.width("  ");
 
-    QLabel *nameWhite = new QLabel(tr("White:"), this);
-    this->whiteSurname = new QLineEdit(this);
-    this->whiteFirstname = new QLineEdit(this);
-    QLabel* colonWhite = new QLabel(",", this);
-    QHBoxLayout *layoutWhiteName = new QHBoxLayout();
-    whiteFirstname->setFixedWidth(len_firstname);
-    whiteSurname->setFixedWidth(len_surname);
-    layoutWhiteName->addWidget(whiteSurname);
-    layoutWhiteName->addWidget(colonWhite);
-    layoutWhiteName->addWidget(whiteFirstname);
-    layoutWhiteName->addStretch(1);
-    nameWhite->setBuddy(whiteSurname);
-    colonWhite->setBuddy(whiteFirstname);
+    QLabel *lblWhiteName = new QLabel(tr("White:"), this);
+    this->whiteName = new QLineEdit(this);
+    lblWhiteName->setBuddy(whiteName);
+    whiteName->setFixedWidth(len_name);
 
-    QLabel* nameBlack = new QLabel(tr("Black:"), this);
-    this->blackSurname = new QLineEdit(this);
-    this->blackFirstname = new QLineEdit(this);
-    QLabel* colonBlack = new QLabel(",", this);
-    QHBoxLayout *layoutBlackName = new QHBoxLayout();
-    blackFirstname->setFixedWidth(len_firstname);
-    blackSurname->setFixedWidth(len_surname);
-    layoutBlackName->addWidget(blackSurname);
-    layoutBlackName->addWidget(colonBlack);
-    layoutBlackName->addWidget(blackFirstname);
-    layoutBlackName->addStretch(1);
-    nameBlack->setBuddy(blackSurname);
-    colonBlack->setBuddy(blackFirstname);
+    QLabel *lblBlackName = new QLabel(tr("Black:"), this);
+    this->blackName = new QLineEdit(this);
+    lblBlackName->setBuddy(blackName);
+    blackName->setFixedWidth(len_name);
 
     this->cbIgnoreColors = new QCheckBox(tr("Ignore Colors"), this);
 
     QFormLayout *layoutNames = new QFormLayout();
-    layoutNames->addRow(nameWhite, layoutWhiteName);
-    layoutNames->addRow(nameBlack, layoutBlackName);
+    layoutNames->addRow(lblWhiteName, whiteName);
+    layoutNames->addRow(lblBlackName, blackName);
     layoutNames->addRow(new QLabel(""), cbIgnoreColors);
 
     QFormLayout *layoutNameSite = new QFormLayout();
@@ -58,12 +39,12 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     QLabel *lblEvent = new QLabel(tr("Event:"), this);
     this->event = new QLineEdit(this);
     lblEvent->setBuddy(event);
-    event->setFixedWidth(len_surname);
+    event->setFixedWidth(len_name);
 
     QLabel *lblSite = new QLabel(tr("Site:"));
     this->site = new QLineEdit(this);
     lblSite->setBuddy(site);
-    site->setFixedWidth(len_surname);
+    site->setFixedWidth(len_name);
 
     layoutNameSite->addRow(lblEvent, event);
     layoutNameSite->addRow(lblSite, site);

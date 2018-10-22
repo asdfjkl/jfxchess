@@ -1499,7 +1499,7 @@ uint8_t Board::piece_type(uint8_t idx) {
     return static_cast<uint8_t>(piece.to_ulong());
 }
 
-uint8_t Board::piece_at(uint8_t idx) const {
+uint8_t Board::piece_at(uint8_t idx) {
     if(idx >= 21 && idx <= 98) {
         return this->board[idx];
     } else {

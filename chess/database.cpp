@@ -407,11 +407,11 @@ chess::Game* chess::Database::getGameFromEntry(chess::IndexEntry *ie) {
 chess::Game* chess::Database::getGameAt(int i) {
 
     qDebug() << "get game at called with: " << i;
-    if(i >= this->indices->size()) {
+    if(i >= this->currentSearchIndices->size()) {
         qDebug() << "game not found, index mismatch";
         return nullptr; // maybe throw out of range error or something instead of silently failing
     }
-    chess::IndexEntry *ie = this->indices->at(i);
+    chess::IndexEntry *ie = this->currentSearchIndices->at(i);
     if(ie->deleted) {
         // todo: jump to next valid entry
     }
@@ -916,6 +916,9 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
 
     //qDebug() << "about to clear search index";
 
+    int temp_idx = this->currentOpenGameIdx;
+    this->currentOpenGameIdx = 0;
+
     this->currentSearchIndices->clear();
     //qDebug() << "size after clear" << this->currentSearchIndices->size();
     /// TEMP
@@ -950,7 +953,9 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
             IndexEntry *ei = this->indices->at(i);
             if(!sp.ignoreNameColor) { // look for player names
                 if(!sp.whiteName.isEmpty()) {
+                    qDebug() << sp.whiteName;
                     QString eiWhiteName = this->offsetNames->value(ei->whiteOffset);
+                    qDebug() << eiWhiteName;
                     if(!eiWhiteName.contains(sp.whiteName, Qt::CaseInsensitive)) {
                         continue;
                     }
@@ -1097,6 +1102,7 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
 
             IndexEntry *ei = this->indices->at(i);
             chess::Game *gi = this->getGameFromEntry(ei);
+            qDebug() << "looking at: " << gi->getHeader("White");
 
             if(!sp.isInGame(gi)) {
                 delete gi;
@@ -1105,6 +1111,9 @@ void chess::Database::search(SearchPattern &sp, QWidget *parent) {
             delete gi;
         }
         this->currentSearchIndices->append(this->indices->at(i));
+        if(i == temp_idx) {
+            this->currentOpenGameIdx = temp_idx;
+        }
     }
 
 

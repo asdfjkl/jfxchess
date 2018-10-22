@@ -52,7 +52,7 @@ public:
 
 private:
     bool isInGameRec(chess::GameNode *node);
-    bool compareToPattern(const chess::Board &board);
+    bool compareToPattern(chess::Board &board);
 
 };
 

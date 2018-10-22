@@ -539,7 +539,7 @@ public:
      * @param idx internal board encoding specifying field position
      * @return piece in internal format (i.e. 0x00 ... 0x06 and 0x81 ... 0x86
      */
-    uint8_t piece_at(uint8_t idx) const;
+    uint8_t piece_at(uint8_t idx);
 
     /**
      * @brief piece_type see piece_color and get_piece_type_at()

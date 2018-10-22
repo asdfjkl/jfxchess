@@ -13,11 +13,8 @@ class TabHeaderSearch : public QWidget
 public:
     explicit TabHeaderSearch(QWidget *parent = 0);
 
-    QLineEdit* whiteSurname;
-    QLineEdit* whiteFirstname;
-
-    QLineEdit* blackSurname;
-    QLineEdit* blackFirstname;
+    QLineEdit* whiteName;
+    QLineEdit* blackName;
 
     QCheckBox *cbIgnoreColors;
 

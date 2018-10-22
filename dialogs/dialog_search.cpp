@@ -66,8 +66,8 @@ SearchPattern DialogSearch::getPattern() {
     qDebug() << "names";
 
     // game data search
-    sp.whiteName = this->ths->whiteSurname->text().append(", ").append(this->ths->whiteFirstname->text());
-    sp.blackName = this->ths->blackSurname->text().append(", ").append(this->ths->blackFirstname->text());
+    sp.whiteName = this->ths->whiteName->text();
+    sp.blackName = this->ths->blackName->text();
 
     qDebug() << "ignore colors: " << this->ths->cbIgnoreColors->isChecked();
     sp.ignoreNameColor = this->ths->cbIgnoreColors->isChecked();

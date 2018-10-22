@@ -45,7 +45,8 @@ bool SearchPattern::isInGame(chess::Game *g) {
         chess::GameNode *end = g->getEndNode();
         chess::GameNode *temp = g->getRootNode();
         while(temp != end) {
-            if(this->compareToPattern(temp->getBoard())) {
+            chess::Board b_temp = temp->getBoard();
+            if(this->compareToPattern(b_temp)) {
                 return true;
             }
             temp = temp->getVariation(0);
@@ -60,7 +61,8 @@ bool SearchPattern::isInGame(chess::Game *g) {
 
 bool SearchPattern::isInGameRec(chess::GameNode *node) {
 
-    if(this->compareToPattern(node->getBoard())) {
+    chess::Board b_node = node->getBoard();
+    if(this->compareToPattern(b_node)) {
         return true;
     } else {
         for(int i=0;i<node->getVariations().size();i++) {
@@ -73,14 +75,15 @@ bool SearchPattern::isInGameRec(chess::GameNode *node) {
     }
 }
 
-bool SearchPattern::compareToPattern(const chess::Board &board) {
+bool SearchPattern::compareToPattern(chess::Board &board) {
 
     for(uint8_t i=21;i<=98;i++) {
-        uint8_t sp_i = search_board.piece_at(i);
+        uint8_t sp_i = this->search_board.piece_at(i);
         uint8_t bp_i = board.piece_at(i);
         if(sp_i == bp_i) {
             continue;
         } else {
+            /*
             if(sp_i == chess::ANY_PIECE) {
                 if(bp_i == chess::EMPTY) {
                     return false;
@@ -101,7 +104,7 @@ bool SearchPattern::compareToPattern(const chess::Board &board) {
                 } else {
                     return false;
                 }
-            }
+            }*/
             return false;
         }
     }
