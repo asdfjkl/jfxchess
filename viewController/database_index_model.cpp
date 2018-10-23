@@ -32,14 +32,16 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::TextAlignmentRole) {
-        int column = index.column();
+        //int column = index.column();
+        /*
         if(column == 0 || column == 1 || column == 2) {
             return int(Qt::AlignLeft | Qt::AlignVCenter);
         }
         if(column == 3 || column == 4 || column == 5) {
             return int(Qt::AlignCenter | Qt::AlignVCenter);
-        }
-        return int(Qt::AlignRight | Qt::AlignVCenter);
+        }*/
+        // just always align left (same as header)
+        return int(Qt::AlignLeft | Qt::AlignVCenter);
     } else if (role == Qt::DisplayRole) {
         int row = index.row();
         chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);

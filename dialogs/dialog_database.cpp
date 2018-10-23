@@ -118,6 +118,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     //this->tableView->verticalHeader()->hide();
     this->tableView->setShowGrid(false);
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->tableView->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 
     // set index to currently open game
     // if a game is currently opened
@@ -129,7 +130,8 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     }
 
     tableView->setWindowTitle(QObject::tr("Games"));
-    tableView->resizeColumnsToContents();
+    //tableView->resizeColumnsToContents();  //don't resize, instead set to stretch (see above)
+    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     tableView->show();
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
@@ -208,7 +210,7 @@ void DialogDatabase::onClickSearch() {
         this->indexModel->setDatabase(this->gameModel->database);
         this->indexModel->layoutChanged();
 
-        this->tableView->resizeColumnsToContents();
+        //this->tableView->resizeColumnsToContents();
         if(this->gameModel->database->countGames() > 0) {
             this->tableView->selectRow(0);
         }
