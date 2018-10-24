@@ -122,12 +122,13 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     // set index to currently open game
     // if a game is currently opened
+    /*
     int idx = this->gameModel->database->currentOpenGameIdx;
     if(idx > 0) {
         this->tableView->selectRow(idx);
     } else {
         this->tableView->selectRow(0);
-    }
+    }*/
 
     tableView->setWindowTitle(QObject::tr("Games"));
     //tableView->resizeColumnsToContents();  //don't resize, instead set to stretch (see above)
@@ -201,11 +202,11 @@ void DialogDatabase::onClickSearch() {
         qDebug() << "about to get pattern";
         SearchPattern sp = dlg->getPattern();
         qDebug() << "got pattern";
-        this->gameModel->database->search(sp, this);
+        this->gameModel->database->search(sp);
 
         qDebug() << "search finished";
 
-        qDebug() << "size: " << this->gameModel->database->currentSearchIndices->size();
+        //qDebug() << "size: " << this->gameModel->database->currentSearchIndices->size();
 
         this->indexModel->setDatabase(this->gameModel->database);
         this->indexModel->layoutChanged();

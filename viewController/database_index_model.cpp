@@ -1,5 +1,6 @@
 #include "database_index_model.h"
 #include "chess/game.h"
+#include "chess/database_row_info.h"
 #include <QFont>
 #include <QDebug>
 
@@ -18,7 +19,8 @@ int DatabaseIndexModel::rowCount(const QModelIndex & /* parent */) const
 {
 
     //qDebug() << "ROW COUNT: " << this->database->currentSearchIndices->count();
-    return this->database->currentSearchIndices->count();
+    //return this->database->currentSearchIndices->count();
+    return this->database->getRowCount();
 }
 
 int DatabaseIndexModel::columnCount(const QModelIndex & /* parent */) const
@@ -44,47 +46,48 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         return int(Qt::AlignLeft | Qt::AlignVCenter);
     } else if (role == Qt::DisplayRole) {
         int row = index.row();
-        chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
+        chess::DatabaseRowInfo rowInfo = this->database->getRowInfo(row);
+        //chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
 
         int column = index.column();
 
         // todo: depending on column return correct result
         // White (ELO) | Black (Elo) | Event (Round) | Eco | Year | Result
         if(column == 0) {
-            QString whiteName = this->database->offsetNames->value(entry_row->whiteOffset);
-            QString tableEntry = QString(whiteName);
-            if(entry_row->eloWhite > 0) {
-                tableEntry.append(" (").append(QString::number(entry_row->eloWhite)).append(")");
+            //QString whiteName = this->database->offsetNames->value(entry_row->whiteOffset);
+            QString tableEntry = QString(rowInfo.whiteName);
+            if(rowInfo.whiteElo != "0") {
+                tableEntry.append(" (").append(rowInfo.whiteElo).append(")");
             }
             return tableEntry;
         }
         if(column == 1) {
-            QString blackName = this->database->offsetNames->value(entry_row->blackOffset);
-            QString tableEntry = QString(blackName);
-            if(entry_row->eloBlack > 0) {
-                tableEntry.append(" (").append(QString::number(entry_row->eloBlack)).append(")");
+            QString tableEntry = QString(rowInfo.blackName);
+            if(rowInfo.blackElo != "0") {
+                tableEntry.append(" (").append(rowInfo.blackElo).append(")");
             }
             return tableEntry;
         }
         if(column == 2) {
-            QString event = this->database->offsetEvents->value(entry_row->eventRef);
-            QString tableEntry = QString(event);
-            if(entry_row->round > 0) {
-                tableEntry.append(" (Round ").append(QString::number(entry_row->round)).append(")");
+            QString tableEntry = QString(rowInfo.event);
+            if(rowInfo.round != "0") {
+                tableEntry.append(" (Round ").append(rowInfo.round).append(")");
             }
             return tableEntry;
         }
         if(column == 3) {
-            return entry_row->eco;
+            return rowInfo.eco;
         }
         if(column == 4) {
-            if(entry_row->year != 0) {
-                return QString::number(entry_row->year);
+            if(rowInfo.year != "0") {
+                return rowInfo.year;
             } else {
                 return QString("");
             }
         }
         if(column == 5) {
+            return rowInfo.result;
+                    /*
             QString result("");
             if(entry_row->result == chess::RES_WHITE_WINS) {
                 result.append("1-0");
@@ -95,12 +98,12 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
             } else {
                 result.append("*");
             }
-            return result;
+            return result;*/
         }
     } else if(role == Qt::FontRole) {
         int row = index.row();
-        chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
-        if(entry_row->deleted) {
+        chess::DatabaseRowInfo rowInfo = this->database->getRowInfo(row);
+        if(rowInfo.isDeleted) {
             QFont defaultFont;
             defaultFont.setStrikeOut(true);
             defaultFont.setItalic(true);

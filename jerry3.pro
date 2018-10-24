@@ -79,7 +79,9 @@ SOURCES += main.cpp \
     dialogs/tab_comment_search.cpp \
     dialogs/tab_search_pos.cpp \
     model/search_pattern.cpp \
-    viewController/database_index_model.cpp
+    viewController/database_index_model.cpp \
+    chess/dci_database.cpp \
+    chess/database_row_info.cpp
 
 HEADERS += \
     chess/board.h \
@@ -142,4 +144,6 @@ HEADERS += \
     viewController/database_index_model.h \
     chess/constants.h \
     chess/arrow.h \
-    chess/colored_field.h
+    chess/colored_field.h \
+    chess/dci_database.h \
+    chess/database_row_info.h

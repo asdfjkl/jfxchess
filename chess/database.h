@@ -1,104 +1,35 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <QString>
-#include "chess/pgn_reader.h"
-#include "chess/dcgencoder.h"
-#include "chess/dcgdecoder.h"
-#include "chess/indexentry.h"
+#include <QVector>
+#include "chess/database_row_info.h"
 #include "chess/game.h"
-#include "chess/constants.h"
 #include "model/search_pattern.h"
-
-#include <QElapsedTimer>
 
 namespace chess {
 
 class Database
 {
 public:
-    Database(QString &filename);
-    ~Database();
 
-    void open(QWidget* parent);
 
-    void reset();
-
-    void importPgnAndSave(QString &pgnfile);
-    void saveToFile();
-
-    int loadIndex(QString &filename, QWidget* parent = 0);
-    int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
-                     QByteArray &magicIndexString, QWidget* parent=0);
-
-    void search(SearchPattern &sp, QWidget* parent=nullptr);
-
-    chess::Game* getGameAt(int i);
-    chess::Game* getGameFromEntry(chess::IndexEntry *ie);
-
-    int countGames();
-    QList<chess::IndexEntry*> *indices;
-    QList<chess::IndexEntry*> *currentSearchIndices;
-
-    void updateBaseName(QString &basename);
-
-    QMap<quint32, QString> *offsetNames;
-    QMap<quint32, QString> *offsetSites;
-    QMap<quint32, QString> *offsetEvents;
-
-    QString lastOpenDir;
-    int currentOpenGameIdx;
-    QString filenameIndex;
-
-private:
-    // filename is only the base, always append *.dcs, *.dcn, *.dcg, *.dci
-    QString filenameBase;
-    QString filenameNames;
-    QString filenameSites;
-    QString filenameEvents;
-    QString filenameGames;
-    QByteArray magicNameString;
-    QByteArray magicIndexString;
-    QByteArray magicGamesString;
-    QByteArray magicSitesString;
-    QByteArray magicEventString;
-    QByteArray version;
-
-    QByteArray cacheData;
-    bool cacheValid;
-
-    void writeSites();
-    void writeNames();
-    void writeIndex();
-    void writeGames();
-    // scans all headers in pgn file and reads names and sites into passed maps
-    void importPgnNamesSitesEvents(QString &pgnfile,
-                                   QMap<QString, quint32> *names,
-                                   QMap<QString, quint32> *sites,
-                                   QMap<QString, quint32> *events);
-    void importPgnAppendNames(QMap<QString, quint32> *names);
-    void importPgnAppendSites(QMap<QString, quint32> *sites);
-    void importPgnAppendEvents(QMap<QString, quint32> *events);
-    void importPgnAppendGamesIndices(QString &pgnfile,
-                                     QMap<QString, quint32> *names,
-                                     QMap<QString, quint32> *sites,
-                                     QMap<QString, quint32> *events);
-
-    int decodeLength(QDataStream *stream);
-    chess::DcgEncoder dcgencoder;
-    chess::DcgDecoder dcgdecoder;
-    chess::PgnReader pgnreader;
-
-    quint64 loadUponOpen;
-
-    QElapsedTimer global_timer;
-    qint64 ns_seek;
-    qint64 ns_decode_header;
-    qint64 ns_decode_length;
-    qint64 ns_decode_game;
+    virtual void setParentWidget(QWidget *parentWidget) = 0;
+    virtual void open(QString &filename) = 0;
+    virtual void close() = 0;
+    virtual void exportDB(QString &outFilename, QVector<int> &indices, int outType) = 0;
+    virtual void search(SearchPattern &sp) = 0;
+    // next functions are w.r.t. the current active index
+    virtual int getRowCount() = 0;
+    virtual Game* getGameAt(int idx) = 0;
+    virtual DatabaseRowInfo getRowInfo(int idx) = 0;
+    virtual int countGames();
+    // absolute index: idx is a value from all database entries
+    // including currently non-displayed games
+    virtual Game* getGameAtAbsoluteIndex(int idx) = 0;
 
 };
 
 }
+
 
 #endif // DATABASE_H
