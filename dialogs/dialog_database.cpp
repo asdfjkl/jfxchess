@@ -12,6 +12,7 @@
 #include "various/helper.h"
 #include "dialogs/dialog_search.h"
 #include "viewController/database_index_model.h"
+#include <QFileDialog>
 #include <QDebug>
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
@@ -222,15 +223,29 @@ void DialogDatabase::onClickSearch() {
 
 void DialogDatabase::onClickOpen() {
 
-    this->gameModel->database->open(this);
-
-    this->indexModel->setDatabase(this->gameModel->database);
-    this->indexModel->layoutChanged();
-    this->tableView->resizeColumnsToContents();
-    if(this->gameModel->database->countGames() > 0) {
-        this->tableView->selectRow(0);
+    QString filename = QFileDialog::getOpenFileName(this,
+                                      QApplication::tr("Open Database"),
+                                      this->gameModel->lastOpenDir,
+                                      QApplication::tr("*.dci,*.png"));
+    if(!filename.isNull()) {
+        // todo: mor thoroughly check file type
+        // i.e. look for magic bytes instead of
+        // just relying on filename ending
+        if(filename.endsWith(".dci")) {
+            this->gameModel->dciDatabase.reset();
+            this->gameModel->dciDatabase.open(filename);
+            this->indexModel->setDatabase(this->gameModel->dciDatabase);
+            this->indexModel->layoutChanged();
+            this->tableView->resizeColumnsToContents();
+            if(this->gameModel->database->countGames() > 0) {
+                this->tableView->selectRow(0);
+            }
+            this->setWindowTitle(this->gameModel->database->getFilename());
+        }
     }
-    this->setWindowTitle(this->gameModel->database->filenameIndex);
+
+    //this->gameModel->database->open(this);
+
 
 }
 

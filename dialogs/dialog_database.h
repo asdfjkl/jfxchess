@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QTableWidget>
+#include "chess/dci_database.h"
 #include "model/game_model.h"
 #include "viewController/database_index_model.h"
 

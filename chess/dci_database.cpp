@@ -14,19 +14,16 @@
 #include <QDir>
 #include <QApplication>
 #include "various/messagebox.h"
+#include "chess/database_row_info.h"
 
 #include <QElapsedTimer>
 
 #include <ctime>
 
-chess::DCIDatabase::DCIDatabase(QString &filename)
+chess::DCIDatabase::DCIDatabase(QWidget *parent)
 {
-    this->filenameBase = filename;
-    this->filenameGames = QString(filename).append(".dcg");
-    this->filenameIndex = QString(filename).append(".dci");
-    this->filenameNames = QString(filename).append(".dcn");
-    this->filenameSites = QString(filename).append(".dcs");
-    this->filenameEvents = QString(filename).append(".dce");
+    this->parentWidget = parent;
+
     this->magicNameString = QByteArrayLiteral("\x53\x69\x6d\x70\x6c\x65\x43\x44\x62\x6e");
     this->magicIndexString = QByteArrayLiteral("\x53\x69\x6d\x70\x6c\x65\x43\x44\x62\x69");
     this->magicGamesString = QByteArrayLiteral("\x53\x69\x6d\x70\x6c\x65\x43\x44\x62\x67");
@@ -96,48 +93,48 @@ void chess::DCIDatabase::reset() {
     this->loadUponOpen = 0;
 }
 
-void chess::DCIDatabase::open(QWidget* parent = 0) {
+void chess::DCIDatabase::open(QString &filenameIndex) {
 
-    QString filename = QFileDialog::getOpenFileName(parent,
-                          QApplication::tr("Open Database"), this->lastOpenDir, QApplication::tr("*.dci"));
-    if(!filename.isEmpty() && filename.endsWith(".dci")) {
-
-        QString base = QString(filename).left(filename.size()-4);
-        this->updateBaseName(base);
+        this->filenameBase = QString(filenameIndex).left(filenameIndex.size()-4);
+        this->filenameGames = QString(filenameBase).append(".dcg");
+        this->filenameIndex = QString(filenameIndex);
+        this->filenameNames = QString(filenameBase).append(".dcn");
+        this->filenameSites = QString(filenameBase).append(".dcs");
+        this->filenameEvents = QString(filenameBase).append(".dce");
 
         QDir dir = QDir::root();
-        QString path = dir.absoluteFilePath(filename);
+        QString path = dir.absoluteFilePath(filenameIndex);
 
         this->lastOpenDir = QString(path);
 
         int err = 0;
-        err = this->loadIndex(path, parent);
+        err = this->loadIndex(path, this->parentWidget);
         if(err != 0) {
             this->reset();
-            MessageBox *msg = new MessageBox(parent);
+            MessageBox *msg = new MessageBox(this->parentWidget);
             msg->showMessage("Error opening .dci", QString("Code: ").append(QString::number(err)));
         }
-        err = this->loadMetaData(this->filenameNames, this->offsetNames, this->magicNameString, parent);
+        err = this->loadMetaData(this->filenameNames, this->offsetNames, this->magicNameString, this->parentWidget);
         qDebug() << "error code of load data names" << err;
         if(err != 0) {
             this->reset();
-            MessageBox *msg = new MessageBox(parent);
+            MessageBox *msg = new MessageBox(this->parentWidget);
             msg->showMessage("Error opening .dcn", QString("Code: ").append(QString::number(err)));
         }
-        err = this->loadMetaData(this->filenameEvents, this->offsetEvents, this->magicEventString, parent);
+        err = this->loadMetaData(this->filenameEvents, this->offsetEvents, this->magicEventString, this->parentWidget);
         if(err != 0) {
             this->reset();
-            MessageBox *msg = new MessageBox(parent);
+            MessageBox *msg = new MessageBox(this->parentWidget);
             msg->showMessage("Error opening .dce", QString("Code: ").append(QString::number(err)));
         }
-        err = this->loadMetaData(this->filenameSites, this->offsetSites, this->magicSitesString, parent);
+        err = this->loadMetaData(this->filenameSites, this->offsetSites, this->magicSitesString, this->parentWidget);
         if(err != 0) {
             this->reset();
-            MessageBox *msg = new MessageBox(parent);
+            MessageBox *msg = new MessageBox(this->parentWidget);
             msg->showMessage("Error opening .dcs", QString("Code: ").append(QString::number(err)));
         }
-    }
 }
+
 
 void chess::DCIDatabase::updateBaseName(QString &basename) {
 
@@ -420,7 +417,7 @@ chess::Game* chess::DCIDatabase::getGameAt(int i) {
     return gameAtI;
 }
 
-int chess::Database::decodeLength(QDataStream *stream) {
+int chess::DCIDatabase::decodeLength(QDataStream *stream) {
     quint8 len1 = 0;
     *stream >> len1;
     if(stream->status() != QDataStream::Ok) {
@@ -679,7 +676,7 @@ void chess::DCIDatabase::importPgnAppendNames(QMap<QString, quint32> *names) {
 
 // save the map at the _end_ of file with filename (i.e. apend new names or sites)
 // update the offset while saving
-void chess::Database::importPgnAppendSites(QMap<QString, quint32> *sites) {
+void chess::DCIDatabase::importPgnAppendSites(QMap<QString, quint32> *sites) {
     QFile fnSites(this->filenameSites);
     if(fnSites.open(QFile::Append)) {
         if(fnSites.pos() == 0) {
@@ -912,7 +909,59 @@ void chess::DCIDatabase::importPgnAppendGamesIndices(QString &pgnfile,
     fnIndex.close();
 }
 
-void chess::DCIDatabase::search(SearchPattern &sp, QWidget *parent) {
+void chess::DCIDatabase::setParentWidget(QWidget *parentWidget) {
+    this->parentWidget = parentWidget;
+}
+
+void chess::DCIDatabase::close() {
+
+}
+
+void chess::DCIDatabase::exportDB(QString &outFilename, QVector<int> &indices, int outType) {
+
+}
+
+QString chess::DCIDatabase::getFilename() {
+    return this->filenameIndex;
+}
+
+int chess::DCIDatabase::getRowCount() {
+
+    return this->currentSearchIndices->count();
+}
+
+chess::DatabaseRowInfo chess::DCIDatabase::getRowInfo(int idx) {
+
+    DatabaseRowInfo rowInfo;
+    chess::IndexEntry *entry_row = this->currentSearchIndices->at(idx);
+
+    rowInfo.whiteName = this->offsetNames->value(entry_row->whiteOffset);
+    rowInfo.blackName = this->offsetNames->value(entry_row->blackOffset);
+    rowInfo.whiteElo = QString::number(entry_row->eloWhite);
+    rowInfo.blackElo = QString::number(entry_row->eloBlack);
+    rowInfo.event = this->offsetEvents->value(entry_row->eventRef);
+    rowInfo.round = QString::number(entry_row->round);
+    rowInfo.year = QString::number(entry_row->year);
+    QString result("");
+    if(entry_row->result == chess::RES_WHITE_WINS) {
+        result.append("1-0");
+    } else if(entry_row->result == chess::RES_BLACK_WINS) {
+        result.append("0-1");
+    } else if(entry_row->result == chess::RES_DRAW) {
+        result.append("1/2-1/2");
+    } else {
+        result.append("*");
+    }
+    rowInfo.result = result;
+    return rowInfo;
+}
+
+chess::Game* chess::DCIDatabase::getGameAtAbsoluteIndex(int idx) {
+    return new chess::Game();
+}
+
+
+void chess::DCIDatabase::search(SearchPattern &sp) {
 
     //qDebug() << "about to clear search index";
 
@@ -929,7 +978,7 @@ void chess::DCIDatabase::search(SearchPattern &sp, QWidget *parent) {
     // set up a progress dialog
     int size = this->indices->size();
 
-    QProgressDialog progress("searching...", "Cancel", 0, size, parent);
+    QProgressDialog progress("searching...", "Cancel", 0, size, this->parentWidget);
     progress.setMinimumDuration(400);
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);

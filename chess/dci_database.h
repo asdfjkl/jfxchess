@@ -19,10 +19,21 @@ namespace chess {
 class DCIDatabase : public Database
 {
 public:
-    DCIDatabase(QString &filename);
+    DCIDatabase(QWidget* parent);
     ~DCIDatabase();
 
-    void open(QWidget* parent);
+    void open(QString &filename);
+    void search(SearchPattern &sp);
+    int countGames();
+
+    void setParentWidget(QWidget *parentWidget) = 0;
+    void close() = 0;
+    void exportDB(QString &outFilename, QVector<int> &indices, int outType) = 0;
+    QString getFilename();
+    // next functions are w.r.t. the current active index
+    int getRowCount() = 0;
+    DatabaseRowInfo getRowInfo(int idx) = 0;
+    Game* getGameAtAbsoluteIndex(int idx) = 0;
 
     void reset();
 
@@ -33,12 +44,10 @@ public:
     int loadMetaData(QString &filename, QMap<quint32, QString> *offsetTextdata,
                      QByteArray &magicIndexString, QWidget* parent=0);
 
-    void search(SearchPattern &sp, QWidget* parent=nullptr);
 
     chess::Game* getGameAt(int i);
     chess::Game* getGameFromEntry(chess::IndexEntry *ie);
 
-    int countGames();
     QList<chess::IndexEntry*> *indices;
     QList<chess::IndexEntry*> *currentSearchIndices;
 
@@ -52,7 +61,11 @@ public:
     int currentOpenGameIdx;
     QString filenameIndex;
 
+
 private:
+    // to properly display progress dialogs
+    QWidget *parentWidget;
+
     // filename is only the base, always append *.dcs, *.dcn, *.dcg, *.dci
     QString filenameBase;
     QString filenameNames;

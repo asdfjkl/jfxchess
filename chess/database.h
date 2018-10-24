@@ -18,6 +18,7 @@ public:
     virtual void close() = 0;
     virtual void exportDB(QString &outFilename, QVector<int> &indices, int outType) = 0;
     virtual void search(SearchPattern &sp) = 0;
+    virtual QString getFilename();
     // next functions are w.r.t. the current active index
     virtual int getRowCount() = 0;
     virtual Game* getGameAt(int idx) = 0;
