@@ -225,7 +225,7 @@ void DialogDatabase::onClickOpen() {
     QString filename = QFileDialog::getOpenFileName(this,
                                       QApplication::tr("Open Database"),
                                       this->gameModel->lastOpenDir,
-                                      QApplication::tr("*.dci,*.png"));
+                                      QApplication::tr("*.dci;*.pgn"));
     if(!filename.isNull()) {
         // todo: mor thoroughly check file type
         // i.e. look for magic bytes instead of

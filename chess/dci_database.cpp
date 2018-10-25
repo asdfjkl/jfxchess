@@ -953,6 +953,11 @@ chess::DatabaseRowInfo chess::DCIDatabase::getRowInfo(int idx) {
         result.append("*");
     }
     rowInfo.result = result;
+    if(entry_row->deleted == 0xFF) {
+        rowInfo.isDeleted = true;
+    } else {
+        rowInfo.isDeleted = false;
+    }
     return rowInfo;
 }
 
