@@ -19,21 +19,21 @@ namespace chess {
 class DCIDatabase : public Database
 {
 public:
-    DCIDatabase(QWidget* parent);
+    DCIDatabase();
     ~DCIDatabase();
 
     void open(QString &filename);
     void search(SearchPattern &sp);
     int countGames();
 
-    void setParentWidget(QWidget *parentWidget) = 0;
-    void close() = 0;
-    void exportDB(QString &outFilename, QVector<int> &indices, int outType) = 0;
+    void setParentWidget(QWidget *parentWidget);
+    void close();
+    void exportDB(QString &outFilename, QVector<int> &indices, int outType);
     QString getFilename();
     // next functions are w.r.t. the current active index
-    int getRowCount() = 0;
-    DatabaseRowInfo getRowInfo(int idx) = 0;
-    Game* getGameAtAbsoluteIndex(int idx) = 0;
+    int getRowCount();
+    DatabaseRowInfo getRowInfo(int idx);
+    Game* getGameAtAbsoluteIndex(int idx);
 
     void reset();
 

@@ -1,6 +1,6 @@
 #include "database_row_info.h"
 
-DatabaseRowInfo::DatabaseRowInfo()
+chess::DatabaseRowInfo::DatabaseRowInfo()
 {
 
 }

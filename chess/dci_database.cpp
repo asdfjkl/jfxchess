@@ -20,9 +20,9 @@
 
 #include <ctime>
 
-chess::DCIDatabase::DCIDatabase(QWidget *parent)
+chess::DCIDatabase::DCIDatabase()
 {
-    this->parentWidget = parent;
+    //this->parentWidget = parent;
 
     this->magicNameString = QByteArrayLiteral("\x53\x69\x6d\x70\x6c\x65\x43\x44\x62\x6e");
     this->magicIndexString = QByteArrayLiteral("\x53\x69\x6d\x70\x6c\x65\x43\x44\x62\x69");

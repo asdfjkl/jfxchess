@@ -16,7 +16,7 @@ void DatabaseController::showDatabase() {
     qDebug() << "show database";
     if(ddb->exec() == QDialog::Accepted && ddb->selectedIndex >= 0) {
         qDebug() << "insided dialog acc";
-        chess::Game* selected_game = this->gameModel->database->getGameAt(ddb->selectedIndex);
+        chess::Game* selected_game = this->gameModel->dciDatabase->getGameAt(ddb->selectedIndex);
         this->gameModel->setGame(selected_game);
         this->gameModel->getGame()->setTreeWasChanged(true);
     } else {

@@ -72,7 +72,7 @@ GameModel::GameModel(QObject *parent) :
     this->appId = QString("jerry_").append(JERRY_VERSION);
 
     QString temp = QString("mydatabase.dci");
-    this->database = new chess::Database(temp);
+    this->dciDatabase = new chess::DCIDatabase();
 
     this->loadOpeningBook();
 }

@@ -35,7 +35,7 @@
 #include "chess/game.h"
 #include "chess/board.h"
 #include "chess/move.h"
-#include "chess/database.h"
+#include "chess/dci_database.h"
 #include "viewController/colorstyle.h"
 #include <QPixmap>
 #include <QList>
@@ -116,7 +116,7 @@ public:
 
     bool gameAnalysisStarted;
 
-    chess::Database *database;
+    chess::DCIDatabase *dciDatabase;
 
 private:
     void loadOpeningBook();

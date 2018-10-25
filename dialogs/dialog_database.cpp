@@ -108,7 +108,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     */
 
     this->indexModel = new DatabaseIndexModel(this);
-    this->indexModel->setDatabase(this->gameModel->database);
+    this->indexModel->setDatabase(this->gameModel->dciDatabase);
 
     this->tableView = new QTableView(this);
     this->tableView->setModel(indexModel);
@@ -194,7 +194,6 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
-
     DialogSearch *dlg = new DialogSearch(this->gameModel, nullptr);
 
     qDebug() << "show calling";
@@ -203,17 +202,17 @@ void DialogDatabase::onClickSearch() {
         qDebug() << "about to get pattern";
         SearchPattern sp = dlg->getPattern();
         qDebug() << "got pattern";
-        this->gameModel->database->search(sp);
+        this->gameModel->dciDatabase->search(sp);
 
         qDebug() << "search finished";
 
         //qDebug() << "size: " << this->gameModel->database->currentSearchIndices->size();
 
-        this->indexModel->setDatabase(this->gameModel->database);
+        this->indexModel->setDatabase(this->gameModel->dciDatabase);
         this->indexModel->layoutChanged();
 
         //this->tableView->resizeColumnsToContents();
-        if(this->gameModel->database->countGames() > 0) {
+        if(this->gameModel->dciDatabase->countGames() > 0) {
             this->tableView->selectRow(0);
         }
 
@@ -232,15 +231,16 @@ void DialogDatabase::onClickOpen() {
         // i.e. look for magic bytes instead of
         // just relying on filename ending
         if(filename.endsWith(".dci")) {
-            this->gameModel->dciDatabase.reset();
-            this->gameModel->dciDatabase.open(filename);
+            this->gameModel->dciDatabase->setParentWidget(this);
+            this->gameModel->dciDatabase->reset();
+            this->gameModel->dciDatabase->open(filename);
             this->indexModel->setDatabase(this->gameModel->dciDatabase);
             this->indexModel->layoutChanged();
             this->tableView->resizeColumnsToContents();
-            if(this->gameModel->database->countGames() > 0) {
+            if(this->gameModel->dciDatabase->countGames() > 0) {
                 this->tableView->selectRow(0);
             }
-            this->setWindowTitle(this->gameModel->database->getFilename());
+            this->setWindowTitle(this->gameModel->dciDatabase->getFilename());
         }
     }
 
