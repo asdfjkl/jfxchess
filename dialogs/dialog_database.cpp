@@ -22,6 +22,8 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     this->selectedIndex = -1;
 
+    this->currentOpenDBType = -1;
+
     this->resizeTo(0.9);
 
     QToolBar *toolbar = new QToolBar(this);
@@ -49,7 +51,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     QString stringDeleteGame(resDir + "/res/icons/mail-mark-junk.svg");
     QPixmap *tbDeleteGame = Helper::fromSvgToPixmap(iconSize,stringDeleteGame, this->devicePixelRatio());
-    QAction *tbActionDeleteGame = toolbar->addAction(QIcon(*tbDeleteGame), this->tr("Delete Game"));
+    this->tbActionDeleteGame = toolbar->addAction(QIcon(*tbDeleteGame), this->tr("Delete Game"));
 
     QString stringUndeleteGame(resDir + "/res/icons/mail-mark-not-junk.svg");
     QPixmap *tbUndeleteGame = Helper::fromSvgToPixmap(iconSize,stringUndeleteGame, this->devicePixelRatio());
@@ -159,8 +161,9 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     this->setLayout(layoutAll);
 
-    connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     connect(tbActionOpen, &QAction::triggered, this, &DialogDatabase::onClickOpen);
+    connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
+    connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -241,12 +244,30 @@ void DialogDatabase::onClickOpen() {
                 this->tableView->selectRow(0);
             }
             this->setWindowTitle(this->gameModel->dciDatabase->getFilename());
+            this->currentOpenDBType = DATABASE_TYPE_DCI;
+
+            this->tbActionDeleteGame->setDisabled(true);
+
         }
     }
 
     //this->gameModel->database->open(this);
 
 
+}
+
+
+void DialogDatabase::onClickExport() {
+
+    DialogExportDatabase dlg;
+    if(dlg.exec() == QDialog::Accepted) {
+        qDebug() << "export to PGN " << dlg.radioFormatPgn->isChecked();
+
+        QFileDialog dialog;
+        dialog.setFileMode(QFileDialog::AnyFile);
+        QString strFile = dialog.getSaveFileName(this, tr("New Database Filename"),"",tr("PGN Files (*.pgn)"));
+        qDebug() << "saving to: " << strFile;
+    }
 }
 
 void DialogDatabase::onRowChanged() {

@@ -77,6 +77,11 @@ GameModel::GameModel(QObject *parent) :
     this->loadOpeningBook();
 }
 
+GameModel::~GameModel() {
+
+}
+
+
 void GameModel::loadOpeningBook() {
     QString path = ResourceFinder::getPath().append("/books/");
     path = path.append(QString("varied.bin"));

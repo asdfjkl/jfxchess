@@ -81,7 +81,8 @@ SOURCES += main.cpp \
     model/search_pattern.cpp \
     viewController/database_index_model.cpp \
     chess/dci_database.cpp \
-    chess/database_row_info.cpp
+    chess/database_row_info.cpp \
+    dialogs/dialog_exportdatabase.cpp
 
 HEADERS += \
     chess/board.h \
@@ -146,4 +147,5 @@ HEADERS += \
     chess/arrow.h \
     chess/colored_field.h \
     chess/dci_database.h \
-    chess/database_row_info.h
+    chess/database_row_info.h \
+    dialogs/dialog_exportdatabase.h
