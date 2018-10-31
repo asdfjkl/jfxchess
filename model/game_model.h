@@ -35,7 +35,6 @@
 #include "chess/game.h"
 #include "chess/board.h"
 #include "chess/move.h"
-#include "chess/dci_database.h"
 #include "viewController/colorstyle.h"
 #include <QPixmap>
 #include <QList>
@@ -64,6 +63,7 @@ public:
     bool wasSaved;
     QString lastSaveFilename;
     QString lastOpenDir;
+    QString currentPgnFilename;
     QString lastSaveDir;
     GameModel(QObject *parent = 0);
     ~GameModel();
@@ -116,8 +116,6 @@ public:
     bool isInBook(chess::GameNode *node);    
 
     bool gameAnalysisStarted;
-
-    chess::DCIDatabase *dciDatabase;
 
 private:
     void loadOpeningBook();

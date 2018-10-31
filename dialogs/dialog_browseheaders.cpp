@@ -35,8 +35,10 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offs
     this->table->setShowGrid(false);
 
     this->drawAllItems();
+    this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     this->table->resizeColumnsToContents();;
-    this->table->horizontalHeader()->setStretchLastSection(true);
+    //this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->selectRow(0);
 
     /*

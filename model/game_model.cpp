@@ -39,6 +39,7 @@ GameModel::GameModel(QObject *parent) :
     this->lastSaveFilename = "";
     this->lastOpenDir = "";
     this->lastSaveDir = "";
+    this->currentPgnFilename = "";
     this->game = new chess::Game();
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
@@ -70,9 +71,6 @@ GameModel::GameModel(QObject *parent) :
 
     this->company = QString("dkl");
     this->appId = QString("jerry_").append(JERRY_VERSION);
-
-    QString temp = QString("mydatabase.dci");
-    this->dciDatabase = new chess::DCIDatabase();
 
     this->loadOpeningBook();
 }

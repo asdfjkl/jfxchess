@@ -66,23 +66,7 @@ SOURCES += main.cpp \
     viewController/pickcolorboard.cpp \
     chess/ecocode.cpp \
     chess/polyglot.cpp \
-    chess/byteutil.cpp \
-    chess/dcgdecoder.cpp \
-    chess/dcgencoder.cpp \
-    chess/database.cpp \
-    chess/indexentry.cpp \
-    dialogs/dialog_database.cpp \
-    controller/database_controller.cpp \
-    various/helper.cpp \
-    dialogs/dialog_search.cpp \
-    dialogs/tab_header_search.cpp \
-    dialogs/tab_comment_search.cpp \
-    dialogs/tab_search_pos.cpp \
-    model/search_pattern.cpp \
-    viewController/database_index_model.cpp \
-    chess/dci_database.cpp \
-    chess/database_row_info.cpp \
-    dialogs/dialog_exportdatabase.cpp
+    various/helper.cpp
 
 HEADERS += \
     chess/board.h \
@@ -129,23 +113,7 @@ HEADERS += \
     viewController/pickcolorboard.h \
     chess/ecocode.h \
     chess/polyglot.h \
-    chess/dcgdecoder.h \
-    chess/dcgencoder.h \
-    chess/database.h \
-    chess/byteutil.h \
-    chess/indexentry.h \
-    dialogs/dialog_database.h \
-    controller/database_controller.h \
     various/helper.h \
-    dialogs/dialog_search.h \
-    dialogs/tab_header_search.h \
-    dialogs/tab_comment_search.h \
-    dialogs/tab_search_pos.h \
-    model/search_pattern.h \
-    viewController/database_index_model.h \
     chess/constants.h \
     chess/arrow.h \
-    chess/colored_field.h \
-    chess/dci_database.h \
-    chess/database_row_info.h \
-    dialogs/dialog_exportdatabase.h
+    chess/colored_field.h
