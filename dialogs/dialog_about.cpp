@@ -31,8 +31,8 @@ DialogAbout::DialogAbout(QWidget *parent, QString version) :
     QString info = QString("<br><b>Jerry</b><br><br>" \
                               "Version ");
     info.append(version).append("<br>");
-    info.append("Copyright © 2014 - 2016<br>" \
-                              "Dominik Klein, Karl Josef Klein<br>" \
+    info.append("Copyright © 2014 - 2018<br>" \
+                              "Dominik Klein<br>" \
                               "licensed under GNU GPL 2<br><br>" \
                               "<b>Credits</b><br><br>" \
                               "Stockfish Chess Engine<br>" \
