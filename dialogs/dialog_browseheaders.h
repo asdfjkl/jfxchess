@@ -14,11 +14,14 @@ public:
     explicit DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offsets,
                                  QString &filename, QWidget *parent);
     int gameOffset;
+    int gameIdx;
+    QTableWidget *table;
+
 
 private:
+    void resizeTo(float ratio);
     QList<chess::HeaderOffset> *header_offsets;
     QStringList tableHeaders;
-    QTableWidget *table;
     QLineEdit *searchField;
     QPushButton *btnSearch;
     QPushButton *btnReset;

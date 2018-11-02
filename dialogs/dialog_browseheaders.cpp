@@ -4,15 +4,21 @@
 #include <QDialogButtonBox>
 #include <QHeaderView>
 #include <QDebug>
+#include <QDesktopWidget>
+#include <QApplication>
 
 DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offsets,
                                          QString &filename, QWidget *parent) :
     QDialog(parent), header_offsets(header_offsets)
 {
+
+    this->resizeTo(0.7);
+
     this->header_offsets = header_offsets;
     this->setWindowTitle(filename);
 
     this->gameOffset = 0;
+    this->gameIdx = 0;
 
     int rows = header_offsets->size();
     int columns = 7;
@@ -41,8 +47,8 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offs
     //this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->selectRow(0);
 
-    /*
-    f = self.fontMetrics()
+/*
+    f = this->fontMetrics();
     rec = QApplication.desktop().screenGeometry()
     self.resize(min(650,rec.width()-100),min(rows*20+130,rec.height()-200))
 */
@@ -90,6 +96,26 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offs
 
 }
 
+void DialogBrowseHeaders::resizeTo(float ratio) {
+
+    int height = 0;
+    int width = 0;
+    if(this->parentWidget() != 0) {
+        int w_height = this->parentWidget()->size().height();
+        height = w_height * ratio;
+        //width = (w_width * ratio);
+        width = height * 1.1;
+    } else {
+        QDesktopWidget *desktop = qApp->desktop();
+        QSize availableSize = desktop->availableGeometry().size();
+        int w_height = availableSize.height();
+        height = w_height * (ratio*0.6);
+        //width = w_width * (ratio*0.6);
+        width = height * 1.1;
+    }
+    QSize newSize( width, height );
+    this->resize(newSize);
+}
 
 void DialogBrowseHeaders::drawAllItems() {
     this->table->clear();
@@ -156,6 +182,7 @@ void DialogBrowseHeaders::onSearch() {
     // if nothing contained, then reset to first game
     if(this->table->rowCount() == 0) {
         this->gameOffset = 0;
+        this->gameIdx = 0;
     }
     this->table->setRowCount(idx);
 }
@@ -165,5 +192,6 @@ void DialogBrowseHeaders::onItemSelectionChanged() {
     if(selectedItems.size() > 0) {
         int idx = (selectedItems.at(0)->text()).toInt() - 1;
         this->gameOffset = this->header_offsets->at(idx).offset;
+        this->gameIdx = idx;
     }
 }

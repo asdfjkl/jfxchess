@@ -113,14 +113,14 @@ void ModeController::onBestMove(QString uci_move) {
                     gn->setBoard(current_board);
                     gn->setMove(mi);
                     current->addVariation(gn);
-                    qDebug() << "current board nr: " << current_board.fullmove_number;
+                    //qDebug() << "current board nr: " << current_board.fullmove_number;
                     //qDebug() << "new board: " << new_board.fullmove_number;
                     //qDebug() << "gn board nr:" << new_board->fullmove_number;
                     //qDebug() << "node san: " << gn->getSan();
                     current = gn;
                     chess::Board current_board_temp = current->getBoard();
-                    qDebug() << "after setting: " << current_board_temp.fullmove_number;
-                    qDebug() << " ";
+                    //qDebug() << "after setting: " << current_board_temp.fullmove_number;
+                    //qDebug() << " ";
 
                 }
             }
@@ -334,7 +334,7 @@ void ModeController::onActivateGameAnalysisMode() {
         run = true;
         this->gameModel->engineThinkTimeMs = dlg->secsPerMove;
         this->gameModel->analysisThreshold = dlg->threshold;
-        qDebug() << this->gameModel->analysisThreshold;
+        //qDebug() << this->gameModel->analysisThreshold;
         if(dlg->rbAnalyseBoth->isChecked()) {
             this->gameModel->gameAnalysisForPlayer = ANALYSE_BOTH_PLAYERS;
         } else if(dlg->rbAnalyseWhite->isChecked()) {

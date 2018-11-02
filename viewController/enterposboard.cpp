@@ -92,7 +92,7 @@ void EnterPosBoard::mousePressEvent(QMouseEvent *m) {
     int y = m->y();
     if(this->clickedOnPiceceSelector(x,y)) {
         this->selectedPiece = this->getSelectedPiece(x,y);
-        qDebug() << "selected piece is now: " << this->selectedPiece;
+        //qDebug() << "selected piece is now: " << this->selectedPiece;
     } else if(this->clickedOnBoard(x,y)) {
         QPoint q = this->getBoardPosition(x,y);
         if(this->board.get_piece_at(q.x(), q.y()) == this->selectedPiece) {

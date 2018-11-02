@@ -123,10 +123,15 @@ void FileController::openGame() {
     if(!filename.isEmpty()) {
     QDir dir = QDir::root();
     QString path = dir.absoluteFilePath(filename);
-    chess::PgnReader *reader = new chess::PgnReader();
+        this->openGameFrom(path, filename, false);
+    }
+}
+
+void FileController::openGameFrom(QString &path, QString &absoluteFilename, bool reOpen) {
+    chess::PgnReader reader;
     try {
         QFile file;
-        file.setFileName(filename);
+        file.setFileName(absoluteFilename);
         file.open(QIODevice::ReadOnly);
         quint64 size = file.size();
         file.close();
@@ -135,24 +140,30 @@ void FileController::openGame() {
             msg->showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
             delete msg;
         } else {
-            const char* encoding = reader->detect_encoding(filename);
-            QString complete_file = reader->readFileIntoString(filename, encoding);
-            QList<chess::HeaderOffset> header_offsets = reader->scan_headersFromString(complete_file);
+            const char* encoding = reader.detect_encoding(absoluteFilename);
+            QString complete_file = reader.readFileIntoString(absoluteFilename, encoding);
+            QList<chess::HeaderOffset> header_offsets = reader.scan_headersFromString(complete_file);
             if(header_offsets.size() == 1) {
-                chess::Game* g = reader->readGameFromString(complete_file);
+                chess::Game* g = reader.readGameFromString(complete_file);
                 this->gameModel->wasSaved = true;
                 this->gameModel->lastOpenDir = path;
-                this->gameModel->lastSaveFilename = filename;
+                this->gameModel->currentPgnFilename = absoluteFilename;
+                this->gameModel->lastSaveFilename = absoluteFilename;
                 // setup new game triggers statechange, so no need to call
                 this->setupNewGame(g);
                 // load and set new game
             } else if(header_offsets.size() > 1) {
-                DialogBrowseHeaders* dlg = new DialogBrowseHeaders(&header_offsets, filename, this->parentWidget);
+                DialogBrowseHeaders* dlg = new DialogBrowseHeaders(&header_offsets, absoluteFilename, this->parentWidget);
+                if(reOpen && this->gameModel->currentPgnIndex >= 0
+                        && this->gameModel->currentPgnIndex < header_offsets.size()) {
+                    dlg->table->selectRow(this->gameModel->currentPgnIndex);
+                }
                 if(dlg->exec() == QDialog::Accepted) {
-                    chess::Game* g = reader->readGameFromString(complete_file, dlg->gameOffset);
-
+                    chess::Game* g = reader.readGameFromString(complete_file, dlg->gameOffset);
                     this->gameModel->wasSaved = false;
                     this->gameModel->lastOpenDir = path;
+                    this->gameModel->currentPgnFilename = absoluteFilename;
+                    this->gameModel->currentPgnIndex = dlg->gameIdx;
                     this->gameModel->lastSaveFilename = QString("");
                     this->setupNewGame(g);
                 }
@@ -161,8 +172,6 @@ void FileController::openGame() {
         }
     } catch(std::exception e) {
         std::cerr << e.what() << std::endl;
-    }
-    delete reader;
     }
 }
 
@@ -213,5 +222,60 @@ void FileController::saveAsNewGame() {
         } catch(std::exception e) {
             std::cerr << e.what() << std::endl;
         }
+    }
+}
+
+void FileController::toolbarOpenCurrentPGN()  {
+    this->openGameFrom(this->gameModel->lastOpenDir, this->gameModel->currentPgnFilename, true);
+}
+
+void FileController::openInCurrentPgnAt(int idx) {
+
+    QString absoluteFilename = this->gameModel->currentPgnFilename;
+    QString path = this->gameModel->lastOpenDir;
+
+    chess::PgnReader reader;
+    try {
+        QFile file;
+        file.setFileName(absoluteFilename);
+        file.open(QIODevice::ReadOnly);
+        quint64 size = file.size();
+        file.close();
+        if(size > 1048576) {
+            MessageBox *msg = new MessageBox(this->parentWidget);
+            msg->showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
+            delete msg;
+        } else {
+            const char* encoding = reader.detect_encoding(absoluteFilename);
+            QString complete_file = reader.readFileIntoString(absoluteFilename, encoding);
+            QList<chess::HeaderOffset> header_offsets = reader.scan_headersFromString(complete_file);
+            if(idx >= 0 && idx < header_offsets.size()) {
+                qint64 gameOffset = header_offsets.at(idx).offset;
+                chess::Game* g = reader.readGameFromString(complete_file, gameOffset);
+                this->gameModel->wasSaved = false;
+                this->gameModel->lastOpenDir = path;
+                this->gameModel->currentPgnIndex = idx;
+                this->gameModel->lastSaveFilename = QString("");
+                this->setupNewGame(g);
+                }
+            }
+        }
+    catch(std::exception e) {
+        std::cerr << e.what() << std::endl;
+    }
+}
+
+void FileController::toolbarNextGameInPGN() {
+
+    int idx = this->gameModel->currentPgnIndex + 1;
+    this->openInCurrentPgnAt(idx);
+
+}
+
+void FileController::toolbarPrevGameInPGN() {
+
+    int idx = this->gameModel->currentPgnIndex - 1;
+    if(idx >= 0) {
+        this->openInCurrentPgnAt(idx);
     }
 }

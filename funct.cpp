@@ -265,15 +265,15 @@ void FuncT::run_polyglot() {
     path = path.append(QString("varied.bin"));
     //path = QString('"').append(path).append('"');
     path = QDir::toNativeSeparators(QDir::cleanPath(path));
-    qDebug() << "opening dir path:";
-    qDebug() << path;
+    //qDebug() << "opening dir path:";
+    //qDebug() << path;
     chess::Polyglot *p = new chess::Polyglot(path);
-    qDebug() << "created polyglot book";
+    //qDebug() << "created polyglot book";
     QVector<Move> mvs = p->findMoves(*b);
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
-        qDebug() << "move: " << uci;
+        //qDebug() << "move: " << uci;
     }
     delete b;
     b = new Board(QString("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"));
@@ -281,7 +281,7 @@ void FuncT::run_polyglot() {
     for(int i=0;i<mvs.size();i++) {
         chess::Move mi = mvs.at(i);
         QString uci = mi.uci();
-        qDebug() << "move: " << uci;
+        //qDebug() << "move: " << uci;
     }
     delete b;
     b = new Board(QString("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"));

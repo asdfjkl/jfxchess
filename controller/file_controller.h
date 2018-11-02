@@ -35,7 +35,8 @@ private:
     void saveGameTo(QString &filename);
     WId board; //?
     void setupNewGame(chess::Game* g);
-
+    void openGameFrom(QString &path, QString &absoluteFilename, bool reOpen);
+    void openInCurrentPgnAt(int idx);
 
 signals:
     void newGamePlayBlack();
@@ -51,6 +52,10 @@ public slots:
     void saveGame();
     void saveAsNewGame();
     void toolbarSaveGame();
+    void toolbarOpenCurrentPGN();
+    void toolbarNextGameInPGN();
+    void toolbarPrevGameInPGN();
+
 };
 
 #endif // FILE_CONTROLLER_H

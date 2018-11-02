@@ -40,6 +40,7 @@ GameModel::GameModel(QObject *parent) :
     this->lastOpenDir = "";
     this->lastSaveDir = "";
     this->currentPgnFilename = "";
+    this->currentPgnIndex = -1;
     this->game = new chess::Game();
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
@@ -346,10 +347,8 @@ void GameModel::restoreGameState() {
             //}
         }
         int sizeOpts = settings.beginReadArray("engineOptions");
-        qDebug() << "size opts: " << sizeOpts;
         for(int j=0;j<sizeOpts;j++) {
             settings.setArrayIndex(j);
-            qDebug() << "checking opt idx " << j;
             EngineOption o; // = new EngineOption();
             QString optNr = QString::number(j);
             QString option = QString(optNr).append("option");
@@ -382,7 +381,7 @@ void GameModel::restoreGameState() {
         settings.endArray();
         // there should _always_ be at least one engine
         // prior to recovering state, namely internal engine
-        qDebug() << this->engines.size();
+        //qDebug() << this->engines.size();
         if(isInternal) {
             assert(this->engines.size() > 0);
             this->setInternalEngine(e);
@@ -390,7 +389,7 @@ void GameModel::restoreGameState() {
             this->engines.append(e);
         }
         if(isActive) {
-            qDebug() << this->engines.size();
+            //qDebug() << this->engines.size();
             this->setActiveEngine(engines.size() - 1);
         }
     }

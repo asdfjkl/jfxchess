@@ -52,7 +52,7 @@ PieceImages::PieceImages(QString resourcePath)
 }
 
 void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &pieceType) {
-    for(int i=1;i<8;i++) {
+    for(int i=1;i<7;i++) {
         for(int j=0;j<2;j++) {
             QString filename = QString(this->resourcePath + (QString("/res/pieces/")));
             filename.append(pieceType);
@@ -76,8 +76,6 @@ void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &piece
                 filename.append("k");
             } else if(i==chess::ANY_PIECE) {
                 filename.append("a");
-                //qDebug() << "adding any piece for " << j;
-                //qDebug() << filename;
             }
             filename.append(".svg");
             QSvgRenderer *ren = new QSvgRenderer();

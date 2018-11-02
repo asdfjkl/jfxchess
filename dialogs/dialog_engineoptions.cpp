@@ -35,7 +35,7 @@ DialogEngineOptions::DialogEngineOptions(Engine &e, QWidget *parent) :
     this->setWindowTitle(this->tr("UCI Engine Options: ").append(e.getName()));
     QVector<EngineOption> uciOptions = this->engine.getUciOptions();
 
-    qDebug() << "VECTOR HAS NOW SIZE: s " << uciOptions.size();
+    //qDebug() << "VECTOR HAS NOW SIZE: s " << uciOptions.size();
     this->getOptionsFromEngine();
 
     QGridLayout *grid = new QGridLayout();
@@ -45,7 +45,7 @@ DialogEngineOptions::DialogEngineOptions(Engine &e, QWidget *parent) :
     int y = 0;
 
     uciOptions = this->engine.getUciOptions();
-    qDebug() << "VECTOR HAS NOW SIZE:d " << uciOptions.size();
+    //qDebug() << "VECTOR HAS NOW SIZE:d " << uciOptions.size();
     for(int i=0;i<uciOptions.size();i++) {
         EngineOption ei = uciOptions.at(i);
         if(!ei.name.startsWith("UCI_") &&
@@ -206,11 +206,11 @@ void DialogEngineOptions::getOptionsFromEngine() {
     this->setEnabled(false);
 
     QVector<EngineOption> engine_options = this->engine.getUciOptions();
-    qDebug() << "START: ";
-    for(int i=0;i<engine_options.size();i++) {
-        qDebug() << engine_options.at(i).name;
-    }
-    qDebug() << "END";
+    //qDebug() << "START: ";
+    //for(int i=0;i<engine_options.size();i++) {
+        //qDebug() << engine_options.at(i).name;
+    //}
+    //qDebug() << "END";
     // execute engine, call uci, parse options
     QProcess process;
     process.start(this->engine.getPath(),QIODevice::ReadWrite);
@@ -241,12 +241,12 @@ void DialogEngineOptions::getOptionsFromEngine() {
                 // as new option
                 int opt_idx = this->existsEngineOption(engine_options, opt_name);
                 if(opt_idx >= 0) {
-                    qDebug() << "START: ";
-                    for(int i=0;i<engine_options.size();i++) {
-                        qDebug() << engine_options.at(i).name;
-                    }
-                    qDebug() << "END";
-                    qDebug() << "removing: " << opt_name << "at" << opt_idx;
+                    //qDebug() << "START: ";
+                    //for(int i=0;i<engine_options.size();i++) {
+                    //    qDebug() << engine_options.at(i).name;
+                    //}
+                    //qDebug() << "END";
+                    //qDebug() << "removing: " << opt_name << "at" << opt_idx;
                     EngineOption eo = engine_options.at(opt_idx);
                     engine_options.removeAt(opt_idx);
                     engine_options.append(eo);
@@ -255,7 +255,7 @@ void DialogEngineOptions::getOptionsFromEngine() {
                 } else {
                     // means engine was queried first time i.e. option doesn't exist yet
                     // spin option
-                    qDebug() << "adding: " << opt_name;
+                    //qDebug() << "adding: " << opt_name;
                     QRegularExpression regExpTypeSpin = QRegularExpression(".*?type spin default (\\d+) min (\\d+) max (\\d+)");
                     QRegularExpressionMatch m_spin = regExpTypeSpin.match(output_i);
                     if(m_spin.hasMatch()) {

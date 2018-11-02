@@ -64,6 +64,7 @@ public:
     QString lastSaveFilename;
     QString lastOpenDir;
     QString currentPgnFilename;
+    int currentPgnIndex;
     QString lastSaveDir;
     GameModel(QObject *parent = 0);
     ~GameModel();

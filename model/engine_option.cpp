@@ -47,8 +47,8 @@ EngineOption::EngineOption(EngineOption *other)
 
 QString EngineOption::toUciOptionString() {
     if(this->type == EN_OPT_TYPE_SPIN) {
-        qDebug() << "spin val: " << this->spin_val;
-        qDebug() << "def: " << this->default_spin;
+        //qDebug() << "spin val: " << this->spin_val;
+        //qDebug() << "def: " << this->default_spin;
     }
     QString outstr = QString("");
     if(this->type == EN_OPT_TYPE_CHECK && (this->check_val != this->default_check)) {
@@ -105,7 +105,7 @@ bool EngineOption::restoreFromString(const QString &optionString) {
 
     if(m_opt.hasMatch() && !m_opt.captured(1).isNull()) {
         QString opt_name = m_opt.captured(1);
-        qDebug() << "Restoring from string: " << opt_name;
+        //qDebug() << "Restoring from string: " << opt_name;
         QRegularExpression regExpTypeSpin = QRegularExpression(".*?type spin default (\\d+) min (\\d+) max (\\d+)");
         QRegularExpressionMatch m_spin = regExpTypeSpin.match(output_i);
         if(m_spin.hasMatch()) {
@@ -118,7 +118,7 @@ bool EngineOption::restoreFromString(const QString &optionString) {
             this->type = EN_OPT_TYPE_SPIN;
             this->name = opt_name;
             this->spin_val = this->default_spin;
-            qDebug() << "... spin success";
+            //qDebug() << "... spin success";
             success = true;
         }
         // check option
@@ -134,7 +134,7 @@ bool EngineOption::restoreFromString(const QString &optionString) {
             this->type = EN_OPT_TYPE_CHECK;
             this->name = opt_name;
             this->check_val = this->default_check;
-            qDebug() << "... check success";
+            //qDebug() << "... check success";
             success = true;
         }
         QRegularExpression regExpTypeCombo = QRegularExpression(".*?type combo default ([a-zA-Z0-9_ ]*)");
@@ -152,7 +152,7 @@ bool EngineOption::restoreFromString(const QString &optionString) {
             this->type = EN_OPT_TYPE_COMBO;
             this->combo_val = this->default_combo;
             this->name = opt_name;
-            qDebug() << "... combo success";
+            //qDebug() << "... combo success";
             success = true;
         }
         QRegularExpression regExpTypeString = QRegularExpression(".*?type string default ([a-zA-Z0-9\\.]*)");
@@ -162,7 +162,7 @@ bool EngineOption::restoreFromString(const QString &optionString) {
             this->default_string = m_string.captured(1);
             this->string_val = this->default_string;
             this->name = opt_name;
-            qDebug() << "... string success";
+            //qDebug() << "... string success";
             success = true;
         }
     }

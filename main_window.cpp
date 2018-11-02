@@ -242,6 +242,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     toolbar->addSeparator();
 
+    QString db_icn(resDir + "/res/icons/database.svg");
+    QPixmap *tbDatabase = this->fromSvgToPixmap(iconSize, db_icn);
+    QAction *tbActionDatabase = toolbar->addAction(QIcon(*tbDatabase), this->tr("Browse Current PGN"));
+
+    QString prevGame_icn(resDir + "/res/icons/go-previous.svg");
+    QPixmap *tbPrevGame = this->fromSvgToPixmap(iconSize, prevGame_icn);
+    QAction *tbActionPrevGame = toolbar->addAction(QIcon(*tbPrevGame), this->tr("Previous Game"));
+
+    QString nextGame_icn(resDir + "/res/icons/go-next.svg");
+    QPixmap *tbNextGame = this->fromSvgToPixmap(iconSize, nextGame_icn);
+    QAction *tbActionNextGame = toolbar->addAction(QIcon(*tbNextGame), this->tr("Next Game"));
+
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
@@ -426,6 +438,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(playout_position, &QAction::triggered, modeController, &ModeController::onActivatePlayoutPositionMode);
 
+    connect(tbActionDatabase, &QAction::triggered, fileController, &FileController::toolbarOpenCurrentPGN);
+    connect(tbActionNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
+    connect(tbActionPrevGame, &QAction::triggered, fileController, &FileController::toolbarPrevGameInPGN);
+
     connect(about, &QAction::triggered, this, &MainWindow::showAbout);
     connect(tbActionHelp, &QAction::triggered, about, &QAction::trigger);
 
@@ -440,7 +456,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(fileController, &FileController::newGameEnterMoves, modeController, &ModeController::onActivateEnterMovesMode);
     connect(fileController, &FileController::newGamePlayBlack, modeController, &ModeController::onActivatePlayBlackMode);
-    connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);
+    connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);   
 
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
