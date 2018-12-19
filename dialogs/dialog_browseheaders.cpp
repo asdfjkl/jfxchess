@@ -12,7 +12,7 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offs
     QDialog(parent), header_offsets(header_offsets)
 {
 
-    this->resizeTo(0.7);
+    this->resizeTo(0.95);
 
     this->header_offsets = header_offsets;
     this->setWindowTitle(filename);
@@ -85,9 +85,9 @@ DialogBrowseHeaders::DialogBrowseHeaders(QList<chess::HeaderOffset> *header_offs
     //self.button_search.clicked.connect(self.on_search)
     //this->button_reset.clicked.connect(self.draw_all_items)
 
-    int dialogWidth = this->table->horizontalHeader()->length() * 1.1;
+    //int dialogWidth = this->table->horizontalHeader()->length() * 1.1;
     //dialogHeight= tw.verticalHeader().length()   + 24
-            this->setFixedWidth(dialogWidth);
+    //        this->setFixedWidth(dialogWidth);
     //w.setFixedSize(dialogWidth, dialogHeight)
     connect(this->table, &QTableWidget::itemSelectionChanged, this, &DialogBrowseHeaders::onItemSelectionChanged);
 
