@@ -74,7 +74,7 @@ DialogEngines::DialogEngines(GameModel *gameModel, QWidget *parent) :
         Engine engine_i = this->engines.at(i);
         QString engine_name_i = engine_i.getName();
         if(i==0) {
-            engine_name_i.append((" (internal"));
+            engine_name_i.append((" (internal)"));
             item = new QListWidgetItem(engine_name_i);
         } else {
             item = new QListWidgetItem(engine_name_i);

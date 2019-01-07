@@ -21,17 +21,6 @@
 #ifndef GAME_MODEL_H
 #define GAME_MODEL_H
 
-// to substract /MacOS to get the "Resources"
-// subfolder in MacOS X app bundles
-// in other cases its just the exec. path
-#ifdef Q_OS_MAC
-#define SUBTRACT_DIR_PATH 5
-#define RES_PATH "Resources/"
-#else
-#define SUBTRACT_DIR_PATH 0
-#define RES_PATH ""
-#endif
-
 #include "chess/game.h"
 #include "chess/board.h"
 #include "chess/move.h"

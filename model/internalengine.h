@@ -21,30 +21,6 @@
 #define INTERNALENGINE_H
 #include "engine.h"
 
-
-#ifdef Q_OS_WIN32
-#define INT_ENGINE_FN "stockfish_win.exe"
-#endif
-
-#ifdef Q_OS_WIN64
-#define INT_ENGINE_FN "stockfish_win.exe"
-#endif
-
-#ifdef Q_OS_LINUX
-#ifdef __i386__
-#define INT_ENGINE_FN "stockfish_linux_32"
-#endif
-#ifdef __x86_64__
-#define INT_ENGINE_FN "stockfish_linux_64"
-#endif
-#endif
-
-#ifdef __APPLE__
-#define INT_ENGINE_FN "stockfish_darwin_64"
-#endif
-
-
-
 class InternalEngine : public Engine
 {
 public:

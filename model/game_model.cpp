@@ -45,6 +45,7 @@ GameModel::GameModel(QObject *parent) :
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
     InternalEngine default_engine = InternalEngine();
+
     this->engines.append(default_engine);
     this->activeEngineIdx = this->engines.size() - 1;
     this->lastAddedEnginePath = QString("");

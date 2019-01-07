@@ -22,12 +22,24 @@
 #include <QDir>
 #include "various/resource_finder.h"
 
-InternalEngine::InternalEngine()
-{
+#include <iostream>
+
+InternalEngine::InternalEngine() : Engine()
+{    
     this->name = QString("Stockfish");
+
+#ifdef __linux__
+    QString path = QString("/usr/games/stockfish");
+    this->setPath(path);
+#endif
+
+#ifdef _WIN32
     QString path = ResourceFinder::getPath().append("/engine/");
-    this->path = path.append(QString(INT_ENGINE_FN));
-    this->path = QString('"').append(this->path).append('"');
-    this->path = QDir::toNativeSeparators(QDir::cleanPath(this->path));
-    this->isInternal = true;
+    path = path.append(QString("stockfish.exe"));
+    path = QString('"').append(path).append('"');
+    path = QDir::toNativeSeparators(QDir::cleanPath(path));
+    this->setPath(path);
+#endif
+
+    this->isInternal = true;   
 }

@@ -31,14 +31,14 @@ DialogAbout::DialogAbout(QWidget *parent, QString version) :
     QString info = QString("<br><b>Jerry</b><br><br>" \
                               "Version ");
     info.append(version).append("<br>");
-    info.append("Copyright © 2014 - 2018<br>" \
-                              "Dominik Klein<br>" \
+    info.append("Copyright © 2014 - 2019<br>" \
+                              "Dominik Klein, Karl Josef Klein<br>" \
                               "licensed under GNU GPL 2<br><br>" \
                               "<b>Credits</b><br><br>" \
                               "Stockfish Chess Engine<br>" \
                               "by the Stockfish-Team<br><br>" \
                               "'VARIED.BIN' opening book<br>" \
-                              "by Heinz van Saanen<br><br>" \
+                              "by Marc Lacrosse/Jose-Chess Tool<br><br>" \
                               "Piece Images<br>" \
                               "from Raptor Chess Interface<br><br>" \
                               "all licensed under GNU GPL 2<br>");
