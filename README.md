@@ -18,6 +18,5 @@ Jerry is a cross-platform chess graphical user interface.
 
 ## Download
 
-* [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v.306/SetupJerryChess.exe)
-* [macOS (.dmg)](https://github.com/asdfjkl/jerry/releases/download/v.306/Jerry.dmg)
-* [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v31/jerry_3.1.0-1_amd64.deb)
+* [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v3.1.0/SetupJerryChess.exe)
+* [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v3.1.0/jerry_3.1.0-1_amd64.deb)
