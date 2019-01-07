@@ -12,7 +12,7 @@ Jerry is a cross-platform chess graphical user interface.
 * fully automatic game analysis
 * read and save games in standard PGN format
 * copy and paste FEN positions and pgn games from clipboard
-* cross-platform: native look on Linux, OS X, and Windows
+* cross-platform: native look on Linux and Windows
 * easy and intuitive GUI
 * free software (GNU GPL 2), no adware/spyware
 
