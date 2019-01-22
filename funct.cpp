@@ -164,6 +164,30 @@ void FuncT::run_pgn_scant() {
 }
 */
 
+void FuncT::run_pgn_speedtest() {
+    qDebug() << "start";
+    chess::PgnReader reader;
+    QFile file;
+    QString filename = QString("C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn");
+    const char* encoding = reader.detect_encoding(filename);
+    //QString complete_file = reader.readFileIntoString(filename, encoding);
+    QVector<qint64> offsets = reader.scanPgn(filename, false);
+    //QVector<PgnHeaderOffset> foo = reader.scan_headers(filename, encoding);
+    qDebug() << "offset" << offsets.at(1);
+    qDebug() << "offset" << offsets.at(100);
+    qDebug() << "offset" << offsets.at(100000);
+    qDebug() << "offset" << offsets.at(1000000);
+    qDebug() << "finished";
+    chess::PgnPrinter printer;
+    PgnHeader game1 = reader.readHeaderFromPgnAt(filename, offsets.at(1), encoding);
+    PgnHeader game2 = reader.readHeaderFromPgnAt(filename, offsets.at(100), encoding);
+    PgnHeader game3 = reader.readHeaderFromPgnAt(filename, offsets.at(1000000), encoding);
+
+    qDebug() << game1.event;
+    qDebug() << game2.event;
+    qDebug() << game3.event;
+}
+
 void FuncT::run_pgnt() {
 
     std::cout << "reading complex.pgn..." << std::endl;

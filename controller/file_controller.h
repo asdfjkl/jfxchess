@@ -55,6 +55,7 @@ public slots:
     void toolbarOpenCurrentPGN();
     void toolbarNextGameInPGN();
     void toolbarPrevGameInPGN();
+    void openDatabase();
 
 };
 

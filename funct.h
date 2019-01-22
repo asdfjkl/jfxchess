@@ -42,6 +42,8 @@ public:
     void run_polyglot();
     void run_rand();
 
+    void run_pgn_speedtest();
+
 
 private:
     int count_moves(Board b, int depth);

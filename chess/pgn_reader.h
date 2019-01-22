@@ -70,10 +70,29 @@ const int NAG_BLACK_HAS_ATTACK = 41;
 const int NAG_WHITE_MODERATE_COUNTERPLAY = 132;
 const int NAG_BLACK_MODERATE_COUNTERPLAY = 133;
 
+
 struct HeaderOffset
 {
     qint64 offset;
     QMap<QString, QString> headers;
+};
+
+
+struct PgnHeader
+{
+    QString event;
+    QString site;
+    QString date;
+    QString round;
+    QString white;
+    QString black;
+    QString result;
+};
+
+struct PgnHeaderOffset
+{
+    quint64 offset;
+    PgnHeader header;
 };
 
 class PgnReader
@@ -160,7 +179,7 @@ public:
      * @param filename name of the PGN file
      * @return list of headers and offset pairs
      */
-    QList<HeaderOffset> scan_headers(const QString &filename, const char* encoding);
+    QVector<PgnHeaderOffset> scan_headers(const QString &filename, const char* encoding);
 
     /**
      * @brief scan_headersFromString scans a PGN string, reads the headers and
@@ -170,6 +189,11 @@ public:
      * @return list of headers and offset pairs
      */
     QList<HeaderOffset> scan_headersFromString(QString &content);
+
+    QVector<qint64> scanPgn(QString &filename, bool isLatin1);
+    chess::Game* readGameFromPgnAt(QString &filename, qint64 offset, const char* encoding);
+    PgnHeader readHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding);
+
 
 private:
 

@@ -28,6 +28,7 @@
 #include <QPixmap>
 #include <QList>
 #include "chess/polyglot.h"
+#include "chess/pgn_database.h"
 #include "engine.h"
 
 const int MODE_ANALYSIS = 0;
@@ -103,7 +104,9 @@ public:
 
     bool canAndMayUseBook(chess::GameNode *node);
     QVector<chess::Move> getBookMoves(chess::GameNode *node);
-    bool isInBook(chess::GameNode *node);    
+    bool isInBook(chess::GameNode *node);
+
+    chess::PgnDatabase PgnDatabase;
 
     bool gameAnalysisStarted;
 

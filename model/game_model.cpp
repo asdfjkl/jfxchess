@@ -75,6 +75,8 @@ GameModel::GameModel(QObject *parent) :
     this->appId = QString("jerry_").append(JERRY_VERSION);
 
     this->loadOpeningBook();
+
+    this->PgnDatabase = chess::PgnDatabase();
 }
 
 GameModel::~GameModel() {

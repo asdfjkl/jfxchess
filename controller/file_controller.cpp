@@ -29,6 +29,7 @@
 #include "chess/pgn_reader.h"
 #include "dialogs/dialog_newgame.h"
 #include "dialogs/dialog_browseheaders.h"
+#include "dialogs/dialog_database.h"
 #include "various/messagebox.h"
 
 FileController::FileController(GameModel *gameModel, QWidget *parent) :
@@ -263,6 +264,13 @@ void FileController::openInCurrentPgnAt(int idx) {
     catch(std::exception e) {
         std::cerr << e.what() << std::endl;
     }
+}
+
+void FileController::openDatabase() {
+
+    DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);
+    dlg->exec();
+
 }
 
 void FileController::toolbarNextGameInPGN() {

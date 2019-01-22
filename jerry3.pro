@@ -66,7 +66,11 @@ SOURCES += main.cpp \
     viewController/pickcolorboard.cpp \
     chess/ecocode.cpp \
     chess/polyglot.cpp \
-    various/helper.cpp
+    various/helper.cpp \
+    chess/database.cpp \
+    viewController/database_index_model.cpp \
+    chess/pgn_database.cpp \
+    dialogs/dialog_database.cpp
 
 HEADERS += \
     chess/board.h \
@@ -116,4 +120,8 @@ HEADERS += \
     various/helper.h \
     chess/constants.h \
     chess/arrow.h \
-    chess/colored_field.h
+    chess/colored_field.h \
+    chess/database.h \
+    viewController/database_index_model.h \
+    chess/pgn_database.h \
+    dialogs/dialog_database.h

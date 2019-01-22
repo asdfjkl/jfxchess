@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
 {
 
     srand(time(NULL));
-    //chess::FuncT *p = new chess::FuncT();
+    chess::FuncT *p = new chess::FuncT();
+    //p->run_pgn_speedtest();
     //p->run_zobrist_test();
     //p->run_pgnt();
     //p.run_pgn_scant();

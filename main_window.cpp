@@ -438,7 +438,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(playout_position, &QAction::triggered, modeController, &ModeController::onActivatePlayoutPositionMode);
 
-    connect(tbActionDatabase, &QAction::triggered, fileController, &FileController::toolbarOpenCurrentPGN);
+    connect(tbActionDatabase, &QAction::triggered, fileController, &FileController::openDatabase);
     connect(tbActionNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
     connect(tbActionPrevGame, &QAction::triggered, fileController, &FileController::toolbarPrevGameInPGN);
 
