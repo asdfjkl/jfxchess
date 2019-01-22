@@ -12,12 +12,11 @@ Jerry is a cross-platform chess graphical user interface.
 * fully automatic game analysis
 * read and save games in standard PGN format
 * copy and paste FEN positions and pgn games from clipboard
-* cross-platform: native look on Linux, OS X, and Windows
+* cross-platform: native look on Linux and Windows
 * easy and intuitive GUI
 * free software (GNU GPL 2), no adware/spyware
 
 ## Download
 
-* [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v.306/SetupJerryChess.exe)
-* [macOS (.dmg)](https://github.com/asdfjkl/jerry/releases/download/v.306/Jerry.dmg)
-* [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v31/jerry_3.1.0-1_amd64.deb)
+* [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v3.1.0/SetupJerryChess.exe)
+* [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v3.1.0/jerry_3.1.0-1_amd64.deb)
