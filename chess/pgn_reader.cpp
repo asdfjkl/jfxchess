@@ -74,6 +74,47 @@ const char* PgnReader::detect_encoding(const QString &filename) {
     }
 }
 
+
+bool PgnReader::detectUtf8(const QString &filename) {
+    // very simple way to detecting majority of encodings:
+    // first try ISO 8859-1
+    // open the file and read a max of 100 first bytes
+    // if conversion to unicode works, try some more bytes (at most 40 * 100)
+    // if conversion errors occur, we simply assume UTF-8
+    const char* iso = "ISO 8859-1";
+    const char* utf8 = "UTF-8";
+    QFile file(filename);
+    if(!file.open(QFile::ReadOnly)) {
+        return true;
+    }
+    QDataStream in(&file);
+    // init some char array to read bytes
+    char first100arr[100];
+    for(int i=0;i<100;i++) {
+        first100arr[i] = 0x00;
+    }
+    char *first100 = first100arr;
+    // prep conversion tools
+    QTextCodec::ConverterState state;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+
+    int iterations = 40;
+    int i=0;
+    int l = 100;
+    bool isUtf8 = true;
+    while(i<iterations && l>=100) {
+        l = in.readRawData(first100, 100);
+        const QString text = codec->toUnicode(first100, 100, &state);
+        if (state.invalidChars > 0) {
+            isUtf8 = false;
+            break;
+        }
+        i++;
+    }
+    return isUtf8;
+}
+
+
 QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const char* encoding) {
 
     QVector<PgnHeaderOffset> header_offsets;
@@ -912,12 +953,12 @@ QVector<qint64> PgnReader::scanPgn(QString &filename, bool isLatin1) {
     return offsets;
 }
 
-chess::Game* PgnReader::readGameFromPgnAt(QString &filename, qint64 offset, const char* encoding) {
+chess::Game* PgnReader::readGameFromPgnAt(QString &filename, qint64 offset, bool isUtf8) {
     return nullptr;
 }
 
 
-QVector<PgnHeaderOffset> PgnReader::readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, const char* encoding) {
+QVector<PgnHeaderOffset> PgnReader::readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, bool isUtf8) {
 
     QFile file(filename);
 
@@ -925,7 +966,12 @@ QVector<PgnHeaderOffset> PgnReader::readMultipleHeadersFromPgnAround(QString &fi
         throw std::invalid_argument("unable to open file w/ supplied filename");
     }
     QTextStream in(&file);
-    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    QTextCodec *codec;
+    if(isUtf8) {
+        codec = QTextCodec::codecForName("UTF-8");
+    } else {
+        codec = QTextCodec::codecForName("ISO 8859-1");
+    }
     in.setCodec(codec);
 
     QVector<PgnHeaderOffset> HeaderOffsets;
@@ -997,7 +1043,7 @@ QVector<PgnHeaderOffset> PgnReader::readMultipleHeadersFromPgnAround(QString &fi
 
 
 
-PgnHeader PgnReader::readSingleHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding) {
+PgnHeader PgnReader::readSingleHeaderFromPgnAt(QString &filename, qint64 offset, bool isUtf8) {
 
     QFile file(filename);
 
@@ -1005,7 +1051,12 @@ PgnHeader PgnReader::readSingleHeaderFromPgnAt(QString &filename, qint64 offset,
         throw std::invalid_argument("unable to open file w/ supplied filename");
     }
     QTextStream in(&file);
-    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    QTextCodec *codec;
+    if(isUtf8) {
+        codec = QTextCodec::codecForName("UTF-8");
+    } else {
+        codec = QTextCodec::codecForName("ISO 8859-1");
+    }
     in.setCodec(codec);
     if(offset != 0 && offset > 0) {
         in.seek(offset);

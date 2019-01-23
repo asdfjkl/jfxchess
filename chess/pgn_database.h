@@ -27,6 +27,7 @@ private:
     QString filename;
     QHash<qint64, chess::PgnHeader> headerCache;
     int cacheSize;
+    bool isUtf8;
 
 };
 }

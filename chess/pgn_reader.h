@@ -112,6 +112,8 @@ public:
      */
     const char* detect_encoding(const QString &filename);
 
+    bool detectUtf8(const QString &filename);
+
 
     /**
      * @brief readGameFromFile read the (first) game from the PGN filename
@@ -191,11 +193,11 @@ public:
      */
     QList<HeaderOffset> scan_headersFromString(QString &content);
 
-    QVector<PgnHeaderOffset> readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, const char* encoding);
+    QVector<PgnHeaderOffset> readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, bool isUtf8);
 
-    QVector<qint64> scanPgn(QString &filename, bool isLatin1);
-    chess::Game* readGameFromPgnAt(QString &filename, qint64 offset, const char* encoding);
-    PgnHeader readSingleHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding);
+    QVector<qint64> scanPgn(QString &filename, bool isUtf8);
+    chess::Game* readGameFromPgnAt(QString &filename, qint64 offset, bool isUtf8);
+    PgnHeader readSingleHeaderFromPgnAt(QString &filename, qint64 offset, bool isUtf8);
 
 
 private:

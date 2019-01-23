@@ -7,7 +7,7 @@ chess::PgnDatabase::PgnDatabase()
     this->parentWidget = nullptr;
     this->filename = "";
     this->cacheSize = 50;
-
+    this->isUtf8 = true;
 }
 
 chess::PgnDatabase::~PgnDatabase() {
@@ -21,14 +21,15 @@ void chess::PgnDatabase::setParentWidget(QWidget *parentWidget) {
 void chess::PgnDatabase::open(QString &filename) {
     qDebug() << "pgn database: open";
 
+    this->isUtf8 = reader.detectUtf8(filename);
+    /*
     const char* utf8 = "UTF-8";
     const char* encoding = reader.detect_encoding(filename);
-    bool isLatin1 = false;
     int cmp = strcmp(encoding, utf8);
     if(cmp != 0){
         isLatin1 = true;
-    }
-    this->offsets = this->reader.scanPgn(filename, isLatin1);
+    }*/
+    this->offsets = this->reader.scanPgn(filename, this->isUtf8);
     this->filename = filename;
 }
 
@@ -90,14 +91,13 @@ chess::PgnHeader chess::PgnDatabase::getRowInfo(int idx) {
 
 chess::PgnHeader chess::PgnDatabase::getRowInfo(int idx) {
 
-        const char* utf8 = "UTF-8";
         chess::PgnHeader h;
         if(idx >= this->offsets.size()) {
             return h;
         } else {
 
             qint64 offset = this->offsets.at(idx);
-            chess::PgnHeader h_idx = this->reader.readSingleHeaderFromPgnAt(this->filename, offset, utf8);
+            chess::PgnHeader h_idx = this->reader.readSingleHeaderFromPgnAt(this->filename, offset, this->isUtf8);
             return h_idx;
         }
     }
