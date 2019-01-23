@@ -1104,6 +1104,9 @@ PgnHeader PgnReader::readSingleHeaderFromPgnAt(QString &filename, qint64 offset,
             if(tag == "Result") {
                 header.result = value;
             }
+            if(tag == "ECO") {
+                header.eco = value;
+            }
         } else {
             if(foundHeader) {
                 continueSearch = false;

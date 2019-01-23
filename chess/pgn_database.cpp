@@ -1,6 +1,9 @@
 #include "pgn_reader.h"
 #include "pgn_database.h"
 #include <QDebug>
+#include <QFile>
+#include <QProgressDialog>
+#include <iostream>
 
 chess::PgnDatabase::PgnDatabase()
 {
@@ -18,6 +21,90 @@ void chess::PgnDatabase::setParentWidget(QWidget *parentWidget) {
     this->parentWidget = parentWidget;
 }
 
+QVector<qint64> chess::PgnDatabase::scanPgn(QString &filename, bool isLatin1) {
+
+    QVector<qint64> offsets;
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return offsets;
+
+    bool inComment = false;
+
+    qint64 game_pos = -1;
+
+    QByteArray byteLine;
+    QString line("");
+    qint64 last_pos = file.pos();
+
+    int size = file.size();
+    QProgressDialog progress(this->parentWidget->tr("scanning PGN file..."), this->parentWidget->tr("Cancel"), 0, size, this->parentWidget);
+    progress.setMinimumDuration(400);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setCancelButton(0);
+    progress.show();
+
+    quint64 stepCounter = 0;
+
+    int i= 0;
+    while(!file.atEnd()) {
+
+        if(stepCounter %50 == 0) {
+            progress.setValue(last_pos);
+            stepCounter = 0;
+        }
+        stepCounter += 1;
+
+        i++;
+        byteLine = file.readLine();
+        if(isLatin1) {
+            line = QString::fromLatin1(byteLine);
+        } else {
+            line = QString::fromUtf8(byteLine);
+        }
+
+        // skip comments
+        if(line.startsWith("%")) {
+            byteLine = file.readLine();
+            continue;
+        }
+
+        if(!inComment && line.startsWith("[")) {
+            //QRegularExpressionMatch match_t = TAG_REGEX.match(line);
+
+            //if(match_t.hasMatch()) {
+
+                if(game_pos == -1) {
+                    game_pos = last_pos;
+                }
+                last_pos = file.pos();
+                byteLine = file.readLine();
+                continue;
+            //}
+        }
+        if((!inComment && line.contains("{"))
+                || (inComment && line.contains("}"))) {
+            inComment = line.lastIndexOf("{") > line.lastIndexOf("}");
+        }
+
+        if(game_pos != -1) {
+            offsets.append(game_pos);
+            game_pos = -1;
+        }
+
+        last_pos = file.pos();
+        byteLine = file.readLine();
+    }
+    // for the last game
+    if(game_pos != -1) {
+        offsets.append(game_pos);
+        game_pos = -1;
+    }
+
+    return offsets;
+}
+
+
 void chess::PgnDatabase::open(QString &filename) {
     qDebug() << "pgn database: open";
 
@@ -29,7 +116,7 @@ void chess::PgnDatabase::open(QString &filename) {
     if(cmp != 0){
         isLatin1 = true;
     }*/
-    this->offsets = this->reader.scanPgn(filename, this->isUtf8);
+    this->offsets = this->scanPgn(filename, this->isUtf8);
     this->filename = filename;
 }
 

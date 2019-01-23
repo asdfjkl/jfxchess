@@ -26,6 +26,7 @@ private:
     PgnReader reader;
     QString filename;
     QHash<qint64, chess::PgnHeader> headerCache;
+    QVector<qint64> scanPgn(QString &filename, bool isLatin1);
     int cacheSize;
     bool isUtf8;
 

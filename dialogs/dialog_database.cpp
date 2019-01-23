@@ -31,18 +31,23 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     QString resDir = ResourceFinder::getPath();
 
-    QString stringNew(resDir + "/res/icons/document-save.svg");
+    QString stringNew(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = Helper::fromSvgToPixmap(iconSize,stringNew, this->devicePixelRatio());
-    QAction *tbActionSave = toolbar->addAction(QIcon(*tbNew), this->tr("New"));
-    toolbar->addSeparator();
+    QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New"));
 
     QString stringOpen(resDir + "/res/icons/document-open.svg");
     QPixmap *tbOpen = Helper::fromSvgToPixmap(iconSize,stringOpen, this->devicePixelRatio());
-    QAction *tbActionOpen = toolbar->addAction(QIcon(*tbNew), this->tr("Open"));
+    QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open"));
+
+    toolbar->addSeparator();
 
     QString stringSearch(resDir + "/res/icons/system-search.svg");
     QPixmap *tbSearch = Helper::fromSvgToPixmap(iconSize,stringSearch, this->devicePixelRatio());
     QAction *tbActionSearch = toolbar->addAction(QIcon(*tbSearch), this->tr("Search"));
+
+    QString stringReset(resDir + "/res/icons/view-refresh.svg");
+    QPixmap *tbReset = Helper::fromSvgToPixmap(iconSize,stringReset, this->devicePixelRatio());
+    QAction *tbActionReset = toolbar->addAction(QIcon(*tbReset), this->tr("Reset Search"));
 
     toolbar->addSeparator();
 
@@ -201,6 +206,8 @@ void DialogDatabase::onClickOpen() {
             if(this->gameModel->PgnDatabase.countGames() > 0) {
                 this->tableView->selectRow(0);
             }
+            this->gameTable->resizeColumnsToContents();;
+
             //this->setWindowTitle(this->gameModel->dciDatabase->getFilename());
             //this->currentOpenDBType = DATABASE_TYPE_DCI;
 

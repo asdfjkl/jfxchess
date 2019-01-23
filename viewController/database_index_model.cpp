@@ -57,30 +57,32 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         // todo: depending on column return correct result
         // White (ELO) | Black (Elo) | Event (Round) | Eco | Year | Result
         if(column == 0) {
+            return QString::number(row+1);
+        }
+        if(column == 1) {
             //QString whiteName = this->database->offsetNames->value(entry_row->whiteOffset);
             QString tableEntry = QString(rowInfo.white);
             return tableEntry;
         }
-        if(column == 1) {
+        if(column == 2) {
             QString tableEntry = QString(rowInfo.black);
             return tableEntry;
         }
-        if(column == 2) {
+        if(column == 3) {
             QString tableEntry = QString(rowInfo.event);
             if(rowInfo.round != "0") {
                 tableEntry.append(" (Round ").append(rowInfo.round).append(")");
             }
             return tableEntry;
         }
-        /*
-        if(column == 3) {
-            return rowInfo.eco;
-        }*/
         if(column == 4) {
+            return rowInfo.eco;
+        }
+        if(column == 5) {
             QString tableEntry = QString(rowInfo.date);
             return tableEntry;
         }
-        if(column == 5) {
+        if(column == 6) {
             return rowInfo.result;
                     /*
             QString result("");
@@ -118,24 +120,26 @@ QVariant DatabaseIndexModel::headerData(int section,
         return QVariant();
     if(orientation == Qt::Horizontal) {
         if(section == 0) {
-            return QString("White");
+            return QString("No.");
         }
         if(section == 1) {
-            return QString("Black");
+            return QString("White");
         }
         if(section == 2) {
-            return QString("Event");
+            return QString("Black");
         }
         if(section == 3) {
-            return QString("ECO");
+            return QString("Event");
         }
         if(section == 4) {
-            return QString("Date");
+            return QString("ECO");
         }
         if(section == 5) {
+            return QString("Date");
+        }
+        if(section == 6) {
             return QString("Result");
         }
-
     }
     if(orientation == Qt::Vertical) {
         return QString::number(section);

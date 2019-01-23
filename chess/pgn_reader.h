@@ -80,6 +80,7 @@ struct HeaderOffset
 
 struct PgnHeader
 {
+    QString eco;
     QString event;
     QString site;
     QString date;
