@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 QT       += printsupport
 QT       += svg
+QT       += testlib
 QT       -= gui
 
 TARGET = Jerry

@@ -25,6 +25,8 @@ private:
     QWidget *parentWidget;
     PgnReader reader;
     QString filename;
+    QHash<qint64, chess::PgnHeader> headerCache;
+    int cacheSize;
 
 };
 }

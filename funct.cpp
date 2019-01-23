@@ -165,12 +165,20 @@ void FuncT::run_pgn_scant() {
 */
 
 void FuncT::run_pgn_speedtest() {
-    qDebug() << "start";
     chess::PgnReader reader;
     QFile file;
-    QString filename = QString("C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn");
+    QString filename = QString("/home/gast/temp/KingBaseLite2019-pgn/kingbase_all.pgn");
     const char* encoding = reader.detect_encoding(filename);
+    qDebug() << "start";
+    QVector<PgnHeaderOffset> offsets = reader.scan_headers_foo(filename, encoding);
+    qDebug() << "stop";
+    qDebug() << offsets.size();
+    qDebug() << offsets.at(0).header.white;
+    qDebug() << offsets.at(100).header.white;
+    qDebug() << offsets.at(1000000).header.white;
+    qDebug() << offsets.at(100000000).header.white;
     //QString complete_file = reader.readFileIntoString(filename, encoding);
+    /*
     QVector<qint64> offsets = reader.scanPgn(filename, false);
     //QVector<PgnHeaderOffset> foo = reader.scan_headers(filename, encoding);
     qDebug() << "offset" << offsets.at(1);
@@ -186,6 +194,7 @@ void FuncT::run_pgn_speedtest() {
     qDebug() << game1.event;
     qDebug() << game2.event;
     qDebug() << game3.event;
+    */
 }
 
 void FuncT::run_pgnt() {

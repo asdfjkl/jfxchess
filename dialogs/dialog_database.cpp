@@ -13,6 +13,7 @@
 #include "viewController/database_index_model.h"
 #include <QFileDialog>
 #include <QDebug>
+#include <QTest>
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
@@ -92,7 +93,8 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    //this->tableView->verticalHeader()->hide();
+    this->tableView->verticalHeader()->hide();
+    //myTableWidget->verticalHeader()->setVisible(false);
     this->tableView->setShowGrid(false);
     this->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     this->tableView->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
@@ -184,20 +186,25 @@ void DialogDatabase::onClickOpen() {
         // i.e. look for magic bytes instead of
         // just relying on filename ending
         if(filename.endsWith(".pgn")) {
+            //qDebug() << "dialog 1";
             this->gameModel->PgnDatabase.setParentWidget(this);
             //this->gameModel->dciDatabase->reset();
+            //qDebug() << "dialog 2";
             this->gameModel->PgnDatabase.open(filename);
+            //qDebug() << "dialog 3";
             this->indexModel->setDatabase(&this->gameModel->PgnDatabase);
+            //qDebug() << "dialog 4";
             this->indexModel->layoutChanged();
-            this->tableView->resizeColumnsToContents();
-            /*
-            if(this->gameModel->dciDatabase->countGames() > 0) {
+            //qDebug() << "dialog 5";
+            //this->tableView->resizeColumnsToContents();
+
+            if(this->gameModel->PgnDatabase.countGames() > 0) {
                 this->tableView->selectRow(0);
-            }*/
+            }
             //this->setWindowTitle(this->gameModel->dciDatabase->getFilename());
             //this->currentOpenDBType = DATABASE_TYPE_DCI;
 
-            this->tbActionDeleteGame->setDisabled(true);
+            //this->tbActionDeleteGame->setDisabled(true);
 
         }
     }
@@ -224,6 +231,8 @@ void DialogDatabase::onClickExport() {
 
 void DialogDatabase::onRowChanged() {
 
+    qDebug() << "dialog: on row changed";
+    QTest::qWait(2000);
     QItemSelectionModel *select = this->tableView->selectionModel();
     if(select->hasSelection()) {
         QModelIndexList selected_rows = select->selectedRows();

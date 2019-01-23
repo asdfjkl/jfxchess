@@ -65,7 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QString resDir = ResourceFinder::getPath();
 
-    //chess::FuncT *f = new chess::FuncT();
+    chess::FuncT *f = new chess::FuncT();
+    //f->run_pgn_speedtest();
     //f->run_polyglot();
     /*
     f->run_pgnt();

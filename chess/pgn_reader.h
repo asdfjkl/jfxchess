@@ -91,7 +91,7 @@ struct PgnHeader
 
 struct PgnHeaderOffset
 {
-    quint64 offset;
+    qint64 offset;
     PgnHeader header;
 };
 
@@ -137,6 +137,7 @@ public:
     int readNextHeader(const QString &filename, const char* encoding,
                                   quint64 offset, HeaderOffset &headerOffset);
 
+    QVector<PgnHeaderOffset> scan_headers_foo(const QString &filename, const char* encoding);
 
 
     /**
@@ -190,9 +191,11 @@ public:
      */
     QList<HeaderOffset> scan_headersFromString(QString &content);
 
+    QVector<PgnHeaderOffset> readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, const char* encoding);
+
     QVector<qint64> scanPgn(QString &filename, bool isLatin1);
     chess::Game* readGameFromPgnAt(QString &filename, qint64 offset, const char* encoding);
-    PgnHeader readHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding);
+    PgnHeader readSingleHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding);
 
 
 private:

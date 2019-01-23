@@ -268,8 +268,17 @@ void FileController::openInCurrentPgnAt(int idx) {
 
 void FileController::openDatabase() {
 
-    DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);
-    dlg->exec();
+    DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);    
+    if(dlg->exec() == QDialog::Accepted && dlg->selectedIndex >= 0) {
+            qDebug() << "insided dialog acc";
+            chess::Game* selected_game = this->gameModel->PgnDatabase.getGameAt(dlg->selectedIndex);
+            this->gameModel->setGame(selected_game);
+            this->gameModel->getGame()->setTreeWasChanged(true);
+        } else {
+            qDebug() << "exec not ok:";
+        }
+    delete dlg;
+    this->gameModel->triggerStateChange();
 
 }
 

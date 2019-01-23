@@ -185,8 +185,8 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const 
     return header_offsets;
 }
 
-/*
-QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const char* encoding) {
+
+QVector<PgnHeaderOffset> PgnReader::scan_headers_foo(const QString &filename, const char* encoding) {
 
     QVector<PgnHeaderOffset> header_offsets;
     QFile file(filename);
@@ -212,8 +212,9 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const 
     PgnHeaderOffset ho;
     quint64 offset = 0;
 
-    while(!file.atEnd()) {
+    qDebug() << "foo start";
 
+    while(!file.atEnd()) {
         i++;
         QByteArray line = file.readLine();
         offset += line.length();
@@ -234,7 +235,8 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const 
                 foundGame = true;
             }
 
-            QString text_line = QString::fromLatin1(line.data());
+            //QString text_line = QString::fromLatin1(line.data());
+            QString text_line = QString::fromUtf8(line.data());
             QRegularExpressionMatch match_t = TAG_REGEX.match(text_line);
 
             if(match_t.hasMatch()) {
@@ -285,8 +287,8 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const 
 
 
         if(game_pos != -1) {
-            Heade game_header;
-            HeadeO ho;
+            PgnHeader game_header;
+            PgnHeaderOffset ho;
             ho.header = game_header;
             ho.offset = game_pos;
 
@@ -313,7 +315,7 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers(const QString &filename, const 
     qDebug() << file.pos();
     return header_offsets;
 }
-    */
+
 
 int PgnReader::readNextHeader(const QString &filename, const char* encoding,
                               quint64 offset, HeaderOffset &headerOffset) {
@@ -914,7 +916,88 @@ chess::Game* PgnReader::readGameFromPgnAt(QString &filename, qint64 offset, cons
     return nullptr;
 }
 
-PgnHeader PgnReader::readHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding) {
+
+QVector<PgnHeaderOffset> PgnReader::readMultipleHeadersFromPgnAround(QString &filename, QVector<qint64> &offsets, const char* encoding) {
+
+    QFile file(filename);
+
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        throw std::invalid_argument("unable to open file w/ supplied filename");
+    }
+    QTextStream in(&file);
+    QTextCodec *codec = QTextCodec::codecForName(encoding);
+    in.setCodec(codec);
+
+    QVector<PgnHeaderOffset> HeaderOffsets;
+
+    for(int i=0;i<offsets.size();i++) {
+
+        qint64 offset = offsets.at(i);
+        if(offset != 0 && offset > 0) {
+            in.seek(offset);
+        }
+
+        PgnHeader header;
+        bool foundHeader = false;
+        bool continueSearch = true;
+
+        QString line = in.readLine();
+        while(!in.atEnd() && continueSearch) {
+            line = in.readLine();
+            if(line.startsWith("%") || line.isEmpty()) {
+                line = in.readLine();
+                continue;
+            }
+
+            QRegularExpressionMatch match_t = TAG_REGEX.match(line);
+
+            if(match_t.hasMatch()) {
+
+                foundHeader = true;
+
+                QString tag = match_t.captured(1);
+                QString value = match_t.captured(2);
+
+                if(tag == "Event") {
+                    header.event = value;
+                }
+                if(tag == "Site") {
+                    header.site = value;
+                }
+                if(tag == "Date") {
+                    header.date = value;
+                }
+                if(tag == "Round") {
+                    header.round = value;
+                }
+                if(tag == "White") {
+                    header.white = value;
+                }
+                if(tag == "Black") {
+                    header.black = value;
+                }
+                if(tag == "Result") {
+                    header.result = value;
+                }
+            } else {
+                if(foundHeader) {
+                    continueSearch = false;
+                    break;
+                }
+            }
+        }
+        PgnHeaderOffset ho;
+        ho.offset = offset;
+        ho.header = header;
+        HeaderOffsets.append(ho);
+    }
+    file.close();
+    return HeaderOffsets;
+}
+
+
+
+PgnHeader PgnReader::readSingleHeaderFromPgnAt(QString &filename, qint64 offset, const char* encoding) {
 
     QFile file(filename);
 
@@ -968,7 +1051,7 @@ PgnHeader PgnReader::readHeaderFromPgnAt(QString &filename, qint64 offset, const
                 header.black = value;
             }
             if(tag == "Result") {
-                header.white = value;
+                header.result = value;
             }
         } else {
             if(foundHeader) {
