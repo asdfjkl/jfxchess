@@ -14,6 +14,7 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QTest>
+#include "various/messagebox.h"
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
@@ -84,8 +85,9 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->gameTable->verticalHeader()->hide();
     this->gameTable->setShowGrid(false);
     //this->drawAllItems();
-    this->gameTable->resizeColumnsToContents();;
+    //this->gameTable->resizeColumnsToContents();;
     this->gameTable->horizontalHeader()->setStretchLastSection(true);
+    this->gameTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->gameTable->selectRow(0);
 
 
@@ -117,6 +119,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     tableView->setWindowTitle(QObject::tr("Games"));
     //tableView->resizeColumnsToContents();  //don't resize, instead set to stretch (see above)
     tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tableView->show();
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
@@ -143,6 +146,8 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->setLayout(layoutAll);
 
     connect(tbActionOpen, &QAction::triggered, this, &DialogDatabase::onClickOpen);
+    connect(tbActionNew, &QAction::triggered, this, &DialogDatabase::onClickNew);
+
     //connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     //connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
 
@@ -178,6 +183,19 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
+}
+
+void DialogDatabase::onClickNew() {
+    QString filename = QFileDialog::getSaveFileName(this,
+        tr("Create New Database..."), this->gameModel->lastSaveDir, tr("PGN Files (*.pgn)"));
+    if(!filename.isNull()) {
+        QDir dir = QDir::root();
+        QString path = dir.absoluteFilePath(filename);
+        if(this->gameModel->PgnDatabase.createNew(filename) < 0) {
+            MessageBox msg(this);
+            msg.showMessage(tr("Operation Failed"), tr("Unable to create File: ")+filename);
+        }
+    }
 }
 
 void DialogDatabase::onClickOpen() {
@@ -218,6 +236,7 @@ void DialogDatabase::onClickOpen() {
 
     //this->gameModel->database->open(this);
 
+    this->gameTable->resizeColumnsToContents();;
 
 }
 
@@ -248,4 +267,5 @@ void DialogDatabase::onRowChanged() {
             this->selectedIndex = row_index;
         }
     }
+    this->gameTable->resizeColumnsToContents();;
 }

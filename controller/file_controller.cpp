@@ -131,45 +131,25 @@ void FileController::openGame() {
 void FileController::openGameFrom(QString &path, QString &absoluteFilename, bool reOpen) {
     chess::PgnReader reader;
     try {
-        QFile file;
-        file.setFileName(absoluteFilename);
-        file.open(QIODevice::ReadOnly);
-        quint64 size = file.size();
-        file.close();
-        if(size > 1048576) {
-            MessageBox *msg = new MessageBox(this->parentWidget);
-            msg->showMessage("Error Opening File", ("PGN files larger than 1 MB are not supported."));
-            delete msg;
-        } else {
-            const char* encoding = reader.detect_encoding(absoluteFilename);
-            QString complete_file = reader.readFileIntoString(absoluteFilename, encoding);
-            QList<chess::HeaderOffset> header_offsets = reader.scan_headersFromString(complete_file);
-            if(header_offsets.size() == 1) {
-                chess::Game* g = reader.readGameFromString(complete_file);
-                this->gameModel->wasSaved = true;
-                this->gameModel->lastOpenDir = path;
-                this->gameModel->currentPgnFilename = absoluteFilename;
-                this->gameModel->lastSaveFilename = absoluteFilename;
-                // setup new game triggers statechange, so no need to call
-                this->setupNewGame(g);
-                // load and set new game
-            } else if(header_offsets.size() > 1) {
-                DialogBrowseHeaders* dlg = new DialogBrowseHeaders(&header_offsets, absoluteFilename, this->parentWidget);
-                if(reOpen && this->gameModel->currentPgnIndex >= 0
-                        && this->gameModel->currentPgnIndex < header_offsets.size()) {
-                    dlg->table->selectRow(this->gameModel->currentPgnIndex);
-                }
-                if(dlg->exec() == QDialog::Accepted) {
-                    chess::Game* g = reader.readGameFromString(complete_file, dlg->gameOffset);
-                    this->gameModel->wasSaved = false;
+        this->gameModel->PgnDatabase.open(absoluteFilename);
+        if(this->gameModel->PgnDatabase.countGames() == 1) {
+            chess::Game* onlyGame = this->gameModel->PgnDatabase.getGameAt(0);
+            this->gameModel->lastOpenDir = path;
+            this->gameModel->currentPgnFilename = absoluteFilename;
+            this->gameModel->lastSaveFilename = absoluteFilename;
+            // setup new game triggers statechange, so no need to call
+            this->setupNewGame(onlyGame);
+        } else if(this->gameModel->PgnDatabase.countGames() > 1) {
+            DialogDatabase dlg(this->gameModel, this->parentWidget);
+            if(dlg.exec() == QDialog::Accepted && dlg.selectedIndex >= 0) {
+                    qDebug() << "insided dialog acc";
+                    chess::Game* selected_game = this->gameModel->PgnDatabase.getGameAt(dlg.selectedIndex);
                     this->gameModel->lastOpenDir = path;
                     this->gameModel->currentPgnFilename = absoluteFilename;
-                    this->gameModel->currentPgnIndex = dlg->gameIdx;
-                    this->gameModel->lastSaveFilename = QString("");
-                    this->setupNewGame(g);
+                    this->gameModel->lastSaveFilename = absoluteFilename;
+                    // setup new game triggers statechange, so no need to call
+                    this->setupNewGame(selected_game);
                 }
-                delete dlg;
-            }
         }
     } catch(std::exception e) {
         std::cerr << e.what() << std::endl;

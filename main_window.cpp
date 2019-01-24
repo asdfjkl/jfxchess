@@ -198,8 +198,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open Game"));
 
     QString doc_save(resDir + "/res/icons/document-save.svg");
-    QPixmap *tbSave = this->fromSvgToPixmap(iconSize, doc_save);
-    QAction *tbActionSave = toolbar->addAction(QIcon(*tbSave), this->tr("Save Game"));
+    QPixmap *tbSaveAs = this->fromSvgToPixmap(iconSize, doc_save);
+    QAction *tbActionSaveAs = toolbar->addAction(QIcon(*tbSaveAs), this->tr("Save Current Game As"));
 
     QString doc_print(resDir + "/res/icons/document-print.svg");
     QPixmap *tbPrint = this->fromSvgToPixmap(iconSize, doc_print);
@@ -275,8 +275,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu *m_game = this->menuBar()->addMenu(this->tr("Game"));
     QAction *new_game = m_game->addAction(this->tr("New..."));
     QAction *open_game = m_game->addAction(this->tr("Open..."));
-    this->save_game = m_game->addAction(this->tr("Save..."));
-    QAction *save_game_as = m_game->addAction(this->tr("Save As..."));
+    //this->save_game = m_game->addAction(this->tr("Save..."));
+    QAction *save_game_as = m_game->addAction(this->tr("Save Current Game As..."));
 
     m_game->addSeparator();
     QAction *save_diagram = m_game->addAction(this->tr("Save Position as Image..."));
@@ -288,7 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     new_game->setShortcut(QKeySequence::New);
     open_game->setShortcut(QKeySequence::Open);
-    save_game->setShortcut(QKeySequence::Save);
+    //save_game->setShortcut(QKeySequence::Save);
     save_game_as->setShortcut(QKeySequence::SaveAs);
     print_game->setShortcut(QKeySequence::Print);
     quit->setShortcut(QKeySequence::Quit);
@@ -396,10 +396,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(open_game, &QAction::triggered, this->fileController, &FileController::openGame);
     connect(tbActionOpen, &QAction::triggered, open_game, &QAction::trigger);
 
-    connect(save_game, &QAction::triggered, this->fileController, &FileController::saveGame);
+    //connect(save_game, &QAction::triggered, this->fileController, &FileController::saveGame);
 
     connect(save_game_as, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
-    connect(tbActionSave, &QAction::triggered, this->fileController, &FileController::toolbarSaveGame);
+    connect(tbActionSaveAs, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
 
     connect(gameModel, &GameModel::stateChange, this, &MainWindow::onStateChange);
 
@@ -528,11 +528,12 @@ void MainWindow::onStateChange() {
     QString line1 = QString("<b>").append(white).append(QString(" - ")).append(black).append(QString("</b><br/>"));
     QString line2 = site.append(QString(" ")).append(date);
     this->name->setText(line1.append(line2));
+    /*
     if(this->gameModel->wasSaved) {
         this->save_game->setEnabled(true);
     } else {
         this->save_game->setEnabled(false);
-    }
+    }*/
     if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
         this->pbEngineOnOff->blockSignals(true);
         this->pbEngineOnOff->setChecked(false);

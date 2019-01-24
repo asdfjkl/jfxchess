@@ -17,6 +17,7 @@ public:
     virtual void setParentWidget(QWidget *parentWidget) = 0;
     virtual void open(QString &filename) = 0;
     virtual void close() = 0;
+    virtual int createNew(QString &filename) = 0;
 
     virtual int getRowCount() = 0;
     virtual Game* getGameAt(int idx) = 0;

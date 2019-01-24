@@ -30,6 +30,7 @@
 #include <ctime>
 #include <QDebug>
 #include <QStyleFactory>
+#include "various/resource_finder.h"
 
 using namespace std;
 
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
     // todo: fix bold colors in textedit
     // currently not activated
     //qApp->setStyle(QStyleFactory::create("Fusion"));
-    /*
+/*
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(53,53,53));
     darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -76,19 +77,20 @@ int main(int argc, char *argv[])
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
     qApp->setPalette(darkPalette);
-    */
-    qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
 
+    qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+*/
     // dark style end
 
 
     // set application icon
     QIcon *app_icon = new QIcon();
-    app_icon->addFile("res/icons/icon16.png", QSize(16,16));
-    app_icon->addFile("res/icons//icon24.png", QSize(24,24));
-    app_icon->addFile("res/icons//icon32.png", QSize(32,32));
-    app_icon->addFile("res/icons/icon48.png", QSize(48,48));
-    app_icon->addFile("res/icons/icon256.png",QSize(256,256));
+    QString path = ResourceFinder::getPath();
+    app_icon->addFile(path+"res/icons/icon16.png", QSize(16,16));
+    app_icon->addFile(path+"res/icons//icon24.png", QSize(24,24));
+    app_icon->addFile(path+"res/icons//icon32.png", QSize(32,32));
+    app_icon->addFile(path+"res/icons/icon48.png", QSize(48,48));
+    app_icon->addFile(path+"res/icons/icon256.png",QSize(256,256));
     app.setWindowIcon(*app_icon);
 
     //app.setStyle(QStyleFactory::create("Fusion"));

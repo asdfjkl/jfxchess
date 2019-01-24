@@ -3,18 +3,35 @@
 #include <QDebug>
 #include <QFile>
 #include <QProgressDialog>
+#
 #include <iostream>
 
 chess::PgnDatabase::PgnDatabase()
 {
     this->parentWidget = nullptr;
     this->filename = "";
-    this->cacheSize = 50;
+    //this->cacheSize = 50;
     this->isUtf8 = true;
 }
 
 chess::PgnDatabase::~PgnDatabase() {
 
+}
+
+int chess::PgnDatabase::createNew(QString &filename) {
+
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return -1;
+    } else {
+        QTextStream out(&file);
+        out << "\n";
+        file.close();
+
+        this->filename = filename;
+        this->offsets.clear();
+        return 0;
+    }
 }
 
 void chess::PgnDatabase::setParentWidget(QWidget *parentWidget) {

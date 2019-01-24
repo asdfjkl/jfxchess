@@ -14,6 +14,7 @@ public:
     void setParentWidget(QWidget *parentWidget);
     void open(QString &filename);
     void close();
+    int createNew(QString &filename);
 
     int getRowCount();
     Game* getGameAt(int idx);
