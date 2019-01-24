@@ -194,6 +194,8 @@ void DialogDatabase::onClickNew() {
         if(this->gameModel->PgnDatabase.createNew(filename) < 0) {
             MessageBox msg(this);
             msg.showMessage(tr("Operation Failed"), tr("Unable to create File: ")+filename);
+        } else {
+            this->setWindowTitle(filename);
         }
     }
 }
@@ -230,7 +232,7 @@ void DialogDatabase::onClickOpen() {
             //this->currentOpenDBType = DATABASE_TYPE_DCI;
 
             //this->tbActionDeleteGame->setDisabled(true);
-
+            this->setWindowTitle(filename);
         }
     }
 
