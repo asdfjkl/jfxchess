@@ -147,6 +147,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     connect(tbActionOpen, &QAction::triggered, this, &DialogDatabase::onClickOpen);
     connect(tbActionNew, &QAction::triggered, this, &DialogDatabase::onClickNew);
+    connect(tbActionAddCurrent, &QAction::triggered, this, &DialogDatabase::onClickAppend);
 
     //connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     //connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
@@ -197,6 +198,22 @@ void DialogDatabase::onClickNew() {
         } else {
             this->setWindowTitle(filename);
         }
+    }
+}
+
+void DialogDatabase::onClickAppend() {
+    if(this->gameModel->PgnDatabase.isOpen()) {
+        chess::Game *currentGame = this->gameModel->getGame();
+        if(this->gameModel->PgnDatabase.appendCurrentGame(*currentGame) < 0) {
+            MessageBox msg(this);
+            msg.showMessage(tr("Operation Failed"), tr("Unable append current Game"));
+        }
+        // simpley workaround. actually not layout changes
+        // but dataChanged() should be emitted, however
+        // dataChanged() requires to determine the precise index,
+        // and layoutChanged suffices to ensure that the freshly
+        // added game is displayed
+        this->indexModel->layoutChanged();
     }
 }
 

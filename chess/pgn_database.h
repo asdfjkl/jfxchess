@@ -15,11 +15,13 @@ public:
     void open(QString &filename);
     void close();
     int createNew(QString &filename);
+    int appendCurrentGame(chess::Game &game);
 
     int getRowCount();
     Game* getGameAt(int idx);
     PgnHeader getRowInfo(int idx);
     int countGames();
+    bool isOpen();
 
 private:
     QVector<qint64> offsets;
@@ -30,6 +32,7 @@ private:
     QVector<qint64> scanPgn(QString &filename, bool isLatin1);
     int cacheSize;
     bool isUtf8;
+    bool currentlyOpen;
 
 };
 }

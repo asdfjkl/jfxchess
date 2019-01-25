@@ -38,6 +38,7 @@ signals:
 public slots:
 
     void onClickNew();
+    void onClickAppend();
     void onClickSearch();
     void onClickExport();
     void onClickOpen();

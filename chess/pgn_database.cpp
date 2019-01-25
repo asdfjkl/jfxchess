@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QProgressDialog>
+#include "chess/pgn_printer.h"
 #
 #include <iostream>
 
@@ -12,10 +13,15 @@ chess::PgnDatabase::PgnDatabase()
     this->filename = "";
     //this->cacheSize = 50;
     this->isUtf8 = true;
+    this->currentlyOpen = false;
 }
 
 chess::PgnDatabase::~PgnDatabase() {
 
+}
+
+bool chess::PgnDatabase::isOpen() {
+    return this->currentlyOpen;
 }
 
 int chess::PgnDatabase::createNew(QString &filename) {
@@ -30,8 +36,31 @@ int chess::PgnDatabase::createNew(QString &filename) {
 
         this->filename = filename;
         this->offsets.clear();
+        this->currentlyOpen = true;
         return 0;
     }
+}
+
+int chess::PgnDatabase::appendCurrentGame(chess::Game &game) {
+
+    QFile file(this->filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        return -1;
+    } else {
+        QTextStream out(&file);
+        out << "\n";
+        qint64 gamePos = out.pos();
+        chess::PgnPrinter printer;
+        QStringList pgn = printer.printGame(game);
+        for (int i = 0; i < pgn.size(); ++i) {
+            out << pgn.at(i) << '\n';
+        }
+        file.close();
+        this->offsets.append(gamePos);
+        return 0;
+    }
+
+
 }
 
 void chess::PgnDatabase::setParentWidget(QWidget *parentWidget) {
@@ -135,9 +164,14 @@ void chess::PgnDatabase::open(QString &filename) {
     }*/
     this->offsets = this->scanPgn(filename, this->isUtf8);
     this->filename = filename;
+    this->currentlyOpen = true;
+
 }
 
 void chess::PgnDatabase::close() {
+    this->offsets.clear();
+    this->filename = "";
+    this->currentlyOpen = false;
 
 }
 
