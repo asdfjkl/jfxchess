@@ -43,6 +43,8 @@ public slots:
     void onClickExport();
     void onClickOpen();
     void onRowChanged();
+    void showHelp();
+
 
 };
 

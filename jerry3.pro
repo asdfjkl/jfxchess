@@ -71,7 +71,8 @@ SOURCES += main.cpp \
     chess/database.cpp \
     viewController/database_index_model.cpp \
     chess/pgn_database.cpp \
-    dialogs/dialog_database.cpp
+    dialogs/dialog_database.cpp \
+    dialogs/dialog_database_help.cpp
 
 HEADERS += \
     chess/board.h \
@@ -125,4 +126,5 @@ HEADERS += \
     chess/database.h \
     viewController/database_index_model.h \
     chess/pgn_database.h \
-    dialogs/dialog_database.h
+    dialogs/dialog_database.h \
+    dialogs/dialog_database_help.h

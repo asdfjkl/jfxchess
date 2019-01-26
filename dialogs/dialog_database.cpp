@@ -15,6 +15,7 @@
 #include <QDebug>
 #include <QTest>
 #include "various/messagebox.h"
+#include "dialogs/dialog_database_help.h"
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
@@ -149,6 +150,8 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     connect(tbActionNew, &QAction::triggered, this, &DialogDatabase::onClickNew);
     connect(tbActionAddCurrent, &QAction::triggered, this, &DialogDatabase::onClickAppend);
 
+    connect(tbActionHelp, &QAction::triggered, this, &DialogDatabase::showHelp);
+
     //connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     //connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
 
@@ -184,6 +187,11 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
+}
+
+void DialogDatabase::showHelp() {
+    DialogDatabaseHelp dlg(this, JERRY_VERSION);
+    dlg.exec();
 }
 
 void DialogDatabase::onClickNew() {

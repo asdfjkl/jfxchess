@@ -32,7 +32,7 @@ DialogAbout::DialogAbout(QWidget *parent, QString version) :
                               "Version ");
     info.append(version).append("<br>");
     info.append("Copyright © 2014 - 2019<br>" \
-                              "Dominik Klein, Karl Josef Klein<br>" \
+                              "Dominik Klein<br>" \
                               "licensed under GNU GPL 2<br><br>" \
                               "<b>Credits</b><br><br>" \
                               "Stockfish Chess Engine<br>" \
