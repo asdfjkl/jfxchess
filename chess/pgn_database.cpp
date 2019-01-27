@@ -187,6 +187,10 @@ chess::Game* chess::PgnDatabase::getGameAt(int idx) {
     return g;
 }
 
+void chess::PgnDatabase::search(SearchPattern &pattern) {
+
+}
+
 /*
 chess::PgnHeader chess::PgnDatabase::getRowInfo(int idx) {
 

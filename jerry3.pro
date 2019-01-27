@@ -72,7 +72,10 @@ SOURCES += main.cpp \
     viewController/database_index_model.cpp \
     chess/pgn_database.cpp \
     dialogs/dialog_database.cpp \
-    dialogs/dialog_database_help.cpp
+    dialogs/dialog_database_help.cpp \
+    model/search_pattern.cpp \
+    dialogs/dialog_search.cpp \
+    dialogs/tab_header_search.cpp
 
 HEADERS += \
     chess/board.h \
@@ -127,4 +130,7 @@ HEADERS += \
     viewController/database_index_model.h \
     chess/pgn_database.h \
     dialogs/dialog_database.h \
-    dialogs/dialog_database_help.h
+    dialogs/dialog_database_help.h \
+    model/search_pattern.h \
+    dialogs/dialog_search.h \
+    dialogs/tab_header_search.h

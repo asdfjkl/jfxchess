@@ -2,6 +2,7 @@
 #define PGNDATABASE_H
 
 #include "chess/database.h"
+#include "model/search_pattern.h"
 
 namespace chess {
 
@@ -22,6 +23,7 @@ public:
     PgnHeader getRowInfo(int idx);
     int countGames();
     bool isOpen();
+    void search(SearchPattern &pattern);
 
 private:
     QVector<qint64> offsets;

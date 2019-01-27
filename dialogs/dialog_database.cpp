@@ -16,6 +16,7 @@
 #include <QTest>
 #include "various/messagebox.h"
 #include "dialogs/dialog_database_help.h"
+#include "dialogs/dialog_search.h"
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QDialog(parent)
@@ -152,7 +153,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     connect(tbActionHelp, &QAction::triggered, this, &DialogDatabase::showHelp);
 
-    //connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
+    connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
     //connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -187,6 +188,10 @@ void DialogDatabase::resizeTo(float ratio) {
 
 void DialogDatabase::onClickSearch() {
 
+    DialogSearch dlg(this->gameModel, this);
+    if(dlg.exec() == QDialog::Accepted) {
+        // search database
+    }
 }
 
 void DialogDatabase::showHelp() {
