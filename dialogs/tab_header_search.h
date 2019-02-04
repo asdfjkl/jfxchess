@@ -6,12 +6,14 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QRadioButton>
 
 class TabHeaderSearch : public QWidget
 {
     Q_OBJECT
 public:
     explicit TabHeaderSearch(QWidget *parent = nullptr);
+
     QLineEdit* whiteName;
     QLineEdit* blackName;
 
@@ -21,7 +23,6 @@ public:
     QLineEdit *site;
     QCheckBox *cbYear;
     QCheckBox *cbEco;
-    QCheckBox *cbMoves;
 
     QSpinBox *minYear;
     QSpinBox *maxYear;
@@ -30,6 +31,11 @@ public:
 
     QSpinBox *minElo;
     QSpinBox *maxElo;
+
+    QRadioButton *btnIgnoreElo;
+    QRadioButton *btnBothElo;
+    QRadioButton *btnOneElo;
+    QRadioButton *btnAverageElo;
 
     QCheckBox *btnWhiteWins;
     QCheckBox *btnBlackWins;
@@ -41,6 +47,7 @@ public:
 signals:
 
 public slots:
+    void onReset();
 };
 
 #endif // TAB_HEADER_SEARCH_H

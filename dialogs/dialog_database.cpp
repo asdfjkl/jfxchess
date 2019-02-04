@@ -14,6 +14,7 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QTest>
+#include <iostream>
 #include "various/messagebox.h"
 #include "dialogs/dialog_database_help.h"
 #include "dialogs/dialog_search.h"
@@ -90,11 +91,9 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     //this->gameTable->resizeColumnsToContents();;
     this->gameTable->horizontalHeader()->setStretchLastSection(true);
     this->gameTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    this->gameTable->selectRow(0);
-
 
     this->indexModel = new DatabaseIndexModel(this);
-    this->indexModel->setDatabase(&this->gameModel->PgnDatabase);
+    this->indexModel->setDatabase(&this->gameModel->database);
 
     this->tableView = new QTableView(this);
     this->tableView->setModel(indexModel);
@@ -110,8 +109,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     // set index to currently open game
     // if a game is currently opened
-
-    int idx = 0; // this->gameModel->PgnDatabase->currentOpenGameIdx;
+    int idx = this->gameModel->database.getLastSelectedIndex();
     if(idx > 0) {
         this->tableView->selectRow(idx);
     } else {
@@ -154,7 +152,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     connect(tbActionHelp, &QAction::triggered, this, &DialogDatabase::showHelp);
 
     connect(tbActionSearch, &QAction::triggered, this, &DialogDatabase::onClickSearch);
-    //connect(tbActionExport, &QAction::triggered, this, &DialogDatabase::onClickExport);
+    connect(tbActionReset, &QAction::triggered, this, &DialogDatabase::onClickReset);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -186,11 +184,33 @@ void DialogDatabase::resizeTo(float ratio) {
     this->resize(newSize);
 }
 
+void DialogDatabase::onClickReset() {
+    this->gameModel->database.resetSearch();
+    this->indexModel->layoutChanged();
+}
+
 void DialogDatabase::onClickSearch() {
 
     DialogSearch dlg(this->gameModel, this);
+    dlg.setPattern(this->gameModel->lastSeenSearchPattern);
     if(dlg.exec() == QDialog::Accepted) {
-        // search database
+        SearchPattern pattern = dlg.getPattern();
+        this->gameModel->lastSeenSearchPattern = pattern;
+        QTime myTimer;
+        myTimer.start();
+        // do something..
+        try {
+            this->gameModel->database.search(pattern);
+            int nMilliseconds = myTimer.elapsed();
+            qDebug() << "search: "<< nMilliseconds;
+            this->gameModel->database.setLastSelectedIndex(0);
+            if(this->gameModel->database.getRowCount() > 0) {
+                this->tableView->selectRow(0);
+            }
+            this->indexModel->layoutChanged();
+        } catch(std::invalid_argument e) {
+            std::cerr << e.what() << std::endl;
+        }
     }
 }
 
@@ -205,7 +225,7 @@ void DialogDatabase::onClickNew() {
     if(!filename.isNull()) {
         QDir dir = QDir::root();
         QString path = dir.absoluteFilePath(filename);
-        if(this->gameModel->PgnDatabase.createNew(filename) < 0) {
+        if(this->gameModel->database.createNew(filename) < 0) {
             MessageBox msg(this);
             msg.showMessage(tr("Operation Failed"), tr("Unable to create File: ")+filename);
         } else {
@@ -215,18 +235,20 @@ void DialogDatabase::onClickNew() {
 }
 
 void DialogDatabase::onClickAppend() {
-    if(this->gameModel->PgnDatabase.isOpen()) {
+    if(this->gameModel->database.isOpen()) {
         chess::Game *currentGame = this->gameModel->getGame();
-        if(this->gameModel->PgnDatabase.appendCurrentGame(*currentGame) < 0) {
+        if(this->gameModel->database.appendCurrentGame(*currentGame) < 0) {
             MessageBox msg(this);
             msg.showMessage(tr("Operation Failed"), tr("Unable append current Game"));
+        } else {
+            // simpley workaround. actually not layout changes
+            // but dataChanged() should be emitted, however
+            // dataChanged() requires to determine the precise index,
+            // and layoutChanged suffices to ensure that the freshly
+            // added game is displayed
+            this->tableView->selectRow(this->gameModel->database.countGames());
+            this->indexModel->layoutChanged();
         }
-        // simpley workaround. actually not layout changes
-        // but dataChanged() should be emitted, however
-        // dataChanged() requires to determine the precise index,
-        // and layoutChanged suffices to ensure that the freshly
-        // added game is displayed
-        this->indexModel->layoutChanged();
     }
 }
 
@@ -242,18 +264,18 @@ void DialogDatabase::onClickOpen() {
         // just relying on filename ending
         if(filename.endsWith(".pgn")) {
             //qDebug() << "dialog 1";
-            this->gameModel->PgnDatabase.setParentWidget(this);
+            this->gameModel->database.setParentWidget(this);
             //this->gameModel->dciDatabase->reset();
             //qDebug() << "dialog 2";
-            this->gameModel->PgnDatabase.open(filename);
+            this->gameModel->database.open(filename);
             //qDebug() << "dialog 3";
-            this->indexModel->setDatabase(&this->gameModel->PgnDatabase);
+            this->indexModel->setDatabase(&this->gameModel->database);
             //qDebug() << "dialog 4";
             this->indexModel->layoutChanged();
             //qDebug() << "dialog 5";
             //this->tableView->resizeColumnsToContents();
 
-            if(this->gameModel->PgnDatabase.countGames() > 0) {
+            if(this->gameModel->database.countGames() > 0) {
                 this->tableView->selectRow(0);
             }
             this->gameTable->resizeColumnsToContents();;
@@ -297,6 +319,7 @@ void DialogDatabase::onRowChanged() {
         if(selected_rows.size() > 0) {
             int row_index = selected_rows.at(0).row();
             this->selectedIndex = row_index;
+            this->gameModel->database.setLastSelectedIndex(this->selectedIndex);
         }
     }
     this->gameTable->resizeColumnsToContents();;

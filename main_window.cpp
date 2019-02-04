@@ -187,6 +187,8 @@ MainWindow::MainWindow(QWidget *parent) :
     hbox->setStretch(1,2);
 
     this->toolbar = addToolBar("main toolbar");
+    //this->toolbar->setFixedHeight(72);
+    //this->toolbar->setIconSize(QSize(72,72));
     QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
 
     QString doc_new(resDir + "/res/icons/document-new.svg");

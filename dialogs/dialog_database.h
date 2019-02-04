@@ -42,6 +42,7 @@ public slots:
     void onClickSearch();
     void onClickExport();
     void onClickOpen();
+    void onClickReset();
     void onRowChanged();
     void showHelp();
 

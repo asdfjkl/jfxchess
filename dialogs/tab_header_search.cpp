@@ -6,6 +6,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QDebug>
 
 TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
 {
@@ -88,10 +89,13 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     minElo->setAlignment(Qt::AlignLeft);
     maxElo->setAlignment(Qt::AlignLeft);
     QButtonGroup *eloButtons = new QButtonGroup(this);
-    QRadioButton *btnIgnoreElo = new QRadioButton(tr("Ignore"), this);
-    QRadioButton *btnBothElo = new QRadioButton(tr("Both"), this);
-    QRadioButton *btnOneElo = new QRadioButton(tr("One"), this);
-    QRadioButton *btnAverageElo = new QRadioButton("Average", this);
+    this->btnIgnoreElo = new QRadioButton(tr("Ignore"), this);
+    this->btnBothElo = new QRadioButton(tr("Both"), this);
+    this->btnOneElo = new QRadioButton(tr("One"), this);
+    this->btnAverageElo = new QRadioButton("Average", this);
+
+    this->btnIgnoreElo->setChecked(true);
+
     eloButtons->addButton(btnIgnoreElo);
     eloButtons->addButton(btnBothElo);
     eloButtons->addButton(btnOneElo);
@@ -153,5 +157,37 @@ TabHeaderSearch::TabHeaderSearch(QWidget *parent) : QWidget(parent)
     mainLayout->addLayout(layoutLeftRight);
     mainLayout->addLayout(layoutResetButton);
 
+    connect(this->btnReset, &QPushButton::pressed, this, &TabHeaderSearch::onReset);
+
     this->setLayout(mainLayout);
 }
+
+void TabHeaderSearch::onReset() {
+
+    this->whiteName->setText("");
+    this->blackName->setText("");
+    this->cbIgnoreColors->setChecked(false);
+    this->event->setText("");
+    this->site->setText("");
+    this->cbYear->setChecked(false);
+    this->cbEco->setChecked(false);
+    this->minYear->setValue(500);
+    this->maxYear->setValue(2200);
+    this->startEco->setText("A00");
+    this->stopEco->setText("E99");
+    this->minElo->setValue(1000);
+    this->maxElo->setValue(3000);
+
+    this->btnIgnoreElo->setChecked(true);
+    this->btnAverageElo->setChecked(false);
+    this->btnBothElo->setChecked(false);
+    this->btnOneElo->setChecked(false);
+
+    this->btnUndecided->setChecked(false);
+    this->btnWhiteWins->setChecked(false);
+    this->btnBlackWins->setChecked(false);
+    this->btnDraw->setChecked(false);
+
+}
+
+

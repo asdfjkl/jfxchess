@@ -106,9 +106,11 @@ public:
     QVector<chess::Move> getBookMoves(chess::GameNode *node);
     bool isInBook(chess::GameNode *node);
 
-    chess::PgnDatabase PgnDatabase;
+    chess::PgnDatabase database;
 
     bool gameAnalysisStarted;
+
+    SearchPattern lastSeenSearchPattern;
 
 private:
     void loadOpeningBook();

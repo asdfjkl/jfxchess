@@ -24,23 +24,23 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     connect(buttonBox, &QDialogButtonBox::accepted, this, &DialogSearch::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &DialogSearch::reject);
 
-    this->optGameData = new QCheckBox(tr("Game Data"));
+    //this->optGameData = new QCheckBox(tr("Game Data"));
     //this->optComments = new QCheckBox(tr("Comments"));
     //this->optPosition = new QCheckBox(tr("Position"));
     //this->optVariants = new QCheckBox(tr("Search in Variations"));
 
-    this->optGameData->setChecked(true);
+    //this->optGameData->setChecked(true);
 
-    QHBoxLayout *layoutOptions = new QHBoxLayout();
-    layoutOptions->addWidget(optGameData);
+    //QHBoxLayout *layoutOptions = new QHBoxLayout();
+    //layoutOptions->addWidget(optGameData);
     //layoutOptions->addWidget(optComments);
     //layoutOptions->addWidget(optPosition);
     //layoutOptions->addWidget(optVariants);
-    layoutOptions->addStretch(1);
+    //layoutOptions->addStretch(1);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(tabWidget);
-    mainLayout->addLayout(layoutOptions);
+    //mainLayout->addLayout(layoutOptions);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
@@ -88,6 +88,18 @@ qDebug() << "OK";
     sp.elo_min = this->ths->minElo->value();
     sp.elo_max = this->ths->maxElo->value();
     qDebug() << "OK1";
+    if(this->ths->btnAverageElo->isChecked()) {
+        sp.checkElo = SEARCH_AVERAGE_ELO;
+    }
+    if(this->ths->btnIgnoreElo->isChecked()) {
+        sp.checkElo = SEARCH_IGNORE_ELO;
+    }
+    if(this->ths->btnBothElo->isChecked()) {
+        sp.checkElo = SEARCH_BOTH_ELO;
+    }
+    if(this->ths->btnOneElo->isChecked()) {
+        sp.checkElo = SEARCH_ONE_ELO;
+    }
 
     sp.result = chess::RES_ANY;
     if(this->ths->btnUndecided->isChecked()) {
@@ -119,7 +131,8 @@ qDebug() << "OK";
     qDebug() << "options";
 
     // search options
-    sp.searchGameData = this->optGameData->isChecked();
+    //sp.searchGameData = this->optGameData->isChecked();
+    sp.searchGameData = true;
     //sp.searchComments = this->optComments->isChecked();
     //sp.searchPosition = this->optPosition->isChecked();
     //sp.searchVariations = this->optVariants->isChecked();
@@ -127,4 +140,54 @@ qDebug() << "OK";
     //sp.search_board = this->tsp->getBoard();
 
     return sp;
+}
+
+void DialogSearch::setPattern(SearchPattern &sp) {
+
+    // game data search
+    this->ths->whiteName->setText(sp.whiteName);
+    this->ths->blackName->setText(sp.blackName);
+    this->ths->cbIgnoreColors->setChecked(sp.ignoreNameColor);
+    this->ths->event->setText(sp.event);
+    this->ths->site->setText(sp.site);
+    this->ths->cbYear->setChecked(sp.checkYear);
+    this->ths->cbEco->setChecked(sp.checkEco);
+    this->ths->cbEco->setChecked(sp.checkMoves);
+    this->ths->minYear->setValue(sp.year_min);
+    this->ths->maxYear->setValue(sp.year_max);
+    this->ths->startEco->setText(sp.ecoStart);
+    this->ths->stopEco->setText(sp.ecoStop);
+    this->ths->minElo->setValue(sp.elo_min);
+    this->ths->maxElo->setValue(sp.elo_max);
+
+    switch(sp.checkElo) {
+        case SEARCH_AVERAGE_ELO:
+            this->ths->btnAverageElo->setChecked(true);
+            break;
+        case SEARCH_BOTH_ELO:
+            this->ths->btnBothElo->setChecked(true);
+            break;
+        case SEARCH_IGNORE_ELO:
+            this->ths->btnIgnoreElo->setChecked(true);
+            break;
+        case SEARCH_ONE_ELO:
+            this->ths->btnOneElo->setChecked(true);
+            break;
+    }
+
+    switch(sp.result) {
+        case chess::RES_UNDEF:
+            this->ths->btnUndecided->setChecked(true);
+            break;
+        case chess::RES_WHITE_WINS:
+            this->ths->btnWhiteWins->setChecked(true);
+            break;
+        case chess::RES_BLACK_WINS:
+            this->ths->btnBlackWins->setChecked(true);
+            break;
+        case chess::RES_DRAW:
+            this->ths->btnDraw->setChecked(true);
+            break;
+    }
+
 }

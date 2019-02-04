@@ -76,7 +76,7 @@ GameModel::GameModel(QObject *parent) :
 
     this->loadOpeningBook();
 
-    this->PgnDatabase = chess::PgnDatabase();
+    this->database = chess::PgnDatabase();
 }
 
 GameModel::~GameModel() {

@@ -131,19 +131,19 @@ void FileController::openGame() {
 void FileController::openGameFrom(QString &path, QString &absoluteFilename, bool reOpen) {
     chess::PgnReader reader;
     try {
-        this->gameModel->PgnDatabase.open(absoluteFilename);
-        if(this->gameModel->PgnDatabase.countGames() == 1) {
-            chess::Game* onlyGame = this->gameModel->PgnDatabase.getGameAt(0);
+        this->gameModel->database.open(absoluteFilename);
+        if(this->gameModel->database.countGames() == 1) {
+            chess::Game* onlyGame = this->gameModel->database.getGameAt(0);
             this->gameModel->lastOpenDir = path;
             this->gameModel->currentPgnFilename = absoluteFilename;
             this->gameModel->lastSaveFilename = absoluteFilename;
             // setup new game triggers statechange, so no need to call
             this->setupNewGame(onlyGame);
-        } else if(this->gameModel->PgnDatabase.countGames() > 1) {
+        } else if(this->gameModel->database.countGames() > 1) {
             DialogDatabase dlg(this->gameModel, this->parentWidget);
             if(dlg.exec() == QDialog::Accepted && dlg.selectedIndex >= 0) {
                     qDebug() << "insided dialog acc";
-                    chess::Game* selected_game = this->gameModel->PgnDatabase.getGameAt(dlg.selectedIndex);
+                    chess::Game* selected_game = this->gameModel->database.getGameAt(dlg.selectedIndex);
                     this->gameModel->lastOpenDir = path;
                     this->gameModel->currentPgnFilename = absoluteFilename;
                     this->gameModel->lastSaveFilename = absoluteFilename;
@@ -251,7 +251,7 @@ void FileController::openDatabase() {
     DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);    
     if(dlg->exec() == QDialog::Accepted && dlg->selectedIndex >= 0) {
             qDebug() << "insided dialog acc";
-            chess::Game* selected_game = this->gameModel->PgnDatabase.getGameAt(dlg->selectedIndex);
+            chess::Game* selected_game = this->gameModel->database.getGameAt(dlg->selectedIndex);
             this->gameModel->setGame(selected_game);
             this->gameModel->getGame()->setTreeWasChanged(true);
         } else {
