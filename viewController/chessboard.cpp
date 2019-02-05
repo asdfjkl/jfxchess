@@ -114,10 +114,12 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
     int squareSize = 0;
     this->calculateBoardSize(&boardSize, &squareSize);
 
-    painter->drawRect(1,1, boardSize, boardSize);
+    //painter->drawRect(1,1, boardSize, boardSize);
+    int yDiff = this->height()-boardSize;
+    painter->drawRect(1,yDiff, boardSize, boardSize);
 
     int boardOffsetX = this->borderWidth;
-    int boardOffsetY = this->borderWidth;
+    int boardOffsetY = this->borderWidth + yDiff;
 
     QColor light = this->style->lightSquare;
     QColor dark = this->style->darkSquare;

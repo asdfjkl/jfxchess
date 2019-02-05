@@ -97,10 +97,11 @@ QPoint* BoardViewController::getBoardPosition(int x, int y) {
     int boardSize = 0;
     int squareSize = 0;
     Chessboard::calculateBoardSize(&boardSize, &squareSize);
-    if(x > this->borderWidth && y > this->borderWidth
-            && x < (boardSize - this->borderWidth) && y < (boardSize - this->borderWidth)) {
+    int yOffset = this->width() - boardSize;
+    if(x > this->borderWidth && y > this->borderWidth + yOffset
+            && x < (boardSize - this->borderWidth) && y < (this->height() - this->borderWidth)) {
         x = x - this->borderWidth;
-        y = y - this->borderWidth;
+        y = y - (this->borderWidth + yOffset);
         x = x / squareSize;
         y = 7 - (y / squareSize);
         //if(this->flippedBoard) {
