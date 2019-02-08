@@ -62,7 +62,7 @@ protected:
     void drawArrow(const chess::Arrow &ai, int boardOffsetX, int boardOffsetY, int squareSize, QPainter *painter);
 
     void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
+    //void resizeEvent(QResizeEvent *e);
 
 signals:
 

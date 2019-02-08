@@ -11,6 +11,7 @@ void PickColorBoard::paintEvent(QPaintEvent *e) {
     Chessboard::paintEvent(e);
 }
 
+
 void PickColorBoard::resizeEvent(QResizeEvent *e) {
     Chessboard::resizeEvent(e);
 }

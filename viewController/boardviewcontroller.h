@@ -61,7 +61,7 @@ private:
 
 protected:
      void paintEvent(QPaintEvent *e);
-     void resizeEvent(QResizeEvent *e);
+     //void resizeEvent(QResizeEvent *e);
      void mousePressEvent(QMouseEvent *m);
      void mouseMoveEvent(QMouseEvent *m);
      void mouseReleaseEvent(QMouseEvent *m);

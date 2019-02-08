@@ -45,6 +45,7 @@
 #include <QCheckBox>
 #include <QShortcut>
 #include <QToolBar>
+#include <QSplitter>
 #include <QDesktopServices>
 #include "chess/pgn_reader.h"
 #include "viewController/engineview.h"
@@ -168,23 +169,82 @@ MainWindow::MainWindow(QWidget *parent) :
     vbox_right->addLayout(hbox_name_editHeader);
     vbox_right->addWidget(moveViewController);
     vbox_right->addLayout(hbox_buttons);
-    vbox_right->addLayout(hbox_right_engine_buttons);
-    vbox_right->addWidget(engineViewController);
+    //vbox_right->addLayout(hbox_right_engine_buttons);
+    //vbox_right->addWidget(engineViewController);
 
     vbox_right->setStretch(0,1);
     vbox_right->setStretch(1,4);
     vbox_right->setStretch(2,1);
-    vbox_right->setStretch(3,1);
-    vbox_right->setStretch(4,4);
+    //vbox_right->setStretch(3,1);
+    //vbox_right->setStretch(4,4);
 
     QVBoxLayout *vbox_left = new QVBoxLayout();
     vbox_left->addWidget(boardViewController);
 
-    this->hbox = new QHBoxLayout();
-    hbox->addLayout(vbox_left);
-    hbox->addLayout(vbox_right);
-    hbox->setStretch(0,1);
-    hbox->setStretch(1,2);
+    //this->hbox = new QHBoxLayout();
+    //hbox->addLayout(vbox_left);
+    //hbox->addLayout(vbox_right);
+    QWidget *lHboxWidget = new QWidget(this);
+    lHboxWidget->setLayout(vbox_left);
+    QWidget *rHboxWidget = new QWidget(this);
+    rHboxWidget->setLayout(vbox_right);
+    QSplitter* splitterLeftRight = new QSplitter(this);
+    splitterLeftRight->addWidget(lHboxWidget);
+    splitterLeftRight->addWidget(rHboxWidget);
+    //splitterLeftRight->setStretchFactor(0,8);
+    //splitterLeftRight->setStretchFactor(1,1);
+    int halfWidth = this->width() / 2;
+    splitterLeftRight->setSizes(QList<int>({halfWidth, halfWidth}));
+
+    //hbox->setStretch(0,2);
+    //hbox->setStretch(1,3);
+
+    QSplitterHandle *handle = splitterLeftRight->handle(1);
+    QHBoxLayout *layout = new QHBoxLayout(handle);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+
+    QFrame *line = new QFrame(handle);
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(line);
+
+    //completeLayout->addWidget(splitterLeftRight);
+
+    QSplitter* splitterTopDown = new QSplitter(this);
+    //QWidget* topWidget = new QWidget(this);
+    //topWidget->setLayout(splitter)
+    //splitterTopDown->add
+    splitterTopDown->addWidget(splitterLeftRight);
+    splitterTopDown->setOrientation(Qt::Vertical);
+
+    QVBoxLayout *completeLayout = new QVBoxLayout();
+    completeLayout->addLayout(hbox_right_engine_buttons);
+    completeLayout->addWidget(engineViewController);
+    QWidget* bottomWidget = new QWidget(this);
+    bottomWidget->setLayout(completeLayout);
+    splitterTopDown->addWidget(bottomWidget);
+
+    int fifthHeight = this->height() / 5;
+    splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
+
+    //completeLayout->setStretch(0,6);
+    //completeLayout->setStretch(1,1);
+    //QLayout cLayout = new QLayout();
+    QHBoxLayout *cLayout = new QHBoxLayout();
+    cLayout->addWidget(splitterTopDown);
+
+
+    QSplitterHandle *handle2 = splitterTopDown->handle(1);
+    QHBoxLayout *layout2 = new QHBoxLayout(handle2);
+    layout2->setSpacing(0);
+    layout2->setMargin(0);
+
+    QFrame *line2 = new QFrame(handle2);
+    line2->setFrameShape(QFrame::HLine);
+    line2->setFrameShadow(QFrame::Sunken);
+    layout2->addWidget(line2);
+
 
     this->toolbar = addToolBar("main toolbar");
     //this->toolbar->setFixedHeight(72);
@@ -265,7 +325,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QPixmap *tbHelp = this->fromSvgToPixmap(iconSize, hlp_clc);
     QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
 
-    mainWidget->setLayout(hbox);
+    //mainWidget->setLayout(hbox);
+    //mainWidget->setLayout(completeLayout);
+    mainWidget->setLayout(cLayout);
 
     this->setCentralWidget(mainWidget);
     QStatusBar *statusbar = this->statusBar();

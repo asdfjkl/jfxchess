@@ -81,9 +81,10 @@ void Chessboard::paintEvent(QPaintEvent *event) {
     painter->end();
 }
 
+/*
 void Chessboard::resizeEvent(QResizeEvent *) {
-    this->setMinimumWidth(this->height());
-}
+   this->setMinimumWidth(this->height());
+}*/
 
 void Chessboard::setColorStyle(ColorStyle *style) {
     this->style = style;
@@ -114,12 +115,18 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
     int squareSize = 0;
     this->calculateBoardSize(&boardSize, &squareSize);
 
-    //painter->drawRect(1,1, boardSize, boardSize);
-    int yDiff = this->height()-boardSize;
-    painter->drawRect(1,yDiff, boardSize, boardSize);
+    int addLeft = (this->width() - boardSize) / 2;
+    if(addLeft < 0) {
+        addLeft = 0;
+    }
+    painter->drawRect(1+addLeft,1, boardSize, boardSize);
 
-    int boardOffsetX = this->borderWidth;
-    int boardOffsetY = this->borderWidth + yDiff;
+    //int yDiff = this->height()-boardSize;
+    //painter->drawRect(1,yDiff, boardSize, boardSize);
+
+
+    int boardOffsetX = this->borderWidth + addLeft;
+    int boardOffsetY = this->borderWidth;
 
     QColor light = this->style->lightSquare;
     QColor dark = this->style->darkSquare;
@@ -275,14 +282,14 @@ void Chessboard::drawBoard(QPaintEvent *, QPainter *painter) {
 
             painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
                               boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
-            painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+            painter->drawText(4+addLeft,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
         } else {
             QChar ch = QChar(65+i);
             QString idx = QString(ch);
             QString num = QString::number(8-i);
             painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
                               boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
-            painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+            painter->drawText(4+addLeft,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
         }
     }
 

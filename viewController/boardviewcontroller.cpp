@@ -62,9 +62,10 @@ void BoardViewController::paintEvent(QPaintEvent *event) {
     painter->end();
 }
 
+/*
 void BoardViewController::resizeEvent(QResizeEvent* ) {
     this->setMinimumWidth(this->height());
-}
+}*/
 
 void BoardViewController::flipBoard() {
     this->gameModel->flipBoard = !this->gameModel->flipBoard;
@@ -98,10 +99,10 @@ QPoint* BoardViewController::getBoardPosition(int x, int y) {
     int squareSize = 0;
     Chessboard::calculateBoardSize(&boardSize, &squareSize);
     int yOffset = this->width() - boardSize;
-    if(x > this->borderWidth && y > this->borderWidth + yOffset
-            && x < (boardSize - this->borderWidth) && y < (this->height() - this->borderWidth)) {
+    if(x > this->borderWidth && y > this->borderWidth
+            && x < (boardSize - this->borderWidth) && y < (boardSize - this->borderWidth)) {
         x = x - this->borderWidth;
-        y = y - (this->borderWidth + yOffset);
+        y = y - (this->borderWidth);
         x = x / squareSize;
         y = 7 - (y / squareSize);
         //if(this->flippedBoard) {
