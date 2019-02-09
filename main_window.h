@@ -28,6 +28,8 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QPushButton>
+#include <QSplitter>
+#include <QSpinBox>
 #include "viewController/on_off_button.h"
 #include <QSignalMapper>
 #include "viewController/boardviewcontroller.h"
@@ -76,6 +78,10 @@ private:
     QAction *play_black;
     QAction *play_white;
     QPixmap* fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile);
+    QSplitter* splitterTopDown;
+    QSplitter* splitterLeftRight;
+    QLabel *lblMultiPv;
+    QSpinBox *spinMultiPv;
 
 
 protected:
@@ -90,6 +96,7 @@ public slots:
     void onStateChange();
     void onEngineToggle();
     void aboutToQuit();
+    void resetLayout();
 
 };
 

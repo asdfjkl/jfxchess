@@ -157,11 +157,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *hbox_right_engine_buttons = new QHBoxLayout();
 
     this->pbEngineOnOff = new OnOffButton(this); //new QPushButton("OFF");
+    this->lblMultiPv = new QLabel(this->tr("Lines:"), this);
+    this->spinMultiPv = new QSpinBox(this);
+    this->spinMultiPv->setRange(1,4);
+    this->spinMultiPv->setValue(1);
+    this->lblMultiPv->setBuddy(this->spinMultiPv);
+
     QPushButton *editEngines = new QPushButton();
     QPixmap pxEditEngines(*this->fromSvgToPixmap(editEngines->iconSize(),resDir + "/res/icons/document-properties.svg"));
     editEngines->setIcon(QIcon(pxEditEngines));
 
     hbox_right_engine_buttons->addWidget(pbEngineOnOff);
+    hbox_right_engine_buttons->addWidget(this->lblMultiPv);
+    hbox_right_engine_buttons->addWidget(this->spinMultiPv);
     hbox_right_engine_buttons->addStretch(1);
     hbox_right_engine_buttons->addWidget(editEngines);
 
@@ -188,13 +196,13 @@ MainWindow::MainWindow(QWidget *parent) :
     lHboxWidget->setLayout(vbox_left);
     QWidget *rHboxWidget = new QWidget(this);
     rHboxWidget->setLayout(vbox_right);
-    QSplitter* splitterLeftRight = new QSplitter(this);
+    this->splitterLeftRight = new QSplitter(this);
     splitterLeftRight->addWidget(lHboxWidget);
     splitterLeftRight->addWidget(rHboxWidget);
     //splitterLeftRight->setStretchFactor(0,8);
     //splitterLeftRight->setStretchFactor(1,1);
-    int halfWidth = this->width() / 2;
-    splitterLeftRight->setSizes(QList<int>({halfWidth, halfWidth}));
+    //int halfWidth = this->width() / 2;
+    //splitterLeftRight->setSizes(QList<int>({halfWidth, halfWidth}));
 
     //hbox->setStretch(0,2);
     //hbox->setStretch(1,3);
@@ -211,7 +219,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //completeLayout->addWidget(splitterLeftRight);
 
-    QSplitter* splitterTopDown = new QSplitter(this);
+    this->splitterTopDown = new QSplitter(this);
     //QWidget* topWidget = new QWidget(this);
     //topWidget->setLayout(splitter)
     //splitterTopDown->add
@@ -225,8 +233,8 @@ MainWindow::MainWindow(QWidget *parent) :
     bottomWidget->setLayout(completeLayout);
     splitterTopDown->addWidget(bottomWidget);
 
-    int fifthHeight = this->height() / 5;
-    splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
+    //int fifthHeight = this->height() / 5;
+    //splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
 
     //completeLayout->setStretch(0,6);
     //completeLayout->setStretch(1,1);
@@ -247,6 +255,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     this->toolbar = addToolBar("main toolbar");
+
+    //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    //QSize s = toolbar->iconSize();
+    //toolbar->setIconSize(s*2);
+
+
     //this->toolbar->setFixedHeight(72);
     //this->toolbar->setIconSize(QSize(72,72));
     QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
@@ -333,7 +347,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QStatusBar *statusbar = this->statusBar();
     statusbar->showMessage("");
 
-
     // setting up the menus
     // GAME MENU
     QMenu *m_game = this->menuBar()->addMenu(this->tr("Game"));
@@ -373,6 +386,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_edit->addSeparator();
     QAction *flip_board = m_edit->addAction(this->tr("&Flip Board"));
     this->show_info = m_edit->addAction(this->tr("Show Search &Info"));
+
+    QAction *resetLayout = m_edit->addAction(this->tr("Reset Layout"));
 
     copy_game->setShortcut(QKeySequence::Copy);
     paste->setShortcut(QKeySequence::Paste);
@@ -471,6 +486,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(tbActionFlip, &QAction::triggered, flip_board, &QAction::trigger);
 
     connect(show_info, &QAction::triggered, this->engineViewController, &EngineView::flipShowEval);
+    connect(resetLayout, &QAction::triggered, this, &MainWindow::resetLayout);
+
     connect(gameModel, &GameModel::stateChange, this->boardViewController, &BoardViewController::onStateChange);
     connect(gameModel, &GameModel::stateChange, this->moveViewController, &MoveViewController::onStateChange);
     connect(gameModel, &GameModel::stateChange, this->modeController, &ModeController::onStateChange);
@@ -529,6 +546,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->gameModel->setMode(MODE_ENTER_MOVES);
     enter_moves->setChecked(true);
     gameModel->triggerStateChange();
+
+    this->resetLayout();
 
 }
 
@@ -660,6 +679,16 @@ void MainWindow::wheelEvent(QWheelEvent *event)
     }
 
     event->accept();
+}
+
+void MainWindow::resetLayout() {
+    int halfWidth = this->width() / 9;
+    splitterLeftRight->setSizes(QList<int>({halfWidth*5, halfWidth*4}));
+    int fifthHeight = this->height() / 5;
+    splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
+
+
+    this->update();
 }
 
 QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile)
