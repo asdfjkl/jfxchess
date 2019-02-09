@@ -257,8 +257,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toolbar = addToolBar("main toolbar");
 
     //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    //QSize s = toolbar->iconSize();
-    //toolbar->setIconSize(s*2);
+    QSize s = toolbar->iconSize();
+    toolbar->setIconSize(s*1.5);
 
 
     //this->toolbar->setFixedHeight(72);

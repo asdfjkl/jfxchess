@@ -116,6 +116,12 @@ DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
     layout->addLayout(main);
     layout->addWidget(buttonBox);
     this->setLayout(layout);
+    this->update();
+
+    int h = parent->height();
+    qDebug() << h;
+    this->resize(h*0.7, 1);
+
 
     connect(pcs_uscf, &QRadioButton::toggled, this, &DialogGuiOptions::onUSCFPieces);
     connect(pcs_old, &QRadioButton::toggled, this, &DialogGuiOptions::onOldPieces);
