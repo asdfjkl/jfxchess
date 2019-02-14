@@ -43,7 +43,6 @@ private:
     void onStateChangePlayoutPosition();
     void onStateChangeGameAnalysis();
 
-
 protected:
 
 signals:
@@ -63,6 +62,9 @@ public slots:
     void onBestPv(QString pvs);
     void onMateDetected(int mateIn);
     void onEval(float eval);
+
+    void onMultiPVChanged(int nrLines);
+
 
 };
 

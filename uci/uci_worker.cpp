@@ -50,13 +50,13 @@ void UciWorker::processCommands() {
         if(!output.isEmpty()) {
             //qDebug() << ">>> " << output;
             this->engine_info->update(output, this->current_fen);
-            if(this->engine_info->seesMate) {
-                emit(mateDetected(this->engine_info->mate));
+            if(this->engine_info->seesMate[0]) {
+                emit(mateDetected(this->engine_info->mate[0]));
             }
             if(!this->engine_info->pv.isEmpty()) {
                 emit(bestPv(this->engine_info->pv));
             }
-            emit(eval(this->engine_info->score));
+            emit(eval(this->engine_info->score[0]));
             emit(info(this->engine_info->toString()));
             QStringList lines = output.split("\n");
             for(int i=0;i<lines.count();i++) {
@@ -77,6 +77,7 @@ void UciWorker::processCommands() {
                 this->process->waitForBytesWritten();
             }
             QString msg = this->cmd_queue->dequeue();
+            qDebug() << msg;
             this->go_infinite = false;
             // if the command is "position fen moves", first count the
             // numbers of moves so far to generate move numbers in engine info

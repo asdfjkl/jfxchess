@@ -77,6 +77,8 @@ GameModel::GameModel(QObject *parent) :
     this->loadOpeningBook();
 
     this->database = chess::PgnDatabase();
+
+    this->nrPvLines = 1;
 }
 
 GameModel::~GameModel() {

@@ -257,8 +257,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toolbar = addToolBar("main toolbar");
 
     //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    QSize s = toolbar->iconSize();
-    toolbar->setIconSize(s*1.5);
+    //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //QSize s = toolbar->iconSize();
+    //toolbar->setIconSize(s*1.5);
 
 
     //this->toolbar->setFixedHeight(72);
@@ -543,6 +544,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
 
+    connect(this->spinMultiPv, qOverload<int>(&QSpinBox::valueChanged), this->modeController, &ModeController::onMultiPVChanged);
+
     this->gameModel->setMode(MODE_ENTER_MOVES);
     enter_moves->setChecked(true);
     gameModel->triggerStateChange();
@@ -573,6 +576,7 @@ void MainWindow::centerAndResize() {
         )
     );
 }
+
 
 
 void MainWindow::showAbout() {

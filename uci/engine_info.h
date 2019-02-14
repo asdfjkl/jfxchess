@@ -38,26 +38,30 @@ const QRegularExpression POS = QRegularExpression("position\\s");
 const QRegularExpression IDNAME = QRegularExpression("id\\sname ([^\n]+)");
 const QRegularExpression MOVE = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})\\s");
 const QRegularExpression MOVES = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})");
+const QRegularExpression MULTIPV = QRegularExpression("multipv\\s(\\d)+");
+
+const int MAX_MULTIPV = 4;
 
 class EngineInfo
 {
 public:
 
     QString id;
-    float score;
+    float score[MAX_MULTIPV];
     int strength;
-    int mate;
+    int mate[MAX_MULTIPV];
     int depth;
     int current_fullmove_no;
     int fullmove_no;
     int halfmoves;
-    bool seesMate;
+    int maxPvSeen;
+    bool seesMate[MAX_MULTIPV];
     QString current_move;
     int nps;
     QString pv;
     bool flip_eval;
     QStringList pv_list;
-    QString pv_san;
+    QString pv_san[MAX_MULTIPV];
     bool turn;
     QString fen;
 
@@ -67,7 +71,7 @@ public:
 
 private:
 
-    void updateSan();
+    void updateSan(int multiPvIndex);
 
 };
 

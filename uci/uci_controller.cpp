@@ -107,6 +107,11 @@ void UciController::uciOk() {
     emit(newCommand(QString("uci")));
 }
 
+void UciController::uciMultiPV(int lines) {
+    QString lns = QString::number(lines);
+    emit(newCommand(QString("setoption name MultiPV value ").append(lns)));
+}
+
 void UciController::uciStrength(int level) {
     QString lvl = QString::number(level);
     emit(newCommand(QString("setoption name Skill Level value ").append(lvl)));

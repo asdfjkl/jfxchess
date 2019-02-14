@@ -46,6 +46,7 @@ public:
     void uciGoInfinite();
     void uciSendFen(const QString &fen);
     void sendEngineOptions(QVector<EngineOption> &optList);
+    void uciMultiPV(int lines);
 
     // todo
     // void uciSendEngineOptions();

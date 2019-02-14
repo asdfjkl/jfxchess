@@ -218,6 +218,7 @@ void ModeController::onStateChangeAnalysis() {
     QString position = QString("position fen ").append(fen);
     this->uci_controller->uciSendPosition(position);
     this->uci_controller->uciGoInfinite();
+
 }
 
 void ModeController::onStateChangeGameAnalysis() {
@@ -254,6 +255,15 @@ void ModeController::onStateChangeGameAnalysis() {
     delete msg;
 }
 
+void ModeController::onMultiPVChanged(int nrLines) {
+    this->gameModel->nrPvLines = nrLines;
+    qDebug() << "received signal: " << nrLines;
+    if(this->gameModel->getMode() == MODE_ANALYSIS) {
+        this->onActivateEnterMovesMode();
+        this->onActivateAnalysisMode();
+    }
+}
+
 void ModeController::onActivateAnalysisMode() {
 
     // first change gamestate and reset engine
@@ -272,6 +282,8 @@ void ModeController::onActivateAnalysisMode() {
     }
     QVector<EngineOption> en_opts = this->gameModel->getActiveEngine().getUciOptions();
     this->uci_controller->sendEngineOptions(en_opts);
+    // also send multi pv command according to current selection
+    this->uci_controller->uciMultiPV(this->gameModel->nrPvLines);
     // then trigger state change
     this->gameModel->setMode(MODE_ANALYSIS);
     this->gameModel->triggerStateChange();

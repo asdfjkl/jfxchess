@@ -9,6 +9,12 @@ EngineView::EngineView(GameModel *gameModel, QWidget *parent) :
 {
     this->lastInfo = QString("");
     this->gameModel = gameModel;
+
+    QFontMetrics f = this->fontMetrics();
+    int minH = f.height() * 7.0;
+    this->setMinimumHeight(minH);
+
+
 }
 
 void EngineView::onNewInfo(QString info) {

@@ -112,6 +112,8 @@ public:
 
     SearchPattern lastSeenSearchPattern;
 
+    int nrPvLines;
+
 private:
     void loadOpeningBook();
 
