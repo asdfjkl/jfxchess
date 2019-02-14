@@ -27,7 +27,6 @@ DialogEditHeaders::DialogEditHeaders(chess::Game &g, QWidget *parent) :
     lblEvent = new QLabel("Event", this);
     lblWhite = new QLabel("White", this);
     lblBlack = new QLabel("Black", this);
-    lblResult = new QLabel("Result", this);
     lblEco = new QLabel("Eco", this);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel, this);
