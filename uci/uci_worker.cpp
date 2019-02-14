@@ -106,6 +106,12 @@ void UciWorker::processCommands() {
                 }
                 this->process->write(msg.append("\n").toLatin1());
                 this->process->waitForBytesWritten();
+            } else if(msg.startsWith("setoption name MultiPV value")) {
+                int nrLines = msg.mid(29,30).toInt();
+                qDebug() << "worker says: "<<nrLines;
+                this->engine_info->nrPvLines = nrLines;
+                this->process->write(msg.append("\n").toLatin1());
+                this->process->waitForBytesWritten();
             } else {
                 this->process->write(msg.append("\n").toLatin1());
                 this->process->waitForBytesWritten();

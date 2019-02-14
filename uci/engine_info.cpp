@@ -45,7 +45,7 @@ EngineInfo::EngineInfo()
     }
     this->turn = chess::WHITE;
     this->fen = QString("");
-    this->maxPvSeen = 1;
+    this->nrPvLines = 1;
 }
 
 void EngineInfo::update(QString engine_feedback, QString fen) {
@@ -69,12 +69,12 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
     for(int i=0;i<lines.length();i++) {
 
         QString line = lines.at(i);
-        qDebug() << line;
+        //qDebug() << line;
 
         QRegularExpressionMatch m_multipv = MULTIPV.match(line);
         if(m_multipv.hasMatch()) {
-            qDebug() << "LINE   :";
-            qDebug() << line;
+            //qDebug() << "LINE   :";
+            //qDebug() << line;
             int len = m_multipv.capturedLength(0);
             QString test1 = m_multipv.captured(0).mid(7,len-1);
             multi_pv = m_multipv.captured(0).mid(8,len-1).toInt() - 1;
@@ -134,7 +134,6 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             this->id = m_id.captured(0).mid(8,len-1).split("\n").at(0);
         }
     }
-    this->maxPvSeen = multi_pv + 1;
 }
 
 // update san for current pv & fen string
@@ -208,7 +207,7 @@ QString EngineInfo::toString() {
 
     for(int i=0;i<4;i++) {
         outstr.append("<tr><td colspan=\"3\">");
-        if(i<this->maxPvSeen) {
+        if(i<this->nrPvLines) {
         if(this->seesMate[i]) {
                 outstr.append("(#").append(QString::number(this->mate[i])).append(") ");
         } else {

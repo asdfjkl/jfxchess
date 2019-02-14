@@ -54,7 +54,7 @@ public:
     int current_fullmove_no;
     int fullmove_no;
     int halfmoves;
-    int maxPvSeen;
+    int nrPvLines;
     bool seesMate[MAX_MULTIPV];
     QString current_move;
     int nps;
