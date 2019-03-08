@@ -42,6 +42,7 @@
 #include "controller/file_controller.h"
 #include <QShortcut>
 #include <QComboBox>
+#include "ribbon/ribbon_widget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -51,8 +52,8 @@ public:
     void centerAndResize();
 
 private:
-    QMenuBar *menu;
-    QToolBar *toolbar;
+    // QMenuBar *menu;
+    // QToolBar *toolbar;
     GameModel *gameModel;
     QWidget *mainWidget;
     QHBoxLayout *hbox;
@@ -73,15 +74,19 @@ private:
     QAction *show_info;
     //QPushButton *pbEngineOnOff;
     OnOffButton *pbEngineOnOff;
-    QAction *analysis_mode;
-    QAction *enter_moves;
-    QAction *play_black;
-    QAction *play_white;
+    //QAction *analysis_mode;
+    //QAction *enter_moves;
+    //QAction *play_black;
+    //QAction *play_white;
     QPixmap* fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile);
     QSplitter* splitterTopDown;
     QSplitter* splitterLeftRight;
     QLabel *lblMultiPv;
     QSpinBox *spinMultiPv;
+
+    RibbonWidget *ribbon;
+
+    QAction* createAction(QString name, const QString &displayName, QSize &iconSize);
 
 
 protected:

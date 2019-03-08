@@ -78,7 +78,7 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             int len = m_multipv.capturedLength(0);
             QString test1 = m_multipv.captured(0).mid(7,len-1);
             multi_pv = m_multipv.captured(0).mid(8,len-1).toInt() - 1;
-            qDebug() << "multipv identified: " << multi_pv;
+            //qDebug() << "multipv identified: " << multi_pv;
         }
         // update score value. need to be careful about
         // - vs +, since engine reports always positive values
@@ -139,13 +139,13 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
 // update san for current pv & fen string
 void EngineInfo::updateSan(int multiPvIndex) {
 
-    qDebug() << "update san start";
+    //qDebug() << "update san start";
     if(this->pv_list.count()!=0 && !this->fen.isEmpty()) {
 
         this->pv_san[multiPvIndex] = QString("");
         chess::Board b = chess::Board(this->fen);
         //std::cout << b << std::endl;
-        qDebug() << "update san start";
+        //qDebug() << "update san start";
 
         bool whiteMoves = true;
         int moveNo = this->fullmove_no;
@@ -168,7 +168,7 @@ void EngineInfo::updateSan(int multiPvIndex) {
         }
 
     }
-    qDebug() << "update san stop";
+    //qDebug() << "update san stop";
 }
 
 QString EngineInfo::toString() {

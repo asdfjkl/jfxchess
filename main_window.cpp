@@ -52,6 +52,7 @@
 #include "dialogs/dialog_about.h"
 #include "various/resource_finder.h"
 #include "various/messagebox.h"
+#include "ribbon/ribbon_button.h"
 
 #include "funct.h"
 
@@ -254,240 +255,154 @@ MainWindow::MainWindow(QWidget *parent) :
     layout2->addWidget(line2);
 
 
-    this->toolbar = addToolBar("main toolbar");
+    QSize iconSize = QSize(ICON_SIZE_LARGE * this->devicePixelRatio(), ICON_SIZE_LARGE* this->devicePixelRatio());
+    QSize iconSizeSmall = QSize(ICON_SIZE_SMALL * this->devicePixelRatio(), ICON_SIZE_SMALL* this->devicePixelRatio());
 
-    //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    //this->toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    //QSize s = toolbar->iconSize();
-    //toolbar->setIconSize(s*1.5);
+    // FILE
+    // Game
+    QAction* actionNewGame = this->createAction("document-new", this->tr("New Game"), iconSize);
+    QAction* actionOpen = this->createAction("document-open", this->tr("Open File"), iconSize);
+    QAction* actionSaveAs = this->createAction("document-save", this->tr("Save Current\nGame As"), iconSize);
+    // Print
+    QAction* actionPrintGame = this->createAction("document-print", this->tr("Print Game"), iconSize);
+    QAction* actionPrintPosition = this->createAction("document-print", this->tr("Print Position"), iconSize);
+    // Layout
+    QAction* actionColorStyle = this->createAction("applications-graphics", this->tr("Board Style"), iconSize);
+    QAction* actionResetLayout = this->createAction("applications-graphics", this->tr("Reset Layout"), iconSize);
+    // Quit
+    QAction* actionQuit = this->createAction("document-print", this->tr("Exit"), iconSize);
+    // Homepage
+    QAction* actionHomepage = this->createAction("help-browser", this->tr("Homepage"), iconSize);
+    // Help (About)
+    QAction* actionAbout = this->createAction("help-browser", this->tr("About"), iconSize);
+
+    // START
+    // Game
+    QAction* actionPaste = this->createAction("edit-paste", this->tr("Paste\nGame/Position"), iconSize);
+    QAction* actionCopyGame = this->createAction("edit-copy-pgn", this->tr("Copy Game"), iconSizeSmall);
+    QAction* actionCopyPosition = this->createAction("edit-copy-fen", this->tr("Copy Position"), iconSizeSmall);
+    // Edit
+    QAction* actionEditGameData = this->createAction("edit-copy-fen", this->tr("Edit\nMeta Data"), iconSize);
+    QAction* actionEnterPosition = this->createAction("document-enter-position", this->tr("Setup\nNew Position"), iconSize);
+    QAction* actionFlipBoard = this->createAction("view-refresh", this->tr("Flip Board"), iconSize);
+    QAction* actionShowSearchInfo = this->createAction("view-refresh", this->tr("Show\nSearch Info"), iconSize);
+    // Mode
+    QAction* actionAnalysis = this->createAction("view-refresh", this->tr("Infinite\nAnalysis"), iconSize);
+    QAction* actionPlayWhite = this->createAction("view-refresh", this->tr("Play\nWhite"), iconSize);
+    QAction* actionPlayBlack = this->createAction("view-refresh", this->tr("Play\nBlack"), iconSize);
+    QAction* actionEnterMoves = this->createAction("view-refresh", this->tr("Enter\nMoves"), iconSize);
+    // Analysis
+    QAction* actionFullGameAnalysis = this->createAction("emblem-system", this->tr("Full\nGame Analysis"), iconSize);
+    QAction* actionEnginePlayout = this->createAction("emblem-system", this->tr("Engine\nPlayout"), iconSize);
+    // Database
+    QAction* actionDatabaseWindow = this->createAction("database", this->tr("Show\nDatabase"), iconSize);
+    QAction* actionLoadPreviousGame = this->createAction("go-previous", this->tr("Previous Game"), iconSizeSmall);
+    QAction* actionLoadNextGame = this->createAction("go-previous", this->tr("Next Game"), iconSizeSmall);
 
 
-    //this->toolbar->setFixedHeight(72);
-    //this->toolbar->setIconSize(QSize(72,72));
-    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
 
-    QString doc_new(resDir + "/res/icons/document-new.svg");
-    QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
-    QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New Game"));
+    this->ribbon = new RibbonWidget(this);
+    this->addToolBar(this->ribbon);
 
-    QString doc_open(resDir + "/res/icons/document-open.svg");
-    QPixmap *tbOpen = this->fromSvgToPixmap(iconSize, doc_open);
-    QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open Game"));
+    RibbonTab *gameTab = this->ribbon->addRibbonTab(this->tr(" File"));
 
-    QString doc_save(resDir + "/res/icons/document-save.svg");
-    QPixmap *tbSaveAs = this->fromSvgToPixmap(iconSize, doc_save);
-    QAction *tbActionSaveAs = toolbar->addAction(QIcon(*tbSaveAs), this->tr("Save Current Game As"));
+    RibbonPane *filePane = gameTab->addRibbonPane(this->tr("Game"));
+    filePane->addRibbonWidget(new RibbonButton(actionNewGame, true, this));
+    filePane->addRibbonWidget(new RibbonButton(actionOpen, true, this));
+    filePane->addRibbonWidget(new RibbonButton(actionSaveAs, true, this));
 
-    QString doc_print(resDir + "/res/icons/document-print.svg");
-    QPixmap *tbPrint = this->fromSvgToPixmap(iconSize, doc_print);
-    QAction *tbActionPrint = toolbar->addAction(QIcon(*tbPrint), this->tr("Print Game"));
+    RibbonPane *printPane = gameTab->addRibbonPane(this->tr("Print"));
+    printPane->addRibbonWidget(new RibbonButton(actionPrintGame, true, this));
+    printPane->addRibbonWidget(new RibbonButton(actionPrintPosition, true, this));
 
-    toolbar->addSeparator();
+    RibbonPane *stylePane = gameTab->addRibbonPane(this->tr("Style"));
+    stylePane->addRibbonWidget(new RibbonButton(actionColorStyle, true, this));
+    stylePane->addRibbonWidget(new RibbonButton(actionResetLayout, true, this));
 
-    QString view_ref(resDir + "/res/icons/view-refresh.svg");
-    QPixmap *tbFlip = this->fromSvgToPixmap(iconSize, view_ref);
-    QAction *tbActionFlip = toolbar->addAction(QIcon(*tbFlip), this->tr("Flip Board"));
+    RibbonPane *applicationPane = gameTab->addRibbonPane(this->tr("Application"));
+    applicationPane->addRibbonWidget(new RibbonButton(actionQuit, true, this));
+    applicationPane->addRibbonWidget(new RibbonButton(actionHomepage, true, this));
+    applicationPane->addRibbonWidget(new RibbonButton(actionAbout, true, this));
 
-    toolbar->addSeparator();
+    RibbonTab *startTab = this->ribbon->addRibbonTab(this->tr(" Start"));
 
-    QString edt_cpy(resDir + "/res/icons/edit-copy-pgn.svg");
-    QPixmap *tbCopyGame = this->fromSvgToPixmap(iconSize, edt_cpy);
-    QAction *tbActionCopyGame = toolbar->addAction(QIcon(*tbCopyGame), this->tr("Copy Game"));
+    RibbonPane *editPane = startTab->addRibbonPane(this->tr("Edit"));
+    editPane->addRibbonWidget(new RibbonButton(actionPaste, true, this));
+    QFontMetrics fontMetrics = ribbon->fontMetrics();
+    int btnSmallWidth = fontMetrics.width(actionCopyGame->text()) + ICON_SIZE_SMALL;
+    QGridLayout *copyGrid = editPane->addGridWidget(btnSmallWidth * 1.8);
+    copyGrid->addWidget(new RibbonButton(actionCopyGame, false, this),0,0);
+    copyGrid->addWidget(new RibbonButton(actionCopyPosition, false, this),1,0);
+    editPane->addRibbonWidget(new RibbonButton(actionEditGameData, true, this));
 
-    QString cpy_fen(resDir + "/res/icons/edit-copy-fen.svg");
-    QPixmap *tbCopyPosition = this->fromSvgToPixmap(iconSize, cpy_fen);
-    QAction *tbActionCopyPosition = toolbar->addAction(QIcon(*tbCopyPosition), this->tr("Copy Position"));
+    RibbonPane *gamePane = startTab->addRibbonPane(this->tr("Game"));
+    gamePane->addRibbonWidget(new RibbonButton(actionEnterPosition, true, this));
+    gamePane->addRibbonWidget(new RibbonButton(actionFlipBoard, true, this));
+    gamePane->addRibbonWidget(new RibbonButton(actionShowSearchInfo, true, this));
 
-    QString edt_pst(resDir + "/res/icons/edit-paste.svg");
-    QPixmap *tbPaste = this->fromSvgToPixmap(iconSize, edt_pst);
-    QAction *tbActionPaste = toolbar->addAction(QIcon(*tbPaste), this->tr("Paste Game/Position"));
+    RibbonPane *modePane = startTab->addRibbonPane(this->tr("Mode"));
+    modePane->addRibbonWidget(new RibbonButton(actionAnalysis, true, this));
+    modePane->addRibbonWidget(new RibbonButton(actionPlayWhite, true, this));
+    modePane->addRibbonWidget(new RibbonButton(actionPlayBlack, true, this));
+    modePane->addRibbonWidget(new RibbonButton(actionEnterMoves, true, this));
 
-    QString new_brd(resDir + "/res/icons/document-enter-position.svg");
-    QPixmap *tbEnterPosition = this->fromSvgToPixmap(iconSize, new_brd);
-    QAction *tbActionEnterPosition = toolbar->addAction(QIcon(*tbEnterPosition), this->tr("Enter Position"));
+    RibbonTab *analysisTab = this->ribbon->addRibbonTab(this->tr(" Analysis"));
+    RibbonPane *analysisPane = analysisTab->addRibbonPane(this->tr("Game Analysis"));
+    analysisPane->addRibbonWidget(new RibbonButton(actionFullGameAnalysis, true, this));
+    analysisPane->addRibbonWidget(new RibbonButton(actionEnginePlayout, true, this));
 
-    toolbar->addSeparator();
+    RibbonPane *databasePane = analysisTab->addRibbonPane(this->tr("Database"));
+    databasePane->addRibbonWidget(new RibbonButton(actionDatabaseWindow, true, this));
+    int gridDbWidth = fontMetrics.width(actionLoadPreviousGame->text()) + (ICON_SIZE_SMALL * this->devicePixelRatio());
+    QGridLayout *dbGrid = databasePane->addGridWidget(gridDbWidth*1.3);
+    dbGrid->addWidget(new RibbonButton(actionLoadPreviousGame, false, this),0,0);
+    dbGrid->addWidget(new RibbonButton(actionLoadNextGame, false, this),1,0);
 
-    QString brd_ana(resDir + "/res/icons/emblem-system.svg");
-    QPixmap *tbAnalysis = this->fromSvgToPixmap(iconSize, brd_ana);
-    QAction *tbActionAnalysis = toolbar->addAction(QIcon(*tbAnalysis), this->tr("Full Game Analysis"));
+    ribbon->setActive(" Start");
 
-    toolbar->addSeparator();
-
-    QString app_grp(resDir + "/res/icons/applications-graphics.svg");
-    QPixmap *tbStyle =  this->fromSvgToPixmap(iconSize, app_grp);
-    QAction *tbActionStyle = toolbar->addAction(QIcon(*tbStyle), this->tr("Colorstyle"));
-
-    toolbar->addSeparator();
-
-    QString db_icn(resDir + "/res/icons/database.svg");
-    QPixmap *tbDatabase = this->fromSvgToPixmap(iconSize, db_icn);
-    QAction *tbActionDatabase = toolbar->addAction(QIcon(*tbDatabase), this->tr("Browse Current PGN"));
-
-    QString prevGame_icn(resDir + "/res/icons/go-previous.svg");
-    QPixmap *tbPrevGame = this->fromSvgToPixmap(iconSize, prevGame_icn);
-    QAction *tbActionPrevGame = toolbar->addAction(QIcon(*tbPrevGame), this->tr("Previous Game"));
-
-    QString nextGame_icn(resDir + "/res/icons/go-next.svg");
-    QPixmap *tbNextGame = this->fromSvgToPixmap(iconSize, nextGame_icn);
-    QAction *tbActionNextGame = toolbar->addAction(QIcon(*tbNextGame), this->tr("Next Game"));
-
-    QWidget* spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolbar->addWidget(spacer);
-
-    QString hlp_clc(resDir + "/res/icons/help-browser.svg");
-    QPixmap *tbHelp = this->fromSvgToPixmap(iconSize, hlp_clc);
-    QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
-
-    //mainWidget->setLayout(hbox);
-    //mainWidget->setLayout(completeLayout);
     mainWidget->setLayout(cLayout);
 
     this->setCentralWidget(mainWidget);
     QStatusBar *statusbar = this->statusBar();
     statusbar->showMessage("");
-
-    // setting up the menus
-    // GAME MENU
-    QMenu *m_game = this->menuBar()->addMenu(this->tr("Game"));
-    QAction *new_game = m_game->addAction(this->tr("New..."));
-    QAction *open_game = m_game->addAction(this->tr("Open..."));
-    //this->save_game = m_game->addAction(this->tr("Save..."));
-    QAction *save_game_as = m_game->addAction(this->tr("Save Current Game As..."));
-
-    m_game->addSeparator();
-    QAction *save_diagram = m_game->addAction(this->tr("Save Position as Image..."));
-    QAction *print_game = m_game->addAction(this->tr("Print Game"));
-    QAction *print_position = m_game->addAction(this->tr("Print FEN"));
-
-    m_game->addSeparator();
-    QAction *quit = m_game->addAction(this->tr("Quit"));
-
-    new_game->setShortcut(QKeySequence::New);
-    open_game->setShortcut(QKeySequence::Open);
-    //save_game->setShortcut(QKeySequence::Save);
-    save_game_as->setShortcut(QKeySequence::SaveAs);
-    print_game->setShortcut(QKeySequence::Print);
-    quit->setShortcut(QKeySequence::Quit);
-
-    connect(quit, &QAction::triggered, this, &QWidget::close);
-
-    // EDIT MENU
-    QMenu *m_edit = this->menuBar()->addMenu(this->tr("Edit"));
-    QAction *copy_game = m_edit->addAction(this->tr("Copy Game"));
-    QAction *copy_position = m_edit->addAction(this->tr("Copy Position"));
-    QAction *paste = m_edit->addAction(this->tr("Paste"));
-
-    m_edit->addSeparator();
-
-    QAction *edit_headers = m_edit->addAction(this->tr("Edit Game Data"));
-    QAction *enter_position = m_edit->addAction(this->tr("&Enter Position"));
-
-    m_edit->addSeparator();
-    QAction *flip_board = m_edit->addAction(this->tr("&Flip Board"));
-    this->show_info = m_edit->addAction(this->tr("Show Search &Info"));
-
-    QAction *resetLayout = m_edit->addAction(this->tr("Reset Layout"));
-
-    copy_game->setShortcut(QKeySequence::Copy);
-    paste->setShortcut(QKeySequence::Paste);
-    enter_position->setShortcut('e');
-
-    flip_board->setCheckable(true);
-    flip_board->setChecked(false);
-    show_info->setCheckable(true);
-    show_info->setChecked(true);
-
-    QShortcut *sc_flip = new QShortcut(QKeySequence(Qt::Key_F), this);
-    sc_flip->setContext(Qt::ApplicationShortcut);
-    QShortcut *sc_enter_pos = new QShortcut(QKeySequence(Qt::Key_E), this);
-    sc_enter_pos->setContext(Qt::ApplicationShortcut);
-
-    flip_board->setShortcut('f');
-
-    // MODE MENU
-    QMenu *m_mode = this->menuBar()->addMenu(this->tr("Mode"));
-    QActionGroup *mode_actions = new QActionGroup(this);
-    this->analysis_mode = mode_actions->addAction(this->tr("&Analysis Mode"));
-    this->play_white = mode_actions->addAction(this->tr("Play as &White"));
-    this->play_black = mode_actions->addAction(this->tr("Play as &Black"));
-    this->enter_moves = mode_actions->addAction(this->tr("Enter &Moves"));
-
-    analysis_mode->setCheckable(true);
-    play_white->setCheckable(true);
-    play_black->setCheckable(true);
-    enter_moves->setCheckable(true);
-
-    mode_actions->setExclusive(true);
-
-    m_mode->addAction(analysis_mode);
-    m_mode->addAction(play_white);
-    m_mode->addAction(play_black);
-    m_mode->addAction(enter_moves);
-    m_mode->addSeparator();
-
-    QAction *game_analysis = m_mode->addAction(this->tr("Full Game Analysis"));
-    QAction *playout_position = m_mode->addAction(this->tr("Playout Position"));
-
-    m_mode->addSeparator();
-    QAction *set_engines = m_mode->addAction(this->tr("Engines..."));
-    QAction *options = m_mode->addAction(this->tr("Options..."));
-
-    QShortcut *sc_analysis_mode = new QShortcut(QKeySequence(Qt::Key_A), this);
-    sc_analysis_mode->setContext(Qt::ApplicationShortcut);
-    QShortcut *sc_play_white = new QShortcut(QKeySequence(Qt::Key_W), this);
-    sc_play_white->setContext(Qt::ApplicationShortcut);
-    QShortcut *sc_play_black = new QShortcut(QKeySequence(Qt::Key_B), this);
-    sc_play_black->setContext(Qt::ApplicationShortcut);
-
-    QShortcut *sc_enter_move_mode_m = new QShortcut(QKeySequence(Qt::Key_M), this);
-    QShortcut *sc_enter_move_mode_esc = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    sc_enter_move_mode_m->setContext(Qt::ApplicationShortcut);
-    sc_enter_move_mode_esc->setContext(Qt::ApplicationShortcut);
-
-    // HELP MENU
-    QMenu *m_help = this->menuBar()->addMenu(this->tr("Help "));
-
-    QAction *about = m_help->addAction(this->tr("About"));
-    QAction *homepage = m_help->addAction(this->tr("Jerry-Homepage"));
-
-    connect(save_diagram, &QAction::triggered, this, &MainWindow::saveImage);
+    this->setContextMenuPolicy(Qt::NoContextMenu);
 
     // SIGNALS AND SLOTS
-    connect(sc_flip, &QShortcut::activated, flip_board, &QAction::trigger);
+    // ribbon entries
 
-    connect(copy_game, &QAction::triggered, this->editController, &EditController::copyGameToClipBoard);
-    connect(tbActionCopyGame, &QAction::triggered, copy_game, &QAction::trigger);
-    connect(copy_position, &QAction::triggered, this->editController, &EditController::copyPositionToClipBoard);
-    connect(tbActionCopyPosition, &QAction::triggered, copy_position, &QAction::trigger);
+    connect(actionNewGame, &QAction::triggered, this->fileController, &FileController::newGame);
+    connect(actionOpen, &QAction::triggered, this->fileController, &FileController::openGame);
+    connect(actionSaveAs, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
+    connect(actionPrintGame, &QAction::triggered, this->fileController, &FileController::printGame);
+    connect(actionPrintPosition, &QAction::triggered, this->fileController, &FileController::printPosition);
 
-    connect(paste, &QAction::triggered, this->editController, &EditController::paste);
-    connect(tbActionPaste, &QAction::triggered, paste, &QAction::trigger);
+    connect(actionColorStyle, &QAction::triggered, modeController, &ModeController::onOptionsClicked);
+    connect(actionResetLayout, &QAction::triggered, this, &MainWindow::resetLayout);
+    connect(actionQuit, &QAction::triggered, this, &QCoreApplication::quit);
+    connect(actionHomepage, &QAction::triggered, this, &MainWindow::goToHomepage);
+    connect(actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
 
-    connect(print_game, &QAction::triggered, this->fileController, &FileController::printGame);
+    connect(actionPaste, &QAction::triggered, this->editController, &EditController::paste);
+    connect(actionCopyGame, &QAction::triggered, this->editController, &EditController::copyGameToClipBoard);
+    connect(actionCopyPosition, &QAction::triggered, this->editController, &EditController::copyPositionToClipBoard);
 
-    connect(print_position, &QAction::triggered, this->fileController, &FileController::printPosition);
-    connect(tbActionPrint, &QAction::triggered, print_position, &QAction::trigger);
+    connect(actionEditGameData, &QAction::triggered, editController, &EditController::editHeaders);
+    connect(actionEnterPosition, &QAction::triggered, editController, &EditController::enterPosition);
+    connect(actionFlipBoard, &QAction::triggered, this->boardViewController, &BoardViewController::flipBoard);
+    connect(actionShowSearchInfo, &QAction::triggered, this->engineViewController, &EngineView::flipShowEval);
 
-    connect(new_game, &QAction::triggered, this->fileController, &FileController::newGame);
-    connect(tbActionNew, &QAction::triggered, new_game, &QAction::trigger);
+    connect(actionAnalysis, &QAction::triggered, modeController, &ModeController::onActivateAnalysisMode);
+    connect(actionPlayWhite, &QAction::triggered, modeController, &ModeController::onActivatePlayWhiteMode);
+    connect(actionPlayBlack, &QAction::triggered, modeController, &ModeController::onActivatePlayBlackMode);
+    connect(actionFullGameAnalysis, &QAction::triggered, modeController, &ModeController::onActivateGameAnalysisMode);
+    connect(actionEnginePlayout, &QAction::triggered, modeController, &ModeController::onActivatePlayoutPositionMode);
 
-    connect(open_game, &QAction::triggered, this->fileController, &FileController::openGame);
-    connect(tbActionOpen, &QAction::triggered, open_game, &QAction::trigger);
+    connect(actionDatabaseWindow, &QAction::triggered, fileController, &FileController::openDatabase);
+    connect(actionLoadNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
+    connect(actionLoadPreviousGame, &QAction::triggered, fileController, &FileController::toolbarPrevGameInPGN);
 
-    //connect(save_game, &QAction::triggered, this->fileController, &FileController::saveGame);
-
-    connect(save_game_as, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
-    connect(tbActionSaveAs, &QAction::triggered, this->fileController, &FileController::saveAsNewGame);
-
+    // other signals
     connect(gameModel, &GameModel::stateChange, this, &MainWindow::onStateChange);
-
-    connect(flip_board, &QAction::triggered, this->boardViewController, &BoardViewController::flipBoard);
-    connect(tbActionFlip, &QAction::triggered, flip_board, &QAction::trigger);
-
-    connect(show_info, &QAction::triggered, this->engineViewController, &EngineView::flipShowEval);
-    connect(resetLayout, &QAction::triggered, this, &MainWindow::resetLayout);
 
     connect(gameModel, &GameModel::stateChange, this->boardViewController, &BoardViewController::onStateChange);
     connect(gameModel, &GameModel::stateChange, this->moveViewController, &MoveViewController::onStateChange);
@@ -496,43 +411,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(right, &QPushButton::clicked, this->moveViewController, &MoveViewController::onForwardClick);
     connect(left, &QPushButton::clicked, this->moveViewController, &MoveViewController::onBackwardClick);
 
-    connect(options, &QAction::triggered, modeController, &ModeController::onOptionsClicked);
-    connect(tbActionStyle, &QAction::triggered, modeController, &ModeController::onOptionsClicked);
-
-    connect(set_engines, &QAction::triggered, modeController, &ModeController::onSetEnginesClicked);
-    connect(editEngines, &QPushButton::clicked, set_engines, &QAction::trigger);
-    connect(analysis_mode, &QAction::triggered, modeController, &ModeController::onActivateAnalysisMode);
-    connect(play_white, &QAction::triggered, modeController, &ModeController::onActivatePlayWhiteMode);
-    connect(play_black, &QAction::triggered, modeController, &ModeController::onActivatePlayBlackMode);
-    connect(sc_analysis_mode, &QShortcut::activated, analysis_mode, &QAction::trigger);
-    connect(game_analysis, &QAction::triggered, modeController, &ModeController::onActivateGameAnalysisMode);
-    connect(tbActionAnalysis, &QAction::triggered, game_analysis, &QAction::trigger);
+    connect(editEngines, &QPushButton::clicked, this->modeController, &ModeController::onSetEnginesClicked);
     connect(pbEngineOnOff, &QPushButton::toggled, this, &MainWindow::onEngineToggle);
-
-    connect(edit_headers, &QAction::triggered, editController, &EditController::editHeaders);
     connect(editHeader, &QPushButton::clicked, editController, &EditController::editHeaders);
-    connect(enter_position, &QAction::triggered, editController, &EditController::enterPosition);
-    connect(sc_enter_pos, &QShortcut::activated, enter_position, &QAction::trigger);
-    connect(tbActionEnterPosition, &QAction::triggered, enter_position, &QAction::trigger);
 
-    connect(enter_moves, &QAction::triggered, modeController, &ModeController::onActivateEnterMovesMode);
-    connect(sc_enter_move_mode_esc, &QShortcut::activated, enter_moves, &QAction::trigger);
-    connect(sc_enter_move_mode_m, &QShortcut::activated, enter_moves, &QAction::trigger);
-
-    connect(playout_position, &QAction::triggered, modeController, &ModeController::onActivatePlayoutPositionMode);
-
-    connect(tbActionDatabase, &QAction::triggered, fileController, &FileController::openDatabase);
-    connect(tbActionNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
-    connect(tbActionPrevGame, &QAction::triggered, fileController, &FileController::toolbarPrevGameInPGN);
-
-    connect(about, &QAction::triggered, this, &MainWindow::showAbout);
-    connect(tbActionHelp, &QAction::triggered, about, &QAction::trigger);
-
-    connect(homepage, &QAction::triggered, this, &MainWindow::goToHomepage);
+    //connect(enter_moves, &QAction::triggered, modeController, &ModeController::onActivateEnterMovesMode);
 
     connect(uciController, &UciController::bestmove, modeController, &ModeController::onBestMove);
     connect(uciController, &UciController::updateInfo, this->engineViewController, &EngineView::onNewInfo);
-
     connect(uciController, &UciController::bestPv, modeController, &ModeController::onBestPv);
     connect(uciController, &UciController::mateDetected, modeController, &ModeController::onMateDetected);
     connect(uciController, &UciController::eval, modeController, &ModeController::onEval);
@@ -547,7 +433,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->spinMultiPv, qOverload<int>(&QSpinBox::valueChanged), this->modeController, &ModeController::onMultiPVChanged);
 
     this->gameModel->setMode(MODE_ENTER_MOVES);
-    enter_moves->setChecked(true);
+    // enter_moves->setChecked(true);
     gameModel->triggerStateChange();
 
     this->resetLayout();
@@ -591,10 +477,10 @@ void MainWindow::goToHomepage() {
 
 void MainWindow::onEngineToggle() {
     if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
-        this->analysis_mode->setChecked(true);
+        //this->analysis_mode->setChecked(true);
         this->modeController->onActivateAnalysisMode();
     } else {
-        this->enter_moves->setChecked(true);
+        //this->enter_moves->setChecked(true);
         this->modeController->onActivateEnterMovesMode();
     }
 }
@@ -637,6 +523,7 @@ void MainWindow::onStateChange() {
     QString code = ei.code;
     QString info = ei.info;
     this->statusBar()->showMessage(code.append(" ").append(info));
+    /*
     if(this->gameModel->getMode() == MODE_ANALYSIS) {
         this->analysis_mode->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
@@ -655,7 +542,7 @@ void MainWindow::onStateChange() {
     } else {
         this->show_info->setChecked(false);
     }
-
+    */
     this->update();
 }
 
@@ -711,4 +598,15 @@ QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgF
  img->setDevicePixelRatio(PixelRatio);
 
  return img;
+}
+
+QAction* MainWindow::createAction(QString name, const QString &displayName, QSize &iconSize) {
+
+    QString resDir = ResourceFinder::getPath();
+    resDir.append("/res/icons/");
+    resDir.append(name);
+    resDir.append(".svg");
+    QPixmap *iconPixmap = this->fromSvgToPixmap(iconSize, resDir);
+    QAction *action = new QAction(QIcon(*iconPixmap), displayName);
+    return action;
 }

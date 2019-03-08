@@ -75,7 +75,13 @@ SOURCES += main.cpp \
     dialogs/dialog_database_help.cpp \
     model/search_pattern.cpp \
     dialogs/dialog_search.cpp \
-    dialogs/tab_header_search.cpp
+    dialogs/tab_header_search.cpp \
+    ribbon/ribbon_button.cpp \
+    ribbon/ribbon_separator.cpp \
+    ribbon/ribbon_pane.cpp \
+    ribbon/ribbon_tab.cpp \
+    ribbon/ribbon_widget.cpp \
+    various/stylesheet.cpp
 
 HEADERS += \
     chess/board.h \
@@ -133,4 +139,10 @@ HEADERS += \
     dialogs/dialog_database_help.h \
     model/search_pattern.h \
     dialogs/dialog_search.h \
-    dialogs/tab_header_search.h
+    dialogs/tab_header_search.h \
+    ribbon/ribbon_button.h \
+    ribbon/ribbon_separator.h \
+    ribbon/ribbon_pane.h \
+    ribbon/ribbon_tab.h \
+    ribbon/ribbon_widget.h \
+    various/stylesheet.h

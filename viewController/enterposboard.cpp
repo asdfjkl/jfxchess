@@ -29,10 +29,10 @@ EnterPosBoard::EnterPosBoard(const ColorStyle &style,
 
 void EnterPosBoard::setTurn(bool turn) {
     if(turn) {
-this->board.turn = chess::WHITE;
-} else {
-this->board.turn = chess::BLACK;
-}
+        this->board.turn = chess::WHITE;
+    } else {
+        this->board.turn = chess::BLACK;
+    }
 }
 
 void EnterPosBoard::setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen) {

@@ -75,10 +75,18 @@ void Chessboard::setGrabbedArrowTo(int x, int y) {
 }
 
 void Chessboard::paintEvent(QPaintEvent *event) {
+    QPainter painter; // = new QPainter();
+    painter.begin(this);
+    this->drawBoard(event, &painter);
+    painter.end();
+
+
+    /*
     QPainter *painter = new QPainter();
     painter->begin(this);
     this->drawBoard(event, painter);
     painter->end();
+    */
 }
 
 /*

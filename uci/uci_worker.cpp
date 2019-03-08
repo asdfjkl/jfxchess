@@ -22,6 +22,7 @@
 #include <iostream>
 #include <QMap>
 #include <QDebug>
+#include <QThread>
 
 UciWorker::UciWorker(QObject *parent) :
     QObject(parent)
@@ -48,7 +49,7 @@ void UciWorker::processCommands() {
     else if(this->process->state() == QProcess::Running) {
         QString output = QString(this->process->readAllStandardOutput());
         if(!output.isEmpty()) {
-            //qDebug() << ">>> " << output;
+            qDebug() << "ENGINE>>> " << output;
             this->engine_info->update(output, this->current_fen);
             if(this->engine_info->seesMate[0]) {
                 emit(mateDetected(this->engine_info->mate[0]));
@@ -77,7 +78,7 @@ void UciWorker::processCommands() {
                 this->process->waitForBytesWritten();
             }
             QString msg = this->cmd_queue->dequeue();
-            qDebug() << msg;
+            qDebug() << "GUI     >>>: " << msg;
             this->go_infinite = false;
             // if the command is "position fen moves", first count the
             // numbers of moves so far to generate move numbers in engine info
@@ -94,9 +95,11 @@ void UciWorker::processCommands() {
                 this->process->waitForFinished();
             }
             else if(msg.startsWith("go infinite")) {
+                //QThread::sleep(10);
                 this->go_infinite = true;
                 this->process->write("go infinite\n");
                 this->process->waitForBytesWritten();
+                //QThread::sleep(1);
             }
             else if(msg.startsWith("setoption name Skill Level")) {                
                 QRegularExpressionMatch strength_match = REG_STRENGTH.match(msg);
@@ -108,7 +111,7 @@ void UciWorker::processCommands() {
                 this->process->waitForBytesWritten();
             } else if(msg.startsWith("setoption name MultiPV value")) {
                 int nrLines = msg.mid(29,30).toInt();
-                qDebug() << "worker says: "<<nrLines;
+                //qDebug() << "worker says: "<<nrLines;
                 this->engine_info->nrPvLines = nrLines;
                 this->process->write(msg.append("\n").toLatin1());
                 this->process->waitForBytesWritten();
