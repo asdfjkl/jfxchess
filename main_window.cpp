@@ -285,7 +285,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* actionEditGameData = this->createAction("edit-copy-fen", this->tr("Edit\nMeta Data"), iconSize);
     QAction* actionEnterPosition = this->createAction("document-enter-position", this->tr("Setup\nNew Position"), iconSize);
     QAction* actionFlipBoard = this->createAction("view-refresh", this->tr("Flip Board"), iconSize);
-    QAction* actionShowSearchInfo = this->createAction("view-refresh", this->tr("Show\nSearch Info"), iconSize);
+    //QAction* actionShowSearchInfo = this->createAction("view-refresh", this->tr("Show\nSearch Info"), iconSize);
     // Mode
     QAction* actionAnalysis = this->createAction("view-refresh", this->tr("Infinite\nAnalysis"), iconSize);
     QAction* actionPlayWhite = this->createAction("view-refresh", this->tr("Play\nWhite"), iconSize);
@@ -338,7 +338,12 @@ MainWindow::MainWindow(QWidget *parent) :
     RibbonPane *gamePane = startTab->addRibbonPane(this->tr("Game"));
     gamePane->addRibbonWidget(new RibbonButton(actionEnterPosition, true, this));
     gamePane->addRibbonWidget(new RibbonButton(actionFlipBoard, true, this));
-    gamePane->addRibbonWidget(new RibbonButton(actionShowSearchInfo, true, this));
+    //gamePane->addRibbonWidget(new RibbonButton(actionShowSearchInfo, true, this));
+    QGridLayout *showSearchGrid = gamePane->addGridWidget(btnSmallWidth * 1.8);
+    showSearchGrid->setRowMinimumHeight(1,22); // bad hack: define proper stylesheet
+    this->showSearchInfo = new QCheckBox("Show Search Info", this);
+    showSearchInfo->setCheckState(Qt::Checked);
+    showSearchGrid->addWidget(showSearchInfo,1,1);
 
     RibbonPane *modePane = startTab->addRibbonPane(this->tr("Mode"));
     modePane->addRibbonWidget(new RibbonButton(actionAnalysis, true, this));
@@ -389,7 +394,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(actionEditGameData, &QAction::triggered, editController, &EditController::editHeaders);
     connect(actionEnterPosition, &QAction::triggered, editController, &EditController::enterPosition);
     connect(actionFlipBoard, &QAction::triggered, this->boardViewController, &BoardViewController::flipBoard);
-    connect(actionShowSearchInfo, &QAction::triggered, this->engineViewController, &EngineView::flipShowEval);
+    //connect(actionShowSearchInfo, &QAction::triggered, this->engineViewController, &EngineView::flipShowEval);
+    connect(showSearchInfo, &QCheckBox::stateChanged, this->engineViewController, &EngineView::flipShowEval);
 
     connect(actionAnalysis, &QAction::triggered, modeController, &ModeController::onActivateAnalysisMode);
     connect(actionPlayWhite, &QAction::triggered, modeController, &ModeController::onActivatePlayWhiteMode);
@@ -450,7 +456,7 @@ void MainWindow::centerAndResize() {
     int width = availableSize.width();
     int height = availableSize.height();
     width = 0.7*width;
-    height = 0.7*height;
+    height = 0.85*height;
     QSize newSize( width, height );
 
     setGeometry(
@@ -536,13 +542,12 @@ void MainWindow::onStateChange() {
         this->play_white->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_PLAY_BLACK) {
         this->play_black->setChecked(true);
-    }
+    } */
     if(this->gameModel->showEval) {
-        this->show_info->setChecked(true);
+        this->showSearchInfo->setChecked(Qt::Checked);
     } else {
-        this->show_info->setChecked(false);
+        this->showSearchInfo->setChecked(Qt::Unchecked);
     }
-    */
     this->update();
 }
 

@@ -30,6 +30,7 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QSpinBox>
+#include <QCheckBox>
 #include "viewController/on_off_button.h"
 #include <QSignalMapper>
 #include "viewController/boardviewcontroller.h"
@@ -71,7 +72,8 @@ private:
     QAction *flip_board;
     QSignalMapper*  signalMapper;
     QAction *save_game;
-    QAction *show_info;
+    // QAction *show_info;
+    QCheckBox *showSearchInfo;
     //QPushButton *pbEngineOnOff;
     OnOffButton *pbEngineOnOff;
     //QAction *analysis_mode;
