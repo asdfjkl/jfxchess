@@ -201,8 +201,7 @@ void DialogDatabase::onClickSearch() {
         // do something..
         try {
             this->gameModel->database.search(pattern);
-            int nMilliseconds = myTimer.elapsed();
-            qDebug() << "search: "<< nMilliseconds;
+            //int nMilliseconds = myTimer.elapsed();
             this->gameModel->database.setLastSelectedIndex(0);
             if(this->gameModel->database.getRowCount() > 0) {
                 this->tableView->selectRow(0);
@@ -311,7 +310,6 @@ void DialogDatabase::onClickExport() {
 
 void DialogDatabase::onRowChanged() {
 
-    qDebug() << "dialog: on row changed";
     QTest::qWait(2000);
     QItemSelectionModel *select = this->tableView->selectionModel();
     if(select->hasSelection()) {

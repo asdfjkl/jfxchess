@@ -233,7 +233,6 @@ void GameModel::saveGameState() {
             EngineOption o = e.getUciOptions().at(j);
             QString uciOptStr = o.toUciOptionString();
 
-            //qDebug() << "Writing: " << o.name;
                 settings.setArrayIndex(j);
                 QString optNr = QString::number(j);
                 QString option = QString(optNr).append("option");
@@ -386,7 +385,6 @@ void GameModel::restoreGameState() {
         settings.endArray();
         // there should _always_ be at least one engine
         // prior to recovering state, namely internal engine
-        //qDebug() << this->engines.size();
         if(isInternal) {
             assert(this->engines.size() > 0);
             this->setInternalEngine(e);
@@ -394,7 +392,6 @@ void GameModel::restoreGameState() {
             this->engines.append(e);
         }
         if(isActive) {
-            //qDebug() << this->engines.size();
             this->setActiveEngine(engines.size() - 1);
         }
     }

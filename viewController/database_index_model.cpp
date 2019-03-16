@@ -16,21 +16,16 @@ void DatabaseIndexModel::setDatabase(chess::Database *database)
 
 int DatabaseIndexModel::rowCount(const QModelIndex & /* parent */) const
 {
-
-    //qDebug() << "ROW COUNT: " << this->database->currentSearchIndices->count();
-    //return this->database->currentSearchIndices->count();
     return this->database->getRowCount();
 }
 
 int DatabaseIndexModel::columnCount(const QModelIndex & /* parent */) const
 {
-    //qDebug() << "model index: column count";
     return COLUMN_COUNT;
 }
 
 QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
 {
-    //qDebug() << "model index: data count";
     if (!index.isValid())
         return QVariant();
 
@@ -49,7 +44,6 @@ QVariant DatabaseIndexModel::data(const QModelIndex &index, int role) const
         int row = index.row();
         //qDebug() << "getting row info at: " << row;
         chess::PgnHeader rowInfo = this->database->getRowInfo(row);
-        //qDebug() << "got row info at: " << row;
         //chess::IndexEntry *entry_row = this->database->currentSearchIndices->at(row);
 
         int column = index.column();

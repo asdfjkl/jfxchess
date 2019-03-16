@@ -92,7 +92,6 @@ void EnterPosBoard::mousePressEvent(QMouseEvent *m) {
     int y = m->y();
     if(this->clickedOnPiceceSelector(x,y)) {
         this->selectedPiece = this->getSelectedPiece(x,y);
-        //qDebug() << "selected piece is now: " << this->selectedPiece;
     } else if(this->clickedOnBoard(x,y)) {
         QPoint q = this->getBoardPosition(x,y);
         if(this->board.get_piece_at(q.x(), q.y()) == this->selectedPiece) {
@@ -169,7 +168,6 @@ QPoint EnterPosBoard::getBoardPosition(int x, int y) {
 void EnterPosBoard::calculateBoardSize(int *boardSize, int *squareSize) {
 
     QSize size = this->size();
-    qDebug() << "EnterPosBoard Size:  " << size;
     int bSize = std::min(size.width(), size.height());
     int sSize = (bSize-(2*this->borderWidth))/8;
     bSize = 8 * sSize + 2 * this->borderWidth;

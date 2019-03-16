@@ -307,7 +307,6 @@ typedef std::bitset<sizeof(uint8_t)*8> IntBits;
 
 Board::Board() {
 
-    //qDebug() << "MAIN cons";
     this->turn = WHITE;
     for(int i=0;i<120;i++) {
         this->board[i] = EMPTY_POS[i];
@@ -342,7 +341,6 @@ Board::Board(Board *b) {
 }*/
 
 Board::Board(bool initial_position) {
-    //qDebug() << "bool cons";
     this->turn = WHITE;
     if(initial_position) {
         for(int i=0;i<120;i++) {
@@ -530,7 +528,6 @@ QChar Board::piece_to_symbol(uint8_t piece) {
 }
 
 Board::Board(const QString &fen_string) {
-    //qDebug() << "FEN cons";
     for(int i=0;i<120;i++) {
         this->board[i] = EMPTY_POS[i];
         this->old_board[i] = 0xFF;
@@ -540,7 +537,6 @@ Board::Board(const QString &fen_string) {
     // if last two parts are missing (fullmove no. + halfmove clock)
     // try to still parse the game
     QStringList fen_parts = fen_string.split(QChar(' '));
-    //qDebug() << fen_parts.join(" <> ");
     if(fen_parts.size() < 4) {
         throw std::invalid_argument("fen: parts missing 6 fen parts");
     }
@@ -1788,9 +1784,6 @@ Board::Board(const Board &other) {
         board[i] = other.board[i];
         old_board[i] = other.old_board[i];
     }
-    //qDebug() << "copy constructor called";
-    //qDebug() << "copy constructor called; old board has nr: " << other.fullmove_number;
-    //qDebug() << "copy constructor called; new board has nr: " << fullmove_number;
 }
 
 bool Board::is_stalemate() {
@@ -1992,10 +1985,6 @@ QString Board::san(const Move &m) {
             }
             san.append(QString("x"));
         }
-        //qDebug() << "calling idx to str: ";
-        //qDebug() << "san append: " << m.to;
-        //qDebug() << m.uci_string;
-        //qDebug() << "--";
         san.append(this->idx_to_str(m.to));
         if(m.promotion_piece == KNIGHT) {
             san.append(("=N"));
@@ -2045,7 +2034,6 @@ Move Board::parse_san(QString san) {
         }
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString());
     } else if(san==QString("O-O-O") || san == QString("O-O-O+") || san==QString("O-O-O#")) {
-        //qDebug() << "castles long";
         uint8_t to = C1;
         if(this->turn == BLACK) {
             to = C8;
@@ -2290,7 +2278,6 @@ bool Board::is_consistent() {
     if(white_king_pos < 21 || white_king_pos >= 99
             || black_king_pos < 21 || black_king_pos >= 99
             || cnt_white_king != 1 || cnt_black_king != 1) {
-        //qDebug() << "kings not present";
         return false;
     }
     // white and black king at least on field apart
@@ -2302,7 +2289,6 @@ bool Board::is_consistent() {
     }
     int diff = larger - smaller;
     if(diff == 10 || diff == 1 || diff == 11 || diff == 9) {
-        //qDebug() << "diff check";
         return false;
     }
     // side not to move must not be in check
@@ -2313,44 +2299,36 @@ bool Board::is_consistent() {
         idx_king_not_to_move = black_king_pos;
     }
     if(this->is_attacked(idx_king_not_to_move, to_move)) {
-        //qDebug() << "is attacked";
         return false;
     }
     // each side has 8 pawns or less
     if(cnt_white_pawns > 8 || cnt_black_pawns > 8) {
-        //qDebug() << "pawn count";
         return false;
     }
     // check whether no. of promotions and pawn count fits for white
     int white_extra_pieces = std::max(0, cnt_white_queens-1) + std::max(0, cnt_white_rooks-2)
             + std::max(0, cnt_white_bishops - 2) + std::max(0, cnt_white_knights - 2);
     if(white_extra_pieces > (8-cnt_white_pawns)) {
-        //qDebug() << "promotions and pawns, white";
         return false;
     }
     // ... for black
     int black_extra_pieces = std::max(0, cnt_black_queens-1) + std::max(0, cnt_black_rooks-2)
             + std::max(0, cnt_black_bishops - 2) + std::max(0, cnt_black_knights - 2);
     if(black_extra_pieces > (8-cnt_black_pawns)) {
-        //qDebug() << "promotions and pawns, black";
         return false;
     }
     // compare encoded castling rights of this board w/ actual
     // position of king and rook
     if(this->can_castle_wking() && this->is_white_king_castle_right_lost()) {
-        //qDebug() << "castling wking";
         return false;
     }
     if(this->can_castle_wqueen() && this->is_white_queen_castle_right_lost()) {
-        //qDebug() << "castling wqueen";
         return false;
     }
     if(this->can_castle_bking() && this->is_black_king_castle_right_lost()) {
-        //qDebug() << "castling bking";
         return false;
     }
     if(this->can_castle_bqueen() && this->is_black_queen_castle_right_lost()) {
-        //qDebug() << "castling bqueen";
         return false;
     }
     return true;
@@ -2509,21 +2487,17 @@ quint64 Board::zobrist() {
     uint8_t ep_target = b->get_ep_target();
     if(ep_target != 0) {
         int file = (ep_target % 10) - 1;
-        //qDebug() << file;
-        //qDebug() << "eptarget: "<< ep_target;
         // check if left or right is a pawn from player to move
         if(b->turn == WHITE) {
             uint8_t left = b->piece_at(ep_target-11);
             uint8_t right = b->piece_at(ep_target-9);
             if(left == WHITE_PAWN || right == WHITE_PAWN) {
-                //qDebug() << "white";
                 en_passent = POLYGLOT_RANDOM_64[RANDOM_EN_PASSENT + file];
             }
         } else {
             uint8_t left = b->piece_at(ep_target+11);
             uint8_t right = b->piece_at(ep_target+9);
             if(left == BLACK_PAWN || right == BLACK_PAWN) {
-                //qDebug() << "black";
                 en_passent = POLYGLOT_RANDOM_64[RANDOM_EN_PASSENT + file];
             }
         }

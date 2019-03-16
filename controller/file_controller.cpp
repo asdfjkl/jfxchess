@@ -91,9 +91,6 @@ void FileController::newGame() {
     if(dlg->exec() == QDialog::Accepted) {
         this->gameModel->wasSaved = false;
         this->gameModel->engineStrength = dlg->computerStrength;
-        //qDebug() << "dlg: " << dlg->computerStrength;
-        //qDebug() << "gameModel: " << this->gameModel->engineStrength;
-        //qDebug() << "gameModel: " << this->gameModel->getEngineStrength();
         this->gameModel->engineThinkTimeMs = dlg->computerThinkTime*1000;
         //auto g = std::unique_ptr<chess::Game>(new chess::Game());
         chess::Game* g = new chess::Game();
@@ -142,7 +139,6 @@ void FileController::openGameFrom(QString &path, QString &absoluteFilename, bool
         } else if(this->gameModel->database.countGames() > 1) {
             DialogDatabase dlg(this->gameModel, this->parentWidget);
             if(dlg.exec() == QDialog::Accepted && dlg.selectedIndex >= 0) {
-                    qDebug() << "insided dialog acc";
                     chess::Game* selected_game = this->gameModel->database.getGameAt(dlg.selectedIndex);
                     this->gameModel->lastOpenDir = path;
                     this->gameModel->currentPgnFilename = absoluteFilename;
@@ -250,12 +246,9 @@ void FileController::openDatabase() {
 
     DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);    
     if(dlg->exec() == QDialog::Accepted && dlg->selectedIndex >= 0) {
-            qDebug() << "insided dialog acc";
             chess::Game* selected_game = this->gameModel->database.getGameAt(dlg->selectedIndex);
             this->gameModel->setGame(selected_game);
             this->gameModel->getGame()->setTreeWasChanged(true);
-        } else {
-            qDebug() << "exec not ok:";
         }
     delete dlg;
     this->gameModel->triggerStateChange();

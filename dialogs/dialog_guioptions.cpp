@@ -119,7 +119,6 @@ DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
     this->update();
 
     int h = parent->height();
-    qDebug() << h;
     this->resize(h*0.7, 1);
 
 

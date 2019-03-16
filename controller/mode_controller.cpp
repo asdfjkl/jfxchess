@@ -257,7 +257,6 @@ void ModeController::onStateChangeGameAnalysis() {
 
 void ModeController::onMultiPVChanged(int nrLines) {
     this->gameModel->nrPvLines = nrLines;
-    qDebug() << "received signal: " << nrLines;
     if(this->gameModel->getMode() == MODE_ANALYSIS) {
         this->onActivateEnterMovesMode();
         this->onActivateAnalysisMode();
@@ -346,7 +345,6 @@ void ModeController::onActivateGameAnalysisMode() {
         run = true;
         this->gameModel->engineThinkTimeMs = dlg->secsPerMove;
         this->gameModel->analysisThreshold = dlg->threshold;
-        //qDebug() << this->gameModel->analysisThreshold;
         if(dlg->rbAnalyseBoth->isChecked()) {
             this->gameModel->gameAnalysisForPlayer = ANALYSE_BOTH_PLAYERS;
         } else if(dlg->rbAnalyseWhite->isChecked()) {

@@ -253,8 +253,6 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers_foo(const QString &filename, co
     PgnHeaderOffset ho;
     quint64 offset = 0;
 
-    qDebug() << "foo start";
-
     while(!file.atEnd()) {
         i++;
         QByteArray line = file.readLine();
@@ -352,8 +350,6 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers_foo(const QString &filename, co
         //game_pos = -1;
         //game_header = QMap<QString,QString>();
     }
-    qDebug() << ho.offset;
-    qDebug() << file.pos();
     return header_offsets;
 }
 

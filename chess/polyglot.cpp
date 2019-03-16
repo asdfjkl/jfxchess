@@ -15,7 +15,6 @@ Polyglot::Polyglot(QString &bookname)
     quint64 size = file.size();
     if(size <= 15728640) {
         if(file.open(QIODevice::ReadOnly)) {
-            //qDebug() << "reading test ";
             this->book = QByteArray(file.readAll());
             /*
             QByteArray foo = file.read(16ULL);
@@ -35,7 +34,6 @@ Polyglot::Polyglot(QString &bookname)
     } else {
         std::cerr << "couldn't open polyglot book: files > 15 MB are not supported" << std::endl;
     }
-    //qDebug() << "finished reading";
 }
 
 Entry Polyglot::entryFromOffset(int offset) {

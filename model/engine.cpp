@@ -74,7 +74,6 @@ void Engine::addEngineOption(EngineOption o) {
 
 void Engine::removeEngineOption(int idx_option) {
     if(idx_option >= 0 && idx_option < this->uciOptions.size()) {
-        //qDebug() << "REMOVED AT: " << idx_option;
         this->uciOptions.removeAt(idx_option);
     }
 }

@@ -86,12 +86,6 @@ QString GameNode::getSan(Move &m) {
 
 QString GameNode::getSan() {
     if(this->san_cache.isEmpty() && this->parent != 0) {
-        //this->san_cache = this->parent->getBoard().san(this->m);
-        //Move *m = this->m;
-        //qDebug() << "node to: " << m->uci_string;
-        //QString foo = m->uci();
-        //qDebug() << foo;
-        //this->san_cache = b.san(this->m);
         this->san_cache = this->parent->getSan(this->m);
     }
     return this->san_cache;

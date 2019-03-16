@@ -72,7 +72,6 @@ void EditController::paste() {
         }
         catch(std::invalid_argument e) {
             std::cerr << e.what() << std::endl;
-            //qDebug() << "paste failure";
         }
     }
 }

@@ -51,8 +51,6 @@ EngineInfo::EngineInfo()
 void EngineInfo::update(QString engine_feedback, QString fen) {
 
     int multi_pv = 0;
-    //qDebug() << engine_feedback;
-    //qDebug() << fen;
     // update turn
     if(!fen.isEmpty()) {
         try{
@@ -62,7 +60,7 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             this->halfmoves = b.halfmove_clock;
             this->fullmove_no = b.fullmove_number;
         } catch(std::logic_error e) {
-            //qDebug() << "error: chess logic in parsing engine output!";
+            std::cerr << e.what() << std::endl;
         }
     }
     QStringList lines = engine_feedback.split("\n");
@@ -73,12 +71,9 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
 
         QRegularExpressionMatch m_multipv = MULTIPV.match(line);
         if(m_multipv.hasMatch()) {
-            //qDebug() << "LINE   :";
-            //qDebug() << line;
             int len = m_multipv.capturedLength(0);
             QString test1 = m_multipv.captured(0).mid(7,len-1);
             multi_pv = m_multipv.captured(0).mid(8,len-1).toInt() - 1;
-            //qDebug() << "multipv identified: " << multi_pv;
         }
         // update score value. need to be careful about
         // - vs +, since engine reports always positive values
@@ -144,9 +139,6 @@ void EngineInfo::updateSan(int multiPvIndex) {
 
         this->pv_san[multiPvIndex] = QString("");
         chess::Board b = chess::Board(this->fen);
-        //std::cout << b << std::endl;
-        //qDebug() << "update san start";
-
         bool whiteMoves = true;
         int moveNo = this->fullmove_no;
         if(this->turn == chess::BLACK) {
@@ -168,7 +160,6 @@ void EngineInfo::updateSan(int multiPvIndex) {
         }
 
     }
-    //qDebug() << "update san stop";
 }
 
 QString EngineInfo::toString() {

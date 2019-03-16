@@ -172,7 +172,6 @@ QVector<qint64> chess::PgnDatabase::scanPgn(QString &filename, bool isLatin1) {
 
 
 void chess::PgnDatabase::open(QString &filename) {
-    qDebug() << "pgn database: open";
 
     this->isUtf8 = reader.detectUtf8(filename);
     /*
@@ -198,8 +197,6 @@ void chess::PgnDatabase::close() {
 }
 
 int chess::PgnDatabase::getRowCount() {
-    //qDebug() << "pgn database: get row count" << this->offsets.size();
-
     return this->searchedOffsets.size();
 }
 
@@ -394,12 +391,9 @@ bool chess::PgnDatabase::pgnHeaderMatches1(QTextStream &openStream, SearchPatter
                 // todo
             }
             if(tag == "White") {
-                //qDebug() << "checking: " << pattern.whiteName << " " << value;
                 if(!value.contains(pattern.whiteName, Qt::CaseInsensitive)) {
-                    //qDebug() << "false";
                     return false;
                 } else {
-                    //qDebug() << "cont";
                     return true;
                 }
             }

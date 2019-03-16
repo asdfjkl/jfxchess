@@ -9,7 +9,6 @@
 DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     QDialog(parent)
 {
-    qDebug() << "dialog search constructor";
     this->ths = new TabHeaderSearch(this);
     //this->tcs = new TabCommentSearch(this);
     //this->tsp = new TabSearchPos(gameModel, this);
@@ -45,11 +44,9 @@ DialogSearch::DialogSearch(GameModel *gameModel, QWidget *parent) :
     setLayout(mainLayout);
 
     this->setMinimumWidth(this->height()*1.65);
-    qDebug() << "this height: " << this->height() << " and min width: " << (this->height()*1.65);
 
     setWindowTitle(tr("Search for Games"));
 
-    qDebug() << "dialog search constructor finished";
 }
 
 void DialogSearch::resizeEvent(QResizeEvent *) {
@@ -57,19 +54,14 @@ void DialogSearch::resizeEvent(QResizeEvent *) {
 }
 
 SearchPattern DialogSearch::getPattern() {
-    qDebug() << "this height: " << this->height() << " and min width: " << (this->height()*1.65);
 
     SearchPattern sp;
-
-    qDebug() << "names";
 
     // game data search
     sp.whiteName = this->ths->whiteName->text();
     sp.blackName = this->ths->blackName->text();
 
-    qDebug() << "ignore colors: " << this->ths->cbIgnoreColors->isChecked();
     sp.ignoreNameColor = this->ths->cbIgnoreColors->isChecked();
-    qDebug() << "OK";
 
     sp.event = this->ths->event->text();
 
@@ -78,7 +70,6 @@ SearchPattern DialogSearch::getPattern() {
     sp.checkYear = this->ths->cbYear->isChecked();
     sp.checkEco = this->ths->cbEco->isChecked();
     sp.checkMoves = this->ths->cbEco->isChecked();
-qDebug() << "OK";
     sp.year_min = this->ths->minYear->value();
     sp.year_max = this->ths->maxYear->value();
 
@@ -87,7 +78,6 @@ qDebug() << "OK";
 
     sp.elo_min = this->ths->minElo->value();
     sp.elo_max = this->ths->maxElo->value();
-    qDebug() << "OK1";
     if(this->ths->btnAverageElo->isChecked()) {
         sp.checkElo = SEARCH_AVERAGE_ELO;
     }
@@ -105,7 +95,6 @@ qDebug() << "OK";
     if(this->ths->btnUndecided->isChecked()) {
         sp.result = chess::RES_UNDEF;
     }
-    qDebug() << "OK2";
 
     if(this->ths->btnWhiteWins->isChecked()) {
         sp.result = chess::RES_WHITE_WINS;
@@ -128,7 +117,6 @@ qDebug() << "OK";
     //sp.mustNotStartInInitial = this->tcs->notInitialPos->isChecked();
     //sp.caseSensitive = this->tcs->caseSensitive->isChecked();
 
-    qDebug() << "options";
 
     // search options
     //sp.searchGameData = this->optGameData->isChecked();
