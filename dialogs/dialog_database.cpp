@@ -55,7 +55,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
 
     toolbar->addSeparator();
 
-    QString stringAddCurrent(resDir + "/res/icons/text-x-generic_with_pencil.svg");
+    QString stringAddCurrent(resDir + "/res/icons/text-pencil.svg");
     QPixmap *tbAddCurrent = Helper::fromSvgToPixmap(iconSize,stringAddCurrent, this->devicePixelRatio());
     QAction *tbActionAddCurrent = toolbar->addAction(QIcon(*tbAddCurrent), this->tr("Add Current Game"));
 
