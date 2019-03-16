@@ -265,14 +265,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* actionSaveAs = this->createAction("document-save", this->tr("Save Current\nGame As"), iconSize);
     // Print
     QAction* actionPrintGame = this->createAction("document-print", this->tr("Print Game"), iconSize);
-    QAction* actionPrintPosition = this->createAction("document-print", this->tr("Print Position"), iconSize);
+    QAction* actionPrintPosition = this->createAction("document-print-board", this->tr("Print Position"), iconSize);
     // Layout
     QAction* actionColorStyle = this->createAction("applications-graphics", this->tr("Board Style"), iconSize);
-    QAction* actionResetLayout = this->createAction("applications-graphics", this->tr("Reset Layout"), iconSize);
+    QAction* actionResetLayout = this->createAction("preferences-system-session", this->tr("Reset Layout"), iconSize);
     // Quit
-    QAction* actionQuit = this->createAction("document-print", this->tr("Exit"), iconSize);
+    QAction* actionQuit = this->createAction("system-log-out", this->tr("Exit"), iconSize);
     // Homepage
-    QAction* actionHomepage = this->createAction("help-browser", this->tr("Homepage"), iconSize);
+    QAction* actionHomepage = this->createAction("internet-web-browser", this->tr("Homepage"), iconSize);
     // Help (About)
     QAction* actionAbout = this->createAction("help-browser", this->tr("About"), iconSize);
 
@@ -287,13 +287,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* actionFlipBoard = this->createAction("view-refresh", this->tr("Flip Board"), iconSize);
     //QAction* actionShowSearchInfo = this->createAction("view-refresh", this->tr("Show\nSearch Info"), iconSize);
     // Mode
-    QAction* actionAnalysis = this->createAction("view-refresh", this->tr("Infinite\nAnalysis"), iconSize);
-    QAction* actionPlayWhite = this->createAction("view-refresh", this->tr("Play\nWhite"), iconSize);
-    QAction* actionPlayBlack = this->createAction("view-refresh", this->tr("Play\nBlack"), iconSize);
-    QAction* actionEnterMoves = this->createAction("view-refresh", this->tr("Enter\nMoves"), iconSize);
+    QAction* actionAnalysis = this->createAction("edit-find", this->tr("Infinite\nAnalysis"), iconSize);
+    QAction* actionPlayWhite = this->createAction("play-white", this->tr("Play\nWhite"), iconSize);
+    QAction* actionPlayBlack = this->createAction("play-black", this->tr("Play\nBlack"), iconSize);
+    QAction* actionEnterMoves = this->createAction("text-pencil", this->tr("Enter\nMoves"), iconSize);
     // Analysis
-    QAction* actionFullGameAnalysis = this->createAction("emblem-system", this->tr("Full\nGame Analysis"), iconSize);
-    QAction* actionEnginePlayout = this->createAction("emblem-system", this->tr("Engine\nPlayout"), iconSize);
+    QAction* actionFullGameAnalysis = this->createAction("edit-find-replace", this->tr("Full\nGame Analysis"), iconSize);
+    QAction* actionEnginePlayout = this->createAction("dialog-information", this->tr("Engine\nPlayout"), iconSize);
     // Database
     QAction* actionDatabaseWindow = this->createAction("database", this->tr("Show\nDatabase"), iconSize);
     QAction* actionLoadPreviousGame = this->createAction("go-previous", this->tr("Previous Game"), iconSizeSmall);
@@ -455,7 +455,7 @@ void MainWindow::centerAndResize() {
     QSize availableSize = desktop->availableGeometry().size();
     int width = availableSize.width();
     int height = availableSize.height();
-    width = 0.7*width;
+    width = 0.85*width;
     height = 0.85*height;
     QSize newSize( width, height );
 
