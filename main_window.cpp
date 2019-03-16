@@ -177,21 +177,14 @@ MainWindow::MainWindow(QWidget *parent) :
     vbox_right->addLayout(hbox_name_editHeader);
     vbox_right->addWidget(moveViewController);
     vbox_right->addLayout(hbox_buttons);
-    //vbox_right->addLayout(hbox_right_engine_buttons);
-    //vbox_right->addWidget(engineViewController);
 
     vbox_right->setStretch(0,1);
     vbox_right->setStretch(1,4);
     vbox_right->setStretch(2,1);
-    //vbox_right->setStretch(3,1);
-    //vbox_right->setStretch(4,4);
 
     QVBoxLayout *vbox_left = new QVBoxLayout();
     vbox_left->addWidget(boardViewController);
 
-    //this->hbox = new QHBoxLayout();
-    //hbox->addLayout(vbox_left);
-    //hbox->addLayout(vbox_right);
     QWidget *lHboxWidget = new QWidget(this);
     lHboxWidget->setLayout(vbox_left);
     QWidget *rHboxWidget = new QWidget(this);
@@ -199,30 +192,19 @@ MainWindow::MainWindow(QWidget *parent) :
     this->splitterLeftRight = new QSplitter(this);
     splitterLeftRight->addWidget(lHboxWidget);
     splitterLeftRight->addWidget(rHboxWidget);
-    //splitterLeftRight->setStretchFactor(0,8);
-    //splitterLeftRight->setStretchFactor(1,1);
-    //int halfWidth = this->width() / 2;
-    //splitterLeftRight->setSizes(QList<int>({halfWidth, halfWidth}));
 
-    //hbox->setStretch(0,2);
-    //hbox->setStretch(1,3);
+    QSplitterHandle *handleLeftRight = splitterLeftRight->handle(1);
+    QHBoxLayout *layoutSplitterLeftRight = new QHBoxLayout(handleLeftRight);
+    layoutSplitterLeftRight->setSpacing(0);
+    layoutSplitterLeftRight->setMargin(0);
 
-    QSplitterHandle *handle = splitterLeftRight->handle(1);
-    QHBoxLayout *layout = new QHBoxLayout(handle);
-    layout->setSpacing(0);
-    layout->setMargin(0);
+    QFrame *frameLeftRight = new QFrame(handleLeftRight);
+    frameLeftRight->setFrameShape(QFrame::VLine);
+    frameLeftRight->setFrameShadow(QFrame::Sunken);
+    layoutSplitterLeftRight->addWidget(frameLeftRight);
 
-    QFrame *line = new QFrame(handle);
-    line->setFrameShape(QFrame::VLine);
-    line->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(line);
-
-    //completeLayout->addWidget(splitterLeftRight);
 
     this->splitterTopDown = new QSplitter(this);
-    //QWidget* topWidget = new QWidget(this);
-    //topWidget->setLayout(splitter)
-    //splitterTopDown->add
     splitterTopDown->addWidget(splitterLeftRight);
     splitterTopDown->setOrientation(Qt::Vertical);
 
@@ -233,25 +215,18 @@ MainWindow::MainWindow(QWidget *parent) :
     bottomWidget->setLayout(completeLayout);
     splitterTopDown->addWidget(bottomWidget);
 
-    //int fifthHeight = this->height() / 5;
-    //splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
+    QHBoxLayout *completeLayoutWithSplitter = new QHBoxLayout();
+    completeLayoutWithSplitter->addWidget(splitterTopDown);
 
-    //completeLayout->setStretch(0,6);
-    //completeLayout->setStretch(1,1);
-    //QLayout cLayout = new QLayout();
-    QHBoxLayout *cLayout = new QHBoxLayout();
-    cLayout->addWidget(splitterTopDown);
+    QSplitterHandle *handleTopDown = splitterTopDown->handle(1);
+    QHBoxLayout *layoutSplitterTopDown = new QHBoxLayout(handleTopDown);
+    layoutSplitterTopDown->setSpacing(0);
+    layoutSplitterTopDown->setMargin(0);
 
-
-    QSplitterHandle *handle2 = splitterTopDown->handle(1);
-    QHBoxLayout *layout2 = new QHBoxLayout(handle2);
-    layout2->setSpacing(0);
-    layout2->setMargin(0);
-
-    QFrame *line2 = new QFrame(handle2);
-    line2->setFrameShape(QFrame::HLine);
-    line2->setFrameShadow(QFrame::Sunken);
-    layout2->addWidget(line2);
+    QFrame *frameTopDown = new QFrame(handleTopDown);
+    frameTopDown->setFrameShape(QFrame::HLine);
+    frameTopDown->setFrameShadow(QFrame::Sunken);
+    layoutSplitterTopDown->addWidget(frameTopDown);
 
 
     QSize iconSize = QSize(ICON_SIZE_LARGE * this->devicePixelRatio(), ICON_SIZE_LARGE* this->devicePixelRatio());
@@ -364,7 +339,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ribbon->setActive(" Start");
 
-    mainWidget->setLayout(cLayout);
+    mainWidget->setLayout(completeLayoutWithSplitter);
 
     this->setCentralWidget(mainWidget);
     QStatusBar *statusbar = this->statusBar();

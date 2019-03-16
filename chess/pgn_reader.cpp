@@ -81,8 +81,8 @@ bool PgnReader::detectUtf8(const QString &filename) {
     // open the file and read a max of 100 first bytes
     // if conversion to unicode works, try some more bytes (at most 40 * 100)
     // if conversion errors occur, we simply assume UTF-8
-    const char* iso = "ISO 8859-1";
-    const char* utf8 = "UTF-8";
+    //const char* iso = "ISO 8859-1";
+    //const char* utf8 = "UTF-8";
     QFile file(filename);
     if(!file.open(QFile::ReadOnly)) {
         return true;
