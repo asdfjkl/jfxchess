@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{36B3AE1D-DBD1-4B2E-BC2C-629F5FC30B21}
 AppName=Jerry - Chess GUI
-AppVersion=3.1.0
+AppVersion=3.2.0
 ;AppVerName=Jerry - Chess GUI 3.1.0
 AppPublisher=dkl
 AppPublisherURL=https://github.com/asdfjkl/jerry

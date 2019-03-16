@@ -13,7 +13,7 @@
 #include "viewController/database_index_model.h"
 #include <QFileDialog>
 #include <QDebug>
-#include <QTest>
+//#include <QTest>
 #include <iostream>
 #include "various/messagebox.h"
 #include "dialogs/dialog_database_help.h"
@@ -196,8 +196,8 @@ void DialogDatabase::onClickSearch() {
     if(dlg.exec() == QDialog::Accepted) {
         SearchPattern pattern = dlg.getPattern();
         this->gameModel->lastSeenSearchPattern = pattern;
-        QTime myTimer;
-        myTimer.start();
+        //QTime myTimer;
+        //myTimer.start();
         // do something..
         try {
             this->gameModel->database.search(pattern);
@@ -310,7 +310,7 @@ void DialogDatabase::onClickExport() {
 
 void DialogDatabase::onRowChanged() {
 
-    QTest::qWait(2000);
+    //QTest::qWait(2000);
     QItemSelectionModel *select = this->tableView->selectionModel();
     if(select->hasSelection()) {
         QModelIndexList selected_rows = select->selectedRows();
