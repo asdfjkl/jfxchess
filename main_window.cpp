@@ -45,6 +45,7 @@
 #include <QShortcut>
 #include <QToolBar>
 #include <QSplitter>
+#include <QButtonGroup>
 #include <QDesktopServices>
 #include "chess/pgn_reader.h"
 #include "viewController/engineview.h"
@@ -273,8 +274,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* actionLoadPreviousGame = this->createAction("go-previous", this->tr("Previous Game"), iconSizeSmall);
     QAction* actionLoadNextGame = this->createAction("go-previous", this->tr("Next Game"), iconSizeSmall);
 
-
-
     this->ribbon = new RibbonWidget(this);
     this->addToolBar(this->ribbon);
 
@@ -320,10 +319,24 @@ MainWindow::MainWindow(QWidget *parent) :
     showSearchGrid->addWidget(showSearchInfo,1,1);
 
     RibbonPane *modePane = startTab->addRibbonPane(this->tr("Mode"));
-    modePane->addRibbonWidget(new RibbonButton(actionAnalysis, true, this));
-    modePane->addRibbonWidget(new RibbonButton(actionPlayWhite, true, this));
-    modePane->addRibbonWidget(new RibbonButton(actionPlayBlack, true, this));
-    modePane->addRibbonWidget(new RibbonButton(actionEnterMoves, true, this));
+    RibbonButton *buttonAnalysis = new RibbonButton(actionAnalysis, true, this);
+    RibbonButton *buttonPlayWhite = new RibbonButton(actionPlayWhite, true, this);
+    RibbonButton *buttonPlayBlack = new RibbonButton(actionPlayBlack, true, this);
+    RibbonButton *buttonEnterMoves = new RibbonButton(actionEnterMoves, true, this);
+    buttonAnalysis->setCheckable(true);
+    buttonPlayWhite->setCheckable(true);
+    buttonPlayBlack->setCheckable(true);
+    buttonEnterMoves->setCheckable(true);
+    QButtonGroup* buttonGroupMode = new QButtonGroup(this);
+    buttonGroupMode->addButton(buttonAnalysis);
+    buttonGroupMode->addButton(buttonPlayWhite);
+    buttonGroupMode->addButton(buttonPlayBlack);
+    buttonGroupMode->addButton(buttonEnterMoves);
+    modePane->addRibbonWidget(buttonAnalysis);
+    modePane->addRibbonWidget(buttonPlayWhite);
+    modePane->addRibbonWidget(buttonPlayBlack);
+    modePane->addRibbonWidget(buttonEnterMoves);
+    buttonEnterMoves->setChecked(true);
 
     RibbonTab *analysisTab = this->ribbon->addRibbonTab(this->tr(" Analysis"));
     RibbonPane *analysisPane = analysisTab->addRibbonPane(this->tr("Game Analysis"));
