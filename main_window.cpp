@@ -465,7 +465,7 @@ void MainWindow::showAbout() {
 }
 
 void MainWindow::goToHomepage() {
-    QDesktopServices::openUrl(QUrl("http://github.com/asdfjkl/jerry/"));
+    QDesktopServices::openUrl(QUrl("http://jerry-chess.de"));
 }
 
 void MainWindow::onEngineToggle() {
