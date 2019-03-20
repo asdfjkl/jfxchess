@@ -49,6 +49,7 @@ void UciWorker::processCommands() {
     else if(this->process->state() == QProcess::Running) {
         QString output = QString(this->process->readAllStandardOutput());
         if(!output.isEmpty()) {
+            //qDebug() << "RECEIVING: " << output;
             this->engine_info->update(output, this->current_fen);
             if(this->engine_info->seesMate[0]) {
                 emit(mateDetected(this->engine_info->mate[0]));
@@ -77,6 +78,7 @@ void UciWorker::processCommands() {
                 this->process->waitForBytesWritten();
             }
             QString msg = this->cmd_queue->dequeue();
+            //qDebug() << "SENDING: " << msg;
             this->go_infinite = false;
             // if the command is "position fen moves", first count the
             // numbers of moves so far to generate move numbers in engine info

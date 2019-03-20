@@ -47,7 +47,7 @@ DialogEngineOptions::DialogEngineOptions(Engine &e, QWidget *parent) :
     for(int i=0;i<uciOptions.size();i++) {
         EngineOption ei = uciOptions.at(i);
         if(!ei.name.startsWith("UCI_") &&
-                !(ei.name == QString("Hash") || ei.name == QString("NalimoPath") ||
+                !(ei.name == QString("NalimoPath") ||
                   ei.name == QString("NalimovCache") || ei.name == QString("Ponder") ||
                   ei.name == QString("Ownbook") || ei.name == "MultiPV" ||  ei.name == "Skill Level")
                 )
