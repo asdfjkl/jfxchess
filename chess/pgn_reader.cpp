@@ -307,9 +307,9 @@ QVector<PgnHeaderOffset> PgnReader::scan_headers_foo(const QString &filename, co
 
                 //game_headerinsert(tag,value);
                 gameCounter += 1;
-                if(gameCounter % 100000 == 0) {
-                    std::cout << gameCounter << std::endl;
-                }
+                //if(gameCounter % 100000 == 0) {
+                //    std::cout << gameCounter << std::endl;
+                //}
 
                 // last_pos = in.pos();
                 line = file.readLine();
@@ -896,9 +896,9 @@ QVector<qint64> PgnReader::scanPgn(QString &filename, bool isLatin1) {
     int i= 0;
     while(!file.atEnd()) {
 
-        if(offsets.length() % 100000 == 0) {
-            std::cout << offsets.length() << std::endl;
-        }
+        //if(offsets.length() % 100000 == 0) {
+        //    std::cout << offsets.length() << std::endl;
+        //}
 
         i++;
         byteLine = file.readLine();

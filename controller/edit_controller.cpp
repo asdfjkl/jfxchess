@@ -84,11 +84,11 @@ void EditController::enterPosition() {
     if(dlg->exec() == QDialog::Accepted) {
 
         chess::Board new_board = dlg->getCurrentBoard();
-        std::cout << "GOT BOARD FROM DLG: " << std::endl;
-        std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
+        //std::cout << "GOT BOARD FROM DLG: " << std::endl;
+        //std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
         this->gameModel->getGame()->resetWithNewRootBoard(new_board);
-        std::cout << "CURRENT NODE BOARD: " << std::endl;
-        std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
+        //std::cout << "CURRENT NODE BOARD: " << std::endl;
+        //std::cout << this->gameModel->getGame()->getCurrentNode()->getBoard() << "\n";
         this->gameModel->triggerStateChange();
     }
 }

@@ -439,7 +439,7 @@ void chess::PgnDatabase::search(SearchPattern &pattern) {
     //progress.show();
 
     quint64 stepCounter = 0;
-    qDebug() << pattern.whiteName;
+    //qDebug() << pattern.whiteName;
 
     for(int i=0;i<this->allOffsets.size();i++) {
 
