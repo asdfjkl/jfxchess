@@ -44,6 +44,7 @@
 #include <QShortcut>
 #include <QComboBox>
 #include "ribbon/ribbon_widget.h"
+#include "ribbon/ribbon_button.h"
 
 class MainWindow : public QMainWindow
 {
@@ -85,6 +86,11 @@ private:
     QSplitter* splitterLeftRight;
     QLabel *lblMultiPv;
     QSpinBox *spinMultiPv;
+
+    RibbonButton *buttonAnalysis;
+    RibbonButton *buttonPlayWhite;
+    RibbonButton *buttonPlayBlack;
+    RibbonButton *buttonEnterMoves;
 
     RibbonWidget *ribbon;
 

@@ -42,6 +42,7 @@ void UciWorker::processCommands() {
         QString msg = this->cmd_queue->dequeue();
         if(msg.startsWith("start_engine?")) {
             QString path = msg.split("?")[1];
+            qDebug() << "path: " << path;
             this->process->start(path.append("\n"));
             this->engine_info->strength = -1;
         }

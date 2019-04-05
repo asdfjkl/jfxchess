@@ -319,10 +319,10 @@ MainWindow::MainWindow(QWidget *parent) :
     showSearchGrid->addWidget(showSearchInfo,1,1);
 
     RibbonPane *modePane = startTab->addRibbonPane(this->tr("Mode"));
-    RibbonButton *buttonAnalysis = new RibbonButton(actionAnalysis, true, this);
-    RibbonButton *buttonPlayWhite = new RibbonButton(actionPlayWhite, true, this);
-    RibbonButton *buttonPlayBlack = new RibbonButton(actionPlayBlack, true, this);
-    RibbonButton *buttonEnterMoves = new RibbonButton(actionEnterMoves, true, this);
+    this->buttonAnalysis = new RibbonButton(actionAnalysis, true, this);
+    this->buttonPlayWhite = new RibbonButton(actionPlayWhite, true, this);
+    this->buttonPlayBlack = new RibbonButton(actionPlayBlack, true, this);
+    this->buttonEnterMoves = new RibbonButton(actionEnterMoves, true, this);
     buttonAnalysis->setCheckable(true);
     buttonPlayWhite->setCheckable(true);
     buttonPlayBlack->setCheckable(true);
@@ -385,6 +385,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(showSearchInfo, &QCheckBox::stateChanged, this->engineViewController, &EngineView::flipShowEval);
 
     connect(actionAnalysis, &QAction::triggered, modeController, &ModeController::onActivateAnalysisMode);
+    connect(actionEnterMoves, &QAction::triggered, modeController, &ModeController::onActivateEnterMovesMode);
     connect(actionPlayWhite, &QAction::triggered, modeController, &ModeController::onActivatePlayWhiteMode);
     connect(actionPlayBlack, &QAction::triggered, modeController, &ModeController::onActivatePlayBlackMode);
     connect(actionFullGameAnalysis, &QAction::triggered, modeController, &ModeController::onActivateGameAnalysisMode);
@@ -504,7 +505,7 @@ void MainWindow::onStateChange() {
         this->pbEngineOnOff->blockSignals(true);
         this->pbEngineOnOff->setChecked(false);
         this->pbEngineOnOff->blockSignals(false);
-    } else if(this->gameModel->getMode() != MODE_ENTER_MOVES) {
+    } else {
         this->pbEngineOnOff->blockSignals(true);
         this->pbEngineOnOff->setChecked(true);
         this->pbEngineOnOff->blockSignals(false);
@@ -516,20 +517,18 @@ void MainWindow::onStateChange() {
     QString code = ei.code;
     QString info = ei.info;
     this->statusBar()->showMessage(code.append(" ").append(info));
-    /*
+
     if(this->gameModel->getMode() == MODE_ANALYSIS) {
-        this->analysis_mode->setChecked(true);
+        this->buttonAnalysis->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
-        this->enter_moves->setChecked(true);
+        this->buttonEnterMoves->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_GAME_ANALYSIS) {
-        this->enter_moves->setChecked(true);
-    } else if(this->gameModel->getMode() == MODE_ENTER_MOVES) {
-        this->enter_moves->setChecked(true);
+        this->buttonEnterMoves->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_PLAY_WHITE) {
-        this->play_white->setChecked(true);
+        this->buttonPlayWhite->setChecked(true);
     } else if(this->gameModel->getMode() == MODE_PLAY_BLACK) {
-        this->play_black->setChecked(true);
-    } */
+        this->buttonPlayBlack->setChecked(true);
+    }
     if(this->gameModel->showEval) {
         this->showSearchInfo->setChecked(Qt::Checked);
     } else {
