@@ -1,4 +1,4 @@
-# Jerry-Chess GUI
+# Jerry - Das Schachprogramm
 
 ![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/various/screenshot.jpg)
 
