@@ -9,8 +9,7 @@ QString ResourceFinder::getPath() {
 #ifdef __linux__
     QString appPath = "/usr/share/jerry/";
     return appPath;
-#endif
-#ifdef _WIN32
+#else
     QString appPath = QCoreApplication::applicationDirPath();
     return appPath.append(QDir::separator());
 #endif
