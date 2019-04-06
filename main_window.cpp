@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QDir::setCurrent(QCoreApplication::applicationDirPath());
     
 #ifdef __APPLE__
-    QString resDir = QCoreApplication::applicationDirPath().append("/../Resources");
+    QString resDir = QCoreApplication::applicationDirPath().append("../Resources");
 #else
     QString resDir = ResourceFinder::getPath();
 #endif
@@ -599,7 +599,7 @@ QAction* MainWindow::createAction(QString name, const QString &displayName, QSiz
 
     QString resDir = ResourceFinder::getPath();
     #ifdef __APPLE__
-        resDir.append("/../Resources/");
+        resDir.append("../Resources/");
     #endif
     resDir.append("/res/icons/");
     resDir.append(name);
