@@ -4,20 +4,19 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 5): QT += widgets printsupport
-
-QT       += svg
-QT       -= gui
-
-TARGET = jerry3
-CONFIG   -= console
-CONFIG   += app_bundle
-CONFIG   += c++1z
-
-QMAKE_CXXFLAGS += -std=c++11
-
 TEMPLATE = app
+TARGET = Jerry-master
+INCLUDEPATH += .
+
+QT       += core
+QT       += widgets
+QT       += gui
+QT       += printsupport
+QT       += svg
+
+CONFIG   += app_bundle
+CONFIG   += c++14
+CONFIG   -= console
 
 
 SOURCES += main.cpp \
