@@ -599,7 +599,7 @@ QAction* MainWindow::createAction(QString name, const QString &displayName, QSiz
 
     QString resDir = ResourceFinder::getPath();
     #ifdef __APPLE__
-        resDir.append("../Resources/");
+        resDir.append("/../Resources/");
     #endif
     resDir.append("/res/icons/");
     resDir.append(name);
