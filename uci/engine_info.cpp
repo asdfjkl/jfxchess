@@ -33,6 +33,7 @@ EngineInfo::EngineInfo()
     this->halfmoves = 0;
     this->current_move = QString("");
     this->nps = 0;
+    this->seldepth = -1;
     this->depth = -1;
     this->pv = QString("");
     this->flip_eval = false;
@@ -88,27 +89,38 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             }
             this->seesMate[multi_pv] = false;
         }
+        
         QRegularExpressionMatch m_nps = NPS.match(line);
         if(m_nps.hasMatch()) {
             int len = m_nps.capturedLength(0);
             this->nps = m_nps.captured(0).mid(4,len-1).toInt();
         }
+        
+        QRegularExpressionMatch m_seldepth = SELDEPTH.match(line);
+        if(m_seldepth.hasMatch()) {
+            int len = m_seldepth.capturedLength(0);
+            this->seldepth = m_seldepth.captured(0).mid(9,len-1).toInt();
+        }
+        
         QRegularExpressionMatch m_depth = DEPTH.match(line);
         if(m_depth.hasMatch()) {
             int len = m_depth.capturedLength(0);
             this->depth = m_depth.captured(0).mid(6,len-1).toInt();
         }
+        
         QRegularExpressionMatch m_mate = MATE.match(line);
         if(m_mate.hasMatch()) {
             int len = m_mate.capturedLength(0);
             this->mate[multi_pv] = abs(m_mate.captured(0).mid(11,len-1).toInt());
             this->seesMate[multi_pv] = true;
         }
+        
         QRegularExpressionMatch m_currmove_no = CURRMOVENUMBER.match(line);
         if(m_currmove_no.hasMatch()) {
             int len = m_currmove_no.capturedLength(0);
             this->current_fullmove_no = m_currmove_no.captured(0).mid(15,len).toInt();
         }
+        
         QRegularExpressionMatch m_currmove = CURRMOVE.match(line);
         if(m_currmove.hasMatch()) {
             int len = m_currmove.capturedLength(0);
@@ -123,6 +135,7 @@ void EngineInfo::update(QString engine_feedback, QString fen) {
             this->pv_list = moves.split(" ");
             this->updateSan(multi_pv);
         }
+        
         QRegularExpressionMatch m_id = IDNAME.match(line);
         if(m_id.hasMatch()) {
             int len = m_id.capturedLength(0);
@@ -183,7 +196,7 @@ QString EngineInfo::toString() {
     outstr.append("<th width=10%\" align=\"left\" style=\"font-weight:normal\">");
     if(!this->current_move.isEmpty()) {
         outstr.append(this->current_move);
-        outstr.append(" (depth ").append(QString::number(this->current_fullmove_no)).append(")");
+        outstr.append(" (depth ").append(QString::number(this->depth)).append(" / ").append(QString::number(this->seldepth)).append(" )");
     }
     outstr.append("</th>");
 
