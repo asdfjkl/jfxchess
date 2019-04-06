@@ -64,9 +64,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // set working dir to executable work directory
     QDir::setCurrent(QCoreApplication::applicationDirPath());
-
+    
+#ifdef __APPLE__
+    QString resDir = QCoreApplication::applicationDirPath().append("/../Resources/");
+#else
     QString resDir = ResourceFinder::getPath();
-
+#endif
+    
     //chess::FuncT *f = new chess::FuncT();
     //f->run_pgn_speedtest();
     //f->run_polyglot();
@@ -94,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QHBoxLayout *hbox_name_editHeader = new QHBoxLayout();
     QPushButton *editHeader = new QPushButton();
-    QPixmap pxEditHeader(*this->fromSvgToPixmap(editHeader->iconSize(),resDir + "/res/icons/document-properties.svg"));
+    QPixmap pxEditHeader(*this->fromSvgToPixmap(editHeader->iconSize(),resDir + "res/icons/document-properties.svg"));
     editHeader->setIcon(QIcon(pxEditHeader));
 
     hbox_name_editHeader->addStretch(1);
@@ -102,28 +106,27 @@ MainWindow::MainWindow(QWidget *parent) :
     hbox_name_editHeader->addStretch(1);
     hbox_name_editHeader->addWidget(editHeader);
 
-    this->uciController = new UciController();
+    this->uciController     = new UciController();
+    this->modeController    = new ModeController(gameModel, uciController, this);
+    this->editController    = new EditController(gameModel, this);
+    this->fileController    = new FileController(gameModel, this);
 
-    this->modeController = new ModeController(gameModel, uciController, this);
-    this->editController = new EditController(gameModel, this);
-    this->fileController = new FileController(gameModel, this);
-
-    QSize btnSize = QSize(this->height()/19, this->height()/19);
-    QSize btnSizeLR = QSize(this->height()/14, this->height()/14);
-    QPushButton *left = new QPushButton();
-    QPushButton *right = new QPushButton();
-    QPushButton *beginning = new QPushButton();
-    QPushButton *end = new QPushButton();
+    QSize btnSize           = QSize(this->height()/19, this->height()/19);
+    QSize btnSizeLR         = QSize(this->height()/14, this->height()/14);
+    QPushButton *left       = new QPushButton();
+    QPushButton *right      = new QPushButton();
+    QPushButton *beginning  = new QPushButton();
+    QPushButton *end        = new QPushButton();
 
     left->setIconSize(btnSizeLR);
     right->setIconSize(btnSizeLR);
     beginning->setIconSize(btnSize);
     end->setIconSize(btnSize);
 
-    QPixmap pxRight(*this->fromSvgToPixmap(right->iconSize(),resDir + "/res/icons/go-next.svg"));
-    QPixmap pxLeft(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-previous.svg"));
-    QPixmap pxBeginning(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-first.svg"));
-    QPixmap pxEnd(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-last.svg"));
+    QPixmap pxRight(*this->fromSvgToPixmap(right->iconSize(),resDir + "res/icons/go-next.svg"));
+    QPixmap pxLeft(*this->fromSvgToPixmap(left->iconSize(),resDir + "res/icons/go-previous.svg"));
+    QPixmap pxBeginning(*this->fromSvgToPixmap(left->iconSize(),resDir + "res/icons/go-first.svg"));
+    QPixmap pxEnd(*this->fromSvgToPixmap(left->iconSize(),resDir + "res/icons/go-last.svg"));
 
     right->setIcon(QIcon(pxRight));
     left->setIcon(QIcon(pxLeft));
@@ -158,14 +161,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *hbox_right_engine_buttons = new QHBoxLayout();
 
     this->pbEngineOnOff = new OnOffButton(this); //new QPushButton("OFF");
-    this->lblMultiPv = new QLabel(this->tr("Lines:"), this);
-    this->spinMultiPv = new QSpinBox(this);
+    this->lblMultiPv    = new QLabel(this->tr("Lines:"), this);
+    this->spinMultiPv   = new QSpinBox(this);
     this->spinMultiPv->setRange(1,4);
     this->spinMultiPv->setValue(1);
     this->lblMultiPv->setBuddy(this->spinMultiPv);
 
     QPushButton *editEngines = new QPushButton();
-    QPixmap pxEditEngines(*this->fromSvgToPixmap(editEngines->iconSize(),resDir + "/res/icons/document-properties.svg"));
+    QPixmap pxEditEngines(*this->fromSvgToPixmap(editEngines->iconSize(),resDir + "res/icons/document-properties.svg"));
     editEngines->setIcon(QIcon(pxEditEngines));
 
     hbox_right_engine_buttons->addWidget(pbEngineOnOff);
@@ -595,7 +598,10 @@ QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgF
 QAction* MainWindow::createAction(QString name, const QString &displayName, QSize &iconSize) {
 
     QString resDir = ResourceFinder::getPath();
-    resDir.append("/res/icons/");
+    #ifdef __APPLE__
+        resDir.append("../Resources/");
+    #endif
+    resDir.append("res/icons/");
     resDir.append(name);
     resDir.append(".svg");
     QPixmap *iconPixmap = this->fromSvgToPixmap(iconSize, resDir);
