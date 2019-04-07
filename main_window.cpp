@@ -230,8 +230,8 @@ MainWindow::MainWindow(QWidget *parent) :
     layoutSplitterTopDown->addWidget(frameTopDown);
 
 
-    QSize iconSize = QSize(ICON_SIZE_LARGE * this->devicePixelRatio(), ICON_SIZE_LARGE* this->devicePixelRatio());
-    QSize iconSizeSmall = QSize(ICON_SIZE_SMALL * this->devicePixelRatio(), ICON_SIZE_SMALL* this->devicePixelRatio());
+    QSize iconSize = QSize(ICON_SIZE_LARGE, ICON_SIZE_LARGE);
+    QSize iconSizeSmall = QSize(ICON_SIZE_SMALL, ICON_SIZE_SMALL);
 
     // FILE
     // Game
