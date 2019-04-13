@@ -52,7 +52,6 @@
 #include "dialogs/dialog_about.h"
 #include "various/resource_finder.h"
 #include "various/messagebox.h"
-#include "ribbon/ribbon_button.h"
 
 #include "funct.h"
 
