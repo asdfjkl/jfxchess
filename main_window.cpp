@@ -261,6 +261,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_edit->addSeparator();
     QAction *actionFlipBoard = m_edit->addAction(this->tr("&Flip Board"));
     this->actionShowSearchInfo = m_edit->addAction(this->tr("Show Search &Info"));
+    QAction *actionColorStyle = m_edit->addAction(this->tr("Color Style..."));
     QAction *actionResetLayout = m_edit->addAction(this->tr("Reset Layout"));
     actionCopyGame->setShortcut(QKeySequence::Copy);
     actionPaste->setShortcut(QKeySequence::Paste);
@@ -291,7 +292,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* actionEnginePlayout = m_mode->addAction(this->tr("Playout Position"));
     m_mode->addSeparator();
     QAction *actionSetEngines = m_mode->addAction(this->tr("Engines..."));
-    QAction *actionColorStyle = m_mode->addAction(this->tr("Color Style..."));
     QShortcut *sc_analysis_mode = new QShortcut(QKeySequence(Qt::Key_A), this);
     sc_analysis_mode->setContext(Qt::ApplicationShortcut);
     QShortcut *sc_play_white = new QShortcut(QKeySequence(Qt::Key_W), this);
@@ -479,6 +479,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(actionPlayBlack, &QAction::triggered, modeController, &ModeController::onActivatePlayBlackMode);
     connect(actionFullGameAnalysis, &QAction::triggered, modeController, &ModeController::onActivateGameAnalysisMode);
     connect(actionEnginePlayout, &QAction::triggered, modeController, &ModeController::onActivatePlayoutPositionMode);
+
+    connect(actionSetEngines, &QAction::triggered, this->modeController, &ModeController::onSetEnginesClicked);
 
     connect(actionDatabaseWindow, &QAction::triggered, fileController, &FileController::openDatabase);
     connect(actionLoadNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
