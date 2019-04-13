@@ -74,8 +74,7 @@ SOURCES += main.cpp \
     dialogs/dialog_database_help.cpp \
     model/search_pattern.cpp \
     dialogs/dialog_search.cpp \
-    dialogs/tab_header_search.cpp \
-    various/stylesheet.cpp
+    dialogs/tab_header_search.cpp
 
 HEADERS += \
     chess/board.h \
@@ -133,5 +132,4 @@ HEADERS += \
     dialogs/dialog_database_help.h \
     model/search_pattern.h \
     dialogs/dialog_search.h \
-    dialogs/tab_header_search.h \
-    various/stylesheet.h
+    dialogs/tab_header_search.h

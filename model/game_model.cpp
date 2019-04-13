@@ -40,7 +40,6 @@ GameModel::GameModel(QObject *parent) :
     this->lastOpenDir = "";
     this->lastSaveDir = "";
     this->currentPgnFilename = "";
-    this->currentPgnIndex = -1;
     this->game = new chess::Game();
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;

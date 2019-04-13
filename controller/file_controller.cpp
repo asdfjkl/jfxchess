@@ -231,7 +231,7 @@ void FileController::openInCurrentPgnAt(int idx) {
                 chess::Game* g = reader.readGameFromString(complete_file, gameOffset);
                 this->gameModel->wasSaved = false;
                 this->gameModel->lastOpenDir = path;
-                this->gameModel->currentPgnIndex = idx;
+                this->gameModel->database.setLastSelectedIndex(idx);
                 this->gameModel->lastSaveFilename = QString("");
                 this->setupNewGame(g);
                 }
@@ -247,6 +247,7 @@ void FileController::openDatabase() {
     DialogDatabase *dlg = new DialogDatabase(this->gameModel, this->parentWidget);    
     if(dlg->exec() == QDialog::Accepted && dlg->selectedIndex >= 0) {
             chess::Game* selected_game = this->gameModel->database.getGameAt(dlg->selectedIndex);
+            this->gameModel->database.setLastSelectedIndex(dlg->selectedIndex);
             this->gameModel->setGame(selected_game);
             this->gameModel->getGame()->setTreeWasChanged(true);
         }
@@ -256,16 +257,23 @@ void FileController::openDatabase() {
 }
 
 void FileController::toolbarNextGameInPGN() {
-
-    int idx = this->gameModel->currentPgnIndex + 1;
-    this->openInCurrentPgnAt(idx);
-
+    int idx = this->gameModel->database.getLastSelectedIndex() + 1;
+    if(idx < this->gameModel->database.countGames()) {
+        chess::Game* selected_game = this->gameModel->database.getGameAt(idx);
+        this->gameModel->database.setLastSelectedIndex(idx);
+        this->gameModel->setGame(selected_game);
+        this->gameModel->getGame()->setTreeWasChanged(true);
+        this->gameModel->triggerStateChange();
+    }
 }
 
 void FileController::toolbarPrevGameInPGN() {
-
-    int idx = this->gameModel->currentPgnIndex - 1;
+    int idx = this->gameModel->database.getLastSelectedIndex() - 1;
     if(idx >= 0) {
-        this->openInCurrentPgnAt(idx);
+        chess::Game* selected_game = this->gameModel->database.getGameAt(idx);
+        this->gameModel->database.setLastSelectedIndex(idx);
+        this->gameModel->setGame(selected_game);
+        this->gameModel->getGame()->setTreeWasChanged(true);
+        this->gameModel->triggerStateChange();
     }
 }
