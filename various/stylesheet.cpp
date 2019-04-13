@@ -31,8 +31,10 @@ QString StyleSheet::getStylesheet(QString &name) {
         return this->styleheets.value(name);
     } else {
         QString dirPath = ResourceFinder::getPath();
-        QString filename = dirPath.append("res").append(QDir::separator());
-        filename.append("stylesheets").append(QDir::separator());
+        #ifdef __APPLE__
+            dirPath.append("/../Resources/");
+        #endif
+        QString filename = dirPath.append("res/stylesheets").append(QDir::separator());
         filename.append(name).append(".css");
         QString stylesheet = this->read(filename);
         if(!stylesheet.isEmpty()) {

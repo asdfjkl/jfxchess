@@ -25,20 +25,21 @@
 #include <QList>
 #include <QRegularExpression>
 
-const QRegularExpression READYOK = QRegularExpression("readyok");
-const QRegularExpression SCORECP = QRegularExpression("score\\scp\\s-{0,1}(\\d)+");
-const QRegularExpression NPS = QRegularExpression("nps\\s(\\d)+");
-const QRegularExpression DEPTH = QRegularExpression("depth\\s(\\d)+");
-const QRegularExpression MATE = QRegularExpression("score\\smate\\s-{0,1}(\\d)+");
+const QRegularExpression READYOK        = QRegularExpression("readyok");
+const QRegularExpression SCORECP        = QRegularExpression("score\\scp\\s-{0,1}(\\d)+");
+const QRegularExpression NPS            = QRegularExpression("nps\\s(\\d)+");
+const QRegularExpression SELDEPTH       = QRegularExpression("seldepth\\s(\\d)+");
+const QRegularExpression DEPTH          = QRegularExpression("depth\\s(\\d)+");
+const QRegularExpression MATE           = QRegularExpression("score\\smate\\s-{0,1}(\\d)+");
 const QRegularExpression CURRMOVENUMBER = QRegularExpression("currmovenumber\\s(\\d)+");
-const QRegularExpression CURRMOVE = QRegularExpression("currmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
-const QRegularExpression BESTMOVE = QRegularExpression("bestmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
-const QRegularExpression PV = QRegularExpression("pv(\\s[a-z]\\d[a-z]\\d[a-z]{0,1})+");
-const QRegularExpression POS = QRegularExpression("position\\s");
-const QRegularExpression IDNAME = QRegularExpression("id\\sname ([^\n]+)");
-const QRegularExpression MOVE = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})\\s");
-const QRegularExpression MOVES = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})");
-const QRegularExpression MULTIPV = QRegularExpression("multipv\\s(\\d)+");
+const QRegularExpression CURRMOVE       = QRegularExpression("currmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
+const QRegularExpression BESTMOVE       = QRegularExpression("bestmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
+const QRegularExpression PV             = QRegularExpression("pv(\\s[a-z]\\d[a-z]\\d[a-z]{0,1})+");
+const QRegularExpression POS            = QRegularExpression("position\\s");
+const QRegularExpression IDNAME         = QRegularExpression("id\\sname ([^\n]+)");
+const QRegularExpression MOVE           = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})\\s");
+const QRegularExpression MOVES          = QRegularExpression("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})");
+const QRegularExpression MULTIPV        = QRegularExpression("multipv\\s(\\d)+");
 
 const int MAX_MULTIPV = 4;
 
@@ -50,6 +51,7 @@ public:
     float score[MAX_MULTIPV];
     int strength;
     int mate[MAX_MULTIPV];
+    int seldepth;
     int depth;
     int current_fullmove_no;
     int fullmove_no;
@@ -76,3 +78,4 @@ private:
 };
 
 #endif // ENGINE_INFO_H
+

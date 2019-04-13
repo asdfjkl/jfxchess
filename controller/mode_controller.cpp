@@ -28,6 +28,9 @@
 #include "chess/game_node.h"
 #include "chess/game.h"
 #include <stdlib.h>
+#ifdef __APPLE__
+#include <math.h>
+#endif
 
 ModeController::ModeController(GameModel *gameModel, UciController *controller, QWidget *parent) :
     QObject(parent)
