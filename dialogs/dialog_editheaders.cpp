@@ -82,5 +82,6 @@ DialogEditHeaders::DialogEditHeaders(chess::Game &g, QWidget *parent) :
         }
     }
     setLayout(layout);
+    this->leSite->setFocus();
 
 }

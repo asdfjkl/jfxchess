@@ -95,6 +95,12 @@ private:
     RibbonWidget *ribbon;
 
     QAction* createAction(QString name, const QString &displayName, QSize &iconSize);
+    QToolBar *toolbar;
+    QAction *actionShowSearchInfo;
+    QAction* actionAnalysis;
+    QAction* actionPlayWhite;
+    QAction* actionPlayBlack;
+    QAction* actionEnterMoves;
 
 
 protected:
