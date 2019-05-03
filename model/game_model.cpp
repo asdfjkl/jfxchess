@@ -86,7 +86,11 @@ GameModel::~GameModel() {
 
 
 void GameModel::loadOpeningBook() {
-    QString path = ResourceFinder::getPath().append("/books/");
+    #ifdef __APPLE__
+        QString path = ResourceFinder::getPath().append("../Resources/Books/");
+    #else
+        QString path = ResourceFinder::getPath().append("/books/");
+    #endif
     path = path.append(QString("varied.bin"));
     path = QDir::toNativeSeparators(QDir::cleanPath(path));
     this->book = new chess::Polyglot(path);
