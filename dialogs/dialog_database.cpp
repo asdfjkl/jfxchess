@@ -33,7 +33,11 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     QToolBar *toolbar = new QToolBar(this);
     QSize iconSize = toolbar->iconSize() * this->devicePixelRatio()*2;
 
-    QString resDir = ResourceFinder::getPath();
+    #ifdef __APPLE__
+        QString resDir = ResourceFinder::getPath().append("../Resources");
+    #else
+        QString resDir = ResourceFinder::getPath();
+    #endif
 
     QString stringNew(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = Helper::fromSvgToPixmap(iconSize,stringNew, this->devicePixelRatio());
