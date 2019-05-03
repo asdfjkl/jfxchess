@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QDir::setCurrent(QCoreApplication::applicationDirPath());
     
 #ifdef __APPLE__
-    QString resDir = QCoreApplication::applicationDirPath().append("../Resources");
+    QString resDir = ResourceFinder::getPath().append("../Resources");
 #else
     QString resDir = ResourceFinder::getPath();
 #endif
@@ -705,9 +705,6 @@ QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgF
 QAction* MainWindow::createAction(QString name, const QString &displayName, QSize &iconSize) {
 
     QString resDir = ResourceFinder::getPath();
-    #ifdef __APPLE__
-        resDir.append("../Resources/");
-    #endif
     resDir.append("/res/icons/");
     resDir.append(name);
     resDir.append(".svg");
