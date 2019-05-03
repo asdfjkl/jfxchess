@@ -32,16 +32,16 @@ InternalEngine::InternalEngine() : Engine()
     QString path = QString("/usr/games/stockfish");
     this->setPath(path);
     
-#elseif _WIN32
+#elif _WIN32
     QString path = ResourceFinder::getPath().append("/engine/");
     path = path.append(QString("stockfish.exe"));
     path = QString('"').append(path).append('"');
     path = QDir::toNativeSeparators(QDir::cleanPath(path));
     this->setPath(path);
 
-#else __APPLE__
+#elif __APPLE__
     QString path = ResourceFinder::getPath().append("/../Resources/Engines/");
-    path = path.append(QString("stockfish_darwin_64"));
+    path = path.append(QString("stockfish"));
     this->setPath(path);
 #endif
     
