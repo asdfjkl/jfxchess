@@ -63,12 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // set working dir to executable work directory
     QDir::setCurrent(QCoreApplication::applicationDirPath());
-    
-#ifdef __APPLE__
-    QString resDir = QCoreApplication::applicationDirPath().append("../Resources");
-#else
     QString resDir = ResourceFinder::getPath();
-#endif
     
     //chess::FuncT *f = new chess::FuncT();
     //f->run_pgn_speedtest();
