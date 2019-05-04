@@ -17,12 +17,10 @@ QString ResourceFinder::getPath() {
 
 #ifdef __APPLE__
     QString appPath = QCoreApplication::applicationDirPath();
-    int l = appPath.length();
-    // 5 for "MacOS"
-    appPath = appPath.left(l - 5);
-    appPath.append("Resources");
-    qDebug() << appPath;
-    return appPath.append(QDir::separator());
+    appPath.append("/../Resources/");
+    QDir resDir(appPath);
+    appPath = resDir.absolutePath();
+    return appPath;
 #endif
 
 }
