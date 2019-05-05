@@ -57,6 +57,15 @@
 
 #include "chess/ecocode.h"
 
+// there is limited vertical screen size on OS X
+// due to icon layout, so let's disable text
+// below the toolbar icons
+#ifdef __APPLE__
+    const bool SHOW_ICON_TEXT = false;
+#else
+    const bool SHOW_ICON_TEXT = true;
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -317,7 +326,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //this->toolbar->setIconSize(QSize(72,72));
     QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
     toolbar->setIconSize(iconSize);
-    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    if(SHOW_ICON_TEXT) {
+        toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    }
     QString doc_new(resDir + "/res/icons/document-new.svg");
     QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
     QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New"));
@@ -549,7 +560,7 @@ void MainWindow::centerAndResize() {
     int width = availableSize.width();
     int height = availableSize.height();
     width = 0.85*width;
-    height = 0.85*height;
+    height = 0.90*height;
     QSize newSize( width, height );
 
     setGeometry(

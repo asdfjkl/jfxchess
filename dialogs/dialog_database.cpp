@@ -31,7 +31,7 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->resizeTo(0.9);
 
     QToolBar *toolbar = new QToolBar(this);
-    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio()*2;
+    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
 
     QString resDir = ResourceFinder::getPath();
 
