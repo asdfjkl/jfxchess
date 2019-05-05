@@ -13,7 +13,7 @@ QT       -= gui
 
 TARGET = Jerry
 CONFIG   -= console
-CONFIG   -= app_bundle
+CONFIG   += app_bundle
 CONFIG   += c++14
 
 
