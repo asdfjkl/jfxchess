@@ -44,6 +44,7 @@ GameModel::GameModel(QObject *parent) :
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
     this->mode = MODE_ENTER_MOVES;
     InternalEngine default_engine = InternalEngine();
+    //qDebug() << "on model startup:" << default_engine.getPath();
 
     this->engines.append(default_engine);
     this->activeEngineIdx = this->engines.size() - 1;
@@ -335,6 +336,7 @@ void GameModel::restoreGameState() {
         }
         if(settings.contains("enginePath")) {
             QString ePath = settings.value("enginePath").toString();
+            //qDebug() << "load path: " << ePath;
             e.setPath(ePath);
         }
         bool isInternal = false;

@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include "various/resource_finder.h"
+#include <QDebug>
 
 #include <iostream>
 
@@ -46,6 +47,6 @@ InternalEngine::InternalEngine() : Engine()
     path = path.append(QString("stockfish"));
     this->setPath(path);
 #endif
-    
+    //qDebug() << this->getPath();
     this->isInternal = true;   
 }

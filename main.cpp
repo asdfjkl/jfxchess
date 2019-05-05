@@ -86,9 +86,6 @@ int main(int argc, char *argv[])
     // set application icon
     QIcon *app_icon = new QIcon();
     QString path = ResourceFinder::getPath();
-    #ifdef __APPLE__
-        path = path.append("/../Resources/");
-    #endif
     app_icon->addFile(path+"res/icons/icon16.png",   QSize(16,16));
     app_icon->addFile(path+"res/icons/icon32.png",   QSize(32,32));
     app_icon->addFile(path+"res/icons/icon48.png",   QSize(48,48));

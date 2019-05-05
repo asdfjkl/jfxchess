@@ -315,7 +315,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toolbar->setMovable(false);
     //this->toolbar->setFixedHeight(72);
     //this->toolbar->setIconSize(QSize(72,72));
-    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio() * 1.5;
+    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
     toolbar->setIconSize(iconSize);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     QString doc_new(resDir + "/res/icons/document-new.svg");
@@ -700,9 +700,6 @@ QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgF
 QAction* MainWindow::createAction(QString name, const QString &displayName, QSize &iconSize) {
 
     QString resDir = ResourceFinder::getPath();
-    #ifdef __APPLE__
-        resDir.append("../Resources/");
-    #endif
     resDir.append("/res/icons/");
     resDir.append(name);
     resDir.append(".svg");

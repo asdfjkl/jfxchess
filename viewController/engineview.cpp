@@ -11,7 +11,7 @@ EngineView::EngineView(GameModel *gameModel, QWidget *parent) :
     this->gameModel = gameModel;
 
     QFontMetrics f = this->fontMetrics();
-    int minH = f.height() * 8.0;
+    int minH = int((f.height()) * 2.0);
     this->setMinimumHeight(minH);
 
 
