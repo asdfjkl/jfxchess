@@ -271,7 +271,7 @@ void ModeController::onActivateAnalysisMode() {
     // first change gamestate and reset engine
     this->uci_controller->uciSendCommand("quit");
     QString engine_path = this->gameModel->getActiveEngine().getPath();
-    qDebug() << "mode contr:" << engine_path;
+    //qDebug() << "mode contr:" << engine_path;
     this->uci_controller->startEngine(engine_path);
     this->uci_controller->uciNewgame();
     this->uci_controller->uciSendCommand("uci");
