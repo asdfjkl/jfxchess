@@ -54,11 +54,7 @@ PieceImages::PieceImages(QString resourcePath)
 void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &pieceType) {
     for(int i=1;i<7;i++) {
         for(int j=0;j<2;j++) {
-            #ifdef __APPLE__
-                QString filename = QString(this->resourcePath + (QString("../Resources/res/pieces/")));
-            #else
-                QString filename = QString(this->resourcePath + (QString("/res/pieces/")));
-            #endif
+            QString filename = QString(this->resourcePath + (QString("/res/pieces/")));
             filename.append(pieceType);
             filename.append("/");
             if(j == chess::BLACK) {
