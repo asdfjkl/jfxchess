@@ -57,23 +57,18 @@
 
 #include "chess/ecocode.h"
 
-// there is limited vertical screen size on OS X
-// due to icon layout, so let's disable text
-// below the toolbar icons
-#ifdef __APPLE__
-    const bool SHOW_ICON_TEXT = false;
-#else
-    const bool SHOW_ICON_TEXT = true;
-#endif
-
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
-{
+    QMainWindow(parent) {
 
     // set working dir to executable work directory
     QDir::setCurrent(QCoreApplication::applicationDirPath());
+
+#ifdef __APPLE__
+    QString resDir = QCoreApplication::applicationDirPath().append("../Resources");
+#else
     QString resDir = ResourceFinder::getPath();
-    
+#endif
+
     //chess::FuncT *f = new chess::FuncT();
     //f->run_pgn_speedtest();
     //f->run_polyglot();
@@ -101,8 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QHBoxLayout *hbox_name_editHeader = new QHBoxLayout();
     QPushButton *editHeader = new QPushButton();
-    QPixmap pxEditHeader(*this->fromSvgToPixmap(editHeader->iconSize(),resDir + "/res/icons/document-properties.svg"));
-    editHeader->setIcon(QIcon(pxEditHeader));
+    editHeader->setIcon(QIcon(":/res/icons/document-properties.svg"));
 
     hbox_name_editHeader->addStretch(1);
     hbox_name_editHeader->addWidget(this->name);
@@ -126,15 +120,10 @@ MainWindow::MainWindow(QWidget *parent) :
     beginning->setIconSize(btnSize);
     end->setIconSize(btnSize);
 
-    QPixmap pxRight(*this->fromSvgToPixmap(right->iconSize(),resDir + "/res/icons/go-next.svg"));
-    QPixmap pxLeft(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-previous.svg"));
-    QPixmap pxBeginning(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-first.svg"));
-    QPixmap pxEnd(*this->fromSvgToPixmap(left->iconSize(),resDir + "/res/icons/go-last.svg"));
-
-    right->setIcon(QIcon(pxRight));
-    left->setIcon(QIcon(pxLeft));
-    beginning->setIcon(QIcon(pxBeginning));
-    end->setIcon(QIcon(pxEnd));
+    right->setIcon(QIcon(":/res/icons/go-next.svg"));
+    left->setIcon(QIcon(":/res/icons/go-previous.svg"));
+    beginning->setIcon(QIcon(":/res/icons/go-first.svg"));
+    end->setIcon(QIcon(":/res/icons/go-last.svg"));
 
     QWidget *mainWidget = new QWidget();
 
@@ -171,8 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->lblMultiPv->setBuddy(this->spinMultiPv);
 
     QPushButton *editEngines = new QPushButton();
-    QPixmap pxEditEngines(*this->fromSvgToPixmap(editEngines->iconSize(),resDir + "/res/icons/document-properties.svg"));
-    editEngines->setIcon(QIcon(pxEditEngines));
+    editEngines->setIcon(QIcon(":/res/icons/document-properties.svg"));
 
     hbox_right_engine_buttons->addWidget(pbEngineOnOff);
     hbox_right_engine_buttons->addWidget(this->lblMultiPv);
@@ -324,78 +312,40 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toolbar->setMovable(false);
     //this->toolbar->setFixedHeight(72);
     //this->toolbar->setIconSize(QSize(72,72));
-    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
-    toolbar->setIconSize(iconSize);
-    if(SHOW_ICON_TEXT) {
-        toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    }
-    QString doc_new(resDir + "/res/icons/document-new.svg");
-    QPixmap *tbNew = this->fromSvgToPixmap(iconSize,doc_new);
-    QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New"));
-
-    QString doc_open(resDir + "/res/icons/document-open.svg");
-    QPixmap *tbOpen = this->fromSvgToPixmap(iconSize, doc_open);
-    QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open"));
-
-    QString doc_save(resDir + "/res/icons/document-save.svg");
-    QPixmap *tbSaveAs = this->fromSvgToPixmap(iconSize, doc_save);
-    QAction *tbActionSaveAs = toolbar->addAction(QIcon(*tbSaveAs), this->tr("Save As"));
-
-    QString doc_print(resDir + "/res/icons/document-print.svg");
-    QPixmap *tbPrint = this->fromSvgToPixmap(iconSize, doc_print);
-    QAction *tbActionPrint = toolbar->addAction(QIcon(*tbPrint), this->tr("Print"));
+    //QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
+    //toolbar->setIconSize(iconSize);
+    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    QAction *tbActionNew = toolbar->addAction(QIcon(":/res/icons/document-new.svg"), this->tr("New"));
+    QAction *tbActionOpen = toolbar->addAction(QIcon(":/res/icons/document-open.svg"), this->tr("Open"));
+    QAction *tbActionSaveAs = toolbar->addAction(QIcon(":/res/icons/document-save.svg"), this->tr("Save As"));
+    QAction *tbActionPrint = toolbar->addAction(QIcon(":/res/icons/document-print.svg"), this->tr("Print"));
 
     toolbar->addSeparator();
 
-    QString view_ref(resDir + "/res/icons/view-refresh.svg");
-    QPixmap *tbFlip = this->fromSvgToPixmap(iconSize, view_ref);
-    QAction *tbActionFlip = toolbar->addAction(QIcon(*tbFlip), this->tr("Flip Board"));
+    QAction *tbActionFlip = toolbar->addAction(QIcon(":/res/icons/view-refresh.svg"), this->tr("Flip Board"));
 
     toolbar->addSeparator();
 
-    QString edt_cpy(resDir + "/res/icons/edit-copy-pgn.svg");
-    QPixmap *tbCopyGame = this->fromSvgToPixmap(iconSize, edt_cpy);
-    QAction *tbActionCopyGame = toolbar->addAction(QIcon(*tbCopyGame), this->tr("Copy Game"));
-
-    QString cpy_fen(resDir + "/res/icons/edit-copy-fen.svg");
-    QPixmap *tbCopyPosition = this->fromSvgToPixmap(iconSize, cpy_fen);
-    QAction *tbActionCopyPosition = toolbar->addAction(QIcon(*tbCopyPosition), this->tr("Copy Position"));
-
-    QString edt_pst(resDir + "/res/icons/edit-paste.svg");
-    QPixmap *tbPaste = this->fromSvgToPixmap(iconSize, edt_pst);
-    QAction *tbActionPaste = toolbar->addAction(QIcon(*tbPaste), this->tr("Paste"));
-
-    QString new_brd(resDir + "/res/icons/document-enter-position.svg");
-    QPixmap *tbEnterPosition = this->fromSvgToPixmap(iconSize, new_brd);
-    QAction *tbActionEnterPosition = toolbar->addAction(QIcon(*tbEnterPosition), this->tr("Enter Position"));
+    QAction *tbActionCopyGame = toolbar->addAction(QIcon(":/res/icons/edit-copy-pgn.svg"), this->tr("Copy Game"));
+    QAction *tbActionCopyPosition = toolbar->addAction(QIcon(":/res/icons/edit-copy-fen.svg"), this->tr("Copy Position"));
+    QAction *tbActionPaste = toolbar->addAction(QIcon(":/res/icons/edit-paste.svg"), this->tr("Paste"));
+    QAction *tbActionEnterPosition = toolbar->addAction(QIcon(":/res/icons/document-enter-position.svg"), this->tr("Enter Position"));
 
     toolbar->addSeparator();
 
-    QString brd_ana(resDir + "/res/icons/emblem-system.svg");
-    QPixmap *tbAnalysis = this->fromSvgToPixmap(iconSize, brd_ana);
-    QAction *tbActionAnalysis = toolbar->addAction(QIcon(*tbAnalysis), this->tr("Full Analysis"));
+    QAction *tbActionAnalysis = toolbar->addAction(QIcon(":/res/icons/emblem-system.svg"), this->tr("Full Analysis"));
 
     toolbar->addSeparator();
 
-    QString db_icn(resDir + "/res/icons/database.svg");
-    QPixmap *tbDatabase = this->fromSvgToPixmap(iconSize, db_icn);
-    QAction *tbActionDatabase = toolbar->addAction(QIcon(*tbDatabase), this->tr("Browse Games"));
-
-    QString prevGame_icn(resDir + "/res/icons/go-previous.svg");
-    QPixmap *tbPrevGame = this->fromSvgToPixmap(iconSize, prevGame_icn);
-    QAction *tbActionPrevGame = toolbar->addAction(QIcon(*tbPrevGame), this->tr("Prev. Game"));
-
-    QString nextGame_icn(resDir + "/res/icons/go-next.svg");
-    QPixmap *tbNextGame = this->fromSvgToPixmap(iconSize, nextGame_icn);
-    QAction *tbActionNextGame = toolbar->addAction(QIcon(*tbNextGame), this->tr("Next Game"));
+    QAction *tbActionDatabase = toolbar->addAction(QIcon(":/res/icons/database.svg"), this->tr("Browse Games"));
+    QAction *tbActionPrevGame = toolbar->addAction(QIcon(":/res/icons/go-previous.svg"), this->tr("Prev. Game"));
+    QAction *tbActionNextGame = toolbar->addAction(QIcon(":/res/icons/go-next.svg"), this->tr("Next Game"));
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
 
-    QString hlp_clc(resDir + "/res/icons/help-browser.svg");
-    QPixmap *tbHelp = this->fromSvgToPixmap(iconSize, hlp_clc);
-    QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
+    QAction *tbActionHelp = toolbar->addAction(QIcon(":/res/icons/help-browser.svg"), this->tr("About"));
 
     // toolbar shortcuts
     QShortcut *sc_flip = new QShortcut(QKeySequence(Qt::Key_F), this);
@@ -535,7 +485,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(fileController, &FileController::newGameEnterMoves, modeController, &ModeController::onActivateEnterMovesMode);
     connect(fileController, &FileController::newGamePlayBlack, modeController, &ModeController::onActivatePlayBlackMode);
-    connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);   
+    connect(fileController, &FileController::newGamePlayWhite, modeController, &ModeController::onActivatePlayWhiteMode);
 
     connect(beginning, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToBeginning);
     connect(end, &QPushButton::pressed, this->moveViewController, &MoveViewController::onSeekToEnd);
@@ -560,7 +510,7 @@ void MainWindow::centerAndResize() {
     int width = availableSize.width();
     int height = availableSize.height();
     width = 0.85*width;
-    height = 0.90*height;
+    height = 0.85*height;
     QSize newSize( width, height );
 
     setGeometry(
@@ -597,7 +547,7 @@ void MainWindow::onEngineToggle() {
 
 void MainWindow::saveImage() {
     QPixmap p = QPixmap::grabWindow(this->boardViewController->winId());
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"),"" ,"JPG (*.jpg)");
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save Image"),"","JPG (*.jpg)");
     if(!filename.isEmpty()) {
         p.save(filename,"jpg");
     }
@@ -658,8 +608,7 @@ void MainWindow::aboutToQuit() {
     this->gameModel->saveGameState();
 }
 
-void MainWindow::wheelEvent(QWheelEvent *event)
-{
+void MainWindow::wheelEvent(QWheelEvent *event) {
     QPoint numPixels = event->pixelDelta();
     QPoint numDegrees = event->angleDelta() / 8;
     if (!numPixels.isNull()) {
@@ -690,31 +639,21 @@ void MainWindow::resetLayout() {
     this->update();
 }
 
-QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile)
-{
- const qreal PixelRatio = this->devicePixelRatio();
- QSvgRenderer svgRenderer(SvgFile);
- QPixmap *img = new QPixmap(ImageSize*PixelRatio);
- QPainter Painter;
+QPixmap* MainWindow::fromSvgToPixmap(const QSize &ImageSize, const QString &SvgFile) {
+    const qreal PixelRatio = this->devicePixelRatio();
+    QSvgRenderer svgRenderer(SvgFile);
+    QPixmap *img = new QPixmap(ImageSize*PixelRatio);
+    QPainter Painter;
 
- img->fill(Qt::transparent);
+    img->fill(Qt::transparent);
 
- Painter.begin(img);
- svgRenderer.render(&Painter);
- Painter.end();
+    Painter.begin(img);
+    svgRenderer.render(&Painter);
+    Painter.end();
 
- img->setDevicePixelRatio(PixelRatio);
+    img->setDevicePixelRatio(PixelRatio);
 
- return img;
+    return img;
 }
 
-QAction* MainWindow::createAction(QString name, const QString &displayName, QSize &iconSize) {
 
-    QString resDir = ResourceFinder::getPath();
-    resDir.append("/res/icons/");
-    resDir.append(name);
-    resDir.append(".svg");
-    QPixmap *iconPixmap = this->fromSvgToPixmap(iconSize, resDir);
-    QAction *action = new QAction(QIcon(*iconPixmap), displayName);
-    return action;
-}

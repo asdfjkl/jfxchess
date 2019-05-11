@@ -133,3 +133,6 @@ HEADERS += \
     model/search_pattern.h \
     dialogs/dialog_search.h \
     dialogs/tab_header_search.h
+
+RESOURCES += \
+    resources.qrc

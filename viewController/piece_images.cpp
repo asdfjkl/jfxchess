@@ -29,8 +29,7 @@
 #include "various/messagebox.h"
 #include "model/game_model.h"
 
-PieceImages::PieceImages(QString resourcePath)
-{
+PieceImages::PieceImages(QString resourcePath) {
     this->resourcePath = QString(resourcePath);
 
     QString merida = QString("merida");
@@ -52,9 +51,13 @@ PieceImages::PieceImages(QString resourcePath)
 }
 
 void PieceImages::initSvgs(QHash<int, QSvgRenderer*> *svg_images, QString &pieceType) {
-    for(int i=1;i<7;i++) {
-        for(int j=0;j<2;j++) {
-            QString filename = QString(this->resourcePath + (QString("/res/pieces/")));
+    for(int i=1; i<7; i++) {
+        for(int j=0; j<2; j++) {
+#ifdef __APPLE__
+            QString filename = QString(this->resourcePath + (QString("../Resources/res/pieces/")));
+#else
+            QString filename = QString(":/res/pieces/");
+#endif
             filename.append(pieceType);
             filename.append("/");
             if(j == chess::BLACK) {
@@ -92,7 +95,7 @@ QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, qre
     if(type == PIECE_STYLE_OLD) {
         svg_images = this->svg_images_old;
         rendered_svg_images = this->rendered_svg_images_old;
-    } else if(type == PIECE_STYLE_USCF){
+    } else if(type == PIECE_STYLE_USCF) {
         svg_images = this->svg_images_uscf;
         rendered_svg_images = this->rendered_svg_images_uscf;
     } else {
@@ -115,7 +118,7 @@ QImage* PieceImages::getPieceImage(uint8_t piece_type, bool color, int size, qre
             QSvgRenderer *ren = svg_images->value((piece_type*10)+1);
             assert(ren != 0);
             ren->render(painter);
-        } else {            
+        } else {
             QSvgRenderer *ren = svg_images->value((piece_type*10));
             assert(ren != 0);
             ren->render(painter);

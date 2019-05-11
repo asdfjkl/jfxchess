@@ -20,8 +20,7 @@
 #include "dialogs/dialog_search.h"
 
 DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
-    QDialog(parent)
-{
+    QDialog(parent) {
     this->gameModel = gameModel;
 
     this->selectedIndex = -1;
@@ -31,44 +30,31 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     this->resizeTo(0.9);
 
     QToolBar *toolbar = new QToolBar(this);
-    QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
+    //QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
+    //toolbar->setIconSize(iconSize);
 
-    QString resDir = ResourceFinder::getPath();
 
-    QString stringNew(resDir + "/res/icons/document-new.svg");
-    QPixmap *tbNew = Helper::fromSvgToPixmap(iconSize,stringNew, this->devicePixelRatio());
-    QAction *tbActionNew = toolbar->addAction(QIcon(*tbNew), this->tr("New"));
-
-    QString stringOpen(resDir + "/res/icons/document-open.svg");
-    QPixmap *tbOpen = Helper::fromSvgToPixmap(iconSize,stringOpen, this->devicePixelRatio());
-    QAction *tbActionOpen = toolbar->addAction(QIcon(*tbOpen), this->tr("Open"));
+    QAction *tbActionNew = toolbar->addAction(QIcon(":/res/icons/document-new.svg"), this->tr("New"));
+    QAction *tbActionOpen = toolbar->addAction(QIcon(":/res/icons/document-open.svg"), this->tr("Open"));
 
     toolbar->addSeparator();
 
-    QString stringSearch(resDir + "/res/icons/system-search.svg");
-    QPixmap *tbSearch = Helper::fromSvgToPixmap(iconSize,stringSearch, this->devicePixelRatio());
-    QAction *tbActionSearch = toolbar->addAction(QIcon(*tbSearch), this->tr("Search"));
+    QAction *tbActionSearch = toolbar->addAction(QIcon(":/res/icons/system-search.svg"), this->tr("Search"));
 
-    QString stringReset(resDir + "/res/icons/view-refresh.svg");
-    QPixmap *tbReset = Helper::fromSvgToPixmap(iconSize,stringReset, this->devicePixelRatio());
-    QAction *tbActionReset = toolbar->addAction(QIcon(*tbReset), this->tr("Reset Search"));
+    QAction *tbActionReset = toolbar->addAction(QIcon(":/res/icons/view-refresh.svg"), this->tr("Reset Search"));
 
     toolbar->addSeparator();
 
-    QString stringAddCurrent(resDir + "/res/icons/text-pencil.svg");
-    QPixmap *tbAddCurrent = Helper::fromSvgToPixmap(iconSize,stringAddCurrent, this->devicePixelRatio());
-    QAction *tbActionAddCurrent = toolbar->addAction(QIcon(*tbAddCurrent), this->tr("Add Current Game"));
+    QAction *tbActionAddCurrent = toolbar->addAction(QIcon(":/res/icons/text-pencil.svg"), this->tr("Add Current Game"));
 
     QWidget* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
 
-    QString stringHelp(resDir + "/res/icons/help-browser.svg");
-    QPixmap *tbHelp = Helper::fromSvgToPixmap(iconSize, stringHelp, this->devicePixelRatio());
-    QAction *tbActionHelp = toolbar->addAction(QIcon(*tbHelp), this->tr("About"));
+    QAction *tbActionHelp = toolbar->addAction(QIcon(":/res/icons/help-browser.svg"), this->tr("About"));
 
     toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    toolbar->setIconSize(iconSize);
+
 
 
     int rows = 10;
@@ -220,7 +206,7 @@ void DialogDatabase::showHelp() {
 
 void DialogDatabase::onClickNew() {
     QString filename = QFileDialog::getSaveFileName(this,
-        tr("Create New Database..."), this->gameModel->lastSaveDir, tr("PGN Files (*.pgn)"));
+                       tr("Create New Database..."), this->gameModel->lastSaveDir, tr("PGN Files (*.pgn)"));
     if(!filename.isNull()) {
         QDir dir = QDir::root();
         QString path = dir.absoluteFilePath(filename);
@@ -254,9 +240,9 @@ void DialogDatabase::onClickAppend() {
 void DialogDatabase::onClickOpen() {
 
     QString filename = QFileDialog::getOpenFileName(this,
-                                      QApplication::tr("Open Database"),
-                                      this->gameModel->lastOpenDir,
-                                      QApplication::tr("*.pgn"));
+                       QApplication::tr("Open Database"),
+                       this->gameModel->lastOpenDir,
+                       QApplication::tr("*.pgn"));
     if(!filename.isNull()) {
         // todo: mor thoroughly check file type
         // i.e. look for magic bytes instead of
@@ -295,17 +281,17 @@ void DialogDatabase::onClickOpen() {
 
 
 void DialogDatabase::onClickExport() {
-/*
-    DialogExportDatabase dlg;
-    if(dlg.exec() == QDialog::Accepted) {
-        qDebug() << "export to PGN " << dlg.radioFormatPgn->isChecked();
+    /*
+        DialogExportDatabase dlg;
+        if(dlg.exec() == QDialog::Accepted) {
+            qDebug() << "export to PGN " << dlg.radioFormatPgn->isChecked();
 
-        QFileDialog dialog;
-        dialog.setFileMode(QFileDialog::AnyFile);
-        QString strFile = dialog.getSaveFileName(this, tr("New Database Filename"),"",tr("PGN Files (*.pgn)"));
-        qDebug() << "saving to: " << strFile;
-    }
-    */
+            QFileDialog dialog;
+            dialog.setFileMode(QFileDialog::AnyFile);
+            QString strFile = dialog.getSaveFileName(this, tr("New Database Filename"),"",tr("PGN Files (*.pgn)"));
+            qDebug() << "saving to: " << strFile;
+        }
+        */
 }
 
 void DialogDatabase::onRowChanged() {
