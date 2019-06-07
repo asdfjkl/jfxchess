@@ -23,8 +23,7 @@
 #include "various/messagebox.h"
 #include <QDebug>
 
-ColorStyle::ColorStyle(QString resourcePath)
-{
+ColorStyle::ColorStyle(QString resourcePath) {
     this->resPath = resourcePath;
     this->boardStyle = BOARD_STYLE_COLOR;
     this->pieceType = PIECE_STYLE_MERIDA;
@@ -35,8 +34,8 @@ ColorStyle::ColorStyle(QString resourcePath)
     this->coordinateColor = COORDINATE_COLOR_BLUE;
     this->darkSquare = DARK_SQUARE_BLUE;
     this->lightSquare = LIGHT_SQUARE_BLUE;
-    this->darkSquareTexture = QPixmap(resPath + DARK_SQUARE_MARBLE_BLUE);
-    this->lightSquareTexture = QPixmap(resPath + LIGHT_SQUARE_MARBLE_BLUE);
+    this->darkSquareTexture = QPixmap(DARK_SQUARE_MARBLE_BLUE);
+    this->lightSquareTexture = QPixmap(LIGHT_SQUARE_MARBLE_BLUE);
 }
 
 void ColorStyle::setStyle(int styleType) {
@@ -61,8 +60,8 @@ void ColorStyle::setStyle(int styleType) {
         this->coordinateColor = COORDINATE_COLOR_MARBLE_GREEN;
         this->darkSquare = DARK_SQUARE_MARBLE_GREEN;
         this->lightSquare = LIGHT_SQUARE_MARBLE_GREEN;
-        this->darkSquareTexture = QPixmap(resPath + DARK_SQUARE_MARBLE_GREEN);
-        this->lightSquareTexture = QPixmap(resPath + LIGHT_SQUARE_MARBLE_GREEN);
+        this->darkSquareTexture = QPixmap(DARK_SQUARE_MARBLE_GREEN);
+        this->lightSquareTexture = QPixmap(LIGHT_SQUARE_MARBLE_GREEN);
     } else if(styleType == STYLE_MARBLE_BLUE) {
         this->boardStyle = BOARD_STYLE_TEXTURE;
         this->styleType = STYLE_MARBLE_BLUE;
@@ -70,8 +69,8 @@ void ColorStyle::setStyle(int styleType) {
         this->coordinateColor = COORDINATE_COLOR_MARBLE_BLUE;
         this->darkSquare = DARK_SQUARE_MARBLE_BLUE;
         this->lightSquare = LIGHT_SQUARE_MARBLE_BLUE;
-        this->darkSquareTexture = QPixmap(resPath + DARK_SQUARE_MARBLE_BLUE);
-        this->lightSquareTexture = QPixmap(resPath + LIGHT_SQUARE_MARBLE_BLUE);
+        this->darkSquareTexture = QPixmap(DARK_SQUARE_MARBLE_BLUE);
+        this->lightSquareTexture = QPixmap(LIGHT_SQUARE_MARBLE_BLUE);
     } else if(styleType == STYLE_WOOD) {
         this->boardStyle = BOARD_STYLE_TEXTURE;
         this->styleType = STYLE_WOOD;
@@ -79,8 +78,8 @@ void ColorStyle::setStyle(int styleType) {
         this->coordinateColor = COORDINATE_COLOR_WOOD;
         this->darkSquare = DARK_SQUARE_WOOD;
         this->lightSquare = LIGHT_SQUARE_WOOD;
-        this->darkSquareTexture = QPixmap(resPath + DARK_SQUARE_WOOD);
-        this->lightSquareTexture = QPixmap(resPath + LIGHT_SQUARE_WOOD);
+        this->darkSquareTexture = QPixmap(DARK_SQUARE_WOOD);
+        this->lightSquareTexture = QPixmap(LIGHT_SQUARE_WOOD);
     } else {
         // if unknown or default, set to blue
         this->boardStyle = BOARD_STYLE_COLOR;

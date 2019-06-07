@@ -53,24 +53,23 @@ const QColor LIGHT_SQUARE_BROWN = QColor(240,217,181);
 const QColor COORDINATE_COLOR_BROWN = QColor(239,239,239);
 
 const QColor BORDER_WOOD = QColor(107,80,57);
-const QString DARK_SQUARE_WOOD = QString("res/board/wood_dark.jpg");
-const QString LIGHT_SQUARE_WOOD = QString("res/board/wood_light.jpg");
+const QString DARK_SQUARE_WOOD = QString(":/res/board/wood_dark.jpg");
+const QString LIGHT_SQUARE_WOOD = QString(":/res/board/wood_light.jpg");
 const QColor COORDINATE_COLOR_WOOD = QColor(239,239,239);
 
 const QColor BORDER_MARBLE_GREEN = QColor(72,81,63);
-const QString DARK_SQUARE_MARBLE_GREEN = QString("res/board/marble_green_dark.jpg");
-const QString LIGHT_SQUARE_MARBLE_GREEN = QString("res/board/marble_green_light.jpg");
+const QString DARK_SQUARE_MARBLE_GREEN = QString(":/res/board/marble_green_dark.jpg");
+const QString LIGHT_SQUARE_MARBLE_GREEN = QString(":/res/board/marble_green_light.jpg");
 const QColor COORDINATE_COLOR_MARBLE_GREEN = QColor(239,239,239);
 
 const QColor BORDER_MARLBE_BLUE = QColor(56,66,91);
-const QString DARK_SQUARE_MARBLE_BLUE = QString("res/board/marble_blue_dark.jpg");
-const QString LIGHT_SQUARE_MARBLE_BLUE = QString("res/board/marble_blue_light.jpg");
+const QString DARK_SQUARE_MARBLE_BLUE = QString(":/res/board/marble_blue_dark.jpg");
+const QString LIGHT_SQUARE_MARBLE_BLUE = QString(":/res/board/marble_blue_light.jpg");
 const QColor COORDINATE_COLOR_MARBLE_BLUE = QColor(239,239,239);
 
 
-class ColorStyle
-{
-public:
+class ColorStyle {
+  public:
     ColorStyle(QString resourcePath);
 
     QColor borderColor;

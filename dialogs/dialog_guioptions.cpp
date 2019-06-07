@@ -28,8 +28,7 @@
 #include "various/resource_finder.h"
 
 DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
-    QDialog(parent)
-{
+    QDialog(parent) {
     this->setWindowTitle(this->tr("Set Options"));
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -52,14 +51,14 @@ DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
     QRadioButton *brd_green_marbles = new QRadioButton(tr("Green Marbles"));
 
     switch(currentStyle->pieceType) {
-        case PIECE_STYLE_OLD:
-            pcs_old->setChecked(true);
-            break;
-        case PIECE_STYLE_USCF:
-            pcs_uscf->setChecked(true);
-            break;
-        default:
-            pcs_merida->setChecked(true);
+    case PIECE_STYLE_OLD:
+        pcs_old->setChecked(true);
+        break;
+    case PIECE_STYLE_USCF:
+        pcs_uscf->setChecked(true);
+        break;
+    default:
+        pcs_merida->setChecked(true);
     }
 
     if(currentStyle->boardStyle == BOARD_STYLE_TEXTURE) {
@@ -161,37 +160,37 @@ void DialogGuiOptions::onBlueColor() {
     this->displayBoard->update();
 }
 
-void DialogGuiOptions::onGreenColor(){
+void DialogGuiOptions::onGreenColor() {
     this->displayBoard->setBoardColors(BORDER_GREEN, DARK_SQUARE_GREEN,
                                        LIGHT_SQUARE_GREEN, COORDINATE_COLOR_GREEN, STYLE_GREEN);
     this->displayBoard->setBoardStyle(BOARD_STYLE_COLOR);
     this->displayBoard->update();
 }
 
-void DialogGuiOptions::onBrownColor(){
+void DialogGuiOptions::onBrownColor() {
     this->displayBoard->setBoardColors(BORDER_BROWN, DARK_SQUARE_BROWN,
                                        LIGHT_SQUARE_BROWN, COORDINATE_COLOR_BROWN, STYLE_BROWN);
     this->displayBoard->setBoardStyle(BOARD_STYLE_COLOR);
     this->displayBoard->update();
 }
 
-void DialogGuiOptions::onWood(){
-    this->displayBoard->setBoardColors(BORDER_WOOD, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_WOOD),
-                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_WOOD), COORDINATE_COLOR_WOOD, STYLE_WOOD);
+void DialogGuiOptions::onWood() {
+    this->displayBoard->setBoardColors(BORDER_WOOD, QPixmap(DARK_SQUARE_WOOD),
+                                       QPixmap(LIGHT_SQUARE_WOOD), COORDINATE_COLOR_WOOD, STYLE_WOOD);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
 
 void DialogGuiOptions::onBlueMarbles() {
-    this->displayBoard->setBoardColors(BORDER_MARLBE_BLUE, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_MARBLE_BLUE),
-                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_MARBLE_BLUE), COORDINATE_COLOR_MARBLE_BLUE, STYLE_MARBLE_BLUE);
+    this->displayBoard->setBoardColors(BORDER_MARLBE_BLUE, QPixmap(DARK_SQUARE_MARBLE_BLUE),
+                                       QPixmap(LIGHT_SQUARE_MARBLE_BLUE), COORDINATE_COLOR_MARBLE_BLUE, STYLE_MARBLE_BLUE);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
 
-void DialogGuiOptions::onGreenMarbles(){
-    this->displayBoard->setBoardColors(BORDER_MARBLE_GREEN, QPixmap(ResourceFinder::getPath() + DARK_SQUARE_MARBLE_GREEN),
-                                       QPixmap(ResourceFinder::getPath() + LIGHT_SQUARE_MARBLE_GREEN), COORDINATE_COLOR_MARBLE_GREEN, STYLE_MARBLE_GREEN);
+void DialogGuiOptions::onGreenMarbles() {
+    this->displayBoard->setBoardColors(BORDER_MARBLE_GREEN, QPixmap(DARK_SQUARE_MARBLE_GREEN),
+                                       QPixmap(LIGHT_SQUARE_MARBLE_GREEN), COORDINATE_COLOR_MARBLE_GREEN, STYLE_MARBLE_GREEN);
     this->displayBoard->setBoardStyle(BOARD_STYLE_TEXTURE);
     this->displayBoard->update();
 }
