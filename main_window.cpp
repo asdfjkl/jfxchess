@@ -314,7 +314,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //this->toolbar->setIconSize(QSize(72,72));
     //QSize iconSize = toolbar->iconSize() * this->devicePixelRatio();
     //toolbar->setIconSize(iconSize);
-    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    if(SHOW_ICON_TEXT) {
+        toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    }
     QAction *tbActionNew = toolbar->addAction(QIcon(":/res/icons/document-new.svg"), this->tr("New"));
     QAction *tbActionOpen = toolbar->addAction(QIcon(":/res/icons/document-open.svg"), this->tr("Open"));
     QAction *tbActionSaveAs = toolbar->addAction(QIcon(":/res/icons/document-save.svg"), this->tr("Save As"));
