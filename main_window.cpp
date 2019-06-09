@@ -57,17 +57,17 @@
 
 #include "chess/ecocode.h"
 
+#ifdef __APPLE__
+    const bool SHOW_ICON_TEXT = false;
+#else
+    const bool SHOW_ICON_TEXT = true;
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent) {
 
     // set working dir to executable work directory
     QDir::setCurrent(QCoreApplication::applicationDirPath());
-
-#ifdef __APPLE__
-    QString resDir = QCoreApplication::applicationDirPath().append("../Resources");
-#else
-    QString resDir = ResourceFinder::getPath();
-#endif
 
     //chess::FuncT *f = new chess::FuncT();
     //f->run_pgn_speedtest();
