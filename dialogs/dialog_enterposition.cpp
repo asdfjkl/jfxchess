@@ -13,7 +13,7 @@ DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorS
                                          QWidget *parent) :
     QDialog(parent)
 {
-    this->resizeTo(0.8);
+
     this->setWindowTitle(tr("Enter Position"));
 
     this->sbv = new EnterPosBoard(style, board, parent);
@@ -83,6 +83,9 @@ DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorS
 
     this->rbWhite->toggle();
     this->setTurn();
+
+    this->resizeTo(0.6);
+
     /*
          self.connect(self.buttonBox, SIGNAL("accepted()"),
                   self, SLOT("accept()"))
@@ -116,8 +119,12 @@ void DialogEnterPosition::resizeTo(float ratio) {
     if(this->parentWidget() != 0) {
         int w_height = this->parentWidget()->size().height();
         height = w_height * ratio;
-        //width = (w_width * ratio);
-        width = height * 1.1;
+        width = height * 1.42;
+        QSize newSize( width, height );
+        this->resize(newSize);
+        QRect parentRect = parentWidget()->geometry();
+        this->move((parentRect.x() + ((parentRect.width()-width )/2.0) ),
+                   (parentRect.y() + ((parentRect.height()-width )/2.0)));
     } else {
         QDesktopWidget *desktop = qApp->desktop();
         QSize availableSize = desktop->availableGeometry().size();
@@ -125,9 +132,9 @@ void DialogEnterPosition::resizeTo(float ratio) {
         height = w_height * (ratio*0.6);
         //width = w_width * (ratio*0.6);
         width = height * 1.1;
+        QSize newSize( width, height );
+        this->resize(newSize);
     }
-    QSize newSize( width, height );
-    this->resize(newSize);
 }
 
 void DialogEnterPosition::checkConsistency() {
