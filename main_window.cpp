@@ -260,6 +260,7 @@ MainWindow::MainWindow(QWidget *parent) :
     actionEnterPosition->setShortcut('e');
     actionFlipBoard->setCheckable(true);
     actionFlipBoard->setChecked(false);
+    actionEnterPosition->setShortcut('f');
     actionShowSearchInfo->setCheckable(true);
     actionShowSearchInfo->setChecked(true);
 
@@ -274,6 +275,10 @@ MainWindow::MainWindow(QWidget *parent) :
     actionPlayWhite->setCheckable(true);
     actionPlayBlack->setCheckable(true);
     actionEnterMoves->setCheckable(true);
+    actionAnalysis->setShortcut('a');
+    actionPlayWhite->setShortcut('w');
+    actionPlayBlack->setShortcut('b');
+    actionEnterMoves->setShortcut('m');
     mode_actions->setExclusive(true);
     m_mode->addAction(actionAnalysis);
     m_mode->addAction(actionPlayWhite);
@@ -444,9 +449,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(actionLoadNextGame, &QAction::triggered, fileController, &FileController::toolbarNextGameInPGN);
     connect(actionLoadPreviousGame, &QAction::triggered, fileController, &FileController::toolbarPrevGameInPGN);
 
-    // toolbar buttons
+    // shortcuts
 
     connect(sc_flip, &QShortcut::activated, actionFlipBoard, &QAction::trigger);
+    connect(sc_analysis_mode, &QShortcut::activated, modeController, &ModeController::onActivateAnalysisMode);
+    connect(sc_play_white, &QShortcut::activated, modeController, &ModeController::onActivatePlayWhiteMode);
+    connect(sc_play_black, &QShortcut::activated, modeController, &ModeController::onActivatePlayBlackMode);
+    connect(sc_enter_move_mode_m, &QShortcut::activated, modeController, &ModeController::onActivateEnterMovesMode);
+    connect(sc_enter_move_mode_esc, &QShortcut::activated, modeController, &ModeController::onActivateEnterMovesMode);
+    connect(sc_enter_pos, &QShortcut::activated, editController, &EditController::enterPosition);
+
+
+    // toolbar buttons
 
     connect(tbActionNew,  &QAction::triggered, actionNewGame, &QAction::trigger);
     connect(tbActionOpen,  &QAction::triggered, actionOpen, &QAction::trigger);
