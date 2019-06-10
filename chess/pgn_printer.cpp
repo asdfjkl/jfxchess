@@ -40,7 +40,7 @@ void PgnPrinter::reset() {
     this->pgn.clear();
     this->currentLine = QString("");
     this->variationDepth = 0;
-    this->forceMoveNumber = false;
+    this->forceMoveNumber = true;
 }
 
 void PgnPrinter::flushCurrentLine() {

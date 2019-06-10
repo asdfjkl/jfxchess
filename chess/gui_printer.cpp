@@ -45,7 +45,7 @@ void GuiPrinter::reset() {
     this->pgn = QString("");
     this->currentLine = QString("");
     this->variationDepth = 0;
-    this->forceMoveNumber = false;
+    this->forceMoveNumber = true;
     this->newLine = false;
 }
 
