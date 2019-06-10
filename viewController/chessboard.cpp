@@ -13,7 +13,8 @@ Chessboard::Chessboard(QWidget *parent) :
     QSizePolicy policy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setSizePolicy(policy);
 
-    this->borderWidth = 12;
+    QFontMetrics f = this->fontMetrics();
+    this->borderWidth = f.height();
     this->style = new ColorStyle(ResourceFinder::getPath());
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
     this->board = new chess::Board(true);

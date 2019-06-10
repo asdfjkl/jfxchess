@@ -17,7 +17,8 @@ EnterPosBoard::EnterPosBoard(const ColorStyle &style,
     QSizePolicy policy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setSizePolicy(policy);
 
-    this->borderWidth = 12;
+    QFontMetrics f = this->fontMetrics();
+    this->borderWidth = f.height();
     this->style = style;
     this->pieceImages = new PieceImages(ResourceFinder::getPath());
 
@@ -37,29 +38,29 @@ void EnterPosBoard::setTurn(bool turn) {
 
 void EnterPosBoard::setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen) {
 
-if(wking) {
-this->board.set_castle_wking(true);
-} else {
-this->board.set_castle_wking(false);
-}
+    if(wking) {
+        this->board.set_castle_wking(true);
+    } else {
+        this->board.set_castle_wking(false);
+    }
 
-if(wqueen) {
-this->board.set_castle_wqueen(true);
-} else {
-this->board.set_castle_wqueen(false);
-}
+    if(wqueen) {
+        this->board.set_castle_wqueen(true);
+    } else {
+        this->board.set_castle_wqueen(false);
+    }
 
-if(bking) {
-this->board.set_castle_bking(true);
-} else {
-this->board.set_castle_bking(false);
-}
+    if(bking) {
+        this->board.set_castle_bking(true);
+    } else {
+        this->board.set_castle_bking(false);
+    }
 
-if(bqueen) {
-this->board.set_castle_bqueen(true);
-} else {
-this->board.set_castle_bqueen(false);
-}
+    if(bqueen) {
+        this->board.set_castle_bqueen(true);
+    } else {
+        this->board.set_castle_bqueen(false);
+    }
 
 }
 
@@ -269,7 +270,7 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
     // draw board coordinates
     painter->setPen(penZero);
-    painter->setBrush(this->style.borderColor);
+    painter->setPen(this->style.coordinateColor);
 
     painter->setFont(QFont(QString("Decorative"),8));
 
