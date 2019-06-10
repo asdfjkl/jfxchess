@@ -283,6 +283,8 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
         painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
     }
 
+    // draw rect for piece selection. reset to border color
+    painter->setBrush(this->style.borderColor);
     if(this->incl_joker_piece) {
         painter->drawRect(9*squareSize,1,2*squareSize+2*this->borderWidth,7 * squareSize + 2 * this->borderWidth);
     } else {
