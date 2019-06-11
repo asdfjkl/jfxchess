@@ -30,6 +30,7 @@
 #include <QStatusBar>
 #include <QMenu>
 #include <QPrinter>
+#include <QSettings>
 #include "viewController/boardviewcontroller.h"
 #include "viewController/moveviewcontroller.h"
 #include "controller/edit_controller.h"
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // set working dir to executable work directory
     QDir::setCurrent(QCoreApplication::applicationDirPath());
 
+
     //chess::FuncT *f = new chess::FuncT();
     //f->run_pgn_speedtest();
     //f->run_polyglot();
@@ -81,6 +83,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->gameModel = new GameModel();
     this->gameModel->restoreGameState();
     this->gameModel->getGame()->setTreeWasChanged(true);
+
+    // reconstruct screen geometry
+    QSettings settings(this->gameModel->company, this->gameModel->appId);
+    bool restoredGeometry = this->restoreGeometry(settings.value("geometry").toByteArray());
+    bool restoredState = this->restoreState(settings.value("windowState").toByteArray());
+    if(!restoredState || !restoredGeometry) {
+        this->setWindowState(Qt::WindowMaximized);
+    }
 
     this->boardViewController = new BoardViewController(gameModel, this);
     this->moveViewController = new MoveViewController(gameModel, this);
@@ -512,14 +522,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->actionEnterMoves->setChecked(true);
     gameModel->triggerStateChange();
 
-    this->resetLayout();
-
 }
 
 void MainWindow::setupStandardLayout() {
     this->setLayout(this->hbox);
 }
 
+/*
 void MainWindow::centerAndResize() {
     QDesktopWidget *desktop = qApp->desktop();
     QSize availableSize = desktop->availableGeometry().size();
@@ -537,7 +546,7 @@ void MainWindow::centerAndResize() {
             qApp->desktop()->availableGeometry()
         )
     );
-}
+}*/
 
 
 
@@ -622,6 +631,10 @@ void MainWindow::onStateChange() {
 
 void MainWindow::aboutToQuit() {
     this->gameModel->saveGameState();
+    // in addition to gamestate, save screen geometry and state
+    QSettings settings(this->gameModel->company, this->gameModel->appId);
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
@@ -650,7 +663,6 @@ void MainWindow::resetLayout() {
     splitterLeftRight->setSizes(QList<int>({halfWidth*5, halfWidth*4}));
     int fifthHeight = this->height() / 5;
     splitterTopDown->setSizes(QList<int>({fifthHeight*4, fifthHeight}));
-
 
     this->update();
 }

@@ -50,6 +50,8 @@ class GameModel : public QObject
 
 public:
     int modelVersion;
+    QString company;
+    QString appId;
     bool wasSaved;
     QString lastSaveFilename;
     QString lastOpenDir;
@@ -123,9 +125,6 @@ private:
     //Engine active_engine;
     int activeEngineIdx;
     QString lastAddedEnginePath;
-
-    QString company;
-    QString appId;
 
 signals:
     void stateChange();

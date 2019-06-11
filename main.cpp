@@ -102,8 +102,9 @@ int main(int argc, char *argv[]) {
 
     QObject::connect(&app, &QApplication::aboutToQuit, &mainWin, &MainWindow::aboutToQuit);
 
-    mainWin.centerAndResize();
+    //mainWin.centerAndResize();
     mainWin.show();
+    mainWin.resetLayout();
 
     return app.exec();
 
