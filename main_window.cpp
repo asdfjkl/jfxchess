@@ -118,12 +118,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->editController    = new EditController(gameModel, this);
     this->fileController    = new FileController(gameModel, this);
 
-    QSize btnSize           = QSize(this->height()/19, this->height()/19);
-    QSize btnSizeLR         = QSize(this->height()/14, this->height()/14);
+
+    QSize btnSize           = QSize(this->iconSize() * 1.1);
+    QSize btnSizeLR         = QSize(this->iconSize() * 1.2);
     QPushButton *left       = new QPushButton();
     QPushButton *right      = new QPushButton();
     QPushButton *beginning  = new QPushButton();
     QPushButton *end        = new QPushButton();
+
 
     left->setIconSize(btnSizeLR);
     right->setIconSize(btnSizeLR);
