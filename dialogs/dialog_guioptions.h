@@ -24,6 +24,8 @@
 #include <QDialog>
 //#include "viewController/simple_displayboard.h"
 #include "viewController/pickcolorboard.h"
+#include "dialogs/tab_board_style.h"
+#include "dialogs/tab_font_style.h"
 
 class DialogGuiOptions : public QDialog
 {
@@ -31,24 +33,15 @@ class DialogGuiOptions : public QDialog
 public:
     explicit DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent = 0);
     //SimpleDisplayBoard* displayBoard;
-    PickColorBoard* displayBoard;
+    //PickColorBoard* displayBoard;
 
 private:
+    TabBoardStyle *tbs;
+    TabFontStyle *tfs;
 
 signals:
 
 public slots:
-
-    void onMeridaPieces();
-    void onUSCFPieces();
-    void onOldPieces();
-
-    void onBlueColor();
-    void onGreenColor();
-    void onBrownColor();
-    void onWood();
-    void onBlueMarbles();
-    void onGreenMarbles();
 
 };
 

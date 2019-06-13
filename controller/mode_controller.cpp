@@ -200,13 +200,18 @@ void ModeController::onSetEnginesClicked() {
 }
 
 void ModeController::onOptionsClicked() {
-    DialogGuiOptions *dlg = new DialogGuiOptions(this->gameModel->colorStyle, this->parentWidget);
+    ColorStyle *newStyle = new ColorStyle(*this->gameModel->colorStyle);
+    DialogGuiOptions *dlg = new DialogGuiOptions(newStyle, this->parentWidget);
     int result = dlg->exec();
     if(result == QDialog::Accepted) {
         //this->gameModel->colorStyle = dlg->displayBoard->style;
-        this->gameModel->colorStyle = dlg->displayBoard->getColorStyle();
+        delete this->gameModel->colorStyle;
+        this->gameModel->colorStyle = newStyle;
         this->gameModel->triggerStateChange();
+    } else {
+        delete newStyle;
     }
+    delete dlg;
 }
 
 void ModeController::onStateChangeEnterMoves() {

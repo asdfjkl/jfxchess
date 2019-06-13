@@ -40,6 +40,8 @@ Chessboard::Chessboard(QWidget *parent) :
     //this->lastMove = 0;
 }
 
+// todo: destructor missing (pointer members)
+
 void Chessboard::calculateBoardSize(int *boardSize, int *squareSize) {
 
     int bSize = this->width();
