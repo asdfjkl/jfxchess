@@ -30,6 +30,7 @@
 #include "chess/polyglot.h"
 #include "chess/pgn_database.h"
 #include "engine.h"
+#include "model/font_style.h"
 
 const int MODE_ANALYSIS = 0;
 const int MODE_PLAY_WHITE = 1;
@@ -66,6 +67,7 @@ public:
     void setMode(int mode);
 
     ColorStyle *colorStyle;
+    FontStyle *fontStyle;
     QVector<Engine> getEngines();
     Engine getActiveEngine();
     int getActiveEngineIdx();

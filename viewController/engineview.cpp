@@ -20,6 +20,14 @@ EngineView::EngineView(GameModel *gameModel, QWidget *parent) :
 void EngineView::onNewInfo(QString info) {
     this->lastInfo = info;
     if(this->gameModel->showEval) {
+        QString size = this->gameModel->fontStyle->engineOutFontSize;
+        if(!size.isEmpty()) {
+            QFont f;
+            if(!size.isEmpty()) {
+                f.setPointSize(size.toInt());
+            }
+            this->setFont(f);
+        }
         this->setText(info);
     }
 }

@@ -28,19 +28,19 @@
 #include <QTabWidget>
 #include "various/resource_finder.h"
 
-DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent) :
+DialogGuiOptions::DialogGuiOptions(ColorStyle *currentStyle, FontStyle *fontStyle, QWidget *parent) :
     QDialog(parent) {
 
     setWindowTitle(tr("Set Options"));
 
     this->tbs = new TabBoardStyle(currentStyle, this);
-    this->tfs = new TabFontStyle(this);
+    this->tfs = new TabFontStyle(fontStyle, this);
     //this->tcs = new TabCommentSearch(this);
     //this->tsp = new TabSearchPos(gameModel, this);
 
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->addTab(tbs, tr("Board Style"));
-    tabWidget->addTab(tfs, tr("Font Style"));
+    tabWidget->addTab(tfs, tr("Font Size"));
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok| QDialogButtonBox::Cancel);
 

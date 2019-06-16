@@ -3,81 +3,110 @@
 #include <QVBoxLayout>
 #include <QFontComboBox>
 #include <QGridLayout>
+#include <QSpacerItem>
+#include <QDebug>
 #include "tab_font_style.h"
 
-TabFontStyle::TabFontStyle(QWidget *parent) : QWidget(parent)
+TabFontStyle::TabFontStyle(FontStyle *fontStyle, QWidget *parent) : QWidget(parent)
 {
+
+    this->fontStyle = fontStyle;
 
     // Game Notation Settings
     QGroupBox *groupBoxGameNotationFontSize = new QGroupBox(tr("Game Notation Font Size"),this);
-    QGroupBox *groupBoxGameNotationFontType = new QGroupBox(tr("Game Notation Font Type"),this);
 
-    QRadioButton *radioGameNotationDefaultFont = new QRadioButton(tr("&System Default Font Family"));
-    QRadioButton *radioGameNotationCustomFont = new QRadioButton(tr("&Custom Font"));
+    this->radioGameNotationDefaultSize = new QRadioButton(tr("&System Default Font Size"));
+    this->radioGameNotationcustomSize = new QRadioButton(tr("&Custom Size"));
 
-    QRadioButton *radioGameNotationDefaultSize = new QRadioButton(tr("&System Default Font Size"));
-    QRadioButton *radioGameNotationCustomtSize = new QRadioButton(tr("&Custom Size"));
+    this->sizeBoxGameNotation = new QComboBox();
 
-    QFontComboBox *fontBoxGameNotation = new QFontComboBox(this);
-    fontBoxGameNotation->setFontFilters(QFontComboBox::ScalableFonts);
-    QComboBox *sizeBoxGameNotation = new QComboBox(this);
+    QStringList fontSizeList = {"8", "10", "12", "14", "16", "20", "24", "36", "48"};
+    sizeBoxGameNotation->addItems(fontSizeList);
 
     QGridLayout *gridGameNotationFontSize = new QGridLayout();
-    QGridLayout *gridGameNotationFontType = new QGridLayout();
 
     gridGameNotationFontSize->addWidget(radioGameNotationDefaultSize, 0, 0);
-    gridGameNotationFontSize->addWidget(radioGameNotationCustomtSize, 1, 0);
+    gridGameNotationFontSize->addWidget(radioGameNotationcustomSize, 1, 0);
     gridGameNotationFontSize->addWidget(sizeBoxGameNotation, 1, 1);
-
-    gridGameNotationFontType->addWidget(radioGameNotationDefaultFont, 2, 0);
-    gridGameNotationFontType->addWidget(radioGameNotationCustomFont, 3, 0);
-    gridGameNotationFontType->addWidget(fontBoxGameNotation, 3, 1);
 
     groupBoxGameNotationFontSize->setLayout(gridGameNotationFontSize);
     groupBoxGameNotationFontSize->setTitle(("Game Notation Font Size"));
 
-    groupBoxGameNotationFontType->setLayout(gridGameNotationFontType);
-    groupBoxGameNotationFontType->setTitle(("Game Notation Font Type"));
-
-    // Engine Output Settings
+     // Engine Output Settings
     QGroupBox *groupBoxEngineOutFontSize = new QGroupBox(tr("Game Notation Font Size"),this);
-    QGroupBox *groupBoxEngineOutFontType = new QGroupBox(tr("Game Notation Font Type"),this);
 
-    QRadioButton *radioEngineOutDefaultFont = new QRadioButton(tr("&System Default Font Family"));
-    QRadioButton *radioEngineOutCustomFont = new QRadioButton(tr("&Custom Font"));
+    this->radioEngineOutDefaultSize = new QRadioButton(tr("&System Default Font Size"));
+    this->radioEngineOutcustomSize = new QRadioButton(tr("&Custom Size"));
 
-    QRadioButton *radioEngineOutDefaultSize = new QRadioButton(tr("&System Default Font Size"));
-    QRadioButton *radioEngineOutCustomtSize = new QRadioButton(tr("&Custom Size"));
-
-    QFontComboBox *fontBoxEngineOut = new QFontComboBox(this);
-    fontBoxEngineOut->setFontFilters(QFontComboBox::ScalableFonts);
-    QComboBox *sizeBoxEngineOut = new QComboBox(this);
+    this->sizeBoxEngineOut = new QComboBox(this);
+    sizeBoxEngineOut->addItems(fontSizeList);
 
     QGridLayout *gridEngineOutFontSize = new QGridLayout();
-    QGridLayout *gridEngineOutFontType = new QGridLayout();
 
     gridEngineOutFontSize->addWidget(radioEngineOutDefaultSize, 0, 0);
-    gridEngineOutFontSize->addWidget(radioEngineOutCustomtSize, 1, 0);
+    gridEngineOutFontSize->addWidget(radioEngineOutcustomSize, 1, 0);
     gridEngineOutFontSize->addWidget(sizeBoxEngineOut, 1, 1);
-
-    gridEngineOutFontType->addWidget(radioEngineOutDefaultFont, 2, 0);
-    gridEngineOutFontType->addWidget(radioEngineOutCustomFont, 3, 0);
-    gridEngineOutFontType->addWidget(fontBoxEngineOut, 3, 1);
 
     groupBoxEngineOutFontSize->setLayout(gridEngineOutFontSize);
     groupBoxEngineOutFontSize->setTitle(("Engine Output Font Size"));
 
-    groupBoxEngineOutFontType->setLayout(gridEngineOutFontType);
-    groupBoxEngineOutFontType->setTitle(("Engine Output Font Type"));
-
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addWidget(groupBoxGameNotationFontSize);
-    mainLayout->addWidget(groupBoxGameNotationFontType);
-
     mainLayout->addWidget(groupBoxEngineOutFontSize);
-    mainLayout->addWidget(groupBoxEngineOutFontType);
+    mainLayout->addStretch(1);
 
     this->setLayout(mainLayout);
-    //this->update();
+
+    if(fontStyle->moveWindowFontSize.isEmpty()) {
+        radioGameNotationDefaultSize->setChecked(true);
+    } else {
+        radioGameNotationcustomSize->setChecked(true);
+        sizeBoxGameNotation->setCurrentText(fontStyle->moveWindowFontSize);
+    }
+
+    if(fontStyle->engineOutFontSize.isEmpty()) {
+        radioEngineOutDefaultSize->setChecked(true);
+    } else {
+        radioEngineOutcustomSize->setChecked(true);
+        sizeBoxEngineOut->setCurrentText(fontStyle->engineOutFontSize);
+    }
+
+
+    connect(this->radioGameNotationcustomSize, &QRadioButton::toggled, this, &TabFontStyle::onSelectCustomGameNotationFontSize);
+    connect(this->radioGameNotationDefaultSize, &QRadioButton::toggled, this, &TabFontStyle::onSelectDefaultGameNotationFontSize);
+    connect(this->sizeBoxGameNotation, &QComboBox::currentTextChanged, this, &TabFontStyle::onSizeBoxGameNotationChange);
+
+    connect(this->radioEngineOutcustomSize, &QRadioButton::toggled, this, &TabFontStyle::onSelectCustomEngineOutFontSize);
+    connect(this->radioEngineOutDefaultSize, &QRadioButton::toggled, this, &TabFontStyle::onSelectDefaultEngineOutFontSize);
+    connect(this->sizeBoxEngineOut, &QComboBox::currentTextChanged, this, &TabFontStyle::onSizeBoxEngineOutChange);
 
 }
+
+void TabFontStyle::onSelectDefaultGameNotationFontSize() {
+    this->fontStyle->moveWindowFontSize = "";
+}
+
+void TabFontStyle::onSelectCustomGameNotationFontSize() {
+    this->fontStyle->moveWindowFontSize = this->sizeBoxGameNotation->currentText();
+}
+
+void TabFontStyle::onSizeBoxGameNotationChange(const QString &text) {
+    if(this->radioGameNotationcustomSize->isChecked()) {
+        this->fontStyle->moveWindowFontSize = text;
+    }
+}
+
+void TabFontStyle::onSelectDefaultEngineOutFontSize() {
+    this->fontStyle->engineOutFontSize = "";
+}
+
+void TabFontStyle::onSelectCustomEngineOutFontSize() {
+    this->fontStyle->engineOutFontSize = this->sizeBoxEngineOut->currentText();
+}
+
+void TabFontStyle::onSizeBoxEngineOutChange(const QString &text) {
+    if(this->radioEngineOutcustomSize->isChecked()) {
+        this->fontStyle->engineOutFontSize = text;
+    }
+}
+

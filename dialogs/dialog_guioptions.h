@@ -24,6 +24,7 @@
 #include <QDialog>
 //#include "viewController/simple_displayboard.h"
 #include "viewController/pickcolorboard.h"
+#include "model/font_style.h"
 #include "dialogs/tab_board_style.h"
 #include "dialogs/tab_font_style.h"
 
@@ -31,7 +32,7 @@ class DialogGuiOptions : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DialogGuiOptions(ColorStyle *currentStyle, QWidget *parent = 0);
+    explicit DialogGuiOptions(ColorStyle *currentStyle, FontStyle *fontStyle, QWidget *parent = 0);
     //SimpleDisplayBoard* displayBoard;
     //PickColorBoard* displayBoard;
 

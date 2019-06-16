@@ -42,6 +42,7 @@ GameModel::GameModel(QObject *parent) :
     this->currentPgnFilename = "";
     this->game = new chess::Game();
     this->colorStyle = new ColorStyle(ResourceFinder::getPath());
+    this->fontStyle = new FontStyle();
     this->mode = MODE_ENTER_MOVES;
     InternalEngine default_engine = InternalEngine();
     //qDebug() << "on model startup:" << default_engine.getPath();
@@ -205,6 +206,9 @@ void GameModel::saveGameState() {
     settings.setValue("pieceType", colorStyle->pieceType);
     settings.setValue("lastAddedEnginePath", this->lastAddedEnginePath);
 
+    settings.setValue("engineViewFontSize", fontStyle->engineOutFontSize);
+    settings.setValue("moveViewFontSize", fontStyle->moveWindowFontSize);
+
     // stockfish specific settings
     settings.setValue("engineStrength", this->engineStrength);
     settings.setValue("engineThinkTimeMs", this->engineThinkTimeMs);
@@ -305,6 +309,12 @@ void GameModel::restoreGameState() {
     if(settings.contains("colorTheme")) {
         int styleType = settings.value("colorTheme").toInt();
         this->colorStyle->setStyle(styleType);
+    }
+    if(settings.contains("engineViewFontSize")) {
+        this->fontStyle->engineOutFontSize = settings.value("engineViewFontSize").toString();
+    }
+    if(settings.contains("moveViewFontSize")) {
+        this->fontStyle->moveWindowFontSize = settings.value("moveViewFontSize").toString();
     }
     if(settings.contains("pieceType")) {
         this->colorStyle->pieceType = settings.value("pieceType").toInt();

@@ -200,16 +200,20 @@ void ModeController::onSetEnginesClicked() {
 }
 
 void ModeController::onOptionsClicked() {
-    ColorStyle *newStyle = new ColorStyle(*this->gameModel->colorStyle);
-    DialogGuiOptions *dlg = new DialogGuiOptions(newStyle, this->parentWidget);
+    ColorStyle *newColorStyle = new ColorStyle(*this->gameModel->colorStyle);
+    FontStyle *newFontStyle = new FontStyle(*this->gameModel->fontStyle);
+    DialogGuiOptions *dlg = new DialogGuiOptions(newColorStyle, newFontStyle, this->parentWidget);
     int result = dlg->exec();
     if(result == QDialog::Accepted) {
-        //this->gameModel->colorStyle = dlg->displayBoard->style;
         delete this->gameModel->colorStyle;
-        this->gameModel->colorStyle = newStyle;
+        delete this->gameModel->fontStyle;
+        this->gameModel->colorStyle = newColorStyle;
+        this->gameModel->fontStyle = newFontStyle;
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } else {
-        delete newStyle;
+        delete newColorStyle;
+        delete newFontStyle;
     }
     delete dlg;
 }
