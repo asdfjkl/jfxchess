@@ -265,7 +265,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_edit->addSeparator();
     QAction *actionFlipBoard = m_edit->addAction(this->tr("&Flip Board"));
     this->actionShowSearchInfo = m_edit->addAction(this->tr("Show Search &Info"));
-    QAction *actionColorStyle = m_edit->addAction(this->tr("Color Style..."));
+    QAction *actionColorStyle = m_edit->addAction(this->tr("Appearance"));
     QAction *actionResetLayout = m_edit->addAction(this->tr("Reset Layout"));
     actionCopyGame->setShortcut(QKeySequence::Copy);
     actionPaste->setShortcut(QKeySequence::Paste);
@@ -495,6 +495,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(gameModel, &GameModel::stateChange, this->boardViewController, &BoardViewController::onStateChange);
     connect(gameModel, &GameModel::stateChange, this->moveViewController, &MoveViewController::onStateChange);
     connect(gameModel, &GameModel::stateChange, this->modeController, &ModeController::onStateChange);
+    connect(gameModel, &GameModel::stateChange, this->engineViewController, &EngineView::onStateChange);
 
     connect(right, &QPushButton::clicked, this->moveViewController, &MoveViewController::onForwardClick);
     connect(left, &QPushButton::clicked, this->moveViewController, &MoveViewController::onBackwardClick);

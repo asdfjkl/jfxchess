@@ -17,17 +17,23 @@ EngineView::EngineView(GameModel *gameModel, QWidget *parent) :
 
 }
 
+void EngineView::onStateChange() {
+    QString size = this->gameModel->fontStyle->engineOutFontSize;
+    QFont f;
+    if(!size.isEmpty()) {
+        if(!size.isEmpty()) {
+            f.setPointSize(size.toInt());
+        }
+        this->setFont(f);
+    } else {
+        f.setFamily(f.defaultFamily());
+        this->setFont(f);
+    }
+}
+
 void EngineView::onNewInfo(QString info) {
     this->lastInfo = info;
-    if(this->gameModel->showEval) {
-        QString size = this->gameModel->fontStyle->engineOutFontSize;
-        if(!size.isEmpty()) {
-            QFont f;
-            if(!size.isEmpty()) {
-                f.setPointSize(size.toInt());
-            }
-            this->setFont(f);
-        }
+    if(this->gameModel->showEval) {   
         this->setText(info);
     }
 }

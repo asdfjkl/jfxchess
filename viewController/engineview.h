@@ -19,6 +19,7 @@ signals:
 
 public slots:
     void onNewInfo(QString info);
+    void onStateChange();
     void flipShowEval();
 
 };
