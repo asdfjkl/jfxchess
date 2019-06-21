@@ -35,6 +35,8 @@ DialogAbout::DialogAbout(QWidget *parent, QString version) :
                               "Dominik Klein<br>" \
                               "licensed under GNU GPL 2<br><br>" \
                               "<b>Credits</b><br><br>" \
+                              "with patches from<br>" \
+                              "Atrament666, Spill-The-Tea<br><br>" \
                               "Stockfish Chess Engine<br>" \
                               "by the Stockfish-Team<br><br>" \
                               "'VARIED.BIN' opening book<br>" \

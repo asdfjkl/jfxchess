@@ -655,7 +655,7 @@ chess::Game* PgnReader::readGameFromFile(const QString &filename, const char* en
     if(offset != 0 && offset > 0) {
         in.seek(offset);
     }
-    qDebug() << "reading game at: " << offset;
+    //qDebug() << "reading game at: " << offset;
     chess::Game* g = this->readGame(in);
     file.close();
     return g;

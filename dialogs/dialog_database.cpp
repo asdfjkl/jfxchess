@@ -301,7 +301,7 @@ void DialogDatabase::onClickExport() {
 }
 
 void DialogDatabase::onRowChanged() {
-    qDebug() << "row change";
+    //qDebug() << "row change";
 
     //QTest::qWait(2000);
     QItemSelectionModel *select = this->tableView->selectionModel();
