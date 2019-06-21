@@ -127,25 +127,32 @@ void FileController::openGame() {
 
 void FileController::openGameFrom(QString &path, QString &absoluteFilename, bool reOpen) {
     chess::PgnReader reader;
+    qDebug() << "open Game From";
     try {
         this->gameModel->database.open(absoluteFilename);
         if(this->gameModel->database.countGames() == 1) {
+            qDebug() << "count Games";
             chess::Game* onlyGame = this->gameModel->database.getGameAt(0);
+            qDebug() << "only game loaded";
             this->gameModel->lastOpenDir = path;
             this->gameModel->currentPgnFilename = absoluteFilename;
             this->gameModel->lastSaveFilename = absoluteFilename;
             // setup new game triggers statechange, so no need to call
             this->setupNewGame(onlyGame);
         } else if(this->gameModel->database.countGames() > 1) {
+            qDebug() << "count >= 1 for database load";
             DialogDatabase dlg(this->gameModel, this->parentWidget);
             if(dlg.exec() == QDialog::Accepted && dlg.selectedIndex >= 0) {
+                    qDebug() << "getting game at: " << dlg.selectedIndex;
                     chess::Game* selected_game = this->gameModel->database.getGameAt(dlg.selectedIndex);
                     this->gameModel->lastOpenDir = path;
                     this->gameModel->currentPgnFilename = absoluteFilename;
                     this->gameModel->lastSaveFilename = absoluteFilename;
                     // setup new game triggers statechange, so no need to call
                     this->setupNewGame(selected_game);
-                }
+            } else {
+                qDebug() << "dlg selected index: " << dlg.selectedIndex;
+            }
         }
     } catch(std::exception e) {
         std::cerr << e.what() << std::endl;
@@ -258,9 +265,10 @@ void FileController::openDatabase() {
 
 void FileController::toolbarNextGameInPGN() {
     int idx = this->gameModel->database.getLastSelectedIndex() + 1;
+    qDebug() << "last selected index + 1 " << idx;
     if(idx < this->gameModel->database.countGames()) {
         chess::Game* selected_game = this->gameModel->database.getGameAt(idx);
-        this->gameModel->database.setLastSelectedIndex(idx);
+        //this->gameModel->database.setLastSelectedIndex(idx);
         this->gameModel->setGame(selected_game);
         this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
@@ -271,7 +279,7 @@ void FileController::toolbarPrevGameInPGN() {
     int idx = this->gameModel->database.getLastSelectedIndex() - 1;
     if(idx >= 0) {
         chess::Game* selected_game = this->gameModel->database.getGameAt(idx);
-        this->gameModel->database.setLastSelectedIndex(idx);
+        //this->gameModel->database.setLastSelectedIndex(idx);
         this->gameModel->setGame(selected_game);
         this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();

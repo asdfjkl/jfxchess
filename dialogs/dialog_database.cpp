@@ -98,9 +98,12 @@ DialogDatabase::DialogDatabase(GameModel *gameModel, QWidget* parent) :
     int idx = this->gameModel->database.getLastSelectedIndex();
     if(idx > 0) {
         this->tableView->selectRow(idx);
+        //this->selectedIndex = idx;
     } else {
         this->tableView->selectRow(0);
+        //this->selectedIndex = 0;
     }
+    this->onRowChanged();
 
     tableView->setWindowTitle(QObject::tr("Games"));
     //tableView->resizeColumnsToContents();  //don't resize, instead set to stretch (see above)
@@ -261,7 +264,10 @@ void DialogDatabase::onClickOpen() {
             //this->tableView->resizeColumnsToContents();
 
             if(this->gameModel->database.countGames() > 0) {
+                qDebug() << "database has > 0 games";
                 this->tableView->selectRow(0);
+                //this->selectedIndex = 0;
+                this->onRowChanged();
             }
             this->gameTable->resizeColumnsToContents();;
 
@@ -295,6 +301,7 @@ void DialogDatabase::onClickExport() {
 }
 
 void DialogDatabase::onRowChanged() {
+    qDebug() << "row change";
 
     //QTest::qWait(2000);
     QItemSelectionModel *select = this->tableView->selectionModel();

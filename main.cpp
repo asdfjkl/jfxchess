@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     app_icon->addFile(":/res/icons/icon32.png",   QSize(32,32));
     app_icon->addFile(":/res/icons/icon48.png",   QSize(48,48));
     app_icon->addFile(":/res/icons/icon256.png",  QSize(256,256));
-    app_icon->addFile(":/res/icons/icon1024.png", QSize(1024,1024));
+    //app_icon->addFile(":/res/icons/icon1024.png", QSize(1024,1024));
     app.setWindowIcon(*app_icon);
 
     //app.setStyle(QStyleFactory::create("Fusion"));

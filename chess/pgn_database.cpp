@@ -203,6 +203,7 @@ int chess::PgnDatabase::getRowCount() {
 chess::Game* chess::PgnDatabase::getGameAt(int idx) {
     const char* encoding = reader.detect_encoding(filename);
     chess::Game *g = this->reader.readGameFromFile(this->filename, encoding, this->searchedOffsets.at(idx));
+    this->lastSelectedIndex = idx;
     return g;
 }
 
