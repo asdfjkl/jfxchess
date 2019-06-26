@@ -11,12 +11,12 @@ mkdir jerry-3.2.0
 cd jerry-3.2.0
 mkdir src
 mkdir debian
-cp ../../debian_files/COPYING ./COPYING
-cp ../../debian_files/jerry.desktop ./jerry.desktop
-cp ../../debian_files/README ./README
-cp ../../debian_files/jerry.pro ./jerry.pro
-cp ../../debian_files/src.pro ./src/src.pro
-cp -R ../../debian_files/debian/* ./debian
+cp ../../jerry/debian_package_files/COPYING ./COPYING
+cp ../../jerry/debian_package_files/jerry.desktop ./jerry.desktop
+cp ../../jerry/debian_package_files/README ./README
+cp ../../jerry/debian_package_files/jerry.pro ./jerry.pro
+cp ../../jerry/debian_package_files/src.pro ./src/src.pro
+cp -R ../../jerry/debian_package_files/debian/* ./debian
 cd src
 mkdir books
 mkdir chess
@@ -37,4 +37,4 @@ cp ../../../jerry/uci/*.* ./uci
 cp ../../../jerry/viewController/*.* ./viewController
 cp ../../../jerry/*.cpp ./
 cp ../../../jerry/*.h ./
-cp ../../../debian_package_files/LICENSE.TXT ./
+cp ../../../jerry/debian_package_files/LICENSE.TXT ./
