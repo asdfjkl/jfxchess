@@ -1,0 +1,5 @@
+jerry (3.1.0-1) unstable; urgency=low
+
+  * Initial Release (closes: Bug#917027)
+
+ -- Dominik Klein <Dominik.Klein@outlook.com>  Fri, 21 Dec 2018 10:15:05 +0100

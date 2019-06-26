@@ -1,2 +1,0 @@
-echo "Removing program directory in /usr/share/jerry ..."
-rm -r -f /usr/share/jerry
