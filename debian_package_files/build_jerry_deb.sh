@@ -34,7 +34,9 @@ cp ../../../jerry/dialogs/*.* ./dialogs
 cp ../../../jerry/model/*.* ./model
 cp -R ../../../jerry/res ./res
 cp ../../../jerry/uci/*.* ./uci
+cp ../../../jerry/various/*.* /various
 cp ../../../jerry/viewController/*.* ./viewController
 cp ../../../jerry/*.cpp ./
 cp ../../../jerry/*.h ./
+cp ../../../*.qrc ./
 cp ../../../jerry/debian_package_files/LICENSE.TXT ./
