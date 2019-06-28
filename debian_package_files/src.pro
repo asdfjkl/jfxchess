@@ -24,6 +24,9 @@ SOURCES += main.cpp \
     chess/game.cpp \
     chess/pgn_reader.cpp \
     chess/pgn_printer.cpp \
+    dialogs/tab_board_style.cpp \
+    dialogs/tab_font_style.cpp \
+    model/font_style.cpp \
     uci/uci_controller.cpp \
     uci/uci_worker.cpp \
     uci/engine_info.cpp \
@@ -62,7 +65,15 @@ SOURCES += main.cpp \
     viewController/pickcolorboard.cpp \
     chess/ecocode.cpp \
     chess/polyglot.cpp \
-    various/helper.cpp
+    various/helper.cpp \
+    chess/database.cpp \
+    viewController/database_index_model.cpp \
+    chess/pgn_database.cpp \
+    dialogs/dialog_database.cpp \
+    dialogs/dialog_database_help.cpp \
+    model/search_pattern.cpp \
+    dialogs/dialog_search.cpp \
+    dialogs/tab_header_search.cpp
 
 HEADERS += \
     chess/board.h \
@@ -71,6 +82,9 @@ HEADERS += \
     chess/game.h \
     chess/pgn_reader.h \
     chess/pgn_printer.h \
+    dialogs/tab_board_style.h \
+    dialogs/tab_font_style.h \
+    model/font_style.h \
     uci/uci_worker.h \
     uci/uci_controller.h \
     uci/engine_info.h \
@@ -112,4 +126,15 @@ HEADERS += \
     various/helper.h \
     chess/constants.h \
     chess/arrow.h \
-    chess/colored_field.h
+    chess/colored_field.h \
+    chess/database.h \
+    viewController/database_index_model.h \
+    chess/pgn_database.h \
+    dialogs/dialog_database.h \
+    dialogs/dialog_database_help.h \
+    model/search_pattern.h \
+    dialogs/dialog_search.h \
+    dialogs/tab_header_search.h
+
+RESOURCES += \
+    resources.qrc
