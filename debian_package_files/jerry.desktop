@@ -1,10 +1,10 @@
 [Desktop Entry]
-Version=3.0.5
-Name=Jerry - Chess
-Comment=Jerry is a chess program build around the powerful chess engine Stockfish
-Exec=/usr/bin/jerry
-Path=/usr/share/jerry/
-Icon=/usr/share/jerry/res/icons/icon256.png
-Terminal=false
 Type=Application
-Categories=Game;
+Terminal=false
+Name=Jerry - Chess GUI
+Exec=/usr/games/jerry
+Comment=Chess Program
+Icon=jerry
+StartupNotify=false
+Encoding=UTF-8
+Categories=Game

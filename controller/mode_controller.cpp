@@ -31,6 +31,9 @@
 #ifdef __APPLE__
 #include <math.h>
 #endif
+#ifdef __linux__
+#include <math.h>
+#endif
 
 ModeController::ModeController(GameModel *gameModel, UciController *controller, QWidget *parent) :
     QObject(parent)

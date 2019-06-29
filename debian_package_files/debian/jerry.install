@@ -1,0 +1,17 @@
+bin/jerry usr/games
+jerry.desktop usr/share/applications
+src/res/icons/jerry*.png usr/share/pixmaps
+src/books/varied.bin usr/share/jerry/books
+src/res/board/*.jpg usr/share/jerry/res/board
+src/res/icons/*.svg usr/share/jerry/res/icons
+src/res/icons/*.png usr/share/jerry/res/icons
+src/res/pieces/merida/author.txt usr/share/jerry/res/pieces/merida
+src/res/pieces/merida/license.txt usr/share/jerry/res/pieces/merida
+src/res/pieces/merida/*.svg usr/share/jerry/res/pieces/merida
+src/res/pieces/old/author.txt usr/share/jerry/res/pieces/old
+src/res/pieces/old/license.txt usr/share/jerry/res/pieces/old
+src/res/pieces/old/*.svg usr/share/jerry/res/pieces/old
+src/res/pieces/uscf/author.txt usr/share/jerry/res/pieces/merida
+src/res/pieces/uscf/license.txt usr/share/jerry/res/pieces/merida
+src/res/pieces/uscf/*.svg usr/share/jerry/res/pieces/uscf
+

@@ -1,0 +1,23 @@
+Source: jerry
+Section: games
+Priority: optional
+Maintainer: Dominik Klein <Dominik.Klein@outlook.com>
+Build-Depends: debhelper (>= 9), qtbase5-dev, qtbase5-dev-tools, qt5-qmake, libqt5svg5-dev
+Standards-Version: 4.1.4
+Homepage: http://jerry-chess.github.io
+
+Package: jerry
+Architecture: any
+Depends: libqt5core5a (>= 5.6), libqt5gui5 (>= 5.6), libqt5printsupport5 (>= 5.6), libqt5svg5 (>= 5.6), libqt5widgets5 (>= 5.6), stockfish, ${misc:Depends}, ${shlibs:Depends}
+Description: Chess GUI
+ A simple and efficient chess GUI (graphical user interface) offering 
+ the following features:
+  * based around world's best chess program Stockfish (as of Jan, 2014)
+  * play against the computer
+  * adjust strength levels to match your skill
+  * enter, edit and analyse games
+  * automatic game analysis
+  * read and save games in standard pgn format
+  * copy and paste FEN positions and pgn games from clipboard
+  * cross-platform: native look on Linux, OS X, and Windows
+  * easy and intuitive GUI

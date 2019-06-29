@@ -88,10 +88,10 @@ int main(int argc, char *argv[]) {
 #ifdef __APPLE__
     path = path.append("/../Resources/");
 #endif
-    app_icon->addFile(":/res/icons/icon16.png",   QSize(16,16));
-    app_icon->addFile(":/res/icons/icon32.png",   QSize(32,32));
-    app_icon->addFile(":/res/icons/icon48.png",   QSize(48,48));
-    app_icon->addFile(":/res/icons/icon256.png",  QSize(256,256));
+    app_icon->addFile(":/res/icons/jerry_icon16.png",   QSize(16,16));
+    app_icon->addFile(":/res/icons/jerry_icon32.png",   QSize(32,32));
+    app_icon->addFile(":/res/icons/jerry_icon48.png",   QSize(48,48));
+    app_icon->addFile(":/res/icons/jerry_icon256.png",  QSize(256,256));
     //app_icon->addFile(":/res/icons/icon1024.png", QSize(1024,1024));
     app.setWindowIcon(*app_icon);
 
