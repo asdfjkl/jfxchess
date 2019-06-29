@@ -32,7 +32,7 @@
 #include <math.h>
 #endif
 #ifdef __linux__
-#include <cmath>
+#include <math.h>
 #endif
 
 ModeController::ModeController(GameModel *gameModel, UciController *controller, QWidget *parent) :
