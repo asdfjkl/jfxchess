@@ -34,7 +34,7 @@ cp ../../../jerry/chess/*.* ./chess
 cp ../../../jerry/controller/*.* ./controller
 cp ../../../jerry/dialogs/*.* ./dialogs
 cp ../../../jerry/model/*.* ./model
-cp -R ../../../jerry/res ./res
+cp -R ../../../jerry/res ./
 cp ../../../jerry/uci/*.* ./uci
 cp ../../../jerry/various/*.* ./various
 cp ../../../jerry/viewController/*.* ./viewController
