@@ -6,6 +6,8 @@
 rm -r -f jerry
 git clone https://github.com/asdfjkl/jerry.git
 cd jerry_build
+cp ../jerry/debian_package_files/make_tgz.sh .
+cp ../jerry/debian_package_files/clean.sh .
 rm -r -f jerry-3.2.0
 mkdir jerry-3.2.0
 cd jerry-3.2.0
