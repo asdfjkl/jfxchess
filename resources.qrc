@@ -27,10 +27,10 @@
         <file>res/icons/go-next.svg</file>
         <file>res/icons/go-previous.svg</file>
         <file>res/icons/help-browser.svg</file>
-        <file>res/icons/icon16.png</file>
-        <file>res/icons/icon32.png</file>
-        <file>res/icons/icon48.png</file>
-        <file>res/icons/icon256.png</file>
+        <file>res/icons/jerry_icon16.png</file>
+        <file>res/icons/jerry_icon32.png</file>
+        <file>res/icons/jerry_icon48.png</file>
+        <file>res/icons/jerry_icon256.png</file>
         <file>res/icons/internet-web-browser.svg</file>
         <file>res/icons/mail-mark-junk.svg</file>
         <file>res/icons/mail-mark-not-junk.svg</file>
