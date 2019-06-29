@@ -4,4 +4,5 @@ sh build_jerry_deb.sh
 cd jerry_build
 sh make_tgz.sh
 cd jerry-3.2.0
+manually adjust path in src/resources.qrc
 pdebuild --debbuildopts -sa

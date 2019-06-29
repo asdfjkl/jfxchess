@@ -3,6 +3,7 @@
 #include <QString>
 #include <QList>
 #include <QRegularExpression>
+#include <QVector>
 
 const int EN_OPT_TYPE_SPIN = 0;
 const int EN_OPT_TYPE_CHECK = 1;
