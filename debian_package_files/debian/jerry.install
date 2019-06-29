@@ -1,10 +1,10 @@
 bin/jerry usr/games
 jerry.desktop usr/share/applications
-src/res/icons/jerry_icon16.png usr/share/pixmaps/jerry_16x16.png
-src/res/icons/jerry_icon24.png usr/share/pixmaps/jerry_24x24.png
-src/res/icons/jerry_icon32.png usr/share/pixmaps/jerry_32x32.png
-src/res/icons/jerry_icon48.png usr/share/pixmaps/jerry_48x48.png
-src/res/icons/jerry_icon256.png usr/share/pixmaps/jerry_256x256.png
+src/res/icons/jerry_icon16.png usr/share/pixmaps/
+src/res/icons/jerry_icon24.png usr/share/pixmaps/
+src/res/icons/jerry_icon32.png usr/share/pixmaps/
+src/res/icons/jerry_icon48.png usr/share/pixmaps/
+src/res/icons/jerry_icon256.png usr/share/pixmaps/
 src/books/varied.bin usr/share/jerry/books
 src/res/board/*.jpg usr/share/jerry/res/board
 src/res/icons/*.svg usr/share/jerry/res/icons
