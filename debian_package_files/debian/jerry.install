@@ -1,5 +1,6 @@
 bin/jerry usr/games
 jerry.desktop usr/share/applications
+src/res/icons/jerry.png usr/share/pixmaps/
 src/res/icons/jerry_16x16.png usr/share/pixmaps/
 src/res/icons/jerry_24x24.png usr/share/pixmaps/
 src/res/icons/jerry_32x32.png usr/share/pixmaps/
