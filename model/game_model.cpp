@@ -34,7 +34,7 @@
 GameModel::GameModel(QObject *parent) :
     QObject(parent)
 {
-    this->modelVersion = 3;
+    this->modelVersion = 4;
     this->wasSaved = false;
     this->lastSaveFilename = "";
     this->lastOpenDir = "";
