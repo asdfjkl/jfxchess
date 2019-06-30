@@ -1,5 +1,15 @@
 jerry (3.2.0-1) unstable; urgency=low
 
   * Version 3.2.0 with several additional features
+    + MultiPV up to 4 lines
+    + ability to handle and search large (> 1 GB) PGN files
+    + user defined font-sizes
 
  -- Dominik Klein <Dominik.Klein@outlook.com>  Fri, 28 Jun 2019 10:15:05 +0100
+
+jerry (3.1.0-1) unstable; urgency=low
+
+  * Initial Release (closes: Bug#917027)
+
+ -- Dominik Klein <Dominik.Klein@outlook.com>  Fri, 21 Dec 2018 10:15:05 +0100
+
