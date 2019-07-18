@@ -10,7 +10,7 @@ Package: jerry
 Architecture: any
 Depends: libqt5core5a (>= 5.6), libqt5gui5 (>= 5.6), libqt5printsupport5 (>= 5.6), libqt5svg5 (>= 5.6), libqt5widgets5 (>= 5.6), stockfish, ${misc:Depends}, ${shlibs:Depends}
 Description: Chess GUI
- A simple and efficient chess GUI (graphical user interface) offering 
+ A simple and efficient chess GUI (graphical user interface) offering
  the following features:
   * based around world's best chess program Stockfish (as of Jan, 2014)
   * play against the computer

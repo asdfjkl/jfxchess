@@ -35,6 +35,9 @@ cp ../../../jerry/controller/*.* ./controller
 cp ../../../jerry/dialogs/*.* ./dialogs
 cp ../../../jerry/model/*.* ./model
 cp -R ../../../jerry/res ./
+rm ./res/pieces/merida/license.txt
+rm ./res/pieces/old/license.txt
+rm ./res/pieces/uscf/license.txt
 cp ../../../jerry/uci/*.* ./uci
 cp ../../../jerry/various/*.* ./various
 cp ../../../jerry/viewController/*.* ./viewController
