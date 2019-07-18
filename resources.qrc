@@ -55,7 +55,6 @@
         <file>res/pieces/merida/bp.svg</file>
         <file>res/pieces/merida/bq.svg</file>
         <file>res/pieces/merida/br.svg</file>
-        <file>res/pieces/merida/license.txt</file>
         <file>res/pieces/merida/wb.svg</file>
         <file>res/pieces/merida/wk.svg</file>
         <file>res/pieces/merida/wn.svg</file>
@@ -68,7 +67,6 @@
         <file>res/pieces/old/bp.svg</file>
         <file>res/pieces/old/bq.svg</file>
         <file>res/pieces/old/br.svg</file>
-        <file>res/pieces/old/license.txt</file>
         <file>res/pieces/old/wb.svg</file>
         <file>res/pieces/old/wk.svg</file>
         <file>res/pieces/old/wn.svg</file>
@@ -81,7 +79,6 @@
         <file>res/pieces/uscf/bp.svg</file>
         <file>res/pieces/uscf/bq.svg</file>
         <file>res/pieces/uscf/br.svg</file>
-        <file>res/pieces/uscf/license.txt</file>
         <file>res/pieces/uscf/wb.svg</file>
         <file>res/pieces/uscf/wk.svg</file>
         <file>res/pieces/uscf/wn.svg</file>
