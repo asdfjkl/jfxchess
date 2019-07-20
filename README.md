@@ -21,3 +21,11 @@ Jerry is a cross-platform chess graphical user interface.
 * [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v3.2.0/SetupJerryChess.exe)
 * [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v3.2.0/jerry_3.2.0-1_amd64.deb)
 * [macOS](https://github.com/asdfjkl/jerry/releases/download/v3.2.0/Jerry.dmg)
+
+## Changelog
+
+Version 3.2.0 (July 2019): Major new features:
+
+ * MultiPV up to 4 lines
+ * ability to handle and search large (> 1 GB) PGN files
+ * user defined font-sizes
