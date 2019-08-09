@@ -11,7 +11,7 @@ QT       += printsupport
 QT       += svg
 QT       -= gui
 
-TARGET = Jerry
+TARGET = jerry
 CONFIG   -= console
 CONFIG   += app_bundle
 CONFIG   += c++14
@@ -142,3 +142,14 @@ HEADERS += \
 
 RESOURCES += \
     resources.qrc
+
+unix {
+    target.path = /usr/bin/jerry
+    desktop_file.path = /usr/share/application/jerry.desktop
+    desktop_file.files = debian_package_files/jerry.desktop
+    documentation.path = /usr/share/doc/jerry
+    documentation.files = doc/*
+
+    INSTALLS += target desktop_file documentation
+
+}
