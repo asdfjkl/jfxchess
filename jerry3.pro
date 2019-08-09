@@ -144,7 +144,7 @@ RESOURCES += \
     resources.qrc
 
 unix {
-    target.path = /usr/bin/jerry
+    target.path = /usr/bin/
     desktop_file.path = /usr/share/application/jerry.desktop
     desktop_file.files = debian_package_files/jerry.desktop
     documentation.path = /usr/share/doc/jerry
