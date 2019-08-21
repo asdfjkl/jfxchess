@@ -100,9 +100,9 @@ QVector<qint64> chess::PgnDatabase::scanPgn(QString &filename, bool isLatin1) {
     qint64 last_pos = file.pos();
 
     int size = file.size();
-    QProgressDialog progress(this->parentWidget->tr("scanning PGN file..."), this->parentWidget->tr("Cancel"), 0, size, this->parentWidget);
-    progress.setMinimumDuration(400);
-    progress.setWindowModality(Qt::WindowModal);
+     //QProgressDialog progress(this->parentWidget->tr("scanning PGN file..."), this->parentWidget->tr("Cancel"), 0, size, this->parentWidget);
+     //progress.setMinimumDuration(400);
+     //progress.setWindowModality(Qt::WindowModal);
     //progress.setCancelButton(0);
     //progress.show();
 
@@ -111,15 +111,15 @@ QVector<qint64> chess::PgnDatabase::scanPgn(QString &filename, bool isLatin1) {
     int i= 0;
     while(!file.atEnd()) {
 
-        if(progress.wasCanceled()) {
-            break;
-        }
+        //if(progress.wasCanceled()) {
+        //    break;
+        //}
 
-        if(stepCounter %50 == 0) {
-            progress.setValue(last_pos);
-            stepCounter = 0;
-        }
-        stepCounter += 1;
+        //if(stepCounter %50 == 0) {
+        //    progress.setValue(last_pos);
+        //    stepCounter = 0;
+        //}
+        //stepCounter += 1;
 
         i++;
         byteLine = file.readLine();

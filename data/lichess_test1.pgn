@@ -1,6 +1,7 @@
 [Event "Casual game"]
 [Site "http://lichess.org/xd2vSwf2"]
 [Date "2016.04.24"]
+[Round ""]
 [White "bakadur"]
 [Black "BahadirOzen"]
 [Result "0-1"]
@@ -14,39 +15,39 @@
 [Variant "Standard"]
 [WhiteElo "2112"]
 
-1. d3 { A00 Mieses Opening } 1... b6 2. g3 Bb7 3. Nf3 Bxf3 4. exf3 d5 5. Bg2 c6
-6. O-O e6 7. f4 Nf6 8. Re1 Be7 9. Nd2 O-O 10. Nf3 Nbd7 11. Ne5 Rc8 12. c3 c5
-13. Bd2 Nb8 14. a3 Nc6 15. b4 Re8 $6
-{ (0.44 → 0.98) Inaccuracy. Best move was Nxe5. } ( 15... Nxe5 16. fxe5 Nd7 17.
-b5 c4 18. d4 Ra8 19. f4 g6 20. a4 a6 21. Qc2 Ra7 22. Reb1 ) 16. Rc1 $6
-{ (0.98 → 0.45) Inaccuracy. Best move was b5. } ( 16. b5 Nxe5 17. fxe5 Nd7 18.
-c4 Nf8 19. Bc3 dxc4 20. dxc4 Qxd1 21. Raxd1 Red8 22. Be4 f5 ) 16... Bf8 17. b5
-Na5 18. a4 $6 { (1.09 → 0.26) Inaccuracy. Best move was c4. } ( 18. c4 Qc7 19.
-a4 h6 20. Bxa5 bxa5 21. Nc6 a6 22. Qd2 axb5 23. axb5 a4 24. Ra1 Ra8 ) 18... g6
-$6 { (0.26 → 1.15) Inaccuracy. Best move was c4. } ( 18... c4 19. dxc4 Nxc4 20.
-Nc6 Qd6 21. Nxa7 Ra8 22. Nc6 Nxd2 23. Qxd2 Rxa4 24. f5 exf5 25. Rxe8 ) 19. c4
-Nb7 20. a5 $6 { (1.60 → 0.97) Inaccuracy. Best move was Nc6. } ( 20. Nc6 Qd6
-21. Nxa7 Ra8 22. Nc6 Bg7 23. Qc2 Nd8 24. Ne5 Nb7 25. Bc3 Na5 26. Qb2 d4 ) 20...
-Nxa5 21. Bxa5 $6 { (0.92 → 0.41) Inaccuracy. Best move was Ra1. } ( 21. Ra1 h5
-22. Bxa5 bxa5 23. Qa4 Bg7 24. Qxa5 Rc7 25. Nc6 Qd6 26. Ra2 Ra8 27. Bf3 h4 )
-21... bxa5 22. Ra1 Bg7 23. Qa4 dxc4 24. dxc4 Qb6 $6
-{ (1.13 → 1.79) Inaccuracy. Best move was Nd7. } ( 24... Nd7 25. Nxd7 Bxa1 26.
-b6 Bc3 27. Rc1 Bd4 28. b7 Rb8 29. Nxb8 Qxb8 30. Rb1 Rd8 31. Qxa5 ) 25. Qxa5
-Qxa5 26. Rxa5 Red8 $2 { (1.59 → 3.73) Mistake. Best move was Rc7. } ( 26... Rc7
-27. Rd1 h5 28. Bf3 Ree7 29. Rd8+ Re8 30. Rd3 Ree7 31. Rd6 h4 32. Rd8+ Re8 33.
+1. d3 { A00 Mieses Opening } b6 2. g3 Bb7 3. Nf3 Bxf3 4. exf3 d5 5. Bg2 c6 6.
+O-O e6 7. f4 Nf6 8. Re1 Be7 9. Nd2 O-O 10. Nf3 Nbd7 11. Ne5 Rc8 12. c3 c5 13.
+Bd2 Nb8 14. a3 Nc6 15. b4 Re8 $6
+{ (0.44 → 0.98) Inaccuracy. Best move was Nxe5. } ( 15... Nxe5 16. fxe5 Nd7
+17. b5 c4 18. d4 Ra8 19. f4 g6 20. a4 a6 21. Qc2 Ra7 22. Reb1 ) 16. Rc1 $6
+{ (0.98 → 0.45) Inaccuracy. Best move was b5. } ( 16. b5 Nxe5 17. fxe5 Nd7
+18. c4 Nf8 19. Bc3 dxc4 20. dxc4 Qxd1 21. Raxd1 Red8 22. Be4 f5 ) 16... Bf8 17.
+b5 Na5 18. a4 $6 { (1.09 → 0.26) Inaccuracy. Best move was c4. } ( 18. c4 Qc7
+19. a4 h6 20. Bxa5 bxa5 21. Nc6 a6 22. Qd2 axb5 23. axb5 a4 24. Ra1 Ra8 ) 18...
+g6 $6 { (0.26 → 1.15) Inaccuracy. Best move was c4. } ( 18... c4 19. dxc4
+Nxc4 20. Nc6 Qd6 21. Nxa7 Ra8 22. Nc6 Nxd2 23. Qxd2 Rxa4 24. f5 exf5 25. Rxe8 )
+19. c4 Nb7 20. a5 $6 { (1.60 → 0.97) Inaccuracy. Best move was Nc6. } ( 20.
+Nc6 Qd6 21. Nxa7 Ra8 22. Nc6 Bg7 23. Qc2 Nd8 24. Ne5 Nb7 25. Bc3 Na5 26. Qb2 d4
+) 20... Nxa5 21. Bxa5 $6 { (0.92 → 0.41) Inaccuracy. Best move was Ra1. } (
+21. Ra1 h5 22. Bxa5 bxa5 23. Qa4 Bg7 24. Qxa5 Rc7 25. Nc6 Qd6 26. Ra2 Ra8 27.
+Bf3 h4 ) 21... bxa5 22. Ra1 Bg7 23. Qa4 dxc4 24. dxc4 Qb6 $6
+{ (1.13 → 1.79) Inaccuracy. Best move was Nd7. } ( 24... Nd7 25. Nxd7 Bxa1
+26. b6 Bc3 27. Rc1 Bd4 28. b7 Rb8 29. Nxb8 Qxb8 30. Rb1 Rd8 31. Qxa5 ) 25. Qxa5
+Qxa5 26. Rxa5 Red8 $2 { (1.59 → 3.73) Mistake. Best move was Rc7. } ( 26...
+Rc7 27. Rd1 h5 28. Bf3 Ree7 29. Rd8 Re8 30. Rd3 Ree7 31. Rd6 h4 32. Rd8 Re8 33.
 Rd6 ) 27. Rxa7 Rd2 28. Rxf7 Rb2 29. Rb7 Rd8 $6
 { (3.71 → 4.37) Inaccuracy. Best move was Bf8. } ( 29... Bf8 30. Nd3 Rd2 31.
-Bh3 Re8 32. Bxe6+ Kh8 33. Ne5 Re7 34. Rb8 Kg7 35. f5 Re8 36. Rxe8 ) 30. Nc6
-Rdd2 31. Rf1 $2 { (4.16 → 2.95) Mistake. Best move was Bh3. } ( 31. Bh3 Bf8 32.
-Rxe6 Rd7 33. Rb8 Rd1+ 34. Kg2 Nd7 35. Rd8 Rdd2 36. Re7 Rxf2+ 37. Kg1 Rfd2 )
-31... Ng4 $6 { (2.95 → 3.83) Inaccuracy. Best move was h5. } ( 31... h5 32. Re7
-Ng4 33. Rxe6 Kf8 34. h3 Nxf2 35. Ne5 Nd3 36. Be4 Nf2 37. Bg2 Nd3 38. Bd5 ) 32.
-Rb8+ Kf7 33. Nd8+ $2 { (3.22 → 2.20) Mistake. Best move was Rb7+. } ( 33. Rb7+
-Kf8 34. Bh3 h5 35. Ra1 Ra2 36. Rxa2 Rxa2 37. Bxg4 hxg4 38. Re7 Bd4 39. Rxe6
-Bxf2+ ) 33... Kf6 34. h3 Nxf2 35. g4 $4
+Bh3 Re8 32. Bxe6 Kh8 33. Ne5 Re7 34. Rb8 Kg7 35. f5 Re8 36. Rxe8 ) 30. Nc6 Rdd2
+31. Rf1 $2 { (4.16 → 2.95) Mistake. Best move was Bh3. } ( 31. Bh3 Bf8 32.
+Rxe6 Rd7 33. Rb8 Rd1 34. Kg2 Nd7 35. Rd8 Rdd2 36. Re7 Rxf2 37. Kg1 Rfd2 ) 31...
+Ng4 $6 { (2.95 → 3.83) Inaccuracy. Best move was h5. } ( 31... h5 32. Re7 Ng4
+33. Rxe6 Kf8 34. h3 Nxf2 35. Ne5 Nd3 36. Be4 Nf2 37. Bg2 Nd3 38. Bd5 ) 32. Rb8
+Kf7 33. Nd8 $2 { (3.22 → 2.20) Mistake. Best move was Rb7+. } ( 33. Rb7 Kf8
+34. Bh3 h5 35. Ra1 Ra2 36. Rxa2 Rxa2 37. Bxg4 hxg4 38. Re7 Bd4 39. Rxe6 Bxf2 )
+33... Kf6 34. h3 Nxf2 35. g4 $4
 { (2.29 → -1.31) Blunder. Best move was Re1. } ( 35. Re1 Rd6 36. Ra1 g5 37.
-fxg5+ Kg6 38. Re1 Bd4 39. Kh2 Bc3 40. Rxe6+ Rxe6 41. Nxe6 Ne4 ) 35... Nd3 $2
+fxg5 Kg6 38. Re1 Bd4 39. Kh2 Bc3 40. Rxe6 Rxe6 41. Nxe6 Ne4 ) 35... Nd3 $2
 { (-1.31 → 1.27) Mistake. Best move was Nxg4. } ( 35... Nxg4 36. Bb7 Ne3 37.
-Re1 Bh6 38. Nxe6 Nc2 39. Nxc5 Nxe1 40. Ne4+ Kf5 41. Nxd2 Rxd2 42. Re8 ) 36. g5+
+Re1 Bh6 38. Nxe6 Nc2 39. Nxc5 Nxe1 40. Ne4 Kf5 41. Nxd2 Rxd2 42. Re8 ) 36. g5
 $4 { (1.27 → Mate in 8) Checkmate is now unavoidable. Best move was Bh1. } (
-36. Bh1 Rf2 ) 36... Kf5 37. Bf3 Bd4+ 38. Kh1 Rh2# { White is checkmated } 0-1 
+36. Bh1 Rf2 ) 36... Kf5 37. Bf3 Bd4 38. Kh1 Rh2 { White is checkmated } 0-1 

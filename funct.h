@@ -43,6 +43,7 @@ public:
     void run_rand();
 
     void run_pgn_speedtest();
+    void run_pgn_parse_speedtest();
 
 
 private:

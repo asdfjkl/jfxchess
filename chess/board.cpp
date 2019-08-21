@@ -30,6 +30,8 @@
 #include <assert.h>
 #include "move.h"
 
+#include "iprof/iprof.h"
+
 using namespace std;
 
 namespace chess {
@@ -850,6 +852,8 @@ void Board::set_castle_bqueen(bool can_do) {
 }
 
 QVector<Move> Board::pseudo_legal_moves() {
+    IPROF_FUNC;
+
     return this->pseudo_legal_moves_from(0,true,this->turn);
 }
 
@@ -903,6 +907,8 @@ bool Board::castles_bqueen(const Move &m) {
 // legals and then filter by checking each move's
 // legality
 QVector<Move> Board::legal_moves() {
+    IPROF_FUNC;
+
     QVector<Move> pseudo_legals = this->pseudo_legal_moves();
     QVector<Move> legals; // approx 40 legal moves in every pos?!
     for(int i=0;i<pseudo_legals.size();i++) {
@@ -917,6 +923,8 @@ QVector<Move> Board::legal_moves() {
 // to speed up san parsing, check here
 // only moves where destination is hit.
 QVector<Move> Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
+    IPROF_FUNC;
+
     QVector<Move> pseudo_legals = this->pseudo_legal_moves(to_square, piece_type);
     QVector<Move> legals;
     for(int i=0;i<pseudo_legals.size();i++) {
@@ -931,6 +939,8 @@ QVector<Move> Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
 }
 
 QVector<Move> Board::legal_moves_from(int from_square) {
+    IPROF_FUNC;
+
     QVector<Move> pseudo_legals = this->pseudo_legal_moves_from(from_square, true,this->turn);
     QVector<Move> legals;
     for(int i=0;i<pseudo_legals.size();i++) {
@@ -965,6 +975,8 @@ bool Board::is_legal_move(const Move &m) {
 }
 
 bool Board::pseudo_is_legal_move(const Move &m) {
+    IPROF_FUNC;
+
     // a pseudo legal move is a legal move if
     // a) doesn't put king in check
     // b) if castle, must ensure that 1) king is not currently in check
@@ -1110,6 +1122,8 @@ bool Board::is_attacked(int idx, bool attacker_color) {
 // will find all pseudo legal move for supplied player (turn must be
 // either WHITE or BLACK)
 QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool turn) {
+
+    IPROF_FUNC;
 
     QVector<Move> moves;
 
@@ -1289,6 +1303,8 @@ QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles,
 // either WHITE or BLACK)
 QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                          uint8_t piece_type, bool with_castles, bool turn) {
+    IPROF_FUNC;
+
     QVector<Move> moves;
 
     for(int i=21;i<99;i++) {
@@ -1541,6 +1557,8 @@ bool Board::is_white_at(uint8_t idx) {
 
 // doesn't check legality
 void Board::apply(const Move &m) {
+    IPROF_FUNC;
+
     assert(m.promotion_piece <= 5);
     if(m.is_null) {
         //std::cout << "applying null move: " << m.uci_string.toStdString() << std::endl;
@@ -2008,6 +2026,7 @@ QString Board::san(const Move &m) {
 }
 
 Move Board::parse_san(QString san) {
+    IPROF_FUNC;
 
     // first check if null move
     if(san==QString("--")) {

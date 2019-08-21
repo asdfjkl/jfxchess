@@ -32,12 +32,16 @@
 #include <QStyleFactory>
 #include "various/resource_finder.h"
 
+#include "iprof/iprof.h"
+
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
     srand(time(NULL));
-    //chess::FuncT *p = new chess::FuncT();
+    chess::FuncT *p = new chess::FuncT();
+    p->run_pgn_parse_speedtest();
     //p->run_pgn_speedtest();
     //p->run_zobrist_test();
     //p->run_pgnt();
@@ -45,6 +49,10 @@ int main(int argc, char *argv[]) {
     //p.run_sant();
     // p->run_ucit();
     //p->run_pertf();
+
+    InternalProfiler::aggregateEntries();
+    std::cout << "The latest internal profiler stats:\n"
+              << InternalProfiler::stats << std::endl;
 
     //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
