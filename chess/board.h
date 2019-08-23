@@ -334,6 +334,11 @@ public:
     QVector<Move> pseudo_legal_moves_from(int from_square_idx, bool with_castles, bool turn_color);
     QVector<Move> pseudo_legal_moves_from_pt(int from_square, uint8_t to_square, uint8_t piece_type, bool with_castles, bool turn);
 
+    QVector<Move> pseudo_legal_moves_san_parse(uint8_t to_square,
+                                            uint8_t piece_type,
+                                            bool is_capture
+                                            );
+
     /**
      * @brief legal_moves returns move list of all legal moves in position
      * @return move list
@@ -355,6 +360,8 @@ public:
      */
     bool pseudo_is_legal_move(const Move &);
 
+    // extern: required
+
     /**
      * @brief is_legal_move checks whether the supplied move is legal in the board
      *                      position. Always call before applying a move on a board!
@@ -369,12 +376,7 @@ public:
      */
     bool is_legal_and_promotes(const Move&);
 
-    /**
-     * @brief is_check checks if the player whose on the move in the current position
-     *                 is in check
-     * @return true, if player in check, false otherwise.
-     */
-    bool is_check();
+    // end extern required
 
     /**
      * @brief is_checkmate tests whether player who is on the move in current position
@@ -391,6 +393,18 @@ public:
      * @return true, if position is stalemate, false otherwise.
      */
     bool is_stalemate();
+
+
+    /**
+     * @brief is_check checks if the player whose on the move in the current position
+     *                 is in check
+     * @return true, if player in check, false otherwise.
+     */
+    bool is_check();
+
+
+
+
 
     /**
      * @brief san computes the standard algebraic notation for the supplied move
@@ -410,6 +424,8 @@ public:
      * @return move object (if parsed successfully)
      */
     Move parse_san(QString s);
+
+    Move parse_san_fast(QString s);
 
     /**
      * @brief movePromotes checks if the supplied move (ignoring the promotion value stored

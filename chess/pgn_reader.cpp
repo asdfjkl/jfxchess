@@ -843,7 +843,8 @@ chess::Game* PgnReader::readGame(QTextStream& in) {
                 // Board *b_next = 0;
                 try {
                     Board b = current->getBoard();
-                    Move m = Move(b.parse_san(token));
+                    //Move m = Move(b.parse_san(token));
+                    Move m = Move(b.parse_san_fast(token));
                     Board b_next = Board(b);
                     b_next.apply(m);
                     next->setMove(m);

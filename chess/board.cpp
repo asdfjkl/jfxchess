@@ -907,7 +907,7 @@ bool Board::castles_bqueen(const Move &m) {
 // legals and then filter by checking each move's
 // legality
 QVector<Move> Board::legal_moves() {
-    IPROF_FUNC;
+    //IPROF_FUNC;
 
     QVector<Move> pseudo_legals = this->pseudo_legal_moves();
     QVector<Move> legals; // approx 40 legal moves in every pos?!
@@ -1298,6 +1298,29 @@ QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles,
     return moves;
 }
 
+/*
+ * QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square,
+ *                                                 int to_square,
+                                                   uint8_t piece_type,
+                                                   bool is_capture
+                                                   bool with_castles,
+                                                   bool turn) {
+
+ *
+ *
+ *
+ * QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square,
+ *                                                 uint8_t to_square,
+                                                   uint8_t piece_type,
+                                                   bool with_castles,
+                                                   bool turn
+    QVector<Move> Board::pseudo_legal_moves_from(int from_square,
+                                                 bool with_castles,
+                                                 bool turn) {
+ *
+ *
+ */
+
 // calling with from_square = 0 means all possible moves
 // will find all pseudo legal move for supplied player (turn must be
 // either WHITE or BLACK)
@@ -1475,6 +1498,158 @@ QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_squa
                             && this->piece_type(E8) == KING && this->piece_type(A8) == ROOK
                             && this->is_empty(D8) && this->is_empty(C8) && this->is_empty(B8)) {
                         moves.append(Move(E8,C8));
+                    }
+                }
+            }
+        }
+    }
+    return moves;
+}
+
+// no castle moves
+QVector<Move> Board::pseudo_legal_moves_san_parse(uint8_t to_square,
+                                               uint8_t piece_type,
+                                               bool is_capture
+                                               ) {
+    IPROF_FUNC;
+
+    QVector<Move> moves;
+
+    for(int i=21;i<99;i++) {
+        if(!(this->board[i] == 0xFF)) {
+
+            bool color = this->piece_color(i);
+            if(color != this->turn) {
+                continue;
+            }
+
+            uint8_t piece_type_i = this->piece_type(i);
+            if(piece_type_i != piece_type) {
+                continue;
+            }
+
+            // handle case of PAWN
+            if(piece_type_i == PAWN) {
+                uint8_t piece_idx = IDX_WPAWN;
+                if(color == BLACK) {
+                    piece_idx = IDX_BPAWN;
+                }
+                // take up right, or up left
+                for(int j=3;j<=4;j++) {
+                    uint8_t idx = i + DIR_TABLE[piece_idx][j];
+                    if(idx == to_square && !this->is_offside(idx)) {
+                        if((!this->is_empty(idx) && color==BLACK && this->is_white_at(idx)) ||
+                                (!this->is_empty(idx) && color==WHITE && !this->is_white_at(idx))) {
+                            // if it's a promotion square, add four moves
+                            if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
+                                moves.append(Move(i,idx,QUEEN));
+                                moves.append(Move(i,idx,ROOK));
+                                moves.append(Move(i,idx,BISHOP));
+                                moves.append(Move(i,idx,KNIGHT));
+                            } else {
+                                moves.append(Move(i,idx));
+                            }
+                        }
+                    }
+                }
+                // move one (j=1) or two (j=2) up (or down in the case of black)
+                for(int j=1;j<=2;j++) {
+                    uint8_t idx = i + DIR_TABLE[piece_idx][j];
+                    if(!this->is_offside(idx)) {
+                        if(j==2 && ((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8)))) {
+                            // means we have a white/black pawn in inital position, direct square
+                            // in front is empty => allow to move two forward
+                            if(this->is_empty(idx)) {
+                                moves.append(Move(i,idx));
+                            }
+                        }
+                        else if(j==1) {
+                            // case of one-step move forward
+                            if(!this->is_empty(idx)) {
+                                break;
+                            } else {
+                                // if it's a promotion square, add four moves
+                                if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
+                                    moves.append(Move(i,idx,QUEEN));
+                                    moves.append(Move(i,idx,ROOK));
+                                    moves.append(Move(i,idx,BISHOP));
+                                    moves.append(Move(i,idx,KNIGHT));
+                                } else {
+                                    moves.append(Move(i,idx));
+                                }
+                            }
+                        }
+                    }
+                }
+                // finally, potential en-passent capture is handled
+                // left up
+                if(color == WHITE && (this->en_passent_target - i)==9) {
+                    Move m = (Move(i,this->en_passent_target));
+                    moves.append(m);
+                }
+                // right up
+                if(color == WHITE && (this->en_passent_target - i)==11) {
+                    Move m = (Move(i,this->en_passent_target));
+                    moves.append(m);
+                }
+                // left down
+                if(color == BLACK && (this->en_passent_target - i)==-9) {
+                    Move m = (Move(i,this->en_passent_target));
+                    moves.append(m);
+                }
+                if(color == BLACK && (this->en_passent_target - i)==-11) {
+                    Move m = (Move(i,this->en_passent_target));
+                    moves.append(m);
+                }
+            }
+            // handle case of knight
+            if((piece_type_i == KNIGHT)|| (piece_type_i == KING)) {
+                int lookup_idx;
+                if(piece_type_i == KNIGHT) {
+                    lookup_idx = IDX_KNIGHT;
+                } else {
+                    lookup_idx = IDX_KING;
+                }
+                for(int j=1;j<=DIR_TABLE[lookup_idx][0];j++) {
+                    uint8_t idx = i + DIR_TABLE[lookup_idx][j];
+                    if(idx == to_square && !this->is_offside(idx)) {
+                        if(this->is_empty(idx) ||
+                                (this->piece_color(idx) != color)) {
+                            moves.append(Move(i,idx));
+                        }
+                    }
+                }
+            }
+            // handle case of bishop, rook, queen
+            if((piece_type_i == ROOK) || (piece_type_i == BISHOP) || (piece_type_i == QUEEN)) {
+                int lookup_idx = IDX_ROOK;
+                if(piece_type_i == QUEEN) {
+                    lookup_idx = IDX_QUEEN;
+                }
+                if(piece_type_i == BISHOP) {
+                    lookup_idx = IDX_BISHOP;
+                }
+                for(int j=1;j<=DIR_TABLE[lookup_idx][0] ;j++) {
+                    uint8_t idx = i + DIR_TABLE[lookup_idx][j];
+                    bool stop = false;
+                    while(!stop) {
+                        if(!this->is_offside(idx)) {
+                            if(this->is_empty(idx)) {
+                                if(to_square == idx) {
+                                    moves.append(Move(i,idx));
+                                }
+                            } else {
+                                stop = true;
+                                if(this->piece_color(idx) != color) {
+                                    if(to_square == idx) {
+                                        moves.append(Move(i,idx));
+                                    }
+                                }
+                            }
+                            idx = idx + DIR_TABLE[lookup_idx][j];
+                        } else {
+                            stop = true;
+                        }
                     }
                 }
             }
@@ -2162,7 +2337,7 @@ Move Board::parse_san(QString san) {
         // now lgl_piece should contain only one move, since
         // all ambigiuous have been filtered. otherwise san is wrong
         if(lgl_piece.count() > 1 || lgl_piece.count() == 0) {
-            //std::cout << *this << std::endl;
+            std::cout << *this << std::endl;
             //std::cout << +this->fullmove_number << std::endl;
             throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString() + " " + QString::number(piece_type).toStdString() + " "+QString::number(target).toStdString());
         } else {
@@ -2175,6 +2350,141 @@ Move Board::parse_san(QString san) {
     }
     return m;
 }
+
+Move Board::parse_san_fast(QString san) {
+    IPROF_FUNC;
+
+    // first check if null move
+    if(san==QString("--")) {
+        Move m = Move();
+        return m;
+    }
+
+    Move m = Move(0,0);
+
+    // check for castling moves
+    if(san==QString("O-O") || san == QString("O-O+") || san==QString("O-O#")) {
+        if(this->turn == WHITE) {
+            return Move(E1,G1);
+        } else {
+            return Move(E8,G8);
+        }
+    }
+    if(san==QString("O-O-O") || san == QString("O-O-O+") || san==QString("O-O-O#")) {
+        if(this->turn == WHITE) {
+            return Move(E1,C1);
+        } else {
+            return Move(E8,C8);
+        }
+    }
+
+    QRegularExpressionMatch match = SAN_REGEX.match(san);
+    if(!match.hasMatch()) {
+        throw std::invalid_argument("invalid san: "+san.toStdString());
+    }
+    // get target square
+    QString str_target = match.captured(4).toUpper();
+    uint8_t target_col = this->alpha_to_pos(str_target.at(0));
+    // -49 for ascii(1) -> int 0
+    uint8_t target_row = (uint8_t) ((str_target.at(1).toLatin1()-49)+1);
+    uint8_t target = ((target_row+1) * 10)+target_col;
+
+    // get promotion piece
+    QString str_prom = match.captured(5);
+    if(!str_prom.isNull()) {
+        //std::cout << match.captured(5).toStdString() << std::endl;
+        if(match.captured(5)==QString("=N")) {
+            m.promotion_piece = KNIGHT;
+        } else if(match.captured(5)==QString("=B")) {
+            m.promotion_piece = BISHOP;
+        } else if(match.captured(5)==QString("=R")) {
+            m.promotion_piece = ROOK;
+        } else if(match.captured(5)==QString("=Q")) {
+            m.promotion_piece = QUEEN;
+        } else {
+            throw std::invalid_argument("invalid san / promotion: "+match.captured(5).toStdString());
+        }
+        //if(this->turn == BLACK) {
+        //    m.promotion_piece += 0x80;
+        //}  NO: promotion piece _only_ encodes piece, _not_ color
+    }
+    // get piece type
+    uint8_t piece_type = 0;
+    if(match.captured(1) == QString("B")) {
+        piece_type = BISHOP;
+    } else if(match.captured(1) == QString("N")) {
+        piece_type = KNIGHT;
+    } else if(match.captured(1) == QString("R")) {
+        piece_type = ROOK;
+    } else if(match.captured(1) == QString("Q")) {
+        piece_type = QUEEN;
+    } else if(match.captured(1) == QString("K")) {
+        piece_type = KING;
+    } else {
+        piece_type = PAWN;
+    }
+
+    QVector<Move> pseudos = pseudo_legal_moves_san_parse(target,
+                                                         piece_type,
+                                                         true);
+    if(pseudos.length() == 1) {
+        return pseudos.at(0);
+    }
+
+    // if pseudos are not ambiguous, generate legal moves
+    QVector<Move> legals = this->legal_moves();
+
+    // get sources squares to decide among ambiuous moves
+    uint8_t src_col = 0;
+    uint8_t src_row = 0;
+    QString str_amb_col = match.captured(2).toUpper();
+    if(!str_amb_col.isNull()) {
+        src_col = this->alpha_to_pos(str_amb_col.at(0));
+    }
+    QString str_amb_row = match.captured(3).toUpper();
+    if(!str_amb_row.isNull()) {
+        src_row = (uint8_t) ((str_amb_row.at(0).toLatin1()-49) +1);
+    }
+
+    // filter all moves
+    QVector<Move> lgl_piece;
+    for(int i=0;i<legals.count();i++) {
+        Move mi = legals.at(i);
+
+        uint8_t mi_row = (mi.from / 10) - 1;
+        uint8_t mi_col = mi.from % 10;
+        if(target == mi.to && this->piece_type(mi.from) == piece_type
+                && mi.promotion_piece == m.promotion_piece) {
+            if(src_col == 0 && src_row == 0) {
+                lgl_piece.append(mi);
+            } else if(src_col !=0 && src_row ==0 && mi_col == src_col) {
+                lgl_piece.append(mi);
+            } else if(src_col ==0 && src_row !=0 && mi_row == src_row) {
+                lgl_piece.append(mi);
+            } else if(src_col !=0 && src_row !=0 && mi_row == src_row && mi_col == src_col) {
+                lgl_piece.append(mi);
+            }
+        }
+    }
+
+    // now lgl_piece should contain only one move, since
+    // all ambiguous have been filtered. otherwise san is wrong
+    if(lgl_piece.count() > 1 || lgl_piece.count() == 0) {
+        //std::cout << *this << std::endl;
+        //std::cout << +this->fullmove_number << std::endl;
+        throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString() + " " + QString::number(piece_type).toStdString() + " "+QString::number(target).toStdString());
+    } else {
+        Move mi = lgl_piece.at(0);
+        m.from = mi.from;
+        m.to = mi.to;
+        m.promotion_piece = mi.promotion_piece;
+        m.uci_string = mi.uci_string;
+    }
+    return m;
+
+}
+
+
 
 /**
  * @brief Board::is_black_castle_right_lost

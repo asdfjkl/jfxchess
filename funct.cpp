@@ -174,8 +174,12 @@ void FuncT::run_pgn_parse_speedtest() {
     QString fn = QString("C://Users//user//MyFiles//workspace//test_databases//speedtest.pgn");
     db.open(fn);
 
+    chess::PgnPrinter pr;
+
     for(int i=0;i<db.countGames();i++) {
         chess::Game *temp_i = db.getGameAt(i);
+
+        //qDebug() << pr.printGame(*temp_i).join("\n");
         delete temp_i;
     }
 
