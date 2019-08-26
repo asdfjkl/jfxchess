@@ -31,17 +31,33 @@
 #include <QDebug>
 #include <QStyleFactory>
 #include "various/resource_finder.h"
+#include "profile/profile.h"
 
-#include "iprof/iprof.h"
-
+#include <chrono>
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
+    Profile::durationRunAll = chrono::milliseconds::zero();
     srand(time(NULL));
     chess::FuncT *p = new chess::FuncT();
+    auto start = std::chrono::steady_clock::now();
     p->run_pgn_parse_speedtest();
+    p->run_pgn_parse_speedtest();
+    p->run_pgn_parse_speedtest();
+    p->run_pgn_parse_speedtest();
+    p->run_pgn_parse_speedtest();
+    p->run_pgn_parse_speedtest();
+
+
+    auto stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = (stop - start);
+    auto i_millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+    auto f_secs = std::chrono::duration_cast<std::chrono::duration<float>>(diff);
+    Profile::durationRunAll += i_millis;
+    std::cout << i_millis.count() << '\n';
+    std::cout << f_secs.count() << '\n';
     //p->run_pgn_speedtest();
     //p->run_zobrist_test();
     //p->run_pgnt();
@@ -49,10 +65,6 @@ int main(int argc, char *argv[]) {
     //p.run_sant();
     // p->run_ucit();
     //p->run_pertf();
-
-    InternalProfiler::aggregateEntries();
-    std::cout << "The latest internal profiler stats:\n"
-              << InternalProfiler::stats << std::endl;
 
     //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

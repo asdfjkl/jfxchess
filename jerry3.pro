@@ -30,8 +30,8 @@ SOURCES += main.cpp \
     chess/pgn_printer.cpp \
     dialogs/tab_board_style.cpp \
     dialogs/tab_font_style.cpp \
-    iprof/iprof.cpp \
     model/font_style.cpp \
+    profile/profile.cpp \
     uci/uci_controller.cpp \
     uci/uci_worker.cpp \
     uci/engine_info.cpp \
@@ -89,9 +89,8 @@ HEADERS += \
     chess/pgn_printer.h \
     dialogs/tab_board_style.h \
     dialogs/tab_font_style.h \
-    iprof/hitime.h \
-    iprof/iprof.h \
     model/font_style.h \
+    profile/profile.h \
     uci/uci_worker.h \
     uci/uci_controller.h \
     uci/engine_info.h \

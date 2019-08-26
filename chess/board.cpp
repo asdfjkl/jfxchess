@@ -30,8 +30,6 @@
 #include <assert.h>
 #include "move.h"
 
-#include "iprof/iprof.h"
-
 using namespace std;
 
 namespace chess {
@@ -852,7 +850,6 @@ void Board::set_castle_bqueen(bool can_do) {
 }
 
 QVector<Move> Board::pseudo_legal_moves() {
-    IPROF_FUNC;
 
     return this->pseudo_legal_moves_from(0,true,this->turn);
 }
@@ -923,7 +920,6 @@ QVector<Move> Board::legal_moves() {
 // to speed up san parsing, check here
 // only moves where destination is hit.
 QVector<Move> Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
-    IPROF_FUNC;
 
     QVector<Move> pseudo_legals = this->pseudo_legal_moves(to_square, piece_type);
     QVector<Move> legals;
@@ -939,7 +935,6 @@ QVector<Move> Board::legal_moves(uint8_t to_square, uint8_t piece_type) {
 }
 
 QVector<Move> Board::legal_moves_from(int from_square) {
-    IPROF_FUNC;
 
     QVector<Move> pseudo_legals = this->pseudo_legal_moves_from(from_square, true,this->turn);
     QVector<Move> legals;
@@ -975,7 +970,6 @@ bool Board::is_legal_move(const Move &m) {
 }
 
 bool Board::pseudo_is_legal_move(const Move &m) {
-    IPROF_FUNC;
 
     // a pseudo legal move is a legal move if
     // a) doesn't put king in check
@@ -1123,8 +1117,6 @@ bool Board::is_attacked(int idx, bool attacker_color) {
 // either WHITE or BLACK)
 QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles, bool turn) {
 
-    IPROF_FUNC;
-
     QVector<Move> moves;
 
     for(int i=21;i<99;i++) {
@@ -1166,7 +1158,8 @@ QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles,
                                 if(j==2 && ((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8)))) {
                                     // means we have a white/black pawn in inital position, direct square
                                     // in front is empty => allow to move two forward
-                                    if(this->is_empty(idx)) {
+                                    //uint8_t idx_in_front = i + DIR_TABLE[piece_idx][1];
+                                    if(this->is_empty(idx)) {// && this->is_empty(idx_in_front)) {
                                         moves.append(Move(i,idx));
                                     }
                                 }
@@ -1326,7 +1319,6 @@ QVector<Move> Board::pseudo_legal_moves_from(int from_square, bool with_castles,
 // either WHITE or BLACK)
 QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_square,
                                          uint8_t piece_type, bool with_castles, bool turn) {
-    IPROF_FUNC;
 
     QVector<Move> moves;
 
@@ -1363,32 +1355,26 @@ QVector<Move> Board::pseudo_legal_moves_from_pt(int from_square, uint8_t to_squa
                             }
                         }
                         // move one (j=1) or two (j=2) up (or down in the case of black)
-                        for(int j=1;j<=2;j++) {
-                            uint8_t idx = i + DIR_TABLE[piece_idx][j];
-                            if(!this->is_offside(idx)) {
-                                if(j==2 && ((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8)))) {
-                                    // means we have a white/black pawn in inital position, direct square
-                                    // in front is empty => allow to move two forward
-                                    if(this->is_empty(idx)) {
-                                        moves.append(Move(i,idx));
-                                    }
+                        uint8_t idx_1up = i + DIR_TABLE[piece_idx][1];
+                        uint8_t idx_2up = i + DIR_TABLE[piece_idx][2];
+                        if(idx_2up == to_square && !this->is_offside(idx_2up)) {
+                            if((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8))) {
+                                // means we have a white/black pawn in inital position, direct square
+                                // in front is empty => allow to move two forward
+                                if(this->is_empty(idx_1up) && this->is_empty(idx_2up)) {
+                                    moves.append(Move(i,idx_2up));
                                 }
-                                else if(j==1) {
-                                    // case of one-step move forward
-                                    if(!this->is_empty(idx)) {
-                                        break;
-                                    } else {
-                                        // if it's a promotion square, add four moves
-                                        if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                            moves.append(Move(i,idx,QUEEN));
-                                            moves.append(Move(i,idx,ROOK));
-                                            moves.append(Move(i,idx,BISHOP));
-                                            moves.append(Move(i,idx,KNIGHT));
-                                        } else {
-                                            moves.append(Move(i,idx));
-                                        }
-                                    }
-                                }
+                            }
+                        }
+                        if(idx_1up == to_square && !this->is_offside(idx_1up) && this->is_empty(idx_1up)) {
+                            // if it's a promotion square, add four moves
+                            if((color==WHITE && (idx_1up / 10 == 9)) || (color==BLACK && (idx_1up / 10 == 2))) {
+                                moves.append(Move(i,idx_1up,QUEEN));
+                                moves.append(Move(i,idx_1up,ROOK));
+                                moves.append(Move(i,idx_1up,BISHOP));
+                                moves.append(Move(i,idx_1up,KNIGHT));
+                            } else {
+                                moves.append(Move(i,idx_1up));
                             }
                         }
                         // finally, potential en-passent capture is handled
@@ -1511,9 +1497,7 @@ QVector<Move> Board::pseudo_legal_moves_san_parse(uint8_t to_square,
                                                uint8_t piece_type,
                                                bool is_capture
                                                ) {
-    IPROF_FUNC;
-
-    QVector<Move> moves;
+     QVector<Move> moves;
 
     for(int i=21;i<99;i++) {
         if(!(this->board[i] == 0xFF)) {
@@ -1553,34 +1537,29 @@ QVector<Move> Board::pseudo_legal_moves_san_parse(uint8_t to_square,
                     }
                 }
                 // move one (j=1) or two (j=2) up (or down in the case of black)
-                for(int j=1;j<=2;j++) {
-                    uint8_t idx = i + DIR_TABLE[piece_idx][j];
-                    if(!this->is_offside(idx)) {
-                        if(j==2 && ((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8)))) {
-                            // means we have a white/black pawn in inital position, direct square
-                            // in front is empty => allow to move two forward
-                            if(this->is_empty(idx)) {
-                                moves.append(Move(i,idx));
-                            }
-                        }
-                        else if(j==1) {
-                            // case of one-step move forward
-                            if(!this->is_empty(idx)) {
-                                break;
-                            } else {
-                                // if it's a promotion square, add four moves
-                                if((color==WHITE && (idx / 10 == 9)) || (color==BLACK && (idx / 10 == 2))) {
-                                    moves.append(Move(i,idx,QUEEN));
-                                    moves.append(Move(i,idx,ROOK));
-                                    moves.append(Move(i,idx,BISHOP));
-                                    moves.append(Move(i,idx,KNIGHT));
-                                } else {
-                                    moves.append(Move(i,idx));
-                                }
-                            }
+                uint8_t idx_1up = i + DIR_TABLE[piece_idx][1];
+                uint8_t idx_2up = i + DIR_TABLE[piece_idx][2];
+                if(idx_2up == to_square && !this->is_offside(idx_2up)) {
+                    if((color == WHITE && (i/10==3)) || (color==BLACK && (i/10==8))) {
+                        // means we have a white/black pawn in inital position, direct square
+                        // in front is empty => allow to move two forward
+                        if(this->is_empty(idx_1up) && this->is_empty(idx_2up)) {
+                            moves.append(Move(i,idx_2up));
                         }
                     }
                 }
+                if(idx_1up == to_square && !this->is_offside(idx_1up) && this->is_empty(idx_1up)) {
+                    // if it's a promotion square, add four moves
+                    if((color==WHITE && (idx_1up / 10 == 9)) || (color==BLACK && (idx_1up / 10 == 2))) {
+                        moves.append(Move(i,idx_1up,QUEEN));
+                        moves.append(Move(i,idx_1up,ROOK));
+                        moves.append(Move(i,idx_1up,BISHOP));
+                        moves.append(Move(i,idx_1up,KNIGHT));
+                    } else {
+                        moves.append(Move(i,idx_1up));
+                    }
+                }
+
                 // finally, potential en-passent capture is handled
                 // left up
                 if(color == WHITE && (this->en_passent_target - i)==9) {
@@ -1732,7 +1711,6 @@ bool Board::is_white_at(uint8_t idx) {
 
 // doesn't check legality
 void Board::apply(const Move &m) {
-    IPROF_FUNC;
 
     assert(m.promotion_piece <= 5);
     if(m.is_null) {
@@ -2201,7 +2179,6 @@ QString Board::san(const Move &m) {
 }
 
 Move Board::parse_san(QString san) {
-    IPROF_FUNC;
 
     // first check if null move
     if(san==QString("--")) {
@@ -2352,7 +2329,6 @@ Move Board::parse_san(QString san) {
 }
 
 Move Board::parse_san_fast(QString san) {
-    IPROF_FUNC;
 
     // first check if null move
     if(san==QString("--")) {
@@ -2429,10 +2405,16 @@ Move Board::parse_san_fast(QString san) {
                                                          true);
     if(pseudos.length() == 1) {
         return pseudos.at(0);
-    }
+    } /*else {
+        qDebug() << san;
+        for(int i=0;i<pseudos.length();i++) {
+            qDebug() << pseudos.at(i).uci_string;
+        }
+        qDebug() << "pseudos ambig";
+    }*/
 
-    // if pseudos are not ambiguous, generate legal moves
-    QVector<Move> legals = this->legal_moves();
+    // if pseudos are ambiguous, first check wether there
+    // is some hint in the san
 
     // get sources squares to decide among ambiuous moves
     uint8_t src_col = 0;
@@ -2448,8 +2430,8 @@ Move Board::parse_san_fast(QString san) {
 
     // filter all moves
     QVector<Move> lgl_piece;
-    for(int i=0;i<legals.count();i++) {
-        Move mi = legals.at(i);
+    for(int i=0;i<pseudos.count();i++) {
+        Move mi = pseudos.at(i);
 
         uint8_t mi_row = (mi.from / 10) - 1;
         uint8_t mi_col = mi.from % 10;
@@ -2467,20 +2449,44 @@ Move Board::parse_san_fast(QString san) {
         }
     }
 
-    // now lgl_piece should contain only one move, since
-    // all ambiguous have been filtered. otherwise san is wrong
-    if(lgl_piece.count() > 1 || lgl_piece.count() == 0) {
+    if(lgl_piece.count() == 1) {
+        return lgl_piece.at(0);
+    }
+
+    QVector<Move> only_legals;
+
+    if(lgl_piece.count() > 1) {
+       for(int i=0;i<lgl_piece.count();i++) {
+           Move mi = lgl_piece.at(i);
+           if(pseudo_is_legal_move(mi)) {
+               only_legals.append(mi);
+           }
+       }
+    }
+
+    if(only_legals.count() == 1) {
+        return only_legals.at(0);
+    } else {
+        qDebug() << "todo: check if pseudo is legal";
+        qDebug() << "input san: " << san;
+        Board b = Board(this);
+        std::cout << b << std::endl;
+        for(int i=0;i<lgl_piece.count();i++) {
+            qDebug() << lgl_piece.at(i).uci_string;
+        }
         //std::cout << *this << std::endl;
         //std::cout << +this->fullmove_number << std::endl;
         throw std::invalid_argument("invalid san / ambiguous: "+san.toStdString() + " " + QString::number(piece_type).toStdString() + " "+QString::number(target).toStdString());
-    } else {
+    }
+    /*
+    else {
         Move mi = lgl_piece.at(0);
         m.from = mi.from;
         m.to = mi.to;
         m.promotion_piece = mi.promotion_piece;
         m.uci_string = mi.uci_string;
     }
-    return m;
+    return m;*/
 
 }
 

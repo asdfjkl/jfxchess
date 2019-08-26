@@ -36,8 +36,6 @@
 #include <QDir>
 #include <QDebug>
 
-#include "iprof/iprof.h"
-
 namespace chess {
 
 FuncT::FuncT(QObject *parent) :
@@ -168,7 +166,6 @@ void FuncT::run_pgn_scant() {
 */
 
 void FuncT::run_pgn_parse_speedtest() {
-    IPROF_FUNC;
 
     chess::PgnDatabase db;
     QString fn = QString("C://Users//user//MyFiles//workspace//test_databases//speedtest.pgn");
@@ -220,7 +217,6 @@ void FuncT::run_pgn_speedtest() {
 }
 
 void FuncT::run_pgnt() {
-    IPROF_FUNC;
 
     std::cout << "reading complex.pgn..." << std::endl;
     QString c1 = QString("C://Users//user//MyFiles//workspace//jerry//data/complex.pgn");
@@ -435,11 +431,28 @@ void FuncT::run_pertf() {
     c = count_moves(b,3);
     std::cout << "         computed: " << c << "//n" << std::endl;
 
+    auto start = std::chrono::steady_clock::now();
+
     b = Board(QString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
     std::cout << "Testing " << b.fen().toStdString() << std::endl;
     std::cout << "Perft 5, expected: 4865609" << std::endl;
     c = count_moves(b,4);
     std::cout << "         computed: " << c << "//n" << std::endl;
+
+    auto stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = (stop - start);
+    auto f_secs = std::chrono::duration_cast<std::chrono::duration<float>>(diff);
+    std::cout << "perft 5: " << std::endl;
+    std::cout << f_secs.count() << std::endl;
+
+    /*
+    b = Board(QString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+    std::cout << "Testing " << b.fen().toStdString() << std::endl;
+    std::cout << "Perft 6, expected:  119060324 " << std::endl;
+    c = count_moves(b,5);
+    std::cout << "         computed: " << c << "//n" << std::endl;
+*/
+
 
     // "Kiwipete" by Peter McKenzie, great for identifying bugs
     // perft 1 - 5
