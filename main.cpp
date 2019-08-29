@@ -39,32 +39,38 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    Profile::durationRunAll = chrono::milliseconds::zero();
+    Profile::durationRunAll = chrono::nanoseconds::zero();
+    Profile::first_part = chrono::nanoseconds::zero();
+    Profile::pseudo_generation = chrono::nanoseconds::zero();
+    Profile::filter_pseudos = chrono::nanoseconds::zero();
+    Profile::filter_legal_check = chrono::nanoseconds::zero();
+    Profile::parse_san_fast = chrono::nanoseconds::zero();
+
     srand(time(NULL));
     chess::FuncT *p = new chess::FuncT();
     auto start = std::chrono::steady_clock::now();
-    p->run_pgn_parse_speedtest();
-    p->run_pgn_parse_speedtest();
-    p->run_pgn_parse_speedtest();
-    p->run_pgn_parse_speedtest();
-    p->run_pgn_parse_speedtest();
-    p->run_pgn_parse_speedtest();
 
+    p->run_pgn_parse_speedtest();
 
     auto stop = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = (stop - start);
-    auto i_millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    auto f_secs = std::chrono::duration_cast<std::chrono::duration<float>>(diff);
+    auto i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff);
     Profile::durationRunAll += i_millis;
-    std::cout << i_millis.count() << '\n';
-    std::cout << f_secs.count() << '\n';
+
+    std::cout << "Duration All       :" << (Profile::durationRunAll.count() ) << '\n';
+    std::cout << "Duration First Part:" << (Profile::first_part.count() ) << '\n';
+    std::cout << "Duration Pseudo Gen:" << (Profile::pseudo_generation.count() ) << '\n';
+    std::cout << "Duration Filter Pse:" << (Profile::filter_pseudos.count() ) << '\n';
+    std::cout << "Duration Filter Leg:" << (Profile::filter_legal_check.count() ) << '\n';
+    std::cout <<std::fixed<< "Duration Parse San :" << (Profile::parse_san_fast.count() ) << '\n';
+
     //p->run_pgn_speedtest();
     //p->run_zobrist_test();
     //p->run_pgnt();
     //p.run_pgn_scant();
     //p.run_sant();
     // p->run_ucit();
-    //p->run_pertf();
+    p->run_pertf();
 
     //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

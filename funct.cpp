@@ -107,19 +107,19 @@ int FuncT::count_moves(Board b, int depth) {
         // the move, do the recursive call and undo the move
         for(int i=0;i<mvs.count();i++) {
             Move m = mvs.at(i);
-            QString old_fen = b.fen();
+            // /QString old_fen = b.fen();
             b.apply(m);
             int cnt_i = count_moves(b, depth - 1);
             count += cnt_i;
             b.undo();
-            QString old_fen1 = b.fen();
-            if(QString::compare(old_fen, old_fen1, Qt::CaseInsensitive) != 0) {
-                int foobar = QString::compare(old_fen, old_fen1, Qt::CaseInsensitive);
-                std::cout << "MAJOR FOOBAR: " << foobar << std::endl;
-                std::cout << "MOVE: " << m.uci().toStdString() << std::endl;
-                std::cout << "OLD: " << old_fen.toStdString() << std::endl;
-                std::cout << "NEW: " << old_fen1.toStdString() << std::endl;
-            }            
+            // /QString old_fen1 = b.fen();
+            // /if(QString::compare(old_fen, old_fen1, Qt::CaseInsensitive) != 0) {
+            // /    int foobar = QString::compare(old_fen, old_fen1, Qt::CaseInsensitive);
+            // /    std::cout << "MAJOR FOOBAR: " << foobar << std::endl;
+            // /    std::cout << "MOVE: " << m.uci().toStdString() << std::endl;
+            // /    std::cout << "OLD: " << old_fen.toStdString() << std::endl;
+            // /    std::cout << "NEW: " << old_fen1.toStdString() << std::endl;
+            // /}
         }
         return count;
     }

@@ -30,6 +30,8 @@
 #include <assert.h>
 #include "move.h"
 
+#include "profile/profile.h"
+
 using namespace std;
 
 namespace chess {
@@ -2330,6 +2332,8 @@ Move Board::parse_san(QString san) {
 
 Move Board::parse_san_fast(QString san) {
 
+    auto start = std::chrono::steady_clock::now();
+
     // first check if null move
     if(san==QString("--")) {
         Move m = Move();
@@ -2339,14 +2343,14 @@ Move Board::parse_san_fast(QString san) {
     Move m = Move(0,0);
 
     // check for castling moves
-    if(san==QString("O-O") || san == QString("O-O+") || san==QString("O-O#")) {
+    if(san==QLatin1String("O-O") || san == QLatin1String("O-O+") || san==QLatin1String("O-O#")) {
         if(this->turn == WHITE) {
             return Move(E1,G1);
         } else {
             return Move(E8,G8);
         }
     }
-    if(san==QString("O-O-O") || san == QString("O-O-O+") || san==QString("O-O-O#")) {
+    if(san==QLatin1String("O-O-O") || san == QLatin1String("O-O-O+") || san==QLatin1String("O-O-O#")) {
         if(this->turn == WHITE) {
             return Move(E1,C1);
         } else {
@@ -2369,13 +2373,13 @@ Move Board::parse_san_fast(QString san) {
     QString str_prom = match.captured(5);
     if(!str_prom.isNull()) {
         //std::cout << match.captured(5).toStdString() << std::endl;
-        if(match.captured(5)==QString("=N")) {
+        if(match.captured(5)==QLatin1String("=N")) {
             m.promotion_piece = KNIGHT;
-        } else if(match.captured(5)==QString("=B")) {
+        } else if(match.captured(5)==QLatin1String("=B")) {
             m.promotion_piece = BISHOP;
-        } else if(match.captured(5)==QString("=R")) {
+        } else if(match.captured(5)==QLatin1String("=R")) {
             m.promotion_piece = ROOK;
-        } else if(match.captured(5)==QString("=Q")) {
+        } else if(match.captured(5)==QLatin1String("=Q")) {
             m.promotion_piece = QUEEN;
         } else {
             throw std::invalid_argument("invalid san / promotion: "+match.captured(5).toStdString());
@@ -2386,23 +2390,35 @@ Move Board::parse_san_fast(QString san) {
     }
     // get piece type
     uint8_t piece_type = 0;
-    if(match.captured(1) == QString("B")) {
+    if(match.captured(1) == QLatin1String("B")) {
         piece_type = BISHOP;
-    } else if(match.captured(1) == QString("N")) {
+    } else if(match.captured(1) == QLatin1String("N")) {
         piece_type = KNIGHT;
-    } else if(match.captured(1) == QString("R")) {
+    } else if(match.captured(1) == QLatin1String("R")) {
         piece_type = ROOK;
-    } else if(match.captured(1) == QString("Q")) {
+    } else if(match.captured(1) == QLatin1String("Q")) {
         piece_type = QUEEN;
-    } else if(match.captured(1) == QString("K")) {
+    } else if(match.captured(1) == QLatin1String("K")) {
         piece_type = KING;
     } else {
         piece_type = PAWN;
     }
 
+    auto stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = (stop - start);
+    auto i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff);
+    Profile::first_part += i_millis;
+
+    start = std::chrono::steady_clock::now();
+
     QVector<Move> pseudos = pseudo_legal_moves_san_parse(target,
                                                          piece_type,
                                                          true);
+    stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff1 = (stop - start);
+    i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff1);
+    Profile::pseudo_generation += i_millis;
+
     if(pseudos.length() == 1) {
         return pseudos.at(0);
     } /*else {
@@ -2415,6 +2431,9 @@ Move Board::parse_san_fast(QString san) {
 
     // if pseudos are ambiguous, first check wether there
     // is some hint in the san
+
+    start = std::chrono::steady_clock::now();
+
 
     // get sources squares to decide among ambiuous moves
     uint8_t src_col = 0;
@@ -2449,9 +2468,16 @@ Move Board::parse_san_fast(QString san) {
         }
     }
 
+    stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff2 = (stop - start);
+    i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff2);
+    Profile::filter_pseudos += i_millis;
+
     if(lgl_piece.count() == 1) {
         return lgl_piece.at(0);
     }
+
+    start = std::chrono::steady_clock::now();
 
     QVector<Move> only_legals;
 
@@ -2463,6 +2489,11 @@ Move Board::parse_san_fast(QString san) {
            }
        }
     }
+
+    stop = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff3 = (stop - start);
+    i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff3);
+    Profile::filter_legal_check += i_millis;
 
     if(only_legals.count() == 1) {
         return only_legals.at(0);

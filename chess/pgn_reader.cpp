@@ -29,6 +29,8 @@
 #include <QTextCodec>
 #include <QDataStream>
 
+#include "profile/profile.h"
+
 namespace chess {
 
 const char* PgnReader::detect_encoding(const QString &filename) {
@@ -843,8 +845,17 @@ chess::Game* PgnReader::readGame(QTextStream& in) {
                 // Board *b_next = 0;
                 try {
                     Board b = current->getBoard();
+
+
+                    auto start = std::chrono::steady_clock::now();
                     //Move m = Move(b.parse_san(token));
                     Move m = Move(b.parse_san_fast(token));
+
+                    auto stop = std::chrono::steady_clock::now();
+                    std::chrono::duration<double> diff2 = (stop - start);
+                    auto i_millis = std::chrono::duration_cast<std::chrono::nanoseconds>(diff2);
+                    Profile::parse_san_fast += i_millis;
+
                     Board b_next = Board(b);
                     b_next.apply(m);
                     next->setMove(m);
