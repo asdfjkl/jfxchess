@@ -39,6 +39,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+    /*
     Profile::durationRunAll = chrono::nanoseconds::zero();
     Profile::first_part = chrono::nanoseconds::zero();
     Profile::pseudo_generation = chrono::nanoseconds::zero();
@@ -63,20 +64,20 @@ int main(int argc, char *argv[]) {
     std::cout << "Duration Filter Pse:" << (Profile::filter_pseudos.count() ) << '\n';
     std::cout << "Duration Filter Leg:" << (Profile::filter_legal_check.count() ) << '\n';
     std::cout <<std::fixed<< "Duration Parse San :" << (Profile::parse_san_fast.count() ) << '\n';
-
+*/
     //p->run_pgn_speedtest();
     //p->run_zobrist_test();
     //p->run_pgnt();
     //p.run_pgn_scant();
     //p.run_sant();
     // p->run_ucit();
-    p->run_pertf();
+    //p->run_pertf();
 
     //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     // from Qt 5.6 onwards
 
-    qDebug() << "foo";
+    //qDebug() << "foo";
 
     QApplication app(argc, argv);
     app.setOrganizationName("dkl");

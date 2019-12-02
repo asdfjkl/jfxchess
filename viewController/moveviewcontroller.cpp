@@ -75,7 +75,7 @@ void MoveViewController::showContextMenu(const QPoint &pos) {
     QAction *posUnclear = subPosAnnotation->addAction(this->tr("∞ Unclear"));
     QAction *posDrawish = subPosAnnotation->addAction(this->tr("= Drawish"));
     QAction *posWhiteModBetter = subPosAnnotation->addAction(this->tr("+/= Slight Advantage White"));
-    QAction *posBlackModBetter = subPosAnnotation->addAction(this->tr("=/+ Slight Advantage Black"));
+    QAction *posBlackModBetter = subPosAnnotation->addAction(this->tr("-/= Slight Advantage Black"));
     QAction *posWhiteMuchBetter = subPosAnnotation->addAction(this->tr("+- White Better"));
     QAction *posBlackMuchBetter = subPosAnnotation->addAction(this->tr("-+ Black Better"));
     QAction *posNoAnnotation = subPosAnnotation->addAction(this->tr("No Annotation"));
@@ -152,6 +152,7 @@ void MoveViewController::annotation(int nag, int min, int max) {
         node->appendNag(nag);
         node->sortNags();
         this->gameModel->getGame()->setResult(true);
+        this->gameModel->getGame()->setTreeWasChanged(true);
         this->gameModel->triggerStateChange();
     } catch(std::invalid_argument &e) {
         // if the node with the supplied id cannot be found
