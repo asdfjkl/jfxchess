@@ -76,6 +76,8 @@ int main(int argc, char *argv[]) {
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     // from Qt 5.6 onwards
 
+    qDebug() << "foo";
+
     QApplication app(argc, argv);
     app.setOrganizationName("dkl");
     app.setApplicationName("Jerry");
