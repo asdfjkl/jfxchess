@@ -43,7 +43,7 @@ const int ANALYSE_BOTH_PLAYERS = 0;
 const int ANALYSE_WHITE_ONLY = 1;
 const int ANALYSE_BLACK_ONLY = 2;
 
-const QString JERRY_VERSION = "3.2.0";
+const QString JERRY_VERSION = "3.2.1";
 
 class GameModel : public QObject
 {

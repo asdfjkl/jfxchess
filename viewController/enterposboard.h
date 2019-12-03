@@ -16,6 +16,7 @@ public:
     chess::Board getCurrentBoard();
     void setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen);
     void setTurn(bool turn);
+    void setFlipBoard(bool onOff);
 private:
     void calculateBoardSize(int *boardSize, int *squareSize);
     ColorStyle style;
@@ -24,6 +25,8 @@ private:
     chess::Board board { true };
     chess::Board currentGameBoard;
     double dpr = 1.0;
+
+    bool flipBoard;
 
     bool clickedOnBoard(int x, int y);
     bool clickedOnPiceceSelector(int x, int y);

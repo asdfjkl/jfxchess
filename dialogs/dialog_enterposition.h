@@ -36,6 +36,8 @@ private:
     QPushButton *buttonClear;
     QPushButton *buttonCurrent;
 
+    QCheckBox *cbFlipBoard;
+
     QDialogButtonBox *buttonBox;
 
 protected:
@@ -48,6 +50,7 @@ public slots:
     void setToCurrentBoard();
     void checkConsistency();
     void setCastlingRights();
+    void flipBoard();
     void setTurn();
 };
 

@@ -18,7 +18,6 @@ DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorS
 
     this->sbv = new EnterPosBoard(style, board, parent);
 
-
     this->cbWhiteShort = new QCheckBox(tr("White O-O"));
     this->cbWhiteLong = new QCheckBox(tr("White O-O-O"));
     this->cbBlackShort = new QCheckBox(tr("Black O-O"));
@@ -45,9 +44,18 @@ DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorS
     this->buttonClear = new QPushButton(tr("Clear Board"));
     this->buttonCurrent = new QPushButton(tr("Current Position"));
 
+    this->cbFlipBoard = new QCheckBox(tr("Flip Board"));
+    this->cbFlipBoard->setChecked(false);
+    QGroupBox *grpBox_flip = new QGroupBox(this);
+    QVBoxLayout *vbox_flip = new QVBoxLayout();
+    vbox_flip->addWidget(this->cbFlipBoard);
+    vbox_flip->addStretch(1);
+    grpBox_flip->setLayout(vbox_flip);
+
     QVBoxLayout *vbox_config = new QVBoxLayout();
     vbox_config->addWidget(grpBox_castle);
     vbox_config->addWidget(grpBox_turn);
+    vbox_config->addWidget(grpBox_flip);
     vbox_config->addStretch(1);
     vbox_config->addWidget(this->buttonInit);
     vbox_config->addWidget(this->buttonClear);
@@ -77,6 +85,8 @@ DialogEnterPosition::DialogEnterPosition(const chess::Board &board, const ColorS
     connect(this->cbBlackShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
     connect(this->cbWhiteLong, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
     connect(this->cbWhiteShort, &QCheckBox::toggled, this, &DialogEnterPosition::setCastlingRights);
+
+    connect(this->cbFlipBoard, &QCheckBox::toggled, this, &DialogEnterPosition::flipBoard);
 
     connect(this->rbWhite, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
     connect(this->rbBlack, &QRadioButton::toggled, this, &DialogEnterPosition::setTurn);
@@ -143,6 +153,16 @@ void DialogEnterPosition::checkConsistency() {
     } else {
         this->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
+}
+
+void DialogEnterPosition::flipBoard() {
+
+    if(this->cbFlipBoard->isChecked()) {
+        this->sbv->setFlipBoard(true);
+    } else {
+        this->sbv->setFlipBoard(false);
+    }
+    this->update();
 }
 
 void DialogEnterPosition::setToInitialPosition() {

@@ -24,6 +24,10 @@ EnterPosBoard::EnterPosBoard(const ColorStyle &style,
 
     this->selectedPiece = chess::WHITE_PAWN;
 
+    this->flipBoard = false;
+
+    this->board = this->currentGameBoard;
+
     this->incl_joker_piece = incl_joker_piece;
 }
 
@@ -34,6 +38,10 @@ void EnterPosBoard::setTurn(bool turn) {
     } else {
         this->board.turn = chess::BLACK;
     }
+}
+
+void EnterPosBoard::setFlipBoard(bool onOff) {
+    this->flipBoard = onOff;
 }
 
 void EnterPosBoard::setCastlingRights(bool wking, bool wqueen, bool bking, bool bqueen) {
@@ -95,6 +103,11 @@ void EnterPosBoard::mousePressEvent(QMouseEvent *m) {
         this->selectedPiece = this->getSelectedPiece(x,y);
     } else if(this->clickedOnBoard(x,y)) {
         QPoint q = this->getBoardPosition(x,y);
+        // invert, if board is flipped
+        if(this->flipBoard) {
+            q.setX(7-q.x());
+            q.setY(7-q.y());
+        }
         if(this->board.get_piece_at(q.x(), q.y()) == this->selectedPiece) {
             this->board.set_piece_at(q.x(),q.y(),chess::EMPTY);
             emit squareChanged();
@@ -217,6 +230,13 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     QPixmap pxLight = this->style.lightSquareTexture;
     QPixmap pxDark = this->style.darkSquareTexture;
 
+    if(this->flipBoard) {
+        dark = this->style.lightSquare;
+        light = this->style.darkSquare;
+        pxLight = this->style.darkSquareTexture;
+        pxDark = this->style.lightSquareTexture;
+    }
+
     //chess::Board board = this->board;
 
     for(int i=0;i<8;i++) {
@@ -236,7 +256,12 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
                 }
             }
             // draw the square
-            int x = boardOffsetX+(i*squareSize);
+            int x=0;
+            if(this->flipBoard) {
+                x = boardOffsetX+((7-i)*squareSize);
+            } else {
+                x = boardOffsetX+(i*squareSize);
+            }
             // drawing coordinates are from top left
             // whereas chess coords are from bottom left
             int y = boardOffsetY+((7-j)*squareSize);
@@ -247,7 +272,12 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     for(int i=0;i<8;i++) {
         for(int j=0;j<8;j++) {
             // get square coords
-            int x = boardOffsetX+(i*squareSize);
+            int x = 0;
+            if(this->flipBoard) {
+                x = boardOffsetX+((7-i)*squareSize);
+            } else {
+                x = boardOffsetX+(i*squareSize);
+            }
 
             // drawing coordinates are from top left
             // whereas chess coords are from bottom left
@@ -257,8 +287,13 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
             uint8_t piece_type = 0;
             bool piece_color = 0;
 
-            piece_type = board.get_piece_type_at(i,j);
-            piece_color = board.get_piece_color_at(i,j);
+            if(this->flipBoard) {
+                piece_type = board.get_piece_type_at(i,7-j);
+                piece_color = board.get_piece_color_at(i,7-j);
+            } else {
+                piece_type = board.get_piece_type_at(i,j);
+                piece_color = board.get_piece_color_at(i,j);
+            }
 
             int pieceStyle = this->style.pieceType;
             if(piece_type != chess::EMPTY)  {
@@ -275,12 +310,21 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
     painter->setFont(QFont(QString("Decorative"),8));
 
     for(int i=0;i<8;i++) {
-        QChar ch = QChar(65+i);
-        QString idx = QString(ch);
-        QString num = QString::number(8-i);
-        painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
-                          boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
-        painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+        if(this->flipBoard) {
+            QChar ch = QChar(((uint8_t) 65+(7-i)));
+            QString idx = QString(ch);
+            QString num = QString::number(i+1);
+            painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
+                              boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
+            painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+        } else {
+            QChar ch = QChar(65+i);
+            QString idx = QString(ch);
+            QString num = QString::number(8-i);
+            painter->drawText(boardOffsetX+(i*squareSize) + (squareSize/2)-4,
+                              boardOffsetY+(8*squareSize)+(this->borderWidth-3),idx);
+            painter->drawText(4,boardOffsetY+(i*squareSize)+(squareSize/2)+4,num);
+        }
     }
 
     // draw rect for piece selection. reset to border color
@@ -301,6 +345,13 @@ void EnterPosBoard::drawBoard(QPaintEvent *event, QPainter *painter) {
 
     // draw the piece selection fields
     painter->setPen(penZero);
+
+    // make sure we always re-set the colors
+    // since in the case of flipBoard, they are reversed
+    light = this->style.lightSquare;
+    dark = this->style.darkSquare;
+    pxDark = this->style.darkSquareTexture;
+    pxLight = this->style.lightSquareTexture;
 
     for(int i=0;i<max_piece_idx;i++) {
         for(int j=0;j<2;j++) {
