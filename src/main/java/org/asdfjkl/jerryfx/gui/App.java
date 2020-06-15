@@ -1,20 +1,49 @@
 package org.asdfjkl.jerryfx.gui;
 
+import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGException;
+import com.kitfox.svg.SVGUniverse;
 import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import jfxtras.styles.jmetro.JMetro;
+import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.SystemInfo;
+import org.asdfjkl.jerryfx.lib.Game;
+import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
+import org.asdfjkl.jerryfx.lib.PgnReader;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 /**
  * JavaFX App
@@ -24,212 +53,276 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
 
-        // MENU
-        MenuBar menuBar = new MenuBar();
 
-        Menu fileMenu = new Menu("Game");
-        Menu editMenu = new Menu("Edit");
-        Menu modeMenu = new Menu("Mode");
-        Menu databaseMenu = new Menu("Database");
-        Menu helpMenu = new Menu("Help");
+        GameModel gameModel = new GameModel();
+        gameModel.getGame().setTreeWasChanged(true);
+
+
+        // MENU
+        MenuBar mnuBar = new MenuBar();
+
+        Menu mnuFile = new Menu("Game");
+        Menu mnuEdit = new Menu("Edit");
+        Menu mnuMode = new Menu("Mode");
+        Menu mnuDatabase = new Menu("Database");
+        Menu mnuHelp = new Menu("Help");
 
         // File Menu
-        MenuItem newItem = new MenuItem("New...");
-        MenuItem openFileItem = new MenuItem("Open File");
-        MenuItem saveCurrentAsItem = new MenuItem("Save Current Game As");
-        SeparatorMenuItem separatorFile1 = new SeparatorMenuItem();
-        MenuItem printGameItem = new MenuItem("Print Game");
-        MenuItem printPositionItem = new MenuItem("Print Game");
-        MenuItem savePositionAsImageItem = new MenuItem("Save Position As Image");
-        SeparatorMenuItem separatorFile2 = new SeparatorMenuItem();
-        MenuItem quitItem = new MenuItem("Quit");
+        MenuItem itmNew = new MenuItem("New...");
+        MenuItem itmOpenFile = new MenuItem("Open File");
+        MenuItem itmSaveCurrentGameAs = new MenuItem("Save Current Game As");
+        MenuItem itmPrintGame = new MenuItem("Print Game");
+        MenuItem itmPrintPosition = new MenuItem("Print Game");
+        MenuItem itmSavePositionAsImage = new MenuItem("Save Position As Image");
+        MenuItem itmQuit = new MenuItem("Quit");
 
-        fileMenu.getItems().addAll(newItem, openFileItem, saveCurrentAsItem,
-                separatorFile1, printGameItem, printPositionItem, savePositionAsImageItem,
-                separatorFile2, quitItem);
+        mnuFile.getItems().addAll(itmNew, itmOpenFile, itmSaveCurrentGameAs,
+                new SeparatorMenuItem(), itmPrintGame, itmPrintPosition, itmSavePositionAsImage,
+                new SeparatorMenuItem(), itmQuit);
 
         // Edit Menu
-        MenuItem copyGameItem = new MenuItem("Copy Game");
-        MenuItem copyPositionItem = new MenuItem("Copy Position");
-        MenuItem pasteItem = new MenuItem("Paste Game/Position");
-        SeparatorMenuItem separatorEdit1 = new SeparatorMenuItem();
-        MenuItem editGameItem = new MenuItem("Edit Game Data");
-        MenuItem enterPositionItem = new MenuItem("Enter Position");
-        SeparatorMenuItem separatorEdit2 = new SeparatorMenuItem();
-        CheckMenuItem flipEvalItem = new CheckMenuItem("Flip Board");
-        CheckMenuItem showSearchInfoItem = new CheckMenuItem("Show Search Info");
-        MenuItem appearanceItem = new MenuItem("Appearance");
-        MenuItem resetLayoutItem = new MenuItem("Reset Layout");
+        MenuItem itmCopyGame = new MenuItem("Copy Game");
+        MenuItem itmCopyPosition = new MenuItem("Copy Position");
+        MenuItem itmPaste = new MenuItem("Paste Game/Position");
+        MenuItem itmEditGame = new MenuItem("Edit Game Data");
+        MenuItem itmEnterPosition = new MenuItem("Enter Position");
+        CheckMenuItem itmFlipEval = new CheckMenuItem("Flip Board");
+        CheckMenuItem itmShowSearchInfo = new CheckMenuItem("Show Search Info");
+        MenuItem itmAppearance = new MenuItem("Appearance");
+        MenuItem itmResetLayout = new MenuItem("Reset Layout");
 
-        editMenu.getItems().addAll(copyGameItem, copyPositionItem, pasteItem,
-                separatorEdit1, editGameItem, enterPositionItem, separatorEdit2,
-                flipEvalItem, showSearchInfoItem, appearanceItem, resetLayoutItem);
+        mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmPaste,
+                new SeparatorMenuItem(), itmEditGame, itmEnterPosition,
+                new SeparatorMenuItem(), itmFlipEval, itmShowSearchInfo, itmAppearance, itmResetLayout);
 
         // Mode Menu
-        RadioMenuItem moveAnalysisItem = new RadioMenuItem("Analysis");
-        RadioMenuItem playAsWhiteItem = new RadioMenuItem("Play as White");
-        RadioMenuItem playAsBlackItem = new RadioMenuItem("Play as Black");
-        RadioMenuItem enterMovesItem = new RadioMenuItem("Enter Moves");
+        RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
+        RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
+        RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
+        RadioMenuItem itmEnterMoves = new RadioMenuItem("Enter Moves");
 
-        ToggleGroup toggleGroupMode = new ToggleGroup();
-        toggleGroupMode.getToggles().add(moveAnalysisItem);
-        toggleGroupMode.getToggles().add(playAsWhiteItem);
-        toggleGroupMode.getToggles().add(playAsBlackItem);
-        toggleGroupMode.getToggles().add(enterMovesItem);
-        SeparatorMenuItem separatorMode1 = new SeparatorMenuItem();
-        MenuItem fullGameAnalysisItem = new MenuItem("Full Game Analysis");
-        MenuItem playoutPositionItem = new MenuItem("Play Out Position");
-        SeparatorMenuItem separatorMode2 = new SeparatorMenuItem();
-        MenuItem enginesItem = new MenuItem("Engines...");
+        ToggleGroup tglMode = new ToggleGroup();
+        tglMode.getToggles().add(itmAnalysis);
+        tglMode.getToggles().add(itmPlayAsWhite);
+        tglMode.getToggles().add(itmPlayAsBlack);
+        tglMode.getToggles().add(itmEnterMoves);
+        MenuItem itmFullGameAnalysis = new MenuItem("Full Game Analysis");
+        MenuItem itmPlayoutPosition = new MenuItem("Play Out Position");
+        MenuItem itmEngines = new MenuItem("Engines...");
 
-        modeMenu.getItems().addAll(moveAnalysisItem, playAsWhiteItem, playAsBlackItem,
-                enterMovesItem, separatorMode1, fullGameAnalysisItem, playoutPositionItem,
-                separatorMode2, enginesItem);
+        mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack, itmEnterMoves,
+                new SeparatorMenuItem(), itmFullGameAnalysis, itmPlayoutPosition,
+                new SeparatorMenuItem(), itmEngines);
 
         // Database Menu
-        MenuItem browseDatabaseItem = new MenuItem("Browse Database");
-        MenuItem nextGameItem = new MenuItem("Next Game");
-        MenuItem previousGameItem = new MenuItem("Previous Game");
+        MenuItem itmBrowseDatabase = new MenuItem("Browse Database");
+        MenuItem itmNextGame = new MenuItem("Next Game");
+        MenuItem itmPreviousGame = new MenuItem("Previous Game");
 
-        databaseMenu.getItems().addAll(browseDatabaseItem, nextGameItem, previousGameItem);
+        mnuDatabase.getItems().addAll(itmBrowseDatabase, itmNextGame, itmPreviousGame);
 
         // Help Menu
-        MenuItem aboutItem = new MenuItem("About");
-        MenuItem jerryHomepageItem = new MenuItem("JerryFX - Homepage");
+        MenuItem itmAbout = new MenuItem("About");
+        MenuItem itmJerryHomepage = new MenuItem("JerryFX - Homepage");
 
-        helpMenu.getItems().addAll(aboutItem, jerryHomepageItem);
+        mnuHelp.getItems().addAll(itmAbout, itmJerryHomepage);
 
-        menuBar.getMenus().addAll(fileMenu, editMenu, modeMenu, databaseMenu, helpMenu);
+        mnuBar.getMenus().addAll(mnuFile, mnuEdit, mnuMode, mnuDatabase, mnuHelp);
 
         // TOOLBAR
-        ToolBar toolBar = new ToolBar();
+        ToolBar tbMainWindow = new ToolBar();
         Button btnNew = new Button("New");
-        Button btnOpen = new Button("Open");
-        Button btnSaveAs = new Button("Save As");
-        Button btnPrint = new Button("Print");
-        Button btnFlipBoard = new Button("Flip Board");
-        Button btnCopyGame = new Button("Copy Game");
-        Button btnCopyPosition = new Button("Copy Position");
-        Button btnPaste = new Button("Paste");
-        Button btnEnterPosition = new Button("Enter Position");
-        Button btnFullAnalysis = new Button("Full Analysis");
-        Button btnBrowseGames = new Button("Browse Games");
-        Button btnPrevGame = new Button("Prev. Game");
-        Button btnNextGame = new Button("Next Game");
-        Button btnAbout = new Button("About");
+        btnNew.setGraphic(new ImageView( new Image("icons/document-new.png")));
+        btnNew.setContentDisplay(ContentDisplay.TOP);
 
-        toolBar.getItems().addAll(btnNew, btnOpen, btnSaveAs, btnPrint, new Separator(),
+        Button btnOpen = new Button("Open");
+        btnOpen.setGraphic(new ImageView( new Image("icons/document-open.png")));
+        btnOpen.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnSaveAs = new Button("Save As");
+        btnSaveAs.setGraphic(new ImageView( new Image("icons/document-save.png")));
+        btnSaveAs.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnPrint = new Button("Print");
+        btnPrint.setGraphic(new ImageView( new Image("icons/document-print.png")));
+        btnPrint.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnFlipBoard = new Button("Flip Board");
+        btnFlipBoard.setGraphic(new ImageView( new Image("icons/view-refresh.png")));
+        btnFlipBoard.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnCopyGame = new Button("Copy Game");
+        btnCopyGame.setGraphic(new ImageView( new Image("icons/edit-copy-pgn.png")));
+        btnCopyGame.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnCopyPosition = new Button("Copy Position");
+        btnCopyPosition.setGraphic(new ImageView( new Image("icons/edit-copy-fen.png")));
+        btnCopyPosition.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnPaste = new Button("Paste");
+        btnPaste.setGraphic(new ImageView( new Image("icons/edit-paste.png")));
+        btnPaste.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnEnterPosition = new Button("Enter Position");
+        btnEnterPosition.setGraphic(new ImageView( new Image("icons/document-enter-position.png")));
+        btnEnterPosition.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnFullAnalysis = new Button("Full Analysis");
+        btnFullAnalysis.setGraphic(new ImageView( new Image("icons/emblem-system.png")));
+        btnFullAnalysis.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnBrowseGames = new Button("Browse Games");
+        btnBrowseGames.setGraphic(new ImageView( new Image("icons/database.png")));
+        btnBrowseGames.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnPrevGame = new Button("Prev. Game");
+        btnPrevGame.setGraphic(new ImageView( new Image("icons/go-previous.png")));
+        btnPrevGame.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnNextGame = new Button("Next Game");
+        btnNextGame.setGraphic(new ImageView( new Image("icons/go-next.png")));
+        btnNextGame.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnAbout = new Button("About");
+        btnAbout.setGraphic(new ImageView( new Image("icons/help-browser.png")));
+        btnAbout.setContentDisplay(ContentDisplay.TOP);
+
+        tbMainWindow.getItems().addAll(btnNew, btnOpen, btnSaveAs, btnPrint, new Separator(),
                 btnFlipBoard, new Separator(),
                 btnCopyGame, btnCopyPosition, btnPaste, btnEnterPosition, new Separator(),
                 btnFullAnalysis, new Separator(),
-                btnBrowseGames, btnPrevGame, btnNextGame, btnAbout);
+                btnBrowseGames, btnPrevGame, btnNextGame,  btnAbout);
 
 
-        // Label & Edit Button for Game Data
-        //Label gameDataLabel = new Label("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
-        //gameDataLabel.setMinHeight();
-        //gameDataLabel.setTextAlignment(TextAlignment.CENTER);
-        Text gameDataLabel = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
-        gameDataLabel.setTextAlignment(TextAlignment.CENTER);
-        Button btnEditGameData = new Button("e");
-        Region spacerGameDataLeft = new Region();
-        Region spacerGameDataRight = new Region();
+        // Text & Edit Button for Game Data
+        Text txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
+        txtGameData.setTextAlignment(TextAlignment.CENTER);
+        Button btnEditGameData = new Button();
+        btnEditGameData.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
+        Region spcrGameDataLeft = new Region();
+        Region spcrGameDataRight = new Region();
 
-        HBox hboxLabelGameData = new HBox();
-        hboxLabelGameData.getChildren().addAll(spacerGameDataLeft, gameDataLabel, spacerGameDataRight, btnEditGameData);
-        hboxLabelGameData.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
-        hboxLabelGameData.setHgrow(spacerGameDataRight, Priority.ALWAYS);
+        HBox hbGameData = new HBox();
+        hbGameData.getChildren().addAll(spcrGameDataLeft, txtGameData, spcrGameDataRight, btnEditGameData);
+        hbGameData.setHgrow(spcrGameDataLeft, Priority.ALWAYS);
+        hbGameData.setHgrow(spcrGameDataRight, Priority.ALWAYS);
 
         // Create a WebView
-        WebView moveView = new WebView();
-        moveView.resize(320,200);
-        moveView.setMinWidth(1);
-        moveView.setMaxWidth(Double.MAX_VALUE);
-        WebEngine webEngine = moveView.getEngine();
-        //webEngine.load("http://eclipse.com");
-        StackPane stackPane = new StackPane();
-        //stackPane.getChildren().add(moveView);
+        /*
+        WebView viewMoves = new WebView();
+        viewMoves.resize(320,200);
+        viewMoves.setMinWidth(1);
+        viewMoves.setMaxWidth(Double.MAX_VALUE);
+        viewMoves.setMaxHeight(Double.MAX_VALUE);
+         */
+        MoveView moveView = new MoveView(gameModel);
 
         // Navigation Buttons
-        Button btnMoveBegin = new Button("|<-");
-        Button btnMoveEnd = new Button("->|");
-        Button btnMovePrev = new Button("<-");
-        Button btnMoveNext = new Button("->");
+        Button btnMoveBegin = new Button();
+        btnMoveBegin.setGraphic(new ImageView( new Image("icons/ic_first_page_black.png")));
+        Button btnMoveEnd = new Button();
+        btnMoveEnd.setGraphic(new ImageView( new Image("icons/ic_last_page_black.png")));
+        Button btnMovePrev = new Button();
+        btnMovePrev.setGraphic(new ImageView( new Image("icons/ic_chevron_left_black.png")));
+        Button btnMoveNext = new Button();
+        btnMoveNext.setGraphic(new ImageView( new Image("icons/ic_chevron_right_black.png")));
 
-        HBox hboxGameNavigation = new HBox();
-        hboxGameNavigation.setAlignment(Pos.CENTER);
-        hboxGameNavigation.getChildren().addAll(btnMoveBegin, btnMovePrev, btnMoveNext, btnMoveEnd);
+        HBox hbGameNavigation = new HBox();
+        hbGameNavigation.setAlignment(Pos.CENTER);
+        hbGameNavigation.getChildren().addAll(btnMoveBegin, btnMovePrev, btnMoveNext, btnMoveEnd);
 
-        VBox vboxMainRight = new VBox();
-        vboxMainRight.getChildren().addAll(hboxLabelGameData, moveView, hboxGameNavigation);
-        //vboxMainRight.getChildren().addAll(moveView);
+        VBox vbGameDataMovesNavigation = new VBox();
+        vbGameDataMovesNavigation.getChildren().addAll(hbGameData, moveView.getWebView(), hbGameNavigation);
+        vbGameDataMovesNavigation.setVgrow(moveView.getWebView(), Priority.ALWAYS);
 
         // put together  Chessboard | Game Navigation
-        Chessboard chessboard = new Chessboard();
+        Chessboard chessboard = new Chessboard(gameModel);
         chessboard.resize(640,480);
         chessboard.updateCanvas();
 
-        //HBox hboxMainLeftRight = new HBox();
-        SplitPane hboxMainLeftRight = new SplitPane();
-        hboxMainLeftRight.getItems().addAll(chessboard, vboxMainRight);
-        hboxMainLeftRight.setDividerPosition(0, 0.5);
-        //ddAll(chessboard, vboxMainRight);
-        //hboxMainLeftRight.setHgrow(chessboard, Priority.ALWAYS);
-        //hboxMainLeftRight.setHgrow(vboxMainRight, Priority.ALWAYS);
+        SplitPane spChessboardMoves = new SplitPane();
+        spChessboardMoves.getItems().addAll(chessboard, vbGameDataMovesNavigation);
+        spChessboardMoves.setDividerPosition(0, 0.5);
+        spChessboardMoves.setMaxHeight(Double.MAX_VALUE);
 
+        // Buttons for Engine On/Off and TextFlow for Engine Output
+        ToggleButton tglEngineOnOff = new ToggleButton("On");
+        Label lblMultiPV = new Label("Lines:");
+        ComboBox cmbMultiPV = new ComboBox();
+        Button btnSelectEngine = new Button();
+        btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
+        HBox hbEngineControl = new HBox();
+        Region spcrEngineControl = new Region();
+        hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
+                cmbMultiPV, spcrEngineControl, btnSelectEngine);
+        hbEngineControl.setAlignment(Pos.CENTER);
+        hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
+        hbEngineControl.setHgrow(spcrEngineControl, Priority.ALWAYS);
+        TextFlow txtEngineOut = new TextFlow();
+        txtEngineOut.getChildren().add(new Text("Foo"));
+        VBox vbBottom = new VBox();
+        vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
 
-        //MenuItem copyItem = new MenuItem("Copy");
-        //MenuItem pasteItem = new MenuItem("Paste");
+        // put everything excl. the bottom Engine part into one VBox        
+        VBox vbMainUpperPart = new VBox();
+        vbMainUpperPart.getChildren().addAll(mnuBar, tbMainWindow, spChessboardMoves);
+        vbMainUpperPart.setVgrow(spChessboardMoves, Priority.ALWAYS);
 
-        // Add menuItems to the Menus
-        //fileMenu.getItems().addAll(newItem, openFileItem, exitItem);
-        //editMenu.getItems().addAll(copyItem, pasteItem);
+        // add another split pane for main window part and engine output
+        SplitPane spMain = new SplitPane();
+        spMain.setOrientation(Orientation.VERTICAL);
+        spMain.getItems().addAll(vbMainUpperPart, vbBottom);
+        spMain.setDividerPosition(0, 0.8);
 
-        // Add Menus to the MenuBar
+        // events
+        gameModel.addListener(chessboard);
+        gameModel.addListener(moveView);
 
+        btnMoveNext.setOnAction(event -> moveView.goForward());
+        btnMoveBegin.setOnAction(event -> moveView.seekToRoot());
+        btnMovePrev.setOnAction(event -> moveView.goBack());
+        btnMoveEnd.setOnAction(event -> moveView.seekToEnd());
 
+        PgnReader reader = new PgnReader();
+        try {
+            OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile("C:\\Users\\user\\MyFiles\\workspace\\test_databases\\middleg.pgn", "r");
+            raf.seek(0);
+            Game g = reader.readGame(raf);
+            gameModel.game = g;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        Scene scene = new Scene(spMain, 640, 480);
+        //chessboard.updateCanvas();
 
-        Canvas canvas = new Canvas(300, 250);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawShapes(gc);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
+            System.out.println("Key pressed");
+            if (event.getCode() == KeyCode.RIGHT) {
+                moveView.goForward();
+            }
+            if (event.getCode() == KeyCode.LEFT) {
+                moveView.goBack();
+            }
+            if (event.getCode() == KeyCode.HOME) {
+                moveView.seekToRoot();
+            }
+            if (event.getCode() == KeyCode.END) {
+                moveView.seekToEnd();
+            }
+            event.consume();
+        });
 
-        VBox vboxMain = new VBox();
-        vboxMain.getChildren().addAll(menuBar, toolBar, hboxMainLeftRight);
-
-        //vboxMain.setFillWidth(true);
-        //vboxMain.getChildren().addAll(chessboard);
-        //vboxMain.setVgrow(chessboard, Priority.ALWAYS);
-
-        var scene = new Scene(vboxMain, 640, 480);
-        chessboard.updateCanvas();
+        JMetro jMetro = new JMetro();
+        jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();
+
     }
 
-    private void drawShapes(GraphicsContext gc) {
-        gc.setFill(Color.GREEN);
-        gc.setStroke(Color.BLUE);
-        gc.setLineWidth(5);
-        gc.strokeLine(40, 10, 10, 40);
-        gc.fillOval(10, 60, 30, 30);
-        gc.strokeOval(60, 60, 30, 30);
-        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
-        gc.strokeRoundRect(160, 60, 30, 30, 10, 10);
-        gc.fillArc(10, 110, 30, 30, 45, 240, ArcType.OPEN);
-        gc.fillArc(60, 110, 30, 30, 45, 240, ArcType.CHORD);
-        gc.fillArc(110, 110, 30, 30, 45, 240, ArcType.ROUND);
-        gc.strokeArc(10, 160, 30, 30, 45, 240, ArcType.OPEN);
-        gc.strokeArc(60, 160, 30, 30, 45, 240, ArcType.CHORD);
-        gc.strokeArc(110, 160, 30, 30, 45, 240, ArcType.ROUND);
-        gc.fillPolygon(new double[]{10, 40, 10, 40},
-                new double[]{210, 210, 240, 240}, 4);
-        gc.strokePolygon(new double[]{60, 90, 60, 90},
-                new double[]{210, 210, 240, 240}, 4);
-        gc.strokePolyline(new double[]{110, 140, 110, 140},
-                new double[]{210, 210, 240, 240}, 4);
-    }
 
     public static void main(String[] args) {
         launch();
