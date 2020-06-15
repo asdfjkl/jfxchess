@@ -1,0 +1,13 @@
+a:link, a:visited, a:hover, a:active {
+  text-decoration: none;
+  color: black;
+}
+
+.current {
+  color: White !important;
+  background-color: LightSlateGray;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
