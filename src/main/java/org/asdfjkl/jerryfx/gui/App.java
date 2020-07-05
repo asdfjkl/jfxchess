@@ -4,6 +4,10 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -44,17 +48,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * JavaFX App
  */
-public class App extends Application {
+public class App extends Application implements StateChangeListener {
+
+    Text txtGameData;
+    GameModel gameModel;
 
     @Override
     public void start(Stage stage) {
 
 
-        GameModel gameModel = new GameModel();
+        gameModel = new GameModel();
         gameModel.getGame().setTreeWasChanged(true);
 
 
@@ -195,7 +205,8 @@ public class App extends Application {
 
 
         // Text & Edit Button for Game Data
-        Text txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
+        //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
+        txtGameData = new Text("");
         txtGameData.setTextAlignment(TextAlignment.CENTER);
         Button btnEditGameData = new Button();
         btnEditGameData.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
@@ -246,9 +257,11 @@ public class App extends Application {
         spChessboardMoves.setMaxHeight(Double.MAX_VALUE);
 
         // Buttons for Engine On/Off and TextFlow for Engine Output
-        ToggleButton tglEngineOnOff = new ToggleButton("On");
+        ToggleButton tglEngineOnOff = new ToggleButton("Off");
         Label lblMultiPV = new Label("Lines:");
         ComboBox cmbMultiPV = new ComboBox();
+        cmbMultiPV.getItems().addAll(1,2,3,4);
+        cmbMultiPV.setValue(1);
         Button btnSelectEngine = new Button();
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
@@ -259,7 +272,7 @@ public class App extends Application {
         hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
         hbEngineControl.setHgrow(spcrEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
-        txtEngineOut.getChildren().add(new Text("Foo"));
+        txtEngineOut.setPadding(new Insets(10,10,10,10));
         VBox vbBottom = new VBox();
         vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
 
@@ -274,15 +287,84 @@ public class App extends Application {
         spMain.getItems().addAll(vbMainUpperPart, vbBottom);
         spMain.setDividerPosition(0, 0.8);
 
+        GameMenuController gameMenuController = new GameMenuController(gameModel);
+
         // events
         gameModel.addListener(chessboard);
         gameModel.addListener(moveView);
+        gameModel.addListener(this);
+
+        itmOpenFile.setOnAction(actionEvent -> { gameMenuController.handleOpenGame(); } );
+        btnOpen.setOnAction(actionEvent -> { gameMenuController.handleOpenGame(); } );
+
+        itmSavePositionAsImage.setOnAction(actionEvent -> { gameMenuController.handleSaveBoardPicture(chessboard);});
 
         btnMoveNext.setOnAction(event -> moveView.goForward());
         btnMoveBegin.setOnAction(event -> moveView.seekToRoot());
         btnMovePrev.setOnAction(event -> moveView.goBack());
         btnMoveEnd.setOnAction(event -> moveView.seekToEnd());
 
+        // connect mode controller
+        EngineOutputView engineOutputView = new EngineOutputView(txtEngineOut);
+        ModeMenuController modeMenuController = new ModeMenuController(gameModel, engineOutputView);
+        EngineController engineController = new EngineController(modeMenuController);
+        modeMenuController.setEngineController(engineController);
+
+
+        gameModel.addListener(modeMenuController);
+        modeMenuController.activateEnterMovesMode();
+
+        itmAnalysis.setOnAction(actionEvent -> {
+            if(itmAnalysis.isSelected()) {
+                if(gameModel.getMode() != GameModel.MODE_ANALYSIS) {
+                    //System.out.println("isselected");
+                    itmAnalysis.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activateAnalysisMode();
+                }
+            } else {
+                //System.out.println("not selected");
+                /*
+                itmEnterMoves.setSelected(true);
+                tglEngineOnOff.setSelected(false);
+                tglEngineOnOff.setText("Off");
+                modeMenuController.activateEnterMovesMode();
+
+                 */
+            }
+        });
+
+        itmEnterMoves.setOnAction(actionEvent -> {
+            tglEngineOnOff.setSelected(false);
+            tglEngineOnOff.setText("Off");
+            modeMenuController.activateEnterMovesMode();
+        });
+
+        tglEngineOnOff.setOnAction(actionEvent -> {
+            if(tglEngineOnOff.isSelected()) {
+                itmAnalysis.setSelected(true);
+                tglEngineOnOff.setText("On");
+                modeMenuController.activateAnalysisMode();
+            } else {
+                itmEnterMoves.setSelected(true);
+                tglEngineOnOff.setText("Off");
+                modeMenuController.activateEnterMovesMode();
+            }
+        });
+
+        cmbMultiPV.setOnAction(actionEvent -> {
+            int multiPv = (Integer) cmbMultiPV.getValue();
+            if(multiPv != gameModel.getMultiPv()) {
+                gameModel.setMultiPv(multiPv);
+                engineController.sendCommand("setoption name MultiPV value "+multiPv);
+                gameModel.triggerStateChange();
+            }
+        });
+
+
+
+        /*
         PgnReader reader = new PgnReader();
         try {
             OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile("C:\\Users\\user\\MyFiles\\workspace\\test_databases\\middleg.pgn", "r");
@@ -293,7 +375,7 @@ public class App extends Application {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         Scene scene = new Scene(spMain, 640, 480);
         //chessboard.updateCanvas();
@@ -320,6 +402,24 @@ public class App extends Application {
 
         stage.setScene(scene);
         stage.show();
+
+    }
+
+    @Override
+    public void stateChange() {
+
+        System.out.println("STATE CHANGE in MAIN");
+        if(gameModel.getGame().isTreeChanged()) {
+            //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
+            String white = gameModel.getGame().getHeader("White");
+            String black = gameModel.getGame().getHeader("Black");
+            String site = gameModel.getGame().getHeader("Site");
+            String date = gameModel.getGame().getHeader("Date");
+
+            String label = white + " - " + black + "\n" + site + ", " + date;
+            System.out.println("label: "+label);
+            txtGameData.setText(label);
+        }
 
     }
 
