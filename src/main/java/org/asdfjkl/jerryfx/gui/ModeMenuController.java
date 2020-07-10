@@ -1,5 +1,9 @@
 package org.asdfjkl.jerryfx.gui;
 
+import org.asdfjkl.jerryfx.lib.Board;
+import org.asdfjkl.jerryfx.lib.CONSTANTS;
+import org.asdfjkl.jerryfx.lib.Move;
+
 public class ModeMenuController implements StateChangeListener {
 
     GameModel gameModel;
@@ -14,7 +18,16 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
-        this.engineOutputView.setText(s);
+        if(s.startsWith("INFO")) {
+            this.engineOutputView.setText(s.substring(5));
+        }
+        if(s.startsWith("BESTMOVE")) {
+
+            System.out.println("got bestmove: "+s.substring(9));
+            System.out.println("got bestmove uci: "+s.substring(9).split(" ")[0]);
+            String uciMove = s.substring(9).split(" ")[0];
+            handleBestMove(uciMove);
+        }
     }
 
     public void setEngineController(EngineController engineController) {
@@ -24,6 +37,7 @@ public class ModeMenuController implements StateChangeListener {
     public void activateAnalysisMode() {
 
         // first change gamestate and reset engine
+        engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdStockfish = "C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe";
         engineController.sendCommand("start "+cmdStockfish);
@@ -46,7 +60,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateEnterMovesMode() {
-
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
@@ -60,13 +73,102 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("go infinite");
     }
 
+    public void activatePlayWhiteMode() {
+        // first change gamestate and reset engine
+        engineController.sendCommand("stop");
+        engineController.sendCommand("quit");
+        String cmdStockfish = "C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe";
+        engineController.sendCommand("start "+cmdStockfish);
+        engineController.sendCommand("ucinewgame");
+        engineController.sendCommand("uci");
+        // todo: send engine options, esp. strength
+        // trigger statechange
+        gameModel.setMode(GameModel.MODE_PLAY_WHITE);
+        gameModel.setFlipBoard(false);
+        gameModel.setHumanPlayerColor(CONSTANTS.WHITE);
+        gameModel.triggerStateChange();
+    }
+
+    public void activatePlayBlackMode() {
+        // first change gamestate and reset engine
+        engineController.sendCommand("stop");
+        engineController.sendCommand("quit");
+        String cmdStockfish = "C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe";
+        engineController.sendCommand("start "+cmdStockfish);
+        engineController.sendCommand("ucinewgame");
+        engineController.sendCommand("uci");
+        // todo: send engine options, esp. strength
+        // trigger statechange
+        gameModel.setMode(GameModel.MODE_PLAY_BLACK);
+        gameModel.setFlipBoard(true);
+        gameModel.setHumanPlayerColor(CONSTANTS.BLACK);
+        gameModel.triggerStateChange();
+    }
+
+    public void handleStateChangePlayWhiteOrBlack() {
+        // todo:
+        // first check if we can apply a bookmove
+        /*
+        chess::GameNode *current = this->gameModel->getGame()->getCurrentNode();
+        bool usedBook = false;
+        QString uci = QString("");
+        if(this->gameModel->canAndMayUseBook(current)) {
+            QVector<chess::Move> mvs = this->gameModel->getBookMoves(current);
+            if(mvs.size() > 0) {
+                int sel = (rand() % (int)(mvs.size()));
+                chess::Move mi = mvs.at(sel);
+                uci = mi.uci();
+                usedBook = true;
+            }
+        }
+        if(!usedBook) {
+            QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
+            this->uci_controller->uciSendFen(fen);
+            QString position = QString("position fen ").append(fen);
+            this->uci_controller->uciSendPosition(position);
+            this->uci_controller->uciGoMovetime(this->gameModel->engineThinkTimeMs);
+        } else {
+            this->onBestMove(uci);
+        }*/
+
+        String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        System.out.println("sending fen "+fen);
+        engineController.sendCommand("stop");
+        engineController.sendCommand("position fen "+fen);
+        engineController.sendCommand("go movetime "+gameModel.getComputerThinkTimeMs());
+    }
+
+    public void handleBestMove(String bestmove) {
+        int mode = gameModel.getMode();
+        if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK) {
+            // todo: catch Exceptions!
+            String uci = bestmove;
+            Move m = new Move(uci);
+            Board b = gameModel.getGame().getCurrentNode().getBoard();
+            if (b.isLegal(m)) {
+                gameModel.getGame().applyMove(m);
+                gameModel.triggerStateChange();
+            }
+        }
+    }
+
     @Override
     public void stateChange() {
-        if(gameModel.getMode() == GameModel.MODE_ANALYSIS) {
+        int mode = gameModel.getMode();
+        boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
+
+        System.out.println("mode: "+mode);
+        System.out.println("turn: "+(turn == gameModel.getHumanPlayerColor()));
+
+        if(mode == GameModel.MODE_ANALYSIS) {
             handleStateChangeAnalysis();
         }
-
-        //
+        if((mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK)
+            && turn != gameModel.getHumanPlayerColor()) {
+            System.out.println("handle state change black or white");
+            handleStateChangePlayWhiteOrBlack();
+        }
+        // todo: playout pos. game analysis, checkmate, three-fold repitition, stalemate, 50-move rule
     }
 
 }

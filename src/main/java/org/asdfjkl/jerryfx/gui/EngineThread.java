@@ -66,8 +66,13 @@ public class EngineThread extends Thread {
                         } else {
                             //System.out.println(line);
                             if (!line.isEmpty()) {
+                                System.out.println("ENGINE: " + line);
                                 //lastString = line;
-                                engineInfo.update(line);
+                                if(line.startsWith("bestmove")) {
+                                    stringProperty.set("BESTMOVE " + line.substring(9));
+                                } else {
+                                    engineInfo.update(line);
+                                }
                                 //System.out.println(lastString);
                             }
                         }
@@ -85,7 +90,7 @@ public class EngineThread extends Thread {
             if((currentMs - lastUpdate) > 100) {
                 //stringProperty.set(lastString);
                 //System.out.println(lastString);
-                stringProperty.set(engineInfo.toString());
+                stringProperty.set("INFO " + engineInfo.toString());
                 lastUpdate = currentMs;
             }
 
@@ -95,7 +100,7 @@ public class EngineThread extends Thread {
                         String cmd = (String) cmdQueue.take();
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
-                            System.out.println(engineCmd);
+                            //System.out.println(engineCmd);
                             try {
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
@@ -143,6 +148,8 @@ public class EngineThread extends Thread {
                             try {
                                 String cmd = (String) cmdQueue.take();
 
+                                System.out.println("THREAD CMD: "+cmd);
+
                                 // if the command is "position fen moves", first count the
                                 // numbers of moves so far to generate move numbers in engine info
                                 // todo: needed???
@@ -183,6 +190,11 @@ public class EngineThread extends Thread {
                                 try {
                                     this.engineInput.write(cmd + "\n");
                                     this.engineInput.flush();
+                                    // if we quit the engine, give some
+                                    // time for the engine to quit
+                                    if(cmd.contains("quit")) {
+                                        Thread.sleep(500);
+                                    }
                                     continue;
                                 } catch (IOException e) {
                                     e.printStackTrace();

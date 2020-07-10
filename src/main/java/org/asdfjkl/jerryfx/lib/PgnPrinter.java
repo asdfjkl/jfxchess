@@ -188,7 +188,7 @@ public class PgnPrinter {
         }
     }
 
-    String printGame(Game g) {
+    public String printGame(Game g) {
 
         this.reset();
 

@@ -190,7 +190,7 @@ public class EngineInfo {
                     try {
                         Move mi = new Move(moveUci);
                         String san = b.san(mi);
-                        System.out.println("SAN: " + san);
+                        //System.out.println("SAN: " + san);
                         if (whiteMoves) {
                             pvSan.set(multiPvIndex, pvSan.get(multiPvIndex) + " " + moveNo + ". " + san);
                         } else {

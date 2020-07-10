@@ -90,6 +90,14 @@ public class Game {
         return tags;
     }
 
+    public HashMap<String,String> getPgnHeaders() {
+        return pgnHeaders;
+    }
+
+    public void setPgnHeaders(HashMap<String,String> pgnHeaders) {
+        this.pgnHeaders = pgnHeaders;
+    }
+
     public GameNode getRootNode() {
         return this.root;
     }
@@ -128,7 +136,7 @@ public class Game {
             GameNode current = this.getCurrentNode();
             Board bCurrent = current.getBoard();
             Board bChild = bCurrent.makeCopy();
-            bChild.apply(m);;
+            bChild.apply(m);
             GameNode newCurrent = new GameNode();
             newCurrent.setBoard(bChild);
             newCurrent.setMove(m);

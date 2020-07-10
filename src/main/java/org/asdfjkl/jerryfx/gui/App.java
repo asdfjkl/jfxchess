@@ -3,6 +3,7 @@ package org.asdfjkl.jerryfx.gui;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import com.sun.javafx.application.HostServicesDelegate;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -37,6 +38,7 @@ import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.SystemInfo;
+import org.asdfjkl.jerryfx.lib.CONSTANTS;
 import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
 import org.asdfjkl.jerryfx.lib.PgnReader;
@@ -48,6 +50,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -82,7 +85,7 @@ public class App extends Application implements StateChangeListener {
         MenuItem itmOpenFile = new MenuItem("Open File");
         MenuItem itmSaveCurrentGameAs = new MenuItem("Save Current Game As");
         MenuItem itmPrintGame = new MenuItem("Print Game");
-        MenuItem itmPrintPosition = new MenuItem("Print Game");
+        MenuItem itmPrintPosition = new MenuItem("Print Position");
         MenuItem itmSavePositionAsImage = new MenuItem("Save Position As Image");
         MenuItem itmQuit = new MenuItem("Quit");
 
@@ -275,6 +278,7 @@ public class App extends Application implements StateChangeListener {
         txtEngineOut.setPadding(new Insets(10,10,10,10));
         VBox vbBottom = new VBox();
         vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
+        vbBottom.setMinHeight(10);
 
         // put everything excl. the bottom Engine part into one VBox        
         VBox vbMainUpperPart = new VBox();
@@ -285,7 +289,7 @@ public class App extends Application implements StateChangeListener {
         SplitPane spMain = new SplitPane();
         spMain.setOrientation(Orientation.VERTICAL);
         spMain.getItems().addAll(vbMainUpperPart, vbBottom);
-        spMain.setDividerPosition(0, 0.8);
+        spMain.setDividerPosition(0, 0.85);
 
         GameMenuController gameMenuController = new GameMenuController(gameModel);
 
@@ -313,6 +317,40 @@ public class App extends Application implements StateChangeListener {
 
         gameModel.addListener(modeMenuController);
         modeMenuController.activateEnterMovesMode();
+
+        itmSaveCurrentGameAs.setOnAction(e -> {
+           gameMenuController.handleSaveCurrentGame();
+        });
+
+        itmPrintGame.setOnAction(actionEvent -> {
+            gameMenuController.handlePrintGame(stage);
+        });
+
+        itmPrintPosition.setOnAction(actionEvent -> {
+            gameMenuController.handlePrintPosition(stage);
+        });
+
+        itmPlayAsWhite.setOnAction(actionEvent -> {
+            if(itmPlayAsWhite.isSelected()) {
+                if(gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
+                    itmPlayAsWhite.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activatePlayWhiteMode();
+                }
+            }
+        });
+
+        itmPlayAsBlack.setOnAction(actionEvent -> {
+            if(itmPlayAsBlack.isSelected()) {
+                if(gameModel.getMode() != GameModel.MODE_PLAY_BLACK) {
+                    itmPlayAsBlack.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activatePlayBlackMode();
+                }
+            }
+        });
 
         itmAnalysis.setOnAction(actionEvent -> {
             if(itmAnalysis.isSelected()) {
@@ -362,6 +400,38 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        itmQuit.setOnAction(event -> {
+            onExit(stage);
+        });
+
+        itmEditGame.setOnAction(e -> {
+            DialogEditGameData dlg = new DialogEditGameData();
+            boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(), gameModel.getGame().getResult());
+            if(accteped) {
+                System.out.println("dialog accepted");
+                for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    System.out.println("key value "+key + value);
+                    gameModel.getGame().setHeader(key, value);
+                }
+                gameModel.getGame().setResult(dlg.gameResult);
+                gameModel.triggerStateChange();
+            }
+        });
+
+        itmAbout.setOnAction(event -> {
+            DialogAbout.show();
+        });
+
+        itmJerryHomepage.setOnAction(event -> {
+            getHostServices().showDocument("https://github.com/asdfjkl/jerry");
+        });
+
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            onExit(stage);
+        });
 
 
         /*
@@ -426,6 +496,13 @@ public class App extends Application implements StateChangeListener {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private void onExit(Stage stage) {
+
+        System.out.println("handling exit request");
+        //todo: save settings here
+        stage.close();
     }
 
 }

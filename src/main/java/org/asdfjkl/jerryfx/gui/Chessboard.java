@@ -341,6 +341,10 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     @Override
     public void stateChange() {
+
+        if(gameModel.getFlipBoard() != flipBoard) {
+            flipBoard = gameModel.getFlipBoard();
+        }
         updateCanvas();
     }
 
