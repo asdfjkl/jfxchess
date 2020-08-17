@@ -400,6 +400,11 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        itmNew.setOnAction(e -> {
+            DialogNewGame dlg = new DialogNewGame();
+            boolean accepted = dlg.show();
+        });
+
         itmQuit.setOnAction(event -> {
             onExit(stage);
         });
