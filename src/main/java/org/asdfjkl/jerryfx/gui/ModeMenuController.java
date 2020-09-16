@@ -267,9 +267,6 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.lastSeenBestmove = bestmove;
             // todo: catch Exceptions!
             String uci = bestmoveItems[1].split(" ")[0];
-            //System.out.println(bestmoveItems[1]);
-            //String uci = "foo";
-            //System.out.println("resulting uci: "+uci);
             Move m = new Move(uci);
             Board b = gameModel.getGame().getCurrentNode().getBoard();
             if (b.isLegal(m)) {
