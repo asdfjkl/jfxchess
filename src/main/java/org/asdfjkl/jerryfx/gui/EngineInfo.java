@@ -78,7 +78,6 @@ public class EngineInfo {
         if(!fen.isEmpty()) {
             Board board = new Board(fen);
             this.turn = board.turn;
-            System.out.println("FEN TURN BLACK: "+(this.turn == CONSTANTS.BLACK));
             this.fen = fen;
             this.halfmoves = board.halfmoveClock;
             this.fullMoveNumber = board.fullmoveNumber;
@@ -98,14 +97,11 @@ public class EngineInfo {
             Matcher matchPVIdx = MULTIPV.matcher(line);
             if(matchPVIdx.find()) {
                 String sMultiPV = matchPVIdx.group();
-                //System.out.println("matches multipv: "+line);
-                //System.out.println("matches multipv: "+sMultiPV);
                 multiPv = Integer.parseInt(sMultiPV.substring(8)) - 1;
             }
 
             // update score value. need to be careful about
             // - vs +, since engine reports always positive values
-            //System.out.println(line);
             Matcher matchScoreCP = SCORECP.matcher(line);
             if (matchScoreCP.find()) {
                 String sScore = matchScoreCP.group();
@@ -127,9 +123,7 @@ public class EngineInfo {
             Matcher matchSelDepth = SELDEPTH.matcher(line);
             if(matchSelDepth.find()) {
                 String sSelDepth = matchSelDepth.group();
-                //System.out.println("seldepth: "+sSelDepth.substring(9));
                 selDepth = Integer.parseInt(sSelDepth.substring(9));
-                //System.out.println("seldepth: "+selDepth);
             }
 
             Matcher matchDepth = DEPTH.matcher(line);
@@ -141,14 +135,14 @@ public class EngineInfo {
             Matcher matchMate = MATE.matcher(line);
             if(matchMate.find()) {
                 String sMate = matchMate.group();
-                mate.set(multiPv, Math.abs(Integer.parseInt(sMate.substring(11))));
+                //System.out.println("sMate Match: "+sMate);
+                mate.set(multiPv, Integer.parseInt(sMate.substring(11)));
                 seesMate.set(multiPv, true);
             }
 
             Matcher matchCurrMove = CURRMOVE.matcher(line);
             if(matchCurrMove.find()) {
                 String sCurrMove = matchCurrMove.group();
-                //System.out.println(sCurrMove.substring(9)+":");
                 currentMove = sCurrMove.substring(9);
             }
 
@@ -156,9 +150,6 @@ public class EngineInfo {
             if(matchPV.find()) {
                 String sMoves = matchPV.group().substring(3);
                 pvList = new ArrayList<>(Arrays.asList(sMoves.split(" ")));
-                //for(String ucimove : pvList) {
-                //    System.out.println(ucimove);
-                //}
                 updateSan(multiPv);
             }
 
@@ -171,18 +162,12 @@ public class EngineInfo {
 
     private void updateSan(int multiPvIndex) {
 
-        //System.out.println("size>0"+(pvList.size()>0));
-        //System.out.println("fen empty"+(fen.isEmpty()));
-
         if (pvList.size() > 0 && !fen.isEmpty()) {
             pvSan.set(multiPvIndex, "");
             Board b = new Board(fen);
-            System.out.println("B TURN BLACK: "+ (b.turn == CONSTANTS.BLACK));
-            System.out.println("TURN BLACK: "+ (turn == CONSTANTS.BLACK));
             boolean whiteMoves = true;
             int moveNo = fullMoveNumber;
             if (turn == CONSTANTS.BLACK) {
-                System.out.println("black moveS!!!");
                 whiteMoves = false;
                 pvSan.set(multiPvIndex, pvSan.get(multiPvIndex) + moveNo + ". ...");
             }
@@ -190,7 +175,6 @@ public class EngineInfo {
                     try {
                         Move mi = new Move(moveUci);
                         String san = b.san(mi);
-                        //System.out.println("SAN: " + san);
                         if (whiteMoves) {
                             pvSan.set(multiPvIndex, pvSan.get(multiPvIndex) + " " + moveNo + ". " + san);
                         } else {
@@ -219,7 +203,7 @@ public class EngineInfo {
                 if(id.contains("Stockfish") && strength == 20) {
                     outStr.append(" (Level MAX)");
                 } else {
-                    outStr.append(" (Level ").append(strength);
+                    outStr.append(" (Level ").append(strength).append(")");
                 }
             } else {
                 outStr.append(id);

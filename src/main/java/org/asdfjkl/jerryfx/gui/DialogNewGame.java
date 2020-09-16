@@ -50,7 +50,11 @@ public class DialogNewGame {
     int thinkTime = 3;
     int strength = 20;
 
-    public boolean show() {
+    public boolean show(boolean isInternalEngine, int currEngineStrength, int currThinkTime) {
+
+        strength = currEngineStrength;
+        //thinkTime = currThinkTime;
+        System.out.println("dlg: setting thinktime: "+thinkTime);
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -76,6 +80,9 @@ public class DialogNewGame {
 
         rbWhite.setToggleGroup(radioGroupSide);
         rbBlack.setToggleGroup(radioGroupSide);
+
+        rbEnterMoves.setSelected(true);
+        rbWhite.setSelected(true);
 
         HBox hbGame = new HBox(rbEnterMoves, rbComputer);
         hbGame.setSpacing(10);
@@ -105,9 +112,12 @@ public class DialogNewGame {
                     txtStrength.setText("Level "+Integer.toString(strength));
                 })
         );
-        sliderStrength.setValue(strength);
+        sliderStrength.setValue(20);
+        sliderStrength.setValue(currEngineStrength);
         sliderStrength.setStyle("-show-value-on-interaction: false;");
-        //sliderStrength.setDisable(true);
+        if(!isInternalEngine) {
+            sliderStrength.setDisable(true);
+        }
 
         sliderThinkTime.setMin(1);
         sliderThinkTime.setMax(7);
@@ -152,8 +162,24 @@ public class DialogNewGame {
                 })
         );
 
-        sliderThinkTime.setValue(thinkTime);
         sliderThinkTime.setStyle("-show-value-on-interaction: false;");
+        System.out.println("dlg: setting thinktime: "+currThinkTime);
+        if(currThinkTime <= 3) {
+            sliderThinkTime.setValue(3);
+            sliderThinkTime.setValue(currThinkTime);
+        }
+        if(currThinkTime == 5) {
+            sliderThinkTime.setValue(4);
+        }
+        if(currThinkTime == 10) {
+            sliderThinkTime.setValue(5);
+        }
+        if(currThinkTime == 15) {
+            sliderThinkTime.setValue(6);
+        }
+        if(currThinkTime == 30) {
+            sliderThinkTime.setValue(7);
+        }
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(

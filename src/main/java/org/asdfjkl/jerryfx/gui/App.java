@@ -23,6 +23,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -38,10 +39,7 @@ import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.SystemInfo;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
-import org.asdfjkl.jerryfx.lib.PgnReader;
+import org.asdfjkl.jerryfx.lib.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -63,9 +61,14 @@ public class App extends Application implements StateChangeListener {
     Text txtGameData;
     GameModel gameModel;
 
+    ToggleButton tglEngineOnOff;
+
     @Override
     public void start(Stage stage) {
 
+        //TestCases tests = new TestCases();
+        //tests.testPolyglot();
+        //tests.readGamesByStringTest();
 
         gameModel = new GameModel();
         gameModel.getGame().setTreeWasChanged(true);
@@ -260,9 +263,9 @@ public class App extends Application implements StateChangeListener {
         spChessboardMoves.setMaxHeight(Double.MAX_VALUE);
 
         // Buttons for Engine On/Off and TextFlow for Engine Output
-        ToggleButton tglEngineOnOff = new ToggleButton("Off");
+        tglEngineOnOff = new ToggleButton("Off");
         Label lblMultiPV = new Label("Lines:");
-        ComboBox cmbMultiPV = new ComboBox();
+        ComboBox<Integer> cmbMultiPV = new ComboBox<Integer>();
         cmbMultiPV.getItems().addAll(1,2,3,4);
         cmbMultiPV.setValue(1);
         Button btnSelectEngine = new Button();
@@ -314,6 +317,7 @@ public class App extends Application implements StateChangeListener {
         EngineController engineController = new EngineController(modeMenuController);
         modeMenuController.setEngineController(engineController);
 
+        EditMenuController editMenuController = new EditMenuController(gameModel);
 
         gameModel.addListener(modeMenuController);
         modeMenuController.activateEnterMovesMode();
@@ -355,14 +359,12 @@ public class App extends Application implements StateChangeListener {
         itmAnalysis.setOnAction(actionEvent -> {
             if(itmAnalysis.isSelected()) {
                 if(gameModel.getMode() != GameModel.MODE_ANALYSIS) {
-                    //System.out.println("isselected");
                     itmAnalysis.setSelected(true);
                     tglEngineOnOff.setSelected(true);
                     tglEngineOnOff.setText("On");
                     modeMenuController.activateAnalysisMode();
                 }
             } else {
-                //System.out.println("not selected");
                 /*
                 itmEnterMoves.setSelected(true);
                 tglEngineOnOff.setSelected(false);
@@ -377,6 +379,30 @@ public class App extends Application implements StateChangeListener {
             tglEngineOnOff.setSelected(false);
             tglEngineOnOff.setText("Off");
             modeMenuController.activateEnterMovesMode();
+        });
+
+        itmFullGameAnalysis.setOnAction(actionEvent -> {
+            DialogGameAnalysis dlg = new DialogGameAnalysis();
+            boolean accepted = dlg.show(3, 0.5);
+            if(accepted) {
+                itmEnterMoves.setSelected(true);
+                tglEngineOnOff.setSelected(true);
+                tglEngineOnOff.setText("On");
+
+                if(dlg.rbBoth.isSelected()) {
+                    gameModel.setGameAnalysisForPlayer(GameModel.BOTH_PLAYERS);
+                }
+                if(dlg.rbWhite.isSelected()) {
+                    gameModel.setGameAnalysisForPlayer(CONSTANTS.IWHITE);
+                }
+                if(dlg.rbBlack.isSelected()) {
+                    gameModel.setGameAnalysisForPlayer(CONSTANTS.IBLACK);
+                }
+                gameModel.setGameAnalysisThinkTime(dlg.sSecs.getValue());
+                gameModel.setGameAnalysisThreshold((int) (dlg.sPawnThreshold.getValue()*100.0));
+                gameModel.setMode(GameModel.MODE_GAME_ANALYSIS);
+                modeMenuController.activateGameAnalysisMode();
+            }
         });
 
         tglEngineOnOff.setOnAction(actionEvent -> {
@@ -402,7 +428,32 @@ public class App extends Application implements StateChangeListener {
 
         itmNew.setOnAction(e -> {
             DialogNewGame dlg = new DialogNewGame();
-            boolean accepted = dlg.show();
+            boolean accepted = dlg.show(gameModel.activeEngine.isInternal(),
+                    gameModel.getEngineStrength(),
+                    gameModel.getComputerThinkTimeSecs());
+            if(accepted) {
+                gameModel.wasSaved = false;
+                gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
+                gameModel.setEngineStrength(dlg.strength);
+                Game g = new Game();
+                g.getRootNode().setBoard(new Board(true));
+                gameModel.setGame(g);
+                gameModel.getGame().setTreeWasChanged(true);
+                if(dlg.rbWhite.isSelected()) {
+                    gameModel.setFlipBoard(false);
+                } else {
+                    gameModel.setFlipBoard(true);
+                }
+                if(dlg.rbComputer.isSelected()) {
+                    if(dlg.rbWhite.isSelected()) {
+                        modeMenuController.activatePlayWhiteMode();
+                    } else {
+                        modeMenuController.activatePlayBlackMode();
+                    }
+                } else {
+                    modeMenuController.activateEnterMovesMode();
+                }
+            }
         });
 
         itmQuit.setOnAction(event -> {
@@ -413,16 +464,19 @@ public class App extends Application implements StateChangeListener {
             DialogEditGameData dlg = new DialogEditGameData();
             boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(), gameModel.getGame().getResult());
             if(accteped) {
-                System.out.println("dialog accepted");
                 for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    System.out.println("key value "+key + value);
                     gameModel.getGame().setHeader(key, value);
                 }
                 gameModel.getGame().setResult(dlg.gameResult);
                 gameModel.triggerStateChange();
             }
+        });
+
+        itmPaste.setOnAction(e -> {
+            String pasteString = Clipboard.getSystemClipboard().getString();
+            editMenuController.paste(pasteString);
         });
 
         itmAbout.setOnAction(event -> {
@@ -456,7 +510,6 @@ public class App extends Application implements StateChangeListener {
         //chessboard.updateCanvas();
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
-            System.out.println("Key pressed");
             if (event.getCode() == KeyCode.RIGHT) {
                 moveView.goForward();
             }
@@ -472,6 +525,8 @@ public class App extends Application implements StateChangeListener {
             event.consume();
         });
 
+        itmEnterMoves.setSelected(true);
+
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
 
@@ -483,7 +538,6 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void stateChange() {
 
-        System.out.println("STATE CHANGE in MAIN");
         if(gameModel.getGame().isTreeChanged()) {
             //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
             String white = gameModel.getGame().getHeader("White");
@@ -492,8 +546,14 @@ public class App extends Application implements StateChangeListener {
             String date = gameModel.getGame().getHeader("Date");
 
             String label = white + " - " + black + "\n" + site + ", " + date;
-            System.out.println("label: "+label);
             txtGameData.setText(label);
+        }
+        if(gameModel.getMode() == GameModel.MODE_ENTER_MOVES) {
+            tglEngineOnOff.setSelected(false);
+            tglEngineOnOff.setText("Off");
+        } else {
+            tglEngineOnOff.setSelected(true);
+            tglEngineOnOff.setText("On");
         }
 
     }
@@ -505,7 +565,6 @@ public class App extends Application implements StateChangeListener {
 
     private void onExit(Stage stage) {
 
-        System.out.println("handling exit request");
         //todo: save settings here
         stage.close();
     }

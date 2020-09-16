@@ -1,9 +1,7 @@
 package org.asdfjkl.jerryfx.lib;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -527,6 +525,33 @@ public class TestCases {
         }
     }
 
+    public void readGamesByStringTest() {
+
+        String s = "[Event \"Berlin\"]\n" +
+                "[Site \"Berlin GER\"]\n" +
+                "[Date \"1852.??.??\"]\n" +
+                "[EventDate \"?\"]\n" +
+                "[Round \"?\"]\n" +
+                "[Result \"1-0\"]\n" +
+                "[White \"Adolf Anderssen\"]\n" +
+                "[Black \"Jean Dufresne\"]\n" +
+                "[ECO \"C52\"]\n" +
+                "[WhiteElo \"?\"]\n" +
+                "[BlackElo \"?\"]\n" +
+                "[PlyCount \"47\"]\n" +
+                "\n" +
+                "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4 Bxb4 5.c3 Ba5 6.d4 exd4 7.O-O\n" +
+                "d3 8.Qb3 Qf6 9.e5 Qg6 10.Re1 Nge7 11.Ba3 b5 12.Qxb5 Rb8 13.Qa4\n" +
+                "Bb6 14.Nbd2 Bb7 15.Ne4 Qf5 16.Bxd3 Qh5 17.Nf6+ gxf6 18.exf6\n" +
+                "Rg8 19.Rad1 Qxf3 20.Rxe7+ Nxe7 21.Qxd7+ Kxd7 22.Bf5+ Ke8\n" +
+                "23.Bd7+ Kf8 24.Bxe7# 1-0";
+        PgnReader reader = new PgnReader();
+        PgnPrinter printer = new PgnPrinter();
+        Game g = reader.readGame(s);
+        System.out.println(printer.printGame(g));
+
+    }
+
 
     public void runZobristTest() {
 
@@ -577,6 +602,38 @@ public class TestCases {
         System.out.println("expected zobrist: 5c3f9b829b279560");
         System.out.println("got zobrist.....: " + Long.toHexString(key));
 
+    }
+
+    public void testPolyglot() {
+        //URL invalid = getClass().getClassLoader().getResource("foobar");
+
+        Polyglot pg1 = new Polyglot();
+
+        File file = null;
+        URL book = getClass().getClassLoader().getResource("book/varied.bin");
+        if(book != null) {
+            file = new File(book.getFile());
+            pg1.loadBook(file);
+        }
+        System.out.println(pg1.readFile);
+        try {
+            PolyglotEntry e = pg1.getEntryFromOffset(0x62c20);
+            System.out.println(e.uci);
+
+            ArrayList<String> entries = pg1.findMoves(0x463b96181691fc9cL);
+            for(String uci : entries) {
+                System.out.println(uci);
+            }
+
+            entries = pg1.findMoves(0x2d3888dac361814aL);
+            for(String uci : entries) {
+                System.out.println(uci);
+            }
+
+
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
 

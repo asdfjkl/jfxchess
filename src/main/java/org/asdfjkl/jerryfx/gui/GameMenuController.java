@@ -60,7 +60,6 @@ public class GameMenuController {
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             PgnPrinter printer = new PgnPrinter();
-            System.out.println(file.getAbsolutePath());
             printer.writeGame(gameModel.getGame(), file.getAbsolutePath());
         }
     }

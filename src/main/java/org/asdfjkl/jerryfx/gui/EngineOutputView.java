@@ -56,10 +56,6 @@ public class EngineOutputView {
         //pv1.setText(info);
         // | id (Level MAX) | current Move + depth  |  nps | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
         String[] infos = info.split("\\|");
-        /*
-        for(int i=0;i<infos.length;i++) {
-            System.out.println("info: "+infos[i]);
-        }*/
 
         if(infos.length > 1 && !infos[1].isEmpty()) {
             engineId.setText(infos[1]);

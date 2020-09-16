@@ -148,7 +148,7 @@ public class MoveView implements StateChangeListener {
         String jsString = "isScrolledIntoView(document.getElementById('n"+ nodeId+"'))";
         webView.getEngine().executeScript(jsString);
         boolean focused = (Boolean) webView.getEngine().executeScript(jsString);
-        System.out.println(focused);
+        //System.out.println(focused);
         return focused;
     }
 
@@ -165,7 +165,7 @@ public class MoveView implements StateChangeListener {
         Element htmlCurrent = webView.getEngine().getDocument().getElementById("n" + currentNodeId);
         if (htmlCurrent != null) {
             htmlCurrent.setAttribute("class", "current");
-            System.out.println(htmlCurrent.toString());
+            //System.out.println(htmlCurrent.toString());
             if(!hasFocus(currentNodeId)) {
                 scrollToNode(currentNodeId);
             }
@@ -259,7 +259,7 @@ public class MoveView implements StateChangeListener {
 
     public void seekToEnd() {
         this.gameModel.getGame().goToLeaf();
-        System.out.println("tirgger");
+        //System.out.println("tirgger");
         this.gameModel.triggerStateChange();
     }
 

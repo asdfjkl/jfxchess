@@ -3,10 +3,7 @@ package org.asdfjkl.jerryfx.lib;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -1021,6 +1018,269 @@ public class PgnReader {
 
         return g;
     }
+
+
+    public Game readGame(String gameString) {
+
+        String[] lines = gameString.split("\n");
+
+        currentLine = "";
+        currentIdx = 0;
+
+        String startingFen = "";
+
+        Game g = new Game();
+
+        gameStack.clear();
+        gameStack.push(g.getRootNode());
+        currentNode = g.getRootNode();
+        Board rootBoard = new Board(true);
+        currentNode.setBoard(rootBoard);
+
+        currentLine = null;
+
+        int lineIndex = 0;
+
+            while (lineIndex < lines.length) {
+                currentLine = lines[lineIndex];
+
+                if (currentLine.startsWith("%") || currentLine.isEmpty()) {
+                    lineIndex += 1;
+                    continue;
+                }
+
+                if (currentLine.startsWith("[")) {
+                    if (currentLine.length() > 4) {
+                        int spaceOffset = currentLine.indexOf(' ');
+                        int firstQuote = currentLine.indexOf('"');
+                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
+                        if(spaceOffset > 1 && firstQuote >= 0 && secondQuote >= 0 && secondQuote > (firstQuote+1)) {
+                            String tag = currentLine.substring(1, spaceOffset);
+                            String value = currentLine.substring(firstQuote + 1, secondQuote);
+                            if (tag.equals("FEN")) {
+                                startingFen = value;
+                            } else {
+                                try {
+                                    g.setHeader(tag, new String(value.getBytes("ISO-8859-1"), encoding));
+                                } catch(UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                    lineIndex += 1;
+                    continue;
+                } else {
+                    //System.out.println("break: "+currentLine);
+                    break; // finished reading header
+                }
+            }
+
+
+        // now the actual game should start.
+        // try to set the starting fen, if it exists
+        //System.out.println("starting fen: "+startingFen);
+        if (!startingFen.isEmpty()) {
+            try {
+                Board boardFen = new Board(startingFen);
+                if (!boardFen.isConsistent()) {
+                    return g;
+                } else {
+                    currentNode.setBoard(boardFen);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // we should now have a header, seek first non-empty line
+        // if we already reached it, just skip this part
+        if(currentLine.trim().isEmpty()) {
+            while (lineIndex < lines.length - 1) {
+                lineIndex += 1;
+                currentLine = lines[lineIndex];
+                //System.out.println(currentLine);
+                if (currentLine.trim().isEmpty()) {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+        if(lineIndex >= lines.length - 1) {
+            return g;
+        }
+
+        boolean firstLine = true;
+
+        try {
+            while (true) {
+                // if we are at the first line after skipping
+                // all the empty ones, don't read another line
+                // otherwise, call readLine
+                if (!firstLine) {
+                    lineIndex += 1;
+                } else {
+                    firstLine = false;
+                }
+                if (lineIndex >= lines.length) {
+                    return g;
+                }
+                currentLine = lines[lineIndex];
+                if(currentLine.isEmpty()) {
+                    return g;
+                }
+                if (currentLine.startsWith("%")) {
+                    lineIndex += 1;
+                    continue;
+                }
+
+                currentIdx = 0;
+                while (currentIdx < currentLine.length()) {
+                    //if(currentIdx + 3 < currentLine.length()) {
+                    //    System.out.println("TOKEN: " + currentLine.substring(currentIdx, currentIdx+4));
+                    //System.out.println("current node is null: " + (currentNode == null));
+                    //System.out.println(currentNode.getBoard().toString());
+                    //}
+                    int tkn = getNetxtToken();
+                    if (tkn == CONSTANTS.TKN_EOL) {
+                        break;
+                    }
+                    if (tkn == CONSTANTS.TKN_RES_WHITE_WIN) {
+                        // 1-0
+                        g.setResult(CONSTANTS.RES_WHITE_WINS);
+                        currentIdx += 4;
+                    }
+                    if (tkn == CONSTANTS.TKN_RES_BLACK_WIN) {
+                        // 0-1
+                        g.setResult(CONSTANTS.RES_BLACK_WINS);
+                        currentIdx += 4;
+                    }
+                    if (tkn == CONSTANTS.TKN_RES_UNDEFINED) {
+                        // *
+                        g.setResult(CONSTANTS.RES_UNDEF);
+                        currentIdx += 2;
+                    }
+                    if (tkn == CONSTANTS.TKN_RES_DRAW) {
+                        // 1/2-1/2
+                        g.setResult(CONSTANTS.RES_DRAW);
+                        currentIdx += 8;
+                    }
+                    if (tkn == CONSTANTS.TKN_PAWN_MOVE) {
+                        //System.out.println("pawn move");
+                        parsePawnMove();
+                    }
+                    if (tkn == CONSTANTS.TKN_CASTLE) {
+                        //System.out.println("token castle");
+                        //System.out.println("check: "+currentLine.substring(currentIdx, currentIdx+4));
+                        parseCastleMove();
+                    }
+                    if (tkn == CONSTANTS.TKN_ROOK_MOVE) {
+                        parsePieceMove(CONSTANTS.ROOK);
+                    }
+                    if (tkn == CONSTANTS.TKN_KNIGHT_MOVE) {
+                        parsePieceMove(CONSTANTS.KNIGHT);
+                    }
+                    if (tkn == CONSTANTS.TKN_BISHOP_MOVE) {
+                        parsePieceMove(CONSTANTS.BISHOP);
+                    }
+                    if (tkn == CONSTANTS.TKN_QUEEN_MOVE) {
+                        //System.out.println("Queen move");
+                        parsePieceMove(CONSTANTS.QUEEN);
+                    }
+                    if (tkn == CONSTANTS.TKN_KING_MOVE) {
+                        parsePieceMove(CONSTANTS.KING);
+                    }
+                    if (tkn == CONSTANTS.TKN_CHECK) {
+                        currentIdx += 1;
+                    }
+                    if (tkn == CONSTANTS.TKN_NULL_MOVE) {
+                        Move m = new Move();
+                        m.isNullMove = true;
+                        addMove(m);
+                        currentIdx += 2;
+                    }
+                    if (tkn == CONSTANTS.TKN_OPEN_VARIATION) {
+                        // put current node on stack, so that we don't forget it.
+                        // however if we are at the root node, something
+                        // is wrong in the PGN. Silently ignore "(" then
+                        if(currentNode != g.getRootNode()) {
+                            gameStack.push(currentNode);
+                            currentNode = currentNode.getParent();
+                        }
+                        currentIdx += 1;
+                    }
+                    if (tkn == CONSTANTS.TKN_CLOSE_VARIATION) {
+                        // pop from stack. but always leave root
+                        if (gameStack.size() > 1) {
+                            currentNode = gameStack.pop();
+                        }
+                        currentIdx += 1;
+                    }
+                    if (tkn == CONSTANTS.TKN_NAG) {
+                        parseNAG();
+                    }
+                    if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
+                        //String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
+                        String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
+                        //System.out.println(rest_of_line);
+                        int end = rest_of_line.indexOf("}");
+                        //System.out.println(end);
+                        if (end >= 0) {
+                            String comment_line = rest_of_line.substring(0, end+1);
+                            currentNode.setComment(new String(comment_line.getBytes("ISO-8859-1"), encoding));
+                            currentIdx = currentIdx + end + 1;
+                        } else {
+                            // get comment over multiple lines
+                            StringBuilder comment_lines = new StringBuilder();
+                            //String comment_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
+                            String comment_line = currentLine.substring(currentIdx + 1);
+                            comment_lines.append(comment_line).append("\n");
+                            // we already have the comment part of the current line,
+                            // so read-in the next line, and then loop until we find
+                            // the end marker "}"
+                            //currentLine = raf.readLine();
+                            int linesRead = 0;
+                            int end_index = -1;
+                            while (linesRead < 500) { // what if we never find } ??? -> stop after 500 lines
+                                lineIndex += 1;
+                                if(lineIndex >= lines.length) {
+                                    currentLine = "";
+                                    end_index = -1;
+                                    break;
+                                }
+                                currentLine = lines[lineIndex];
+                                //System.out.println("current line");
+                                //System.out.println(currentLine);
+                                linesRead += 1;
+                                if (currentLine.contains("}")) {
+                                    end_index = currentLine.indexOf("}");
+                                    break;
+                                } else {
+                                    comment_lines.append(currentLine).append("\n");
+                                }
+                            }
+                            if (end_index >= 0) {
+                                //System.out.println("current line");
+                                //System.out.println(currentLine);
+                                comment_lines.append(currentLine, 0, end_index);
+                                comment_lines.append("\n");
+                                currentIdx = end_index + 1;
+                            }
+                            currentNode.setComment(new String(comment_lines.toString().getBytes("ISO-8859-1"), encoding));
+                        }
+                    }
+                }
+
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return g;
+    }
+
 
 }
 

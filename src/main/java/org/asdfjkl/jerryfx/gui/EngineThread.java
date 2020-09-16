@@ -64,16 +64,19 @@ public class EngineThread extends Thread {
                         if(line.contains("readyok")) {
                             readyok = true;
                         } else {
-                            //System.out.println(line);
                             if (!line.isEmpty()) {
-                                System.out.println("ENGINE: " + line);
                                 //lastString = line;
                                 if(line.startsWith("bestmove")) {
-                                    stringProperty.set("BESTMOVE " + line.substring(9));
+                                    System.out.println("got bestmove: "+line);
+                                    stringProperty.set("BESTMOVE|"
+                                            + line.substring(9)
+                                            +"|"+engineInfo.score.get(0)
+                                            +"|"+String.join(" ", engineInfo.pvList)
+                                            +"|"+engineInfo.seesMate.get(0)
+                                            +"|"+engineInfo.mate.get(0));
                                 } else {
                                     engineInfo.update(line);
                                 }
-                                //System.out.println(lastString);
                             }
                         }
                         //stringProperty.set(line);
@@ -84,12 +87,7 @@ public class EngineThread extends Thread {
             }
             // send update
             long currentMs = System.currentTimeMillis();
-            //System.out.println("current ms : " + currentMs);
-            //System.out.println("last update: "+lastUpdate);
-            //System.out.println(lastString);
             if((currentMs - lastUpdate) > 100) {
-                //stringProperty.set(lastString);
-                //System.out.println(lastString);
                 stringProperty.set("INFO " + engineInfo.toString());
                 lastUpdate = currentMs;
             }
@@ -98,9 +96,9 @@ public class EngineThread extends Thread {
                 if(!cmdQueue.isEmpty()) {
                     try {
                         String cmd = (String) cmdQueue.take();
+                        System.out.println("got command: "+cmd);
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
-                            //System.out.println(engineCmd);
                             try {
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
@@ -147,8 +145,6 @@ public class EngineThread extends Thread {
                             // take command from queue
                             try {
                                 String cmd = (String) cmdQueue.take();
-
-                                System.out.println("THREAD CMD: "+cmd);
 
                                 // if the command is "position fen moves", first count the
                                 // numbers of moves so far to generate move numbers in engine info
@@ -257,7 +253,6 @@ public class EngineThread extends Thread {
 
 
     public void terminate() {
-        System.out.println("terminate received");
         running = false;
     }
 
