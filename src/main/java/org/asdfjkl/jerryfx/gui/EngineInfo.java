@@ -56,6 +56,8 @@ public class EngineInfo {
 
     int nrPvLines = 1;
 
+    String bestmove = "";
+
     public EngineInfo() {
 
         pvList = new ArrayList<>();
@@ -228,7 +230,16 @@ public class EngineInfo {
         for(int i=0;i<4;i++) {
             if(i<nrPvLines) {
                 if(seesMate.get(i)) {
-                    outStr.append("(#").append(mate.get(i)).append(") ");
+                    int nrMates = mate.get(i);
+                    // if it is black's turn, we need to invert
+                    // the #mates, since the evaluation is always
+                    // from the side that is moving - but the GUI
+                    // always writes + if white mates, and - if black mates
+                    if(turn == CONSTANTS.BLACK) {
+                        nrMates = -nrMates;
+                    }
+                    // if it is black's turn, and the engine
+                    outStr.append("(#").append(nrMates).append(") ");
                 } else {
                     //if(this->score != 0.0) {
                     DecimalFormat df = new DecimalFormat("#0.00", DecimalFormatSymbols.getInstance(Locale.US));

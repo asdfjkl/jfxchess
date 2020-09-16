@@ -48,6 +48,8 @@ public class GameModel {
     public int childMateInMoves = -1;
     public boolean childIsMate = false;
 
+    public String lastSeenBestmove = "";
+
     public Polyglot book;
 
     public GameModel() {

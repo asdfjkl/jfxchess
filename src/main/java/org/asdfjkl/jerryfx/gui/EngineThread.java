@@ -22,7 +22,8 @@ public class EngineThread extends Thread {
     BufferedReader engineOutput;
     BufferedWriter engineInput;
     private volatile boolean running = true;
-    private long lastUpdate = 0;
+    private long lastInfoUpdate = 0;
+    private long lastBestmoveUpdate = 0;
     private String lastString = "";
 
     private final EngineInfo engineInfo;
@@ -36,7 +37,8 @@ public class EngineThread extends Thread {
         this.engineInfo = new EngineInfo();
         this.cmdQueue = cmdQueue;
         stringProperty = new SimpleStringProperty(this, "String", "");
-        lastUpdate = System.currentTimeMillis();
+        lastInfoUpdate = System.currentTimeMillis();
+        lastBestmoveUpdate = System.currentTimeMillis();
         setDaemon(true);
     }
 
@@ -66,14 +68,25 @@ public class EngineThread extends Thread {
                         } else {
                             if (!line.isEmpty()) {
                                 //lastString = line;
+                                // todo: instead of directly setting bestmove,
+                                // try updating engine info
                                 if(line.startsWith("bestmove")) {
-                                    System.out.println("got bestmove: "+line);
+                                    //System.out.println("got bestmove: "+line);
+                                    /*
                                     stringProperty.set("BESTMOVE|"
                                             + line.substring(9)
                                             +"|"+engineInfo.score.get(0)
                                             +"|"+String.join(" ", engineInfo.pvList)
                                             +"|"+engineInfo.seesMate.get(0)
                                             +"|"+engineInfo.mate.get(0));
+
+                                     */
+                                    engineInfo.bestmove = "BESTMOVE|"
+                                            + line.substring(9)
+                                            +"|"+engineInfo.score.get(0)
+                                            +"|"+String.join(" ", engineInfo.pvList)
+                                            +"|"+engineInfo.seesMate.get(0)
+                                            +"|"+engineInfo.mate.get(0);
                                 } else {
                                     engineInfo.update(line);
                                 }
@@ -87,16 +100,24 @@ public class EngineThread extends Thread {
             }
             // send update
             long currentMs = System.currentTimeMillis();
-            if((currentMs - lastUpdate) > 100) {
+            if((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
-                lastUpdate = currentMs;
+                lastInfoUpdate = currentMs;
             }
-
+            // we need to constantly send "bestmove". If we only send it once,
+            // and the user keeps flooding the GUI with events (i.e. by frequently resizing
+            // the window or other inputs, the GUI might skip to handle (the only one)
+            // bestmove info. Instead, the GUI will receive bestmove frequently
+            // but ignore the info, if already processed.
+            if((currentMs - lastBestmoveUpdate) > 800) {
+                stringProperty.set(engineInfo.bestmove);
+                lastBestmoveUpdate = currentMs;
+            }
             if(engineProcess == null || !engineProcess.isAlive()) { // engine not running
                 if(!cmdQueue.isEmpty()) {
                     try {
                         String cmd = (String) cmdQueue.take();
-                        System.out.println("got command: "+cmd);
+                        //System.out.println("got command: "+cmd);
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
                             try {

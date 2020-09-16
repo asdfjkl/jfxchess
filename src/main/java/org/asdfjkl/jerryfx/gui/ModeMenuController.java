@@ -26,7 +26,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
-        System.out.println("MMM: got "+s);
+        //System.out.println("MMM: got "+s);
         if(s.startsWith("INFO")) {
             this.engineOutputView.setText(s.substring(5));
         }
@@ -41,6 +41,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activateAnalysisMode() {
 
+        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -65,6 +66,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateEnterMovesMode() {
+        gameModel.lastSeenBestmove = "";
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
@@ -123,6 +125,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayWhiteMode() {
+        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -142,6 +145,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayBlackMode() {
+        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -161,6 +165,8 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateGameAnalysisMode() {
+
+        gameModel.lastSeenBestmove = "";
 
         gameModel.getGame().removeAllComments();
         gameModel.getGame().removeAllVariants();
@@ -242,11 +248,23 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleBestMove(String bestmove) {
-        System.out.println("handle bestmove, in: "+bestmove);
-        String[] bestmoveItems = bestmove.split("\\|");
+        //System.out.println("handle bestmove, in: "+bestmove);
 
         int mode = gameModel.getMode();
+
+        if(mode == GameModel.MODE_ENTER_MOVES) {
+            return;
+        }
+
+        if(gameModel.lastSeenBestmove == bestmove) {
+            return;
+        }
+
+        String[] bestmoveItems = bestmove.split("\\|");
+
         if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK) {
+
+            gameModel.lastSeenBestmove = bestmove;
             // todo: catch Exceptions!
             String uci = bestmoveItems[1].split(" ")[0];
             //System.out.println(bestmoveItems[1]);
@@ -260,6 +278,9 @@ public class ModeMenuController implements StateChangeListener {
             }
         }
         if(mode == GameModel.MODE_GAME_ANALYSIS) {
+
+            gameModel.lastSeenBestmove = bestmove;
+
             // first update information for current node
             gameModel.childBestPv = gameModel.currentBestPv;
             gameModel.childBestEval = gameModel.currentBestEval;
@@ -393,8 +414,8 @@ public class ModeMenuController implements StateChangeListener {
 
             }
             gameModel.getGame().setTreeWasChanged(true);
-            System.out.println("current fen: "+gameModel.getGame().getCurrentNode().getBoard().fen());
-            System.out.println("triggering statechange");
+            //System.out.println("current fen: "+gameModel.getGame().getCurrentNode().getBoard().fen());
+            //System.out.println("triggering statechange");
             gameModel.triggerStateChange();
 
         }
