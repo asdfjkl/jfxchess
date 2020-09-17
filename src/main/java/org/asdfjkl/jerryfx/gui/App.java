@@ -117,17 +117,21 @@ public class App extends Application implements StateChangeListener {
         RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
         RadioMenuItem itmEnterMoves = new RadioMenuItem("Enter Moves");
 
+        RadioMenuItem itmFullGameAnalysis = new RadioMenuItem("Full Game Analysis");
+        RadioMenuItem itmPlayoutPosition = new RadioMenuItem("Play Out Position");
+
         ToggleGroup tglMode = new ToggleGroup();
         tglMode.getToggles().add(itmAnalysis);
         tglMode.getToggles().add(itmPlayAsWhite);
         tglMode.getToggles().add(itmPlayAsBlack);
         tglMode.getToggles().add(itmEnterMoves);
-        MenuItem itmFullGameAnalysis = new MenuItem("Full Game Analysis");
-        MenuItem itmPlayoutPosition = new MenuItem("Play Out Position");
+        tglMode.getToggles().add(itmFullGameAnalysis);
+        tglMode.getToggles().add(itmPlayoutPosition);
+
         MenuItem itmEngines = new MenuItem("Engines...");
 
-        mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack, itmEnterMoves,
-                new SeparatorMenuItem(), itmFullGameAnalysis, itmPlayoutPosition,
+        mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack,
+                itmEnterMoves, itmFullGameAnalysis, itmPlayoutPosition,
                 new SeparatorMenuItem(), itmEngines);
 
         // Database Menu
@@ -353,6 +357,15 @@ public class App extends Application implements StateChangeListener {
                     tglEngineOnOff.setText("On");
                     modeMenuController.activatePlayBlackMode();
                 }
+            }
+        });
+
+        itmPlayoutPosition.setOnAction(actionEvent -> {
+            if(gameModel.getMode() != GameModel.MODE_PLAYOUT_POSITION) {
+                itmPlayoutPosition.setSelected(true);
+                tglEngineOnOff.setSelected(true);
+                tglEngineOnOff.setText("on");
+                modeMenuController.activatePlayoutPositionMode();
             }
         });
 

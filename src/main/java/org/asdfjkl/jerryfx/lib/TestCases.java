@@ -630,6 +630,14 @@ public class TestCases {
                 System.out.println(uci);
             }
 
+            entries = pg1.findMoves(0x823c9b50fd114196L);
+            for(String uci : entries) {
+                System.out.println(uci);
+            }
+
+            System.out.println(0x463b96181691fc9cL);
+            System.out.println(0x2d3888dac361814aL);
+            System.out.println(0x823c9b50fd114196L);
 
         } catch(IllegalArgumentException e) {
             e.printStackTrace();

@@ -18,6 +18,7 @@ public class GameModel {
     public static final int MODE_PLAY_BLACK = 3;
     public static final int MODE_GAME_ANALYSIS = 4;
     public static final int BOTH_PLAYERS = 5;
+    public static final int MODE_PLAYOUT_POSITION = 7;
     Game game;
     private ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
     private int currentMode;

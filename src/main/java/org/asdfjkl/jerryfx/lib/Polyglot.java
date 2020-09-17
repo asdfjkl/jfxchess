@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class Polyglot {
 
     byte[] book;
-    boolean readFile = false;
+    public boolean readFile = false;
     char[] promotionPieces = { ' ', 'n', 'b', 'r', 'q'};
 
     public void loadBook(File file) {
@@ -130,28 +130,28 @@ public class Polyglot {
 
         if(readFile) {
 
-            long low = 0;
-            long high = book.length / 16;
+            int low = 0;
+            int high = Integer.divideUnsigned(book.length, 16);
 
             // find entry fast
-            while(low < high) {
-                long middle = (low + high)/2;
-                PolyglotEntry e = getEntryFromOffset((int) middle*16);
+            while(Integer.compareUnsigned(low, high) < 0) {
+                int middle = Integer.divideUnsigned(low + high, 2);
+                PolyglotEntry e = getEntryFromOffset(middle*16);
                 long middleKey = e.key;
-                if(middleKey < zobrist) {
+                if(Long.compareUnsigned(middleKey, zobrist) < 0) {
                     low = middle + 1;
                 } else {
                     high = middle;
                 }
             }
-            long offset = low;
-            long size = book.length / 16;
+            int offset = low;
+            int size = Integer.divideUnsigned(book.length, 16);
 
             // now we have the lowest key pos
             // where a possible entry is. collect all
-            while(offset < size) {
-                PolyglotEntry e = getEntryFromOffset((int) offset*16);
-                if(e.key != zobrist) {
+            while(Integer.compareUnsigned(offset, size) < 0) {
+                PolyglotEntry e = getEntryFromOffset(offset*16);
+                if(Long.compareUnsigned(e.key,zobrist) != 0L) {
                     break;
                 }
                 String uci = e.uci;
@@ -175,28 +175,28 @@ public class Polyglot {
             return false;
         }
 
-        long low = 0;
-        long high = book.length / 16;
+        int low = 0;
+        int high = Integer.divideUnsigned(book.length, 16);
 
         // find entry fast
-        while(low < high) {
-            long middle = (low + high)/2;
-            PolyglotEntry e = getEntryFromOffset((int) middle*16);
+        while(Integer.compareUnsigned(low, high) < 0) {
+            int middle = Integer.divideUnsigned(low + high, 2);
+            PolyglotEntry e = getEntryFromOffset(middle*16);
             long middleKey = e.key;
-            if(middleKey < zobrist) {
+            if(Long.compareUnsigned(middleKey, zobrist) < 0L) {
                 low = middle + 1;
             } else {
                 high = middle;
             }
         }
-        long offset = low;
-        long size = book.length / 16;
+        int offset = low;
+        int size = Integer.divideUnsigned(book.length, 16);
 
         // now we have the lowest key pos
         // where a possible entry is.
-        if(offset < size) {
-            PolyglotEntry e = getEntryFromOffset((int) offset*16);
-            if(e.key == zobrist) {
+        if(Integer.compareUnsigned(offset, size) < 0) {
+            PolyglotEntry e = getEntryFromOffset(offset*16);
+            if(Long.compareUnsigned(e.key, zobrist) == 0) {
                 return true;
             } else {
                 return false;

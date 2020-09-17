@@ -1,5 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
+import com.sun.webkit.Timer;
 import javafx.scene.control.Alert;
 import jfxtras.styles.jmetro.FlatAlert;
 import org.asdfjkl.jerryfx.lib.Board;
@@ -84,7 +85,7 @@ public class ModeMenuController implements StateChangeListener {
 
     private void handleStateChangeGameAnalysis() {
 
-        System.out.println("state change game analysis received");
+        //System.out.println("state change game analysis received");
 
         boolean continueAnalysis = true;
 
@@ -164,6 +165,22 @@ public class ModeMenuController implements StateChangeListener {
         gameModel.triggerStateChange();
     }
 
+    public void activatePlayoutPositionMode() {
+        gameModel.lastSeenBestmove = "";
+        // first change gamestate and reset engine
+        engineController.sendCommand("stop");
+        engineController.sendCommand("quit");
+        String cmdEngine = gameModel.activeEngine.getPath();
+        engineController.sendCommand("start "+cmdEngine);
+        engineController.sendCommand("ucinewgame");
+        engineController.sendCommand("uci");
+        // todo: send other engine options
+        // trigger statechange
+        gameModel.setMode(GameModel.MODE_PLAYOUT_POSITION);
+        gameModel.setFlipBoard(false);
+        gameModel.triggerStateChange();
+    }
+
     public void activateGameAnalysisMode() {
 
         gameModel.lastSeenBestmove = "";
@@ -194,30 +211,29 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleStateChangePlayWhiteOrBlack() {
-        // todo:
         // first check if we can apply a bookmove
-        /*
-        chess::GameNode *current = this->gameModel->getGame()->getCurrentNode();
-        bool usedBook = false;
-        QString uci = QString("");
-        if(this->gameModel->canAndMayUseBook(current)) {
-            QVector<chess::Move> mvs = this->gameModel->getBookMoves(current);
-            if(mvs.size() > 0) {
-                int sel = (rand() % (int)(mvs.size()));
-                chess::Move mi = mvs.at(sel);
-                uci = mi.uci();
-                usedBook = true;
-            }
-        }
-        if(!usedBook) {
-            QString fen = this->gameModel->getGame()->getCurrentNode()->getBoard().fen();
-            this->uci_controller->uciSendFen(fen);
-            QString position = QString("position fen ").append(fen);
-            this->uci_controller->uciSendPosition(position);
-            this->uci_controller->uciGoMovetime(this->gameModel->engineThinkTimeMs);
+        long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
+        System.out.println(gameModel.getGame().getCurrentNode().getBoard().fen());
+        System.out.println(Long.toHexString(zobrist));
+        System.out.println(gameModel.book.readFile);
+        ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
+        System.out.println("found moves: "+(uciMoves0.size()));
+        if(gameModel.book.inBook(zobrist)) {
+            System.out.println("position in book");
+            ArrayList<String> uciMoves = gameModel.book.findMoves(zobrist);
+            int idx = (int) (Math.random() * uciMoves.size());
+            System.out.println("random idx: "+idx);
+            handleBestMove("BESTMOVE|"+uciMoves.get(idx));
         } else {
-            this->onBestMove(uci);
-        }*/
+            System.out.println("position not found in book");
+            String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+            engineController.sendCommand("stop");
+            engineController.sendCommand("position fen "+fen);
+            engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
+        }
+    }
+
+    public void handleStateChangePlayoutPosition() {
 
         String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
         engineController.sendCommand("stop");
@@ -262,7 +278,7 @@ public class ModeMenuController implements StateChangeListener {
 
         String[] bestmoveItems = bestmove.split("\\|");
 
-        if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK) {
+        if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK  || mode == GameModel.MODE_PLAYOUT_POSITION) {
 
             gameModel.lastSeenBestmove = bestmove;
             // todo: catch Exceptions!
@@ -428,6 +444,9 @@ public class ModeMenuController implements StateChangeListener {
         }
         if(mode == GameModel.MODE_GAME_ANALYSIS) {
             handleStateChangeGameAnalysis();
+        }
+        if(mode == GameModel.MODE_PLAYOUT_POSITION) {
+            handleStateChangePlayoutPosition();
         }
         if((mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK)
             && turn != gameModel.getHumanPlayerColor()) {
