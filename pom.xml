@@ -95,7 +95,7 @@
                             <mainClass>org.asdfjkl.jerryfx.gui.App</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <SplashScreen-Image>icons/jerry_256x256.png</SplashScreen-Image>
+                            <SplashScreen-Image>icons/splash.png</SplashScreen-Image>
                         </manifestEntries>
                     </archive>
                 </configuration>

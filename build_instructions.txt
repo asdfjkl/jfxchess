@@ -10,10 +10,10 @@ jerryfx-4.0-jar-with-dependencies.jar in ...\jerryfx\target
 
 Run the program -- including a splash screen - by
 
-java -jar --module-path path_to_jfx_lib_jars --add-modules=javafx.web -splash:C:\icon256.png jerryfx-4.0-jar-with-dependencies.jar
+java -jar --module-path path_to_jfx_lib_jars --add-modules=javafx.web jerryfx-4.0-jar-with-dependencies.jar
 
 e.g.
 
-java -jar --module-path c:\Users\user\Downloads\openjfx-11.0.2_windows-x64_bin-sdk\javafx-sdk-11.0.2\lib --add-modules=javafx.web -splash:C:\icon256.png jerryfx-4.0-jar-with-dependencies.jar
+java -jar --module-path c:\Users\user\Downloads\openjfx-11.0.2_windows-x64_bin-sdk\javafx-sdk-11.0.2\lib --add-modules=javafx.web jerryfx-4.0-jar-with-dependencies.jar
 
 or collect the jar's downloaded by maven into a single directory, and reference it to make sure the version absolutely match.
