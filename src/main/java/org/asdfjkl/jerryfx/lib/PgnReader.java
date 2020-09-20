@@ -1107,7 +1107,8 @@ public class PgnReader {
                 }
             }
         }
-        if(lineIndex >= lines.length - 1) {
+
+        if(lineIndex >= lines.length) {
             return g;
         }
 

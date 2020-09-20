@@ -4,6 +4,7 @@
     <groupId>org.asdfjkl.jerryfx</groupId>
     <artifactId>jerryfx</artifactId>
     <version>4.0</version>
+    <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
@@ -13,6 +14,11 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
+            <version>11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
             <version>11</version>
         </dependency>
         <dependency>
@@ -63,6 +69,35 @@
                 <version>0.0.1</version>
                 <configuration>
                     <mainClass>org.asdfjkl.jerryfx.gui.App</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.asdfjkl.jerryfx.gui.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.asdfjkl.jerryfx.gui.App</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <SplashScreen-Image>icons/jerry_256x256.png</SplashScreen-Image>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>

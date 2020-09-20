@@ -4,10 +4,13 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
 import com.sun.javafx.application.HostServicesDelegate;
+import com.sun.javafx.application.LauncherImpl;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Preloader;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -71,8 +74,8 @@ public class App extends Application implements StateChangeListener {
         //tests.readGamesByStringTest();
 
         gameModel = new GameModel();
+        gameModel.restoreModel();
         gameModel.getGame().setTreeWasChanged(true);
-
 
         // MENU
         MenuBar mnuBar = new MenuBar();
@@ -287,7 +290,7 @@ public class App extends Application implements StateChangeListener {
         vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
         vbBottom.setMinHeight(10);
 
-        // put everything excl. the bottom Engine part into one VBox        
+        // put everything excl. the bottom Engine part into one VBox
         VBox vbMainUpperPart = new VBox();
         vbMainUpperPart.getChildren().addAll(mnuBar, tbMainWindow, spChessboardMoves);
         vbMainUpperPart.setVgrow(spChessboardMoves, Priority.ALWAYS);
@@ -493,6 +496,16 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmAbout.setOnAction(event -> {
+            SplashScreen splash = SplashScreen.getSplashScreen();
+
+            if (splash != null && splash.isVisible()) {
+                System.out.println("Is visible");
+
+                splash.close();
+            } else {
+                System.out.println("splash is null: "+(splash==null));
+            }
+
             DialogAbout.show();
         });
 
@@ -540,10 +553,21 @@ public class App extends Application implements StateChangeListener {
 
         itmEnterMoves.setSelected(true);
 
+
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
 
+        SplashScreen splash = SplashScreen.getSplashScreen();
+
+        if (splash != null && splash.isVisible()) {
+            System.out.println("Is visible");
+
+            splash.close();
+        }
+
         stage.setScene(scene);
+        gameModel.triggerStateChange();
+
         stage.show();
 
     }
@@ -578,7 +602,7 @@ public class App extends Application implements StateChangeListener {
 
     private void onExit(Stage stage) {
 
-        //todo: save settings here
+        gameModel.saveModel();
         stage.close();
     }
 

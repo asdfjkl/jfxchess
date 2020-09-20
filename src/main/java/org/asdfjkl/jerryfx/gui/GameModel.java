@@ -1,14 +1,12 @@
 package org.asdfjkl.jerryfx.gui;
 
-import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.Polyglot;
+import org.asdfjkl.jerryfx.lib.*;
 
 import javax.swing.plaf.nimbus.State;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.prefs.Preferences;
 
 public class GameModel {
 
@@ -52,6 +50,10 @@ public class GameModel {
     public String lastSeenBestmove = "";
 
     public Polyglot book;
+
+    private Preferences prefs;
+
+    private static final int modelVersion = 4;
 
     public GameModel() {
         this.game = new Game();
@@ -159,6 +161,47 @@ public class GameModel {
 
         for (StateChangeListener sl : stateChangeListeners)
             sl.stateChange();
+    }
+
+    public void saveModel() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+
+        prefs.putInt("modelVersion",modelVersion);
+
+        PgnPrinter printer = new PgnPrinter();
+        String pgn = printer.printGame(getGame());
+        prefs.put("curentGame", pgn);
+
+    }
+
+    public void restoreModel() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        System.out.println(mVersion);
+        if(mVersion == modelVersion) {
+            System.out.println("model version ok");
+
+            PgnReader reader = new PgnReader();
+
+            String pgn = prefs.get("curentGame", "");
+
+            System.out.println("string" + pgn);
+            if(!pgn.isEmpty()) {
+                Game g = reader.readGame(pgn);
+                PgnPrinter p = new PgnPrinter();
+                System.out.println("read: " + p.printGame(g));
+                if (g.getRootNode().getBoard().isConsistent()) {
+                    System.out.println("setting game");
+                    setGame(g);
+                    g.setTreeWasChanged(true);
+                    //triggerStateChange();
+                }
+            }
+        }
+
     }
 
 
