@@ -200,7 +200,9 @@ public class GameModel {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         int mVersion = prefs.getInt("modelVersion", 0);
 
-        ScreenGeometry g = new ScreenGeometry(-1.0, -1.0, -1.0,-1.0,0.5,0.85);
+        ScreenGeometry g = new ScreenGeometry(-1.0, -1.0, -1.0,-1.0,
+                ScreenGeometry.DEFAULT_MOVE_DIVIDER_RATIO,
+                ScreenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
 
         if(mVersion == modelVersion) {
 
@@ -208,8 +210,10 @@ public class GameModel {
             g.yOffset = prefs.getDouble("WINDOW_POSITION_Y", -1.0);
             g.width = prefs.getDouble("WINDOW_WIDTH", -1.0);
             g.height = prefs.getDouble("WINDOW_HEIGHT", -1.0);
-            g.moveDividerRatio = prefs.getDouble("MOVE_DIVIDER_RATIO", 0.5);
-            g.mainDividerRatio = prefs.getDouble("MAIN_DIVIDER_RATIO", 0.7);
+            g.moveDividerRatio = prefs.getDouble("MOVE_DIVIDER_RATIO",
+                    ScreenGeometry.DEFAULT_MOVE_DIVIDER_RATIO);
+            g.mainDividerRatio = prefs.getDouble("MAIN_DIVIDER_RATIO",
+                    ScreenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
 
         }
         System.out.println("restored: "+g.xOffset);

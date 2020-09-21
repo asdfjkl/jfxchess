@@ -66,6 +66,7 @@ public class App extends Application implements StateChangeListener {
 
     Text txtGameData;
     GameModel gameModel;
+    EngineOutputView engineOutputView;
 
     ToggleButton tglEngineOnOff;
 
@@ -112,14 +113,15 @@ public class App extends Application implements StateChangeListener {
         MenuItem itmPaste = new MenuItem("Paste Game/Position");
         MenuItem itmEditGame = new MenuItem("Edit Game Data");
         MenuItem itmEnterPosition = new MenuItem("Enter Position");
-        CheckMenuItem itmFlipEval = new CheckMenuItem("Flip Board");
-        CheckMenuItem itmShowSearchInfo = new CheckMenuItem("Show Search Info");
+        MenuItem itmFlipBoard = new MenuItem("Flip Board");
+        MenuItem itmShowSearchInfo = new MenuItem("Show/Hide Search Info");
         MenuItem itmAppearance = new MenuItem("Appearance");
         MenuItem itmResetLayout = new MenuItem("Reset Layout");
 
         mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmPaste,
                 new SeparatorMenuItem(), itmEditGame, itmEnterPosition,
-                new SeparatorMenuItem(), itmFlipEval, itmShowSearchInfo, itmAppearance, itmResetLayout);
+                new SeparatorMenuItem(), itmFlipBoard, itmShowSearchInfo,
+                new SeparatorMenuItem(), itmAppearance, itmResetLayout);
 
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
@@ -324,7 +326,7 @@ public class App extends Application implements StateChangeListener {
         btnMoveEnd.setOnAction(event -> moveView.seekToEnd());
 
         // connect mode controller
-        EngineOutputView engineOutputView = new EngineOutputView(txtEngineOut);
+        engineOutputView = new EngineOutputView(txtEngineOut);
         ModeMenuController modeMenuController = new ModeMenuController(gameModel, engineOutputView);
         EngineController engineController = new EngineController(modeMenuController);
         modeMenuController.setEngineController(engineController);
@@ -495,9 +497,41 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        itmCopyGame.setOnAction(e -> {
+            editMenuController.copyGame();
+        });
+
+        itmCopyPosition.setOnAction(e -> {
+            editMenuController.copyPosition();
+        });
+
         itmPaste.setOnAction(e -> {
             String pasteString = Clipboard.getSystemClipboard().getString();
             editMenuController.paste(pasteString);
+        });
+
+        itmResetLayout.setOnAction(e -> {
+            Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+            stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
+            stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
+            spChessboardMoves.setDividerPosition(0, screenGeometry.DEFAULT_MOVE_DIVIDER_RATIO);
+            spMain.setDividerPosition(0, screenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
+            stage.centerOnScreen();
+            gameModel.triggerStateChange();
+        });
+
+        itmFlipBoard.setOnAction(e -> {
+            gameModel.setFlipBoard(!gameModel.getFlipBoard());
+            gameModel.triggerStateChange();
+        });
+
+        itmShowSearchInfo.setOnAction(e -> {
+            if(engineOutputView.isEnabled()) {
+                engineOutputView.disableOutput();
+            } else {
+                engineOutputView.enableOutput();
+            }
+            gameModel.triggerStateChange();
         });
 
         itmAbout.setOnAction(event -> {
@@ -584,8 +618,8 @@ public class App extends Application implements StateChangeListener {
             //stage.setX(screenBounds.);
             //stage.setY(screenGeometry.yOffset);
             System.out.println("screen bounds: "+screenBounds.getWidth());
-            stage.setWidth(screenBounds.getWidth() * 0.8);
-            stage.setHeight(screenBounds.getHeight() * 0.8);
+            stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
+            stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
         }
         spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
         spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);

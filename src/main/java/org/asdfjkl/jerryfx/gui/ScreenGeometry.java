@@ -8,6 +8,10 @@ public class ScreenGeometry {
     double height;
     double moveDividerRatio;
     double mainDividerRatio;
+    final static double DEFAULT_MOVE_DIVIDER_RATIO = 0.5;
+    final static double DEFAULT_MAIN_DIVIDER_RATIO = 0.7;
+    final static double DEFAULT_WIDTH_RATIO = 0.8;
+    final static double DEFAULT_HEIGHT_RATIO = 0.8;
 
     public ScreenGeometry(double xOffset, double yOffset, double width, double height, double moveDividerRatio, double mainDividerRatio) {
         this.xOffset = xOffset;

@@ -1,5 +1,7 @@
 package org.asdfjkl.jerryfx.gui;
 
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.PgnPrinter;
@@ -8,9 +10,34 @@ import org.asdfjkl.jerryfx.lib.PgnReader;
 public class EditMenuController {
 
     GameModel gameModel;
+    PgnPrinter pgnPrinter;
 
     public EditMenuController(GameModel gameModel) {
+
         this.gameModel = gameModel;
+        pgnPrinter = new PgnPrinter();
+    }
+
+    public void copyPosition() {
+
+        String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        systemClipboard.clear();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(fen);
+        systemClipboard.setContent(content);
+
+    }
+
+    public void copyGame() {
+
+        String pgn = pgnPrinter.printGame(gameModel.getGame());
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        systemClipboard.clear();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(pgn);
+        systemClipboard.setContent(content);
+
     }
 
     public void paste(String s) {
