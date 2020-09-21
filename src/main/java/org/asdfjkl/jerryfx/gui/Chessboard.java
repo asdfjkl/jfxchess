@@ -74,16 +74,17 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     @Override
     public double minWidth(double height) {
-        return 1D;
+        return 50D;
     }
 
     @Override
     public double minHeight(double width) {
-        return 1D;
+        return 50D;
     }
 
     @Override
     public void resize(double width, double height) {
+        System.out.println("resizing to: "+width+" "+height);
         this.setWidth(width);
         this.setHeight(height);
 

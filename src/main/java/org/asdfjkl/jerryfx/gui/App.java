@@ -16,6 +16,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -37,6 +38,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
@@ -55,6 +57,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.prefs.Preferences;
 
 /**
  * JavaFX App
@@ -66,6 +69,9 @@ public class App extends Application implements StateChangeListener {
 
     ToggleButton tglEngineOnOff;
 
+    SplitPane spChessboardMoves;
+    SplitPane spMain;
+
     @Override
     public void start(Stage stage) {
 
@@ -75,6 +81,7 @@ public class App extends Application implements StateChangeListener {
 
         gameModel = new GameModel();
         gameModel.restoreModel();
+        ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
 
         // MENU
@@ -264,9 +271,8 @@ public class App extends Application implements StateChangeListener {
         chessboard.resize(640,480);
         chessboard.updateCanvas();
 
-        SplitPane spChessboardMoves = new SplitPane();
+        spChessboardMoves = new SplitPane();
         spChessboardMoves.getItems().addAll(chessboard, vbGameDataMovesNavigation);
-        spChessboardMoves.setDividerPosition(0, 0.5);
         spChessboardMoves.setMaxHeight(Double.MAX_VALUE);
 
         // Buttons for Engine On/Off and TextFlow for Engine Output
@@ -296,10 +302,9 @@ public class App extends Application implements StateChangeListener {
         vbMainUpperPart.setVgrow(spChessboardMoves, Priority.ALWAYS);
 
         // add another split pane for main window part and engine output
-        SplitPane spMain = new SplitPane();
+        spMain = new SplitPane();
         spMain.setOrientation(Orientation.VERTICAL);
         spMain.getItems().addAll(vbMainUpperPart, vbBottom);
-        spMain.setDividerPosition(0, 0.85);
 
         GameMenuController gameMenuController = new GameMenuController(gameModel);
 
@@ -532,8 +537,8 @@ public class App extends Application implements StateChangeListener {
             e.printStackTrace();
         }*/
 
-        Scene scene = new Scene(spMain, 640, 480);
-        //chessboard.updateCanvas();
+
+        Scene scene = new Scene(spMain);
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             if (event.getCode() == KeyCode.RIGHT) {
@@ -566,6 +571,25 @@ public class App extends Application implements StateChangeListener {
         }
 
         stage.setScene(scene);
+        // get primary screen bounds and set these to scene or
+        // restore previously stet screen geometry
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        if(screenGeometry.isValid()) {
+            System.out.println(screenGeometry);
+            stage.setX(screenGeometry.xOffset);
+            stage.setY(screenGeometry.yOffset);
+            stage.setWidth(screenGeometry.width);
+            stage.setHeight(screenGeometry.height);
+        } else {
+            //stage.setX(screenBounds.);
+            //stage.setY(screenGeometry.yOffset);
+            System.out.println("screen bounds: "+screenBounds.getWidth());
+            stage.setWidth(screenBounds.getWidth() * 0.8);
+            stage.setHeight(screenBounds.getHeight() * 0.8);
+        }
+        spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
+        spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
+
         gameModel.triggerStateChange();
 
         stage.show();
@@ -603,6 +627,12 @@ public class App extends Application implements StateChangeListener {
     private void onExit(Stage stage) {
 
         gameModel.saveModel();
+        ScreenGeometry g = new ScreenGeometry(stage.getX(),
+                stage.getY(), stage.getWidth(), stage.getHeight(),
+                spChessboardMoves.getDividerPositions()[0],
+                spMain.getDividerPositions()[0]);
+        gameModel.saveScreenGeometry(g);
+
         stage.close();
     }
 

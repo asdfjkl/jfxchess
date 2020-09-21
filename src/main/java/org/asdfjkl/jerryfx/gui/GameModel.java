@@ -175,6 +175,54 @@ public class GameModel {
 
     }
 
+    public void saveScreenGeometry(ScreenGeometry g) {
+
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+
+        prefs.putDouble("WINDOW_POSITION_X", g.xOffset);
+        prefs.putDouble("WINDOW_POSITION_Y", g.yOffset);
+        prefs.putDouble("WINDOW_WIDTH", g.width);
+        prefs.putDouble("WINDOW_HEIGHT", g.height);
+        prefs.putDouble("MOVE_DIVIDER_RATIO", g.moveDividerRatio);
+        prefs.putDouble("MAIN_DIVIDER_RATIO", g.mainDividerRatio);
+
+        System.out.println("saved: "+g.xOffset);
+        System.out.println("saved: "+g.yOffset);
+        System.out.println("saved: "+g.width);
+        System.out.println("saved: "+g.height);
+        System.out.println("saved: "+g.moveDividerRatio);
+        System.out.println("saved: "+g.mainDividerRatio);
+
+    }
+
+    public ScreenGeometry restoreScreenGeometry() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        ScreenGeometry g = new ScreenGeometry(-1.0, -1.0, -1.0,-1.0,0.5,0.85);
+
+        if(mVersion == modelVersion) {
+
+            g.xOffset = prefs.getDouble("WINDOW_POSITION_X", -1.0);
+            g.yOffset = prefs.getDouble("WINDOW_POSITION_Y", -1.0);
+            g.width = prefs.getDouble("WINDOW_WIDTH", -1.0);
+            g.height = prefs.getDouble("WINDOW_HEIGHT", -1.0);
+            g.moveDividerRatio = prefs.getDouble("MOVE_DIVIDER_RATIO", 0.5);
+            g.mainDividerRatio = prefs.getDouble("MAIN_DIVIDER_RATIO", 0.7);
+
+        }
+        System.out.println("restored: "+g.xOffset);
+        System.out.println("restored: "+g.yOffset);
+        System.out.println("restored: "+g.width);
+        System.out.println("restored: "+g.height);
+        System.out.println("restored: "+g.moveDividerRatio);
+        System.out.println("restored: "+g.mainDividerRatio);
+        System.out.println("restored: "+g.isValid());
+        return g;
+
+    }
+
     public void restoreModel() {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
