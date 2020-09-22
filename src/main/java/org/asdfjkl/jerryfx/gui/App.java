@@ -270,7 +270,7 @@ public class App extends Application implements StateChangeListener {
 
         // put together  Chessboard | Game Navigation
         Chessboard chessboard = new Chessboard(gameModel);
-        chessboard.resize(640,480);
+        chessboard.resize(100,100);
         chessboard.updateCanvas();
 
         spChessboardMoves = new SplitPane();
@@ -497,6 +497,25 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        itmEnterPosition.setOnAction(e -> {
+
+            Board board = gameModel.getGame().getCurrentNode().getBoard();
+            DialogEnterPosition dlg = new DialogEnterPosition();
+            double height = Math.max(stage.getHeight() * 0.6, 520);
+            double width = height * 1.6;
+            boolean accepted = dlg.show(board, width, height);
+            if(accepted) {
+                Board newBoard = dlg.currentBoard;
+                if(newBoard.isConsistent()) {
+                    Game g = new Game();
+                    g.getRootNode().setBoard(newBoard);
+                    gameModel.setGame(g);
+                    gameModel.getGame().setTreeWasChanged(true);
+                    gameModel.triggerStateChange();
+                }
+            }
+        });
+
         itmCopyGame.setOnAction(e -> {
             editMenuController.copyGame();
         });
@@ -535,16 +554,6 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmAbout.setOnAction(event -> {
-            SplashScreen splash = SplashScreen.getSplashScreen();
-
-            if (splash != null && splash.isVisible()) {
-                System.out.println("Is visible");
-
-                splash.close();
-            } else {
-                System.out.println("splash is null: "+(splash==null));
-            }
-
             DialogAbout.show();
         });
 
