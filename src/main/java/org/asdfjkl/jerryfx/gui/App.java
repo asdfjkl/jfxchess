@@ -520,8 +520,8 @@ public class App extends Application implements StateChangeListener {
             DialogAppearance dlg = new DialogAppearance();
             double height = Math.max(stage.getHeight() * 0.6, 520);
             double width = height * 1.4;
-            System.out.println("PIECE STYLE CURRENT:");
-            System.out.println(chessboard.boardStyle.getPieceStyle());
+            //System.out.println("PIECE STYLE CURRENT:");
+            //System.out.println(chessboard.boardStyle.getPieceStyle());
             boolean accepted = dlg.show(chessboard.boardStyle, width, height);
             if(accepted) {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
@@ -622,7 +622,7 @@ public class App extends Application implements StateChangeListener {
         SplashScreen splash = SplashScreen.getSplashScreen();
 
         if (splash != null && splash.isVisible()) {
-            System.out.println("Is visible");
+            //System.out.println("Is visible");
 
             splash.close();
         }
@@ -632,7 +632,7 @@ public class App extends Application implements StateChangeListener {
         // restore previously stet screen geometry
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         if(screenGeometry.isValid()) {
-            System.out.println(screenGeometry);
+            //intln(screenGeometry);
             stage.setX(screenGeometry.xOffset);
             stage.setY(screenGeometry.yOffset);
             stage.setWidth(screenGeometry.width);
@@ -640,16 +640,19 @@ public class App extends Application implements StateChangeListener {
         } else {
             //stage.setX(screenBounds.);
             //stage.setY(screenGeometry.yOffset);
-            System.out.println("screen bounds: "+screenBounds.getWidth());
+           // System.out.println("recovered screen bounds: "+screenBounds.getWidth());
             stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
             stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
         }
-        spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
-        spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
+        // recovered main divider ratio:
+        System.out.println("recovered main div ratio: "+screenGeometry.mainDividerRatio);
 
         gameModel.triggerStateChange();
 
         stage.show();
+
+        spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
+        spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
 
     }
 

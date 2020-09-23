@@ -186,12 +186,16 @@ public class GameModel {
         prefs.putDouble("MOVE_DIVIDER_RATIO", g.moveDividerRatio);
         prefs.putDouble("MAIN_DIVIDER_RATIO", g.mainDividerRatio);
 
+        System.out.println("saved main div ratio: "+g.mainDividerRatio);
+        /*
         System.out.println("saved: "+g.xOffset);
         System.out.println("saved: "+g.yOffset);
         System.out.println("saved: "+g.width);
         System.out.println("saved: "+g.height);
         System.out.println("saved: "+g.moveDividerRatio);
         System.out.println("saved: "+g.mainDividerRatio);
+
+         */
 
     }
 
@@ -216,6 +220,7 @@ public class GameModel {
                     ScreenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
 
         }
+        /*
         System.out.println("restored: "+g.xOffset);
         System.out.println("restored: "+g.yOffset);
         System.out.println("restored: "+g.width);
@@ -223,6 +228,8 @@ public class GameModel {
         System.out.println("restored: "+g.moveDividerRatio);
         System.out.println("restored: "+g.mainDividerRatio);
         System.out.println("restored: "+g.isValid());
+
+         */
         return g;
 
     }
@@ -232,21 +239,21 @@ public class GameModel {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         int mVersion = prefs.getInt("modelVersion", 0);
 
-        System.out.println(mVersion);
+        //intln(mVersion);
         if(mVersion == modelVersion) {
-            System.out.println("model version ok");
+            //System.out.println("model version ok");
 
             PgnReader reader = new PgnReader();
 
             String pgn = prefs.get("curentGame", "");
 
-            System.out.println("string" + pgn);
+            //System.out.println("string" + pgn);
             if(!pgn.isEmpty()) {
                 Game g = reader.readGame(pgn);
                 PgnPrinter p = new PgnPrinter();
-                System.out.println("read: " + p.printGame(g));
+                //System.out.println("read: " + p.printGame(g));
                 if (g.getRootNode().getBoard().isConsistent()) {
-                    System.out.println("setting game");
+                    //System.out.println("setting game");
                     setGame(g);
                     g.setTreeWasChanged(true);
                     //triggerStateChange();
