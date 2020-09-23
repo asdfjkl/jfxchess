@@ -503,7 +503,7 @@ public class App extends Application implements StateChangeListener {
             DialogEnterPosition dlg = new DialogEnterPosition();
             double height = Math.max(stage.getHeight() * 0.6, 520);
             double width = height * 1.6;
-            boolean accepted = dlg.show(board, width, height);
+            boolean accepted = dlg.show(board, chessboard.boardStyle, width, height);
             if(accepted) {
                 Board newBoard = dlg.currentBoard;
                 if(newBoard.isConsistent()) {
@@ -513,6 +513,20 @@ public class App extends Application implements StateChangeListener {
                     gameModel.getGame().setTreeWasChanged(true);
                     gameModel.triggerStateChange();
                 }
+            }
+        });
+
+        itmAppearance.setOnAction(e -> {
+            DialogAppearance dlg = new DialogAppearance();
+            double height = Math.max(stage.getHeight() * 0.6, 520);
+            double width = height * 1.4;
+            System.out.println("PIECE STYLE CURRENT:");
+            System.out.println(chessboard.boardStyle.getPieceStyle());
+            boolean accepted = dlg.show(chessboard.boardStyle, width, height);
+            if(accepted) {
+                chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
+                chessboard.boardStyle.setPieceStyle(dlg.appearanceBoard.boardStyle.getPieceStyle());
+                gameModel.triggerStateChange();
             }
         });
 

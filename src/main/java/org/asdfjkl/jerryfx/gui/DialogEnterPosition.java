@@ -41,12 +41,13 @@ public class DialogEnterPosition implements EnterPosBoardListener {
     Board originalBoard;
     Board currentBoard;
 
-    public boolean show(Board board, double width, double height) {
+    public boolean show(Board board, BoardStyle style, double width, double height) {
 
         originalBoard = board.makeCopy();
         enterPosBoard = new EnterPosBoard(originalBoard);
         currentBoard = enterPosBoard.board;
         enterPosBoard.addListener(this);
+        enterPosBoard.boardStyle = style;
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);

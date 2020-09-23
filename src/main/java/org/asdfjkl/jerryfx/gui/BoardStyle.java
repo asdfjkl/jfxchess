@@ -93,4 +93,15 @@ public class BoardStyle {
 
     public int getPieceStyle() { return this.pieceStyle; };
 
+    public int getColorStyle() {
+
+        if (borderColor == BORDER_BLUE) {
+            return STYLE_BLUE;
+        }
+        if (borderColor == BORDER_BROWN) {
+            return STYLE_BROWN;
+        }
+        return STYLE_GREEN;
+    }
+
 }

@@ -4,6 +4,7 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
 import javafx.scene.image.Image;
+import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
 import javax.imageio.ImageIO;
@@ -21,23 +22,59 @@ import static org.asdfjkl.jerryfx.gui.BoardStyle.*;
 
 public class PieceImageProvider {
 
-    HashMap<Integer, Image> whitePawns = new HashMap<>();
-    HashMap<Integer, Image> blackPawns = new HashMap<>();
+    HashMap<Integer, Image> whitePawnsMerida = new HashMap<>();
+    HashMap<Integer, Image> blackPawnsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteRooks = new HashMap<>();
-    HashMap<Integer, Image> blackRooks = new HashMap<>();
+    HashMap<Integer, Image> whiteRooksMerida = new HashMap<>();
+    HashMap<Integer, Image> blackRooksMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKnights = new HashMap<>();
-    HashMap<Integer, Image> blackKnights = new HashMap<>();
+    HashMap<Integer, Image> whiteKnightsMerida = new HashMap<>();
+    HashMap<Integer, Image> blackKnightsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteBishops = new HashMap<>();
-    HashMap<Integer, Image> blackBishops = new HashMap<>();
+    HashMap<Integer, Image> whiteBishopsMerida = new HashMap<>();
+    HashMap<Integer, Image> blackBishopsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteQueens = new HashMap<>();
-    HashMap<Integer, Image> blackQueens = new HashMap<>();
+    HashMap<Integer, Image> whiteQueensMerida = new HashMap<>();
+    HashMap<Integer, Image> blackQueensMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKings = new HashMap<>();
-    HashMap<Integer, Image> blackKings = new HashMap<>();
+    HashMap<Integer, Image> whiteKingsMerida = new HashMap<>();
+    HashMap<Integer, Image> blackKingsMerida = new HashMap<>();
+
+    HashMap<Integer, Image> whitePawnsOld = new HashMap<>();
+    HashMap<Integer, Image> blackPawnsOld = new HashMap<>();
+
+    HashMap<Integer, Image> whiteRooksOld = new HashMap<>();
+    HashMap<Integer, Image> blackRooksOld = new HashMap<>();
+
+    HashMap<Integer, Image> whiteKnightsOld = new HashMap<>();
+    HashMap<Integer, Image> blackKnightsOld = new HashMap<>();
+
+    HashMap<Integer, Image> whiteBishopsOld = new HashMap<>();
+    HashMap<Integer, Image> blackBishopsOld = new HashMap<>();
+
+    HashMap<Integer, Image> whiteQueensOld = new HashMap<>();
+    HashMap<Integer, Image> blackQueensOld = new HashMap<>();
+
+    HashMap<Integer, Image> whiteKingsOld = new HashMap<>();
+    HashMap<Integer, Image> blackKingsOld = new HashMap<>();
+
+    HashMap<Integer, Image> whitePawnsUscf = new HashMap<>();
+    HashMap<Integer, Image> blackPawnsUscf = new HashMap<>();
+
+    HashMap<Integer, Image> whiteRooksUscf = new HashMap<>();
+    HashMap<Integer, Image> blackRooksUscf = new HashMap<>();
+
+    HashMap<Integer, Image> whiteKnightsUscf = new HashMap<>();
+    HashMap<Integer, Image> blackKnightsUscf = new HashMap<>();
+
+    HashMap<Integer, Image> whiteBishopsUscf = new HashMap<>();
+    HashMap<Integer, Image> blackBishopsUscf = new HashMap<>();
+
+    HashMap<Integer, Image> whiteQueensUscf = new HashMap<>();
+    HashMap<Integer, Image> blackQueensUscf = new HashMap<>();
+
+    HashMap<Integer, Image> whiteKingsUscf = new HashMap<>();
+    HashMap<Integer, Image> blackKingsUscf = new HashMap<>();
 
     private BufferedImage renderSVG(URL urlPieceSVG, int width, int height) {
 
@@ -59,42 +96,138 @@ public class PieceImageProvider {
         return bi;
     }
 
-    private HashMap<Integer, Image> getHashMap(int pieceType) {
+    private HashMap<Integer, Image> getHashMap(int pieceType, int pieceStyle) {
         if(pieceType == CONSTANTS.WHITE_PAWN) {
-            return whitePawns;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whitePawnsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whitePawnsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whitePawnsUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_PAWN) {
-            return blackPawns;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackPawnsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackPawnsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackPawnsUscf;
+            }
         }
         if(pieceType == CONSTANTS.WHITE_ROOK) {
-            return whiteRooks;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteRooksMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteRooksOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteRooksUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_ROOK) {
-            return blackRooks;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackRooksMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackRooksOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackRooksUscf;
+            }
         }
         if(pieceType == CONSTANTS.WHITE_KNIGHT) {
-            return whiteKnights;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteKnightsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteKnightsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteKnightsUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_KNIGHT) {
-            return blackKnights;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackKnightsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackKnightsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackKnightsUscf;
+            }
         }
         if(pieceType == CONSTANTS.WHITE_BISHOP) {
-            return whiteBishops;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteBishopsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteBishopsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteBishopsUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_BISHOP) {
-            return blackBishops;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackBishopsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackBishopsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackBishopsUscf;
+            }
         }
         if(pieceType == CONSTANTS.WHITE_QUEEN) {
-            return whiteQueens;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteQueensMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteQueensOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteQueensUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_QUEEN) {
-            return blackQueens;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackQueensMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackQueensOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackQueensUscf;
+            }
         }
         if(pieceType == CONSTANTS.WHITE_KING) {
-            return whiteKings;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteKingsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteKingsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteKingsUscf;
+            }
         }
         if(pieceType == CONSTANTS.BLACK_KING) {
-            return blackKings;
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackKingsMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackKingsOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackKingsUscf;
+            }
         }
         throw  new IllegalArgumentException("called with, but there is no such piece: "+pieceType);
     }
@@ -143,7 +276,7 @@ public class PieceImageProvider {
 
     public Image getImage(int piece, int squareSize, int pieceStyle) {
 
-        HashMap<Integer, Image> pieceHashMap = getHashMap(piece);
+        HashMap<Integer, Image> pieceHashMap = getHashMap(piece, pieceStyle);
         String svgPieceName = getFilename(piece);
 
         if(pieceHashMap.containsKey(squareSize)) {
