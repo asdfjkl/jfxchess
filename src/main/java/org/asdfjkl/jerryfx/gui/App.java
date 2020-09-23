@@ -1,25 +1,11 @@
 package org.asdfjkl.jerryfx.gui;
 
-import com.kitfox.svg.SVGDiagram;
-import com.kitfox.svg.SVGException;
-import com.kitfox.svg.SVGUniverse;
-import com.sun.javafx.application.HostServicesDelegate;
-import com.sun.javafx.application.LauncherImpl;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.application.Preloader;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingNode;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,33 +17,17 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
-import org.asdfjkl.jerryfx.SystemInfo;
 import org.asdfjkl.jerryfx.lib.*;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.prefs.Preferences;
+
 
 /**
  * JavaFX App
@@ -72,6 +42,10 @@ public class App extends Application implements StateChangeListener {
 
     SplitPane spChessboardMoves;
     SplitPane spMain;
+
+    ModeMenuController modeMenuController;
+
+    RadioMenuItem itmEnterMoves;
 
     @Override
     public void start(Stage stage) {
@@ -127,7 +101,7 @@ public class App extends Application implements StateChangeListener {
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
         RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
         RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
-        RadioMenuItem itmEnterMoves = new RadioMenuItem("Enter Moves");
+        itmEnterMoves = new RadioMenuItem("Enter Moves");
 
         RadioMenuItem itmFullGameAnalysis = new RadioMenuItem("Full Game Analysis");
         RadioMenuItem itmPlayoutPosition = new RadioMenuItem("Play Out Position");
@@ -175,7 +149,7 @@ public class App extends Application implements StateChangeListener {
         btnSaveAs.setGraphic(new ImageView( new Image("icons/document-save.png")));
         btnSaveAs.setContentDisplay(ContentDisplay.TOP);
 
-        Button btnPrint = new Button("Print");
+        Button btnPrint = new Button("Print Game");
         btnPrint.setGraphic(new ImageView( new Image("icons/document-print.png")));
         btnPrint.setContentDisplay(ContentDisplay.TOP);
 
@@ -327,7 +301,7 @@ public class App extends Application implements StateChangeListener {
 
         // connect mode controller
         engineOutputView = new EngineOutputView(txtEngineOut);
-        ModeMenuController modeMenuController = new ModeMenuController(gameModel, engineOutputView);
+        modeMenuController = new ModeMenuController(gameModel, engineOutputView);
         EngineController engineController = new EngineController(modeMenuController);
         modeMenuController.setEngineController(engineController);
 
@@ -405,27 +379,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmFullGameAnalysis.setOnAction(actionEvent -> {
-            DialogGameAnalysis dlg = new DialogGameAnalysis();
-            boolean accepted = dlg.show(3, 0.5);
-            if(accepted) {
-                itmEnterMoves.setSelected(true);
-                tglEngineOnOff.setSelected(true);
-                tglEngineOnOff.setText("On");
-
-                if(dlg.rbBoth.isSelected()) {
-                    gameModel.setGameAnalysisForPlayer(GameModel.BOTH_PLAYERS);
-                }
-                if(dlg.rbWhite.isSelected()) {
-                    gameModel.setGameAnalysisForPlayer(CONSTANTS.IWHITE);
-                }
-                if(dlg.rbBlack.isSelected()) {
-                    gameModel.setGameAnalysisForPlayer(CONSTANTS.IBLACK);
-                }
-                gameModel.setGameAnalysisThinkTime(dlg.sSecs.getValue());
-                gameModel.setGameAnalysisThreshold((int) (dlg.sPawnThreshold.getValue()*100.0));
-                gameModel.setMode(GameModel.MODE_GAME_ANALYSIS);
-                modeMenuController.activateGameAnalysisMode();
-            }
+            handleFullGameAnalysis();
         });
 
         tglEngineOnOff.setOnAction(actionEvent -> {
@@ -450,33 +404,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmNew.setOnAction(e -> {
-            DialogNewGame dlg = new DialogNewGame();
-            boolean accepted = dlg.show(gameModel.activeEngine.isInternal(),
-                    gameModel.getEngineStrength(),
-                    gameModel.getComputerThinkTimeSecs());
-            if(accepted) {
-                gameModel.wasSaved = false;
-                gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
-                gameModel.setEngineStrength(dlg.strength);
-                Game g = new Game();
-                g.getRootNode().setBoard(new Board(true));
-                gameModel.setGame(g);
-                gameModel.getGame().setTreeWasChanged(true);
-                if(dlg.rbWhite.isSelected()) {
-                    gameModel.setFlipBoard(false);
-                } else {
-                    gameModel.setFlipBoard(true);
-                }
-                if(dlg.rbComputer.isSelected()) {
-                    if(dlg.rbWhite.isSelected()) {
-                        modeMenuController.activatePlayWhiteMode();
-                    } else {
-                        modeMenuController.activatePlayBlackMode();
-                    }
-                } else {
-                    modeMenuController.activateEnterMovesMode();
-                }
-            }
+            handleNewGame();
         });
 
         itmQuit.setOnAction(event -> {
@@ -498,22 +426,8 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmEnterPosition.setOnAction(e -> {
-
-            Board board = gameModel.getGame().getCurrentNode().getBoard();
-            DialogEnterPosition dlg = new DialogEnterPosition();
             double height = Math.max(stage.getHeight() * 0.6, 520);
-            double width = height * 1.6;
-            boolean accepted = dlg.show(board, chessboard.boardStyle, width, height);
-            if(accepted) {
-                Board newBoard = dlg.currentBoard;
-                if(newBoard.isConsistent()) {
-                    Game g = new Game();
-                    g.getRootNode().setBoard(newBoard);
-                    gameModel.setGame(g);
-                    gameModel.getGame().setTreeWasChanged(true);
-                    gameModel.triggerStateChange();
-                }
-            }
+            editMenuController.enterPosition(height, chessboard.boardStyle);
         });
 
         itmAppearance.setOnAction(e -> {
@@ -539,7 +453,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmPaste.setOnAction(e -> {
-            String pasteString = Clipboard.getSystemClipboard().getString();
+            String pasteString = Clipboard.getSystemClipboard().getString().trim();
             editMenuController.paste(pasteString);
         });
 
@@ -580,19 +494,65 @@ public class App extends Application implements StateChangeListener {
             onExit(stage);
         });
 
+        // buttons
+        btnNew.setOnAction(e -> {
+            handleNewGame();
+        });
 
-        /*
-        PgnReader reader = new PgnReader();
-        try {
-            OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile("C:\\Users\\user\\MyFiles\\workspace\\test_databases\\middleg.pgn", "r");
-            raf.seek(0);
-            Game g = reader.readGame(raf);
-            gameModel.game = g;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        btnOpen.setOnAction(e -> {
+
+        });
+
+        btnSaveAs.setOnAction(e -> {
+            gameMenuController.handleSaveCurrentGame();
+        });
+
+        btnPrint.setOnAction(e -> {
+            gameMenuController.handlePrintGame(stage);
+        });
+
+        btnFlipBoard.setOnAction(e -> {
+            gameModel.setFlipBoard(!gameModel.getFlipBoard());
+            gameModel.triggerStateChange();
+        });
+
+        btnCopyGame.setOnAction(e -> {
+            editMenuController.copyGame();
+        });
+
+        btnCopyPosition.setOnAction(e -> {
+            editMenuController.copyPosition();
+        });
+
+        btnPaste.setOnAction(e -> {
+            String pasteString = Clipboard.getSystemClipboard().getString().trim();
+            editMenuController.paste(pasteString);
+        });
+
+        btnEnterPosition.setOnAction(e -> {
+            double height = Math.max(stage.getHeight() * 0.6, 520);
+            editMenuController.enterPosition(height, chessboard.boardStyle);
+        });
+
+        btnFullAnalysis.setOnAction(e -> {
+            handleFullGameAnalysis();
+        });
+
+        btnBrowseGames.setOnAction(e -> {
+
+        });
+
+        btnPrevGame.setOnAction(e -> {
+
+        });
+
+        btnNextGame.setOnAction(e -> {
+
+        });
+
+        btnAbout.setOnAction(e -> {
+            DialogAbout.show();
+        });
 
 
         Scene scene = new Scene(spMain);
@@ -693,6 +653,60 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveScreenGeometry(g);
 
         stage.close();
+    }
+
+    private void handleNewGame() {
+        DialogNewGame dlg = new DialogNewGame();
+        boolean accepted = dlg.show(gameModel.activeEngine.isInternal(),
+                gameModel.getEngineStrength(),
+                gameModel.getComputerThinkTimeSecs());
+        if(accepted) {
+            gameModel.wasSaved = false;
+            gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
+            gameModel.setEngineStrength(dlg.strength);
+            Game g = new Game();
+            g.getRootNode().setBoard(new Board(true));
+            gameModel.setGame(g);
+            gameModel.getGame().setTreeWasChanged(true);
+            if(dlg.rbWhite.isSelected()) {
+                gameModel.setFlipBoard(false);
+            } else {
+                gameModel.setFlipBoard(true);
+            }
+            if(dlg.rbComputer.isSelected()) {
+                if(dlg.rbWhite.isSelected()) {
+                    modeMenuController.activatePlayWhiteMode();
+                } else {
+                    modeMenuController.activatePlayBlackMode();
+                }
+            } else {
+                modeMenuController.activateEnterMovesMode();
+            }
+        }
+    }
+
+    private void handleFullGameAnalysis() {
+        DialogGameAnalysis dlg = new DialogGameAnalysis();
+        boolean accepted = dlg.show(3, 0.5);
+        if(accepted) {
+            itmEnterMoves.setSelected(true);
+            tglEngineOnOff.setSelected(true);
+            tglEngineOnOff.setText("On");
+
+            if(dlg.rbBoth.isSelected()) {
+                gameModel.setGameAnalysisForPlayer(GameModel.BOTH_PLAYERS);
+            }
+            if(dlg.rbWhite.isSelected()) {
+                gameModel.setGameAnalysisForPlayer(CONSTANTS.IWHITE);
+            }
+            if(dlg.rbBlack.isSelected()) {
+                gameModel.setGameAnalysisForPlayer(CONSTANTS.IBLACK);
+            }
+            gameModel.setGameAnalysisThinkTime(dlg.sSecs.getValue());
+            gameModel.setGameAnalysisThreshold((int) (dlg.sPawnThreshold.getValue()*100.0));
+            gameModel.setMode(GameModel.MODE_GAME_ANALYSIS);
+            modeMenuController.activateGameAnalysisMode();
+        }
     }
 
 }

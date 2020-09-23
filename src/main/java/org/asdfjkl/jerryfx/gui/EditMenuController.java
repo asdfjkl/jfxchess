@@ -40,6 +40,24 @@ public class EditMenuController {
 
     }
 
+    public void enterPosition(double dialogHeight, BoardStyle style) {
+
+        Board board = gameModel.getGame().getCurrentNode().getBoard();
+        DialogEnterPosition dlg = new DialogEnterPosition();
+        double width = dialogHeight * 1.6;
+        boolean accepted = dlg.show(board, style, width, dialogHeight);
+        if(accepted) {
+            Board newBoard = dlg.currentBoard;
+            if(newBoard.isConsistent()) {
+                Game g = new Game();
+                g.getRootNode().setBoard(newBoard);
+                gameModel.setGame(g);
+                gameModel.getGame().setTreeWasChanged(true);
+                gameModel.triggerStateChange();
+            }
+        }
+    }
+
     public void paste(String s) {
 
         try {
