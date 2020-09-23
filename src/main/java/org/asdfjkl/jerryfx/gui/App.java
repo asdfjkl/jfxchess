@@ -1,6 +1,7 @@
 package org.asdfjkl.jerryfx.gui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -606,6 +607,9 @@ public class App extends Application implements StateChangeListener {
         }
 
         gameModel.triggerStateChange();
+
+        // unfocus any default button etc.
+        spMain.requestFocus();
 
         stage.show();
 
