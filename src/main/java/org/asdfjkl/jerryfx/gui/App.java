@@ -644,13 +644,12 @@ public class App extends Application implements StateChangeListener {
             stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
             stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
         }
-        // recovered main divider ratio:
-        System.out.println("recovered main div ratio: "+screenGeometry.mainDividerRatio);
 
         gameModel.triggerStateChange();
 
         stage.show();
 
+        // recover divider ratios at the last step, as show() might trigger resizes
         spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
         spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
 
