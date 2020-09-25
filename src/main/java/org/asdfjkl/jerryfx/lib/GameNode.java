@@ -113,7 +113,9 @@ public class GameNode {
     }
 
     public void addNag(int n) {
-        this.nags.add(n);
+        if(!nags.contains(n)) {
+            this.nags.add(n);
+        }
     }
 
     public ArrayList<Integer> getNags() {
