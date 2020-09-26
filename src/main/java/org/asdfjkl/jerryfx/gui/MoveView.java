@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import org.asdfjkl.jerryfx.lib.CONSTANTS;
 import org.asdfjkl.jerryfx.lib.GameNode;
 import org.asdfjkl.jerryfx.lib.HtmlPrinter;
 import org.w3c.dom.Document;
@@ -242,103 +243,255 @@ public class MoveView implements StateChangeListener {
     }
 
     private void onAddEditComment() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                DialogEnterComment dlg = new DialogEnterComment();
+                boolean accepted = dlg.show(selectedNode.getComment());
+                if(accepted) {
+                    String newComment = dlg.textArea.getText();
+                    // filter invalid stuff, like { } etc.
+                    newComment = newComment.replace('\n', ' ');
+                    newComment = newComment.replace('{', ' ');
+                    newComment = newComment.replace('}', ' ');
+                    newComment = newComment.replace('\r', ' ');
+                    selectedNode.setComment(newComment);
+                }
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onDeleteComment() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.setComment("");
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddBlunderNAG() {
         try {
             if(rightClickedNode >= 0) {
-                GameNode nextCurrent = gameModel.getGame().findNodeById(rightClickedNode);
-                nextCurrent.addNag(4);
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_BLUNDER);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
-        // nextCurrent wasn't found
         }
     }
 
     private void onAddMistakeNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_MISTAKE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddDubiousMoveNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddInterestingMoveNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddGoodMoveNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_GOOD_MOVE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onBrilliantMoveNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onNoMoveAnnotation() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.removeNagsInRange(0,8);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddUnclearNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_UNCLEAR_POSITION);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddDrawishNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_DRAWISH_POSITION);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddSlightAdvantageWhiteNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_WHITE_MODERATE_ADVANTAGE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddSlightAdvantageBlackNAG() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_BLACK_MODERATE_ADVANTAGE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddAdvantageWhite() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_WHITE_DECISIVE_ADVANTAGE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onAddAdvantageBlack() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.addNag(CONSTANTS.NAG_BLACK_DECISIVE_ADVANTAGE);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onNoPositionAnnotation() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.removeNagsInRange(9,20);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onRemoveAnnotation() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                selectedNode.removeNagsInRange(0,139);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onVariantUp() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                gameModel.getGame().moveUp(selectedNode);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onVariantDown() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                gameModel.getGame().moveDown(selectedNode);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onDeleteVariant() {
-
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                gameModel.getGame().delVariant(selectedNode);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     private void onDeleteFromHere() {
+        try {
+            if(rightClickedNode >= 0) {
+                GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
+                gameModel.getGame().delBelow(selectedNode);
+                gameModel.triggerStateChange();
+            }
+        } catch (IllegalArgumentException e) {
+        }
 
     }
 
     private void onDeleteAllComments() {
-
+        gameModel.getGame().removeAllComments();
+        gameModel.triggerStateChange();
     }
 
     private void onDeleteAllVariants() {
-
+        gameModel.getGame().removeAllVariants();
+        gameModel.triggerStateChange();
     }
 
     public WebView getWebView() {
