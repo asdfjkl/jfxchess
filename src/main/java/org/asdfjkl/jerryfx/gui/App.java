@@ -447,7 +447,7 @@ public class App extends Application implements StateChangeListener {
 
         itmEngines.setOnAction(e -> {
             DialogEngines dlg = new DialogEngines();
-            boolean accepted = dlg.show();
+            boolean accepted = dlg.show(gameModel.engines);
             if(accepted) {
 
             }

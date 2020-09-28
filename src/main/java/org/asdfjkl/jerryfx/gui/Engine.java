@@ -1,11 +1,15 @@
 package org.asdfjkl.jerryfx.gui;
 
+import java.util.ArrayList;
+
 public class Engine {
 
     private String name = "";
     private String path = "";
 
     private boolean isInternal = false;
+
+    public ArrayList<EngineOption> options = new ArrayList<>();
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

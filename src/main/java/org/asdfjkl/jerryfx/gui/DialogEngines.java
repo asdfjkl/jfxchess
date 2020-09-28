@@ -1,5 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -9,16 +10,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 public class DialogEngines {
+
+    final FileChooser fileChooser = new FileChooser();
 
     Stage stage;
     boolean accepted = false;
 
-    ListView<String> engineList;
+    ObservableList<Engine> engineList;
+    ListView<Engine> engineListView;
 
     Button btnAdd = new Button("Add...");
     Button btnRemove = new Button("Remove...");
@@ -28,13 +37,26 @@ public class DialogEngines {
     Button btnOk;
     Button btnCancel;
 
-    public boolean show() {
+    public boolean show(ArrayList<Engine> engines) {
 
-        engineList = new ListView<String>();
-        // just for testing
-        ObservableList<String> items = FXCollections.observableArrayList (
-                "Stockfish (internal)", "Stockfish", "Arasan", "Lc0");
-        engineList.setItems(items);
+        engineList = FXCollections.observableArrayList(new ArrayList<Engine>());
+
+        engineListView = new ListView<Engine>();
+        engineListView.setItems(engineList);
+
+        engineListView.setCellFactory(param -> new ListCell<Engine>() {
+            @Override
+            protected void updateItem(Engine item, boolean empty) {
+                System.out.println("update item called");
+                super.updateItem(item, empty);
+
+                if (empty || item == null || item.getName() == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName());
+                }
+            }
+        });
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -67,8 +89,8 @@ public class DialogEngines {
         vbButtonsRight.setPadding( new Insets(0,0,0,10));
 
         HBox hbMain = new HBox();
-        hbMain.getChildren().addAll(engineList, vbButtonsRight);
-        hbMain.setHgrow(engineList, Priority.ALWAYS);
+        hbMain.getChildren().addAll(engineListView, vbButtonsRight);
+        hbMain.setHgrow(engineListView, Priority.ALWAYS);
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(hbMain, hbButtons);
@@ -82,6 +104,14 @@ public class DialogEngines {
 
         btnCancel.setOnAction(e -> {
             btnCancelClicked();
+        });
+
+        btnAdd.setOnAction(e -> {
+            btnAddEngineClicked();
+        });
+
+        btnRemove.setOnAction(e -> {
+            btnRemoveEngineClicked();
         });
 
         Scene scene = new Scene(vbMain);
@@ -102,6 +132,101 @@ public class DialogEngines {
     private void btnCancelClicked() {
         accepted = false;
         stage.close();
+    }
+
+    private void btnRemoveEngineClicked() {
+        Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
+        engineList.remove(selectedEngine);
+    }
+
+    private void btnAddEngineClicked() {
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            try {
+                String line;
+
+                Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
+                OutputStream stdout = engineProcess.getOutputStream ();
+                InputStream stderr = engineProcess.getErrorStream ();
+                InputStream stdin = engineProcess.getInputStream ();
+
+                BufferedReader bri = new BufferedReader (new InputStreamReader(engineProcess.getInputStream()));
+                BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
+                BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
+
+                System.out.println("after sleep, sending uci");
+                bro.write("uci\n");
+                bro.flush();
+
+                for(int i=0;i<20;i++) {
+                    try {
+                        Thread.sleep(40);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Engine engine = new Engine();
+                engine.setPath(file.getAbsolutePath());
+
+                //System.out.println("after uci");
+                while(bri.ready()) {
+                    EngineOption engineOption = new EngineOption();
+                    line = bri.readLine();
+                    System.out.println(line);
+                    if(line.startsWith("id name")) {
+                        engine.setName(line.substring(7).trim());
+                        System.out.println("id: "+engine.getName());
+                    }
+                    boolean parsed = engineOption.parseUciOptionString(line);
+                    if(parsed) {
+                        System.out.println(engineOption.toUciOptionString());
+                        engine.options.add(engineOption);
+                    }
+                }
+                //System.out.println("after uci, read output");
+
+                bro.write("quit\n");
+                bro.flush();
+                //System.out.println("after writing quit");
+
+                bri.close();
+                bro.close();
+                bre.close();
+
+                try {
+                    boolean finished = engineProcess.waitFor(500, TimeUnit.MILLISECONDS);
+                    if(!finished) {
+                        engineProcess.destroy();
+                    }
+                } catch(InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if(engine.getName() != null && !engine.getName().isEmpty()) {
+                    System.out.println("engine id: "+engine.getName());
+                    engineList.add(engine);
+                    int idx = engineList.indexOf(engine);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            engineListView.scrollTo(idx);
+                            engineListView.getSelectionModel().select(idx);
+                        }
+                    });
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
     }
 
 }
