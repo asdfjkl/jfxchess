@@ -1,7 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -27,6 +26,8 @@ import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.lib.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -38,6 +39,7 @@ public class App extends Application implements StateChangeListener {
     Text txtGameData;
     GameModel gameModel;
     EngineOutputView engineOutputView;
+    EngineController engineController;
 
     ToggleButton tglEngineOnOff;
 
@@ -57,6 +59,7 @@ public class App extends Application implements StateChangeListener {
 
         gameModel = new GameModel();
         gameModel.restoreModel();
+        gameModel.restoreEngines();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
 
@@ -303,7 +306,7 @@ public class App extends Application implements StateChangeListener {
         // connect mode controller
         engineOutputView = new EngineOutputView(txtEngineOut);
         modeMenuController = new ModeMenuController(gameModel, engineOutputView);
-        EngineController engineController = new EngineController(modeMenuController);
+        engineController = new EngineController(modeMenuController);
         modeMenuController.setEngineController(engineController);
 
         EditMenuController editMenuController = new EditMenuController(gameModel);
@@ -447,9 +450,22 @@ public class App extends Application implements StateChangeListener {
 
         itmEngines.setOnAction(e -> {
             DialogEngines dlg = new DialogEngines();
-            boolean accepted = dlg.show(gameModel.engines);
+            ArrayList<Engine> enginesCopy = new ArrayList<>();
+            for(Engine engine : gameModel.engines) {
+                enginesCopy.add(engine);
+            }
+            int selectedIdx = gameModel.engines.indexOf(gameModel.activeEngine);
+            if(selectedIdx < 0) {
+                selectedIdx = 0;
+            }
+            boolean accepted = dlg.show(enginesCopy, selectedIdx);
             if(accepted) {
-
+                //List<Engine> engineList = dlg.engineList
+                ArrayList<Engine> engineList = new ArrayList<>(dlg.engineList);
+                Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
+                gameModel.engines = engineList;
+                gameModel.activeEngine = selectedEngine;
+                gameModel.triggerStateChange();
             }
         });
 
@@ -663,6 +679,9 @@ public class App extends Application implements StateChangeListener {
                 spChessboardMoves.getDividerPositions()[0],
                 spMain.getDividerPositions()[0]);
         gameModel.saveScreenGeometry(g);
+        gameModel.saveEngines();
+
+        engineController.sendCommand("quit");
 
         stage.close();
     }

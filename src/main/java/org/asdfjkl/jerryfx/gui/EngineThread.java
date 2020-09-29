@@ -55,6 +55,9 @@ public class EngineThread extends Thread {
         while (running) {
             if (this.isInterrupted()) {
                 // here: delete process if it exists
+                if(engineProcess.isAlive()) {
+                    engineProcess.destroy();
+                }
                 running = false;
             }
             // process engine output
@@ -121,7 +124,9 @@ public class EngineThread extends Thread {
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
                             try {
+                                System.out.println("thread: starting engine");
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
+                                System.out.println("thread: engine process started, is now "+engineProcess);
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
                                 engineRunning = true;
@@ -151,6 +156,21 @@ public class EngineThread extends Thread {
                         // check if engine is ready to receive commands
                         // but only do this once (check via requestedReadyOk)
                         if(!readyok) {
+                            // the command uci must be send immediatly after startup
+                            // some engines will not report readyok on isready directly
+                            // after startup (like e.g. arasan). thus always send
+                            // 'uci' without waiting for isready
+                            String cmd = (String) cmdQueue.peek();
+                            if(cmd != null && cmd.equals("uci")) {
+                                try {
+                                    cmdQueue.take();
+                                    engineInput.write("uci\n");
+                                    engineInput.flush();
+                                    continue;
+                                } catch (InterruptedException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             if(!requestedReadyOk) {
                                 try {
                                     engineInput.write("isready\n");
@@ -210,6 +230,7 @@ public class EngineThread extends Thread {
                                     // if we quit the engine, give some
                                     // time for the engine to quit
                                     if(cmd.contains("quit")) {
+                                        System.out.println("thread: quitting...");
                                         Thread.sleep(500);
                                     }
                                     continue;

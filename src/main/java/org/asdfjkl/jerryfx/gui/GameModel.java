@@ -175,6 +175,43 @@ public class GameModel {
 
     }
 
+    public void saveEngines() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        for(int i=1;i<engines.size();i++) {
+            Engine engine = engines.get(i);
+            String engineString = engine.writeToString();
+            prefs.put("ENGINE"+i, engineString);
+            System.out.println("SAVED: "+engineString);
+        }
+        prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+    }
+
+    public void restoreEngines() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        if(mVersion == modelVersion) {
+
+            for(int i=1;i<10;i++) {
+                String engineString = prefs.get("ENGINE"+i, "");
+                System.out.println("RESTORED: "+engineString);
+                if(!engineString.isEmpty()) {
+                    Engine engine = new Engine();
+                    engine.restoreFromString(engineString);
+                    engines.add(engine);
+                }
+            }
+            int activeIdx = prefs.getInt("ACTIVE_ENGINE_IDX", 0);
+            if(activeIdx < engines.size()) {
+                activeEngine = engines.get(activeIdx);
+            } else {
+                activeEngine = engines.get(0);
+            }
+        }
+    }
+
     public void saveScreenGeometry(ScreenGeometry g) {
 
         Preferences prefs = Preferences.userRoot().node(this.getClass().getName());

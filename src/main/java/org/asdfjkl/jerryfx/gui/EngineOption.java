@@ -24,10 +24,62 @@ public class EngineOption {
 
     public String comboDefault;
     public String comboValue;
-    public ArrayList<String> comboValues;
+    public ArrayList<String> comboValues = new ArrayList<>();
 
     public String stringValue;
     public String stringDefault;
+
+    public EngineOption makeCopy() {
+
+        EngineOption copy = new EngineOption();
+        copy.type = this.type;
+        copy.name = this.name;
+        copy.checkStatusValue = this.checkStatusValue;
+        copy.checkStatusDefault = this.checkStatusDefault;
+
+        copy.spinValue = this.spinValue;
+        copy.spinMin = this.spinMin;
+        copy.spinMax = this.spinMax;
+        copy.spinDefault = this.spinDefault;
+
+        copy.comboDefault = this.comboDefault;
+        copy.comboValue = this.comboValue;
+        for(String comboVal : comboValues) {
+            copy.comboValues.add(comboVal);
+        }
+        copy.stringValue = this.stringValue;
+        copy.stringDefault = this.stringDefault;
+
+        return copy;
+    }
+
+    public void resetToDefault() {
+
+        checkStatusValue = checkStatusDefault;
+        spinValue = spinDefault;
+        comboValue = comboDefault;
+        stringValue = stringDefault;
+    }
+
+    public boolean isNotDefault() {
+        if(type == EN_OPT_TYPE_CHECK) {
+            return (checkStatusDefault == checkStatusValue);
+        }
+
+        if(type == EN_OPT_TYPE_SPIN) {
+            return (spinValue == spinDefault);
+        }
+
+        if(type == EN_OPT_TYPE_COMBO) {
+            return (comboValue.equals(comboDefault));
+        }
+
+        if(type == EN_OPT_TYPE_STRING) {
+            return (stringDefault.equals(stringValue));
+        }
+
+        return true;
+    }
 
     public String toUciCommand() {
 
@@ -83,6 +135,7 @@ public class EngineOption {
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         spinDefault = Integer.parseInt(opts[i + 1]);
+                        spinValue = spinDefault;
                     }
                     if (opts[i].equals("min") && i + 1 < opts.length) {
                         spinMin = Integer.parseInt(opts[i + 1]);
@@ -99,8 +152,10 @@ public class EngineOption {
 
                 if (optionString.contains("default true")) {
                     checkStatusDefault = true;
+                    checkStatusValue = true;
                 } else {
                     checkStatusDefault = false;
+                    checkStatusValue = false;
                 }
             }
 
@@ -111,6 +166,7 @@ public class EngineOption {
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         stringDefault = opts[i + 1];
+                        stringValue = stringDefault;
                     }
                 }
             }
@@ -122,9 +178,11 @@ public class EngineOption {
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         comboDefault = opts[i + 1];
+                        comboValue = comboDefault;
                     }
                     if (opts[i].equals("var") && i + 1 < opts.length) {
                         comboValues.add(opts[i + 1]);
+                        comboValue = comboDefault;
                     }
                 }
             }
@@ -152,7 +210,7 @@ public class EngineOption {
         }
 
         if(type == EN_OPT_TYPE_STRING) {
-            String s = "option name "+name+" type string default "+spinDefault;
+            String s = "option name "+name+" type string default "+stringValue;
             return s;
         }
 

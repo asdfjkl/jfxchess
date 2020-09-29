@@ -1,6 +1,8 @@
 package org.asdfjkl.jerryfx.gui;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -18,6 +20,8 @@ import jfxtras.styles.jmetro.JMetro;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import static org.asdfjkl.jerryfx.gui.EngineOption.*;
 
 public class DialogEngines {
 
@@ -37,9 +41,11 @@ public class DialogEngines {
     Button btnOk;
     Button btnCancel;
 
-    public boolean show(ArrayList<Engine> engines) {
+    int selectedIndex = 0;
 
-        engineList = FXCollections.observableArrayList(new ArrayList<Engine>());
+    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine) {
+
+        engineList = FXCollections.observableArrayList(engines);
 
         engineListView = new ListView<Engine>();
         engineListView.setItems(engineList);
@@ -47,13 +53,29 @@ public class DialogEngines {
         engineListView.setCellFactory(param -> new ListCell<Engine>() {
             @Override
             protected void updateItem(Engine item, boolean empty) {
-                System.out.println("update item called");
                 super.updateItem(item, empty);
 
                 if (empty || item == null || item.getName() == null) {
                     setText(null);
                 } else {
                     setText(item.getName());
+                }
+            }
+        });
+
+        engineListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Engine>() {
+            @Override
+            public void changed(ObservableValue<? extends Engine> observable, Engine oldValue, Engine newValue) {
+
+                selectedIndex = engineList.indexOf(newValue);
+                if(selectedIndex == 0) {
+                    btnEditParameters.setDisable(true);
+                    btnResetParameters.setDisable(true);
+                    btnRemove.setDisable(true);
+                } else {
+                    btnEditParameters.setDisable(false);
+                    btnResetParameters.setDisable(false);
+                    btnRemove.setDisable(false);
                 }
             }
         });
@@ -114,6 +136,16 @@ public class DialogEngines {
             btnRemoveEngineClicked();
         });
 
+        btnEditParameters.setOnAction(e -> {
+            btnEditParameteresClicked();
+        });
+
+        btnResetParameters.setOnAction(e -> {
+            btnResetParametersClicked();
+        });
+
+        engineListView.getSelectionModel().select(idxSelectedEngine);
+
         Scene scene = new Scene(vbMain);
 
         JMetro jMetro = new JMetro();
@@ -137,6 +169,59 @@ public class DialogEngines {
     private void btnRemoveEngineClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         engineList.remove(selectedEngine);
+        if(engineList.size() > 9) {
+            btnAdd.setDisable(true);
+        } else {
+            btnAdd.setDisable(false);
+        }
+    }
+
+    private void btnResetParametersClicked() {
+
+        Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
+        for(EngineOption enOpt : selectedEngine.options) {
+            enOpt.resetToDefault();
+        }
+    }
+
+    private void btnEditParameteresClicked() {
+        Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
+        DialogEngineOptions dlg = new DialogEngineOptions();
+        boolean accepted = dlg.show(selectedEngine.options);
+        if(accepted) {
+            // collect all entries from dialog
+            for(EngineOption enOpt : selectedEngine.options) {
+
+                String optName = enOpt.name;
+                if(enOpt.type == EN_OPT_TYPE_CHECK) {
+                    CheckBox widget = dlg.checkboxWidgets.get(optName);
+                    if(widget != null) {
+                        enOpt.checkStatusValue = widget.isSelected();
+                    }
+                }
+                if(enOpt.type == EN_OPT_TYPE_COMBO) {
+                    ComboBox<String> widget = dlg.comboboxWidgets.get(optName);
+                    if(widget != null) {
+                        enOpt.comboValue = widget.getSelectionModel().getSelectedItem();
+                    }
+                }
+                if(enOpt.type == EN_OPT_TYPE_SPIN) {
+                    Spinner<Integer> widget = (Spinner<Integer>) dlg.spinnerWidgets.get(optName);
+                    if(widget != null) {
+                        enOpt.spinValue = widget.getValue();
+                    }
+                }
+                if(enOpt.type == EN_OPT_TYPE_STRING) {
+                    TextField widget = dlg.textfieldWidgets.get(optName);
+                    if(widget != null) {
+                        enOpt.stringValue = widget.getText();
+                    }
+                }
+            }
+        }
+        for(EngineOption eo : selectedEngine.options) {
+            System.out.println(eo.toUciCommand());
+        }
     }
 
     private void btnAddEngineClicked() {
@@ -157,7 +242,7 @@ public class DialogEngines {
                 BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
                 BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
 
-                System.out.println("after sleep, sending uci");
+                //System.out.println("after sleep, sending uci");
                 bro.write("uci\n");
                 bro.flush();
 
@@ -179,17 +264,17 @@ public class DialogEngines {
                     System.out.println(line);
                     if(line.startsWith("id name")) {
                         engine.setName(line.substring(7).trim());
-                        System.out.println("id: "+engine.getName());
+                        //System.out.println("id: "+engine.getName());
                     }
                     boolean parsed = engineOption.parseUciOptionString(line);
                     if(parsed) {
-                        System.out.println(engineOption.toUciOptionString());
+                        //System.out.println(engineOption.toUciOptionString());
                         engine.options.add(engineOption);
                     }
                 }
                 //System.out.println("after uci, read output");
 
-                bro.write("quit\n");
+                //bro.write("quit\n");
                 bro.flush();
                 //System.out.println("after writing quit");
 
@@ -207,7 +292,7 @@ public class DialogEngines {
                 }
 
                 if(engine.getName() != null && !engine.getName().isEmpty()) {
-                    System.out.println("engine id: "+engine.getName());
+                    //System.out.println("engine id: "+engine.getName());
                     engineList.add(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {
@@ -225,8 +310,11 @@ public class DialogEngines {
             }
         }
 
-
-
+        if(engineList.size() > 9) {
+            btnAdd.setDisable(true);
+        } else {
+            btnAdd.setDisable(false);
+        }
     }
 
 }

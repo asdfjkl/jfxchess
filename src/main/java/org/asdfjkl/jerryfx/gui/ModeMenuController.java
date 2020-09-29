@@ -47,21 +47,16 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
+        System.out.println("activateAnalysis: " + cmdEngine);
         engineController.sendCommand("start "+cmdEngine);
-        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("uci");
+        engineController.sendCommand("ucinewgame");
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            if(enOpt.isNotDefault()) {
+                engineController.sendCommand(enOpt.toUciCommand());
+            }
+        }
         engineController.sendCommand("setoption name MultiPV value "+gameModel.getMultiPv());
-        // set engine strength to MAX
-        // since we use stockfish, this is 20
-        // will be just ignored by other engines
-        // internal engine is always at idx 0.
-        // for 0, i.e. INTERNAL_ENGINE_IDX
-        // todo
-        // set all engine options
-        // todo
-        // also send multi pv command according to current selection
-        // todo
-        // then trigger state change
         gameModel.setMode(GameModel.MODE_ANALYSIS);
         gameModel.triggerStateChange();
     }
@@ -132,9 +127,13 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
         engineController.sendCommand("start "+cmdEngine);
-        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("uci");
-        // todo: send other engine options
+        engineController.sendCommand("ucinewgame");
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            if(enOpt.isNotDefault()) {
+                engineController.sendCommand(enOpt.toUciCommand());
+            }
+        }
         if(gameModel.activeEngine.isInternal()) {
             engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
         }
@@ -152,9 +151,13 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
         engineController.sendCommand("start "+cmdEngine);
-        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("uci");
-        // todo: send other engine options
+        engineController.sendCommand("ucinewgame");
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            if(enOpt.isNotDefault()) {
+                engineController.sendCommand(enOpt.toUciCommand());
+            }
+        }
         if(gameModel.activeEngine.isInternal()) {
             engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
         }
@@ -172,9 +175,13 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
         engineController.sendCommand("start "+cmdEngine);
-        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("uci");
-        // todo: send other engine options
+        engineController.sendCommand("ucinewgame");
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            if(enOpt.isNotDefault()) {
+                engineController.sendCommand(enOpt.toUciCommand());
+            }
+        }
         // trigger statechange
         gameModel.setMode(GameModel.MODE_PLAYOUT_POSITION);
         gameModel.setFlipBoard(false);
@@ -193,8 +200,8 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
         engineController.sendCommand("start "+cmdEngine);
-        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("uci");
+        engineController.sendCommand("ucinewgame");
         engineController.sendCommand("setoption name MultiPV value 1");
 
         gameModel.setFlipBoard(false);
