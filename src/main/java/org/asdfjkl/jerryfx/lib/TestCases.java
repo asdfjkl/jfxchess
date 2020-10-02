@@ -1,5 +1,7 @@
 package org.asdfjkl.jerryfx.lib;
 
+import org.asdfjkl.jerryfx.gui.PgnSTR;
+
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -341,8 +343,54 @@ public class TestCases {
                 }
             }
         }
+    }
 
+    public void pgnScanSTRTest() {
 
+        System.out.println("TEST: scanning PGN for game STR offsets");
+        String kingbase = "C:/Users/user/MyFiles/workspace/test_databases/KingBaseLite2016-03-E60-E99.pgn";
+        String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
+        String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
+        PgnReader reader = new PgnReader();
+        if(reader.isIsoLatin1(millbase)) {
+            reader.setEncodingIsoLatin1();
+        }
+
+        long startTime = System.currentTimeMillis();
+        ArrayList<PgnSTR> entries = reader.scanPgnGetSTR(millbase);
+        long stopTime = System.currentTimeMillis();
+
+        long timeElapsed = stopTime - startTime;
+        System.out.println("elapsed time: "+(timeElapsed/1000)+" secs");
+
+        System.out.println(entries.size());
+
+        for(int i=0;i<10;i++) {
+            PgnSTR entry_i = entries.get(i);
+            RandomAccessFile raf = null;
+            try {
+                raf = new RandomAccessFile(millbase, "r");
+                try {
+                    raf.seek(entry_i.getOffset());
+                    String line = raf.readLine();
+                    System.out.println("START"+line+"STOP");
+                    System.out.println(entry_i.getEvent());
+                    System.out.println("");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if(raf != null) {
+                    try {
+                        raf.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     public void pgnReadGameTest() {

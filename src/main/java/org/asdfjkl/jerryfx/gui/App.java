@@ -53,7 +53,9 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void start(Stage stage) {
 
-        //TestCases tests = new TestCases();
+        TestCases tests = new TestCases();
+        //tests.pgnScanTest();
+        //tests.pgnScanSTRTest();
         //tests.testPolyglot();
         //tests.readGamesByStringTest();
 
@@ -504,6 +506,14 @@ public class App extends Application implements StateChangeListener {
                 engineOutputView.enableOutput();
             }
             gameModel.triggerStateChange();
+        });
+
+        itmBrowseDatabase.setOnAction(e -> {
+            DialogDatabase dlg = new DialogDatabase();
+            boolean accepted = dlg.show();
+            if(accepted) {
+
+            }
         });
 
         itmAbout.setOnAction(event -> {

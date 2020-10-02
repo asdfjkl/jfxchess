@@ -2,6 +2,7 @@ package org.asdfjkl.jerryfx.lib;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import org.asdfjkl.jerryfx.gui.PgnSTR;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ public class PgnReader {
     public void setEncodingIsoLatin1() {
         this.encoding = "ISO-8859-1";
     }
+
+    public String getEncoding() { return encoding; }
 
     public boolean isIsoLatin1(String filename) {
 
@@ -115,6 +118,89 @@ public class PgnReader {
         return isUtf8;
     }
     */
+
+    ArrayList<PgnSTR> scanPgnGetSTR(String filename) {
+
+        ArrayList<PgnSTR> entries = new ArrayList<>();
+
+        boolean inComment = false;
+        long game_pos = -1;
+        PgnSTR current = null;
+        long last_pos = 0;
+
+        String currentLine = "";
+        OptimizedRandomAccessFile raf = null;
+        try {
+            raf = new OptimizedRandomAccessFile(filename, "r");
+            while ((currentLine = raf.readLine()) != null) {
+                // skip comments
+                if (currentLine.startsWith("%")) {
+                    continue;
+                }
+
+                if (!inComment && currentLine.startsWith("[")) {
+
+                    if (game_pos == -1) {
+                        game_pos = last_pos;
+                        current = new PgnSTR();
+                    }
+                    last_pos = raf.getFilePointer();
+
+                    if (currentLine.length() > 4) {
+                        int spaceOffset = currentLine.indexOf(' ');
+                        int firstQuote = currentLine.indexOf('"');
+                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
+                        String tag = currentLine.substring(1, spaceOffset);
+                        String value = currentLine.substring(firstQuote + 1, secondQuote);
+                        String valueEncoded = new String(value.getBytes("ISO-8859-1"), encoding);
+                        if(tag.equals("Event")) {
+                            current.setEvent(valueEncoded);
+                        }
+                        if(tag.equals("Site")) {
+                            current.setSite(valueEncoded);
+                        }
+                        if(tag.equals("Round")) {
+                            current.setRound(valueEncoded);
+                        }
+                        if(tag.equals("White")) {
+                            current.setWhite(valueEncoded);
+                        }
+                        if(tag.equals("Black")) {
+                            current.setBlack(valueEncoded);
+                        }
+                        if(tag.equals("Result")) {
+                            current.setResult(valueEncoded);
+                        }
+                    }
+
+                    continue;
+                }
+                if ((!inComment && currentLine.contains("{"))
+                        || (inComment && currentLine.contains("}"))) {
+                    inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
+                }
+
+                if (game_pos != -1) {
+                    current.setOffset(game_pos);
+                    entries.add(current);
+                    game_pos = -1;
+                }
+
+                last_pos = raf.getFilePointer();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return entries;
+    }
 
 
 
