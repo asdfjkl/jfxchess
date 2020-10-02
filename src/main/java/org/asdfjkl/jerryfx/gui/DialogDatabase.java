@@ -70,61 +70,46 @@ public class DialogDatabase {
         TableColumn<PgnSTR, Long> colIndex = new TableColumn<PgnSTR, Long>("No.");
         colIndex.setCellValueFactory(new PropertyValueFactory<PgnSTR, Long>("Index"));
         colIndex.setMinWidth(100);
+        colIndex.setSortable(false);
 
         TableColumn<PgnSTR, String> colEvent = new TableColumn<PgnSTR, String>("Event");
         colEvent.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Event"));
         colEvent.setMinWidth(200);
-
-        TableColumn<PgnSTR, String> colSite = new TableColumn<PgnSTR, String>("Site");
-        colSite.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Site"));
-        colSite.setMinWidth(150);
+        colEvent.setSortable(false);
 
         TableColumn<PgnSTR, String> colDate = new TableColumn<PgnSTR, String>("Date");
         colDate.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Date"));
         colDate.setMinWidth(100);
-
-        TableColumn<PgnSTR, String> colRound = new TableColumn<PgnSTR, String>("Round");
-        colRound.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Round"));
-        colRound.setMinWidth(40);
+        colDate.setSortable(false);
 
         TableColumn<PgnSTR, String> colWhite = new TableColumn<PgnSTR, String>("White");
         colWhite.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("White"));
         colWhite.setMinWidth(200);
+        colWhite.setSortable(false);
 
         TableColumn<PgnSTR, String> colBlack = new TableColumn<PgnSTR, String>("Black");
         colBlack.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Black"));
         colBlack.setMinWidth(200);
+        colBlack.setSortable(false);
 
         TableColumn<PgnSTR, String> colResult = new TableColumn<PgnSTR, String>("Result");
         colResult.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Result"));
         colResult.setMinWidth(100);
+        colResult.setSortable(false);
 
         TableColumn<PgnSTR, String> colEco = new TableColumn<PgnSTR, String>("ECO");
         colEco.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Eco"));
         colEco.setMinWidth(30);
+        colEco.setSortable(false);
 
         ObservableList<PgnSTR> emptyList = FXCollections.observableArrayList();
-        /*
-        PgnSTR bar = new PgnSTR();
-        bar.setIndex(0);
-        bar.setEvent("foo");
-        bar.setResult("1-0");
-        bar.setBlack("Black");
-        bar.setWhite("White");
-        bar.setRound("Round");
-        bar.setSite("Site");
-        bar.setDate("date");
-        foo.add(bar);
-         */
 
         table.getColumns().add(colIndex);
         table.getColumns().add(colWhite);
         table.getColumns().add(colBlack);
         table.getColumns().add(colEvent);
         table.getColumns().add(colEco);
-        // table.getColumns().add(colSite);
         table.getColumns().add(colDate);
-        //table.getColumns().add(colRound);
         table.getColumns().add(colResult);
         table.setItems(emptyList);
 
