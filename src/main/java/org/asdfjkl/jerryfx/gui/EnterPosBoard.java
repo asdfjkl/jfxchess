@@ -23,7 +23,7 @@ public class EnterPosBoard extends Canvas {
     BoardStyle boardStyle;
     double outputScaleX;
     Board board;
-    boolean flipBoard = true;
+    boolean flipBoard = false;
 
     int innerXOffset;
     int innerYOffset;

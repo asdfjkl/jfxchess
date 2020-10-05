@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -151,6 +152,8 @@ public class DialogEngines {
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         stage.setScene(scene);
+        stage.getIcons().add(new Image("icons/app_icon.png"));
+
         stage.showAndWait();
 
         return accepted;

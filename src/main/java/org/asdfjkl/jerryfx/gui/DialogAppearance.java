@@ -3,6 +3,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -158,6 +159,7 @@ public class DialogAppearance {
         stage.setScene(scene);
         stage.setWidth(width);
         stage.setHeight(height);
+        stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.showAndWait();
 
         return accepted;

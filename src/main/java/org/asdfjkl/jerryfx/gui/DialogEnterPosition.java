@@ -3,6 +3,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -76,7 +77,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         btnFlipBoard.setMinWidth(vbButtonsRight.getPrefWidth());
         btnInitialPosition.setMinWidth(vbButtonsRight.getPrefWidth());
         btnClearBoard.setMinWidth(vbButtonsRight.getPrefWidth());
-        btnInitialPosition.setMinWidth(vbButtonsRight.getPrefWidth());
+        btnCurrentPosition.setMinWidth(vbButtonsRight.getPrefWidth());
 
         vbButtonsRight.getChildren().addAll(lblCastlingRights,
                 cbCastlesWK, cbCastlesWQ, cbCastlesBK, cbCastlesBQ,
@@ -199,6 +200,8 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         stage.setScene(scene);
         stage.setWidth(width);
         stage.setHeight(height);
+        stage.getIcons().add(new Image("icons/app_icon.png"));
+
         stage.showAndWait();
 
         return accepted;

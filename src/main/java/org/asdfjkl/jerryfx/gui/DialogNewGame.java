@@ -3,6 +3,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -208,6 +209,7 @@ public class DialogNewGame {
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         stage.setScene(scene);
+        stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();
 

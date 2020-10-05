@@ -13,18 +13,8 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
-import org.asdfjkl.jerryfx.lib.PgnReader;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DialogDatabase {
 
@@ -32,16 +22,20 @@ public class DialogDatabase {
     boolean accepted = false;
     TableView<PgnSTR> table;
 
-
-    PgnDatabase pgnDatabase = new PgnDatabase();
+    PgnDatabase pgnDatabase;
+    SearchPattern searchPattern;
+    GameModel gameModel;
 
     final FileChooser fileChooser = new FileChooser();
 
-    public boolean show() {
+    public boolean show(GameModel gameModel) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
 
+        pgnDatabase = gameModel.getPgnDatabase();
+        searchPattern = gameModel.getSearchPattern();
+        this.gameModel = gameModel;
         pgnDatabase.setDialogDatabase(this);
 
         ToolBar toolBar = new ToolBar();
@@ -143,11 +137,27 @@ public class DialogDatabase {
             btnOpenClicked();
         });
 
+        btnSearch.setOnAction(e -> {
+            btnSearchClicked();
+        });
+
+        btnResetSearch.setOnAction(e -> {
+            resetSearchClicked();
+        });
+
+        btnAbout.setOnAction(e -> {
+            btnAboutClicked();
+        });
+
         Scene scene = new Scene(vbox);
 
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         stage.setMinWidth(1050);
+        // unfocus all buttons and widgets
+        vbox.requestFocus();
+
+        stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.setScene(scene);
         stage.showAndWait();
@@ -165,10 +175,34 @@ public class DialogDatabase {
         stage.close();
     }
 
+    private void btnAboutClicked() {
+        DialogAboutDatabase.show();
+    }
+
+    private void btnSearchClicked() {
+
+        DialogSearchGames dlg = new DialogSearchGames();
+        System.out.println("MIN MOVE:" + gameModel.getSearchPattern().getMinMove());
+        //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
+        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.getSearchPattern());
+        if(accepted) {
+
+        }
+
+    }
+
     public void updateTable() {
 
         table.setItems(pgnDatabase.getEntries());
 
+    }
+
+    public void updateTableWithSearchResults() {
+        table.setItems(pgnDatabase.getSearchResults());
+    }
+
+    public void resetSearchClicked() {
+        updateTable();
     }
 
     private void btnOpenClicked() {
@@ -188,4 +222,6 @@ public class DialogDatabase {
 
         }
     }
+
+
 }

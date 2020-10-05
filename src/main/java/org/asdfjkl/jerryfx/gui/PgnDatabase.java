@@ -26,11 +26,14 @@ import java.util.Collection;
 public class PgnDatabase {
 
     private ObservableList<PgnSTR> entries;
+    private ObservableList<PgnSTR> searchResults;
     PgnReader reader;
     String filename;
     static Stage stage;
 
     DialogDatabase dialogDatabase = null;
+
+    public String lastOpenedFilePath = "";
 
     public PgnDatabase() {
         entries = FXCollections.observableArrayList(); //new ArrayList<>();
@@ -39,6 +42,10 @@ public class PgnDatabase {
 
     public ObservableList<PgnSTR> getEntries() {
         return entries;
+    }
+
+    public ObservableList<PgnSTR> getSearchResults() {
+        return searchResults;
     }
 
     public void setDialogDatabase(DialogDatabase dialogDatabase) {

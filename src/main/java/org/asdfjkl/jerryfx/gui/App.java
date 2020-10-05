@@ -510,7 +510,7 @@ public class App extends Application implements StateChangeListener {
 
         itmBrowseDatabase.setOnAction(e -> {
             DialogDatabase dlg = new DialogDatabase();
-            boolean accepted = dlg.show();
+            boolean accepted = dlg.show(gameModel);
             if(accepted) {
 
             }
@@ -645,6 +645,7 @@ public class App extends Application implements StateChangeListener {
         // unfocus any default button etc.
         spMain.requestFocus();
 
+        stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.show();
 
         // recover divider ratios at the last step, as show() might trigger resizes

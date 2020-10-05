@@ -55,9 +55,17 @@ public class GameModel {
 
     private static final int modelVersion = 4;
 
+    private PgnDatabase pgnDatabase;
+
+    private SearchPattern searchPattern;
+
     public GameModel() {
         this.game = new Game();
         Board b = new Board(true);
+
+        pgnDatabase = new PgnDatabase();
+        searchPattern = new SearchPattern();
+
         this.game.getRootNode().setBoard(b);
         this.currentMode = MODE_ENTER_MOVES;
 
@@ -140,6 +148,18 @@ public class GameModel {
     public boolean getGameAnalysisJustStarted() { return gameAnalysisJustStarted; }
 
     public void setGameAnalysisJustStarted(boolean val) { gameAnalysisJustStarted = val; }
+
+    public PgnDatabase getPgnDatabase() {
+        return pgnDatabase;
+    }
+
+    public SearchPattern getSearchPattern() {
+        return searchPattern;
+    }
+
+    public void setSearchPattern(SearchPattern searchPattern) {
+        this.searchPattern = searchPattern;
+    }
 
     public void setMultiPv(int multiPv) {
         if(multiPv < 1) {
