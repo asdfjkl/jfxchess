@@ -56,6 +56,7 @@ public class GameModel {
     private static final int modelVersion = 4;
 
     private PgnDatabase pgnDatabase;
+    public int currentPgnDatabaseIdx = 0;
 
     private SearchPattern searchPattern;
 

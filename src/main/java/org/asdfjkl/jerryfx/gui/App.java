@@ -530,7 +530,12 @@ public class App extends Application implements StateChangeListener {
             DialogDatabase dlg = new DialogDatabase();
             boolean accepted = dlg.show(gameModel);
             if(accepted) {
-
+                int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
+                gameModel.currentPgnDatabaseIdx = gameIndex;
+                Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
+                gameModel.setGame(g);
+                g.setTreeWasChanged(true);
+                gameModel.triggerStateChange();
             }
         });
 
@@ -600,16 +605,6 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnNextGame.setOnAction(e -> {
-            Task<Void> task = new Task<Void>() {
-                @Override protected Void call() throws Exception {
-
-                    TestCases tests = new TestCases();
-                    tests.pgnReadAllMillBaseTest();
-                    return null;
-                }
-            };
-            System.out.println("in task:");
-            new Thread(task).start();
 
         });
 

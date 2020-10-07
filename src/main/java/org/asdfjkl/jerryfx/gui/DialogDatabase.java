@@ -99,7 +99,7 @@ public class DialogDatabase {
         colEco.setMinWidth(30);
         colEco.setSortable(false);
 
-        ObservableList<PgnSTR> emptyList = FXCollections.observableArrayList();
+        //ObservableList<PgnSTR> emptyList = FXCollections.observableArrayList();
 
         table.getColumns().add(colIndex);
         table.getColumns().add(colWhite);
@@ -108,7 +108,8 @@ public class DialogDatabase {
         table.getColumns().add(colEco);
         table.getColumns().add(colDate);
         table.getColumns().add(colResult);
-        table.setItems(emptyList);
+        table.setItems(pgnDatabase.getEntries());
+
 
         Button btnOk = new Button();
         btnOk.setText("Open Game");
@@ -149,19 +150,13 @@ public class DialogDatabase {
         });
 
         btnAbout.setOnAction(e -> {
-
-                Task<Void> task = new Task<Void>() {
-                    @Override protected Void call() throws Exception {
-
-                        TestCases tests = new TestCases();
-                        tests.pgnReadAllMillBaseTest();
-                        return null;
-                    }
-                };
-                System.out.println("in task:");
-                new Thread(task).start();
-            //btnAboutClicked();
+            btnAboutClicked();
         });
+
+        if(gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
+            table.getSelectionModel().select(gameModel.currentPgnDatabaseIdx);
+            table.scrollTo(gameModel.currentPgnDatabaseIdx);
+        }
 
         Scene scene = new Scene(vbox);
 

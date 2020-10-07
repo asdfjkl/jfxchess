@@ -16,10 +16,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
-import org.asdfjkl.jerryfx.lib.PgnReader;
-import org.asdfjkl.jerryfx.lib.TestCases;
+import org.asdfjkl.jerryfx.lib.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +40,8 @@ public class PgnDatabase {
         reader = new PgnReader();
     }
 
+    public int getNrGames() { return entries.size(); }
+
     public ObservableList<PgnSTR> getEntries() {
         return entries;
     }
@@ -53,6 +52,30 @@ public class PgnDatabase {
 
     public void setDialogDatabase(DialogDatabase dialogDatabase) {
         this.dialogDatabase = dialogDatabase;
+    }
+
+    public Game loadGame(int index) {
+
+        OptimizedRandomAccessFile raf = null;
+        Game g = new Game();
+        try {
+            raf = new OptimizedRandomAccessFile(filename, "r");
+            if(index < entries.size()) {
+                raf.seek(entries.get(index).getOffset());
+                g = reader.readGame(raf);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return g;
     }
 
     public void open() {
@@ -104,6 +127,9 @@ public class PgnDatabase {
                 try {
                     raf = new OptimizedRandomAccessFile(filename, "r");
                     while ((currentLine = raf.readLine()) != null) {
+                        if (isCancelled()) {
+                            break;
+                        }
                         // skip comments
                         if (currentLine.startsWith("%")) {
                             continue;
@@ -206,7 +232,9 @@ public class PgnDatabase {
             }
         });
 
-        new Thread(task).start();
+        Thread thread = new Thread(task);
+        thread.setDaemon(false);
+        thread.start();
 
     }
 
@@ -277,6 +305,9 @@ public class PgnDatabase {
                 try {
                     raf = new OptimizedRandomAccessFile(filename, "r");
                     for(int i=0;i<indices.size();i++) {
+                        if (isCancelled()) {
+                            break;
+                        }
                         if(i%50000 == 0) {
                             System.out.println(i);
                             updateProgress(i, entries.size());
@@ -331,7 +362,9 @@ public class PgnDatabase {
             }
         });
 
-        new Thread(task).start();
+        Thread thread = new Thread(task);
+        thread.setDaemon(false);
+        thread.start();
     }
 
 
