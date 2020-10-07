@@ -21,6 +21,25 @@ public class Game {
         this.pgnHeaders = new HashMap<String,String>();
     }
 
+    private boolean containsPositionRec(long positionHash, GameNode node) {
+        if(node.getBoard().getPositionHash() == positionHash) {
+            return true;
+        } else {
+            for(GameNode var_i : node.getVariations()) {
+                boolean hasPosition = containsPositionRec(positionHash, var_i);
+                if(hasPosition) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean containsPosition(long positionHash) {
+        GameNode current = this.getRootNode();
+        return containsPositionRec(positionHash, current);
+    }
+
     private GameNode findNodeByIdRec(int id, GameNode node) {
         if(node.getId() == id) {
             return node;

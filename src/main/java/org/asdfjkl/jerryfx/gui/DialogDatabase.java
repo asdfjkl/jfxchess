@@ -3,6 +3,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,6 +15,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import org.asdfjkl.jerryfx.lib.TestCases;
+
 import java.io.File;
 
 public class DialogDatabase {
@@ -146,7 +149,18 @@ public class DialogDatabase {
         });
 
         btnAbout.setOnAction(e -> {
-            btnAboutClicked();
+
+                Task<Void> task = new Task<Void>() {
+                    @Override protected Void call() throws Exception {
+
+                        TestCases tests = new TestCases();
+                        tests.pgnReadAllMillBaseTest();
+                        return null;
+                    }
+                };
+                System.out.println("in task:");
+                new Thread(task).start();
+            //btnAboutClicked();
         });
 
         Scene scene = new Scene(vbox);
@@ -186,7 +200,8 @@ public class DialogDatabase {
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
         boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.getSearchPattern());
         if(accepted) {
-
+            SearchPattern pattern = dlg.getSearchPattern();
+            pgnDatabase.search(pattern);
         }
 
     }

@@ -477,7 +477,7 @@ public class TestCases {
             }
             stopTime = System.currentTimeMillis();
             timeElapsed = stopTime - startTime;
-            System.out.println("elapsed time for reading each game: " + (timeElapsed / 1000) + " secs");
+            System.out.println("elapsed time for reading all games: " + (timeElapsed / 1000) + " secs");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

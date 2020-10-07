@@ -1,5 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
+import com.kitfox.svg.A;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,8 +16,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
+import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
 import org.asdfjkl.jerryfx.lib.PgnReader;
+import org.asdfjkl.jerryfx.lib.TestCases;
 
 import java.io.File;
 import java.io.IOException;
@@ -205,6 +208,130 @@ public class PgnDatabase {
 
         new Thread(task).start();
 
+    }
+
+    public void search(SearchPattern pattern) {
+
+        stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UNDECORATED);
+
+        Label lblScanPgn = new Label("Searching...");
+        ProgressBar progressBar = new ProgressBar();
+
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(lblScanPgn, progressBar);
+
+        vbox.setSpacing(10);
+        vbox.setPadding( new Insets(10));
+
+        Scene scene = new Scene(vbox, 400, 200);
+
+        JMetro jMetro = new JMetro();
+        jMetro.setScene(scene);
+
+        stage.setScene(scene);
+        stage.show();
+
+
+        Task<ObservableList<PgnSTR>> task = new Task<>() {
+            @Override protected ObservableList<PgnSTR> call() throws Exception {
+
+                /*
+                final ArrayList<Long> indices = new ArrayList<Long>();
+                for(PgnSTR entry : entries) {
+                    indices.add(entry.getOffset());
+                }
+
+                final long startTime = System.currentTimeMillis();
+
+                final PgnReader threadReader = new PgnReader();
+                final OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile(filename, "r");
+                for(int i=0;i<indices.size();i++) {
+                    raf.seek(indices.get(i));
+                    Game g = threadReader.readGame(raf);
+                    if(i%100000 == 0) {
+                        System.out.println(i);
+                        updateProgress(i, entries.size());
+                    }
+                    i++;
+                }
+
+                long stopTime = System.currentTimeMillis();
+                long timeElapsed = stopTime - startTime;
+                System.out.println("elapsed time for reading all games: " + (timeElapsed / 1000) + " secs");
+                */
+
+                final ArrayList<Long> indices = new ArrayList<Long>();
+                for(PgnSTR entry : entries) {
+                    indices.add(entry.getOffset());
+                }
+
+                PgnReader reader = new PgnReader();
+                ArrayList<PgnSTR> foundEntries = new ArrayList<>();
+                OptimizedRandomAccessFile raf = null;
+
+                final long startTime = System.currentTimeMillis();
+
+                try {
+                    raf = new OptimizedRandomAccessFile(filename, "r");
+                    for(int i=0;i<indices.size();i++) {
+                        if(i%50000 == 0) {
+                            System.out.println(i);
+                            updateProgress(i, entries.size());
+                        }
+                        if(pattern.isSearchForHeader()) {
+                            if(!pattern.matchesHeader(entries.get(i))) {
+                                i++;
+                                continue;
+                            }
+                        }
+                        if(pattern.isSearchForPosition()) {
+                            raf.seek(indices.get(i));
+                            Game g = reader.readGame(raf);
+                            if(!g.containsPosition(pattern.getPositionHash())) {
+                                i++;
+                                continue;
+                            }
+                        }
+                        i++;
+                        foundEntries.add(entries.get(i));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (raf != null) {
+                        try {
+                            raf.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                long stopTime = System.currentTimeMillis();
+                long timeElapsed = stopTime - startTime;
+                System.out.println("elapsed time for reading all games: " + (timeElapsed / 1000) + " secs");
+
+                return FXCollections.observableArrayList(foundEntries);
+                //return FXCollections.observableArrayList(new ArrayList<>());
+            }
+        };
+
+        progressBar.progressProperty().bind(task.progressProperty());
+
+        task.setOnSucceeded(e -> {
+            searchResults = task.getValue();
+            System.out.println("pgn database size: " + entries.size());
+            System.out.println("First item: "+ entries.get(0).getWhite());
+            stage.close();
+            if(this.dialogDatabase != null) {
+                dialogDatabase.updateTableWithSearchResults();
+            }
+        });
+
+        new Thread(task).start();
     }
 
 

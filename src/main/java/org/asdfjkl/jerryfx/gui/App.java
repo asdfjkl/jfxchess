@@ -1,6 +1,7 @@
 package org.asdfjkl.jerryfx.gui;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -27,7 +28,6 @@ import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.lib.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 
@@ -53,11 +53,29 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void start(Stage stage) {
 
-        TestCases tests = new TestCases();
+        System.out.println("in main thread:");
+        //TestCases tests = new TestCases();
         //tests.pgnScanTest();
         //tests.pgnScanSTRTest();
         //tests.testPolyglot();
         //tests.readGamesByStringTest();
+        //tests.pgnReadAllMillBaseTest();
+
+
+        /*
+        Task<Void> task = new Task<Void>() {
+            @Override protected Void call() throws Exception {
+
+                TestCases tests = new TestCases();
+                tests.pgnReadAllMillBaseTest();
+                return null;
+            }
+        };
+        System.out.println("in task:");
+        new Thread(task).start();
+*/
+
+        //myRunnable.run();
 
         gameModel = new GameModel();
         gameModel.restoreModel();
@@ -582,6 +600,16 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnNextGame.setOnAction(e -> {
+            Task<Void> task = new Task<Void>() {
+                @Override protected Void call() throws Exception {
+
+                    TestCases tests = new TestCases();
+                    tests.pgnReadAllMillBaseTest();
+                    return null;
+                }
+            };
+            System.out.println("in task:");
+            new Thread(task).start();
 
         });
 
@@ -651,6 +679,34 @@ public class App extends Application implements StateChangeListener {
         // recover divider ratios at the last step, as show() might trigger resizes
         spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
         spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
+
+        /*
+        Runnable myRunnable =
+                new Runnable(){
+                    public void run(){
+                        TestCases tests = new TestCases();
+                        tests.pgnReadAllMillBaseTest();
+                    }
+                };
+
+        System.out.println("in main runnable:");
+        Thread thread = new Thread(myRunnable);
+        thread.setPriority(Thread.MAX_PRIORITY);
+        thread.start();
+        */
+
+        /*
+        Task<Void> task = new Task<Void>() {
+            @Override protected Void call() throws Exception {
+
+                TestCases tests = new TestCases();
+                tests.pgnReadAllMillBaseTest();
+                return null;
+            }
+        };
+        System.out.println("in task:");
+        new Thread(task).start();
+*/
 
     }
 

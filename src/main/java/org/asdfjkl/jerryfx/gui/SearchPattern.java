@@ -41,11 +41,17 @@ public class SearchPattern {
     private boolean resultWhiteWins = true;
     private boolean resultBlackWins = true;
 
+    long positionHash = 0;
+
     private Board board = new Board();
 
     public void setBoard(Board board) {
         this.board = board;
     }
+
+    public long getPositionHash() { return positionHash; }
+
+    public void setPositionHash(long positionHash) { this.positionHash = positionHash; }
 
     public Board getBoard() {
         return board;
@@ -272,6 +278,87 @@ public class SearchPattern {
 
         return copy;
 
+    }
+
+    public boolean matchesHeader(PgnSTR pgnSTR) {
+
+        if(!event.isEmpty() && !(pgnSTR.getEvent().toLowerCase().contains(event.toLowerCase()))) {
+            return false;
+        }
+        if(!site.isEmpty() && !(pgnSTR.getSite().toLowerCase().contains(site.toLowerCase()))) {
+            return false;
+        }
+        int year = -1;
+        String[] dateSplit = pgnSTR.getDate().split(".");
+        if(dateSplit.length > 0 && dateSplit[0].length() == 4) {
+            year = Integer.parseInt(dateSplit[0]);
+        }
+        if(dateSplit.length >= 3 && dateSplit[2].length() == 4) {
+            year = Integer.parseInt(dateSplit[2]);
+        }
+        if(year != -1) {
+            if(year < minYear || year > maxYear) {
+                return false;
+            }
+        }
+        if(!ignoreNameColor) {
+            if (!whiteName.isEmpty() && !(pgnSTR.getWhite().toLowerCase().contains(whiteName.toLowerCase()))) {
+                return false;
+            }
+            if (!blackName.isEmpty() && !(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase()))) {
+                return false;
+            }
+        } else {
+            boolean matchWhiteName = false;
+            boolean matchBlackName = false;
+            // if whiteName is not empty, it has to appear somewhere
+            if(!whiteName.isEmpty()) {
+                if(pgnSTR.getWhite().toLowerCase().contains(whiteName.toLowerCase())) {
+                    matchWhiteName = true;
+                    if(pgnSTR.getBlack().toLowerCase().contains(whiteName.toLowerCase())) {
+                        matchWhiteName = true;
+                    }
+                }
+            } else {
+                matchWhiteName = true;
+            }
+            if(!blackName.isEmpty()) {
+                if(pgnSTR.getWhite().toLowerCase().contains(blackName.toLowerCase())) {
+                    matchWhiteName = true;
+                    if(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase())) {
+                        matchWhiteName = true;
+                    }
+                }
+            } else {
+                matchBlackName = true;
+            }
+            if(!matchWhiteName || !matchBlackName) {
+                return false;
+            }
+        }
+        if(!resultBlackWins && pgnSTR.getResult().equals("0-1")) {
+            return false;
+        }
+        if(!resultWhiteWins && pgnSTR.getResult().equals("1-0")) {
+            return false;
+        }
+        if(!resultDraw && pgnSTR.getResult().equals("1/2-1/2")) {
+            return false;
+        }
+        if(!resultUndef && pgnSTR.getResult().equals("*")) {
+            return false;
+        }
+        if(!ecoStart.isEmpty() && !ecoStop.isEmpty()) {
+            if(!pgnSTR.getEco().isEmpty()) {
+                if(pgnSTR.getEco().toUpperCase().compareTo(ecoStart.toUpperCase()) < 0) {
+                    return false;
+                }
+                if(pgnSTR.getEco().toUpperCase().compareTo(ecoStop.toUpperCase()) > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }
