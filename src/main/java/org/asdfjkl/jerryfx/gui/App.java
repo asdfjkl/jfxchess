@@ -527,16 +527,15 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmBrowseDatabase.setOnAction(e -> {
-            DialogDatabase dlg = new DialogDatabase();
-            boolean accepted = dlg.show(gameModel);
-            if(accepted) {
-                int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
-                gameModel.currentPgnDatabaseIdx = gameIndex;
-                Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
-                gameModel.setGame(g);
-                g.setTreeWasChanged(true);
-                gameModel.triggerStateChange();
-            }
+            gameMenuController.handleBrowseDatabase();
+        });
+
+        itmNextGame.setOnAction(e -> {
+            gameMenuController.handleNextGame();
+        });
+
+        itmPreviousGame.setOnAction(e -> {
+            gameMenuController.handlePrevGame();
         });
 
         itmAbout.setOnAction(event -> {
@@ -597,15 +596,15 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnBrowseGames.setOnAction(e -> {
-
+            gameMenuController.handleBrowseDatabase();
         });
 
         btnPrevGame.setOnAction(e -> {
-
+            gameMenuController.handlePrevGame();
         });
 
         btnNextGame.setOnAction(e -> {
-
+            gameMenuController.handleNextGame();
         });
 
         btnAbout.setOnAction(e -> {

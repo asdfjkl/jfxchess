@@ -57,6 +57,7 @@ public class GameModel {
 
     private PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = 0;
+    public File lastOpenedDirPath = null;
 
     private SearchPattern searchPattern;
 

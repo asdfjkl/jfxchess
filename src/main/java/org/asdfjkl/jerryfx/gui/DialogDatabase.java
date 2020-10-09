@@ -219,9 +219,19 @@ public class DialogDatabase {
 
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        fileChooser.setTitle("Open PGN File");
+        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             pgnDatabase.filename = file.getAbsolutePath();
+            if(file.getParentFile() != null) {
+                gameModel.lastOpenedDirPath = file.getParentFile();
+            }
             pgnDatabase.open();
             /*
             System.out.println("pgn database size: " + pgnDatabase.entries.size());

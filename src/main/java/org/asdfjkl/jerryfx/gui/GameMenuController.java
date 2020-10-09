@@ -20,19 +20,54 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameMenuController {
 
     final FileChooser fileChooser = new FileChooser();
-
+    final PgnReader reader = new PgnReader();
     GameModel gameModel;
 
     public GameMenuController(GameModel gameModel) {
         this.gameModel = gameModel;
     }
 
+    public void handleBrowseDatabase() {
+        DialogDatabase dlg = new DialogDatabase();
+        boolean accepted = dlg.show(gameModel);
+        if(accepted) {
+            int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
+            gameModel.currentPgnDatabaseIdx = gameIndex;
+            Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
+            gameModel.setGame(g);
+            g.setTreeWasChanged(true);
+            gameModel.triggerStateChange();
+        }
+    }
+
     public void handleOpenGame() {
 
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            System.out.println(file.getAbsolutePath());
+            gameModel.getPgnDatabase().open(file.getAbsolutePath());
+            if(gameModel.getPgnDatabase().getNrGames() == 1) {
+                gameModel.currentPgnDatabaseIdx = 0;
+                Game g = gameModel.getPgnDatabase().loadGame(0);
+                gameModel.setGame(g);
+                g.setTreeWasChanged(true);
+                gameModel.triggerStateChange();
+            } else {
+                if(gameModel.getPgnDatabase().getNrGames() == 0) {
+                    gameModel.getPgnDatabase().filename = "";
+                } else {
+                    handleBrowseDatabase();
+                }
+            }
+        }
+        /*
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
@@ -50,7 +85,7 @@ public class GameMenuController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     public void handleSaveCurrentGame() {
@@ -92,6 +127,28 @@ public class GameMenuController {
             if(printed) {
                 job.endJob();
             }
+        }
+    }
+
+    public void handleNextGame() {
+        int nextIdx = gameModel.currentPgnDatabaseIdx + 1;
+        if(nextIdx < gameModel.getPgnDatabase().getNrGames()) {
+            Game g = gameModel.getPgnDatabase().loadGame(nextIdx);
+            g.setTreeWasChanged(true);
+            gameModel.setGame(g);
+            gameModel.currentPgnDatabaseIdx = nextIdx;
+            gameModel.triggerStateChange();
+        }
+    }
+
+    public void handlePrevGame() {
+        int nextIdx = gameModel.currentPgnDatabaseIdx - 1;
+        if(nextIdx >= 0) {
+            Game g = gameModel.getPgnDatabase().loadGame(nextIdx);
+            g.setTreeWasChanged(true);
+            gameModel.setGame(g);
+            gameModel.currentPgnDatabaseIdx = nextIdx;
+            gameModel.triggerStateChange();
         }
     }
 

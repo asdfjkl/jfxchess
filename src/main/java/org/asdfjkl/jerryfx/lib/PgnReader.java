@@ -204,7 +204,7 @@ public class PgnReader {
 
 
 
-    ArrayList<Long> scanPgn(String filename) {
+    public ArrayList<Long> scanPgn(String filename) {
 
         ArrayList<Long> offsets = new ArrayList<>();
 

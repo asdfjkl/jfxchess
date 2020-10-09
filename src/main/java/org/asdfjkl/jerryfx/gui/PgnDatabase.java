@@ -78,6 +78,11 @@ public class PgnDatabase {
         return g;
     }
 
+    public void open(String filename) {
+        this.filename = filename;
+        open();
+    }
+
     public void open() {
 
         stage = new Stage();
@@ -102,6 +107,11 @@ public class PgnDatabase {
         stage.setScene(scene);
         stage.show();
 
+        if(reader.isIsoLatin1(filename)) {
+            reader.setEncodingIsoLatin1();
+        } else {
+            reader.setEncodingUTF8();
+        }
 
         Task<ObservableList<PgnSTR>> task = new Task<>() {
             @Override protected ObservableList<PgnSTR> call() throws Exception {
