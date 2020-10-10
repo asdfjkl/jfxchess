@@ -557,7 +557,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnOpen.setOnAction(e -> {
-
+            gameMenuController.handleOpenGame();
         });
 
         btnSaveAs.setOnAction(e -> {
@@ -743,6 +743,10 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveEngines();
 
         engineController.sendCommand("quit");
+        ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();
+        for (Task task : runningTasks) {
+            task.cancel();
+        }
 
         stage.close();
     }

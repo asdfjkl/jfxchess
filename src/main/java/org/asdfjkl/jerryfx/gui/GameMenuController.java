@@ -34,7 +34,7 @@ public class GameMenuController {
 
     public void handleBrowseDatabase() {
         DialogDatabase dlg = new DialogDatabase();
-        boolean accepted = dlg.show(gameModel);
+        boolean accepted = dlg.show(gameModel, false);
         if(accepted) {
             int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
             gameModel.currentPgnDatabaseIdx = gameIndex;
@@ -51,21 +51,92 @@ public class GameMenuController {
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
+            // for files >= 20 kb, always open in db window
+            if((file.length() / 1024) < 20) {
+                ArrayList<Long> indices = reader.scanPgn(file.getAbsolutePath());
+                if(indices.size() == 0) {
+                    return;
+                }
+                if(indices.size() == 1) {
+                    Game g = null;
+                    if(reader.isIsoLatin1(file.getAbsolutePath())) {
+                        reader.setEncodingIsoLatin1();
+                    } else {
+                        reader.setEncodingUTF8();
+                    }
+                    OptimizedRandomAccessFile raf = null;
+                    try {
+                        raf = new OptimizedRandomAccessFile(file.getAbsolutePath(), "r");
+                        g = reader.readGame(raf);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } finally {
+                        if(raf!=null) {
+                            try {
+                                raf.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if(g != null && (g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition())) {
+                        g.setTreeWasChanged(true);
+                        gameModel.setGame(g);
+                        gameModel.triggerStateChange();
+                        return;
+                    }
+                } else {  // indices > 1, show db dialog
+                    DialogDatabase dlg = new DialogDatabase();
+                    gameModel.getPgnDatabase().filename = file.getAbsolutePath();
+                    //gameModel.getPgnDatabase().open(file.getAbsolutePath());
+                    boolean accepted = dlg.show(gameModel, true);
+                    if(accepted) {
+                        int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
+                        gameModel.currentPgnDatabaseIdx = gameIndex;
+                        Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
+                        gameModel.setGame(g);
+                        g.setTreeWasChanged(true);
+                        gameModel.triggerStateChange();
+                    }
+                }
+            } else { // for larger files, we always assume there is more than one game
+                // then show database dialog
+                DialogDatabase dlg = new DialogDatabase();
+                gameModel.getPgnDatabase().filename = file.getAbsolutePath();
+                //gameModel.getPgnDatabase().open(file.getAbsolutePath());
+                boolean accepted = dlg.show(gameModel, true);
+                if(accepted) {
+                    int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
+                    gameModel.currentPgnDatabaseIdx = gameIndex;
+                    Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
+                    gameModel.setGame(g);
+                    g.setTreeWasChanged(true);
+                    gameModel.triggerStateChange();
+                }
+            }
+
+
+            /*
             System.out.println(file.getAbsolutePath());
-            gameModel.getPgnDatabase().open(file.getAbsolutePath());
+            gameModel.getPgnDatabase().filename = file.getAbsolutePath();
+            gameModel.getPgnDatabase().open();
+            System.out.println("games in db: "+gameModel.getPgnDatabase().getNrGames());
             if(gameModel.getPgnDatabase().getNrGames() == 1) {
                 gameModel.currentPgnDatabaseIdx = 0;
+                System.out.println("loading game 0");
                 Game g = gameModel.getPgnDatabase().loadGame(0);
                 gameModel.setGame(g);
                 g.setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             } else {
+                System.out.println("no games in database");
                 if(gameModel.getPgnDatabase().getNrGames() == 0) {
                     gameModel.getPgnDatabase().filename = "";
                 } else {
+                    System.out.println("too many games, needs browsing");
                     handleBrowseDatabase();
                 }
-            }
+            }*/
         }
         /*
         Stage stage = new Stage();

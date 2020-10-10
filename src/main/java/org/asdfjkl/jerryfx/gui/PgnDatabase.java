@@ -35,6 +35,8 @@ public class PgnDatabase {
 
     public String lastOpenedFilePath = "";
 
+    private ArrayList<Task> runningTasks = new ArrayList<Task>();
+
     public PgnDatabase() {
         entries = FXCollections.observableArrayList(); //new ArrayList<>();
         reader = new PgnReader();
@@ -54,7 +56,25 @@ public class PgnDatabase {
         this.dialogDatabase = dialogDatabase;
     }
 
+    public ArrayList<Task> getRunningTasks() { return runningTasks; }
+
+    private void registerRunningTask(Task task) {
+        runningTasks.add(task);
+    }
+
+    private void unregisterRunningTask(Task task) {
+        runningTasks.remove(task);
+    }
+
     public Game loadGame(int index) {
+
+        if(reader.isIsoLatin1(filename)) {
+            reader.setEncodingIsoLatin1();
+            System.out.println("setting to isolatin1");
+        } else {
+            reader.setEncodingUTF8();
+            System.out.println("setting to utf8");
+        }
 
         OptimizedRandomAccessFile raf = null;
         Game g = new Game();
@@ -75,6 +95,7 @@ public class PgnDatabase {
                 }
             }
         }
+        System.out.println("loaded: "+g.getHeader("White"));
         return g;
     }
 
@@ -109,9 +130,13 @@ public class PgnDatabase {
 
         if(reader.isIsoLatin1(filename)) {
             reader.setEncodingIsoLatin1();
+            System.out.println("setting to isolatin1");
         } else {
             reader.setEncodingUTF8();
+            System.out.println("setting to utf8");
         }
+
+        final String tmpFilename = this.filename;
 
         Task<ObservableList<PgnSTR>> task = new Task<>() {
             @Override protected ObservableList<PgnSTR> call() throws Exception {
@@ -129,13 +154,14 @@ public class PgnDatabase {
                 String currentLine = "";
                 OptimizedRandomAccessFile raf = null;
 
-                File file = new File(filename);
+                File file = new File(tmpFilename);
                 long fileSize = file.length();
 
                 long gamesRead = 0;
 
                 try {
-                    raf = new OptimizedRandomAccessFile(filename, "r");
+                    System.out.println("trying to open: "+tmpFilename);
+                    raf = new OptimizedRandomAccessFile(tmpFilename, "r");
                     while ((currentLine = raf.readLine()) != null) {
                         if (isCancelled()) {
                             break;
@@ -170,6 +196,8 @@ public class PgnDatabase {
                                     current.setRound(valueEncoded);
                                 }
                                 if(tag.equals("White")) {
+                                    //System.out.println(valueEncoded);
+                                    //System.out.println("ö");
                                     current.setWhite(valueEncoded);
                                 }
                                 if(tag.equals("Black")) {
@@ -231,8 +259,8 @@ public class PgnDatabase {
 
         progressBar.progressProperty().bind(task.progressProperty());
 
-
         task.setOnSucceeded(e -> {
+            unregisterRunningTask(task);
             entries = task.getValue();
             System.out.println("pgn database size: " + entries.size());
             System.out.println("First item: "+ entries.get(0).getWhite());
@@ -244,6 +272,7 @@ public class PgnDatabase {
 
         Thread thread = new Thread(task);
         thread.setDaemon(false);
+        registerRunningTask(task);
         thread.start();
 
     }
@@ -363,6 +392,7 @@ public class PgnDatabase {
         progressBar.progressProperty().bind(task.progressProperty());
 
         task.setOnSucceeded(e -> {
+            unregisterRunningTask(task);
             searchResults = task.getValue();
             System.out.println("pgn database size: " + entries.size());
             System.out.println("First item: "+ entries.get(0).getWhite());
@@ -373,6 +403,7 @@ public class PgnDatabase {
         });
 
         Thread thread = new Thread(task);
+        registerRunningTask(task);
         thread.setDaemon(false);
         thread.start();
     }

@@ -36,7 +36,6 @@ public class DialogAbout {
 
         Text txtCopyright = new Text("Version 4.0\n" +
                 "Copyright © 2014-2020\n" +
-                "Version 4.0\n" +
                 "Dominik Klein\n" +
                 "licensed under GNU GPL 2");
 

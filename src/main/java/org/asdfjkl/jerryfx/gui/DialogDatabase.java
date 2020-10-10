@@ -1,5 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,7 +32,7 @@ public class DialogDatabase {
 
     final FileChooser fileChooser = new FileChooser();
 
-    public boolean show(GameModel gameModel) {
+    public boolean show(GameModel gameModel, boolean loadFile) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -167,9 +168,15 @@ public class DialogDatabase {
         vbox.requestFocus();
 
         stage.getIcons().add(new Image("icons/app_icon.png"));
-
+        if(loadFile) {
+            Platform.runLater(() -> {
+                pgnDatabase.open();
+            });
+        }
         stage.setScene(scene);
         stage.showAndWait();
+
+
 
         return accepted;
     }
