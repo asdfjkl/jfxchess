@@ -600,6 +600,37 @@ public class TestCases {
 
     }
 
+    public void runPosHashTest() {
+
+        Board b1 = new Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1");
+        Board b2 = new Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1");
+        long key1 = b1.getPositionHash();
+        long key2 = b2.getPositionHash();
+        System.out.println("Posh Hash1: "+key1);
+        System.out.println("Posh Hash2: "+key2);
+
+        System.out.println("TEST: reading single PGN game, trying to find starting pos after 1d4 by pos hash");
+        String kingbase = "C:/Users/user/MyFiles/workspace/test_databases/KingBaseLite2016-03-E60-E99.pgn";
+        OptimizedRandomAccessFile raf = null;
+        PgnReader reader = new PgnReader();
+        if(reader.isIsoLatin1(kingbase)) {
+            reader.setEncodingIsoLatin1();
+        }
+        PgnPrinter printer = new PgnPrinter();
+        try {
+            raf = new OptimizedRandomAccessFile(kingbase, "r");
+            Game g = reader.readGame(raf);
+            //System.out.println("reading game ok");
+            boolean hasStartingPos = g.containsPosition(key1, 0 , 100);
+            System.out.println("found pos: "+hasStartingPos);
+            //String pgn = printer.printGame(g);
+            //System.out.println(pgn);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     public void runZobristTest() {
 

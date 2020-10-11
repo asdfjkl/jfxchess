@@ -47,6 +47,7 @@ public class SearchPattern {
 
     public void setBoard(Board board) {
         this.board = board;
+        positionHash = board.getPositionHash();
     }
 
     public long getPositionHash() { return positionHash; }

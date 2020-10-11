@@ -341,6 +341,8 @@ public class PgnDatabase {
 
                 final long startTime = System.currentTimeMillis();
 
+                System.out.println(pattern.getPositionHash());
+
                 try {
                     raf = new OptimizedRandomAccessFile(filename, "r");
                     for(int i=0;i<indices.size();i++) {
@@ -360,7 +362,7 @@ public class PgnDatabase {
                         if(pattern.isSearchForPosition()) {
                             raf.seek(indices.get(i));
                             Game g = reader.readGame(raf);
-                            if(!g.containsPosition(pattern.getPositionHash())) {
+                            if(!g.containsPosition(pattern.getPositionHash(), pattern.getMinMove(), pattern.getMaxMove())) {
                                 i++;
                                 continue;
                             }

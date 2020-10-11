@@ -53,29 +53,13 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void start(Stage stage) {
 
-        System.out.println("in main thread:");
-        //TestCases tests = new TestCases();
+        TestCases tests = new TestCases();
+        tests.runPosHashTest();
         //tests.pgnScanTest();
         //tests.pgnScanSTRTest();
         //tests.testPolyglot();
         //tests.readGamesByStringTest();
         //tests.pgnReadAllMillBaseTest();
-
-
-        /*
-        Task<Void> task = new Task<Void>() {
-            @Override protected Void call() throws Exception {
-
-                TestCases tests = new TestCases();
-                tests.pgnReadAllMillBaseTest();
-                return null;
-            }
-        };
-        System.out.println("in task:");
-        new Thread(task).start();
-*/
-
-        //myRunnable.run();
 
         gameModel = new GameModel();
         gameModel.restoreModel();

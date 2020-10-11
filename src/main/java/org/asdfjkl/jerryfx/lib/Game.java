@@ -21,12 +21,15 @@ public class Game {
         this.pgnHeaders = new HashMap<String,String>();
     }
 
-    private boolean containsPositionRec(long positionHash, GameNode node) {
+    private boolean containsPositionRec(long positionHash, GameNode node, int maxHalfmove) {
+        if(maxHalfmove > node.getBoard().halfmoveClock) {
+            return false;
+        }
         if(node.getBoard().getPositionHash() == positionHash) {
             return true;
         } else {
             for(GameNode var_i : node.getVariations()) {
-                boolean hasPosition = containsPositionRec(positionHash, var_i);
+                boolean hasPosition = containsPositionRec(positionHash, var_i, maxHalfmove);
                 if(hasPosition) {
                     return true;
                 }
@@ -35,9 +38,16 @@ public class Game {
         return false;
     }
 
-    public boolean containsPosition(long positionHash) {
+    public boolean containsPosition(long positionHash, int minHalfmove, int maxHalfmove) {
         GameNode current = this.getRootNode();
-        return containsPositionRec(positionHash, current);
+        for(int i=0;i<minHalfmove;i++) {
+            if(current.hasVariations()) {
+                current = current.getVariation(0);
+            } else {
+                return false;
+            }
+        }
+        return containsPositionRec(positionHash, current, maxHalfmove);
     }
 
     private GameNode findNodeByIdRec(int id, GameNode node) {

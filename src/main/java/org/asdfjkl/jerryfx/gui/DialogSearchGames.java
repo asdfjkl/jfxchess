@@ -343,6 +343,8 @@ public class DialogSearchGames {
         cbResultUnclear.setSelected(searchPattern.isResultUndef());
         cbResultDraw.setSelected(searchPattern.isResultDraw());
 
+        enterPosBoard.board = searchPattern.getBoard().makeCopy();
+
         searchHeader.setSelected(searchPattern.isSearchForHeader());
         searchPosition.setSelected(searchPattern.isSearchForPosition());
 
