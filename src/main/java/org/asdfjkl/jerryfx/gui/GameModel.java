@@ -5,7 +5,9 @@ import org.asdfjkl.jerryfx.lib.*;
 
 import javax.swing.plaf.nimbus.State;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
@@ -72,20 +74,38 @@ public class GameModel {
         this.game.getRootNode().setBoard(b);
         this.currentMode = MODE_ENTER_MOVES;
 
+        String stockfishPath = "";
+        String bookPath = "";
+        String jarPath = "";
+        String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            jarPath = URLDecoder.decode(path, "UTF-8");
+            File tmp = (new File(path));
+            if(tmp.getParentFile().exists()) {
+                File subEngine = new File(tmp.getParentFile(), "engine");
+                stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
+                File subBook = new File(tmp.getParentFile(), "book");
+                bookPath = new File(subBook, "varied.bin").getPath();
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
         Engine stockfish = new Engine();
         stockfish.setName("Stockfish (Internal)");
-        stockfish.setPath("C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe");
+        //stockfish.setPath("C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe");
+        System.out.println(stockfishPath);
+        stockfish.setPath(stockfishPath);
         stockfish.setInternal(true);
         engines.add(stockfish);
         activeEngine = stockfish;
 
         book = new Polyglot();
         File file = null;
-        URL urlBook = getClass().getClassLoader().getResource("book/varied.bin");
-        if(urlBook != null) {
-            file = new File(urlBook.getFile());
-            book.loadBook(file);
-        }
+        System.out.println(bookPath);
+        file = new File(bookPath);
+        book.loadBook(file);
+
     }
 
     public Game getGame() {
