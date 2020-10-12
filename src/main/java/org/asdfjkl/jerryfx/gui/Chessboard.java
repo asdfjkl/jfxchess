@@ -1,7 +1,5 @@
 package org.asdfjkl.jerryfx.gui;
 
-import javafx.event.Event;
-import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -9,12 +7,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
 import org.asdfjkl.jerryfx.lib.Move;
-
 import java.awt.*;
-
-import static org.asdfjkl.jerryfx.gui.BoardStyle.PIECE_STYLE_MERIDA;
 import static org.asdfjkl.jerryfx.lib.CONSTANTS.*;
 
 public class Chessboard extends Canvas implements StateChangeListener {

@@ -5,15 +5,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.DoubleFunction;
 
 public class DialogNewGame {

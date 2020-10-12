@@ -1,12 +1,9 @@
 package org.asdfjkl.jerryfx.gui;
 
-import javafx.concurrent.Task;
 import org.asdfjkl.jerryfx.lib.*;
 
-import javax.swing.plaf.nimbus.State;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;

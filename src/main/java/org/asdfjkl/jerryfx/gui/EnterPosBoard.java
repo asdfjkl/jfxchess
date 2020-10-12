@@ -8,7 +8,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
-import org.asdfjkl.jerryfx.lib.Move;
 import java.awt.*;
 import java.util.ArrayList;
 

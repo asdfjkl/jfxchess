@@ -53,8 +53,8 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void start(Stage stage) {
 
-        TestCases tests = new TestCases();
-        tests.runPosHashTest();
+        //TestCases tests = new TestCases();
+        //tests.runPosHashTest();
         //tests.pgnScanTest();
         //tests.pgnScanSTRTest();
         //tests.testPolyglot();

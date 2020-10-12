@@ -3,9 +3,6 @@ package org.asdfjkl.jerryfx.gui;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 import org.asdfjkl.jerryfx.lib.Move;
-
-import java.lang.reflect.Array;
-import java.net.IDN;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;

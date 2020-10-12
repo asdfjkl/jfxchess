@@ -9,11 +9,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.Board;
-
-import java.util.function.DoubleFunction;
 
 public class DialogSearchGames {
 

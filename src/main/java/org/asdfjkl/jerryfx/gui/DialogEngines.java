@@ -17,7 +17,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

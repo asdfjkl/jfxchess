@@ -11,7 +11,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;

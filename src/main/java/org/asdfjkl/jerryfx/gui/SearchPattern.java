@@ -1,7 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
 import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
 public class SearchPattern {
 

@@ -1,6 +1,5 @@
 package org.asdfjkl.jerryfx.gui;
 
-import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

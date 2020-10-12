@@ -1,7 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class EngineOption {
 

@@ -11,8 +11,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
-import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
 public class DialogAppearance {
 

@@ -26,7 +26,6 @@ public class DialogAboutDatabase {
 
         Text txtCopyright = new Text("Database Module\n" +
                 "Copyright © 2014-2020\n" +
-                "Version 4.0\n" +
                 "Dominik Klein\n" +
                 "    licensed under GNU GPL 2    ");
 

@@ -2,13 +2,9 @@ package org.asdfjkl.jerryfx.gui;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.Move;
-
 import java.awt.*;
 
 import static org.asdfjkl.jerryfx.lib.CONSTANTS.EMPTY;

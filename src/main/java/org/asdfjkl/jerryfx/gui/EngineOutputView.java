@@ -1,7 +1,5 @@
 package org.asdfjkl.jerryfx.gui;
 
-import javafx.geometry.Insets;
-import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 

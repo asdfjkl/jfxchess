@@ -1,8 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
-import com.sun.webkit.Timer;
 import javafx.scene.control.Alert;
-import jfxtras.styles.jmetro.FlatAlert;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 import org.asdfjkl.jerryfx.lib.GameNode;
@@ -112,11 +110,8 @@ public class ModeMenuController implements StateChangeListener {
             // we are at the root or found a book move
             activateEnterMovesMode();
             //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Game Analysis");
-            alert.setHeaderText(null);
-            alert.setContentText("The analysis is finished.");
-            alert.showAndWait();
+            DialogSimpleAlert dlg = new DialogSimpleAlert();
+            dlg.show("     The analysis is finished.     ");
         }
     }
 
