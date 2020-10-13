@@ -75,16 +75,23 @@ public class GameModel {
         String bookPath = "";
         String jarPath = "";
         String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        System.out.println("path: "+path);
         try {
             jarPath = URLDecoder.decode(path, "UTF-8");
-            File tmp = (new File(path));
+            System.out.println("jarpath: "+jarPath);
+            File tmp = (new File(jarPath));
             if(tmp.getParentFile().exists()) {
                 File subEngine = new File(tmp.getParentFile(), "engine");
                 stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
+                System.out.println("stockfishpath: "+stockfishPath);
                 File subBook = new File(tmp.getParentFile(), "book");
                 bookPath = new File(subBook, "varied.bin").getPath();
+                System.out.println("bookpath: "+bookPath);
+            } else {
+                System.out.println("parent not exists");
             }
         } catch (UnsupportedEncodingException e) {
+            System.out.println("exception in getting jar path");
             e.printStackTrace();
         }
 

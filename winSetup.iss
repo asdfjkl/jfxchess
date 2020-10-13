@@ -5,7 +5,7 @@
 #define MyAppVersion "4.0"
 #define MyAppPublisher "org.asdfjkl"
 #define MyAppURL "https://github.com/asdfjkl/jerry"
-#define MyAppExeName "jerry.bat"
+#define MyAppExeName "jerryfx.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -28,6 +28,8 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64
+SetupIconFile="C:\Users\user\MyFiles\workspace\build dir\jerry.ico"
+OutputDir="C:\Users\user\MyFiles\workspace\build dir\JerrySetup"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -36,16 +38,16 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\user\MyFiles\workspace\build_dir\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Users\user\MyFiles\workspace\build_dir\jerry.bat"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "C:\Users\user\MyFiles\workspace\build_dir\jerryfx-4.0-jar-with-dependencies.jar"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "C:\Users\user\MyFiles\workspace\build_dir\book\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Users\user\MyFiles\workspace\build_dir\engine\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Users\user\MyFiles\workspace\build_dir\jdk-11.0.8+10-jre\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\user\MyFiles\workspace\build dir\output\jerryfx\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "C:\Users\user\MyFiles\workspace\build dir\jerry.bat"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\Users\user\MyFiles\workspace\build dir\jerryfx-4.0-jar-with-dependencies.jar"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\Users\user\MyFiles\workspace\build dir\book\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "C:\Users\user\MyFiles\workspace\build dir\engine\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "C:\Users\user\MyFiles\workspace\build dir\jdk-11.0.8+10-jre\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\jerry.ico"
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\jerry.ico"; AppUserModelID: "org.asdfjkl.jerryfx"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\jerry.ico"
 
 [Run]
