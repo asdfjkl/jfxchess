@@ -94,9 +94,6 @@
                         <manifest>
                             <mainClass>org.asdfjkl.jerryfx.gui.Main</mainClass>
                         </manifest>
-                        <manifestEntries>
-                            <SplashScreen-Image>icons/splash.png</SplashScreen-Image>
-                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
