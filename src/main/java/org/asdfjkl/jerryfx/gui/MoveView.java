@@ -220,7 +220,7 @@ public class MoveView implements StateChangeListener {
                         +"," +  e.getY()+");");
                 //int clickedNodeId = Integer.parseInt(e.getTarget().toString().substring(1));
                 //GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
-                System.out.println("got: n" + object);
+                System.out.println("got: n for mouse click" + object);
                 try {
                     int clickedNodeId = Integer.parseInt(object.toString().substring(1));
                     System.out.println("which results in node nr: "+clickedNodeId);
@@ -254,6 +254,7 @@ public class MoveView implements StateChangeListener {
                     newComment = newComment.replace('\r', ' ');
                     selectedNode.setComment(newComment);
                 }
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -265,6 +266,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.setComment("");
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -276,6 +278,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_BLUNDER);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -287,6 +290,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_MISTAKE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -298,6 +302,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -309,6 +314,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -320,6 +326,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_GOOD_MOVE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -331,6 +338,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -342,6 +350,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.removeNagsInRange(0,8);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -353,6 +362,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_UNCLEAR_POSITION);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -364,6 +374,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_DRAWISH_POSITION);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -375,6 +386,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_WHITE_MODERATE_ADVANTAGE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -386,6 +398,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_BLACK_MODERATE_ADVANTAGE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -397,6 +410,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_WHITE_DECISIVE_ADVANTAGE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -408,6 +422,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.addNag(CONSTANTS.NAG_BLACK_DECISIVE_ADVANTAGE);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -419,6 +434,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.removeNagsInRange(9,20);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -430,6 +446,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.removeNagsInRange(0,139);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -441,6 +458,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 gameModel.getGame().moveUp(selectedNode);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -452,6 +470,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 gameModel.getGame().moveDown(selectedNode);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -463,6 +482,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 gameModel.getGame().delVariant(selectedNode);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -474,6 +494,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 gameModel.getGame().delBelow(selectedNode);
+                gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
         } catch (IllegalArgumentException e) {
@@ -483,11 +504,13 @@ public class MoveView implements StateChangeListener {
 
     private void onDeleteAllComments() {
         gameModel.getGame().removeAllComments();
+        gameModel.getGame().setTreeWasChanged(true);
         gameModel.triggerStateChange();
     }
 
     private void onDeleteAllVariants() {
         gameModel.getGame().removeAllVariants();
+        gameModel.getGame().setTreeWasChanged(true);
         gameModel.triggerStateChange();
     }
 
@@ -517,6 +540,7 @@ public class MoveView implements StateChangeListener {
                                 GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
                                 System.out.println("got: n" + Integer.toString(clickedNodeId));
                                 gameModel.getGame().setCurrent(nextCurrent);
+                                System.out.println("tree changed: "+gameModel.getGame().isTreeChanged());
                                 gameModel.triggerStateChange();
                             } catch (NumberFormatException e) {
                                 // click was not on node link, i.e. parseInt failed
@@ -589,25 +613,27 @@ public class MoveView implements StateChangeListener {
         }
         // add marker to current node
         int currentNodeId = this.gameModel.getGame().getCurrentNode().getId();
-        Element htmlCurrent = webView.getEngine().getDocument().getElementById("n" + currentNodeId);
-        if (htmlCurrent != null) {
-            htmlCurrent.setAttribute("class", "current");
-            //System.out.println(htmlCurrent.toString());
-            if(!hasFocus(currentNodeId)) {
-                scrollToNode(currentNodeId);
+        if(webView.getEngine().getDocument() != null) {
+            Element htmlCurrent = webView.getEngine().getDocument().getElementById("n" + currentNodeId);
+            if (htmlCurrent != null) {
+                htmlCurrent.setAttribute("class", "current");
+                //System.out.println(htmlCurrent.toString());
+                if (!hasFocus(currentNodeId)) {
+                    scrollToNode(currentNodeId);
+                }
             }
-        }
         // special case: if we are at the root, make sure that the node below root (if it exists) is visible
         if(this.gameModel.getGame().getCurrentNode() == this.gameModel.getGame().getRootNode()) {
-            if(this.gameModel.getGame().getRootNode().hasChild()) {
+            if (this.gameModel.getGame().getRootNode().hasChild()) {
                 int childId = this.gameModel.getGame().getRootNode().getVariation(0).getId();
                 Element htmlBelowRoot = webView.getEngine().getDocument().getElementById("n" + childId);
                 if (htmlBelowRoot != null) {
-                    if(!hasFocus(childId)) {
+                    if (!hasFocus(childId)) {
                         scrollToNode(childId);
                     }
                 }
             }
+        }
         }
         //scrollToNode(currentNodeId);
         currentlyMarkedNode = currentNodeId;
@@ -618,6 +644,7 @@ public class MoveView implements StateChangeListener {
     public void stateChange() {
         // if tree was changed, we need to update the webview
         if(gameModel.getGame().isTreeChanged()) {
+            System.out.println("state change, tree change (movie view)");
             // remember scrollbar position
             x = getVScrollValue();
             y = getVScrollValue();
@@ -632,8 +659,12 @@ public class MoveView implements StateChangeListener {
             //        "</body></html>";
             //System.out.println(htmlBody);
             webView.getEngine().loadContent(htmlDoc);
+            //updateMarkedNode();
+
+            gameModel.getGame().setTreeWasChanged(false);
 
         } else {
+            System.out.println("update marked node");
             // otherwise:
             // remove marking of old node
             // add marking of current node
