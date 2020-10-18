@@ -78,7 +78,7 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     @Override
     public void resize(double width, double height) {
-        System.out.println("resizing to: "+width+" "+height);
+        //FSystem.out.println("resizing to: "+width+" "+height);
         this.setWidth(width);
         this.setHeight(height);
 
@@ -298,8 +298,8 @@ public class Chessboard extends Canvas implements StateChangeListener {
         if(boardPos != null && grabbedPiece.getPiece() != -1) {
             if(!(boardPos.x == moveSource.x && boardPos.y == moveSource.y)) {
                 Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
-                System.out.println(m.getUci());
-                System.out.println(("legal and promotes: " + b.isLegalAndPromotes(m)));
+                //System.out.println(m.getUci());
+                //System.out.println(("legal and promotes: " + b.isLegalAndPromotes(m)));
                 if(b.isLegalAndPromotes(m)) {
                     int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
                     if(promotionPiece != EMPTY) {

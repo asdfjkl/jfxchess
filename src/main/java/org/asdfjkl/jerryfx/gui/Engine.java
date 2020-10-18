@@ -65,7 +65,7 @@ public class Engine {
             if(i+1 < values.length) {
                 EngineOption option = new EngineOption();
                 String uciOptionString = values[i];
-                System.out.println("recovered: "+uciOptionString);
+                //System.out.println("recovered: "+uciOptionString);
                 option.parseUciOptionString(uciOptionString);
                 if(option.type == EngineOption.EN_OPT_TYPE_CHECK) {
                     if(values[i+1].equals("true")) {
@@ -100,6 +100,15 @@ public class Engine {
         }
 
         return copy;
+    }
+
+    public boolean supportsMultiPV() {
+        for(EngineOption option : options) {
+            if(option.name.equals("MultiPV")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

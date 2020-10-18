@@ -1052,7 +1052,8 @@ public class PgnReader {
                         int end = rest_of_line.indexOf("}");
                         //System.out.println(end);
                         if (end >= 0) {
-                            String comment_line = rest_of_line.substring(0, end+1);
+                            String comment_line = rest_of_line.substring(0, end);
+                            System.out.println("PARSING COMMENT: "+comment_line);
                             currentNode.setComment(new String(comment_line.getBytes("ISO-8859-1"), encoding));
                             currentIdx = currentIdx + end + 1;
                         } else {

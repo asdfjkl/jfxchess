@@ -92,6 +92,7 @@ public class EngineInfo {
         for(int i=0;i<lines.length;i++) {
 
             String line = lines[i];
+            //System.out.println("engine> "+line);
 
             Matcher matchPVIdx = MULTIPV.matcher(line);
             if(matchPVIdx.find()) {

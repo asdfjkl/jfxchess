@@ -73,7 +73,7 @@ public class ShowAppearanceBoard extends Canvas {
 
         public void updateCanvas() {
 
-            System.out.println("CANVAS: "+boardStyle.getPieceStyle());
+            //System.out.println("CANVAS: "+boardStyle.getPieceStyle());
 
             GraphicsContext gc = this.getGraphicsContext2D();
 

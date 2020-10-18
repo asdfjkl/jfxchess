@@ -257,7 +257,7 @@ public class PgnDatabase {
             unregisterRunningTask(task);
             entries = task.getValue();
             System.out.println("pgn database size: " + entries.size());
-            System.out.println("First item: "+ entries.get(0).getWhite());
+            //System.out.println("First item: "+ entries.get(0).getWhite());
             stage.close();
             if(this.dialogDatabase != null) {
                 dialogDatabase.updateTable();

@@ -66,6 +66,7 @@ public class EngineThread extends Thread {
                 try {
                     while (engineOutput.ready() && linesRead < 100) {
                         String line = engineOutput.readLine();
+                        System.out.println("ENGINE> "+line);
                         if(line.contains("readyok")) {
                             readyok = true;
                         } else {
@@ -120,13 +121,13 @@ public class EngineThread extends Thread {
                 if(!cmdQueue.isEmpty()) {
                     try {
                         String cmd = (String) cmdQueue.take();
-                        //System.out.println("got command: "+cmd);
+                        System.out.println("GUI> "+cmd);
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
                             try {
-                                System.out.println("thread: starting engine");
+                                //System.out.println("thread: starting engine");
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
-                                System.out.println("thread: engine process started, is now "+engineProcess);
+                                //System.out.println("thread: engine process started, is now "+engineProcess);
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
                                 engineRunning = true;
@@ -144,6 +145,7 @@ public class EngineThread extends Thread {
                     // if we are in go infty, first send stop
                     if(inGoInfinite) {
                         try {
+                            System.out.println("GUI> stop");
                             engineInput.write("stop\n");
                             engineInput.flush();
                             inGoInfinite = false;
@@ -164,6 +166,7 @@ public class EngineThread extends Thread {
                             if(cmd != null && cmd.equals("uci")) {
                                 try {
                                     cmdQueue.take();
+                                    System.out.println("GUI> "+cmd);
                                     engineInput.write("uci\n");
                                     engineInput.flush();
                                     continue;
@@ -173,6 +176,7 @@ public class EngineThread extends Thread {
                             }
                             if(!requestedReadyOk) {
                                 try {
+                                    System.out.println("GUI> isready");
                                     engineInput.write("isready\n");
                                     engineInput.flush();
                                     requestedReadyOk = true;
@@ -186,7 +190,7 @@ public class EngineThread extends Thread {
                             // take command from queue
                             try {
                                 String cmd = (String) cmdQueue.take();
-
+                                System.out.println("GUI> "+cmd);
                                 // if the command is "position fen moves", first count the
                                 // numbers of moves so far to generate move numbers in engine info
                                 // todo: needed???
@@ -230,7 +234,7 @@ public class EngineThread extends Thread {
                                     // if we quit the engine, give some
                                     // time for the engine to quit
                                     if(cmd.contains("quit")) {
-                                        System.out.println("thread: quitting...");
+                                        //System.out.println("thread: quitting...");
                                         Thread.sleep(500);
                                     }
                                     continue;

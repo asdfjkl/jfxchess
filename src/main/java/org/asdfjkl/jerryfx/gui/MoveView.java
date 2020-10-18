@@ -245,6 +245,7 @@ public class MoveView implements StateChangeListener {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 DialogEnterComment dlg = new DialogEnterComment();
                 boolean accepted = dlg.show(selectedNode.getComment());
+                System.out.println("GOT COMMENT: "+selectedNode.getComment());
                 if(accepted) {
                     String newComment = dlg.textArea.getText();
                     // filter invalid stuff, like { } etc.
@@ -252,6 +253,7 @@ public class MoveView implements StateChangeListener {
                     newComment = newComment.replace('{', ' ');
                     newComment = newComment.replace('}', ' ');
                     newComment = newComment.replace('\r', ' ');
+                    System.out.println("NEW COMMENT: "+newComment);
                     selectedNode.setComment(newComment);
                 }
                 gameModel.getGame().setTreeWasChanged(true);
@@ -606,9 +608,11 @@ public class MoveView implements StateChangeListener {
     private void updateMarkedNode() {
         // remove marker from old node
         if(currentlyMarkedNode >= 0) {
-            Element htmlOldNode = webView.getEngine().getDocument().getElementById("n" + currentlyMarkedNode);
-            if(htmlOldNode != null) {
-                htmlOldNode.removeAttribute("class");
+            if(webView.getEngine().getDocument() != null) {
+                Element htmlOldNode = webView.getEngine().getDocument().getElementById("n" + currentlyMarkedNode);
+                if (htmlOldNode != null) {
+                    htmlOldNode.removeAttribute("class");
+                }
             }
         }
         // add marker to current node
@@ -644,7 +648,7 @@ public class MoveView implements StateChangeListener {
     public void stateChange() {
         // if tree was changed, we need to update the webview
         if(gameModel.getGame().isTreeChanged()) {
-            System.out.println("state change, tree change (movie view)");
+            //System.out.println("state change, tree change (movie view)");
             // remember scrollbar position
             x = getVScrollValue();
             y = getVScrollValue();
@@ -664,7 +668,7 @@ public class MoveView implements StateChangeListener {
             gameModel.getGame().setTreeWasChanged(false);
 
         } else {
-            System.out.println("update marked node");
+            //System.out.println("update marked node");
             // otherwise:
             // remove marking of old node
             // add marking of current node

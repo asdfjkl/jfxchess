@@ -420,17 +420,11 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmEditGame.setOnAction(e -> {
-            DialogEditGameData dlg = new DialogEditGameData();
-            boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(), gameModel.getGame().getResult());
-            if(accteped) {
-                for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    gameModel.getGame().setHeader(key, value);
-                }
-                gameModel.getGame().setResult(dlg.gameResult);
-                gameModel.triggerStateChange();
-            }
+            editMenuController.editGameData();
+        });
+
+        btnEditGameData.setOnAction(e -> {
+            editMenuController.editGameData();
         });
 
         itmEnterPosition.setOnAction(e -> {
@@ -453,24 +447,11 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmEngines.setOnAction(e -> {
-            DialogEngines dlg = new DialogEngines();
-            ArrayList<Engine> enginesCopy = new ArrayList<>();
-            for(Engine engine : gameModel.engines) {
-                enginesCopy.add(engine);
-            }
-            int selectedIdx = gameModel.engines.indexOf(gameModel.activeEngine);
-            if(selectedIdx < 0) {
-                selectedIdx = 0;
-            }
-            boolean accepted = dlg.show(enginesCopy, selectedIdx);
-            if(accepted) {
-                //List<Engine> engineList = dlg.engineList
-                ArrayList<Engine> engineList = new ArrayList<>(dlg.engineList);
-                Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
-                gameModel.engines = engineList;
-                gameModel.activeEngine = selectedEngine;
-                gameModel.triggerStateChange();
-            }
+            modeMenuController.editEngines();
+        });
+
+        btnSelectEngine.setOnAction(e -> {
+            modeMenuController.editEngines();
         });
 
         itmCopyGame.setOnAction(e -> {

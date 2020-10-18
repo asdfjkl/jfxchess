@@ -49,7 +49,7 @@ public class DialogNewGame {
 
         strength = currEngineStrength;
         //thinkTime = currThinkTime;
-        System.out.println("dlg: setting thinktime: "+thinkTime);
+        //System.out.println("dlg: setting thinktime: "+thinkTime);
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -158,7 +158,7 @@ public class DialogNewGame {
         );
 
         sliderThinkTime.setStyle("-show-value-on-interaction: false;");
-        System.out.println("dlg: setting thinktime: "+currThinkTime);
+        //System.out.println("dlg: setting thinktime: "+currThinkTime);
         if(currThinkTime <= 3) {
             sliderThinkTime.setValue(3);
             sliderThinkTime.setValue(currThinkTime);

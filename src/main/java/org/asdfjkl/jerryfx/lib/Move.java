@@ -146,12 +146,12 @@ public class Move {
             char colFrom = (char) ((this.from % 10) + 96);
             char rowFrom = (char) ((this.from / 10) + 47);
 
-            System.out.println(("from: "+this.from));
+            //System.out.println(("from: "+this.from));
 
             char colTo = (char) ((this.to % 10) + 96);
             char rowTo = (char) ((this.to / 10) + 47);
 
-            System.out.println(("to: "+this.to));
+            //System.out.println(("to: "+this.to));
 
             String uci = "";
             uci += colFrom;

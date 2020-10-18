@@ -7,6 +7,9 @@ import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.PgnPrinter;
 import org.asdfjkl.jerryfx.lib.PgnReader;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class EditMenuController {
 
     GameModel gameModel;
@@ -57,6 +60,21 @@ public class EditMenuController {
             }
         }
     }
+
+    public void editGameData() {
+        DialogEditGameData dlg = new DialogEditGameData();
+        boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(), gameModel.getGame().getResult());
+        if(accteped) {
+            for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                gameModel.getGame().setHeader(key, value);
+            }
+            gameModel.getGame().setResult(dlg.gameResult);
+            gameModel.triggerStateChange();
+        }
+    }
+
 
     public void paste(String s) {
 

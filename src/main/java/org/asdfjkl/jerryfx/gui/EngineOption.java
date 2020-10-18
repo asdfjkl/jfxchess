@@ -62,19 +62,19 @@ public class EngineOption {
 
     public boolean isNotDefault() {
         if(type == EN_OPT_TYPE_CHECK) {
-            return (checkStatusDefault == checkStatusValue);
+            return (checkStatusDefault != checkStatusValue);
         }
 
         if(type == EN_OPT_TYPE_SPIN) {
-            return (spinValue == spinDefault);
+            return (spinValue != spinDefault);
         }
 
         if(type == EN_OPT_TYPE_COMBO) {
-            return (comboValue.equals(comboDefault));
+            return (!comboValue.equals(comboDefault));
         }
 
         if(type == EN_OPT_TYPE_STRING) {
-            return (stringDefault.equals(stringValue));
+            return (!stringDefault.equals(stringValue));
         }
 
         return true;
@@ -123,6 +123,14 @@ public class EngineOption {
     }
 
     public boolean parseUciOptionString(String optionString) {
+
+        // we completely ignore multipv, as this is
+        // handled via the gui (and we currently only support
+        // up to 4 lines in the GUI
+
+        if(optionString.toLowerCase().contains("multipv")) {
+            return false;
+        }
 
         if(optionString.startsWith("option name")) {
 

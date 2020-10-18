@@ -131,7 +131,7 @@ public class DialogAppearance {
         });
 
         if(currentStyle.getColorStyle() == BoardStyle.STYLE_BLUE) {
-            System.out.println("SETTING COLOR TO BLUE");
+            //System.out.println("SETTING COLOR TO BLUE");
             rbBlue.setSelected(true);
         }
         if(currentStyle.getColorStyle() == BoardStyle.STYLE_BROWN) {

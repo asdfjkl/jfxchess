@@ -75,30 +75,31 @@ public class GameModel {
         String bookPath = "";
         String jarPath = "";
         String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        System.out.println("path: "+path);
+        //System.out.println("path: "+path);
         try {
             jarPath = URLDecoder.decode(path, "UTF-8");
-            System.out.println("jarpath: "+jarPath);
+            //System.out.println("jarpath: "+jarPath);
             File tmp = (new File(jarPath));
             if(tmp.getParentFile().exists()) {
                 File subEngine = new File(tmp.getParentFile(), "engine");
                 stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
-                System.out.println("stockfishpath: "+stockfishPath);
+                //System.out.println("stockfishpath: "+stockfishPath);
                 File subBook = new File(tmp.getParentFile(), "book");
                 bookPath = new File(subBook, "varied.bin").getPath();
-                System.out.println("bookpath: "+bookPath);
+                //bookPath = "C:\\Program Files\\JerryFX\\app\\book\\varied.bin";
+                //System.out.println("bookpath: "+bookPath);
             } else {
-                System.out.println("parent not exists");
+                //System.out.println("parent not exists");
             }
         } catch (UnsupportedEncodingException e) {
-            System.out.println("exception in getting jar path");
+            //System.out.println("exception in getting jar path");
             e.printStackTrace();
         }
 
         Engine stockfish = new Engine();
         stockfish.setName("Stockfish (Internal)");
         //stockfish.setPath("C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe");
-        System.out.println(stockfishPath);
+        //System.out.println(stockfishPath);
         stockfish.setPath(stockfishPath);
         stockfish.setInternal(true);
         engines.add(stockfish);
@@ -106,7 +107,7 @@ public class GameModel {
 
         book = new Polyglot();
         File file = null;
-        System.out.println(bookPath);
+        //System.out.println(bookPath);
         file = new File(bookPath);
         book.loadBook(file);
 
@@ -229,7 +230,7 @@ public class GameModel {
             Engine engine = engines.get(i);
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
-            System.out.println("SAVED: "+engineString);
+            //System.out.println("SAVED: "+engineString);
         }
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
     }
@@ -243,7 +244,7 @@ public class GameModel {
 
             for(int i=1;i<10;i++) {
                 String engineString = prefs.get("ENGINE"+i, "");
-                System.out.println("RESTORED: "+engineString);
+                //System.out.println("RESTORED: "+engineString);
                 if(!engineString.isEmpty()) {
                     Engine engine = new Engine();
                     engine.restoreFromString(engineString);
@@ -270,7 +271,7 @@ public class GameModel {
         prefs.putDouble("MOVE_DIVIDER_RATIO", g.moveDividerRatio);
         prefs.putDouble("MAIN_DIVIDER_RATIO", g.mainDividerRatio);
 
-        System.out.println("saved main div ratio: "+g.mainDividerRatio);
+        //System.out.println("saved main div ratio: "+g.mainDividerRatio);
         /*
         System.out.println("saved: "+g.xOffset);
         System.out.println("saved: "+g.yOffset);
