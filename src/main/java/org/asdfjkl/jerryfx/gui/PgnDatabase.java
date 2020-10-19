@@ -154,68 +154,94 @@ public class PgnDatabase {
                 long gamesRead = 0;
 
                 try {
-                    System.out.println("trying to open: "+tmpFilename);
+                    //System.out.println("trying to open: "+tmpFilename);
                     raf = new OptimizedRandomAccessFile(tmpFilename, "r");
+                    int cnt_i = 0;
                     while ((currentLine = raf.readLine()) != null) {
+                        cnt_i++;
+                        //System.out.println("line: "+cnt_i);
+                        //System.out.println(currentLine);
                         if (isCancelled()) {
                             break;
                         }
                         // skip comments
                         if (currentLine.startsWith("%")) {
+                            //System.out.println("startswith %");
                             continue;
                         }
 
                         if (!inComment && currentLine.startsWith("[")) {
-
+                            //System.out.println("in comment  [");
                             if (game_pos == -1) {
                                 game_pos = last_pos;
                                 current = new PgnSTR();
                             }
                             last_pos = raf.getFilePointer();
-
+                            //System.out.println("in comment  [ 1");
                             if (currentLine.length() > 4) {
-                                int spaceOffset = currentLine.indexOf(' ');
-                                int firstQuote = currentLine.indexOf('"');
-                                int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                                String tag = currentLine.substring(1, spaceOffset);
-                                String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                String valueEncoded = new String(value.getBytes("ISO-8859-1"), reader.getEncoding());
-                                if(tag.equals("Event")) {
-                                    current.setEvent(valueEncoded);
-                                }
-                                if(tag.equals("Site")) {
-                                    current.setSite(valueEncoded);
-                                }
-                                if(tag.equals("Round")) {
-                                    current.setRound(valueEncoded);
-                                }
-                                if(tag.equals("White")) {
-                                    //System.out.println(valueEncoded);
-                                    //System.out.println("ö");
-                                    current.setWhite(valueEncoded);
-                                }
-                                if(tag.equals("Black")) {
-                                    current.setBlack(valueEncoded);
-                                }
-                                if(tag.equals("Result")) {
-                                    current.setResult(valueEncoded);
-                                }
-                                if(tag.equals("Date")) {
-                                    current.setDate(valueEncoded);
-                                }
-                                if(tag.equals("ECO")) {
-                                    current.setEco(valueEncoded);
-                                }
+                                    //System.out.println("in comment  [ 2");
+                                    int spaceOffset = currentLine.indexOf(' ');
+                                    int firstQuote = currentLine.indexOf('"');
+                                    int secondQuote = currentLine.indexOf('"', firstQuote + 1);
+                                    //System.out.println("in comment  [ 2a");
+                                    String tag = currentLine.substring(1, spaceOffset);
+                                    //System.out.println("in comment  [ 2b");
+                                    //System.out.println(firstQuote + 1);
+                                    //System.out.println(secondQuote);
+                                    //System.out.println(currentLine);
+                                    if(secondQuote > firstQuote+1) {
+                                        String value = currentLine.substring(firstQuote + 1, secondQuote);
+                                        //System.out.println("VALUE " + value);
+                                        //System.out.println("in comment  [ 3");
+                                        String valueEncoded = new String(value.getBytes("ISO-8859-1"), reader.getEncoding());
+                                        //System.out.println("in comment  [ 4");
+                                        if (tag.equals("Event")) {
+                                            current.setEvent(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("Site")) {
+                                            current.setSite(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("Round")) {
+                                            current.setRound(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("White")) {
+                                            //System.out.println(valueEncoded);
+                                            //System.out.println("ö");
+                                            current.setWhite(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("Black")) {
+                                            current.setBlack(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("Result")) {
+                                            current.setResult(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("Date")) {
+                                            current.setDate(valueEncoded);
+                                            current.markValid();
+                                        }
+                                        if (tag.equals("ECO")) {
+                                            current.setEco(valueEncoded);
+                                            current.markValid();
+                                        }
+                                    }
                             }
-
+                            //System.out.println("before continue");
                             continue;
                         }
                         if ((!inComment && currentLine.contains("{"))
                                 || (inComment && currentLine.contains("}"))) {
+                            //System.out.println("startswith {");
                             inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
                         }
 
                         if (game_pos != -1) {
+                            //System.out.println("game_pos != -1");
                             current.setOffset(game_pos);
                             current.setIndex(newEntries.size()+1);
                             /*
@@ -228,10 +254,13 @@ public class PgnDatabase {
                                 updateProgress(game_pos, fileSize);
                                 gamesRead = 0;
                             }
-                            newEntries.add(current);
+                            if(current.isValid()) {
+                                newEntries.add(current);
+                            }
                             game_pos = -1;
                         }
 
+                        //System.out.println("before lastpos");
                         last_pos = raf.getFilePointer();
                     }
                 } catch (IOException e) {
@@ -246,6 +275,7 @@ public class PgnDatabase {
                     }
                 }
 
+                System.out.println("finished");
                 return FXCollections.observableArrayList(newEntries);
             }
         };

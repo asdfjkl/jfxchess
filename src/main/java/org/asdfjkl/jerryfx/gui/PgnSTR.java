@@ -13,6 +13,8 @@ public class PgnSTR {
     private String result = "";
     private String eco = "";
 
+    private boolean foundAtLeast1Tag = false;
+
     public long getOffset() { return offset; };
     public void setOffset(long offset) { this.offset = offset; }
 
@@ -42,5 +44,13 @@ public class PgnSTR {
 
     public String getEco() { return eco; }
     public void setEco(String eco) { this.eco = eco; }
+
+    public void markValid() {
+        foundAtLeast1Tag = true;
+    }
+
+    public boolean isValid() {
+        return foundAtLeast1Tag;
+    }
 
 }
