@@ -49,8 +49,18 @@ public class GameMenuController {
 
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        fileChooser.setTitle("Open PGN File");
+        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
+            if(file.getParentFile() != null) {
+                gameModel.lastOpenedDirPath = file.getParentFile();
+            }
             // for files >= 20 kb, always open in db window
             if((file.length() / 1024) < 20) {
                 ArrayList<Long> indices = reader.scanPgn(file.getAbsolutePath());
@@ -163,8 +173,17 @@ public class GameMenuController {
 
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        if(gameModel.lastSaveDirPath != null && gameModel.lastSaveDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastSaveDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
+            if(file.getParentFile() != null) {
+                gameModel.lastSaveDirPath = file.getParentFile();
+            }
             PgnPrinter printer = new PgnPrinter();
             printer.writeGame(gameModel.getGame(), file.getAbsolutePath());
         }
@@ -175,6 +194,9 @@ public class GameMenuController {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         WritableImage image = chessboard.snapshot(new SnapshotParameters(), null);
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PNG", "*.png")
+        );
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try {

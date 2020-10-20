@@ -27,7 +27,7 @@ public class PgnDatabase {
 
     DialogDatabase dialogDatabase = null;
 
-    public String lastOpenedFilePath = "";
+    //public String lastOpenedFilePath = "";
 
     private ArrayList<Task> runningTasks = new ArrayList<Task>();
 
@@ -93,10 +93,11 @@ public class PgnDatabase {
         return g;
     }
 
+    /*
     public void open(String filename) {
         this.filename = filename;
         open();
-    }
+    }*/
 
     public void open() {
 
