@@ -70,7 +70,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
-        vbButtonsRight.setPrefWidth(100);
+        vbButtonsRight.setPrefWidth(140);
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         Region spacer3 = new Region();

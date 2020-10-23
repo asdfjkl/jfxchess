@@ -34,13 +34,14 @@ public class GameMenuController {
 
     public void handleBrowseDatabase() {
         DialogDatabase dlg = new DialogDatabase();
-        boolean accepted = dlg.show(gameModel, false);
+        boolean accepted = dlg.show(gameModel,false);
         if(accepted) {
             int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
             gameModel.currentPgnDatabaseIdx = gameIndex;
             Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
             gameModel.setGame(g);
             g.setTreeWasChanged(true);
+            g.setHeaderWasChanged(true);
             gameModel.triggerStateChange();
         }
     }
@@ -92,6 +93,8 @@ public class GameMenuController {
                     if(g != null && (g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition())) {
                         g.setTreeWasChanged(true);
                         gameModel.setGame(g);
+                        g.setHeaderWasChanged(true);
+                        g.setTreeWasChanged(true);
                         gameModel.triggerStateChange();
                         return;
                     }
@@ -105,6 +108,7 @@ public class GameMenuController {
                         gameModel.currentPgnDatabaseIdx = gameIndex;
                         Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
                         gameModel.setGame(g);
+                        g.setHeaderWasChanged(true);
                         g.setTreeWasChanged(true);
                         gameModel.triggerStateChange();
                     }
@@ -120,6 +124,7 @@ public class GameMenuController {
                     gameModel.currentPgnDatabaseIdx = gameIndex;
                     Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
                     gameModel.setGame(g);
+                    g.setHeaderWasChanged(true);
                     g.setTreeWasChanged(true);
                     gameModel.triggerStateChange();
                 }
@@ -228,6 +233,7 @@ public class GameMenuController {
         if(nextIdx < gameModel.getPgnDatabase().getNrGames()) {
             Game g = gameModel.getPgnDatabase().loadGame(nextIdx);
             g.setTreeWasChanged(true);
+            g.setHeaderWasChanged(true);
             gameModel.setGame(g);
             gameModel.currentPgnDatabaseIdx = nextIdx;
             gameModel.triggerStateChange();
@@ -239,6 +245,7 @@ public class GameMenuController {
         if(nextIdx >= 0) {
             Game g = gameModel.getPgnDatabase().loadGame(nextIdx);
             g.setTreeWasChanged(true);
+            g.setHeaderWasChanged(true);
             gameModel.setGame(g);
             gameModel.currentPgnDatabaseIdx = nextIdx;
             gameModel.triggerStateChange();

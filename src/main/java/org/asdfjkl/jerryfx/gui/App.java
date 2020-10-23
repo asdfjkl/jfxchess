@@ -63,6 +63,7 @@ public class App extends Application implements StateChangeListener {
 
         gameModel = new GameModel();
         gameModel.restoreModel();
+        gameModel.restoreBoardStyle();
         gameModel.restoreEngines();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
@@ -252,6 +253,7 @@ public class App extends Application implements StateChangeListener {
 
         // put together  Chessboard | Game Navigation
         Chessboard chessboard = new Chessboard(gameModel);
+        chessboard.boardStyle = gameModel.boardStyle;
         chessboard.resize(100,100);
         chessboard.updateCanvas();
 
@@ -442,6 +444,7 @@ public class App extends Application implements StateChangeListener {
             if(accepted) {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
                 chessboard.boardStyle.setPieceStyle(dlg.appearanceBoard.boardStyle.getPieceStyle());
+                gameModel.boardStyle = chessboard.boardStyle;
                 gameModel.triggerStateChange();
             }
         });
@@ -672,7 +675,9 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void stateChange() {
 
-        if(gameModel.getGame().isTreeChanged()) {
+        System.out.println("state change main app");
+        if(gameModel.getGame().isHeaderChanged()) {
+            System.out.println("state change: tree is changed");
             //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
             String white = gameModel.getGame().getHeader("White");
             String black = gameModel.getGame().getHeader("Black");
@@ -680,6 +685,8 @@ public class App extends Application implements StateChangeListener {
             String date = gameModel.getGame().getHeader("Date");
 
             String label = white + " - " + black + "\n" + site + ", " + date;
+            System.out.println("got label:");
+            System.out.println(label);
             txtGameData.setText(label);
         }
         if(gameModel.getMode() == GameModel.MODE_ENTER_MOVES) {
@@ -705,6 +712,7 @@ public class App extends Application implements StateChangeListener {
                 spChessboardMoves.getDividerPositions()[0],
                 spMain.getDividerPositions()[0]);
         gameModel.saveScreenGeometry(g);
+        gameModel.saveBoardStyle();
         gameModel.saveEngines();
 
         engineController.sendCommand("quit");

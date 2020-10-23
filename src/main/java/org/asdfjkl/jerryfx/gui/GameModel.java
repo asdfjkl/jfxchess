@@ -61,6 +61,7 @@ public class GameModel {
     public File lastSaveDirPath = null;
 
     private SearchPattern searchPattern;
+    BoardStyle boardStyle;
 
     public GameModel() {
         this.game = new Game();
@@ -68,6 +69,7 @@ public class GameModel {
 
         pgnDatabase = new PgnDatabase();
         searchPattern = new SearchPattern();
+        boardStyle = new BoardStyle();
 
         this.game.getRootNode().setBoard(b);
         this.currentMode = MODE_ENTER_MOVES;
@@ -224,6 +226,12 @@ public class GameModel {
 
     }
 
+    public void saveBoardStyle() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putInt("COLOR_STYLE", boardStyle.getColorStyle());
+        prefs.putInt("PIECE_STYLE", boardStyle.getPieceStyle());
+    }
+
     public void saveEngines() {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
@@ -234,6 +242,21 @@ public class GameModel {
             //System.out.println("SAVED: "+engineString);
         }
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+    }
+
+    public void restoreBoardStyle() {
+
+        BoardStyle style = new BoardStyle();
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        if(mVersion == modelVersion) {
+            int colorStyle = prefs.getInt("COLOR_STYLE", BoardStyle.STYLE_BLUE);
+            int pieceStyle = prefs.getInt("PIECE_STYLE", BoardStyle.PIECE_STYLE_MERIDA);
+            style.setPieceStyle(pieceStyle);
+            style.setColorStyle(colorStyle);
+        }
+        boardStyle = style;
     }
 
     public void restoreEngines() {

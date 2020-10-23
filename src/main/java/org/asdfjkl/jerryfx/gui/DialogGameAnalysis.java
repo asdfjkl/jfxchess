@@ -53,10 +53,12 @@ public class DialogGameAnalysis {
         SpinnerValueFactory<Integer> valueFactorySecs =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 30, 5);
         sSecs.setValueFactory(valueFactorySecs);
+        sSecs.setEditable(true);
 
         SpinnerValueFactory<Double> valueFactoryThres =
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 1.0, 0.5, 0.1);
         sPawnThreshold.setValueFactory(valueFactoryThres);
+        sPawnThreshold.setEditable(true);
 
         HBox hbColors = new HBox(rbBoth, rbWhite, rbBlack);
         hbColors.setSpacing(10);

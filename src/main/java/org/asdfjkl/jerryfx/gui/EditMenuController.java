@@ -48,6 +48,7 @@ public class EditMenuController {
         Board board = gameModel.getGame().getCurrentNode().getBoard();
         DialogEnterPosition dlg = new DialogEnterPosition();
         double width = dialogHeight * 1.6;
+        //double width = dialogHeight * 1.7;
         boolean accepted = dlg.show(board, style, width, dialogHeight);
         if(accepted) {
             Board newBoard = dlg.currentBoard;
@@ -56,6 +57,7 @@ public class EditMenuController {
                 g.getRootNode().setBoard(newBoard);
                 gameModel.setGame(g);
                 gameModel.getGame().setTreeWasChanged(true);
+                gameModel.getGame().setHeaderWasChanged(true);
                 gameModel.triggerStateChange();
             }
         }
@@ -71,6 +73,7 @@ public class EditMenuController {
                 gameModel.getGame().setHeader(key, value);
             }
             gameModel.getGame().setResult(dlg.gameResult);
+            gameModel.getGame().setHeaderWasChanged(true);
             gameModel.triggerStateChange();
         }
     }
@@ -98,6 +101,7 @@ public class EditMenuController {
             if(g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition()) {
                 gameModel.setGame(g);
                 gameModel.getGame().setTreeWasChanged(true);
+                gameModel.getGame().setHeaderWasChanged(true);
                 gameModel.triggerStateChange();
             }
 

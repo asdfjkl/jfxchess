@@ -9,6 +9,7 @@ public class Game {
     private GameNode current = null;
     private int result;
     private boolean treeWasChanged;
+    private boolean headerWasChanged;
     private boolean wasEcoClassified;
     private HashMap<String, String> pgnHeaders;
 
@@ -17,6 +18,7 @@ public class Game {
         this.result = CONSTANTS.RES_UNDEF;
         this.current = this.root;
         this.treeWasChanged = false;
+        this.headerWasChanged = false;
         this.wasEcoClassified = false;
         this.pgnHeaders = new HashMap<String,String>();
     }
@@ -95,6 +97,10 @@ public class Game {
     public void setTreeWasChanged(boolean status) {
         this.treeWasChanged = status;
     }
+
+    public boolean isHeaderChanged() { return headerWasChanged; }
+
+    public void setHeaderWasChanged(boolean state) { headerWasChanged = true; }
 
     public void setHeader(String tag, String value) {
         this.pgnHeaders.put(tag, value);

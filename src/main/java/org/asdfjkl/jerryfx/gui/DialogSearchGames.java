@@ -50,7 +50,7 @@ public class DialogSearchGames {
 
     Board currentBoard;
 
-    public boolean show(Board board, SearchPattern searchPattern) {
+    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern) {
 
         this.currentBoard = board.makeCopy();
 
@@ -96,10 +96,12 @@ public class DialogSearchGames {
         spinnerAfter = new Spinner<Integer>();
         SpinnerValueFactory<Integer> valueFactoryAfter = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1);
         spinnerAfter.setValueFactory(valueFactoryAfter);
+        spinnerAfter.setEditable(true);
 
         spinnerBefore = new Spinner<Integer>();
         SpinnerValueFactory<Integer> valueFactoryBefore = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 40);
         spinnerBefore.setValueFactory(valueFactoryBefore);
+        spinnerBefore.setEditable(true);
 
         hbLblAfter.getChildren().addAll(lblAfter, spinnerAfter);
         hbLblAfter.setAlignment(Pos.CENTER);
@@ -140,7 +142,8 @@ public class DialogSearchGames {
         vbButtonsRight.setVgrow(spacer1, Priority.ALWAYS);
         vbButtonsRight.setPadding( new Insets(10,0,10,30));
 
-        enterPosBoard = new EnterPosBoard(new Board(true));
+        enterPosBoard = new EnterPosBoard(currentBoard.makeCopy());
+        enterPosBoard.boardStyle = currentBoardStyle;
         // to make sure, the enter position board is displayed correctly
         enterPosBoard.setHeight(350);
 
@@ -168,9 +171,11 @@ public class DialogSearchGames {
         spinnerMinYear = new Spinner<Integer>();
         SpinnerValueFactory<Integer> spinnerMinYearVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 500);
         spinnerMinYear.setValueFactory(spinnerMinYearVF);
+        spinnerMinYear.setEditable(true);
         spinnerMaxYear = new Spinner<Integer>();
         SpinnerValueFactory<Integer> spinnerMaxYearVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 2100);
         spinnerMaxYear.setValueFactory(spinnerMaxYearVF);
+        spinnerMaxYear.setEditable(true);
         cbECO = new CheckBox("ECO:");
         ecoMin = new TextField("A00");
         ecoMax = new TextField("E99");
@@ -207,6 +212,8 @@ public class DialogSearchGames {
         spinnerMinElo.setValueFactory(spinnerMinEloVF);
         SpinnerValueFactory<Integer> spinnerMaxEloVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(1000, 3000, 3000);
         spinnerMaxElo.setValueFactory(spinnerMaxEloVF);
+        spinnerMinElo.setEditable(true);
+        spinnerMaxElo.setEditable(true);
 
         rbEloIgnore = new RadioButton("Ignore");
         rbEloOne = new RadioButton("One");
@@ -338,8 +345,6 @@ public class DialogSearchGames {
         cbResultBlackWins.setSelected(searchPattern.isResultBlackWins());
         cbResultUnclear.setSelected(searchPattern.isResultUndef());
         cbResultDraw.setSelected(searchPattern.isResultDraw());
-
-        enterPosBoard.board = searchPattern.getBoard().makeCopy();
 
         searchHeader.setSelected(searchPattern.isSearchForHeader());
         searchPosition.setSelected(searchPattern.isSearchForPosition());

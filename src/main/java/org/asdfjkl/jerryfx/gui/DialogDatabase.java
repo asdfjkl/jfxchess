@@ -195,7 +195,7 @@ public class DialogDatabase {
         DialogSearchGames dlg = new DialogSearchGames();
         System.out.println("MIN MOVE:" + gameModel.getSearchPattern().getMinMove());
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
-        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.getSearchPattern());
+        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.boardStyle, gameModel.getSearchPattern());
         if(accepted) {
             SearchPattern pattern = dlg.getSearchPattern();
             pgnDatabase.search(pattern);
