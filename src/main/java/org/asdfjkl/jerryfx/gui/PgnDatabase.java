@@ -187,12 +187,13 @@ public class PgnDatabase {
                                     //System.out.println("in comment  [ 2a");
                                     String tag = currentLine.substring(1, spaceOffset);
                                     //System.out.println("in comment  [ 2b");
-                                    //System.out.println(firstQuote + 1);
-                                    //System.out.println(secondQuote);
-                                    //System.out.println(currentLine);
-                                    if(secondQuote > firstQuote+1) {
+                                    System.out.println("parsing TAG/VALUE");
+                                    System.out.println(firstQuote + 1);
+                                    System.out.println(secondQuote);
+                                    System.out.println(currentLine);
+                                    if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                        //System.out.println("VALUE " + value);
+                                        System.out.println("VALUE " + value);
                                         //System.out.println("in comment  [ 3");
                                         String valueEncoded = new String(value.getBytes("ISO-8859-1"), reader.getEncoding());
                                         //System.out.println("in comment  [ 4");

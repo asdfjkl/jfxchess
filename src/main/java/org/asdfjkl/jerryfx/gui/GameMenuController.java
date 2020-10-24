@@ -34,7 +34,12 @@ public class GameMenuController {
 
     public void handleBrowseDatabase() {
         DialogDatabase dlg = new DialogDatabase();
-        boolean accepted = dlg.show(gameModel,false);
+        boolean accepted = false;
+        if(gameModel.openDatabaseOnNextDialog) {
+            accepted = dlg.show(gameModel,true);
+        } else {
+            accepted = dlg.show(gameModel,false);
+        }
         if(accepted) {
             int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
             gameModel.currentPgnDatabaseIdx = gameIndex;
@@ -91,7 +96,8 @@ public class GameMenuController {
                         }
                     }
                     if(g != null && (g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition())) {
-                        g.setTreeWasChanged(true);
+                        gameModel.getPgnDatabase().filename = file.getAbsolutePath();
+                        gameModel.openDatabaseOnNextDialog = true;
                         gameModel.setGame(g);
                         g.setHeaderWasChanged(true);
                         g.setTreeWasChanged(true);

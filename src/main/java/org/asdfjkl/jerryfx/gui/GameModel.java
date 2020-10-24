@@ -60,6 +60,8 @@ public class GameModel {
     public File lastOpenedDirPath = null;
     public File lastSaveDirPath = null;
 
+    public boolean openDatabaseOnNextDialog = false;
+
     private SearchPattern searchPattern;
     BoardStyle boardStyle;
 

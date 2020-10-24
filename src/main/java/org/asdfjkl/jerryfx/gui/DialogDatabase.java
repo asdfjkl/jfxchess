@@ -172,6 +172,7 @@ public class DialogDatabase {
         stage.showAndWait();
 
 
+        System.out.println("db size: "+pgnDatabase.getNrGames());
 
         return accepted;
     }
