@@ -334,5 +334,23 @@ public class Game {
         return halfmoves;
     }
 
+    public boolean isThreefoldRepetition() {
+
+        int counter = 1;
+        long zobrist = current.getBoard().getZobrist();
+        GameNode temp = this.current;
+        while(temp.getParent() != null) {
+            temp = temp.getParent();
+            long tempZobrist = temp.getBoard().getZobrist();
+            if(tempZobrist == zobrist) {
+                counter++;
+            }
+            if(counter >= 3) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

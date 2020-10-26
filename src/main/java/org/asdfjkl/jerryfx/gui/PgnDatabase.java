@@ -187,13 +187,13 @@ public class PgnDatabase {
                                     //System.out.println("in comment  [ 2a");
                                     String tag = currentLine.substring(1, spaceOffset);
                                     //System.out.println("in comment  [ 2b");
-                                    System.out.println("parsing TAG/VALUE");
-                                    System.out.println(firstQuote + 1);
-                                    System.out.println(secondQuote);
-                                    System.out.println(currentLine);
+                                    //System.out.println("parsing TAG/VALUE");
+                                    //System.out.println(firstQuote + 1);
+                                    //System.out.println(secondQuote);
+                                    //System.out.println(currentLine);
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                        System.out.println("VALUE " + value);
+                                        //System.out.println("VALUE " + value);
                                         //System.out.println("in comment  [ 3");
                                         String valueEncoded = new String(value.getBytes("ISO-8859-1"), reader.getEncoding());
                                         //System.out.println("in comment  [ 4");
@@ -381,7 +381,7 @@ public class PgnDatabase {
                         }
                         if(pattern.isSearchForHeader()) {
                             if(!pattern.matchesHeader(entries.get(i))) {
-                                i++;
+                                //i++;
                                 continue;
                             }
                         }
@@ -389,13 +389,16 @@ public class PgnDatabase {
                             raf.seek(indices.get(i));
                             Game g = reader.readGame(raf);
                             if(!g.containsPosition(pattern.getPositionHash(), pattern.getMinMove(), pattern.getMaxMove())) {
-                                i++;
+                                //i++;
                                 continue;
                             }
                         }
-                        i++;
+                        //i++;
+                        //System.out.println("I before: "+i);
                         foundEntries.add(entries.get(i));
+                        //System.out.println("I after: "+i);
                     }
+                    System.out.println("loop finished");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

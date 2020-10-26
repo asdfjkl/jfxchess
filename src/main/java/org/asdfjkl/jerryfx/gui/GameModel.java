@@ -47,6 +47,8 @@ public class GameModel {
     public int childMateInMoves = -1;
     public boolean childIsMate = false;
 
+    public boolean doNotNotifyAboutResult = false;
+
     public String lastSeenBestmove = "";
 
     public Polyglot book;
@@ -71,6 +73,7 @@ public class GameModel {
 
         pgnDatabase = new PgnDatabase();
         searchPattern = new SearchPattern();
+        searchPattern.setSearchForHeader(true);
         boardStyle = new BoardStyle();
 
         this.game.getRootNode().setBoard(b);

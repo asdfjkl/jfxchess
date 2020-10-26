@@ -515,22 +515,64 @@ public class ModeMenuController implements StateChangeListener {
     @Override
     public void stateChange() {
         int mode = gameModel.getMode();
-        boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
+        Board board = gameModel.getGame().getCurrentNode().getBoard();
+        boolean turn = board.turn;
 
-        if(mode == GameModel.MODE_ANALYSIS) {
-            handleStateChangeAnalysis();
+        boolean isCheckmate = board.isCheckmate();
+        boolean isStalemate = board.isStalemate();
+        boolean isThreefoldRepetition = gameModel.getGame().isThreefoldRepetition();
+
+        boolean abort = false;
+
+        // if we change from e.g. play white to enter moves, the state change would trigger
+        // the notification again in enter moves mode after the state change. thus,
+        // also check if
+        if((isCheckmate || isStalemate || isThreefoldRepetition) && !gameModel.doNotNotifyAboutResult) {
+
+            String message = "";
+            if(isCheckmate) {
+                message = "     Checkmate.     ";
+            }
+            if(isStalemate) {
+                message = "     Stalemate.     ";
+            }
+            if(isThreefoldRepetition) {
+                message = "Draw (Threefold Repetition)";
+            }
+            if(mode != GameModel.MODE_GAME_ANALYSIS) {
+                DialogSimpleAlert dlg = new DialogSimpleAlert();
+                dlg.show(message);
+            }
+
+            if(mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {
+                abort = true;
+            }
         }
-        if(mode == GameModel.MODE_GAME_ANALYSIS) {
-            handleStateChangeGameAnalysis();
+
+        if(abort) {
+            // if we change from e.g. play white to enter moves, the state change would trigger
+            // the notification again in enter moves mode after the state change. thus
+            // set a marker here, that for the next state change we ignore
+            // the result notification
+            gameModel.doNotNotifyAboutResult = true;
+            gameModel.setMode(GameModel.MODE_ENTER_MOVES);
+            gameModel.triggerStateChange();
+        } else {
+            gameModel.doNotNotifyAboutResult = false;
+            if (mode == GameModel.MODE_ANALYSIS) {
+                handleStateChangeAnalysis();
+            }
+            if (mode == GameModel.MODE_GAME_ANALYSIS) {
+                handleStateChangeGameAnalysis();
+            }
+            if (mode == GameModel.MODE_PLAYOUT_POSITION) {
+                handleStateChangePlayoutPosition();
+            }
+            if ((mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK)
+                    && turn != gameModel.getHumanPlayerColor()) {
+                handleStateChangePlayWhiteOrBlack();
+            }
         }
-        if(mode == GameModel.MODE_PLAYOUT_POSITION) {
-            handleStateChangePlayoutPosition();
-        }
-        if((mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK)
-            && turn != gameModel.getHumanPlayerColor()) {
-            handleStateChangePlayWhiteOrBlack();
-        }
-        // todo: playout pos. game analysis, checkmate, three-fold repitition, stalemate, 50-move rule
     }
 
 }

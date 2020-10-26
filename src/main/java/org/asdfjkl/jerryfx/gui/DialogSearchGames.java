@@ -263,6 +263,10 @@ public class DialogSearchGames {
         hbButtonReset.getChildren().addAll(spacerResetButton, resetHeaderSearch);
         hbButtonReset.setHgrow(spacerResetButton, Priority.ALWAYS);
 
+        resetHeaderSearch.setOnAction(e -> {
+            btnResetClicked();
+        });
+
         VBox vbEloResult = new VBox();
         Region spacerRight = new Region();
         vbEloResult.getChildren().addAll(paneElo, paneWin, spacerRight, hbButtonReset);
@@ -309,6 +313,11 @@ public class DialogSearchGames {
     private void btnCancelClicked() {
         accepted = false;
         stage.close();
+    }
+
+    private void btnResetClicked() {
+        SearchPattern pattern = new SearchPattern();
+        recoverFromSearchPattern(pattern);
     }
 
 
