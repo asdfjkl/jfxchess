@@ -110,7 +110,6 @@ public class EngineInfo {
         for(int i=0;i<lines.length;i++) {
 
             String line = lines[i];
-            //System.out.println("engine> "+line);
 
             Matcher matchPVIdx = MULTIPV.matcher(line);
             if(matchPVIdx.find()) {
@@ -153,7 +152,6 @@ public class EngineInfo {
             Matcher matchMate = MATE.matcher(line);
             if(matchMate.find()) {
                 String sMate = matchMate.group();
-                //System.out.println("sMate Match: "+sMate);
                 mate.set(multiPv, Integer.parseInt(sMate.substring(11)));
                 seesMate.set(multiPv, true);
             }

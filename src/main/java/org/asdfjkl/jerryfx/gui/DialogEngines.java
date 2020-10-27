@@ -239,9 +239,6 @@ public class DialogEngines {
                 }
             }
         }
-        for(EngineOption eo : selectedEngine.options) {
-            System.out.println(eo.toUciCommand());
-        }
     }
 
     private void btnAddEngineClicked() {
@@ -262,7 +259,6 @@ public class DialogEngines {
                 BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
                 BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
 
-                //System.out.println("after sleep, sending uci");
                 bro.write("uci\n");
                 bro.flush();
 
@@ -277,26 +273,19 @@ public class DialogEngines {
                 Engine engine = new Engine();
                 engine.setPath(file.getAbsolutePath());
 
-                //System.out.println("after uci");
                 while(bri.ready()) {
                     EngineOption engineOption = new EngineOption();
                     line = bri.readLine();
-                    System.out.println(line);
                     if(line.startsWith("id name")) {
                         engine.setName(line.substring(7).trim());
-                        //System.out.println("id: "+engine.getName());
                     }
                     boolean parsed = engineOption.parseUciOptionString(line);
                     if(parsed) {
-                        //System.out.println(engineOption.toUciOptionString());
                         engine.options.add(engineOption);
                     }
                 }
-                //System.out.println("after uci, read output");
-
                 //bro.write("quit\n");
                 bro.flush();
-                //System.out.println("after writing quit");
 
                 bri.close();
                 bro.close();
@@ -312,7 +301,6 @@ public class DialogEngines {
                 }
 
                 if(engine.getName() != null && !engine.getName().isEmpty()) {
-                    //System.out.println("engine id: "+engine.getName());
                     engineList.add(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {

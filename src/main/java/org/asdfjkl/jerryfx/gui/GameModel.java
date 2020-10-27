@@ -101,26 +101,19 @@ public class GameModel {
         String bookPath = "";
         String jarPath = "";
         String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        //System.out.println("path: "+path);
         jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-        //System.out.println("jarpath: "+jarPath);
         File tmp = (new File(jarPath));
         if(tmp.getParentFile().exists()) {
             File subEngine = new File(tmp.getParentFile(), "engine");
             stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
-            //System.out.println("stockfishpath: "+stockfishPath);
             File subBook = new File(tmp.getParentFile(), "book");
             bookPath = new File(subBook, "varied.bin").getPath();
             //bookPath = "C:\\Program Files\\JerryFX\\app\\book\\varied.bin";
-            //System.out.println("bookpath: "+bookPath);
-        } else {
-            //System.out.println("parent not exists");
         }
 
         Engine stockfish = new Engine();
         stockfish.setName("Stockfish (Internal)");
         //stockfish.setPath("C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe");
-        //System.out.println(stockfishPath);
         stockfish.setPath(stockfishPath);
         stockfish.setInternal(true);
         engines.add(stockfish);
@@ -128,7 +121,6 @@ public class GameModel {
 
         book = new Polyglot();
         File file = null;
-        //System.out.println(bookPath);
         file = new File(bookPath);
         book.loadBook(file);
 
@@ -226,8 +218,6 @@ public class GameModel {
     }
 
     public void triggerStateChange() {
-        //System.out.println("state change");
-
         for (StateChangeListener sl : stateChangeListeners)
             sl.stateChange();
     }
@@ -257,7 +247,6 @@ public class GameModel {
             Engine engine = engines.get(i);
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
-            //System.out.println("SAVED: "+engineString);
         }
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
     }
@@ -286,7 +275,6 @@ public class GameModel {
 
             for(int i=1;i<10;i++) {
                 String engineString = prefs.get("ENGINE"+i, "");
-                //System.out.println("RESTORED: "+engineString);
                 if(!engineString.isEmpty()) {
                     Engine engine = new Engine();
                     engine.restoreFromString(engineString);
@@ -312,18 +300,6 @@ public class GameModel {
         prefs.putDouble("WINDOW_HEIGHT", g.height);
         prefs.putDouble("MOVE_DIVIDER_RATIO", g.moveDividerRatio);
         prefs.putDouble("MAIN_DIVIDER_RATIO", g.mainDividerRatio);
-
-        //System.out.println("saved main div ratio: "+g.mainDividerRatio);
-        /*
-        System.out.println("saved: "+g.xOffset);
-        System.out.println("saved: "+g.yOffset);
-        System.out.println("saved: "+g.width);
-        System.out.println("saved: "+g.height);
-        System.out.println("saved: "+g.moveDividerRatio);
-        System.out.println("saved: "+g.mainDividerRatio);
-
-         */
-
     }
 
     public ScreenGeometry restoreScreenGeometry() {
@@ -347,16 +323,6 @@ public class GameModel {
                     ScreenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
 
         }
-        /*
-        System.out.println("restored: "+g.xOffset);
-        System.out.println("restored: "+g.yOffset);
-        System.out.println("restored: "+g.width);
-        System.out.println("restored: "+g.height);
-        System.out.println("restored: "+g.moveDividerRatio);
-        System.out.println("restored: "+g.mainDividerRatio);
-        System.out.println("restored: "+g.isValid());
-
-         */
         return g;
 
     }
@@ -368,29 +334,21 @@ public class GameModel {
 
         //intln(mVersion);
         if(mVersion == modelVersion) {
-            //System.out.println("model version ok");
-
             PgnReader reader = new PgnReader();
 
             String pgn = prefs.get("currentGame", "");
 
-            //System.out.println("string" + pgn);
             if(!pgn.isEmpty()) {
                 Game g = reader.readGame(pgn);
                 PgnPrinter p = new PgnPrinter();
-                //System.out.println("read: " + p.printGame(g));
                 if (g.getRootNode().getBoard().isConsistent()) {
-                    //System.out.println("setting game");
                     setGame(g);
                     g.setTreeWasChanged(true);
                     //triggerStateChange();
                 }
             }
         }
-
     }
-
-
 }
 
 

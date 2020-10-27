@@ -189,9 +189,6 @@ public class DialogDatabase {
         stage.setScene(scene);
         stage.showAndWait();
 
-
-        System.out.println("db size: "+pgnDatabase.getNrGames());
-
         return accepted;
     }
 
@@ -212,7 +209,6 @@ public class DialogDatabase {
     private void btnSearchClicked() {
 
         DialogSearchGames dlg = new DialogSearchGames();
-        System.out.println("MIN MOVE:" + gameModel.getSearchPattern().getMinMove());
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
         boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.boardStyle, gameModel.getSearchPattern().makeCopy());
         if(accepted) {
@@ -255,12 +251,6 @@ public class DialogDatabase {
                 gameModel.lastOpenedDirPath = file.getParentFile();
             }
             pgnDatabase.open();
-            /*
-            System.out.println("pgn database size: " + pgnDatabase.entries.size());
-            System.out.println("First item: "+pgnDatabase.entries.get(0).getWhite());
-            table.setItems(pgnDatabase.entries);
-            table.getColumns().get(0).setVisible(false);
-            table.getColumns().get(0).setVisible(true);*/
 
         }
     }

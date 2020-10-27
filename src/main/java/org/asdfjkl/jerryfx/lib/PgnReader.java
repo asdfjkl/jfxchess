@@ -378,29 +378,21 @@ public class PgnReader {
 
     private void parsePawnMove() {
 
-        //System.out.println("PAWN MOVE "+currentLine.substring(currentIdx, currentIdx+3));
         int col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx)));
-        //System.out.println(Character.toUpperCase(currentLine.charAt(currentIdx)));
-        //System.out.println("columN: "+col);
         Board board = currentNode.getBoard();
         if(currentIdx +1 < currentLine.length()) {
             if(currentLine.charAt(currentIdx+1) == 'x') {
-                //System.out.println("11111");
                 // after x, next one must be letter denoting column
                 // and then digit representing row, like exd4 (white)
                 // then parse d, 4, and check whether there is a pawn
                 // on e(4-1) = e3
                 if(currentIdx+3 < currentLine.length()) {
-                    //System.out.println("22222222");
                     if(this.isCol(currentLine.charAt(currentIdx+2))
                             && this.isRow(currentLine.charAt(currentIdx+3)))
                     {
                         int col_to = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+2)));
                         int row_to = Character.getNumericValue(currentLine.charAt(currentIdx+3)) - 1;
                         int row_from = -1;
-                        //System.out.println("6666666666");
-                        //System.out.println("colto: "+col_to);
-                        //System.out.println("rowto: "+row_to);
                         if(board.turn == CONSTANTS.WHITE && row_to - 1 >= 0
                                 && board.isPieceAt(col, row_to - 1)
                             && board.getPieceAt(col, row_to - 1) == CONSTANTS.WHITE_PAWN) {
@@ -411,7 +403,6 @@ public class PgnReader {
                             row_from = row_to + 1;
                         }
                         if(row_from >= 0 && row_from <= 7) {
-                            //System.out.println("555555");
                             // check whether this is a promotion, i.e. exd8=Q
                             if(currentIdx+5 < currentLine.length() && currentLine.charAt(currentIdx+4) == '=' &&
                                     (currentLine.charAt(currentIdx+5) == 'R' ||
@@ -423,9 +414,7 @@ public class PgnReader {
                                 currentIdx += 6;
                                 return;
                             } else { // just a normal move, like exd4
-                                //System.out.println("333333");
                                 Move m = new Move(col, row_from, col_to, row_to);
-                                //System.out.println("calculated pawn: "+m.getUci());
                                 this.addMove(m);
                                 currentIdx += 4;
                                 return;
@@ -445,7 +434,6 @@ public class PgnReader {
             } else { // only other case: must be a number
                 if(this.isRow(currentLine.charAt(currentIdx+1))) {
                     int row = Character.getNumericValue(currentLine.charAt(currentIdx+1)) - 1;
-                    //System.out.println("ROW   "+row);
                     int from_row = -1;
                     if(board.turn == CONSTANTS.WHITE) {
                         for(int row_i = row - 1;row_i>= 1;row_i--) {
@@ -462,7 +450,6 @@ public class PgnReader {
                             }
                         }
                     }
-                    //System.out.println("FROM ROW "+from_row);
                     if(from_row >= 0) { // means we found a from square
                         // check whether this is a promotion
                         if(currentIdx+3 < currentLine.length() && currentLine.charAt(currentIdx+2) == '=' &&
@@ -471,7 +458,6 @@ public class PgnReader {
                                 currentLine.charAt(currentIdx+3) == 'N' ||
                                 currentLine.charAt(currentIdx+3) == 'Q')) {
                             Move m = new Move(col, from_row, col, row, currentLine.charAt(currentIdx+3));
-                            //System.out.println("MOVE UCI "+m.getUci());
                             this.addMove(m);
                             currentIdx += 4;
                             return;
@@ -562,10 +548,6 @@ public class PgnReader {
     }
 
     private void parsePieceMove(int pieceType) {
-        //System.out.println("parse piece move");
-        //if(currentIdx + 4 < currentLine.length()) {
-        //    System.out.println(currentLine.substring(currentIdx, currentIdx+4));
-        //}
 
         // we have a piece move like "Qxe4" where index points to Q
         // First move idx after piece symbol, i.e. to ">x<e4"
@@ -575,20 +557,13 @@ public class PgnReader {
         }
         if(currentIdx < currentLine.length()) {
             if(this.isCol(currentLine.charAt(currentIdx))) {
-                //System.out.println("is col true");
                 //Qe? or Qxe?, now either digit must follow (Qe4 / Qxe4)
                 //or we have a disambiguation (Qee5, Qexe5)
-                //System.out.println("111");
                 if(currentIdx+1 < currentLine.length()) {
-                    //System.out.println("2222222222");
-                    //System.out.println(currentLine.charAt(currentIdx+1));
                     if(this.isRow(currentLine.charAt(currentIdx+1))) {
-                        //System.out.println("222");
-                        //System.out.println(currentLine.substring(currentIdx));
                         int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx)));
                         int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+1)) - 1;
                         currentIdx+=2;
-                        //System.out.println("33333333333");
                         // standard move, i.e. Qe4
                         try {
                             createPieceMove(pieceType, to_col, to_row);
@@ -599,21 +574,16 @@ public class PgnReader {
                         // fix: skip x if we have Qexe5
                         int skipForTake = 0;
                         if(currentLine.charAt(currentIdx+1) == 'x' && currentIdx + 2 < currentLine.length()) {
-                            //System.out.println("fix");
                             skipForTake = 1;
                             currentIdx+=1;
                         }
                         // fix end
                         if(this.isCol(currentLine.charAt(currentIdx+1))) {
-                            //System.out.println("44444444444"+currentLine.charAt(currentIdx+1));
                             // we have a disambiguation, that should resolved by
                             // the column denoted in the san, here in @line[idx]
                             int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
                             if(currentIdx+2 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx+2))) {
-                                //System.out.println(currentLine.charAt(currentIdx+2));
                                 int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+2)) - 1;
-                                //System.out.println(to_col);
-                                //System.out.println(to_row);
                                 // move w/ disambig on col, i.e. Qee4
                                 // provide line[idx] to cratePieceMove to resolve disamb.
                                 currentIdx+=3;
@@ -636,13 +606,7 @@ public class PgnReader {
                     return;
                 }
             } else {
-                //System.out.println("checking else");
-                //if(currentIdx+1 < currentLine.length()) {
-                //    System.out.println(currentLine.charAt(currentIdx+1));
-                //    System.out.println(this.isRow(currentLine.charAt(currentIdx)));
-                //}
                 if(currentIdx+1 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx))) {
-                    //System.out.println("is col!");
                     // we have a move with disamb, e.g. Q4xe5 or Q4e5
                     int from_row = Character.getNumericValue(currentLine.charAt(currentIdx))- 1;
                     if(currentLine.charAt(currentIdx+1) == 'x') {
@@ -715,7 +679,6 @@ public class PgnReader {
     private void parseNAG() {
 
         int lineSize = currentLine.length();
-        //System.out.println("parse NAG: " + currentLine.substring(currentIdx, currentIdx+2));
 
         if(currentLine.charAt(currentIdx) == '$') {
             int idx_end = currentIdx;
@@ -724,15 +687,10 @@ public class PgnReader {
                     || (currentLine.charAt(idx_end) >= '0' && currentLine.charAt(idx_end) <= '9'))) {
                 idx_end++;
             }
-            //System.out.println(currentIdx);
-            //System.out.println(currentLine.length());
-            //System.out.println(idx_end);
-            //System.out.println(currentLine.substring(currentIdx, idx_end));
             if(idx_end+1 > currentIdx) {
                 boolean ok;
                 try {
                     int nr = Integer.parseInt(currentLine.substring(currentIdx + 1, idx_end));
-                    //System.out.println(nr);
                     currentNode.addNag(nr);
                     currentIdx = idx_end;
                 } catch(NumberFormatException e) {
@@ -850,7 +808,6 @@ public class PgnReader {
                 return CONSTANTS.TKN_CLOSE_VARIATION;
             }
             if(ci == '$' || ci == '!' || ci == '?') {
-                //System.out.println("found NAG");
                 return CONSTANTS.TKN_NAG;
             }
             if(ci == '{') {
@@ -911,7 +868,6 @@ public class PgnReader {
                     }
                     continue;
                 } else {
-                    //System.out.println("break: "+currentLine);
                     break; // finished reading header
                 }
             }
@@ -921,7 +877,6 @@ public class PgnReader {
         }
         // now the actual game should start.
         // try to set the starting fen, if it exists
-        //System.out.println("starting fen: "+startingFen);
         if (!startingFen.isEmpty()) {
             try {
                 Board boardFen = new Board(startingFen);
@@ -941,7 +896,6 @@ public class PgnReader {
             try {
                 while (true) {
                     currentLine = raf.readLine();
-                    //System.out.println(currentLine);
                     if (currentLine == null) { //reached eof
                         return g;
                     }
@@ -958,8 +912,6 @@ public class PgnReader {
         }
 
         boolean firstLine = true;
-
-        //System.out.println("Starting with: "+currentLine);
 
         try {
             while (true) {
@@ -980,11 +932,6 @@ public class PgnReader {
 
                 currentIdx = 0;
                 while (currentIdx < currentLine.length()) {
-                    //if(currentIdx + 3 < currentLine.length()) {
-                    //    System.out.println("TOKEN: " + currentLine.substring(currentIdx, currentIdx+4));
-                       //System.out.println("current node is null: " + (currentNode == null));
-                        //System.out.println(currentNode.getBoard().toString());
-                    //}
                     int tkn = getNetxtToken();
                     if (tkn == CONSTANTS.TKN_EOL) {
                         break;
@@ -1010,12 +957,9 @@ public class PgnReader {
                         currentIdx += 8;
                     }
                     if (tkn == CONSTANTS.TKN_PAWN_MOVE) {
-                        //System.out.println("pawn move");
                         parsePawnMove();
                     }
                     if (tkn == CONSTANTS.TKN_CASTLE) {
-                        //System.out.println("token castle");
-                        //System.out.println("check: "+currentLine.substring(currentIdx, currentIdx+4));
                         parseCastleMove();
                     }
                     if (tkn == CONSTANTS.TKN_ROOK_MOVE) {
@@ -1028,7 +972,6 @@ public class PgnReader {
                         parsePieceMove(CONSTANTS.BISHOP);
                     }
                     if (tkn == CONSTANTS.TKN_QUEEN_MOVE) {
-                        //System.out.println("Queen move");
                         parsePieceMove(CONSTANTS.QUEEN);
                     }
                     if (tkn == CONSTANTS.TKN_KING_MOVE) {
@@ -1066,12 +1009,9 @@ public class PgnReader {
                     if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
                         //String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
                         String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
-                        //System.out.println(rest_of_line);
                         int end = rest_of_line.indexOf("}");
-                        //System.out.println(end);
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end);
-                            System.out.println("PARSING COMMENT: "+comment_line);
                             currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
                             currentIdx = currentIdx + end + 1;
                         } else {
@@ -1093,8 +1033,6 @@ public class PgnReader {
                                     end_index = -1;
                                     break;
                                 }
-                                //System.out.println("current line");
-                                //System.out.println(currentLine);
                                 linesRead += 1;
                                 if (currentLine.contains("}")) {
                                     end_index = currentLine.indexOf("}");
@@ -1104,8 +1042,6 @@ public class PgnReader {
                                 }
                             }
                             if (end_index >= 0) {
-                                //System.out.println("current line");
-                                //System.out.println(currentLine);
                                 comment_lines.append(currentLine, 0, end_index);
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
@@ -1176,7 +1112,6 @@ public class PgnReader {
                     lineIndex += 1;
                     continue;
                 } else {
-                    //System.out.println("break: "+currentLine);
                     break; // finished reading header
                 }
             }
@@ -1184,7 +1119,6 @@ public class PgnReader {
 
         // now the actual game should start.
         // try to set the starting fen, if it exists
-        //System.out.println("starting fen: "+startingFen);
         if (!startingFen.isEmpty()) {
             try {
                 Board boardFen = new Board(startingFen);
@@ -1204,7 +1138,6 @@ public class PgnReader {
             while (lineIndex < lines.length - 1) {
                 lineIndex += 1;
                 currentLine = lines[lineIndex];
-                //System.out.println(currentLine);
                 if (currentLine.trim().isEmpty()) {
                     continue;
                 } else {
@@ -1243,11 +1176,6 @@ public class PgnReader {
 
                 currentIdx = 0;
                 while (currentIdx < currentLine.length()) {
-                    //if(currentIdx + 3 < currentLine.length()) {
-                    //    System.out.println("TOKEN: " + currentLine.substring(currentIdx, currentIdx+4));
-                    //System.out.println("current node is null: " + (currentNode == null));
-                    //System.out.println(currentNode.getBoard().toString());
-                    //}
                     int tkn = getNetxtToken();
                     if (tkn == CONSTANTS.TKN_EOL) {
                         break;
@@ -1273,12 +1201,9 @@ public class PgnReader {
                         currentIdx += 8;
                     }
                     if (tkn == CONSTANTS.TKN_PAWN_MOVE) {
-                        //System.out.println("pawn move");
                         parsePawnMove();
                     }
                     if (tkn == CONSTANTS.TKN_CASTLE) {
-                        //System.out.println("token castle");
-                        //System.out.println("check: "+currentLine.substring(currentIdx, currentIdx+4));
                         parseCastleMove();
                     }
                     if (tkn == CONSTANTS.TKN_ROOK_MOVE) {
@@ -1291,7 +1216,6 @@ public class PgnReader {
                         parsePieceMove(CONSTANTS.BISHOP);
                     }
                     if (tkn == CONSTANTS.TKN_QUEEN_MOVE) {
-                        //System.out.println("Queen move");
                         parsePieceMove(CONSTANTS.QUEEN);
                     }
                     if (tkn == CONSTANTS.TKN_KING_MOVE) {
@@ -1329,9 +1253,7 @@ public class PgnReader {
                     if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
                         //String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
                         String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
-                        //System.out.println(rest_of_line);
                         int end = rest_of_line.indexOf("}");
-                        //System.out.println(end);
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end+1);
                             currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
@@ -1356,8 +1278,6 @@ public class PgnReader {
                                     break;
                                 }
                                 currentLine = lines[lineIndex];
-                                //System.out.println("current line");
-                                //System.out.println(currentLine);
                                 linesRead += 1;
                                 if (currentLine.contains("}")) {
                                     end_index = currentLine.indexOf("}");
@@ -1367,8 +1287,6 @@ public class PgnReader {
                                 }
                             }
                             if (end_index >= 0) {
-                                //System.out.println("current line");
-                                //System.out.println(currentLine);
                                 comment_lines.append(currentLine, 0, end_index);
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;

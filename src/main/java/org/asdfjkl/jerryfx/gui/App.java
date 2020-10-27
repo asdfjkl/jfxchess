@@ -436,8 +436,6 @@ public class App extends Application implements StateChangeListener {
             DialogAppearance dlg = new DialogAppearance();
             double height = Math.max(stage.getHeight() * 0.6, 520);
             double width = height * 1.4;
-            //System.out.println("PIECE STYLE CURRENT:");
-            //System.out.println(chessboard.boardStyle.getPieceStyle());
             boolean accepted = dlg.show(chessboard.boardStyle, width, height);
             if(accepted) {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
@@ -605,8 +603,6 @@ public class App extends Application implements StateChangeListener {
         SplashScreen splash = SplashScreen.getSplashScreen();
 
         if (splash != null && splash.isVisible()) {
-            //System.out.println("Is visible");
-
             splash.close();
         }
 
@@ -622,7 +618,6 @@ public class App extends Application implements StateChangeListener {
         } else {
             //stage.setX(screenBounds.);
             //stage.setY(screenGeometry.yOffset);
-           // System.out.println("recovered screen bounds: "+screenBounds.getWidth());
             stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
             stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
         }
@@ -639,50 +634,18 @@ public class App extends Application implements StateChangeListener {
         spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
         spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
 
-        /*
-        Runnable myRunnable =
-                new Runnable(){
-                    public void run(){
-                        TestCases tests = new TestCases();
-                        tests.pgnReadAllMillBaseTest();
-                    }
-                };
-
-        System.out.println("in main runnable:");
-        Thread thread = new Thread(myRunnable);
-        thread.setPriority(Thread.MAX_PRIORITY);
-        thread.start();
-        */
-
-        /*
-        Task<Void> task = new Task<Void>() {
-            @Override protected Void call() throws Exception {
-
-                TestCases tests = new TestCases();
-                tests.pgnReadAllMillBaseTest();
-                return null;
-            }
-        };
-        System.out.println("in task:");
-        new Thread(task).start();
-*/
-
     }
 
     @Override
     public void stateChange() {
 
-        System.out.println("state change main app");
         if(gameModel.getGame().isHeaderChanged()) {
-            System.out.println("state change: tree is changed");
             String white = gameModel.getGame().getHeader("White");
             String black = gameModel.getGame().getHeader("Black");
             String site = gameModel.getGame().getHeader("Site");
             String date = gameModel.getGame().getHeader("Date");
 
             String label = white + " - " + black + "\n" + site + ", " + date;
-            System.out.println("got label:");
-            System.out.println(label);
             txtGameData.setText(label);
         }
         if(gameModel.getMode() == GameModel.MODE_ENTER_MOVES) {

@@ -83,7 +83,6 @@ public class EngineThread extends Thread {
                 try {
                     while (engineOutput.ready() && linesRead < 100) {
                         String line = engineOutput.readLine();
-                        System.out.println("ENGINE> "+line);
                         if(line.contains("readyok")) {
                             readyok = true;
                         } else {
@@ -92,16 +91,6 @@ public class EngineThread extends Thread {
                                 // todo: instead of directly setting bestmove,
                                 // try updating engine info
                                 if(line.startsWith("bestmove")) {
-                                    //System.out.println("got bestmove: "+line);
-                                    /*
-                                    stringProperty.set("BESTMOVE|"
-                                            + line.substring(9)
-                                            +"|"+engineInfo.score.get(0)
-                                            +"|"+String.join(" ", engineInfo.pvList)
-                                            +"|"+engineInfo.seesMate.get(0)
-                                            +"|"+engineInfo.mate.get(0));
-
-                                     */
                                     engineInfo.bestmove = "BESTMOVE|"
                                             + line.substring(9)
                                             +"|"+engineInfo.score.get(0)
@@ -138,13 +127,10 @@ public class EngineThread extends Thread {
                 if(!cmdQueue.isEmpty()) {
                     try {
                         String cmd = (String) cmdQueue.take();
-                        System.out.println("GUI> "+cmd);
                         if (cmd.startsWith("start")) {
                             String engineCmd = cmd.substring(6);
                             try {
-                                //System.out.println("thread: starting engine");
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
-                                //System.out.println("thread: engine process started, is now "+engineProcess);
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
                                 //engineRunning = true;
@@ -162,7 +148,6 @@ public class EngineThread extends Thread {
                     // if we are in go infty, first send stop
                     if(inGoInfinite) {
                         try {
-                            System.out.println("GUI> stop");
                             engineInput.write("stop\n");
                             engineInput.flush();
                             inGoInfinite = false;
@@ -183,7 +168,6 @@ public class EngineThread extends Thread {
                             if(cmd != null && cmd.equals("uci")) {
                                 try {
                                     cmdQueue.take();
-                                    System.out.println("GUI> "+cmd);
                                     engineInput.write("uci\n");
                                     engineInput.flush();
                                     continue;
@@ -193,7 +177,6 @@ public class EngineThread extends Thread {
                             }
                             if(!requestedReadyOk) {
                                 try {
-                                    System.out.println("GUI> isready");
                                     engineInput.write("isready\n");
                                     engineInput.flush();
                                     requestedReadyOk = true;
@@ -207,7 +190,6 @@ public class EngineThread extends Thread {
                             // take command from queue
                             try {
                                 String cmd = (String) cmdQueue.take();
-                                System.out.println("GUI> "+cmd);
                                 // if the command is "position fen moves", first count the
                                 // numbers of moves so far to generate move numbers in engine info
                                 // todo: needed???
@@ -249,7 +231,6 @@ public class EngineThread extends Thread {
                                     // if we quit the engine, give some
                                     // time for the engine to quit
                                     if(cmd.contains("quit")) {
-                                        //System.out.println("thread: quitting...");
                                         Thread.sleep(500);
                                     }
                                     continue;
@@ -263,52 +244,6 @@ public class EngineThread extends Thread {
                     }
                 }
             }
-
-
-
-            // process commands in queue
-            /*
-            if (!cmdQueue.isEmpty()) {
-                try {
-                    if(readyok || !engineRunning) {
-                        String cmd = (String) cmdQueue.take();
-                        if (cmd.startsWith("start")) {
-                            String engineCmd = cmd.substring(6);
-                            System.out.println(engineCmd);
-                            try {
-                                this.engineProcess = new ProcessBuilder(engineCmd).start();
-                                this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
-                                this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
-                                engineRunning = true;
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            this.engineInfo.strength = -1;
-                        }
-
-                        if (cmd.startsWith("go infinite")) {
-                            try {
-                                this.engineInput.write("go infinite\n");
-                                this.engineInput.flush();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    } else {
-                        try {
-                            this.engineInput.write("isready\n");
-                            this.engineInput.flush();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-             */
-            //counter++;
-            //stringProperty.set("info" + Integer.toString(counter));
         }
     }
 

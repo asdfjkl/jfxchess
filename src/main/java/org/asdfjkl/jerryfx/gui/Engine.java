@@ -83,7 +83,6 @@ public class Engine {
             if(i+1 < values.length) {
                 EngineOption option = new EngineOption();
                 String uciOptionString = values[i];
-                //System.out.println("recovered: "+uciOptionString);
                 option.parseUciOptionString(uciOptionString);
                 if(option.type == EngineOption.EN_OPT_TYPE_CHECK) {
                     if(values[i+1].equals("true")) {

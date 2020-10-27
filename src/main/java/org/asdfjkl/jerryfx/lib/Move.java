@@ -62,14 +62,8 @@ public class Move {
 
     public Move(int fromColumn, int fromRow, int toColumn, int toRow, char promotionPiece) {
 
-        //System.out.println("from col: "+fromColumn + " tocol: "+toColumn);
-        //System.out.println("from row: "+fromRow + " torow: "+toRow);
         this.from = ((fromRow + 2) * 10) + (fromColumn + 1);
         this.to = ((toRow + 2) * 10) + (toColumn + 1);
-
-        //System.out.println("intfrom: "+this.from);
-        //System.out.println("intto: "+this.to);
-
 
         this.promotionPiece = -1;
         if (promotionPiece == 'N') {
@@ -164,12 +158,8 @@ public class Move {
             char colFrom = (char) ((this.from % 10) + 96);
             char rowFrom = (char) ((this.from / 10) + 47);
 
-            //System.out.println(("from: "+this.from));
-
             char colTo = (char) ((this.to % 10) + 96);
             char rowTo = (char) ((this.to / 10) + 47);
-
-            //System.out.println(("to: "+this.to));
 
             String uci = "";
             uci += colFrom;

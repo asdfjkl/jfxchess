@@ -36,12 +36,9 @@ public class Polyglot {
         try {
             //File file = new File(filename);
             long fileLength = file.length();
-            //System.out.println(fileLength);
-            //System.out.println((int) fileLength);
             raf = new OptimizedRandomAccessFile(file, "r");
             book = new byte[(int) fileLength];
             raf.readFully(book, 0, (int) fileLength);
-            //System.out.println("book length: " + book.length);
             readFile = true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,13 +74,6 @@ public class Polyglot {
         int move = ByteBuffer.wrap(bMove).getShort();
         int weight = ByteBuffer.wrap(bWeight).getShort();
         int learn = ByteBuffer.wrap(bLearn).getInt();
-
-        /*
-        System.out.println("key...: " + Long.toHexString(key));
-        System.out.println("move..: " + Integer.toHexString(move));
-        System.out.println("weight: " + Integer.toHexString(weight));
-        System.out.println("learn.: " + Integer.toHexString(learn));
-         */
 
         int from = 0;
         int fromRow = 0;

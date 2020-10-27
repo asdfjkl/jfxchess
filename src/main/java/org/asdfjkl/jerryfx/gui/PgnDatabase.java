@@ -83,10 +83,8 @@ public class PgnDatabase {
 
         if(reader.isIsoLatin1(filename)) {
             reader.setEncodingIsoLatin1();
-            System.out.println("setting to isolatin1");
         } else {
             reader.setEncodingUTF8();
-            System.out.println("setting to utf8");
         }
 
         OptimizedRandomAccessFile raf = null;
@@ -108,7 +106,6 @@ public class PgnDatabase {
                 }
             }
         }
-        System.out.println("loaded: "+g.getHeader("White"));
         return g;
     }
 
@@ -144,10 +141,8 @@ public class PgnDatabase {
 
         if(reader.isIsoLatin1(filename)) {
             reader.setEncodingIsoLatin1();
-            System.out.println("setting to isolatin1");
         } else {
             reader.setEncodingUTF8();
-            System.out.println("setting to utf8");
         }
 
         final String tmpFilename = this.filename;
@@ -174,48 +169,32 @@ public class PgnDatabase {
                 long gamesRead = 0;
 
                 try {
-                    //System.out.println("trying to open: "+tmpFilename);
                     raf = new OptimizedRandomAccessFile(tmpFilename, "r");
                     int cnt_i = 0;
                     while ((currentLine = raf.readLine()) != null) {
                         cnt_i++;
-                        //System.out.println("line: "+cnt_i);
-                        //System.out.println(currentLine);
                         if (isCancelled()) {
                             break;
                         }
                         // skip comments
                         if (currentLine.startsWith("%")) {
-                            //System.out.println("startswith %");
                             continue;
                         }
 
                         if (!inComment && currentLine.startsWith("[")) {
-                            //System.out.println("in comment  [");
                             if (game_pos == -1) {
                                 game_pos = last_pos;
                                 current = new PgnSTR();
                             }
                             last_pos = raf.getFilePointer();
-                            //System.out.println("in comment  [ 1");
                             if (currentLine.length() > 4) {
-                                    //System.out.println("in comment  [ 2");
                                     int spaceOffset = currentLine.indexOf(' ');
                                     int firstQuote = currentLine.indexOf('"');
                                     int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                                    //System.out.println("in comment  [ 2a");
                                     String tag = currentLine.substring(1, spaceOffset);
-                                    //System.out.println("in comment  [ 2b");
-                                    //System.out.println("parsing TAG/VALUE");
-                                    //System.out.println(firstQuote + 1);
-                                    //System.out.println(secondQuote);
-                                    //System.out.println(currentLine);
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                        //System.out.println("VALUE " + value);
-                                        //System.out.println("in comment  [ 3");
                                         String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), reader.getEncoding());
-                                        //System.out.println("in comment  [ 4");
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);
                                             current.markValid();
@@ -229,8 +208,6 @@ public class PgnDatabase {
                                             current.markValid();
                                         }
                                         if (tag.equals("White")) {
-                                            //System.out.println(valueEncoded);
-                                            //System.out.println("ö");
                                             current.setWhite(valueEncoded);
                                             current.markValid();
                                         }
@@ -252,23 +229,16 @@ public class PgnDatabase {
                                         }
                                     }
                             }
-                            //System.out.println("before continue");
                             continue;
                         }
                         if ((!inComment && currentLine.contains("{"))
                                 || (inComment && currentLine.contains("}"))) {
-                            //System.out.println("startswith {");
                             inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
                         }
 
                         if (game_pos != -1) {
-                            //System.out.println("game_pos != -1");
                             current.setOffset(game_pos);
                             current.setIndex(newEntries.size()+1);
-                            /*
-                            if(current.getIndex() % 10000 == 0) {
-                                System.out.println("@"+current.getIndex());
-                            }*/
                             gamesRead += 1;
                             if(gamesRead > 10000) {
                                 // updateMessage("Iteration " + game_pos);
@@ -280,8 +250,6 @@ public class PgnDatabase {
                             }
                             game_pos = -1;
                         }
-
-                        //System.out.println("before lastpos");
                         last_pos = raf.getFilePointer();
                     }
                 } catch (IOException e) {
@@ -295,8 +263,6 @@ public class PgnDatabase {
                         }
                     }
                 }
-
-                System.out.println("finished");
                 return FXCollections.observableArrayList(newEntries);
             }
         };
@@ -307,8 +273,6 @@ public class PgnDatabase {
         task.setOnSucceeded(e -> {
             unregisterRunningTask(task);
             entries = task.getValue();
-            System.out.println("pgn database size: " + entries.size());
-            //System.out.println("First item: "+ entries.get(0).getWhite());
             stage.close();
             if(this.dialogDatabase != null) {
                 dialogDatabase.updateTable();
@@ -350,31 +314,6 @@ public class PgnDatabase {
         Task<ObservableList<PgnSTR>> task = new Task<>() {
             @Override protected ObservableList<PgnSTR> call() throws Exception {
 
-                /*
-                final ArrayList<Long> indices = new ArrayList<Long>();
-                for(PgnSTR entry : entries) {
-                    indices.add(entry.getOffset());
-                }
-
-                final long startTime = System.currentTimeMillis();
-
-                final PgnReader threadReader = new PgnReader();
-                final OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile(filename, "r");
-                for(int i=0;i<indices.size();i++) {
-                    raf.seek(indices.get(i));
-                    Game g = threadReader.readGame(raf);
-                    if(i%100000 == 0) {
-                        System.out.println(i);
-                        updateProgress(i, entries.size());
-                    }
-                    i++;
-                }
-
-                long stopTime = System.currentTimeMillis();
-                long timeElapsed = stopTime - startTime;
-                System.out.println("elapsed time for reading all games: " + (timeElapsed / 1000) + " secs");
-                */
-
                 final ArrayList<Long> indices = new ArrayList<Long>();
                 for(PgnSTR entry : entries) {
                     indices.add(entry.getOffset());
@@ -386,8 +325,6 @@ public class PgnDatabase {
 
                 final long startTime = System.currentTimeMillis();
 
-                System.out.println(pattern.getPositionHash());
-
                 try {
                     raf = new OptimizedRandomAccessFile(filename, "r");
                     for(int i=0;i<indices.size();i++) {
@@ -395,12 +332,10 @@ public class PgnDatabase {
                             break;
                         }
                         if(i%50000 == 0) {
-                            System.out.println(i);
                             updateProgress(i, entries.size());
                         }
                         if(pattern.isSearchForHeader()) {
                             if(!pattern.matchesHeader(entries.get(i))) {
-                                //i++;
                                 continue;
                             }
                         }
@@ -408,19 +343,12 @@ public class PgnDatabase {
                             raf.seek(indices.get(i));
                             Game g = reader.readGame(raf);
                             PgnPrinter printer = new PgnPrinter();
-                            //System.out.println(printer.printGame(g));
-                            System.out.println(pattern.getPositionHash());
                             if(!g.containsPosition(pattern.getPositionHash(), pattern.getMinMove(), pattern.getMaxMove())) {
-                                //i++;
                                 continue;
                             }
                         }
-                        //i++;
-                        System.out.println("I before: "+i);
                         foundEntries.add(entries.get(i));
-                        System.out.println("I after: "+i);
                     }
-                    System.out.println("loop finished");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -435,10 +363,7 @@ public class PgnDatabase {
 
                 long stopTime = System.currentTimeMillis();
                 long timeElapsed = stopTime - startTime;
-                System.out.println("elapsed time for reading all games: " + (timeElapsed / 1000) + " secs");
-
                 return FXCollections.observableArrayList(foundEntries);
-                //return FXCollections.observableArrayList(new ArrayList<>());
             }
         };
 
@@ -447,8 +372,6 @@ public class PgnDatabase {
         task.setOnSucceeded(e -> {
             unregisterRunningTask(task);
             searchResults = task.getValue();
-            System.out.println("pgn database size: " + entries.size());
-            System.out.println("First item: "+ entries.get(0).getWhite());
             stage.close();
             if(this.dialogDatabase != null) {
                 dialogDatabase.updateTableWithSearchResults();

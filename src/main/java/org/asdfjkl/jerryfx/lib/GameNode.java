@@ -88,7 +88,6 @@ public class GameNode {
     }
 
     public void setComment(String s) {
-        //System.out.println("SET COMMENT: "+s);
         this.comment = s;
     }
 

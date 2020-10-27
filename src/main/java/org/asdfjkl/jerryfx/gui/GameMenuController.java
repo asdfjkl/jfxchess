@@ -150,49 +150,7 @@ public class GameMenuController {
                     gameModel.triggerStateChange();
                 }
             }
-
-
-            /*
-            System.out.println(file.getAbsolutePath());
-            gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-            gameModel.getPgnDatabase().open();
-            System.out.println("games in db: "+gameModel.getPgnDatabase().getNrGames());
-            if(gameModel.getPgnDatabase().getNrGames() == 1) {
-                gameModel.currentPgnDatabaseIdx = 0;
-                System.out.println("loading game 0");
-                Game g = gameModel.getPgnDatabase().loadGame(0);
-                gameModel.setGame(g);
-                g.setTreeWasChanged(true);
-                gameModel.triggerStateChange();
-            } else {
-                System.out.println("no games in database");
-                if(gameModel.getPgnDatabase().getNrGames() == 0) {
-                    gameModel.getPgnDatabase().filename = "";
-                } else {
-                    System.out.println("too many games, needs browsing");
-                    handleBrowseDatabase();
-                }
-            }*/
         }
-        /*
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            PgnReader reader = new PgnReader();
-            try {
-                OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile(file, "r");
-                raf.seek(0);
-                Game g = reader.readGame(raf);
-                g.setTreeWasChanged(true);
-                gameModel.setGame(g);
-                gameModel.triggerStateChange();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
     public void handleSaveCurrentGame() {

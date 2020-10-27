@@ -235,18 +235,18 @@ public class MoveView implements StateChangeListener {
 
         webView.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
+                /*
                 System.out.println( webView.getEngine().executeScript("document.elementFromPoint("
                         +e.getX()
                         +"," +  e.getY()+").tagName;"));
+                 */
                 JSObject object = (JSObject) webView.getEngine().executeScript("document.elementFromPoint("
                         +e.getX()
                         +"," +  e.getY()+");");
                 //int clickedNodeId = Integer.parseInt(e.getTarget().toString().substring(1));
                 //GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
-                System.out.println("got: n for mouse click" + object);
                 try {
                     int clickedNodeId = Integer.parseInt(object.toString().substring(1));
-                    System.out.println("which results in node nr: "+clickedNodeId);
                     rightClickedNode = clickedNodeId;
                 } catch (NumberFormatException nfe) {
                     // click was not on node link, i.e. parseInt failed
@@ -268,7 +268,6 @@ public class MoveView implements StateChangeListener {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 DialogEnterComment dlg = new DialogEnterComment();
                 boolean accepted = dlg.show(selectedNode.getComment());
-                System.out.println("GOT COMMENT: "+selectedNode.getComment());
                 if(accepted) {
                     String newComment = dlg.textArea.getText();
                     // filter invalid stuff, like { } etc.
@@ -276,7 +275,6 @@ public class MoveView implements StateChangeListener {
                     newComment = newComment.replace('{', ' ');
                     newComment = newComment.replace('}', ' ');
                     newComment = newComment.replace('\r', ' ');
-                    System.out.println("NEW COMMENT: "+newComment);
                     selectedNode.setComment(newComment);
                 }
                 gameModel.getGame().setTreeWasChanged(true);
@@ -557,15 +555,11 @@ public class MoveView implements StateChangeListener {
                     // note next classes are from org.w3c.dom domain
                     EventListener listener = new EventListener() {
                         public void handleEvent(Event ev) {
-                            //System.out.println(ev.getType());
                             //var e = Window.e || e;
-                            //System.out.println(ev.getTarget());
                             try {
                                 int clickedNodeId = Integer.parseInt(ev.getTarget().toString().substring(1));
                                 GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
-                                System.out.println("got: n" + clickedNodeId);
                                 gameModel.getGame().setCurrent(nextCurrent);
-                                System.out.println("tree changed: "+gameModel.getGame().isTreeChanged());
                                 gameModel.triggerStateChange();
                             } catch (NumberFormatException e) {
                                 // click was not on node link, i.e. parseInt failed
@@ -586,14 +580,6 @@ public class MoveView implements StateChangeListener {
         });
 
     }
-
-    //public void testGetElement() {
-        //var foo = webEngine.getDocument().getElementById("bar");
-    //    String html = htmlPrinter.printGame(gameModel.getGame());
-    //    webEngine.loadContent(html);
-
-        //System.out.println(html);
-    //}
 
     public void scrollTo(int x, int y) {
         webView.getEngine().executeScript("window.scrollTo(" + x + ", " + y + ")");
@@ -624,8 +610,6 @@ public class MoveView implements StateChangeListener {
         String jsString = "isScrolledIntoView(document.getElementById('n"+ nodeId+"'))";
         webView.getEngine().executeScript(jsString);
         return (Boolean) webView.getEngine().executeScript(jsString);
-        //System.out.println(focused);
-        //return focused;
     }
 
     private void updateMarkedNode() {
@@ -644,7 +628,6 @@ public class MoveView implements StateChangeListener {
             Element htmlCurrent = webView.getEngine().getDocument().getElementById("n" + currentNodeId);
             if (htmlCurrent != null) {
                 htmlCurrent.setAttribute("class", "current");
-                //System.out.println(htmlCurrent.toString());
                 if (!hasFocus(currentNodeId)) {
                     scrollToNode(currentNodeId);
                 }
@@ -671,7 +654,6 @@ public class MoveView implements StateChangeListener {
     public void stateChange() {
         // if tree was changed, we need to update the webview
         if(gameModel.getGame().isTreeChanged()) {
-            //System.out.println("state change, tree change (movie view)");
             // remember scrollbar position
             x = getVScrollValue();
             y = getVScrollValue();
@@ -684,14 +666,12 @@ public class MoveView implements StateChangeListener {
             //String htmlDoc = "<html><head></head><body>" +
             //        htmlBody +
             //        "</body></html>";
-            //System.out.println(htmlBody);
             webView.getEngine().loadContent(htmlDoc);
             //updateMarkedNode();
 
             gameModel.getGame().setTreeWasChanged(false);
 
         } else {
-            //System.out.println("update marked node");
             // otherwise:
             // remove marking of old node
             // add marking of current node
@@ -744,7 +724,6 @@ public class MoveView implements StateChangeListener {
 
     public void seekToEnd() {
         this.gameModel.getGame().goToLeaf();
-        //System.out.println("trigger");
         this.gameModel.triggerStateChange();
     }
 

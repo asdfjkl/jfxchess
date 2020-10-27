@@ -81,13 +81,11 @@ public class HtmlPrinter {
         html.append(tag).append("\n");
         ArrayList<String> allTags = g.getTags();
         for(String tag_i : allTags) {
-            //System.out.println("tag out: " +tag_i);
             if(!tag_i.equals("Event") && !tag_i.equals("Site") && !tag_i.equals("Date") && !tag_i.equals("Round")
                     && !tag_i.equals("White") && !tag_i.equals("Black") && !tag_i.equals("Result" ))
             {
                 String value_i = g.getHeader(tag_i);
                 String tag_val = "[" + tag_i + " \"" + value_i + "\"]";
-                //System.out.println("tag out val: " +tag_val);
                 html.append(tag_val).append("\n");
             }
         }
@@ -267,7 +265,6 @@ public class HtmlPrinter {
                 this.writeToken("<b>");
             }
             GameNode mainVariation = g.getVariation(0);
-            //System.out.println(g.getBoard());
             this.printMove(mainVariation);
             // write nags
             for(Integer ni : mainVariation.getNags()) {

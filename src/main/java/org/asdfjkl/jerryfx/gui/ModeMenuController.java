@@ -42,9 +42,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
-        //System.out.println("MMM: got "+s);
         if(s.startsWith("INFO")) {
-            //System.out.println(s);
             //"INFO |Stockfish 12 (Level MAX)|145.081 kn/s||(#0)  23. Be7#||||"
             String[] sSplit = s.split("\\|");
             if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {
@@ -70,7 +68,6 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
-        //System.out.println("activateAnalysis: " + cmdEngine);
         engineController.sendCommand("start "+cmdEngine);
         engineController.sendCommand("uci");
         engineController.sendCommand("ucinewgame");
@@ -105,12 +102,8 @@ public class ModeMenuController implements StateChangeListener {
 
     private void handleStateChangeGameAnalysis() {
 
-        //System.out.println("state change game analysis received");
-
         boolean continueAnalysis = true;
 
-        //System.out.println(gameModel.getGame().getCurrentNode().getParent().getBoard().toString());
-        //System.out.println(gameModel.getGame().getRootNode().getBoard().toString());
         boolean parentIsRoot = (gameModel.getGame().getCurrentNode().getParent() == gameModel.getGame().getRootNode());
         if(!parentIsRoot) {
             // if the current position is in the opening book,
@@ -245,19 +238,12 @@ public class ModeMenuController implements StateChangeListener {
     public void handleStateChangePlayWhiteOrBlack() {
         // first check if we can apply a bookmove
         long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
-        //System.out.println(gameModel.getGame().getCurrentNode().getBoard().fen());
-        //System.out.println(Long.toHexString(zobrist));
-        //System.out.println(gameModel.book.readFile);
         ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
-        //System.out.println("found moves: "+(uciMoves0.size()));
         if(gameModel.book.inBook(zobrist)) {
-            //System.out.println("position in book");
             ArrayList<String> uciMoves = gameModel.book.findMoves(zobrist);
             int idx = (int) (Math.random() * uciMoves.size());
-            //System.out.println("random idx: "+idx);
             handleBestMove("BESTMOVE|"+uciMoves.get(idx));
         } else {
-            //System.out.println("position not found in book");
             String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
             engineController.sendCommand("stop");
             engineController.sendCommand("position fen "+fen);
@@ -281,7 +267,6 @@ public class ModeMenuController implements StateChangeListener {
             try {
                 GameNode next = new GameNode();
                 Board board = currentNode.getBoard().makeCopy();
-                //System.out.println("uciMove: "+uciMove);
                 Move m = new Move(uciMove);
                 board.apply(m);
                 next.setMove(m);
@@ -328,8 +313,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleBestMove(String bestmove) {
-        //System.out.println("handle bestmove, in: "+bestmove);
-
         int mode = gameModel.getMode();
 
         if(mode == GameModel.MODE_ENTER_MOVES) {
@@ -382,16 +365,8 @@ public class ModeMenuController implements StateChangeListener {
             //if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate()) {
             //    gameModel.currentIsMate = true;
             //}
-            //System.out.println("handle State Change@"+bestmove);
-            //System.out.println("handle State Change@"+gameModel.getGame().getCurrentNode().getMove().getUci()+": "+gameModel.currentIsMate);
-            //System.out.println("handle State Change@"+gameModel.getGame().getCurrentNode().getBoard().toString());
-            Board nodeboard = gameModel.getGame().getCurrentNode().getBoard();
-            //System.out.println("------------------------");
-            //System.out.println(nodeboard.toString());
-            //System.out.println("bestmove: "+bestmove);
 
             gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
-
 
             // completely skip that for black or white, if
             // that was chosen in the analysis
@@ -408,10 +383,6 @@ public class ModeMenuController implements StateChangeListener {
                         String uci = bestmoveItems[1].split(" ")[0];
                         String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
                         if (!uci.equals(nextMove)) {
-                            //System.out.println("played was: "+gameModel.getGame().getCurrentNode().getVariation(0).getSan());
-                            //System.out.println("w/ "+gameModel.childBestEval);
-                            //System.out.println("but: "+ gameModel.currentBestPv);
-                            //System.out.println("gave: "+ gameModel.currentBestEval);
 
                             addBestPv();
 
@@ -485,8 +456,6 @@ public class ModeMenuController implements StateChangeListener {
                 if(gameModel.currentIsMate && gameModel.childIsMate) {
                     // the current player had a mate, but instead of executing it, he moved into a mate
                     // but we also want to skip the situation where the board position is checkmate
-                    //System.out.println("currentMateinMove: "+gameModel.currentMateInMoves);
-                    //System.out.println("childMateinMove: "+gameModel.childMateInMoves);
                     if ( (gameModel.currentMateInMoves >= 0 && gameModel.childMateInMoves >= 0) &&
                          gameModel.childMateInMoves != 0) {
 
@@ -514,8 +483,6 @@ public class ModeMenuController implements StateChangeListener {
 
             }
             gameModel.getGame().setTreeWasChanged(true);
-            //System.out.println("current fen: "+gameModel.getGame().getCurrentNode().getBoard().fen());
-            //System.out.println("triggering statechange");
             gameModel.triggerStateChange();
 
         }

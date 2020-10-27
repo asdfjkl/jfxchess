@@ -111,7 +111,6 @@ public class EditMenuController {
             PgnReader reader = new PgnReader();
             Game g = reader.readGame(s);
             PgnPrinter prn = new PgnPrinter();
-            System.out.println(prn);
             // as a heuristic we assume it's really a pasted game string if either there is at least
             // two game nodes, or if there is a fen string for the root board
             if(g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition()) {

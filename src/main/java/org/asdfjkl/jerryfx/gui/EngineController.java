@@ -45,7 +45,6 @@ public class EngineController {
                         @Override
                         public void run() {
                             String value = count.getAndSet(null);
-                            //System.out.println(value);
                             modeMenuController.handleEngineInfo(value);
                         }
                     });
@@ -75,7 +74,6 @@ public class EngineController {
     public void sendCommand(String cmd) {
         try {
             cmdQueue.put(cmd);
-            //System.out.println("on queue: "+cmd);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

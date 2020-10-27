@@ -110,7 +110,6 @@ public class EnterPosBoard extends Canvas {
 
     @Override
     public void resize(double width, double height) {
-        //System.out.println("resizing to: "+width+" "+height);
         this.setWidth(width);
         this.setHeight(height);
 
