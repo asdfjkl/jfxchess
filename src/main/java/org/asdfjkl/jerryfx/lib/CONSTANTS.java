@@ -1,3 +1,21 @@
+/* JerryFX - A Chess Graphical User Interface
+ * Copyright (C) 2020 Dominik Klein
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package org.asdfjkl.jerryfx.lib;
 
 public class CONSTANTS {
@@ -33,7 +51,7 @@ public class CONSTANTS {
     public static final int BLACK_ANY_PIECE = 0x87;
 
 
-    public static final int EMPTY_POS[] =
+    public static final int[] EMPTY_POS =
               { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF,
@@ -49,7 +67,7 @@ public class CONSTANTS {
               };
 
     // initial board position
-    public static final int INIT_POS[] =
+    public static final int[] INIT_POS =
              {  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                 0xFF, 0x04, 0x02, 0x03, 0x05, 0x06, 0x03, 0x02, 0x04, 0xFF,
@@ -154,7 +172,7 @@ public class CONSTANTS {
     // e.g. distance one, i.e. index 1 (=left, up, down, right square) has
     // value 0x1C = MSB 00011100 LSB, i.e. king, queen, rook can
     // potentially attack
-    public static int ATTACK_TABLE[] =
+    public static int[] ATTACK_TABLE =
              {  0x00, 0x1C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x01, 0x1a,
                 0x1C, 0x1A, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x01,
                 0x0C, 0x01, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00,
@@ -170,7 +188,7 @@ public class CONSTANTS {
     // [piece_type[1] ... [piece_type][4] resp.
     // [piece_type[1] ... [piece_type][8] contain
     // DPOINT table
-    public static int DIR_TABLE[][] =
+    public static int[][] DIR_TABLE =
             {
                 { 4, -10, -20, -11, -9 ,   0,   0,   0,   0 }, // max 4 black pawn directions, rest 0's
                 { 4, +10, +20, +11, +9 ,   0,   0,   0,   0 }, // max 4 white pawn directions, rest 0's
@@ -199,7 +217,7 @@ public class CONSTANTS {
     public static int IBLACK = 1;
 
     // for zobrist hashing w/ and polyglot opening books
-    public static final long POLYGLOT_RANDOM_64[] = {
+    public static final long[] POLYGLOT_RANDOM_64 = {
                 0x9D39247E33776D41L, 0x2AF7398005AAA5C7L, 0x44DB015024623547L,
                 0x9C15F73E62A76AE2L, 0x75834465489C0C89L, 0x3290AC3A203001BFL,
                 0x0FBBAD1F61042279L, 0xE83A908FF2FB60CAL, 0x0D7E765D58755C10L,
