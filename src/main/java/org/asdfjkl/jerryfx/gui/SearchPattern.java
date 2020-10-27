@@ -289,12 +289,18 @@ public class SearchPattern {
             return false;
         }
         int year = -1;
-        String[] dateSplit = pgnSTR.getDate().split(".");
+        String[] dateSplit = pgnSTR.getDate().split("\\.");
         if(dateSplit.length > 0 && dateSplit[0].length() == 4) {
-            year = Integer.parseInt(dateSplit[0]);
+            try {
+                year = Integer.parseInt(dateSplit[0]);
+            } catch (NumberFormatException e) {
+            }
         }
         if(dateSplit.length >= 3 && dateSplit[2].length() == 4) {
-            year = Integer.parseInt(dateSplit[2]);
+            try {
+                year = Integer.parseInt(dateSplit[2]);
+            } catch (NumberFormatException e) {
+            }
         }
         if(year != -1) {
             if(year < minYear || year > maxYear) {
@@ -315,19 +321,19 @@ public class SearchPattern {
             if(!whiteName.isEmpty()) {
                 if(pgnSTR.getWhite().toLowerCase().contains(whiteName.toLowerCase())) {
                     matchWhiteName = true;
-                    if(pgnSTR.getBlack().toLowerCase().contains(whiteName.toLowerCase())) {
-                        matchWhiteName = true;
-                    }
+                }
+                if(pgnSTR.getBlack().toLowerCase().contains(whiteName.toLowerCase())) {
+                    matchWhiteName = true;
                 }
             } else {
                 matchWhiteName = true;
             }
             if(!blackName.isEmpty()) {
                 if(pgnSTR.getWhite().toLowerCase().contains(blackName.toLowerCase())) {
-                    matchWhiteName = true;
-                    if(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase())) {
-                        matchWhiteName = true;
-                    }
+                    matchBlackName = true;
+                }
+                if(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase())) {
+                    matchBlackName = true;
                 }
             } else {
                 matchBlackName = true;

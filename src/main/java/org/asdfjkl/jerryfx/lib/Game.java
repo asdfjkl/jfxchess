@@ -24,7 +24,7 @@ public class Game {
     }
 
     private boolean containsPositionRec(long positionHash, GameNode node, int maxHalfmove) {
-        if(maxHalfmove > node.getBoard().halfmoveClock) {
+        if(maxHalfmove <= node.getBoard().halfmoveClock) {
             return false;
         }
         if(node.getBoard().getPositionHash() == positionHash) {
@@ -42,8 +42,8 @@ public class Game {
 
     public boolean containsPosition(long positionHash, int minHalfmove, int maxHalfmove) {
         GameNode current = this.getRootNode();
-        for(int i=0;i<minHalfmove;i++) {
-            if(current.hasVariations()) {
+        for(int i=0;i<minHalfmove-1;i++) {
+            if(current.hasChild()) {
                 current = current.getVariation(0);
             } else {
                 return false;

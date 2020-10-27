@@ -269,7 +269,8 @@ public class DialogSearchGames {
 
         VBox vbEloResult = new VBox();
         Region spacerRight = new Region();
-        vbEloResult.getChildren().addAll(paneElo, paneWin, spacerRight, hbButtonReset);
+        //paneElo,
+        vbEloResult.getChildren().addAll( paneWin, spacerRight, hbButtonReset);
         vbEloResult.setSpacing(10);
         vbEloResult.setPadding( new Insets(30, 0, 0, 0));
         vbEloResult.setVgrow(spacerRight, Priority.ALWAYS);

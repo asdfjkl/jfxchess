@@ -388,15 +388,18 @@ public class PgnDatabase {
                         if(pattern.isSearchForPosition()) {
                             raf.seek(indices.get(i));
                             Game g = reader.readGame(raf);
+                            PgnPrinter printer = new PgnPrinter();
+                            //System.out.println(printer.printGame(g));
+                            System.out.println(pattern.getPositionHash());
                             if(!g.containsPosition(pattern.getPositionHash(), pattern.getMinMove(), pattern.getMaxMove())) {
                                 //i++;
                                 continue;
                             }
                         }
                         //i++;
-                        //System.out.println("I before: "+i);
+                        System.out.println("I before: "+i);
                         foundEntries.add(entries.get(i));
-                        //System.out.println("I after: "+i);
+                        System.out.println("I after: "+i);
                     }
                     System.out.println("loop finished");
                 } catch (IOException e) {
