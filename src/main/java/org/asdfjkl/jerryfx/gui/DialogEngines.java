@@ -137,7 +137,7 @@ public class DialogEngines {
         });
 
         btnEditParameters.setOnAction(e -> {
-            btnEditParameteresClicked();
+            btnEditParametersClicked();
         });
 
         btnResetParameters.setOnAction(e -> {
@@ -186,7 +186,7 @@ public class DialogEngines {
         }
     }
 
-    private void btnEditParameteresClicked() {
+    private void btnEditParametersClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         DialogEngineOptions dlg = new DialogEngineOptions();
         boolean accepted = dlg.show(selectedEngine.options);

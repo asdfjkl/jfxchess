@@ -113,7 +113,7 @@ public class App extends Application implements StateChangeListener {
         itmEnterMoves = new RadioMenuItem("Enter Moves");
 
         RadioMenuItem itmFullGameAnalysis = new RadioMenuItem("Full Game Analysis");
-        RadioMenuItem itmPlayoutPosition = new RadioMenuItem("Play Out Position");
+        RadioMenuItem itmPlayOutPosition = new RadioMenuItem("Play Out Position");
 
         ToggleGroup tglMode = new ToggleGroup();
         tglMode.getToggles().add(itmAnalysis);
@@ -121,12 +121,12 @@ public class App extends Application implements StateChangeListener {
         tglMode.getToggles().add(itmPlayAsBlack);
         tglMode.getToggles().add(itmEnterMoves);
         tglMode.getToggles().add(itmFullGameAnalysis);
-        tglMode.getToggles().add(itmPlayoutPosition);
+        tglMode.getToggles().add(itmPlayOutPosition);
 
         MenuItem itmEngines = new MenuItem("Engines...");
 
         mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack,
-                itmEnterMoves, itmFullGameAnalysis, itmPlayoutPosition,
+                itmEnterMoves, itmFullGameAnalysis, itmPlayOutPosition,
                 new SeparatorMenuItem(), itmEngines);
 
         // Database Menu
@@ -210,18 +210,17 @@ public class App extends Application implements StateChangeListener {
 
 
         // Text & Edit Button for Game Data
-        //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
         txtGameData = new Text("");
         txtGameData.setTextAlignment(TextAlignment.CENTER);
         Button btnEditGameData = new Button();
         btnEditGameData.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
-        Region spcrGameDataLeft = new Region();
-        Region spcrGameDataRight = new Region();
+        Region spacerGameDataLeft = new Region();
+        Region spacerGameDataRight = new Region();
 
         HBox hbGameData = new HBox();
-        hbGameData.getChildren().addAll(spcrGameDataLeft, txtGameData, spcrGameDataRight, btnEditGameData);
-        hbGameData.setHgrow(spcrGameDataLeft, Priority.ALWAYS);
-        hbGameData.setHgrow(spcrGameDataRight, Priority.ALWAYS);
+        hbGameData.getChildren().addAll(spacerGameDataLeft, txtGameData, spacerGameDataRight, btnEditGameData);
+        hbGameData.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
+        hbGameData.setHgrow(spacerGameDataRight, Priority.ALWAYS);
 
         // Create a WebView
         /*
@@ -270,12 +269,12 @@ public class App extends Application implements StateChangeListener {
         Button btnSelectEngine = new Button();
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
-        Region spcrEngineControl = new Region();
+        Region spacerEngineControl = new Region();
         hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
-                cmbMultiPV, spcrEngineControl, btnSelectEngine);
+                cmbMultiPV, spacerEngineControl, btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
         hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
-        hbEngineControl.setHgrow(spcrEngineControl, Priority.ALWAYS);
+        hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
         txtEngineOut.setPadding(new Insets(10,10,10,10));
         VBox vbBottom = new VBox();
@@ -354,9 +353,9 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
-        itmPlayoutPosition.setOnAction(actionEvent -> {
+        itmPlayOutPosition.setOnAction(actionEvent -> {
             if(gameModel.getMode() != GameModel.MODE_PLAYOUT_POSITION) {
-                itmPlayoutPosition.setSelected(true);
+                itmPlayOutPosition.setSelected(true);
                 tglEngineOnOff.setSelected(true);
                 tglEngineOnOff.setText("on");
                 modeMenuController.activatePlayoutPositionMode();
@@ -617,7 +616,6 @@ public class App extends Application implements StateChangeListener {
         // restore previously stet screen geometry
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         if(screenGeometry.isValid()) {
-            //intln(screenGeometry);
             stage.setX(screenGeometry.xOffset);
             stage.setY(screenGeometry.yOffset);
             stage.setWidth(screenGeometry.width);
@@ -632,7 +630,7 @@ public class App extends Application implements StateChangeListener {
 
         gameModel.triggerStateChange();
 
-        // unfocus any default button etc.
+        // un-focus any default button etc.
         spMain.requestFocus();
 
         stage.getIcons().add(new Image("icons/app_icon.png"));
@@ -678,7 +676,6 @@ public class App extends Application implements StateChangeListener {
         System.out.println("state change main app");
         if(gameModel.getGame().isHeaderChanged()) {
             System.out.println("state change: tree is changed");
-            //txtGameData = new Text("Kasparov, G. (Wh) - Kaprov, A. (B)\nSevilla, XX.YY.1993");
             String white = gameModel.getGame().getHeader("White");
             String black = gameModel.getGame().getHeader("Black");
             String site = gameModel.getGame().getHeader("Site");

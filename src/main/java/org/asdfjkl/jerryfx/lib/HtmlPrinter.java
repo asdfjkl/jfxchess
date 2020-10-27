@@ -5,14 +5,14 @@ import java.util.ArrayList;
 public class HtmlPrinter {
 
     StringBuilder html;
-    StringBuilder curentLine;
+    StringBuilder currentLine;
     int variationDepth;
     boolean forceMoveNumber;
     boolean newLine;
 
     public HtmlPrinter() {
         this.html = new StringBuilder();
-        this.curentLine = new StringBuilder();
+        this.currentLine = new StringBuilder();
         this.variationDepth = 0;
         this.forceMoveNumber = true;
         this.newLine = false;
@@ -20,25 +20,25 @@ public class HtmlPrinter {
 
     private void reset() {
         this.html = new StringBuilder();
-        this.curentLine = new StringBuilder();
+        this.currentLine = new StringBuilder();
         this.variationDepth = 0;
         this.forceMoveNumber = true;
         this.newLine = false;
     }
 
     private void flushCurrentLine() {
-        if(this.curentLine.length() != 0) {
-            this.html.append(this.curentLine.toString().trim());
+        if(this.currentLine.length() != 0) {
+            this.html.append(this.currentLine.toString().trim());
             this.html.append("\n");
-            this.curentLine.setLength(0);
+            this.currentLine.setLength(0);
         }
     }
 
     private void writeToken(String token) {
-        //if(80 - this.curentLine.length() < token.length()) {
+        //if(80 - this.currentLine.length() < token.length()) {
         //    this.flushCurrentLine();
         //}
-        this.curentLine.append(token);
+        this.currentLine.append(token);
     }
 
     private void writeLine(String line) {
@@ -282,7 +282,7 @@ public class HtmlPrinter {
                 this.printComment(var_i.getComment());
             }
 
-            // recursive call for all childs
+            // recursive call for all children
             this.printGameContent(var_i, false);
 
             // print variation end
@@ -314,7 +314,7 @@ public class HtmlPrinter {
 
         this.printGameContent(root, true);
         this.printResult(g.getResult());
-        //this.html.append(this.curentLine.toString());
+        //this.html.append(this.currentLine.toString());
         //this.writeLine("</body></html>");
         this.writeLine("");
 

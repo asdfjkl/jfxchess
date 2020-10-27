@@ -88,8 +88,8 @@ public class MoveView implements StateChangeListener {
         MenuItem interestingMove = new MenuItem("!? Interesting Move");
         MenuItem goodMove = new MenuItem("! Good Move");
         MenuItem brilliantMove = new MenuItem("!! Brilliant Move");
-        MenuItem noMoveAnnoation = new MenuItem("No Move Annotation");
-        moveAnnotation.getItems().addAll(blunder, mistake, dubiousMove, interestingMove, goodMove, brilliantMove, noMoveAnnoation);
+        MenuItem noMoveAnnotation = new MenuItem("No Move Annotation");
+        moveAnnotation.getItems().addAll(blunder, mistake, dubiousMove, interestingMove, goodMove, brilliantMove, noMoveAnnotation);
 
         Menu posAnnotation = new Menu("Position Annotation");
         MenuItem unclear = new MenuItem("∞ Unclear");
@@ -145,7 +145,7 @@ public class MoveView implements StateChangeListener {
             onBrilliantMoveNAG();
         });
 
-        noMoveAnnoation.setOnAction(e -> {
+        noMoveAnnotation.setOnAction(e -> {
             onNoMoveAnnotation();
         });
 
@@ -721,7 +721,7 @@ public class MoveView implements StateChangeListener {
 
     public void seekToEnd() {
         this.gameModel.getGame().goToLeaf();
-        //System.out.println("tirgger");
+        //System.out.println("trigger");
         this.gameModel.triggerStateChange();
     }
 

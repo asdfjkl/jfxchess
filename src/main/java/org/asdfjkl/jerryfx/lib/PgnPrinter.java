@@ -1,7 +1,6 @@
 package org.asdfjkl.jerryfx.lib;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,37 +9,37 @@ import java.util.ArrayList;
 public class PgnPrinter {
 
     StringBuilder pgn;
-    StringBuilder curentLine;
+    StringBuilder currentLine;
     int variationDepth;
     boolean forceMoveNumber;
 
     public PgnPrinter() {
         this.pgn = new StringBuilder();
-        this.curentLine = new StringBuilder();
+        this.currentLine = new StringBuilder();
         this.variationDepth = 0;
         this.forceMoveNumber = true;
     }
 
     private void reset() {
         this.pgn = new StringBuilder();
-        this.curentLine = new StringBuilder();
+        this.currentLine = new StringBuilder();
         this.variationDepth = 0;
         this.forceMoveNumber = true;
     }
 
     private void flushCurrentLine() {
-        if(this.curentLine.length() != 0) {
-            this.pgn.append(this.curentLine.toString().trim());
+        if(this.currentLine.length() != 0) {
+            this.pgn.append(this.currentLine.toString().trim());
             this.pgn.append("\n");
-            this.curentLine.setLength(0);
+            this.currentLine.setLength(0);
         }
     }
 
     private void writeToken(String token) {
-        if(80 - this.curentLine.length() < token.length()) {
+        if(80 - this.currentLine.length() < token.length()) {
             this.flushCurrentLine();
         }
-        this.curentLine.append(token);
+        this.currentLine.append(token);
     }
 
     private void writeLine(String line) {
@@ -174,7 +173,7 @@ public class PgnPrinter {
                 this.printComment(var_i.getComment());
             }
 
-            // recursive call for all childs
+            // recursive call for all children
             this.printGameContent(var_i);
 
             // print variation end
@@ -205,7 +204,7 @@ public class PgnPrinter {
 
         this.printGameContent(root);
         this.printResult(g.getResult());
-        this.pgn.append(this.curentLine.toString());
+        this.pgn.append(this.currentLine.toString());
 
         return this.pgn.toString();
     }

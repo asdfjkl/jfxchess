@@ -370,7 +370,7 @@ public class PgnReader {
                 //System.out.println("11111");
                 // after x, next one must be letter denoting column
                 // and then digit representing row, like exd4 (white)
-                // then parse d, 4, and check wether there is a pawn
+                // then parse d, 4, and check whether there is a pawn
                 // on e(4-1) = e3
                 if(currentIdx+3 < currentLine.length()) {
                     //System.out.println("22222222");
@@ -394,7 +394,7 @@ public class PgnReader {
                         }
                         if(row_from >= 0 && row_from <= 7) {
                             //System.out.println("555555");
-                            // check wether this is a promotion, i.e. exd8=Q
+                            // check whether this is a promotion, i.e. exd8=Q
                             if(currentIdx+5 < currentLine.length() && currentLine.charAt(currentIdx+4) == '=' &&
                                     (currentLine.charAt(currentIdx+5) == 'R' ||
                                     currentLine.charAt(currentIdx+5) == 'B' ||
@@ -446,7 +446,7 @@ public class PgnReader {
                     }
                     //System.out.println("FROM ROW "+from_row);
                     if(from_row >= 0) { // means we found a from square
-                        // check wether this is a promotion
+                        // check whether this is a promotion
                         if(currentIdx+3 < currentLine.length() && currentLine.charAt(currentIdx+2) == '=' &&
                                 (currentLine.charAt(currentIdx+3) == 'R' ||
                                 currentLine.charAt(currentIdx+3) == 'B' ||
@@ -559,7 +559,7 @@ public class PgnReader {
             if(this.isCol(currentLine.charAt(currentIdx))) {
                 //System.out.println("is col true");
                 //Qe? or Qxe?, now either digit must follow (Qe4 / Qxe4)
-                //or we have a disambiguition (Qee5, Qexe5)
+                //or we have a disambiguation (Qee5, Qexe5)
                 //System.out.println("111");
                 if(currentIdx+1 < currentLine.length()) {
                     //System.out.println("2222222222");
@@ -588,7 +588,7 @@ public class PgnReader {
                         // fix end
                         if(this.isCol(currentLine.charAt(currentIdx+1))) {
                             //System.out.println("44444444444"+currentLine.charAt(currentIdx+1));
-                            // we have a disambiguition, that should resolved by
+                            // we have a disambiguation, that should resolved by
                             // the column denoted in the san, here in @line[idx]
                             int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
                             if(currentIdx+2 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx+2))) {

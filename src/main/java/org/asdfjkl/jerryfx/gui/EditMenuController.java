@@ -91,7 +91,7 @@ public class EditMenuController {
                 gameModel.triggerStateChange();
             }
         } catch(IllegalArgumentException e) {
-            // if not a fen string, maybee it's a full game
+            // if not a fen string, maybe it's a full game
             PgnReader reader = new PgnReader();
             Game g = reader.readGame(s);
             PgnPrinter prn = new PgnPrinter();

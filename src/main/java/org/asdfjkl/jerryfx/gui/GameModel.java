@@ -227,7 +227,7 @@ public class GameModel {
 
         PgnPrinter printer = new PgnPrinter();
         String pgn = printer.printGame(getGame());
-        prefs.put("curentGame", pgn);
+        prefs.put("currentGame", pgn);
 
     }
 
@@ -359,7 +359,7 @@ public class GameModel {
 
             PgnReader reader = new PgnReader();
 
-            String pgn = prefs.get("curentGame", "");
+            String pgn = prefs.get("currentGame", "");
 
             //System.out.println("string" + pgn);
             if(!pgn.isEmpty()) {

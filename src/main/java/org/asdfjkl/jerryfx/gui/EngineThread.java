@@ -158,7 +158,7 @@ public class EngineThread extends Thread {
                         // check if engine is ready to receive commands
                         // but only do this once (check via requestedReadyOk)
                         if(!readyok) {
-                            // the command uci must be send immediatly after startup
+                            // the command uci must be send immediately after startup
                             // some engines will not report readyok on isready directly
                             // after startup (like e.g. arasan). thus always send
                             // 'uci' without waiting for isready
