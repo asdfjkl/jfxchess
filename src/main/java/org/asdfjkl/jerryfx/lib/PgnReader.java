@@ -22,6 +22,7 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import org.asdfjkl.jerryfx.gui.PgnSTR;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -31,7 +32,7 @@ public class PgnReader {
     GameNode currentNode = null;
     String currentLine;  // current line
     int currentIdx = 0; // current index
-    Stack<GameNode> gameStack;
+    final Stack<GameNode> gameStack;
     String encoding;
 
     public PgnReader() {
@@ -63,7 +64,7 @@ public class PgnReader {
             int i=0;
             while((line = raf.readLine()) != null && i < 1000) {
                 if(i == 0 || (line.contains("[") || line.contains("{") || line.contains("}"))) {
-                    byte[] lineBytes = line.getBytes("ISO-8859-1");
+                    byte[] lineBytes = line.getBytes(StandardCharsets.ISO_8859_1);
                     for (int j = 0; j < lineBytes.length; j++) {
                         bytesRead.add(lineBytes[j]);
                     }
@@ -169,7 +170,7 @@ public class PgnReader {
                         int secondQuote = currentLine.indexOf('"', firstQuote + 1);
                         String tag = currentLine.substring(1, spaceOffset);
                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                        String valueEncoded = new String(value.getBytes("ISO-8859-1"), encoding);
+                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding);
                         if(tag.equals("Event")) {
                             current.setEvent(valueEncoded);
                         }
@@ -325,7 +326,7 @@ public class PgnReader {
                         int secondQuote = currentLine.indexOf('"', firstQuote + 1);
                         String tag = currentLine.substring(1, spaceOffset);
                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                        header.put(tag, new String(value.getBytes("ISO-8859-1"), encoding));
+                        header.put(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
                     }
                 } else {
                     if (foundHeader) {
@@ -904,7 +905,7 @@ public class PgnReader {
                             if (tag.equals("FEN")) {
                                 startingFen = value;
                             } else {
-                                g.setHeader(tag, new String(value.getBytes("ISO-8859-1"), encoding));
+                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
                             }
                         }
                     }
@@ -1071,7 +1072,7 @@ public class PgnReader {
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end);
                             System.out.println("PARSING COMMENT: "+comment_line);
-                            currentNode.setComment(new String(comment_line.getBytes("ISO-8859-1"), encoding));
+                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
                             currentIdx = currentIdx + end + 1;
                         } else {
                             // get comment over multiple lines
@@ -1109,7 +1110,7 @@ public class PgnReader {
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
                             }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes("ISO-8859-1"), encoding));
+                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), encoding));
                         }
                     }
                 }
@@ -1165,7 +1166,7 @@ public class PgnReader {
                                 startingFen = value;
                             } else {
                                 try {
-                                    g.setHeader(tag, new String(value.getBytes("ISO-8859-1"), encoding));
+                                    g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
                                 } catch(UnsupportedEncodingException e) {
                                     e.printStackTrace();
                                 }
@@ -1333,7 +1334,7 @@ public class PgnReader {
                         //System.out.println(end);
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end+1);
-                            currentNode.setComment(new String(comment_line.getBytes("ISO-8859-1"), encoding));
+                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
                             currentIdx = currentIdx + end + 1;
                         } else {
                             // get comment over multiple lines
@@ -1372,7 +1373,7 @@ public class PgnReader {
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
                             }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes("ISO-8859-1"), encoding));
+                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), encoding));
                         }
                     }
                 }

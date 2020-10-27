@@ -61,24 +61,24 @@ public class HtmlPrinter {
 
     private void writeLine(String line) {
         this.flushCurrentLine();
-        this.html.append(line.trim()+"\n");
+        this.html.append(line.trim()).append("\n");
     }
 
     private void printHeaders(Game g) {
         String tag = "[Event \"" + g.getHeader("Event") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[Site \"" + g.getHeader("Site") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[Date \"" + g.getHeader("Date") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[Round \"" + g.getHeader("Round") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[White \"" + g.getHeader("White") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[Black \"" + g.getHeader("Black") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         tag = "[Result \"" + g.getHeader("Result") + "\"]";
-        html.append(tag+"\n");
+        html.append(tag).append("\n");
         ArrayList<String> allTags = g.getTags();
         for(String tag_i : allTags) {
             //System.out.println("tag out: " +tag_i);
@@ -88,14 +88,14 @@ public class HtmlPrinter {
                 String value_i = g.getHeader(tag_i);
                 String tag_val = "[" + tag_i + " \"" + value_i + "\"]";
                 //System.out.println("tag out val: " +tag_val);
-                html.append(tag_val+"\n");
+                html.append(tag_val).append("\n");
             }
         }
         // add fen string tag if root is not initial position
         Board rootBoard = g.getRootNode().getBoard();
         if(!rootBoard.isInitialPosition()) {
             String tag_fen = "[FEN \"" + rootBoard.fen() + "\"]";
-            html.append(tag_fen+"\n");
+            html.append(tag_fen).append("\n");
         }
     }
 
@@ -251,8 +251,7 @@ public class HtmlPrinter {
     }
 
     private void printComment(String comment) {
-        String temp_c = comment;
-        String write = "{ " + temp_c.replace("}","").trim() + " } ";
+        String write = "{ " + comment.replace("}","").trim() + " } ";
         this.writeToken(write);
         //this->forceMoveNumber = false;
     }
@@ -310,7 +309,7 @@ public class HtmlPrinter {
         // finally do the mainline
         if(cntVar > 0) {
             GameNode mainVariation = g.getVariation(0);
-            this.printGameContent(mainVariation, onMainLine && true);
+            this.printGameContent(mainVariation, onMainLine);
         }
     }
 

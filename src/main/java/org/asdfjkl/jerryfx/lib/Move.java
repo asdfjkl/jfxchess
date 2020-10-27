@@ -85,7 +85,7 @@ public class Move {
             this.promotionPiece = CONSTANTS.QUEEN;
         }
         if (this.promotionPiece < 0) {
-            throw new IllegalArgumentException("Illegal Promotion Piece: " + Character.toString(promotionPiece));
+            throw new IllegalArgumentException("Illegal Promotion Piece: " + promotionPiece);
         }
         this.isNullMove = false;
 
@@ -113,7 +113,7 @@ public class Move {
         } else if (alpha == 'H') {
             return 8;
         }
-        throw new IllegalArgumentException("alpha to pos called with: " + Character.toString(alpha));
+        throw new IllegalArgumentException("alpha to pos called with: " + alpha);
     }
 
 

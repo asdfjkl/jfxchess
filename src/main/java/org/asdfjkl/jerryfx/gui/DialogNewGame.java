@@ -52,13 +52,13 @@ public class DialogNewGame {
     Stage stage;
     boolean accepted = false;
 
-    RadioButton rbEnterMoves = new RadioButton("Just Enter Moves");
-    RadioButton rbComputer = new RadioButton("Computer");
-    RadioButton rbWhite = new RadioButton("White");
-    RadioButton rbBlack = new RadioButton("Black");
+    final RadioButton rbEnterMoves = new RadioButton("Just Enter Moves");
+    final RadioButton rbComputer = new RadioButton("Computer");
+    final RadioButton rbWhite = new RadioButton("White");
+    final RadioButton rbBlack = new RadioButton("Black");
 
-    Slider sliderStrength = new Slider();
-    Slider sliderThinkTime = new Slider();
+    final Slider sliderStrength = new Slider();
+    final Slider sliderThinkTime = new Slider();
 
     int thinkTime = 3;
     int strength = 20;
@@ -120,9 +120,8 @@ public class DialogNewGame {
 
         sliderStrength.valueProperty().addListener(
                 ((observableValue, number, t1) -> {
-                    int i = t1.intValue();
-                    strength = i;
-                    txtStrength.setText("Level "+Integer.toString(strength));
+                    strength = t1.intValue();;
+                    txtStrength.setText("Level "+ strength);
                 })
         );
         sliderStrength.setValue(20);
@@ -171,7 +170,7 @@ public class DialogNewGame {
                             thinkTime = 30;
                             break;
                     }
-                    txtThinkTime.setText(Integer.toString(thinkTime)+ " sec(s)");
+                    txtThinkTime.setText(thinkTime + " sec(s)");
                 })
         );
 

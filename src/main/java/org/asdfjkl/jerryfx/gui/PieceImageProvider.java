@@ -34,59 +34,59 @@ import static org.asdfjkl.jerryfx.gui.BoardStyle.*;
 
 public class PieceImageProvider {
 
-    HashMap<Integer, Image> whitePawnsMerida = new HashMap<>();
-    HashMap<Integer, Image> blackPawnsMerida = new HashMap<>();
+    final HashMap<Integer, Image> whitePawnsMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackPawnsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteRooksMerida = new HashMap<>();
-    HashMap<Integer, Image> blackRooksMerida = new HashMap<>();
+    final HashMap<Integer, Image> whiteRooksMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackRooksMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKnightsMerida = new HashMap<>();
-    HashMap<Integer, Image> blackKnightsMerida = new HashMap<>();
+    final HashMap<Integer, Image> whiteKnightsMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackKnightsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteBishopsMerida = new HashMap<>();
-    HashMap<Integer, Image> blackBishopsMerida = new HashMap<>();
+    final HashMap<Integer, Image> whiteBishopsMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackBishopsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteQueensMerida = new HashMap<>();
-    HashMap<Integer, Image> blackQueensMerida = new HashMap<>();
+    final HashMap<Integer, Image> whiteQueensMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackQueensMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKingsMerida = new HashMap<>();
-    HashMap<Integer, Image> blackKingsMerida = new HashMap<>();
+    final HashMap<Integer, Image> whiteKingsMerida = new HashMap<>();
+    final HashMap<Integer, Image> blackKingsMerida = new HashMap<>();
 
-    HashMap<Integer, Image> whitePawnsOld = new HashMap<>();
-    HashMap<Integer, Image> blackPawnsOld = new HashMap<>();
+    final HashMap<Integer, Image> whitePawnsOld = new HashMap<>();
+    final HashMap<Integer, Image> blackPawnsOld = new HashMap<>();
 
-    HashMap<Integer, Image> whiteRooksOld = new HashMap<>();
-    HashMap<Integer, Image> blackRooksOld = new HashMap<>();
+    final HashMap<Integer, Image> whiteRooksOld = new HashMap<>();
+    final HashMap<Integer, Image> blackRooksOld = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKnightsOld = new HashMap<>();
-    HashMap<Integer, Image> blackKnightsOld = new HashMap<>();
+    final HashMap<Integer, Image> whiteKnightsOld = new HashMap<>();
+    final HashMap<Integer, Image> blackKnightsOld = new HashMap<>();
 
-    HashMap<Integer, Image> whiteBishopsOld = new HashMap<>();
-    HashMap<Integer, Image> blackBishopsOld = new HashMap<>();
+    final HashMap<Integer, Image> whiteBishopsOld = new HashMap<>();
+    final HashMap<Integer, Image> blackBishopsOld = new HashMap<>();
 
-    HashMap<Integer, Image> whiteQueensOld = new HashMap<>();
-    HashMap<Integer, Image> blackQueensOld = new HashMap<>();
+    final HashMap<Integer, Image> whiteQueensOld = new HashMap<>();
+    final HashMap<Integer, Image> blackQueensOld = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKingsOld = new HashMap<>();
-    HashMap<Integer, Image> blackKingsOld = new HashMap<>();
+    final HashMap<Integer, Image> whiteKingsOld = new HashMap<>();
+    final HashMap<Integer, Image> blackKingsOld = new HashMap<>();
 
-    HashMap<Integer, Image> whitePawnsUscf = new HashMap<>();
-    HashMap<Integer, Image> blackPawnsUscf = new HashMap<>();
+    final HashMap<Integer, Image> whitePawnsUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackPawnsUscf = new HashMap<>();
 
-    HashMap<Integer, Image> whiteRooksUscf = new HashMap<>();
-    HashMap<Integer, Image> blackRooksUscf = new HashMap<>();
+    final HashMap<Integer, Image> whiteRooksUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackRooksUscf = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKnightsUscf = new HashMap<>();
-    HashMap<Integer, Image> blackKnightsUscf = new HashMap<>();
+    final HashMap<Integer, Image> whiteKnightsUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackKnightsUscf = new HashMap<>();
 
-    HashMap<Integer, Image> whiteBishopsUscf = new HashMap<>();
-    HashMap<Integer, Image> blackBishopsUscf = new HashMap<>();
+    final HashMap<Integer, Image> whiteBishopsUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackBishopsUscf = new HashMap<>();
 
-    HashMap<Integer, Image> whiteQueensUscf = new HashMap<>();
-    HashMap<Integer, Image> blackQueensUscf = new HashMap<>();
+    final HashMap<Integer, Image> whiteQueensUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackQueensUscf = new HashMap<>();
 
-    HashMap<Integer, Image> whiteKingsUscf = new HashMap<>();
-    HashMap<Integer, Image> blackKingsUscf = new HashMap<>();
+    final HashMap<Integer, Image> whiteKingsUscf = new HashMap<>();
+    final HashMap<Integer, Image> blackKingsUscf = new HashMap<>();
 
     private BufferedImage renderSVG(URL urlPieceSVG, int width, int height) {
 

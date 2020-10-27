@@ -19,7 +19,6 @@
 package org.asdfjkl.jerryfx.lib;
 
 import java.awt.Point;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.lang.Math;
 
@@ -75,7 +74,7 @@ public class Board {
         } else if (alpha == 'H') {
             return 7;
         }
-        throw new IllegalArgumentException("alpha to pos called with: " + Character.toString(alpha));
+        throw new IllegalArgumentException("alpha to pos called with: " + alpha);
     }
 
     public Point internalToXY(int internalCoordinate) {
@@ -482,8 +481,8 @@ public class Board {
             fenString += " -";
         }
         // add halfmove clock and fullmove counter
-        fenString += " " + Integer.toString(this.halfmoveClock);
-        fenString += " " + Integer.toString(this.fullmoveNumber);
+        fenString += " " + this.halfmoveClock;
+        fenString += " " + this.fullmoveNumber;
 
         return fenString;
     }
@@ -491,7 +490,7 @@ public class Board {
     private void removeFromPieceList(boolean color, int piece_type, int idx) {
 
         int intColor = 0;
-        if(color == true) {
+        if(color) {
             intColor = 1;
         }
 
@@ -515,7 +514,7 @@ public class Board {
     private void addToPieceList(boolean color, int piece_type, int idx) {
 
         int intColor = 0;
-        if(color == true) {
+        if(color) {
             intColor = 1;
         }
 

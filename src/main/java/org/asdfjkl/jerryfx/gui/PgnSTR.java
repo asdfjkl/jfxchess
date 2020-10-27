@@ -33,7 +33,8 @@ public class PgnSTR {
 
     private boolean foundAtLeast1Tag = false;
 
-    public long getOffset() { return offset; };
+    public long getOffset() { return offset; }
+
     public void setOffset(long offset) { this.offset = offset; }
 
     public long getIndex() { return index; }

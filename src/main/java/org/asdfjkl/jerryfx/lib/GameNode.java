@@ -24,13 +24,13 @@ import java.util.Collections;
 public class GameNode {
 
     static int id;
-    private int nodeId;
+    private final int nodeId;
     private Board board = null;
     private Move move = null; // move leading to this node
     private GameNode parent = null;
     private String comment;
     private String sanCache;
-    private ArrayList<GameNode> variations;
+    private final ArrayList<GameNode> variations;
     private ArrayList<Integer> nags;
 
     protected static int initId() {

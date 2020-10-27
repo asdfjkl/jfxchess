@@ -36,10 +36,10 @@ public class GrabbedPiece {
         this.piece = piece;
     }
 
-    public int getPiece() { return this.piece; };
+    public int getPiece() { return this.piece; }
 
-    public double getCurrentXLocation() { return this.currentXLocation; };
+    public double getCurrentXLocation() { return this.currentXLocation; }
 
-    public double getCurrentYLocation() { return this.currentYLocation; };
+    public double getCurrentYLocation() { return this.currentYLocation; }
 
 }

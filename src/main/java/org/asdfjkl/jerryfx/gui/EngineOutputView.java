@@ -23,13 +23,13 @@ import javafx.scene.text.TextFlow;
 
 public class EngineOutputView {
 
-    private Text engineId;
-    private Text depth;
-    private Text nps;
-    private Text pv1;
-    private Text pv2;
-    private Text pv3;
-    private Text pv4;
+    private final Text engineId;
+    private final Text depth;
+    private final Text nps;
+    private final Text pv1;
+    private final Text pv2;
+    private final Text pv3;
+    private final Text pv4;
 
     private boolean isEnabled = true;
 

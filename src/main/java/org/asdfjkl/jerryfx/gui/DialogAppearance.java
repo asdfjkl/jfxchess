@@ -37,15 +37,15 @@ public class DialogAppearance {
 
     ShowAppearanceBoard appearanceBoard;
 
-    Label lblPieceStyle = new Label("Piece Style");
-    RadioButton rbMerida = new RadioButton("Merida (Default)");
-    RadioButton rbOld = new RadioButton("Old Style");
-    RadioButton rbUscf = new RadioButton("USCF");
+    final Label lblPieceStyle = new Label("Piece Style");
+    final RadioButton rbMerida = new RadioButton("Merida (Default)");
+    final RadioButton rbOld = new RadioButton("Old Style");
+    final RadioButton rbUscf = new RadioButton("USCF");
 
-    Label lblBoardStyle = new Label("Board Style");
-    RadioButton rbBlue = new RadioButton("Blue (Default)");
-    RadioButton rbBrown = new RadioButton("Brown");
-    RadioButton rbGreen = new RadioButton("Green");
+    final Label lblBoardStyle = new Label("Board Style");
+    final RadioButton rbBlue = new RadioButton("Blue (Default)");
+    final RadioButton rbBrown = new RadioButton("Brown");
+    final RadioButton rbGreen = new RadioButton("Green");
 
     Button btnOk;
     Button btnCancel;

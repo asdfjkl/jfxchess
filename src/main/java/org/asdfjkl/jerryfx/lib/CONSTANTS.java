@@ -172,7 +172,7 @@ public class CONSTANTS {
     // e.g. distance one, i.e. index 1 (=left, up, down, right square) has
     // value 0x1C = MSB 00011100 LSB, i.e. king, queen, rook can
     // potentially attack
-    public static int[] ATTACK_TABLE =
+    public static final int[] ATTACK_TABLE =
              {  0x00, 0x1C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x01, 0x1a,
                 0x1C, 0x1A, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x01,
                 0x0C, 0x01, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00,
@@ -188,7 +188,7 @@ public class CONSTANTS {
     // [piece_type[1] ... [piece_type][4] resp.
     // [piece_type[1] ... [piece_type][8] contain
     // DPOINT table
-    public static int[][] DIR_TABLE =
+    public static final int[][] DIR_TABLE =
             {
                 { 4, -10, -20, -11, -9 ,   0,   0,   0,   0 }, // max 4 black pawn directions, rest 0's
                 { 4, +10, +20, +11, +9 ,   0,   0,   0,   0 }, // max 4 white pawn directions, rest 0's
@@ -211,10 +211,10 @@ public class CONSTANTS {
 
 
     // players
-    public static boolean WHITE = false;
-    public static int IWHITE = 0;
-    public static boolean BLACK = true;
-    public static int IBLACK = 1;
+    public static final boolean WHITE = false;
+    public static final int IWHITE = 0;
+    public static final boolean BLACK = true;
+    public static final int IBLACK = 1;
 
     // for zobrist hashing w/ and polyglot opening books
     public static final long[] POLYGLOT_RANDOM_64 = {
@@ -485,32 +485,32 @@ public class CONSTANTS {
     public static final int RANDOM_EN_PASSENT = 772;
     public static final int RANDOM_TURN = 780;
 
-    public static int RES_UNDEF = 0;
-    public static int RES_WHITE_WINS = 1;
-    public static int RES_BLACK_WINS = 2;
-    public static int RES_DRAW = 3;
-    public static int RES_ANY = 4;
+    public static final int RES_UNDEF = 0;
+    public static final int RES_WHITE_WINS = 1;
+    public static final int RES_BLACK_WINS = 2;
+    public static final int RES_DRAW = 3;
+    public static final int RES_ANY = 4;
 
     public static int NAG_NULL = 0;
-    public static int NAG_GOOD_MOVE = 1;
+    public static final int NAG_GOOD_MOVE = 1;
     //A good move. Can also be indicated by ``!`` in PGN notation."""
-    public static int NAG_MISTAKE = 2;
+    public static final int NAG_MISTAKE = 2;
     //A mistake. Can also be indicated by ``?`` in PGN notation."""
-    public static int NAG_BRILLIANT_MOVE = 3;
+    public static final int NAG_BRILLIANT_MOVE = 3;
     //A brilliant move. Can also be indicated by ``!!`` in PGN notation."""
-    public static int NAG_BLUNDER = 4;
+    public static final int NAG_BLUNDER = 4;
     //A blunder. Can also be indicated by ``??`` in PGN notation."""
-    public static int NAG_SPECULATIVE_MOVE = 5;
+    public static final int NAG_SPECULATIVE_MOVE = 5;
     //A speculative move. Can also be indicated by ``!?`` in PGN notation."""
-    public static int NAG_DUBIOUS_MOVE = 6;
+    public static final int NAG_DUBIOUS_MOVE = 6;
     //A dubious move. Can also be indicated by ``?!`` in PGN notation."""
     public static int NAG_FORCED_MOVE = 7;
-    public static int NAG_DRAWISH_POSITION = 10;
-    public static int NAG_UNCLEAR_POSITION = 13;
-    public static int NAG_WHITE_MODERATE_ADVANTAGE = 16;
-    public static int NAG_BLACK_MODERATE_ADVANTAGE = 17;
-    public static int NAG_WHITE_DECISIVE_ADVANTAGE = 18;
-    public static int NAG_BLACK_DECISIVE_ADVANTAGE = 19;
+    public static final int NAG_DRAWISH_POSITION = 10;
+    public static final int NAG_UNCLEAR_POSITION = 13;
+    public static final int NAG_WHITE_MODERATE_ADVANTAGE = 16;
+    public static final int NAG_BLACK_MODERATE_ADVANTAGE = 17;
+    public static final int NAG_WHITE_DECISIVE_ADVANTAGE = 18;
+    public static final int NAG_BLACK_DECISIVE_ADVANTAGE = 19;
     public static int NAG_WHITE_ZUGZWANG = 22;
     public static int NAG_BLACK_ZUGZWANG = 23;
     public static int NAG_WHITE_HAS_ATTACK = 40;
@@ -521,24 +521,24 @@ public class CONSTANTS {
 
     // tokens for move parsing
     public static int TKN_ERROR = -1;
-    public static int TKN_PAWN_MOVE = 1;
-    public static int TKN_CASTLE = 2;
-    public static int TKN_ROOK_MOVE = 3;
-    public static int TKN_KNIGHT_MOVE = 4;
-    public static int TKN_BISHOP_MOVE = 5;
-    public static int TKN_QUEEN_MOVE = 6;
-    public static int TKN_KING_MOVE = 7;
-    public static int TKN_OPEN_VARIATION = 8;
-    public static int TKN_CLOSE_VARIATION = 9;
-    public static int TKN_NAG = 10;
-    public static int TKN_OPEN_COMMENT = 11;
-    public static int TKN_RES_WHITE_WIN = 12;
-    public static int TKN_RES_BLACK_WIN = 13;
-    public static int TKN_RES_DRAW = 14;
-    public static int TKN_RES_UNDEFINED = 15;
-    public static int TKN_CHECK = 16;
-    public static int TKN_EOL = 17;
-    public static int TKN_NULL_MOVE = 18;
+    public static final int TKN_PAWN_MOVE = 1;
+    public static final int TKN_CASTLE = 2;
+    public static final int TKN_ROOK_MOVE = 3;
+    public static final int TKN_KNIGHT_MOVE = 4;
+    public static final int TKN_BISHOP_MOVE = 5;
+    public static final int TKN_QUEEN_MOVE = 6;
+    public static final int TKN_KING_MOVE = 7;
+    public static final int TKN_OPEN_VARIATION = 8;
+    public static final int TKN_CLOSE_VARIATION = 9;
+    public static final int TKN_NAG = 10;
+    public static final int TKN_OPEN_COMMENT = 11;
+    public static final int TKN_RES_WHITE_WIN = 12;
+    public static final int TKN_RES_BLACK_WIN = 13;
+    public static final int TKN_RES_DRAW = 14;
+    public static final int TKN_RES_UNDEFINED = 15;
+    public static final int TKN_CHECK = 16;
+    public static final int TKN_EOL = 17;
+    public static final int TKN_NULL_MOVE = 18;
 
 
 }

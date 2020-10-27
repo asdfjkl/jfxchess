@@ -32,18 +32,18 @@ import static org.asdfjkl.jerryfx.lib.CONSTANTS.*;
 public class Chessboard extends Canvas implements StateChangeListener {
 
     BoardStyle boardStyle;
-    double outputScaleX;
-    GameModel gameModel;
+    final double outputScaleX;
+    final GameModel gameModel;
     boolean flipBoard = true;
 
     int innerXOffset;
     int innerYOffset;
     int squareSize;
 
-    PieceImageProvider pieceImageProvider;
+    final PieceImageProvider pieceImageProvider;
 
     Point moveSource;
-    GrabbedPiece grabbedPiece = new GrabbedPiece();
+    final GrabbedPiece grabbedPiece = new GrabbedPiece();
     boolean drawGrabbedPiece = false;
 
     public Chessboard(GameModel gameModel) {

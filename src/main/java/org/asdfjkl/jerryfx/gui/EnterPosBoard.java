@@ -35,10 +35,10 @@ import static org.asdfjkl.jerryfx.lib.CONSTANTS.FRINGE;
 
 public class EnterPosBoard extends Canvas {
 
-    private ArrayList<EnterPosBoardListener> enterPosBoardListeners = new ArrayList<>();
+    private final ArrayList<EnterPosBoardListener> enterPosBoardListeners = new ArrayList<>();
 
     BoardStyle boardStyle;
-    double outputScaleX;
+    final double outputScaleX;
     Board board;
     boolean flipBoard = false;
 
@@ -49,13 +49,13 @@ public class EnterPosBoard extends Canvas {
     final int borderMargin = 18;
     int outerMargin;
 
-    PieceImageProvider pieceImageProvider;
+    final PieceImageProvider pieceImageProvider;
 
     Point moveSource;
-    GrabbedPiece grabbedPiece = new GrabbedPiece();
-    boolean drawGrabbedPiece = false;
+    final GrabbedPiece grabbedPiece = new GrabbedPiece();
+    final boolean drawGrabbedPiece = false;
 
-        int[][] pickupPieces = {
+        final int[][] pickupPieces = {
                 { CONSTANTS.WHITE_PAWN, CONSTANTS.BLACK_PAWN },
                 { CONSTANTS.WHITE_KNIGHT, CONSTANTS.BLACK_KING},
                 { CONSTANTS.WHITE_BISHOP, CONSTANTS.BLACK_BISHOP},

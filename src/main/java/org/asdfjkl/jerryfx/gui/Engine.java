@@ -27,7 +27,7 @@ public class Engine {
 
     private boolean isInternal = false;
 
-    public ArrayList<EngineOption> options = new ArrayList<>();
+    public final ArrayList<EngineOption> options = new ArrayList<>();
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

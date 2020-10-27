@@ -112,8 +112,7 @@ public class DialogNextMove {
     }
 
     private static void btnOkClicked() {
-        int selectedIndex = lvMoves.getSelectionModel().getSelectedIndex();
-        selectedMove = selectedIndex;
+        selectedMove = lvMoves.getSelectionModel().getSelectedIndex();
         stage.close();
     }
 

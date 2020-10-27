@@ -42,10 +42,10 @@ import java.util.ArrayList;
 
 public class MoveView implements StateChangeListener {
 
-    private WebView webView;
+    private final WebView webView;
     //private WebEngine webEngine;
-    GameModel gameModel;
-    HtmlPrinter htmlPrinter;
+    final GameModel gameModel;
+    final HtmlPrinter htmlPrinter;
     int currentlyMarkedNode = -1;
     int x;
     int y;
@@ -65,7 +65,7 @@ public class MoveView implements StateChangeListener {
                     "    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));\n" +
                     "}";
 */
-    String jsIsInView = "function isScrolledIntoView(el) {\n"+
+    final String jsIsInView = "function isScrolledIntoView(el) {\n"+
         "var rect = el.getBoundingClientRect();\n"+
         "var elemTop = rect.top; \n"+
         "var elemBottom = rect.bottom; \n"+
@@ -80,7 +80,11 @@ public class MoveView implements StateChangeListener {
         webView.setMaxWidth(Double.MAX_VALUE);
         webView.setMaxHeight(Double.MAX_VALUE);
         //webEngine = webView.getEngine();
-        webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style.css").toString());
+        try {
+            webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style.css").toString());
+        } catch (NullPointerException e) {
+
+        }
 
         webView.setContextMenuEnabled(false);
         createContextMenu(webView);
@@ -559,7 +563,7 @@ public class MoveView implements StateChangeListener {
                             try {
                                 int clickedNodeId = Integer.parseInt(ev.getTarget().toString().substring(1));
                                 GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
-                                System.out.println("got: n" + Integer.toString(clickedNodeId));
+                                System.out.println("got: n" + clickedNodeId);
                                 gameModel.getGame().setCurrent(nextCurrent);
                                 System.out.println("tree changed: "+gameModel.getGame().isTreeChanged());
                                 gameModel.triggerStateChange();
@@ -619,9 +623,9 @@ public class MoveView implements StateChangeListener {
     private boolean hasFocus(int nodeId) {
         String jsString = "isScrolledIntoView(document.getElementById('n"+ nodeId+"'))";
         webView.getEngine().executeScript(jsString);
-        boolean focused = (Boolean) webView.getEngine().executeScript(jsString);
+        return (Boolean) webView.getEngine().executeScript(jsString);
         //System.out.println(focused);
-        return focused;
+        //return focused;
     }
 
     private void updateMarkedNode() {

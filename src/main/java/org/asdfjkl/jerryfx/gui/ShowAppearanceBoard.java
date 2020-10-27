@@ -30,21 +30,21 @@ import static org.asdfjkl.jerryfx.lib.CONSTANTS.FRINGE;
 
 public class ShowAppearanceBoard extends Canvas {
 
-        BoardStyle boardStyle;
-        double outputScaleX;
+        final BoardStyle boardStyle;
+        final double outputScaleX;
         GameModel gameModel;
-        boolean flipBoard = true;
+        final boolean flipBoard = true;
 
         int innerXOffset;
         int innerYOffset;
         int squareSize;
 
-        PieceImageProvider pieceImageProvider;
+        final PieceImageProvider pieceImageProvider;
 
         Point moveSource;
         GrabbedPiece grabbedPiece = new GrabbedPiece();
-        boolean drawGrabbedPiece = false;
-        Board board;
+        final boolean drawGrabbedPiece = false;
+        final Board board;
 
     public ShowAppearanceBoard() {
 

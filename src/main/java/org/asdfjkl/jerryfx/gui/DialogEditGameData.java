@@ -34,20 +34,20 @@ import java.util.Map;
 public class DialogEditGameData {
 
     Stage stage;
-    HashMap<String, String> pgnHeaders = new HashMap<>();
-    TextField site = new TextField();
-    TextField date = new TextField();
-    TextField round = new TextField();
-    TextField event = new TextField();
-    TextField white = new TextField();
-    TextField black = new TextField();
-    TextField eco = new TextField();
+    final HashMap<String, String> pgnHeaders = new HashMap<>();
+    final TextField site = new TextField();
+    final TextField date = new TextField();
+    final TextField round = new TextField();
+    final TextField event = new TextField();
+    final TextField white = new TextField();
+    final TextField black = new TextField();
+    final TextField eco = new TextField();
     boolean accepted = false;
     int gameResult = -1;
-    RadioButton rbWhiteWin = new RadioButton("1-0");
-    RadioButton rbBlackWin = new RadioButton("0-1");
-    RadioButton rbDraw = new RadioButton("1/2-1/2");
-    RadioButton rbUndecided = new RadioButton("*");
+    final RadioButton rbWhiteWin = new RadioButton("1-0");
+    final RadioButton rbBlackWin = new RadioButton("0-1");
+    final RadioButton rbDraw = new RadioButton("1/2-1/2");
+    final RadioButton rbUndecided = new RadioButton("*");
 
     public boolean show(HashMap<String, String> pgnHeaders, int gameResult) {
 

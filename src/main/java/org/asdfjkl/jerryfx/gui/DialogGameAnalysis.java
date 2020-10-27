@@ -33,16 +33,16 @@ public class DialogGameAnalysis {
     Stage stage;
     boolean accepted = false;
 
-    Label lSecsPerMove = new Label("Sec(s) per Move");
-    Label lPawnThresh = new Label("Threshold (in pawns)");
-    Label lAnalysePlayers = new Label("Analyse Players:");
+    final Label lSecsPerMove = new Label("Sec(s) per Move");
+    final Label lPawnThresh = new Label("Threshold (in pawns)");
+    final Label lAnalysePlayers = new Label("Analyse Players:");
 
-    Spinner<Integer> sSecs = new Spinner<Integer>();
-    Spinner<Double> sPawnThreshold = new Spinner<Double>();
+    final Spinner<Integer> sSecs = new Spinner<Integer>();
+    final Spinner<Double> sPawnThreshold = new Spinner<Double>();
 
-    RadioButton rbBoth = new RadioButton("Both");
-    RadioButton rbWhite = new RadioButton("White");
-    RadioButton rbBlack = new RadioButton("Black");
+    final RadioButton rbBoth = new RadioButton("Both");
+    final RadioButton rbWhite = new RadioButton("White");
+    final RadioButton rbBlack = new RadioButton("Black");
 
     public boolean show(int currSecs, double currThreshold) {
 

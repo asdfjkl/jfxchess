@@ -38,10 +38,10 @@ public class DialogSearchGames {
     CheckBox searchPosition;
 
     EnterPosBoard enterPosBoard;
-    Button btnFlipBoard = new Button("Flip Board");
-    Button btnInitialPosition = new Button("Initial Position");
-    Button btnClearBoard = new Button("Clear Board");
-    Button btnCurrentPosition = new Button("Current Position");
+    final Button btnFlipBoard = new Button("Flip Board");
+    final Button btnInitialPosition = new Button("Initial Position");
+    final Button btnClearBoard = new Button("Clear Board");
+    final Button btnCurrentPosition = new Button("Current Position");
     Spinner<Integer> spinnerAfter;
     Spinner<Integer> spinnerBefore;
     TextField txtWhite;

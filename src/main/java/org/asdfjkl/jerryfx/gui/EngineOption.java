@@ -22,10 +22,10 @@ import java.util.ArrayList;
 
 public class EngineOption {
 
-    public static int EN_OPT_TYPE_SPIN = 0;
-    public static int EN_OPT_TYPE_CHECK = 1;
-    public static int EN_OPT_TYPE_COMBO = 2;
-    public static int EN_OPT_TYPE_STRING = 3;
+    public static final int EN_OPT_TYPE_SPIN = 0;
+    public static final int EN_OPT_TYPE_CHECK = 1;
+    public static final int EN_OPT_TYPE_COMBO = 2;
+    public static final int EN_OPT_TYPE_STRING = 3;
     //static final Pattern REG_EXP_OPTION_NAME = Pattern.compile("option name (.*?) type");
 
     public int type = -1;
@@ -41,7 +41,7 @@ public class EngineOption {
 
     public String comboDefault;
     public String comboValue;
-    public ArrayList<String> comboValues = new ArrayList<>();
+    public final ArrayList<String> comboValues = new ArrayList<>();
 
     public String stringValue;
     public String stringDefault;
@@ -225,18 +225,15 @@ public class EngineOption {
     public String toUciOptionString() {
 
         if(type == EN_OPT_TYPE_SPIN) {
-            String s = "option name "+name+" type spin default "+spinDefault+" min "+spinMin+" max "+spinMax;
-            return s;
+            return "option name "+name+" type spin default "+spinDefault+" min "+spinMin+" max "+spinMax;
         }
 
         if(type == EN_OPT_TYPE_CHECK) {
-            String s = "option name "+name+" type check default "+checkStatusDefault;
-            return s;
+            return "option name "+name+" type check default "+checkStatusDefault;
         }
 
         if(type == EN_OPT_TYPE_STRING) {
-            String s = "option name "+name+" type string default "+stringValue;
-            return s;
+            return "option name "+name+" type string default "+stringValue;
         }
 
         if(type == EN_OPT_TYPE_COMBO) {

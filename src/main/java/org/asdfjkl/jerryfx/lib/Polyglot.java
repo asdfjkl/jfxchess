@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Polyglot {
 
     byte[] book;
     public boolean readFile = false;
-    char[] promotionPieces = { ' ', 'n', 'b', 'r', 'q'};
+    final char[] promotionPieces = { ' ', 'n', 'b', 'r', 'q'};
 
     public void loadBook(File file) {
 

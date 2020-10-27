@@ -27,12 +27,10 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
 import org.asdfjkl.jerryfx.lib.PgnPrinter;
 import org.asdfjkl.jerryfx.lib.PgnReader;
-
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +41,7 @@ public class GameMenuController {
 
     final FileChooser fileChooser = new FileChooser();
     final PgnReader reader = new PgnReader();
-    GameModel gameModel;
+    final GameModel gameModel;
 
     public GameMenuController(GameModel gameModel) {
         this.gameModel = gameModel;

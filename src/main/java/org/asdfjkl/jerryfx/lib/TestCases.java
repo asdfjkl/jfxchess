@@ -61,8 +61,7 @@ public class TestCases {
         int count = 0;
         ArrayList<Move> mvs = b.legalMoves();
         if(depth == 0) {
-            int cnt = mvs.size();
-            return cnt;
+            return mvs.size();
         } else {
             // recursive case: for each possible move, apply
             // the move, do the recursive call and undo the move

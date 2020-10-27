@@ -32,8 +32,8 @@ public class EngineThread extends Thread {
     static final Pattern REG_BESTMOVE = Pattern.compile("bestmove\\s([a-z]\\d[a-z]\\d[a-z]{0,1})");
     static final Pattern REG_STRENGTH = Pattern.compile("Skill Level value \\d+");
 
-    private StringProperty stringProperty;
-    private int counter = 0;
+    private final StringProperty stringProperty;
+    private final int counter = 0;
 
     private final BlockingQueue cmdQueue;
     Process engineProcess;
@@ -42,7 +42,6 @@ public class EngineThread extends Thread {
     private volatile boolean running = true;
     private long lastInfoUpdate = 0;
     private long lastBestmoveUpdate = 0;
-    private String lastString = "";
 
     private final EngineInfo engineInfo;
 
@@ -73,7 +72,7 @@ public class EngineThread extends Thread {
         while (running) {
             if (this.isInterrupted()) {
                 // here: delete process if it exists
-                if(engineProcess.isAlive()) {
+                if(engineProcess != null && engineProcess.isAlive()) {
                     engineProcess.destroy();
                 }
                 running = false;
@@ -235,14 +234,12 @@ public class EngineThread extends Thread {
                                 if(cmd.startsWith("setoption name Skill Level")) {
                                     Matcher matchExpressionStrength = REG_STRENGTH.matcher(cmd);
                                     if(matchExpressionStrength.find()) {
-                                        int valI = Integer.parseInt(matchExpressionStrength.group().substring(18));
-                                        engineInfo.strength = valI;
+                                        engineInfo.strength = Integer.parseInt(matchExpressionStrength.group().substring(18));
                                     }
                                 }
 
                                 if(cmd.startsWith("setoption name MultiPV value")) {
-                                    int nrLines = Integer.parseInt(cmd.substring(29,30));
-                                    engineInfo.nrPvLines = nrLines;
+                                    engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29,30));
                                 }
 
                                 // send and flush

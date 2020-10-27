@@ -61,10 +61,10 @@ public class EngineInfo {
     boolean flipEval = false;
 
     ArrayList<String> pvList;
-    ArrayList<String> pvSan;
-    ArrayList<Integer> score;
-    ArrayList<Integer> mate;
-    ArrayList<Boolean> seesMate;
+    final ArrayList<String> pvSan;
+    final ArrayList<Integer> score;
+    final ArrayList<Integer> mate;
+    final ArrayList<Boolean> seesMate;
 
     boolean turn = CONSTANTS.WHITE;
     String fen = "";

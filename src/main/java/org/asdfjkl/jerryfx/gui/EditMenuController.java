@@ -24,14 +24,12 @@ import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.Game;
 import org.asdfjkl.jerryfx.lib.PgnPrinter;
 import org.asdfjkl.jerryfx.lib.PgnReader;
-
-import java.util.ArrayList;
 import java.util.Map;
 
 public class EditMenuController {
 
-    GameModel gameModel;
-    PgnPrinter pgnPrinter;
+    final GameModel gameModel;
+    final PgnPrinter pgnPrinter;
 
     public EditMenuController(GameModel gameModel) {
 

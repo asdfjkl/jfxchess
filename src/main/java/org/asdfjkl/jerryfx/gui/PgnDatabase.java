@@ -34,12 +34,13 @@ import jfxtras.styles.jmetro.JMetro;
 import org.asdfjkl.jerryfx.lib.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 public class PgnDatabase {
 
     private ObservableList<PgnSTR> entries;
     private ObservableList<PgnSTR> searchResults;
-    PgnReader reader;
+    final PgnReader reader;
     String filename;
     static Stage stage;
 
@@ -47,7 +48,7 @@ public class PgnDatabase {
 
     //public String lastOpenedFilePath = "";
 
-    private ArrayList<Task> runningTasks = new ArrayList<Task>();
+    private final ArrayList<Task> runningTasks = new ArrayList<Task>();
 
     public PgnDatabase() {
         entries = FXCollections.observableArrayList(); //new ArrayList<>();
@@ -213,7 +214,7 @@ public class PgnDatabase {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
                                         //System.out.println("VALUE " + value);
                                         //System.out.println("in comment  [ 3");
-                                        String valueEncoded = new String(value.getBytes("ISO-8859-1"), reader.getEncoding());
+                                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), reader.getEncoding());
                                         //System.out.println("in comment  [ 4");
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);

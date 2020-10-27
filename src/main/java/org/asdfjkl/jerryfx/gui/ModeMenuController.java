@@ -30,8 +30,8 @@ import java.util.Locale;
 
 public class ModeMenuController implements StateChangeListener {
 
-    GameModel gameModel;
-    EngineOutputView engineOutputView;
+    final GameModel gameModel;
+    final EngineOutputView engineOutputView;
     EngineController engineController;
 
     public ModeMenuController(GameModel gameModel, EngineOutputView engineOutputView) {
@@ -155,14 +155,6 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("ucinewgame");
         for(EngineOption enOpt : gameModel.activeEngine.options) {
             if(enOpt.isNotDefault()) {
-                if(enOpt.type == EngineOption.EN_OPT_TYPE_SPIN) {
-                    /*
-                    System.out.println("en opt: " + enOpt.name);
-                    System.out.println("en opt def: " + enOpt.spinDefault);
-                    System.out.println("en opt val:" + enOpt.spinValue);
-                    System.out.println("is not def: "+enOpt.isNotDefault());
-                     */
-                }
                 engineController.sendCommand(enOpt.toUciCommand());
             }
         }

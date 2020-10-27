@@ -39,20 +39,20 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
     EnterPosBoard enterPosBoard;
 
-    Label lblCastlingRights = new Label("Castling Rights");
-    CheckBox cbCastlesWK = new CheckBox("White O-O");
-    CheckBox cbCastlesWQ = new CheckBox("White O-O-O");
-    CheckBox cbCastlesBK = new CheckBox("Black O-O");
-    CheckBox cbCastlesBQ = new CheckBox("Black O-O-O");
+    final Label lblCastlingRights = new Label("Castling Rights");
+    final CheckBox cbCastlesWK = new CheckBox("White O-O");
+    final CheckBox cbCastlesWQ = new CheckBox("White O-O-O");
+    final CheckBox cbCastlesBK = new CheckBox("Black O-O");
+    final CheckBox cbCastlesBQ = new CheckBox("Black O-O-O");
 
-    Label lblTurn = new Label("Turn");
-    RadioButton rbTurnWhite = new RadioButton("White");
-    RadioButton rbTurnBlack = new RadioButton("Black");
+    final Label lblTurn = new Label("Turn");
+    final RadioButton rbTurnWhite = new RadioButton("White");
+    final RadioButton rbTurnBlack = new RadioButton("Black");
 
-    Button btnFlipBoard = new Button("Flip Board");
-    Button btnInitialPosition = new Button("Initial Position");
-    Button btnClearBoard = new Button("Clear Board");
-    Button btnCurrentPosition = new Button("Current Position");
+    final Button btnFlipBoard = new Button("Flip Board");
+    final Button btnInitialPosition = new Button("Initial Position");
+    final Button btnClearBoard = new Button("Clear Board");
+    final Button btnCurrentPosition = new Button("Current Position");
 
     Button btnOk;
     Button btnCancel;
@@ -178,8 +178,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         btnInitialPosition.setOnAction(e -> {
-            Board b = new Board(true);
-            enterPosBoard.board = b;
+            enterPosBoard.board = new Board(true);
             enterPosBoard.updateCanvas();
             rbTurnWhite.setSelected(true);
             cbCastlesWK.setSelected(true);
@@ -190,8 +189,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         btnClearBoard.setOnAction(e -> {
-            Board b = new Board(false);
-            enterPosBoard.board = b;
+            enterPosBoard.board = new Board(false);
             enterPosBoard.updateCanvas();
             rbTurnWhite.setSelected(true);
             cbCastlesWK.setSelected(false);

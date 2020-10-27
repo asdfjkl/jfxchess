@@ -109,7 +109,7 @@ public class BoardStyle {
         return this.lightSquareColor;
     }
 
-    public int getPieceStyle() { return this.pieceStyle; };
+    public int getPieceStyle() { return this.pieceStyle; }
 
     public int getColorStyle() {
 

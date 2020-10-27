@@ -21,8 +21,8 @@ package org.asdfjkl.jerryfx.gui;
 import org.asdfjkl.jerryfx.lib.*;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
@@ -36,7 +36,7 @@ public class GameModel {
     public static final int BOTH_PLAYERS = 5;
     public static final int MODE_PLAYOUT_POSITION = 7;
     Game game;
-    private ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
+    private final ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
     private int currentMode;
     private int multiPv = 1;
     private boolean flipBoard = false;
@@ -69,13 +69,13 @@ public class GameModel {
 
     public String lastSeenBestmove = "";
 
-    public Polyglot book;
+    public final Polyglot book;
 
     private Preferences prefs;
 
     private static final int modelVersion = 4;
 
-    private PgnDatabase pgnDatabase;
+    private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = 0;
     public File lastOpenedDirPath = null;
     public File lastSaveDirPath = null;
@@ -102,24 +102,19 @@ public class GameModel {
         String jarPath = "";
         String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         //System.out.println("path: "+path);
-        try {
-            jarPath = URLDecoder.decode(path, "UTF-8");
-            //System.out.println("jarpath: "+jarPath);
-            File tmp = (new File(jarPath));
-            if(tmp.getParentFile().exists()) {
-                File subEngine = new File(tmp.getParentFile(), "engine");
-                stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
-                //System.out.println("stockfishpath: "+stockfishPath);
-                File subBook = new File(tmp.getParentFile(), "book");
-                bookPath = new File(subBook, "varied.bin").getPath();
-                //bookPath = "C:\\Program Files\\JerryFX\\app\\book\\varied.bin";
-                //System.out.println("bookpath: "+bookPath);
-            } else {
-                //System.out.println("parent not exists");
-            }
-        } catch (UnsupportedEncodingException e) {
-            //System.out.println("exception in getting jar path");
-            e.printStackTrace();
+        jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+        //System.out.println("jarpath: "+jarPath);
+        File tmp = (new File(jarPath));
+        if(tmp.getParentFile().exists()) {
+            File subEngine = new File(tmp.getParentFile(), "engine");
+            stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
+            //System.out.println("stockfishpath: "+stockfishPath);
+            File subBook = new File(tmp.getParentFile(), "book");
+            bookPath = new File(subBook, "varied.bin").getPath();
+            //bookPath = "C:\\Program Files\\JerryFX\\app\\book\\varied.bin";
+            //System.out.println("bookpath: "+bookPath);
+        } else {
+            //System.out.println("parent not exists");
         }
 
         Engine stockfish = new Engine();

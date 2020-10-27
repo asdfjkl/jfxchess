@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EngineController {
 
     final EngineThread engineThread;
-    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<String>();;
+    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<String>();
 
     public EngineController(ModeMenuController modeMenuController) {
 

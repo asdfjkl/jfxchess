@@ -62,24 +62,24 @@ public class PgnPrinter {
 
     private void writeLine(String line) {
         this.flushCurrentLine();
-        this.pgn.append(line.trim()+"\n");
+        this.pgn.append(line.trim()).append("\n");
     }
 
     private void printHeaders(Game g) {
         String tag = "[Event \"" + g.getHeader("Event") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[Site \"" + g.getHeader("Site") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[Date \"" + g.getHeader("Date") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[Round \"" + g.getHeader("Round") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[White \"" + g.getHeader("White") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[Black \"" + g.getHeader("Black") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         tag = "[Result \"" + g.getHeader("Result") + "\"]";
-        pgn.append(tag+"\n");
+        pgn.append(tag).append("\n");
         ArrayList<String> allTags = g.getTags();
         for(String tag_i : allTags) {
             //System.out.println("tag out: " +tag_i);
@@ -89,14 +89,14 @@ public class PgnPrinter {
                 String value_i = g.getHeader(tag_i);
                 String tag_val = "[" + tag_i + " \"" + value_i + "\"]";
                 //System.out.println("tag out val: " +tag_val);
-                pgn.append(tag_val+"\n");
+                pgn.append(tag_val).append("\n");
             }
         }
         // add fen string tag if root is not initial position
         Board rootBoard = g.getRootNode().getBoard();
         if(!rootBoard.isInitialPosition()) {
             String tag_fen = "[FEN \"" + rootBoard.fen() + "\"]";
-            pgn.append(tag_fen+"\n");
+            pgn.append(tag_fen).append("\n");
         }
     }
 
@@ -117,7 +117,7 @@ public class PgnPrinter {
     }
 
     private void printNag(int nag) {
-        String tkn = "$" + Integer.toString(nag) + " ";
+        String tkn = "$" + nag + " ";
         this.writeToken(tkn);
     }
 
@@ -150,8 +150,7 @@ public class PgnPrinter {
     }
 
     private void printComment(String comment) {
-        String temp_c = comment;
-        String write = "{ " + temp_c.replace("}","").trim() + " } ";
+        String write = "{ " + comment.replace("}","").trim() + " } ";
         this.writeToken(write);
         //this->forceMoveNumber = false;
     }

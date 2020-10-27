@@ -28,7 +28,6 @@ import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.lib.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Map;
 
 
 /**
@@ -404,7 +403,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         cmbMultiPV.setOnAction(actionEvent -> {
-            int multiPv = (Integer) cmbMultiPV.getValue();
+            int multiPv = cmbMultiPV.getValue();
             if(multiPv != gameModel.getMultiPv()) {
                 gameModel.setMultiPv(multiPv);
                 engineController.sendCommand("setoption name MultiPV value "+multiPv);
@@ -473,8 +472,8 @@ public class App extends Application implements StateChangeListener {
             Rectangle2D screenBounds = Screen.getPrimary().getBounds();
             stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
             stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
-            spChessboardMoves.setDividerPosition(0, screenGeometry.DEFAULT_MOVE_DIVIDER_RATIO);
-            spMain.setDividerPosition(0, screenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
+            spChessboardMoves.setDividerPosition(0, ScreenGeometry.DEFAULT_MOVE_DIVIDER_RATIO);
+            spMain.setDividerPosition(0, ScreenGeometry.DEFAULT_MAIN_DIVIDER_RATIO);
             stage.centerOnScreen();
             gameModel.triggerStateChange();
         });

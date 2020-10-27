@@ -51,10 +51,10 @@ public class DialogEngines {
     ObservableList<Engine> engineList;
     ListView<Engine> engineListView;
 
-    Button btnAdd = new Button("Add...");
-    Button btnRemove = new Button("Remove...");
-    Button btnEditParameters = new Button("Edit Parameters");
-    Button btnResetParameters = new Button("Reset Parameters");
+    final Button btnAdd = new Button("Add...");
+    final Button btnRemove = new Button("Remove...");
+    final Button btnEditParameters = new Button("Edit Parameters");
+    final Button btnResetParameters = new Button("Reset Parameters");
 
     Button btnOk;
     Button btnCancel;
@@ -226,7 +226,7 @@ public class DialogEngines {
                     }
                 }
                 if(enOpt.type == EN_OPT_TYPE_SPIN) {
-                    Spinner<Integer> widget = (Spinner<Integer>) dlg.spinnerWidgets.get(optName);
+                    Spinner<Integer> widget = dlg.spinnerWidgets.get(optName);
                     if(widget != null) {
                         enOpt.spinValue = widget.getValue();
                     }
