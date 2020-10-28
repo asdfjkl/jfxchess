@@ -19,14 +19,12 @@ Jerry is a cross-platform chess graphical user interface.
 
 ## Download
 
-Version 4.0 ALPHA
+Current Version: 4.0 beta
 
-This is a PREVIEW version containing lots of bugs and not ready for production. Use at your own risk.
-
-* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.0-alpha)
+* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.0-beta)
 * Linux (stay tuned)
 
-Legacy versions ( version 3 and older) can be found here: 
+Older versions:
 
 * [Windows (Installer)](https://github.com/asdfjkl/jerry/releases/download/v3.2.1/SetupJerryChess.exe)
 * [Linux (.deb)](https://github.com/asdfjkl/jerry/releases/download/v3.2.0/jerry_3.2.0-1_amd64.deb)
@@ -34,12 +32,15 @@ Legacy versions ( version 3 and older) can be found here:
 
 ## Changelog
 
-Version 3.2.1 (Dec 2019): New features:
+Version 4.0 (Oct 2020)
+ * complete rewrite
+ * position search even in very large PGN files
+
+Version 3.2.1 (Dec 2019)
  * bug fix in displaying move and position annotations
  * ability to flip board when entering a new position
 
-Version 3.2.0 (July 2019): Major new features:
-
+Version 3.2.0 (July 2019)
  * MultiPV up to 4 lines
- * ability to handle and search large (> 1 GB) PGN files
+ * ability to handle and search (metadata) of large (> 1 GB) PGN files
  * user defined font-sizes
