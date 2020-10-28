@@ -42,5 +42,5 @@ Version 3.2.1 (Dec 2019)
 
 Version 3.2.0 (July 2019)
  * MultiPV up to 4 lines
- * ability to handle and search large (> 1 GB) PGN files
+ * ability to handle and search (metadata) of large (> 1 GB) PGN files
  * user defined font-sizes
