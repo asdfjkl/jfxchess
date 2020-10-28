@@ -130,6 +130,7 @@ public class ModeMenuController implements StateChangeListener {
 
         if(!continueAnalysis) {
             // we are at the root or found a book move
+            gameModel.getGame().setTreeWasChanged(true);
             activateEnterMovesMode();
             //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
             DialogSimpleAlert dlg = new DialogSimpleAlert();
@@ -211,6 +212,7 @@ public class ModeMenuController implements StateChangeListener {
 
         gameModel.getGame().removeAllComments();
         gameModel.getGame().removeAllVariants();
+        gameModel.getGame().removeAllAnnotations();
         gameModel.getGame().setTreeWasChanged(true);
 
         engineController.sendCommand("stop");
@@ -368,106 +370,82 @@ public class ModeMenuController implements StateChangeListener {
 
             gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
 
-            // completely skip that for black or white, if
-            // that was chosen in the analysis
-            boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
-            if( (gameModel.getGameAnalysisForPlayer() == GameModel.BOTH_PLAYERS)
-                || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IWHITE && turn == CONSTANTS.WHITE)
-                    || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
+            if(!gameModel.getGame().getCurrentNode().isLeaf()) {
+                // completely skip that for black or white, if
+                // that was chosen in the analysis
+                boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
+                if ((gameModel.getGameAnalysisForPlayer() == GameModel.BOTH_PLAYERS)
+                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IWHITE && turn == CONSTANTS.WHITE)
+                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
 
-                if(!gameModel.currentIsMate && !gameModel.childIsMate) {
-                    boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
-                    boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= gameModel.getGameAnalysisThreshold());
+                    // error, if currentNode is leaf -> nextMove will throw exception
 
-                    if(wMistake || bMistake) {
-                        String uci = bestmoveItems[1].split(" ")[0];
-                        String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
-                        if (!uci.equals(nextMove)) {
+                    if (!gameModel.currentIsMate && !gameModel.childIsMate) {
+                        boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
+                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= gameModel.getGameAnalysisThreshold());
 
-                            addBestPv();
+                        if (wMistake || bMistake) {
+                            String uci = bestmoveItems[1].split(" ")[0];
+                            String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
+                            if (!uci.equals(nextMove)) {
 
-                            NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
-                            DecimalFormat decim = (DecimalFormat) nf;
-                            decim.applyPattern("0.00");
-                            String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
-                            String sChildBest = decim.format(gameModel.childBestEval / 100.0);
+                                addBestPv();
 
-                            ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
-                            if (vars != null && vars.size() > 1) {
-                                GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
-                                child0.setComment(sChildBest);
-                                GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
-                                child1.setComment(sCurrentBest);
+                                NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+                                DecimalFormat decim = (DecimalFormat) nf;
+                                decim.applyPattern("0.00");
+                                String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
+                                String sChildBest = decim.format(gameModel.childBestEval / 100.0);
+
+                                ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
+                                if (vars != null && vars.size() > 1) {
+                                    GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
+                                    child0.setComment(sChildBest);
+                                    GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
+                                    child1.setComment(sCurrentBest);
+                                }
                             }
                         }
                     }
-                }
 
-                if(gameModel.currentIsMate && !gameModel.childIsMate) {
-                    // the current player missed a mate
-                    addBestPv();
-
-                    NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
-                    DecimalFormat decim = (DecimalFormat) nf;
-                    decim.applyPattern("0.00");
-                    String sChildBest = decim.format(gameModel.childBestEval / 100.0);
-
-                    String sCurrentBest = "";
-                    if(turn == CONSTANTS.WHITE) {
-                        sCurrentBest = "#"+(Math.abs(gameModel.currentMateInMoves));
-                    } else {
-                        sCurrentBest = "#-"+(Math.abs(gameModel.currentMateInMoves));
-                    }
-
-                    ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
-                    if (vars != null && vars.size() > 1) {
-                        GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
-                        child0.setComment(sChildBest);
-                        GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
-                        child1.setComment(sCurrentBest);
-                    }
-                }
-
-                if(!gameModel.currentIsMate && gameModel.childIsMate) {
-                    // the current player  moved into a mate
-                    addBestPv();
-
-                    NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
-                    DecimalFormat decim = (DecimalFormat) nf;
-                    decim.applyPattern("0.00");
-                    String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
-
-                    String sChildBest = "";
-                    if(turn == CONSTANTS.WHITE) {
-                        sChildBest = "#-"+(Math.abs(gameModel.childMateInMoves));
-                    } else {
-                        sChildBest = "#"+(Math.abs(gameModel.childMateInMoves));
-                    }
-
-                    ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
-                    if (vars != null && vars.size() > 1) {
-                        GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
-                        child0.setComment(sChildBest);
-                        GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
-                        child1.setComment(sCurrentBest);
-                    }
-                }
-
-                if(gameModel.currentIsMate && gameModel.childIsMate) {
-                    // the current player had a mate, but instead of executing it, he moved into a mate
-                    // but we also want to skip the situation where the board position is checkmate
-                    if ( (gameModel.currentMateInMoves >= 0 && gameModel.childMateInMoves >= 0) &&
-                         gameModel.childMateInMoves != 0) {
-
+                    if (gameModel.currentIsMate && !gameModel.childIsMate) {
+                        // the current player missed a mate
                         addBestPv();
 
+                        NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+                        DecimalFormat decim = (DecimalFormat) nf;
+                        decim.applyPattern("0.00");
+                        String sChildBest = decim.format(gameModel.childBestEval / 100.0);
+
                         String sCurrentBest = "";
-                        String sChildBest = "";
                         if (turn == CONSTANTS.WHITE) {
                             sCurrentBest = "#" + (Math.abs(gameModel.currentMateInMoves));
-                            sChildBest = "#-" + (Math.abs(gameModel.childMateInMoves));
                         } else {
                             sCurrentBest = "#-" + (Math.abs(gameModel.currentMateInMoves));
+                        }
+
+                        ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
+                        if (vars != null && vars.size() > 1) {
+                            GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
+                            child0.setComment(sChildBest);
+                            GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
+                            child1.setComment(sCurrentBest);
+                        }
+                    }
+
+                    if (!gameModel.currentIsMate && gameModel.childIsMate) {
+                        // the current player  moved into a mate
+                        addBestPv();
+
+                        NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+                        DecimalFormat decim = (DecimalFormat) nf;
+                        decim.applyPattern("0.00");
+                        String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
+
+                        String sChildBest = "";
+                        if (turn == CONSTANTS.WHITE) {
+                            sChildBest = "#-" + (Math.abs(gameModel.childMateInMoves));
+                        } else {
                             sChildBest = "#" + (Math.abs(gameModel.childMateInMoves));
                         }
 
@@ -479,8 +457,35 @@ public class ModeMenuController implements StateChangeListener {
                             child1.setComment(sCurrentBest);
                         }
                     }
-                }
 
+                    if (gameModel.currentIsMate && gameModel.childIsMate) {
+                        // the current player had a mate, but instead of executing it, he moved into a mate
+                        // but we also want to skip the situation where the board position is checkmate
+                        if ((gameModel.currentMateInMoves >= 0 && gameModel.childMateInMoves >= 0) &&
+                                gameModel.childMateInMoves != 0) {
+
+                            addBestPv();
+
+                            String sCurrentBest = "";
+                            String sChildBest = "";
+                            if (turn == CONSTANTS.WHITE) {
+                                sCurrentBest = "#" + (Math.abs(gameModel.currentMateInMoves));
+                                sChildBest = "#-" + (Math.abs(gameModel.childMateInMoves));
+                            } else {
+                                sCurrentBest = "#-" + (Math.abs(gameModel.currentMateInMoves));
+                                sChildBest = "#" + (Math.abs(gameModel.childMateInMoves));
+                            }
+
+                            ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
+                            if (vars != null && vars.size() > 1) {
+                                GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
+                                child0.setComment(sChildBest);
+                                GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
+                                child1.setComment(sCurrentBest);
+                            }
+                        }
+                    }
+                }
             }
             gameModel.getGame().setTreeWasChanged(true);
             gameModel.triggerStateChange();

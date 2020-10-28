@@ -307,6 +307,15 @@ public class Game {
         }
     }
 
+    public void removeAllAnnotationsRec(GameNode node) {
+        node.removeNagsInRange(0,120);
+        for(GameNode var_i : node.getVariations()) {
+            this.removeAllAnnotationsRec(var_i);
+        }
+    }
+
+    public void removeAllAnnotations() { this.removeAllAnnotationsRec(this.getRootNode()); }
+
     public void resetWithNewRootBoard(Board newRootBoard) {
         GameNode oldRoot = this.getRootNode();
         this.delBelow(oldRoot);
