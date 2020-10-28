@@ -507,6 +507,8 @@ public class CONSTANTS {
     public static int NAG_FORCED_MOVE = 7;
     public static final int NAG_DRAWISH_POSITION = 10;
     public static final int NAG_UNCLEAR_POSITION = 13;
+    public static final int NAG_WHITE_SLIGHT_ADVANTAGE = 14;
+    public static final int NAG_BLACK_SLIGHT_ADVANTAGE = 15;
     public static final int NAG_WHITE_MODERATE_ADVANTAGE = 16;
     public static final int NAG_BLACK_MODERATE_ADVANTAGE = 17;
     public static final int NAG_WHITE_DECISIVE_ADVANTAGE = 18;

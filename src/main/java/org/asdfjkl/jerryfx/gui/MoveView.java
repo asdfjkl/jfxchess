@@ -117,8 +117,8 @@ public class MoveView implements StateChangeListener {
         Menu posAnnotation = new Menu("Position Annotation");
         MenuItem unclear = new MenuItem("∞ Unclear");
         MenuItem drawish = new MenuItem("= Drawish");
-        MenuItem slightAdvantageWhite = new MenuItem("+/= Slight Advantage White");
-        MenuItem slightAdvantageBlack = new MenuItem("=/+ Slight Advantage Black");
+        MenuItem slightAdvantageWhite = new MenuItem("⩲ Slight Advantage White");
+        MenuItem slightAdvantageBlack = new MenuItem("⩱ Slight Advantage Black");
         MenuItem advantageWhite = new MenuItem("+- Advantage White");
         MenuItem advantageBlack = new MenuItem("-+ Advantage Black");
         MenuItem noPosAnnotation = new MenuItem("No Position Annotation");
@@ -408,7 +408,7 @@ public class MoveView implements StateChangeListener {
         try {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
-                selectedNode.addNag(CONSTANTS.NAG_WHITE_MODERATE_ADVANTAGE);
+                selectedNode.addNag(CONSTANTS.NAG_WHITE_SLIGHT_ADVANTAGE);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
@@ -420,7 +420,7 @@ public class MoveView implements StateChangeListener {
         try {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
-                selectedNode.addNag(CONSTANTS.NAG_BLACK_MODERATE_ADVANTAGE);
+                selectedNode.addNag(CONSTANTS.NAG_BLACK_SLIGHT_ADVANTAGE);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }

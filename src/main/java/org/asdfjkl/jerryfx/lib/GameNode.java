@@ -132,6 +132,15 @@ public class GameNode {
 
     public void addNag(int n) {
         if(!nags.contains(n)) {
+            // if move annotation, first remove
+            // old move annotation
+            if(n > 0 && n < 11) {
+                removeNagsInRange(1,10);
+            }
+            // same for position annotation
+            if(n > 12 && n < 20) {
+                removeNagsInRange(12,20);
+            }
             this.nags.add(n);
         }
     }
