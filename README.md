@@ -32,6 +32,10 @@ Older versions:
 
 ## Changelog
 
+Version 4.0 (Oct 2020): New features
+ * complete rewrite
+ * position search even in very large PGN files
+
 Version 3.2.1 (Dec 2019): New features:
  * bug fix in displaying move and position annotations
  * ability to flip board when entering a new position
