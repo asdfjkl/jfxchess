@@ -87,6 +87,7 @@ public class EngineThread extends Thread {
                             readyok = true;
                         } else {
                             if (!line.isEmpty()) {
+                                //System.out.println(line);
                                 //lastString = line;
                                 // todo: instead of directly setting bestmove,
                                 // try updating engine info
@@ -128,6 +129,8 @@ public class EngineThread extends Thread {
                     try {
                         String cmd = (String) cmdQueue.take();
                         if (cmd.startsWith("start")) {
+                            // reset engine info if we start
+                            engineInfo.clear();
                             String engineCmd = cmd.substring(6);
                             try {
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
@@ -224,10 +227,16 @@ public class EngineThread extends Thread {
                                     engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29,30));
                                 }
 
+                                // reset engine info if we quit
+                                if(cmd.contains("quit")) {
+                                    engineInfo.clear();
+                                }
+
                                 // send and flush
                                 try {
                                     this.engineInput.write(cmd + "\n");
                                     this.engineInput.flush();
+                                    //System.out.println(cmd+"\n");
                                     // if we quit the engine, give some
                                     // time for the engine to quit
                                     if(cmd.contains("quit")) {

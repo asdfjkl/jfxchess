@@ -90,6 +90,38 @@ public class EngineInfo {
 
     }
 
+    public void clear() {
+        id = "";
+        strength = -1;
+        fullMoveNumber = 1;
+        halfmoves = 0;
+        currentMove = "";
+        nps = 0;
+        selDepth = -1;
+        depth = -1;
+        flipEval = false;
+
+        pvList.clear();
+        pvSan.clear();
+        score.clear();
+        mate.clear();
+        seesMate.clear();
+
+        turn = CONSTANTS.WHITE;
+
+        fen = "";
+        nrPvLines = 1;
+
+        bestmove = "";
+
+        for(int i=0;i<MAX_PV;i++ ) {
+            pvSan.add("");
+            score.add(0);
+            mate.add(0);
+            seesMate.add(false);
+        }
+    }
+
     public void setFen(String fen) {
         // update turn
         if(!fen.isEmpty()) {

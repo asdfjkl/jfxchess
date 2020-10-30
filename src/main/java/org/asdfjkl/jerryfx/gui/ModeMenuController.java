@@ -122,6 +122,7 @@ public class ModeMenuController implements StateChangeListener {
                 String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
                 engineController.sendCommand("stop");
                 engineController.sendCommand("position fen " + fen);
+                //System.out.println("go movetime "  + (gameModel.getGameAnalysisThinkTime() * 1000));
                 engineController.sendCommand("go movetime " + (gameModel.getGameAnalysisThinkTime() * 1000));
             }
         } else {
@@ -261,8 +262,8 @@ public class ModeMenuController implements StateChangeListener {
         engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
     }
 
-    private void addBestPv() {
-        String[] uciMoves = gameModel.currentBestPv.split(" ");
+    private void addBestPv(String[] uciMoves) {
+        //String[] uciMoves = gameModel.currentBestPv.split(" ");
         GameNode currentNode = gameModel.getGame().getCurrentNode();
 
         for (String uciMove : uciMoves) {
@@ -276,9 +277,9 @@ public class ModeMenuController implements StateChangeListener {
                 next.setParent(currentNode);
                 // to avoid bugs when incoherent information is
                 // given/received by the engine, do not add lines that already exist
-                if(currentNode.getVariations().size() > 0) {
+                if (currentNode.getVariations().size() > 0) {
                     String mUciChild0 = currentNode.getVariation(0).getMove().getUci();
-                    if(mUciChild0.equals(uciMove)) {
+                    if (mUciChild0.equals(uciMove)) {
                         break;
                     }
                 }
@@ -315,6 +316,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleBestMove(String bestmove) {
+        //System.out.println("handling bestmove: "+bestmove);
         int mode = gameModel.getMode();
 
         if(mode == GameModel.MODE_ENTER_MOVES) {
@@ -368,6 +370,17 @@ public class ModeMenuController implements StateChangeListener {
             //    gameModel.currentIsMate = true;
             //}
 
+            /*
+            System.out.println("");
+            System.out.println("handle best move:");
+            System.out.println(gameModel.getGame().getCurrentNode().getBoard().toString());
+            System.out.println(gameModel.getGame().getCurrentNode().getBoard().fen());
+            System.out.println("best eval: "+gameModel.currentBestEval);
+            System.out.println("with move: "+gameModel.currentBestPv);
+            System.out.println("child eva: "+gameModel.childBestEval);
+            System.out.println("");
+            */
+
             gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
 
             if(!gameModel.getGame().getCurrentNode().isLeaf()) {
@@ -382,14 +395,24 @@ public class ModeMenuController implements StateChangeListener {
 
                     if (!gameModel.currentIsMate && !gameModel.childIsMate) {
                         boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
-                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= gameModel.getGameAnalysisThreshold());
+                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(gameModel.getGameAnalysisThreshold()));
+
+                        //System.out.println("threshold: "+gameModel.getGameAnalysisThreshold());
+                        //System.out.println("mistake  : " + (gameModel.currentBestEval - gameModel.childBestEval));
 
                         if (wMistake || bMistake) {
                             String uci = bestmoveItems[1].split(" ")[0];
                             String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
-                            if (!uci.equals(nextMove)) {
+                            String[] pvMoves = gameModel.currentBestPv.split(" ");
+                            // if the bestmove returned by the engine is different
+                            // than the best suggested pv line, it means that e.g. the
+                            // engine took a book move, but did not gave a pv evaluation
+                            // in such a case, do not add the best pv line, as it is probably
+                            // not a valid pv line for the current node
+                            // we also do not want to add the same line as the child
+                            if (!uci.equals(nextMove) && pvMoves.length > 0 && pvMoves[0].equals(uci)) {
 
-                                addBestPv();
+                                addBestPv(pvMoves);
 
                                 NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
                                 DecimalFormat decim = (DecimalFormat) nf;
@@ -410,7 +433,8 @@ public class ModeMenuController implements StateChangeListener {
 
                     if (gameModel.currentIsMate && !gameModel.childIsMate) {
                         // the current player missed a mate
-                        addBestPv();
+                        String[] pvMoves = gameModel.currentBestPv.split(" ");
+                        addBestPv(pvMoves);
 
                         NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
                         DecimalFormat decim = (DecimalFormat) nf;
@@ -435,7 +459,8 @@ public class ModeMenuController implements StateChangeListener {
 
                     if (!gameModel.currentIsMate && gameModel.childIsMate) {
                         // the current player  moved into a mate
-                        addBestPv();
+                        String[] pvMoves = gameModel.currentBestPv.split(" ");
+                        addBestPv(pvMoves);
 
                         NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
                         DecimalFormat decim = (DecimalFormat) nf;
@@ -464,7 +489,8 @@ public class ModeMenuController implements StateChangeListener {
                         if ((gameModel.currentMateInMoves >= 0 && gameModel.childMateInMoves >= 0) &&
                                 gameModel.childMateInMoves != 0) {
 
-                            addBestPv();
+                            String[] pvMoves = gameModel.currentBestPv.split(" ");
+                            addBestPv(pvMoves);
 
                             String sCurrentBest = "";
                             String sChildBest = "";

@@ -2111,9 +2111,7 @@ public class Board {
             s += "\n";
         }
         return s;
-
     }
-
 
     private void initPieceList() {
 
