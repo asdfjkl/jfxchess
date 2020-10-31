@@ -273,7 +273,7 @@ public class GameModel {
 
         if(mVersion == modelVersion) {
 
-            for(int i=1;i<10;i++) {
+            for(int i=1;i<99;i++) {
                 String engineString = prefs.get("ENGINE"+i, "");
                 if(!engineString.isEmpty()) {
                     Engine engine = new Engine();

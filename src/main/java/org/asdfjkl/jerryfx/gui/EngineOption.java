@@ -39,12 +39,12 @@ public class EngineOption {
     public int spinMax;
     public int spinDefault;
 
-    public String comboDefault;
-    public String comboValue;
+    public String comboDefault = "";
+    public String comboValue = "";
     public final ArrayList<String> comboValues = new ArrayList<>();
 
-    public String stringValue;
-    public String stringDefault;
+    public String stringValue = "";
+    public String stringDefault = "";
 
     public EngineOption makeCopy() {
 
