@@ -1,0 +1,34 @@
+name: jerry
+version: "4.0.0"
+summary: A graphical chess program
+description: |
+  Jerry - Das Schachprogramm is a chess graphical user interface
+  with the following features:
+  * based around world's best chess program Stockfish (as of Jan, 2014)
+  * play against the computer
+  * adjust strength levels to match your skill
+  * enter, edit and analyse games
+  * automatic game analysis
+  * read and save games in standard pgn format
+  * copy and paste FEN positions and pgn games from clipboard
+  * cross-platform, available for Linux and Windows
+  * easy and intuitive GUI
+confinement: classic
+grade: stable
+base: core18
+
+apps:
+  jerry:
+    command: usr/bin/jerry-snap
+
+parts:
+ jerry:
+    plugin: maven
+    source-type: local
+    source: .
+    build-packages:
+      - openjdk-14-jdk
+    stage-packages:
+      - openjdk-14-jdk
+    organize:
+      ${SNAPCRAFT_PART_BUILD}/jerry-snap: usr/bin/jerry-snap

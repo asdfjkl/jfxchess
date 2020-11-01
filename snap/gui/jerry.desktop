@@ -1,0 +1,6 @@
+
+[Desktop Entry]
+Name=Jerry - Chess
+Exec=jerry
+Type=Application
+Icon=${SNAP}/meta/gui/jerry.png
