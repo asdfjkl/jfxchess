@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# echo version for potential debug
+${SNAP}/usr/lib/jvm/java-14-openjdk-${SNAP_ARCH}/bin/java -version
+${SNAP}/usr/lib/jvm/java-14-openjdk-${SNAP_ARCH}/bin/java -Djava.util.prefs.userRoot="$SNAP_USER_DATA" -jar $SNAP/jar/jerry-4.0-SNAPSHOT.jar $*
