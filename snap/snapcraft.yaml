@@ -24,8 +24,10 @@ apps:
 parts:
  jerry:
     plugin: maven
-    source-type: local
-    source: .
+    source: https://github.com/asdfjkl/jerry.git
+    source-type: git
+    maven-options:
+       [clean, compile, assembly:single]
     build-packages:
       - openjdk-14-jdk
     stage-packages:
