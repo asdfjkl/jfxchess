@@ -122,7 +122,7 @@ public class GameModel {
     private String getStockfishPath() {
 
             String os = System.getProperty("os.name").toLowerCase();
-            System.out.println("os");
+            System.out.println(os);
             if(os.contains("win")) {
 
                 String stockfishPath = "";
@@ -140,9 +140,12 @@ public class GameModel {
                 String stockfishPath = "";
                 String jarPath = "";
                 String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                System.out.println(path);
                 jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                System.out.println(jarPath);
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
+                    System.out.println(tmp.getParentFile().getAbsolutePath());
                     if(tmp.getParentFile().getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
                     System.out.println(subEngine.getPath());
