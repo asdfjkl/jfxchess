@@ -136,7 +136,7 @@ public class GameModel {
                     return stockfishPath;
                 }
         }
-        if(os.contains("nix")) {
+        if(os.contains("linux")) {
                 String stockfishPath = "";
                 String jarPath = "";
                 String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
