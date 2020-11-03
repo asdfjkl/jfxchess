@@ -122,7 +122,7 @@ public class GameModel {
     private String getStockfishPath() {
 
             String os = System.getProperty("os.name").toLowerCase();
-            System.out.println(os);
+            //System.out.println(os);
             if(os.contains("win")) {
 
                 String stockfishPath = "";
@@ -140,15 +140,15 @@ public class GameModel {
                 String stockfishPath = "";
                 String jarPath = "";
                 String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                System.out.println(path);
+                //System.out.println(path);
                 jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                System.out.println(jarPath);
+                //System.out.println(jarPath);
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
-                    System.out.println(tmp.getParentFile().getAbsolutePath());
+                    //System.out.println(tmp.getParentFile().getAbsolutePath());
                     if(tmp.getParentFile().getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
-                    System.out.println(subEngine.getPath());
+                    //System.out.println(subEngine.getPath());
                     stockfishPath = new File(subEngine, "stockfish_x64").getPath();
                     return stockfishPath;
                     }
@@ -170,6 +170,20 @@ public class GameModel {
                     File subBook = new File(tmp.getParentFile(), "book");
                     bookPath = new File(subBook, "varied.bin").getPath();
                     return bookPath;
+                }
+        }
+        if(os.contains("linux")) {
+                String bookPath = "";
+                String jarPath = "";
+                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                File tmp = (new File(jarPath));
+                if(tmp.getParentFile().exists()) {
+                    if(tmp.getParentFile().getParentFile().exists()) {
+                    File subBook = new File(tmp.getParentFile().getParentFile(), "book");
+                    bookPath = new File(subBook, "varied.bin").getPath();
+                    return bookPath;
+                    }
                 }
         }
         return null;
