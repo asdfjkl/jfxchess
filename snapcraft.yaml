@@ -13,24 +13,51 @@ description: |
   * copy and paste FEN positions and pgn games from clipboard
   * cross-platform, available for Linux and Windows
   * easy and intuitive GUI
-confinement: classic
+confinement: devmode
 grade: stable
 base: core18
 
 apps:
   jerry:
     command: usr/bin/jerry-snap
+    plugs:
+      - desktop
+      - unity7
+      - home
+      - network
+      - cups-control
+    extensions: [gnome-3-28]
+    environment:
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
+      JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"
 
 parts:
  jerry:
     plugin: maven
     source: https://github.com/asdfjkl/jerry.git
+    maven-options: ["clean", "compile", "assembly:single"]
     source-type: git
-    maven-options:
-       [clean, compile, assembly:single]
     build-packages:
-      - openjdk-14-jdk
+      - openjdk-11-jdk
     stage-packages:
-      - openjdk-14-jdk
+      - openjdk-11-jdk
     organize:
       ${SNAPCRAFT_PART_BUILD}/jerry-snap: usr/bin/jerry-snap
+
+ book:
+   plugin: dump
+   source: snap/local
+   stage: 
+     - book
+
+ engine:
+   plugin: dump
+   source: snap/local
+   stage: 
+     - engine
+
+ splash:
+   plugin: dump
+   source: snap/local
+   stage:
+     - splash
