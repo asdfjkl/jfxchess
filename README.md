@@ -22,7 +22,8 @@ Jerry is a cross-platform chess graphical user interface.
 Current Version: 4.0 beta
 
 * [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.0-beta)
-* Linux (stay tuned)
+* [Linux (jar)](https://github.com/asdfjkl/jerry/releases/tag/v4.0-beta)
+* Linux (snap) - stay tuned
 
 Older versions:
 
