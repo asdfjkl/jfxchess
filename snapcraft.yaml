@@ -13,7 +13,7 @@ description: |
   * copy and paste FEN positions and pgn games from clipboard
   * cross-platform, available for Linux and Windows
   * easy and intuitive GUI
-confinement: devmode
+confinement: strict
 grade: stable
 base: core18
 
@@ -24,8 +24,8 @@ apps:
       - desktop
       - unity7
       - home
-      - network
       - cups-control
+      - removable-media
     extensions: [gnome-3-28]
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
