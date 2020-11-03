@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
+import java.lang.System;
 
 public class GameModel {
 
@@ -97,33 +98,78 @@ public class GameModel {
         this.game.getRootNode().setBoard(b);
         this.currentMode = MODE_ENTER_MOVES;
 
-        String stockfishPath = "";
-        String bookPath = "";
-        String jarPath = "";
-        String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-        File tmp = (new File(jarPath));
-        if(tmp.getParentFile().exists()) {
-            File subEngine = new File(tmp.getParentFile(), "engine");
-            stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
-            File subBook = new File(tmp.getParentFile(), "book");
-            bookPath = new File(subBook, "varied.bin").getPath();
-            //bookPath = "C:\\Program Files\\JerryFX\\app\\book\\varied.bin";
-        }
+        String stockfishPath = getStockfishPath();
+        String bookPath = getBookPath();
 
         Engine stockfish = new Engine();
         stockfish.setName("Stockfish (Internal)");
-        //stockfish.setPath("C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe");
-        stockfish.setPath(stockfishPath);
+        if(stockfishPath != null) {
+            stockfish.setPath(stockfishPath);
+        }
         stockfish.setInternal(true);
         engines.add(stockfish);
         activeEngine = stockfish;
 
         book = new Polyglot();
         File file = null;
-        file = new File(bookPath);
-        book.loadBook(file);
+        if(bookPath != null) {
+            file = new File(bookPath);
+            book.loadBook(file);
+        }
 
+    }
+
+    private String getStockfishPath() {
+
+            String os = System.getProperty("os.name").toLowerCase();
+            System.out.println("os");
+            if(os.contains("win")) {
+
+                String stockfishPath = "";
+                String jarPath = "";
+                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                File tmp = (new File(jarPath));
+                if(tmp.getParentFile().exists()) {
+                    File subEngine = new File(tmp.getParentFile(), "engine");
+                    stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
+                    return stockfishPath;
+                }
+        }
+        if(os.contains("nix")) {
+                String stockfishPath = "";
+                String jarPath = "";
+                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                File tmp = (new File(jarPath));
+                if(tmp.getParentFile().exists()) {
+                    if(tmp.getParentFile().getParentFile().exists()) {
+                    File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
+                    System.out.println(subEngine.getPath());
+                    stockfishPath = new File(subEngine, "stockfish_x64").getPath();
+                    return stockfishPath;
+                    }
+                }
+
+        }
+        return null;
+    }
+
+    private String getBookPath() {
+        String os = System.getProperty("os.name").toLowerCase();
+            if(os.contains("win")) {
+                String bookPath = "";
+                String jarPath = "";
+                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                File tmp = (new File(jarPath));
+                if(tmp.getParentFile().exists()) {
+                    File subBook = new File(tmp.getParentFile(), "book");
+                    bookPath = new File(subBook, "varied.bin").getPath();
+                    return bookPath;
+                }
+        }
+        return null;
     }
 
     public Game getGame() {
