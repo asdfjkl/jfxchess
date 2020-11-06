@@ -23,8 +23,8 @@ Current Version: 4.0 beta
 
 * [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.0.0)
 * Linux
- - install from [Snapstore](https://snapcraft.io/jerry) 
- - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.0.0)
+  - install from [Snapstore](https://snapcraft.io/jerry) 
+  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.0.0)
 
 ## Changelog
 
