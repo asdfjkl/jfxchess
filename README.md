@@ -28,7 +28,7 @@ Current Version: 4.0.0
 
 ## Changelog
 
-Version 4.0 (Oct 2020)
+Version 4.0.0 (Oct 2020)
  * complete rewrite
  * position search even in very large PGN files
 
