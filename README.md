@@ -40,3 +40,25 @@ Version 3.2.0 (July 2019)
  * MultiPV up to 4 lines
  * ability to handle and search (metadata) of large (> 1 GB) PGN files
  * user defined font-sizes
+ 
+ ## Roadmap
+ 
+Current plans for future versions:
+ 
+Version 4.1
+- bugfixes
+- database: edit & save for large PGNs
+- colorize last move
+- drawing arrows & colorizing fields
+- keyboard shortcuts
+- Fullscreen mode
+
+Version 4.2
+- opening book support
+- visual representation (i.e. graph) of game progress
+- ability to set default database
+- ship a default database of a few thousand interesting games 
+- option to show arrow that illustrates engine top-move in analysis
+- "drag" pieces in enter-position dialog
+- show more engine info: Tablebase Hits and Hash percentage
+- ship with pre-configured 4-piece (size!) tablebases
