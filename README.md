@@ -62,3 +62,4 @@ Version 4.2
 - "drag" pieces in enter-position dialog
 - show more engine info: Tablebase Hits and Hash percentage
 - ship with pre-configured 4-piece (size!) tablebases
+- ability to click on engine lines 
