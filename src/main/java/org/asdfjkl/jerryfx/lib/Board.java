@@ -77,7 +77,7 @@ public class Board {
         throw new IllegalArgumentException("alpha to pos called with: " + alpha);
     }
 
-    public Point internalToXY(int internalCoordinate) {
+    public static Point internalToXY(int internalCoordinate) {
         if(internalCoordinate < 21 || internalCoordinate > 98) {
             throw new IllegalArgumentException("internalToXY; arg out of range: "+internalCoordinate);
         }
@@ -86,7 +86,7 @@ public class Board {
         return new Point(col, row);
     }
 
-    public int xyToInternal(int x, int y) {
+    public static int xyToInternal(int x, int y) {
         if(x < 0 || x > 7 || y < 0 || y > 7) {
             throw new IllegalArgumentException("xyToInternal; arg out of range: "+ x + " " + y);
         } else {

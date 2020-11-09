@@ -89,6 +89,14 @@ public class Move {
         this.promotionPiece = promotionPiece;
     }
 
+    public int getMoveSourceSquare() {
+        return from;
+    }
+
+    public int getMoveTargetSquare() {
+        return to;
+    }
+
     private int alphaToPos(char alpha) {
         if (alpha == 'A') {
             return 1;

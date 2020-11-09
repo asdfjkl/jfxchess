@@ -46,14 +46,17 @@ public class Chessboard extends Canvas implements StateChangeListener {
     final GrabbedPiece grabbedPiece = new GrabbedPiece();
     boolean drawGrabbedPiece = false;
 
+    Color lastMoveColor;
+
     public Chessboard(GameModel gameModel) {
 
-        this.boardStyle = new BoardStyle();
+        boardStyle = new BoardStyle();
         this.gameModel = gameModel;
-        this.pieceImageProvider = new PieceImageProvider();
-        this.outputScaleX = Screen.getPrimary().getOutputScaleX();
-        this.grabbedPiece.setPiece(-1);
-        this.moveSource = new Point(-1,-1);
+        pieceImageProvider = new PieceImageProvider();
+        outputScaleX = Screen.getPrimary().getOutputScaleX();
+        grabbedPiece.setPiece(-1);
+        moveSource = new Point(-1,-1);
+        lastMoveColor = Color.rgb(200,200,0,0.4);
 
         setOnMousePressed(event -> {
             handleMousePress(event);
@@ -139,6 +142,17 @@ public class Chessboard extends Canvas implements StateChangeListener {
         gc.rect(xOffset, outerMargin, (squareSize*8)+(borderMargin*2), (squareSize*8)+(borderMargin*2));
         gc.fill();
 
+        // get the from and to field of the last move
+        // to highlight those squares
+        Point lastMoveFrom = null;
+        Point lastMoveTo = null;
+        if(gameModel.getGame().getCurrentNode().getMove() != null) {
+            Move m = gameModel.getGame().getCurrentNode().getMove();
+            lastMoveFrom = Board.internalToXY(m.getMoveSourceSquare());
+            lastMoveTo = Board.internalToXY(m.getMoveTargetSquare());
+
+        }
+
         // paint squares
         Color fieldColor;
         for(int i=0;i<8;i++) {
@@ -158,6 +172,15 @@ public class Chessboard extends Canvas implements StateChangeListener {
                 gc.setFill(fieldColor);
                 gc.rect(x,y,squareSize,squareSize);
                 gc.fill();
+
+                if(lastMoveFrom != null && lastMoveTo != null &&
+                        ((lastMoveFrom.getX() == i && lastMoveFrom.getY() == j)
+                            || (lastMoveTo.getX() == i && lastMoveTo.getY() == j))) {
+                    gc.beginPath();
+                    gc.setFill(lastMoveColor);
+                    gc.rect(x,y,squareSize,squareSize);
+                    gc.fill();
+                }
             }
         }
 
