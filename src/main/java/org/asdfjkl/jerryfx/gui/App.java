@@ -14,9 +14,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -48,6 +46,13 @@ public class App extends Application implements StateChangeListener {
     ModeMenuController modeMenuController;
 
     RadioMenuItem itmEnterMoves;
+
+    final KeyCombination keyCombinationCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationPaste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationSave = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationOpen = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationNextGame = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationPreviousGame = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN);
 
     @Override
     public void start(Stage stage) {
@@ -590,6 +595,65 @@ public class App extends Application implements StateChangeListener {
             }
             if (event.getCode() == KeyCode.END) {
                 moveView.seekToEnd();
+            }
+            if (event.getCode() == KeyCode.E) {
+                // setup position
+                double height = Math.max(stage.getHeight() * 0.6, 520);
+                editMenuController.enterPosition(height, chessboard.boardStyle);
+            }
+            if (event.getCode() == KeyCode.F) {
+                gameModel.setFlipBoard(!gameModel.getFlipBoard());
+                gameModel.triggerStateChange();
+            }
+            if(event.getCode() == KeyCode.A) {
+                // enter analysis mode
+                if(gameModel.getMode() != GameModel.MODE_ANALYSIS) {
+                    itmAnalysis.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activateAnalysisMode();
+                }
+            }
+            if(event.getCode() == KeyCode.W) {
+                if(gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
+                    itmPlayAsWhite.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activatePlayWhiteMode();
+                }
+            }
+            if(event.getCode() == KeyCode.B) {
+                if(gameModel.getMode() != GameModel.MODE_PLAY_BLACK) {
+                    itmPlayAsBlack.setSelected(true);
+                    tglEngineOnOff.setSelected(true);
+                    tglEngineOnOff.setText("On");
+                    modeMenuController.activatePlayBlackMode();
+                }
+            }
+            if(event.getCode() == KeyCode.M) {
+                // enter moves mode
+                tglEngineOnOff.setSelected(false);
+                tglEngineOnOff.setText("Off");
+                modeMenuController.activateEnterMovesMode();
+            }
+            if(keyCombinationNextGame.match(event)) {
+                gameMenuController.handleNextGame();
+            }
+            if(keyCombinationPreviousGame.match(event)) {
+                gameMenuController.handlePrevGame();
+            }
+            if(keyCombinationCopy.match(event)) {
+                editMenuController.copyGame();
+            }
+            if(keyCombinationPaste.match(event)) {
+                String pasteString = Clipboard.getSystemClipboard().getString().trim();
+                editMenuController.paste(pasteString);
+            }
+            if(keyCombinationOpen.match(event)) {
+                gameMenuController.handleOpenGame();
+            }
+            if(keyCombinationSave.match(event)) {
+                gameMenuController.handleSaveCurrentGame();
             }
             event.consume();
         });
