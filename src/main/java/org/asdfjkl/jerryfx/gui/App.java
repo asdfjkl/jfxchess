@@ -78,13 +78,16 @@ public class App extends Application implements StateChangeListener {
         Menu mnuFile = new Menu("Game");
         Menu mnuEdit = new Menu("Edit");
         Menu mnuMode = new Menu("Mode");
+        Menu mnuView = new Menu("View");
         Menu mnuDatabase = new Menu("Database");
         Menu mnuHelp = new Menu("Help");
 
         // File Menu
         MenuItem itmNew = new MenuItem("New...");
         MenuItem itmOpenFile = new MenuItem("Open File");
+        itmOpenFile.setAccelerator(keyCombinationOpen);
         MenuItem itmSaveCurrentGameAs = new MenuItem("Save Current Game As");
+        itmSaveCurrentGameAs.setAccelerator(keyCombinationSave);
         MenuItem itmPrintGame = new MenuItem("Print Game");
         MenuItem itmPrintPosition = new MenuItem("Print Position");
         MenuItem itmSavePositionAsImage = new MenuItem("Save Position As Image");
@@ -96,25 +99,30 @@ public class App extends Application implements StateChangeListener {
 
         // Edit Menu
         MenuItem itmCopyGame = new MenuItem("Copy Game");
+        itmCopyGame.setAccelerator(keyCombinationCopy);
         MenuItem itmCopyPosition = new MenuItem("Copy Position");
         MenuItem itmPaste = new MenuItem("Paste Game/Position");
+        itmPaste.setAccelerator(keyCombinationPaste);
         MenuItem itmEditGame = new MenuItem("Edit Game Data");
         MenuItem itmEnterPosition = new MenuItem("Enter Position");
+        itmEnterPosition.setAccelerator(new KeyCodeCombination(KeyCode.E));
         MenuItem itmFlipBoard = new MenuItem("Flip Board");
+        itmFlipBoard.setAccelerator(new KeyCodeCombination(KeyCode.F));
         MenuItem itmShowSearchInfo = new MenuItem("Show/Hide Search Info");
-        MenuItem itmAppearance = new MenuItem("Appearance");
-        MenuItem itmResetLayout = new MenuItem("Reset Layout");
 
         mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmPaste,
                 new SeparatorMenuItem(), itmEditGame, itmEnterPosition,
-                new SeparatorMenuItem(), itmFlipBoard, itmShowSearchInfo,
-                new SeparatorMenuItem(), itmAppearance, itmResetLayout);
+                new SeparatorMenuItem(), itmFlipBoard, itmShowSearchInfo);
 
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
+        itmAnalysis.setAccelerator(new KeyCodeCombination(KeyCode.A));
         RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
+        itmPlayAsWhite.setAccelerator(new KeyCodeCombination(KeyCode.W));
         RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
+        itmPlayAsBlack.setAccelerator(new KeyCodeCombination(KeyCode.B));
         itmEnterMoves = new RadioMenuItem("Enter Moves");
+        itmEnterMoves.setAccelerator(new KeyCodeCombination(KeyCode.M));
 
         RadioMenuItem itmFullGameAnalysis = new RadioMenuItem("Full Game Analysis");
         RadioMenuItem itmPlayOutPosition = new RadioMenuItem("Play Out Position");
@@ -133,10 +141,20 @@ public class App extends Application implements StateChangeListener {
                 itmEnterMoves, itmFullGameAnalysis, itmPlayOutPosition,
                 new SeparatorMenuItem(), itmEngines);
 
+
+        MenuItem itmFullscreen = new MenuItem("Fullscreen");
+        itmFullscreen.setAccelerator(new KeyCodeCombination(KeyCode.F11));
+        MenuItem itmAppearance = new MenuItem("Appearance");
+        MenuItem itmResetLayout = new MenuItem("Reset Layout");
+
+        mnuView.getItems().addAll(itmFullscreen, itmAppearance, itmResetLayout);
+
         // Database Menu
         MenuItem itmBrowseDatabase = new MenuItem("Browse Database");
         MenuItem itmNextGame = new MenuItem("Next Game");
+        itmNextGame.setAccelerator(keyCombinationNextGame);
         MenuItem itmPreviousGame = new MenuItem("Previous Game");
+        itmPreviousGame.setAccelerator(keyCombinationPreviousGame);
 
         mnuDatabase.getItems().addAll(itmBrowseDatabase, itmNextGame, itmPreviousGame);
 
@@ -146,7 +164,7 @@ public class App extends Application implements StateChangeListener {
 
         mnuHelp.getItems().addAll(itmAbout, itmJerryHomepage);
 
-        mnuBar.getMenus().addAll(mnuFile, mnuEdit, mnuMode, mnuDatabase, mnuHelp);
+        mnuBar.getMenus().addAll(mnuFile, mnuEdit, mnuMode, mnuView, mnuDatabase, mnuHelp);
 
         // TOOLBAR
         ToolBar tbMainWindow = new ToolBar();
@@ -437,6 +455,10 @@ public class App extends Application implements StateChangeListener {
             editMenuController.enterPosition(height, chessboard.boardStyle);
         });
 
+        itmFullscreen.setOnAction(e -> {
+            stage.setFullScreen(true);
+        });
+
         itmAppearance.setOnAction(e -> {
             DialogAppearance dlg = new DialogAppearance();
             double height = Math.max(stage.getHeight() * 0.6, 520);
@@ -630,11 +652,14 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activatePlayBlackMode();
                 }
             }
-            if(event.getCode() == KeyCode.M) {
+            if(event.getCode() == KeyCode.M || event.getCode() == KeyCode.ESCAPE) {
                 // enter moves mode
                 tglEngineOnOff.setSelected(false);
                 tglEngineOnOff.setText("Off");
                 modeMenuController.activateEnterMovesMode();
+            }
+            if(event.getCode() == KeyCode.F11) {
+                stage.setFullScreen(true);
             }
             if(keyCombinationNextGame.match(event)) {
                 gameMenuController.handleNextGame();
