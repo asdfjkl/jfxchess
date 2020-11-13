@@ -51,7 +51,7 @@ Version 4.1
 - [done] colorize last move
 - drawing arrows & colorizing fields
 - [done] keyboard shortcuts
-- Fullscreen mode
+- [done] Fullscreen mode
 
 Version 4.2
 - opening book support
