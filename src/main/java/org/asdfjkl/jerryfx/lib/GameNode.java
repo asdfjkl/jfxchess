@@ -32,6 +32,8 @@ public class GameNode {
     private String sanCache;
     private final ArrayList<GameNode> variations;
     private ArrayList<Integer> nags;
+    private ArrayList<ColoredField> coloredFields;
+    private ArrayList<Arrow> arrows;
 
     protected static int initId() {
         return id++;
@@ -45,6 +47,49 @@ public class GameNode {
         //this.board.resetToStartingPosition();
         this.comment = "";
         this.sanCache = "";
+    }
+
+    public void addOrRemoveArrow(Arrow arrow) {
+        if(arrows == null) {
+            arrows = new ArrayList<Arrow>();
+            arrows.add(arrow);
+        } else {
+            if(!arrows.contains(arrow)) {
+                arrows.add(arrow);
+            } else {
+                int idx = arrows.indexOf(arrow);
+                arrows.remove(idx);
+            }
+        }
+    }
+
+    public ArrayList<Arrow> getArrows() {
+        if(arrows == null) {
+            arrows = new ArrayList<Arrow>();
+        }
+        return arrows;
+    }
+
+    public void addOrRemoveColoredField(ColoredField coloredField) {
+        if(coloredFields == null) {
+            coloredFields = new ArrayList<ColoredField>();
+            coloredFields.add(coloredField);
+        } else {
+            if(!coloredFields.contains(coloredField)) {
+                coloredFields.add(coloredField);
+            } else {
+                int idx = coloredFields.indexOf(coloredField);
+                coloredFields.remove(idx);
+            }
+        }
+    }
+
+
+    public ArrayList<ColoredField> getColoredFields() {
+        if(coloredFields == null) {
+            coloredFields = new ArrayList<ColoredField>();
+        }
+        return coloredFields;
     }
 
     public int getId() {

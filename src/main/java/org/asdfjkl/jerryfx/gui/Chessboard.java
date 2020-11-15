@@ -21,12 +21,17 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
+import org.asdfjkl.jerryfx.lib.Arrow;
 import org.asdfjkl.jerryfx.lib.Board;
+import org.asdfjkl.jerryfx.lib.ColoredField;
 import org.asdfjkl.jerryfx.lib.Move;
 import java.awt.*;
+import java.util.ArrayList;
+
 import static org.asdfjkl.jerryfx.lib.CONSTANTS.*;
 
 public class Chessboard extends Canvas implements StateChangeListener {
@@ -46,7 +51,15 @@ public class Chessboard extends Canvas implements StateChangeListener {
     final GrabbedPiece grabbedPiece = new GrabbedPiece();
     boolean drawGrabbedPiece = false;
 
+    Point colorClickSource;
+
+    Arrow grabbedArrow;
+    boolean drawGrabbedArrow = false;
+
     Color lastMoveColor;
+    Color arrowColor;
+    Color arrowGrabColor;
+    Color coloredFieldColor;
 
     public Chessboard(GameModel gameModel) {
 
@@ -56,7 +69,13 @@ public class Chessboard extends Canvas implements StateChangeListener {
         outputScaleX = Screen.getPrimary().getOutputScaleX();
         grabbedPiece.setPiece(-1);
         moveSource = new Point(-1,-1);
+        colorClickSource = new Point(-1,-1);
+        grabbedArrow = new Arrow();
+        grabbedArrow.xFrom = grabbedArrow.yFrom = grabbedArrow.xTo = grabbedArrow.yTo = -1;
         lastMoveColor = Color.rgb(200,200,0,0.4);
+        arrowColor = Color.rgb(50,88,0,1.0);
+        arrowGrabColor = Color.rgb(70,130,0, 1.0);
+        coloredFieldColor = Color.rgb(200,0,0,0.4);
 
         setOnMousePressed(event -> {
             handleMousePress(event);
@@ -184,6 +203,25 @@ public class Chessboard extends Canvas implements StateChangeListener {
             }
         }
 
+        // paint colored fields
+        for(ColoredField coloredField : gameModel.getGame().getCurrentNode().getColoredFields()) {
+
+            int i = coloredField.x;
+            int j = coloredField.y;
+
+            int x = (innerXOffset) + (i*squareSize);
+            int y = (innerYOffset) + ((7-j)*squareSize);
+            if(flipBoard) {
+                x = innerXOffset+((7-i)*squareSize);
+                y = (innerYOffset) + (j*squareSize);
+            }
+
+            gc.beginPath();
+            gc.setFill(coloredFieldColor);
+            gc.rect(x,y,squareSize,squareSize);
+            gc.fill();
+        }
+
         // draw the board coordinates
         gc.setFill(boardStyle.getCoordinateColor());
         for(int i=0;i<8;i++) {
@@ -252,6 +290,92 @@ public class Chessboard extends Canvas implements StateChangeListener {
                     grabbedPiece.getCurrentYLocation() - offset,squareSize, squareSize);
         }
 
+        // draw arrows
+        ArrayList<Arrow> arrows = gameModel.getGame().getCurrentNode().getArrows();
+        if(arrows != null) {
+            for (Arrow ai : gameModel.getGame().getCurrentNode().getArrows()) {
+                drawArrow(ai, arrowColor, innerXOffset, innerYOffset);
+            }
+        }
+
+        // draw currently grabbed arrow
+        if(drawGrabbedArrow
+                && grabbedArrow.xFrom != -1 && grabbedArrow.yFrom != -1
+                && grabbedArrow.xTo != -1 && grabbedArrow.yTo != -1
+                && ((grabbedArrow.xFrom != grabbedArrow.xTo) || (grabbedArrow.yFrom != grabbedArrow.yTo))) {
+            drawArrow(grabbedArrow, arrowGrabColor, innerXOffset, innerYOffset);
+        }
+    }
+
+    private void drawArrow(Arrow arrow, Color color, int boardOffsetX, int boardOffsetY) {
+
+        GraphicsContext gc = this.getGraphicsContext2D();
+
+        int xFrom = 0;
+        int xTo = 0;
+        int yFrom = 0;
+        int yTo = 0;
+        if(this.flipBoard) {
+            xFrom = boardOffsetX+((7-arrow.xFrom)*squareSize) + (squareSize/2);
+            xTo = boardOffsetX+((7-arrow.xTo)*squareSize) + (squareSize/2);
+            yFrom = boardOffsetY+(arrow.yFrom*squareSize)+ (squareSize/2);
+            yTo = boardOffsetY+(arrow.yTo*squareSize)+ (squareSize/2);
+        } else {
+            xFrom = boardOffsetX+(arrow.xFrom*squareSize)+ (squareSize/2);
+            xTo = boardOffsetX+(arrow.xTo*squareSize)+ (squareSize/2);
+            yFrom = boardOffsetY+((7-arrow.yFrom)*squareSize)+ (squareSize/2);
+            yTo = boardOffsetY+((7-arrow.yTo)*squareSize)+ (squareSize/2);
+        }
+
+        // incredible annoying calculation to get arrow head
+        Point fromPoint = new Point(xFrom, yFrom);
+        Point toPoint = new Point(xTo, yTo);
+
+        // added to toPoint to place arrow head
+        // somewhere in the center
+        double vx = -toPoint.getX() + fromPoint.getX();
+        double vy = -toPoint.getY() + fromPoint.getY();
+
+        // vectors correspond to the arrows
+        double dx = toPoint.getX() - fromPoint.getX();
+        double dy = toPoint.getY() - fromPoint.getY();
+
+        double length = Math.sqrt(dx * dx + dy * dy);
+
+        double unitDx = dx / length;
+        double unitDy = dy / length;
+
+        // adjusted according to arrow length
+        vx = vx * (squareSize/6 /length);
+        vy = vy * (squareSize/6 /length);
+
+        toPoint = new Point((int) (toPoint.getX() - vx), (int) (toPoint.getY() - vy));
+
+        int arrowHeadBoxSize = squareSize/4;
+        Point arrowPoint1 = new Point(
+                (int) (toPoint.getX() - unitDx * arrowHeadBoxSize - unitDy * arrowHeadBoxSize),
+                (int) (toPoint.getY() - unitDy * arrowHeadBoxSize + unitDx * arrowHeadBoxSize));
+
+        Point arrowPoint2 = new Point(
+                (int) (toPoint.getX() - unitDx * arrowHeadBoxSize + unitDy * arrowHeadBoxSize),
+                (int) (toPoint.getY() - unitDy * arrowHeadBoxSize - unitDx * arrowHeadBoxSize));
+
+        gc.setFill(color);
+        gc.fillPolygon( new double[] { toPoint.getX(), arrowPoint1.getX(), arrowPoint2.getX() },
+                    new double[] { toPoint.getY(), arrowPoint1.getY(), arrowPoint2.getY() },
+                    3);
+
+        // take the old center coord to draw the
+        // line to, so that the line doesn not
+        // cover the arrow head due to the line's thickness
+        Point to = new Point(xTo, yTo);
+        double currentLineWidth = gc.getLineWidth();
+        javafx.scene.paint.Paint currentPaint = gc.getStroke();
+        gc.setLineWidth(squareSize/6);
+        gc.setStroke(color);
+        gc.strokeLine(fromPoint.getX(), fromPoint.getY(),to.getX(), to.getY());
+        gc.setLineWidth(currentLineWidth);
+        gc.setStroke(currentPaint);
     }
 
     Point getBoardPosition(double x, double y) {
@@ -289,35 +413,60 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     void handleMousePress(MouseEvent e) {
 
-        Board b = this.gameModel.getGame().getCurrentNode().getBoard();
-        Point boardPos = getBoardPosition(e.getX(), e.getY());
-        // case a) 1) user clicks source field, then 2) clicks destination
-        // case b) user clicks and drags piece
-        if(boardPos != null) {
-            if(grabbedPiece.getPiece() != -1) {
-                // case a) 2)
-                Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
-                if (b.isLegalAndPromotes(m)) {
-                    int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
-                    if(promotionPiece != EMPTY) {
-                        m.setPromotionPiece(promotionPiece);
+        MouseButton mouseButton = e.getButton();
+        if(mouseButton == MouseButton.PRIMARY) {
+            Board b = this.gameModel.getGame().getCurrentNode().getBoard();
+            Point boardPos = getBoardPosition(e.getX(), e.getY());
+            // case a) 1) user clicks source field, then 2) clicks destination
+            // case b) user clicks and drags piece
+            if (boardPos != null) {
+                if (grabbedPiece.getPiece() != -1) {
+                    // case a) 2)
+                    Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
+                    if (b.isLegalAndPromotes(m)) {
+                        int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
+                        if (promotionPiece != EMPTY) {
+                            m.setPromotionPiece(promotionPiece);
+                            applyMove(m);
+                        }
+                        resetMove();
+                    } else if (b.isLegal(m)) {
                         applyMove(m);
+                        resetMove();
+                    } else {
+                        resetMove();
+                        if (b.isPieceAt(boardPos.x, boardPos.y)) {
+                            touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
+                        }
                     }
-                    resetMove();
-                } else if (b.isLegal(m)) {
-                    applyMove(m);
-                    resetMove();
-                } else {
-                    resetMove();
+                } else { // case a) 1) or b)
                     if (b.isPieceAt(boardPos.x, boardPos.y)) {
                         touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
                     }
                 }
-            } else { // case a) 1) or b)
-                if(b.isPieceAt(boardPos.x, boardPos.y)) {
-                    touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
-                }
             }
+        }
+        if(mouseButton == MouseButton.SECONDARY) {
+            Point boardCoordinate = getBoardPosition(e.getX(), e.getY());
+            handleRightClick(boardCoordinate);
+
+        }
+    }
+
+    private void handleRightClick(Point boardCoordinate) {
+        // user clicked and is going to draw arrow or mark a field
+        if(boardCoordinate != null) {
+            /*
+            if(flipBoard) {
+                boardCoordinate.x = (int) (7-boardCoordinate.x);
+                boardCoordinate.y = (int) (7-boardCoordinate.y);
+            }*/
+            colorClickSource.x = boardCoordinate.x;
+            colorClickSource.y = boardCoordinate.y;
+
+            grabbedArrow.xFrom = boardCoordinate.x;
+            grabbedArrow.yFrom = boardCoordinate.y;
+            drawGrabbedArrow = true;
         }
     }
 
@@ -328,32 +477,76 @@ public class Chessboard extends Canvas implements StateChangeListener {
             grabbedPiece.setCurrentYLocation(e.getY());
             updateCanvas();
         }
+        if(drawGrabbedArrow) {
+            Point xy = getBoardPosition(e.getX(), e.getY());
+            /*
+            if(flipBoard) {
+                xy.x = 7-xy.x;
+                xy.y = 7-xy.y;
+            }*/
+            grabbedArrow.xTo = xy.x;
+            grabbedArrow.yTo = xy.y;
+            updateCanvas();
+        }
     }
 
     void handleMouseRelease(MouseEvent e) {
 
-        drawGrabbedPiece = false;
-        Point boardPos = getBoardPosition(e.getX(), e.getY());
-        Board b = gameModel.getGame().getCurrentNode().getBoard();
-        if(boardPos != null && grabbedPiece.getPiece() != -1) {
-            if(!(boardPos.x == moveSource.x && boardPos.y == moveSource.y)) {
-                Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
-                if(b.isLegalAndPromotes(m)) {
-                    int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
-                    if(promotionPiece != EMPTY) {
-                        m.setPromotionPiece(promotionPiece);
+        MouseButton mouseButton = e.getButton();
+        if(mouseButton == MouseButton.PRIMARY) {
+            drawGrabbedPiece = false;
+            Point boardPos = getBoardPosition(e.getX(), e.getY());
+            Board b = gameModel.getGame().getCurrentNode().getBoard();
+            if (boardPos != null && grabbedPiece.getPiece() != -1) {
+                if (!(boardPos.x == moveSource.x && boardPos.y == moveSource.y)) {
+                    Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
+                    if (b.isLegalAndPromotes(m)) {
+                        int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
+                        if (promotionPiece != EMPTY) {
+                            m.setPromotionPiece(promotionPiece);
+                            applyMove(m);
+                        }
+                        resetMove();
+                    } else if (b.isLegal(m)) {
                         applyMove(m);
+                    } else {
+                        resetMove();
                     }
-                    resetMove();
-                } else if(b.isLegal(m)) {
-                    applyMove(m);
-                } else {
-                    resetMove();
-                }
 
+                }
             }
         }
+        if(mouseButton == MouseButton.SECONDARY) {
+            Point boardCoordinate = getBoardPosition(e.getX(), e.getY());
+            handleRightClickRelease(boardCoordinate);
+        }
         updateCanvas();
+    }
+
+    private void handleRightClickRelease(Point boardCoordinate) {
+        // user clicked and is going to draw arrow
+        if(boardCoordinate != null) {
+            /*
+            if (flipBoard) {
+                boardCoordinate.x = (7 - boardCoordinate.x);
+                boardCoordinate.y = (7 - boardCoordinate.y);
+            }*/
+            // arrow case
+            if (boardCoordinate.x != colorClickSource.x || boardCoordinate.y != colorClickSource.y) {
+                Arrow a = new Arrow();
+                a.xFrom = colorClickSource.x;
+                a.yFrom = colorClickSource.y;
+                a.xTo = boardCoordinate.x;
+                a.yTo = boardCoordinate.y;
+                gameModel.getGame().getCurrentNode().addOrRemoveArrow(a);
+            } else { // just marking a field
+                ColoredField c = new ColoredField();
+                c.x = boardCoordinate.x;
+                c.y = boardCoordinate.y;
+                gameModel.getGame().getCurrentNode().addOrRemoveColoredField(c);
+            }
+            drawGrabbedArrow = false;
+        }
     }
 
     void applyMove(Move m) {
