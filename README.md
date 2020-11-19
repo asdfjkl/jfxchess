@@ -49,7 +49,7 @@ Version 4.1
 - bugfixes
 - database: edit & save for large PGNs
 - [done] colorize last move
-- drawing arrows & colorizing fields
+- [done] drawing arrows & colorizing fields
 - [done] keyboard shortcuts
 - [done] Fullscreen mode
 
