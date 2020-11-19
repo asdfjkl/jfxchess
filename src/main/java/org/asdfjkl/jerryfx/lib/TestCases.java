@@ -18,7 +18,7 @@
 
 package org.asdfjkl.jerryfx.lib;
 
-import org.asdfjkl.jerryfx.gui.PgnSTR;
+import org.asdfjkl.jerryfx.gui.PgnDatabaseEntry;
 
 import java.io.*;
 import java.net.URL;
@@ -374,7 +374,7 @@ public class TestCases {
         }
 
         long startTime = System.currentTimeMillis();
-        ArrayList<PgnSTR> entries = reader.scanPgnGetSTR(millbase);
+        ArrayList<PgnDatabaseEntry> entries = reader.scanPgnGetSTR(millbase);
         long stopTime = System.currentTimeMillis();
 
         long timeElapsed = stopTime - startTime;
@@ -383,7 +383,7 @@ public class TestCases {
         System.out.println(entries.size());
 
         for(int i=0;i<10;i++) {
-            PgnSTR entry_i = entries.get(i);
+            PgnDatabaseEntry entry_i = entries.get(i);
             RandomAccessFile raf = null;
             try {
                 raf = new RandomAccessFile(millbase, "r");

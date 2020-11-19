@@ -37,7 +37,7 @@ public class DialogDatabase {
 
     Stage stage;
     boolean accepted = false;
-    TableView<PgnSTR> table;
+    TableView<PgnDatabaseEntry> table;
 
     PgnDatabase pgnDatabase;
     SearchPattern searchPattern;
@@ -61,6 +61,14 @@ public class DialogDatabase {
         btnOpen.setGraphic(new ImageView( new Image("icons/document-open.png")));
         btnOpen.setContentDisplay(ContentDisplay.TOP);
 
+        Button btnSave = new Button("Save");
+        btnSave.setGraphic(new ImageView( new Image("icons/document-save.png")));
+        btnSave.setContentDisplay(ContentDisplay.TOP);
+
+        Button btnSaveAs = new Button("Save As...");
+        btnSaveAs.setGraphic(new ImageView( new Image("icons/document-save.png")));
+        btnSaveAs.setContentDisplay(ContentDisplay.TOP);
+
         Button btnSearch = new Button("Search");
         btnSearch.setGraphic(new ImageView( new Image("icons/system-search.png")));
         btnSearch.setContentDisplay(ContentDisplay.TOP);
@@ -73,43 +81,43 @@ public class DialogDatabase {
         btnAbout.setGraphic(new ImageView( new Image("icons/help-browser.png")));
         btnAbout.setContentDisplay(ContentDisplay.TOP);
 
-        toolBar.getItems().addAll(btnOpen, btnSearch, btnResetSearch, btnAbout);
+        toolBar.getItems().addAll(btnOpen, btnSave, btnSaveAs, btnSearch, btnResetSearch, btnAbout);
 
         table = new TableView<>();
 
 
-        TableColumn<PgnSTR, Long> colIndex = new TableColumn<PgnSTR, Long>("No.");
-        colIndex.setCellValueFactory(new PropertyValueFactory<PgnSTR, Long>("Index"));
+        TableColumn<PgnDatabaseEntry, Long> colIndex = new TableColumn<PgnDatabaseEntry, Long>("No.");
+        colIndex.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, Long>("Index"));
         colIndex.setMinWidth(100);
         colIndex.setSortable(false);
 
-        TableColumn<PgnSTR, String> colEvent = new TableColumn<PgnSTR, String>("Event");
-        colEvent.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Event"));
+        TableColumn<PgnDatabaseEntry, String> colEvent = new TableColumn<PgnDatabaseEntry, String>("Event");
+        colEvent.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Event"));
         colEvent.setMinWidth(200);
         colEvent.setSortable(false);
 
-        TableColumn<PgnSTR, String> colDate = new TableColumn<PgnSTR, String>("Date");
-        colDate.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Date"));
+        TableColumn<PgnDatabaseEntry, String> colDate = new TableColumn<PgnDatabaseEntry, String>("Date");
+        colDate.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Date"));
         colDate.setMinWidth(100);
         colDate.setSortable(false);
 
-        TableColumn<PgnSTR, String> colWhite = new TableColumn<PgnSTR, String>("White");
-        colWhite.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("White"));
+        TableColumn<PgnDatabaseEntry, String> colWhite = new TableColumn<PgnDatabaseEntry, String>("White");
+        colWhite.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("White"));
         colWhite.setMinWidth(200);
         colWhite.setSortable(false);
 
-        TableColumn<PgnSTR, String> colBlack = new TableColumn<PgnSTR, String>("Black");
-        colBlack.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Black"));
+        TableColumn<PgnDatabaseEntry, String> colBlack = new TableColumn<PgnDatabaseEntry, String>("Black");
+        colBlack.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Black"));
         colBlack.setMinWidth(200);
         colBlack.setSortable(false);
 
-        TableColumn<PgnSTR, String> colResult = new TableColumn<PgnSTR, String>("Result");
-        colResult.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Result"));
+        TableColumn<PgnDatabaseEntry, String> colResult = new TableColumn<PgnDatabaseEntry, String>("Result");
+        colResult.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Result"));
         colResult.setMinWidth(100);
         colResult.setSortable(false);
 
-        TableColumn<PgnSTR, String> colEco = new TableColumn<PgnSTR, String>("ECO");
-        colEco.setCellValueFactory(new PropertyValueFactory<PgnSTR, String>("Eco"));
+        TableColumn<PgnDatabaseEntry, String> colEco = new TableColumn<PgnDatabaseEntry, String>("ECO");
+        colEco.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Eco"));
         colEco.setMinWidth(30);
         colEco.setSortable(false);
 

@@ -20,7 +20,7 @@ package org.asdfjkl.jerryfx.lib;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-import org.asdfjkl.jerryfx.gui.PgnSTR;
+import org.asdfjkl.jerryfx.gui.PgnDatabaseEntry;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -137,13 +137,13 @@ public class PgnReader {
     }
     */
 
-    ArrayList<PgnSTR> scanPgnGetSTR(String filename) {
+    ArrayList<PgnDatabaseEntry> scanPgnGetSTR(String filename) {
 
-        ArrayList<PgnSTR> entries = new ArrayList<>();
+        ArrayList<PgnDatabaseEntry> entries = new ArrayList<>();
 
         boolean inComment = false;
         long game_pos = -1;
-        PgnSTR current = null;
+        PgnDatabaseEntry current = null;
         long last_pos = 0;
 
         String currentLine = "";
@@ -160,7 +160,7 @@ public class PgnReader {
 
                     if (game_pos == -1) {
                         game_pos = last_pos;
-                        current = new PgnSTR();
+                        current = new PgnDatabaseEntry();
                     }
                     last_pos = raf.getFilePointer();
 

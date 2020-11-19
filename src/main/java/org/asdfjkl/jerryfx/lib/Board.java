@@ -328,7 +328,12 @@ public class Board {
             this.halfmoveClock = 0;
         }
         if(fenParts.length >= 6) {
-            this.fullmoveNumber = Integer.parseInt(fenParts[5]);
+            int fullMoveNumber = Integer.parseInt(fenParts[5]);
+            if(fullMoveNumber > 0) {
+                this.fullmoveNumber = fullMoveNumber;
+            } else {
+                this.fullmoveNumber = 1;
+            }
         } else {
             this.fullmoveNumber = 1;
         }

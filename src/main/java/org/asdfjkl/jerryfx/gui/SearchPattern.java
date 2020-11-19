@@ -298,16 +298,16 @@ public class SearchPattern {
 
     }
 
-    public boolean matchesHeader(PgnSTR pgnSTR) {
+    public boolean matchesHeader(PgnDatabaseEntry pgnDatabaseEntry) {
 
-        if(!event.isEmpty() && !(pgnSTR.getEvent().toLowerCase().contains(event.toLowerCase()))) {
+        if(!event.isEmpty() && !(pgnDatabaseEntry.getEvent().toLowerCase().contains(event.toLowerCase()))) {
             return false;
         }
-        if(!site.isEmpty() && !(pgnSTR.getSite().toLowerCase().contains(site.toLowerCase()))) {
+        if(!site.isEmpty() && !(pgnDatabaseEntry.getSite().toLowerCase().contains(site.toLowerCase()))) {
             return false;
         }
         int year = -1;
-        String[] dateSplit = pgnSTR.getDate().split("\\.");
+        String[] dateSplit = pgnDatabaseEntry.getDate().split("\\.");
         if(dateSplit.length > 0 && dateSplit[0].length() == 4) {
             try {
                 year = Integer.parseInt(dateSplit[0]);
@@ -326,10 +326,10 @@ public class SearchPattern {
             }
         }
         if(!ignoreNameColor) {
-            if (!whiteName.isEmpty() && !(pgnSTR.getWhite().toLowerCase().contains(whiteName.toLowerCase()))) {
+            if (!whiteName.isEmpty() && !(pgnDatabaseEntry.getWhite().toLowerCase().contains(whiteName.toLowerCase()))) {
                 return false;
             }
-            if (!blackName.isEmpty() && !(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase()))) {
+            if (!blackName.isEmpty() && !(pgnDatabaseEntry.getBlack().toLowerCase().contains(blackName.toLowerCase()))) {
                 return false;
             }
         } else {
@@ -337,20 +337,20 @@ public class SearchPattern {
             boolean matchBlackName = false;
             // if whiteName is not empty, it has to appear somewhere
             if(!whiteName.isEmpty()) {
-                if(pgnSTR.getWhite().toLowerCase().contains(whiteName.toLowerCase())) {
+                if(pgnDatabaseEntry.getWhite().toLowerCase().contains(whiteName.toLowerCase())) {
                     matchWhiteName = true;
                 }
-                if(pgnSTR.getBlack().toLowerCase().contains(whiteName.toLowerCase())) {
+                if(pgnDatabaseEntry.getBlack().toLowerCase().contains(whiteName.toLowerCase())) {
                     matchWhiteName = true;
                 }
             } else {
                 matchWhiteName = true;
             }
             if(!blackName.isEmpty()) {
-                if(pgnSTR.getWhite().toLowerCase().contains(blackName.toLowerCase())) {
+                if(pgnDatabaseEntry.getWhite().toLowerCase().contains(blackName.toLowerCase())) {
                     matchBlackName = true;
                 }
-                if(pgnSTR.getBlack().toLowerCase().contains(blackName.toLowerCase())) {
+                if(pgnDatabaseEntry.getBlack().toLowerCase().contains(blackName.toLowerCase())) {
                     matchBlackName = true;
                 }
             } else {
@@ -360,24 +360,24 @@ public class SearchPattern {
                 return false;
             }
         }
-        if(!resultBlackWins && pgnSTR.getResult().equals("0-1")) {
+        if(!resultBlackWins && pgnDatabaseEntry.getResult().equals("0-1")) {
             return false;
         }
-        if(!resultWhiteWins && pgnSTR.getResult().equals("1-0")) {
+        if(!resultWhiteWins && pgnDatabaseEntry.getResult().equals("1-0")) {
             return false;
         }
-        if(!resultDraw && pgnSTR.getResult().equals("1/2-1/2")) {
+        if(!resultDraw && pgnDatabaseEntry.getResult().equals("1/2-1/2")) {
             return false;
         }
-        if(!resultUndef && pgnSTR.getResult().equals("*")) {
+        if(!resultUndef && pgnDatabaseEntry.getResult().equals("*")) {
             return false;
         }
         if(!ecoStart.isEmpty() && !ecoStop.isEmpty()) {
-            if(!pgnSTR.getEco().isEmpty()) {
-                if(pgnSTR.getEco().toUpperCase().compareTo(ecoStart.toUpperCase()) < 0) {
+            if(!pgnDatabaseEntry.getEco().isEmpty()) {
+                if(pgnDatabaseEntry.getEco().toUpperCase().compareTo(ecoStart.toUpperCase()) < 0) {
                     return false;
                 }
-                if(pgnSTR.getEco().toUpperCase().compareTo(ecoStop.toUpperCase()) > 0) {
+                if(pgnDatabaseEntry.getEco().toUpperCase().compareTo(ecoStop.toUpperCase()) > 0) {
                     return false;
                 }
             }

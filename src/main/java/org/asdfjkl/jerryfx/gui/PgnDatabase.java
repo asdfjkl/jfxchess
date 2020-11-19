@@ -38,8 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 public class PgnDatabase {
 
-    private ObservableList<PgnSTR> entries;
-    private ObservableList<PgnSTR> searchResults;
+    private ObservableList<PgnDatabaseEntry> entries;
+    private ObservableList<PgnDatabaseEntry> searchResults;
     final PgnReader reader;
     String filename;
     static Stage stage;
@@ -57,11 +57,11 @@ public class PgnDatabase {
 
     public int getNrGames() { return entries.size(); }
 
-    public ObservableList<PgnSTR> getEntries() {
+    public ObservableList<PgnDatabaseEntry> getEntries() {
         return entries;
     }
 
-    public ObservableList<PgnSTR> getSearchResults() {
+    public ObservableList<PgnDatabaseEntry> getSearchResults() {
         return searchResults;
     }
 
@@ -147,14 +147,14 @@ public class PgnDatabase {
 
         final String tmpFilename = this.filename;
 
-        Task<ObservableList<PgnSTR>> task = new Task<>() {
-            @Override protected ObservableList<PgnSTR> call() throws Exception {
+        Task<ObservableList<PgnDatabaseEntry>> task = new Task<>() {
+            @Override protected ObservableList<PgnDatabaseEntry> call() throws Exception {
 
-                ArrayList<PgnSTR> newEntries = new ArrayList<>();
+                ArrayList<PgnDatabaseEntry> newEntries = new ArrayList<>();
 
                 boolean inComment = false;
                 long game_pos = -1;
-                PgnSTR current = null;
+                PgnDatabaseEntry current = null;
                 long last_pos = 0;
 
                 // check if we actually read ad least one game;
@@ -184,7 +184,7 @@ public class PgnDatabase {
                         if (!inComment && currentLine.startsWith("[")) {
                             if (game_pos == -1) {
                                 game_pos = last_pos;
-                                current = new PgnSTR();
+                                current = new PgnDatabaseEntry();
                             }
                             last_pos = raf.getFilePointer();
                             if (currentLine.length() > 4) {
@@ -311,16 +311,16 @@ public class PgnDatabase {
         stage.show();
 
 
-        Task<ObservableList<PgnSTR>> task = new Task<>() {
-            @Override protected ObservableList<PgnSTR> call() throws Exception {
+        Task<ObservableList<PgnDatabaseEntry>> task = new Task<>() {
+            @Override protected ObservableList<PgnDatabaseEntry> call() throws Exception {
 
                 final ArrayList<Long> indices = new ArrayList<Long>();
-                for(PgnSTR entry : entries) {
+                for(PgnDatabaseEntry entry : entries) {
                     indices.add(entry.getOffset());
                 }
 
                 PgnReader reader = new PgnReader();
-                ArrayList<PgnSTR> foundEntries = new ArrayList<>();
+                ArrayList<PgnDatabaseEntry> foundEntries = new ArrayList<>();
                 OptimizedRandomAccessFile raf = null;
 
                 final long startTime = System.currentTimeMillis();

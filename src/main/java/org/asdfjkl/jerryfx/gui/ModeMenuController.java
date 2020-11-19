@@ -271,6 +271,9 @@ public class ModeMenuController implements StateChangeListener {
                 GameNode next = new GameNode();
                 Board board = currentNode.getBoard().makeCopy();
                 Move m = new Move(uciMove);
+                if(!board.isLegal(m)) {
+                    break;
+                }
                 board.apply(m);
                 next.setMove(m);
                 next.setBoard(board);

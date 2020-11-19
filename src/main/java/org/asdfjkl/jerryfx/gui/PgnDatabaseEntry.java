@@ -18,7 +18,9 @@
 
 package org.asdfjkl.jerryfx.gui;
 
-public class PgnSTR {
+import org.asdfjkl.jerryfx.lib.Game;
+
+public class PgnDatabaseEntry {
 
     private long offset = 0;
     private long index = 0;
@@ -30,6 +32,8 @@ public class PgnSTR {
     private String black = "";
     private String result = "";
     private String eco = "";
+    private boolean modifiedFlag = false;
+    Game modifiedGame = null;
 
     private boolean foundAtLeast1Tag = false;
 
@@ -67,6 +71,16 @@ public class PgnSTR {
     public void markValid() {
         foundAtLeast1Tag = true;
     }
+
+    public void markAsModified() { modifiedFlag = true; }
+    public boolean wasModified() { return modifiedFlag; }
+    public void markAsUnmodified() {
+        modifiedFlag = false;
+        modifiedGame = null;
+    }
+
+    public void setModifiedGame(Game game) { modifiedGame = game; }
+    public Game getModifiedGame() { return modifiedGame; }
 
     public boolean isValid() {
         return foundAtLeast1Tag;
