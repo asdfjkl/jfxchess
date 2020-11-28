@@ -63,3 +63,4 @@ Version 4.2
 - show more engine info: Tablebase Hits and Hash percentage
 - ship with pre-configured 4-piece (size!) tablebases
 - ability to click on engine lines 
+- drag and drop for pgn files
