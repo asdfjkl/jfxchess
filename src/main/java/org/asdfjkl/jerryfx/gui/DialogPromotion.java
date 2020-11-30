@@ -93,7 +93,9 @@ public class DialogPromotion {
 
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
+        // stage.initStyle(StageStyle.UTILITY); will result on window not having focus/keyboard
+        //                                      input not working on Linux
+        stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
         stage.showAndWait();
 
         return choice;

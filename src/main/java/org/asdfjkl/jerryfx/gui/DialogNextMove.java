@@ -22,6 +22,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -47,8 +48,9 @@ public class DialogNextMove {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.requestFocus();
+        // stage.initStyle(StageStyle.UTILITY); bug: will result in window not having focus
+        // stage.requestFocus();                     and thus not accepting key input on Linux
+        stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
 
         lvMoves = new ListView<>();
         lvMoves.getItems().addAll(possibleMoves);

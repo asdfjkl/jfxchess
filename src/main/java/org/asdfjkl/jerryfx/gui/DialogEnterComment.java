@@ -21,6 +21,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -43,6 +44,7 @@ public class DialogEnterComment {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
 
         Button btnOk = new Button();
         btnOk.setText("OK");
