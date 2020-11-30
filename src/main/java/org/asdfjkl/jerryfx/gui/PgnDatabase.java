@@ -30,9 +30,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
 import jfxtras.styles.jmetro.JMetro;
 import org.asdfjkl.jerryfx.lib.*;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -107,6 +111,220 @@ public class PgnDatabase {
             }
         }
         return g;
+    }
+
+    public void saveDatabase() {
+        saveDatabaseAs(filename);
+    }
+
+    public void saveDatabaseAs(String filename) {
+
+        String tmpFilenameWoDir = Util.getRandomFilename();
+
+        System.out.println(filename);
+        File file = new File(filename);
+        File path = file.getParentFile();
+        String filenameWithoutDir = file.getName();
+        System.out.println(filenameWithoutDir);
+        File tmpFile = new File(path, tmpFilenameWoDir);
+
+        System.out.println(tmpFile.getAbsolutePath());
+
+        final String currentPgnFilename = this.filename;
+        final String pgnFilename = filename;
+        final String tmpFilename = tmpFile.getAbsolutePath();
+
+        final boolean overwrite = pgnFilename.equals(tmpFilename);
+
+        final ObservableList<PgnDatabaseEntry> entries = this.entries;
+
+        stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UNDECORATED);
+
+        Label lblScanPgn = new Label("Writing PGN...");
+        ProgressBar progressBar = new ProgressBar();
+
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(lblScanPgn, progressBar);
+
+        vbox.setSpacing(10);
+        vbox.setPadding( new Insets(10));
+
+        Scene scene = new Scene(vbox, 400, 200);
+
+        JMetro jMetro = new JMetro();
+        jMetro.setScene(scene);
+
+        stage.setScene(scene);
+        stage.show();
+
+        Task<Void> task = new Task<>() {
+            @Override protected Void call() throws Exception {
+
+                OptimizedRandomAccessFile rafReader = null;
+                OptimizedRandomAccessFile rafWriter = null;
+                BufferedWriter writer = null;
+
+                File currentPgn = new File(currentPgnFilename);
+                long fileSize = currentPgn.length();
+
+                PgnPrinter pgnPrinter = new PgnPrinter();
+
+                // first get ranges of non-modified games, so that we
+                // can write in bulk as many as games as possible without much
+                // file-seeking
+                ArrayList<Pair<Long, Long>> nonModifiedRanges = new ArrayList<>();
+
+                int start = 0;
+                int stop = 0;
+                boolean hasSeenModified = true;
+                for(int i=0;i< entries.size();i++) {
+                    if(entries.get(i).wasModified()) {
+                        if(!hasSeenModified) {
+                            stop = i;
+                            nonModifiedRanges.add(new Pair(entries.get(start).getOffset(),entries.get(stop).getOffset()));
+                            hasSeenModified = true;
+                        }
+                    } else {
+                        if(hasSeenModified) {
+                            start = i;
+                            hasSeenModified = false;
+                        }
+                        if(i == entries.size() -1 && !hasSeenModified) {
+                            nonModifiedRanges.add(new Pair(entries.get(start).getOffset(),fileSize));
+                        }
+                    }
+                }
+
+                System.out.println("computed pairs of non-modified games:");
+                for(Pair<Long,Long> pair : nonModifiedRanges) {
+                    System.out.println(pair.getKey() + ", "+pair.getValue());
+                }
+
+                try {
+                    rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
+                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
+                    writer = new BufferedWriter(new FileWriter(tmpFilename));
+
+                    for(Pair<Long,Long> pair : nonModifiedRanges) {
+                        rafReader.seek(pair.getKey());
+                        while(rafReader.getFilePointer() < pair.getValue()) {
+                            String line = rafReader.readLine();
+                            //if(line.startsWith("ß")) {
+                            //    System.out.println("foo");
+                            //}
+                            /*
+                            if(line == null) {
+                                break;
+                            } else {
+                                rafWriter.writeBytes(line);
+                                rafWriter.writeByte(0xa); // 0xa = LF = \n
+                            }*/
+                            if(line == null) {
+                                break;
+                            } else {
+                                //System.out.println(line);
+                                writer.write(line);
+                                writer.write(0xa); // 0xa = LF = \n
+                            }
+                        }
+                    }
+                    System.out.println("loop finished");
+                    /*
+                    for(int i=0;i<entries.size();i++) {
+
+                        if(entries.get(i).wasModified()) {
+                            String s = pgnPrinter.printGame(entries.get(i).getModifiedGame());
+                            //String sn = new String(s.getBytes(StandardCharsets.ISO_8859_1), "UTF-8");
+                            rafWriter.writeChars(s);
+                        } else {
+                            rafReader.seek(entries.get(i).getOffset());
+                            long nextGameOffset = fileSize;
+                            if(i<entries.size()-1) {
+                                nextGameOffset = entries.get(i+1).getOffset();
+                            }
+                            while(rafReader.getFilePointer() < nextGameOffset) {
+                                String line = rafReader.readLine();
+                                if(line == null) {
+                                    break;
+                                } else {
+                                    rafWriter.writeBytes(line);
+                                    rafWriter.writeByte(0xa); // 0xa = LF = \n
+                                }
+                            }
+                        }*/
+
+                    /*
+                        if(i % 10000 == 0) {
+                            updateProgress(i, entries.size());
+                        }
+
+                    }*/
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (rafReader != null) {
+                        try {
+                            rafReader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (rafWriter != null) {
+                        try {
+                            rafWriter.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(writer != null) {
+                        try {
+                            writer.flush();
+                            writer.close();
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                File pgn = new File(pgnFilename);
+                pgn.delete();
+                tmpFile.renameTo(pgn);
+
+                return null;
+            }
+        };
+
+
+        progressBar.progressProperty().bind(task.progressProperty());
+
+        task.setOnSucceeded(e -> {
+            unregisterRunningTask(task);
+            task.getValue();
+            stage.close();
+            if(this.dialogDatabase != null) {
+                dialogDatabase.updateTable();
+            }
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(false);
+        registerRunningTask(task);
+        thread.start();
+
+        //OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile("foo.txt", "w");
+        //raf.
+
+
+        // save everything in tmpFile, except for the currently opened game
+        // this one is rendered with a pgn writer
+        // delete filenameWithoutDir
+        // move tmpFile to filename
+
+
+
     }
 
     /*

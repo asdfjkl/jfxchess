@@ -99,6 +99,7 @@ public class GameMenuController {
                     try {
                         raf = new OptimizedRandomAccessFile(file.getAbsolutePath(), "r");
                         g = reader.readGame(raf);
+                        gameModel.currentPgnDatabaseIdx = 0;
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } finally {

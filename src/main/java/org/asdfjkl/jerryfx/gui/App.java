@@ -21,6 +21,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.lib.*;
@@ -65,12 +66,15 @@ public class App extends Application implements StateChangeListener {
         //tests.readGamesByStringTest();
         //tests.pgnReadAllMillBaseTest();
 
+        FooTest();
+
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
         gameModel.restoreEngines();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
+        gameModel.getGame().setHeaderWasChanged(true);
 
         // MENU
         MenuBar mnuBar = new MenuBar();
@@ -779,6 +783,7 @@ public class App extends Application implements StateChangeListener {
                 gameModel.getComputerThinkTimeSecs());
         if(accepted) {
             gameModel.wasSaved = false;
+            gameModel.currentPgnDatabaseIdx = -1;
             gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
             gameModel.setEngineStrength(dlg.strength);
             Game g = new Game();
@@ -824,6 +829,49 @@ public class App extends Application implements StateChangeListener {
             gameModel.setMode(GameModel.MODE_GAME_ANALYSIS);
             modeMenuController.activateGameAnalysisMode();
         }
+    }
+
+    private void FooTest() {
+
+        ArrayList<PgnDatabaseEntry> entries = new ArrayList<>();
+        for(int i=0;i<7;i++) {
+            PgnDatabaseEntry entry = new PgnDatabaseEntry();
+            if(i==6 || i==5 || i==2 || i==1) {
+                entry.markAsModified();
+            }
+            entries.add(entry);
+        }
+
+        ArrayList<Pair<Long, Long>> nonModifiedRanges = new ArrayList<>();
+
+        long start = 0;
+        long stop = 0;
+        boolean hasSeenModified = true;
+        for(int i=0;i< entries.size();i++) {
+            if(entries.get(i).wasModified()) {
+                if(!hasSeenModified) {
+                    stop = i;
+                    nonModifiedRanges.add(new Pair(start,stop));
+                    hasSeenModified = true;
+                }
+            } else {
+                if(hasSeenModified) {
+                    start = i;
+                    hasSeenModified = false;
+                }
+                if(i == entries.size() -1 && !hasSeenModified) {
+                    nonModifiedRanges.add(new Pair(start,entries.size()-1));
+                }
+            }
+        }
+
+        // replace entries size with file size?!
+        //nonModifiedRanges.add(new Pair(start, entries.size()-1));
+
+        for(Pair<Long,Long> pair : nonModifiedRanges) {
+            System.out.println(pair.getKey() + ","+pair.getValue());
+        }
+
     }
 
 }

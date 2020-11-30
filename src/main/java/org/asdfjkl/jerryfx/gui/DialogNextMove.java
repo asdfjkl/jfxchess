@@ -48,6 +48,7 @@ public class DialogNextMove {
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
+        stage.requestFocus();
 
         lvMoves = new ListView<>();
         lvMoves.getItems().addAll(possibleMoves);

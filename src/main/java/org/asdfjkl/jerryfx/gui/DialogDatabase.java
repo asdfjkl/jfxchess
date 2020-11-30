@@ -58,27 +58,27 @@ public class DialogDatabase {
         ToolBar toolBar = new ToolBar();
 
         Button btnOpen = new Button("Open");
-        btnOpen.setGraphic(new ImageView( new Image("icons/document-open.png")));
+        btnOpen.setGraphic(new ImageView(new Image("icons/document-open.png")));
         btnOpen.setContentDisplay(ContentDisplay.TOP);
 
         Button btnSave = new Button("Save");
-        btnSave.setGraphic(new ImageView( new Image("icons/document-save.png")));
+        btnSave.setGraphic(new ImageView(new Image("icons/document-save.png")));
         btnSave.setContentDisplay(ContentDisplay.TOP);
 
         Button btnSaveAs = new Button("Save As...");
-        btnSaveAs.setGraphic(new ImageView( new Image("icons/document-save.png")));
+        btnSaveAs.setGraphic(new ImageView(new Image("icons/document-save.png")));
         btnSaveAs.setContentDisplay(ContentDisplay.TOP);
 
         Button btnSearch = new Button("Search");
-        btnSearch.setGraphic(new ImageView( new Image("icons/system-search.png")));
+        btnSearch.setGraphic(new ImageView(new Image("icons/system-search.png")));
         btnSearch.setContentDisplay(ContentDisplay.TOP);
 
         Button btnResetSearch = new Button("Reset Search");
-        btnResetSearch.setGraphic(new ImageView( new Image("icons/view-refresh.png")));
+        btnResetSearch.setGraphic(new ImageView(new Image("icons/view-refresh.png")));
         btnResetSearch.setContentDisplay(ContentDisplay.TOP);
 
         Button btnAbout = new Button("About");
-        btnAbout.setGraphic(new ImageView( new Image("icons/help-browser.png")));
+        btnAbout.setGraphic(new ImageView(new Image("icons/help-browser.png")));
         btnAbout.setContentDisplay(ContentDisplay.TOP);
 
         toolBar.getItems().addAll(btnOpen, btnSave, btnSaveAs, btnSearch, btnResetSearch, btnAbout);
@@ -149,7 +149,7 @@ public class DialogDatabase {
         vbox.getChildren().addAll(toolBar, table, hbButtons);
         vbox.setVgrow(table, Priority.ALWAYS);
         vbox.setSpacing(10);
-        vbox.setPadding( new Insets(10));
+        vbox.setPadding(new Insets(10));
 
         btnOk.setOnAction(e -> {
             btnOkClicked();
@@ -161,6 +161,14 @@ public class DialogDatabase {
 
         btnOpen.setOnAction(e -> {
             btnOpenClicked();
+        });
+
+        btnSave.setOnAction(e -> {
+            btnSaveClicked();
+        });
+
+        btnSaveAs.setOnAction(e -> {
+            btnSaveAsClicked();
         });
 
         btnSearch.setOnAction(e -> {
@@ -175,7 +183,7 @@ public class DialogDatabase {
             btnAboutClicked();
         });
 
-        if(gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
+        if (gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
             table.getSelectionModel().select(gameModel.currentPgnDatabaseIdx);
             table.scrollTo(gameModel.currentPgnDatabaseIdx);
         }
@@ -189,7 +197,7 @@ public class DialogDatabase {
         vbox.requestFocus();
 
         stage.getIcons().add(new Image("icons/app_icon.png"));
-        if(loadFile) {
+        if (loadFile) {
             Platform.runLater(() -> {
                 pgnDatabase.open();
             });
@@ -219,7 +227,7 @@ public class DialogDatabase {
         DialogSearchGames dlg = new DialogSearchGames();
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
         boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.boardStyle, gameModel.getSearchPattern().makeCopy());
-        if(accepted) {
+        if (accepted) {
             SearchPattern pattern = dlg.getSearchPattern();
             pgnDatabase.search(pattern);
             gameModel.setSearchPattern(pattern);
@@ -246,7 +254,7 @@ public class DialogDatabase {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         fileChooser.setTitle("Open PGN File");
-        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
+        if (gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
             fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
         }
         fileChooser.getExtensionFilters().addAll(
@@ -255,7 +263,7 @@ public class DialogDatabase {
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             pgnDatabase.filename = file.getAbsolutePath();
-            if(file.getParentFile() != null) {
+            if (file.getParentFile() != null) {
                 gameModel.lastOpenedDirPath = file.getParentFile();
             }
             pgnDatabase.open();
@@ -263,5 +271,14 @@ public class DialogDatabase {
         }
     }
 
+    private void btnSaveClicked() {
+
+        pgnDatabase.saveDatabase();
+
+    }
+
+    private void btnSaveAsClicked() {
+
+    }
 
 }
