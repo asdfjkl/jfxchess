@@ -35,9 +35,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import org.asdfjkl.jerryfx.engine.UciEngineProcess;
+
 import java.io.*;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 import static org.asdfjkl.jerryfx.gui.EngineOption.*;
 
@@ -247,74 +249,39 @@ public class DialogEngines {
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
-            try {
-                String line;
+            Engine engine = new Engine();
+            engine.setPath(file.getAbsolutePath());
 
-                Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
-                OutputStream stdout = engineProcess.getOutputStream ();
-                InputStream stderr = engineProcess.getErrorStream ();
-                InputStream stdin = engineProcess.getInputStream ();
+            try (UciEngineProcess engineProcess = new UciEngineProcess(file)) {
 
-                BufferedReader bri = new BufferedReader (new InputStreamReader(engineProcess.getInputStream()));
-                BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
-                BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
-
-                bro.write("uci\n");
-                bro.flush();
-
-                for(int i=0;i<20;i++) {
-                    try {
-                        Thread.sleep(40);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                Engine engine = new Engine();
-                engine.setPath(file.getAbsolutePath());
-
-                while(bri.ready()) {
-                    EngineOption engineOption = new EngineOption();
-                    line = bri.readLine();
-                    if(line.startsWith("id name")) {
+                List<String> reply = engineProcess.sendSynchronous("uci");
+                for(String line: reply) {
+                    if (line.startsWith("id name")) {
                         engine.setName(line.substring(7).trim());
                     }
-                    boolean parsed = engineOption.parseUciOptionString(line);
-                    if(parsed) {
-                        engine.options.add(engineOption);
-                    }
-                }
-                //bro.write("quit\n");
-                bro.flush();
-
-                bri.close();
-                bro.close();
-                bre.close();
-
-                try {
-                    boolean finished = engineProcess.waitFor(500, TimeUnit.MILLISECONDS);
-                    if(!finished) {
-                        engineProcess.destroy();
-                    }
-                } catch(InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if(engine.getName() != null && !engine.getName().isEmpty()) {
-                    engineList.add(engine);
-                    int idx = engineList.indexOf(engine);
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            engineListView.scrollTo(idx);
-                            engineListView.getSelectionModel().select(idx);
+                    else {
+                        EngineOption engineOption = new EngineOption();
+                        boolean parsed = engineOption.parseUciOptionString(line);
+                        if (parsed) {
+                            engine.options.add(engineOption);
                         }
-                    });
+                    }
                 }
-            } catch (FileNotFoundException e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            }
+
+            if(engine.getName() != null && !engine.getName().isEmpty()) {
+                engineList.add(engine);
+                int idx = engineList.indexOf(engine);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        engineListView.scrollTo(idx);
+                        engineListView.getSelectionModel().select(idx);
+                    }
+                });
             }
         }
 

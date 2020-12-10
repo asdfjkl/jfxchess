@@ -29,14 +29,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EngineController {
 
     final EngineThread engineThread;
-    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<String>();
+    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<>();
 
     public EngineController(ModeMenuController modeMenuController) {
 
         final AtomicReference<String> count = new AtomicReference<>();
         //cmdQueue = new LinkedBlockingQueue<String>();
         engineThread = new EngineThread(cmdQueue);
-        engineThread.stringProperty().addListener(new ChangeListener<String>() {
+        engineThread.stringProperty().addListener(new ChangeListener<>() {
             @Override
             public void changed(final ObservableValue<? extends String> observable,
                                 final String oldValue, final String newValue) {
@@ -51,7 +51,7 @@ public class EngineController {
                 }
             }
         });
-
+        // Don't start the thread until we're ready to use the engine!
         engineThread.start();
 
     }
