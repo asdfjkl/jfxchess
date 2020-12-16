@@ -57,7 +57,7 @@ public class EnterPosBoard extends Canvas {
 
         final int[][] pickupPieces = {
                 { CONSTANTS.WHITE_PAWN, CONSTANTS.BLACK_PAWN },
-                { CONSTANTS.WHITE_KNIGHT, CONSTANTS.BLACK_KING},
+                { CONSTANTS.WHITE_KNIGHT, CONSTANTS.BLACK_KNIGHT},
                 { CONSTANTS.WHITE_BISHOP, CONSTANTS.BLACK_BISHOP},
                 { CONSTANTS.WHITE_ROOK, CONSTANTS.BLACK_ROOK},
                 { CONSTANTS.WHITE_QUEEN, CONSTANTS.BLACK_QUEEN},
@@ -183,9 +183,17 @@ public class EnterPosBoard extends Canvas {
         for(int i=0;i<8;i++) {
             for(int j=0;j<8;j++) {
                 if((j%2 == 0 && i%2==1) || (j%2 == 1 && i%2==0)) {
-                    fieldColor = boardStyle.getLightSquareColor();
+                    if(!flipBoard) {
+                        fieldColor = boardStyle.getLightSquareColor();
+                    } else {
+                        fieldColor = boardStyle.getDarkSquareColor();
+                    }
                 } else {
-                    fieldColor = boardStyle.getDarkSquareColor();
+                    if(!flipBoard) {
+                        fieldColor = boardStyle.getDarkSquareColor();
+                    } else {
+                        fieldColor = boardStyle.getLightSquareColor();
+                    }
                 }
                 int x = (innerXOffset) + (i*squareSize);
                 if(flipBoard) {

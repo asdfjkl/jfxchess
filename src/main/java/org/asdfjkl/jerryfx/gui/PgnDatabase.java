@@ -144,7 +144,7 @@ public class PgnDatabase {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UNDECORATED);
 
-        Label lblScanPgn = new Label("Writing PGN...");
+        Label lblScanPgn = new Label("Saving PGN...");
         ProgressBar progressBar = new ProgressBar();
 
         VBox vbox = new VBox();
@@ -176,6 +176,8 @@ public class PgnDatabase {
 
                 int startIndex = 0;
 
+                long linesWritten = 0;
+
                 try {
                     rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
                     //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
@@ -186,12 +188,17 @@ public class PgnDatabase {
                         // if game was modified, always write it out
                         if(entries.get(i).wasModified()) {
                             // first write out everything unmodified up until now
-                            System.out.println("writing everythin out");
+                            //System.out.println("writing everythin out");
                             long startOffset = entries.get(startIndex).getOffset();
                             long stopOffset = entries.get(i).getOffset();
                             rafReader.seek(startOffset);
                             while(rafReader.getFilePointer() < stopOffset) {
                                 String line = rafReader.readLine();
+                                linesWritten += 1;
+                                if(linesWritten % 20000 == 0) {
+                                    linesWritten = 1;
+                                    updateProgress(rafReader.getFilePointer(), fileSize);
+                                }
                                 if(line == null) {
                                     break;
                                 } else {
@@ -200,7 +207,7 @@ public class PgnDatabase {
                                 }
                             }
                             // write the modified game
-                            System.out.println("writing modified game");
+                            //System.out.println("writing modified game");
                             Game g = entries.get(i).getModifiedGame();
                             if(g!=null) {
                                 String sGame = pgnPrinter.printGame(g);
@@ -211,16 +218,21 @@ public class PgnDatabase {
                         } else {
                             // if it wasn't modified, just collect
                             // only exception: we encountered the last game
-                            System.out.println("just continuing");
+                            //System.out.println("just continuing");
                             if(i>0 && entries.get(i-1).wasModified()) {
                                 startIndex = i;
                             }
                             if(i == entries.size()-1) {
-                                System.out.println("extra case for last game");
+                                //System.out.println("extra case for last game");
                                 rafReader.seek(entries.get(startIndex).getOffset());
                                 while(rafReader.getFilePointer() < fileSize) {
                                     String line = rafReader.readLine();
-                                    System.out.println("write non-mod, for last case: "+line);
+                                    linesWritten++;
+                                    if(linesWritten % 20000 == 0) {
+                                        linesWritten = 1;
+                                        updateProgress(rafReader.getFilePointer(), fileSize);
+                                    }
+                                    //System.out.println("write non-mod, for last case: "+line);
                                     if(line == null) {
                                         break;
                                     } else {
@@ -231,103 +243,6 @@ public class PgnDatabase {
                             }
                         }
                     }
-
-
-
-
-
-/*
-                // first get ranges of non-modified games, so that we
-                // can write in bulk as many as games as possible without much
-                // file-seeking
-                ArrayList<Pair<Long, Long>> nonModifiedRanges = new ArrayList<>();
-
-                int start = 0;
-                int stop = 0;
-                boolean hasSeenModified = true;
-                for(int i=0;i< entries.size();i++) {
-                    if(entries.get(i).wasModified()) {
-                        if(!hasSeenModified) {
-                            stop = i;
-                            nonModifiedRanges.add(new Pair<Long,Long>(entries.get(start).getOffset(),entries.get(stop).getOffset()));
-                            hasSeenModified = true;
-                        }
-                    } else {
-                        if(hasSeenModified) {
-                            start = i;
-                            hasSeenModified = false;
-                        }
-                        if(i == entries.size() -1 && !hasSeenModified) {
-                            nonModifiedRanges.add(new Pair<Long,Long>(entries.get(start).getOffset(),fileSize));
-                        }
-                    }
-                }
-
-                System.out.println("computed pairs of non-modified games:");
-                for(Pair<Long,Long> pair : nonModifiedRanges) {
-                    System.out.println(pair.getKey() + ", "+pair.getValue());
-                }
-
-                try {
-                    rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
-                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
-                    writer = new BufferedWriter(new FileWriter(tmpFilename));
-
-                    for(Pair<Long,Long> pair : nonModifiedRanges) {
-                        rafReader.seek(pair.getKey());
-                        while(rafReader.getFilePointer() < pair.getValue()) {
-                            String line = rafReader.readLine();
-                            //if(line.startsWith("ß")) {
-                            //    System.out.println("foo");
-                            //}
-                            //
-                            //if(line == null) {
-                            //    break;
-                            //} else {
-                            //    rafWriter.writeBytes(line);
-                            //    rafWriter.writeByte(0xa); // 0xa = LF = \n
-                            //}
-                            if(line == null) {
-                                break;
-                            } else {
-                                //System.out.println(line);
-                                writer.write(line);
-                                writer.write(0xa); // 0xa = LF = \n
-                            }
-                        }
-                    }
-                    System.out.println("loop finished");
-        */
-                    /*
-                    for(int i=0;i<entries.size();i++) {
-
-                        if(entries.get(i).wasModified()) {
-                            String s = pgnPrinter.printGame(entries.get(i).getModifiedGame());
-                            //String sn = new String(s.getBytes(StandardCharsets.ISO_8859_1), "UTF-8");
-                            rafWriter.writeChars(s);
-                        } else {
-                            rafReader.seek(entries.get(i).getOffset());
-                            long nextGameOffset = fileSize;
-                            if(i<entries.size()-1) {
-                                nextGameOffset = entries.get(i+1).getOffset();
-                            }
-                            while(rafReader.getFilePointer() < nextGameOffset) {
-                                String line = rafReader.readLine();
-                                if(line == null) {
-                                    break;
-                                } else {
-                                    rafWriter.writeBytes(line);
-                                    rafWriter.writeByte(0xa); // 0xa = LF = \n
-                                }
-                            }
-                        }*/
-
-                    /*
-                        if(i % 10000 == 0) {
-                            updateProgress(i, entries.size());
-                        }
-
-                    }*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -359,7 +274,7 @@ public class PgnDatabase {
                 pgn.delete();
                 tmpFile.renameTo(pgn);
 
-                System.out.println("finished");
+                //System.out.println("finished");
                 return null;
             }
         };
@@ -383,24 +298,8 @@ public class PgnDatabase {
         registerRunningTask(task);
         thread.start();
 
-        //OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile("foo.txt", "w");
-        //raf.
-
-
-        // save everything in tmpFile, except for the currently opened game
-        // this one is rendered with a pgn writer
-        // delete filenameWithoutDir
-        // move tmpFile to filename
-
-
-
     }
 
-    /*
-    public void open(String filename) {
-        this.filename = filename;
-        open();
-    }*/
 
     public void open() {
 

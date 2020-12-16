@@ -177,9 +177,17 @@ public class Chessboard extends Canvas implements StateChangeListener {
         for(int i=0;i<8;i++) {
             for(int j=0;j<8;j++) {
                 if((j%2 == 0 && i%2==1) || (j%2 == 1 && i%2==0)) {
-                    fieldColor = boardStyle.getLightSquareColor();
+                    if(!flipBoard) {
+                        fieldColor = boardStyle.getLightSquareColor();
+                    } else {
+                        fieldColor = boardStyle.getDarkSquareColor();
+                    }
                 } else {
-                    fieldColor = boardStyle.getDarkSquareColor();
+                    if(!flipBoard) {
+                        fieldColor = boardStyle.getDarkSquareColor();
+                    } else {
+                        fieldColor = boardStyle.getLightSquareColor();
+                    }
                 }
                 int x = (innerXOffset) + (i*squareSize);
                 if(flipBoard) {
