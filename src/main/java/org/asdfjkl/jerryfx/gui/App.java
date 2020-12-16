@@ -66,7 +66,7 @@ public class App extends Application implements StateChangeListener {
         //tests.readGamesByStringTest();
         //tests.pgnReadAllMillBaseTest();
 
-        FooTest();
+        //FooTest();
 
         gameModel = new GameModel();
         gameModel.restoreModel();
@@ -851,7 +851,7 @@ public class App extends Application implements StateChangeListener {
             if(entries.get(i).wasModified()) {
                 if(!hasSeenModified) {
                     stop = i;
-                    nonModifiedRanges.add(new Pair(start,stop));
+                    nonModifiedRanges.add(new Pair<Long,Long>(start,stop));
                     hasSeenModified = true;
                 }
             } else {
@@ -860,7 +860,7 @@ public class App extends Application implements StateChangeListener {
                     hasSeenModified = false;
                 }
                 if(i == entries.size() -1 && !hasSeenModified) {
-                    nonModifiedRanges.add(new Pair(start,entries.size()-1));
+                    nonModifiedRanges.add(new Pair<Long,Long>(start,(long) entries.size()-1));
                 }
             }
         }

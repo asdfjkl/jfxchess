@@ -43,6 +43,8 @@ public class DialogDatabase {
     SearchPattern searchPattern;
     GameModel gameModel;
 
+    int idxCurrentlyOpen = -1;
+
     final FileChooser fileChooser = new FileChooser();
 
     public boolean show(GameModel gameModel, boolean loadFile) {
@@ -273,11 +275,33 @@ public class DialogDatabase {
 
     private void btnSaveClicked() {
 
+        if(gameModel.currentPgnDatabaseIdx >= 0 && gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
+            pgnDatabase.getEntries().get(gameModel.currentPgnDatabaseIdx).markAsModified();
+            pgnDatabase.getEntries().get(gameModel.currentPgnDatabaseIdx).setModifiedGame(gameModel.getGame());
+        }
         pgnDatabase.saveDatabase();
 
     }
 
     private void btnSaveAsClicked() {
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        fileChooser.setTitle("Save PGN File As...");
+        if (gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            String newFilename = file.getAbsolutePath();
+            if (file.getParentFile() != null) {
+                gameModel.lastOpenedDirPath = file.getParentFile();
+            }
+            pgnDatabase.saveDatabaseAs(newFilename);
+        }
 
     }
 

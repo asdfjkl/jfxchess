@@ -114,7 +114,9 @@ public class PgnDatabase {
     }
 
     public void saveDatabase() {
+
         saveDatabaseAs(filename);
+
     }
 
     public void saveDatabaseAs(String filename) {
@@ -172,6 +174,69 @@ public class PgnDatabase {
 
                 PgnPrinter pgnPrinter = new PgnPrinter();
 
+                int startIndex = 0;
+
+                try {
+                    rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
+                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
+                    writer = new BufferedWriter(new FileWriter(tmpFilename));
+
+                    for (int i = 0; i < entries.size(); i++) {
+
+                        // if game was modified, always write it out
+                        if(entries.get(i).wasModified()) {
+                            // first write out everything unmodified up until now
+                            System.out.println("writing everythin out");
+                            long startOffset = entries.get(startIndex).getOffset();
+                            long stopOffset = entries.get(i).getOffset();
+                            rafReader.seek(startOffset);
+                            while(rafReader.getFilePointer() < stopOffset) {
+                                String line = rafReader.readLine();
+                                if(line == null) {
+                                    break;
+                                } else {
+                                    writer.write(line);
+                                    writer.write(0xa); // 0xa = LF = \n
+                                }
+                            }
+                            // write the modified game
+                            System.out.println("writing modified game");
+                            Game g = entries.get(i).getModifiedGame();
+                            if(g!=null) {
+                                String sGame = pgnPrinter.printGame(g);
+                                writer.write(sGame);
+                                writer.write(0xa); // 0xa = LF = \n
+                                writer.write(0xa); // 0xa = LF = \n
+                            }
+                        } else {
+                            // if it wasn't modified, just collect
+                            // only exception: we encountered the last game
+                            System.out.println("just continuing");
+                            if(i>0 && entries.get(i-1).wasModified()) {
+                                startIndex = i;
+                            }
+                            if(i == entries.size()-1) {
+                                System.out.println("extra case for last game");
+                                rafReader.seek(entries.get(startIndex).getOffset());
+                                while(rafReader.getFilePointer() < fileSize) {
+                                    String line = rafReader.readLine();
+                                    System.out.println("write non-mod, for last case: "+line);
+                                    if(line == null) {
+                                        break;
+                                    } else {
+                                        writer.write(line);
+                                        writer.write(0xa); // 0xa = LF = \n
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
+
+
+/*
                 // first get ranges of non-modified games, so that we
                 // can write in bulk as many as games as possible without much
                 // file-seeking
@@ -184,7 +249,7 @@ public class PgnDatabase {
                     if(entries.get(i).wasModified()) {
                         if(!hasSeenModified) {
                             stop = i;
-                            nonModifiedRanges.add(new Pair(entries.get(start).getOffset(),entries.get(stop).getOffset()));
+                            nonModifiedRanges.add(new Pair<Long,Long>(entries.get(start).getOffset(),entries.get(stop).getOffset()));
                             hasSeenModified = true;
                         }
                     } else {
@@ -193,7 +258,7 @@ public class PgnDatabase {
                             hasSeenModified = false;
                         }
                         if(i == entries.size() -1 && !hasSeenModified) {
-                            nonModifiedRanges.add(new Pair(entries.get(start).getOffset(),fileSize));
+                            nonModifiedRanges.add(new Pair<Long,Long>(entries.get(start).getOffset(),fileSize));
                         }
                     }
                 }
@@ -215,13 +280,13 @@ public class PgnDatabase {
                             //if(line.startsWith("ß")) {
                             //    System.out.println("foo");
                             //}
-                            /*
-                            if(line == null) {
-                                break;
-                            } else {
-                                rafWriter.writeBytes(line);
-                                rafWriter.writeByte(0xa); // 0xa = LF = \n
-                            }*/
+                            //
+                            //if(line == null) {
+                            //    break;
+                            //} else {
+                            //    rafWriter.writeBytes(line);
+                            //    rafWriter.writeByte(0xa); // 0xa = LF = \n
+                            //}
                             if(line == null) {
                                 break;
                             } else {
@@ -232,6 +297,7 @@ public class PgnDatabase {
                         }
                     }
                     System.out.println("loop finished");
+        */
                     /*
                     for(int i=0;i<entries.size();i++) {
 
@@ -293,6 +359,7 @@ public class PgnDatabase {
                 pgn.delete();
                 tmpFile.renameTo(pgn);
 
+                System.out.println("finished");
                 return null;
             }
         };
@@ -307,6 +374,8 @@ public class PgnDatabase {
             if(this.dialogDatabase != null) {
                 dialogDatabase.updateTable();
             }
+            this.filename = pgnFilename;
+            open();
         });
 
         Thread thread = new Thread(task);
@@ -365,6 +434,9 @@ public class PgnDatabase {
 
         final String tmpFilename = this.filename;
 
+        entries.clear();
+        System.gc();
+
         Task<ObservableList<PgnDatabaseEntry>> task = new Task<>() {
             @Override protected ObservableList<PgnDatabaseEntry> call() throws Exception {
 
@@ -403,6 +475,8 @@ public class PgnDatabase {
                             if (game_pos == -1) {
                                 game_pos = last_pos;
                                 current = new PgnDatabaseEntry();
+                                //System.out.println(currentLine);
+
                             }
                             last_pos = raf.getFilePointer();
                             if (currentLine.length() > 4) {

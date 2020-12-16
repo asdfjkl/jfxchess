@@ -77,7 +77,7 @@ public class GameModel {
     private static final int modelVersion = 400;
 
     private final PgnDatabase pgnDatabase;
-    public int currentPgnDatabaseIdx = 0;
+    public int currentPgnDatabaseIdx = -1;
     public File lastOpenedDirPath = null;
     public File lastSaveDirPath = null;
 
