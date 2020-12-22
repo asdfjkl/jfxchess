@@ -492,9 +492,11 @@ public class Chessboard extends Canvas implements StateChangeListener {
                 xy.x = 7-xy.x;
                 xy.y = 7-xy.y;
             }*/
-            grabbedArrow.xTo = xy.x;
-            grabbedArrow.yTo = xy.y;
-            updateCanvas();
+            if(xy != null) {
+                grabbedArrow.xTo = xy.x;
+                grabbedArrow.yTo = xy.y;
+                updateCanvas();
+            }
         }
     }
 
