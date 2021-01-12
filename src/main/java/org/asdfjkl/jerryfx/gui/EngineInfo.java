@@ -197,11 +197,11 @@ public class EngineInfo {
                 currentMove = sCurrMove.substring(9);
             }
 
-            System.out.println(line);
+            //System.out.println(line);
             Matcher matchPV = PV.matcher(line);
             if(matchPV.find()) {
                 String sMoves = matchPV.group().substring(3);
-                System.out.println(sMoves);
+                //System.out.println(sMoves);
                 pvList = new ArrayList<>(Arrays.asList(sMoves.split(" +")));
                 //for(String pv : pvList) {
                 //    System.out.println(pv);

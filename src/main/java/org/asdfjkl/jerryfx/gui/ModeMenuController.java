@@ -330,6 +330,28 @@ public class ModeMenuController implements StateChangeListener {
             return;
         }
 
+        if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK  || mode == GameModel.MODE_PLAYOUT_POSITION) {
+
+            // todo: catch Exceptions!
+            String uci = bestmoveItems[1].split(" ")[0];
+            Move m = new Move(uci);
+            Board b = gameModel.getGame().getCurrentNode().getBoard();
+            if (b.isLegal(m)) {
+                if(mode == GameModel.MODE_PLAY_WHITE && b.turn == CONSTANTS.BLACK) {
+                    gameModel.getGame().applyMove(m);
+                    gameModel.triggerStateChange();
+                }
+                if(mode == GameModel.MODE_PLAY_BLACK && b.turn == CONSTANTS.WHITE) {
+                    gameModel.getGame().applyMove(m);
+                    gameModel.triggerStateChange();
+                }
+                if(mode == GameModel.MODE_PLAYOUT_POSITION) {
+                    gameModel.getGame().applyMove(m);
+                    gameModel.triggerStateChange();
+                }
+            }
+        }
+
         if(mode == GameModel.MODE_GAME_ANALYSIS) {
             //gameModel.getGame().getCurrentNode().setComment(bestmove);
 
@@ -378,115 +400,6 @@ public class ModeMenuController implements StateChangeListener {
                             // than the best suggested pv line, it means that e.g. the
                             // engine took a book move, but did not gave a pv evaluation
                             // or there was some major async error between engine and gui
-                            // in such a case, do not add the best pv line, as it is probably
-                            // not a valid pv line for the current node
-                            // we also do not want to add the same line as the child
-                            if (!uci.equals(nextMove) && pvMoves.length > 0 && pvMoves[0].equals(uci)) {
-
-                                addBestPv(pvMoves);
-
-                                NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
-                                DecimalFormat decim = (DecimalFormat) nf;
-                                decim.applyPattern("0.00");
-                                String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
-                                String sChildBest = decim.format(gameModel.childBestEval / 100.0);
-
-                                ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
-                                if (vars != null && vars.size() > 1) {
-                                    GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
-                                    child0.setComment(sChildBest);
-                                    GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
-                                    child1.setComment(sCurrentBest);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-
-
-
-
-            gameModel.getGame().setTreeWasChanged(true);
-            gameModel.triggerStateChange();
-        }
-
-
-        //System.out.println(bestmove);
-
-        // get zobrist and compare to current position
-
-        /*
-
-        String[] bestmoveItems = bestmove.split("\\|");
-
-        if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK  || mode == GameModel.MODE_PLAYOUT_POSITION) {
-
-            gameModel.lastSeenBestmove = bestmove;
-            // todo: catch Exceptions!
-            String uci = bestmoveItems[1].split(" ")[0];
-            Move m = new Move(uci);
-            Board b = gameModel.getGame().getCurrentNode().getBoard();
-            if (b.isLegal(m)) {
-                if(mode == GameModel.MODE_PLAY_WHITE && b.turn == CONSTANTS.BLACK) {
-                    gameModel.getGame().applyMove(m);
-                    gameModel.triggerStateChange();
-                }
-                if(mode == GameModel.MODE_PLAY_BLACK && b.turn == CONSTANTS.WHITE) {
-                    gameModel.getGame().applyMove(m);
-                    gameModel.triggerStateChange();
-                }
-                if(mode == GameModel.MODE_PLAYOUT_POSITION) {
-                    gameModel.getGame().applyMove(m);
-                    gameModel.triggerStateChange();
-                }
-            }
-        }
-         */
-
-        /*
-        if(mode == GameModel.MODE_GAME_ANALYSIS) {
-
-            gameModel.lastSeenBestmove = bestmove;
-
-            // first update information for current node
-            gameModel.childBestPv = gameModel.currentBestPv;
-            gameModel.childBestEval = gameModel.currentBestEval;
-            gameModel.childIsMate = gameModel.currentIsMate;
-            gameModel.childMateInMoves = gameModel.currentMateInMoves;
-
-            gameModel.currentBestPv = bestmoveItems[3];
-            gameModel.currentBestEval = Integer.parseInt(bestmoveItems[2]);
-            gameModel.currentIsMate = bestmoveItems[4].equals("true");
-
-            gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
-
-            if(!gameModel.getGame().getCurrentNode().isLeaf()) {
-                // completely skip that for black or white, if
-                // that was chosen in the analysis
-                boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
-                if ((gameModel.getGameAnalysisForPlayer() == GameModel.BOTH_PLAYERS)
-                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IWHITE && turn == CONSTANTS.WHITE)
-                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
-
-                    // error, if currentNode is leaf -> nextMove will throw exception
-
-                    if (!gameModel.currentIsMate && !gameModel.childIsMate) {
-                        boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
-                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(gameModel.getGameAnalysisThreshold()));
-
-                        //System.out.println("threshold: "+gameModel.getGameAnalysisThreshold());
-                        //System.out.println("mistake  : " + (gameModel.currentBestEval - gameModel.childBestEval));
-
-                        if (wMistake || bMistake) {
-                            String uci = bestmoveItems[1].split(" ")[0];
-                            String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
-                            String[] pvMoves = gameModel.currentBestPv.split(" ");
-                            // if the bestmove returned by the engine is different
-                            // than the best suggested pv line, it means that e.g. the
-                            // engine took a book move, but did not gave a pv evaluation
                             // in such a case, do not add the best pv line, as it is probably
                             // not a valid pv line for the current node
                             // we also do not want to add the same line as the child
@@ -595,8 +508,8 @@ public class ModeMenuController implements StateChangeListener {
             }
             gameModel.getGame().setTreeWasChanged(true);
             gameModel.triggerStateChange();
+        }
 
-        }*/
     }
 
     @Override
