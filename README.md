@@ -47,7 +47,7 @@ Current plans for future versions:
  
 Version 4.1
 - bugfixes
-- database: edit & save for large PGNs
+- [done] database: edit & save for large PGNs
 - [done] colorize last move
 - [done] drawing arrows & colorizing fields
 - [done] keyboard shortcuts
