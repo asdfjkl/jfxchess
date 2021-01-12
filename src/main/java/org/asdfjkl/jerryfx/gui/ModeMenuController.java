@@ -43,10 +43,10 @@ public class ModeMenuController implements StateChangeListener {
     public void handleEngineInfo(String s) {
 
         if(s.startsWith("INFO")) {
-            //"INFO |Stockfish 12 (Level MAX)|145.081 kn/s||(#0)  23. Be7#||||"
+            //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
             String[] sSplit = s.split("\\|");
             if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {
-                String sTemp = "|" + sSplit[1] + "|||(#0)|";
+                String sTemp = "|" + sSplit[1] + "||||(#0)|";
                 this.engineOutputView.setText(sTemp);
             } else {
                 this.engineOutputView.setText(s.substring(5));
@@ -63,7 +63,6 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activateAnalysisMode() {
 
-        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -84,7 +83,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateEnterMovesMode() {
-        gameModel.lastSeenBestmove = "";
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
@@ -140,7 +138,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayWhiteMode() {
-        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -164,7 +161,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayBlackMode() {
-        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -188,7 +184,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayoutPositionMode() {
-        gameModel.lastSeenBestmove = "";
         // first change gamestate and reset engine
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
@@ -208,8 +203,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateGameAnalysisMode() {
-
-        gameModel.lastSeenBestmove = "";
 
         gameModel.getGame().removeAllComments();
         gameModel.getGame().removeAllVariants();
@@ -326,9 +319,106 @@ public class ModeMenuController implements StateChangeListener {
             return;
         }
 
-        if(gameModel.lastSeenBestmove.equals(bestmove)) {
+        String[] bestmoveItems = bestmove.split("\\|");
+
+        String zobristString = bestmoveItems[bestmoveItems.length-1];
+        long zobrist = Long.parseLong(zobristString);
+
+        if(zobrist != gameModel.getGame().getCurrentNode().getBoard().getZobrist()) {
+            // if this bestmove is for a different position than the current,
+            // it is a relict from thread/gui synchronisation mismatch; we just dismiss it
             return;
         }
+
+        if(mode == GameModel.MODE_GAME_ANALYSIS) {
+            //gameModel.getGame().getCurrentNode().setComment(bestmove);
+
+            // first update information for current node
+            gameModel.childBestPv = gameModel.currentBestPv;
+            gameModel.childBestEval = gameModel.currentBestEval;
+            gameModel.childIsMate = gameModel.currentIsMate;
+            gameModel.childMateInMoves = gameModel.currentMateInMoves;
+
+            gameModel.currentBestPv = bestmoveItems[3];
+            gameModel.currentBestEval = Integer.parseInt(bestmoveItems[2]);
+            gameModel.currentIsMate = bestmoveItems[4].equals("true");
+            gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
+
+            // double check, since some engines misreport / report not quickly enough
+            if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate()){
+                gameModel.currentIsMate = true;
+            }
+
+
+            // ignore leafs (game ended here)
+            if(!gameModel.getGame().getCurrentNode().isLeaf()) {
+                //System.out.println("handling bestmove: "+bestmove);
+
+                // completely skip analysis for black or white, if
+                // that option was chosen
+                boolean turn = gameModel.getGame().getCurrentNode().getBoard().turn;
+                if ((gameModel.getGameAnalysisForPlayer() == GameModel.BOTH_PLAYERS)
+                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IWHITE && turn == CONSTANTS.WHITE)
+                        || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
+
+                    // first case if there was simply a better move; i.e. no checkmate overseen or
+                    // moved into a checkmate
+                    if (!gameModel.currentIsMate && !gameModel.childIsMate) {
+                        boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
+                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(gameModel.getGameAnalysisThreshold()));
+
+                        //System.out.println("threshold: "+gameModel.getGameAnalysisThreshold());
+                        //System.out.println("mistake  : " + (gameModel.currentBestEval - gameModel.childBestEval));
+
+                        if (wMistake || bMistake) {
+                            String uci = bestmoveItems[1].split(" ")[0];
+                            String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
+                            String[] pvMoves = gameModel.currentBestPv.split(" ");
+                            // if the bestmove returned by the engine is different
+                            // than the best suggested pv line, it means that e.g. the
+                            // engine took a book move, but did not gave a pv evaluation
+                            // or there was some major async error between engine and gui
+                            // in such a case, do not add the best pv line, as it is probably
+                            // not a valid pv line for the current node
+                            // we also do not want to add the same line as the child
+                            if (!uci.equals(nextMove) && pvMoves.length > 0 && pvMoves[0].equals(uci)) {
+
+                                addBestPv(pvMoves);
+
+                                NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+                                DecimalFormat decim = (DecimalFormat) nf;
+                                decim.applyPattern("0.00");
+                                String sCurrentBest = decim.format(gameModel.currentBestEval / 100.0);
+                                String sChildBest = decim.format(gameModel.childBestEval / 100.0);
+
+                                ArrayList<GameNode> vars = gameModel.getGame().getCurrentNode().getVariations();
+                                if (vars != null && vars.size() > 1) {
+                                    GameNode child0 = gameModel.getGame().getCurrentNode().getVariation(0);
+                                    child0.setComment(sChildBest);
+                                    GameNode child1 = gameModel.getGame().getCurrentNode().getVariation(1);
+                                    child1.setComment(sCurrentBest);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+
+            gameModel.getGame().setTreeWasChanged(true);
+            gameModel.triggerStateChange();
+        }
+
+
+        //System.out.println(bestmove);
+
+        // get zobrist and compare to current position
+
+        /*
 
         String[] bestmoveItems = bestmove.split("\\|");
 
@@ -354,6 +444,9 @@ public class ModeMenuController implements StateChangeListener {
                 }
             }
         }
+         */
+
+        /*
         if(mode == GameModel.MODE_GAME_ANALYSIS) {
 
             gameModel.lastSeenBestmove = bestmove;
@@ -367,22 +460,6 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.currentBestPv = bestmoveItems[3];
             gameModel.currentBestEval = Integer.parseInt(bestmoveItems[2]);
             gameModel.currentIsMate = bestmoveItems[4].equals("true");
-            // some engines, like arasan report 0.00 in mate position with nullmove
-            // thus check manually
-            //if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate()) {
-            //    gameModel.currentIsMate = true;
-            //}
-
-            /*
-            System.out.println("");
-            System.out.println("handle best move:");
-            System.out.println(gameModel.getGame().getCurrentNode().getBoard().toString());
-            System.out.println(gameModel.getGame().getCurrentNode().getBoard().fen());
-            System.out.println("best eval: "+gameModel.currentBestEval);
-            System.out.println("with move: "+gameModel.currentBestPv);
-            System.out.println("child eva: "+gameModel.childBestEval);
-            System.out.println("");
-            */
 
             gameModel.currentMateInMoves = Integer.parseInt(bestmoveItems[5]);
 
@@ -519,7 +596,7 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.getGame().setTreeWasChanged(true);
             gameModel.triggerStateChange();
 
-        }
+        }*/
     }
 
     @Override

@@ -90,33 +90,33 @@ public class EngineOutputView {
         if(isEnabled) {
 
             //pv1.setText(info);
-            // | id (Level MAX) | current Move + depth  |  nps | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
+            // | id (Level MAX) | zobrist  |  nps | current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
             String[] infos = info.split("\\|");
 
             if (infos.length > 1 && !infos[1].isEmpty()) {
                 engineId.setText(infos[1]);
             }
-            if (infos.length > 2 && !infos[2].isEmpty()) {
-                depth.setText(infos[2]);
-            }
             if (infos.length > 3 && !infos[3].isEmpty()) {
                 nps.setText(infos[3]);
             }
             if (infos.length > 4 && !infos[4].isEmpty()) {
-                pv1.setText(infos[4]);
+                depth.setText(infos[4]);
             }
             if (infos.length > 5 && !infos[5].isEmpty()) {
-                pv2.setText(infos[5]);
+                pv1.setText(infos[5]);
+            }
+            if (infos.length > 6 && !infos[6].isEmpty()) {
+                pv2.setText(infos[6]);
             } else {
                 pv2.setText("");
             }
-            if (infos.length > 6 && !infos[6].isEmpty()) {
-                pv3.setText(infos[6]);
+            if (infos.length > 7 && !infos[7].isEmpty()) {
+                pv3.setText(infos[7]);
             } else {
                 pv3.setText("");
             }
-            if (infos.length > 7 && !infos[7].isEmpty()) {
-                pv4.setText(infos[7]);
+            if (infos.length > 8 && !infos[8].isEmpty()) {
+                pv4.setText(infos[8]);
             } else {
                 pv4.setText("");
             }

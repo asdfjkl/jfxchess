@@ -42,7 +42,7 @@ public class EngineInfo {
     final Pattern CURRMOVENUMBER = Pattern.compile("currmovenumber\\s(\\d)+");
     final Pattern CURRMOVE       = Pattern.compile("currmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
     final Pattern BESTMOVE       = Pattern.compile("bestmove\\s[a-z]\\d[a-z]\\d[a-z]{0,1}");
-    final Pattern PV             = Pattern.compile("pv(\\s[a-z]\\d[a-z]\\d[a-z]{0,1})+");
+    final Pattern PV             = Pattern.compile("pv(\\s+[a-z]\\d[a-z]\\d[a-z]{0,1})+");
     final Pattern POS            = Pattern.compile("position\\s");
     final Pattern IDNAME         = Pattern.compile("id\\sname ([^\n]+)");
     final Pattern MOVE           = Pattern.compile("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})\\s");
@@ -70,6 +70,8 @@ public class EngineInfo {
     String fen = "";
 
     int nrPvLines = 1;
+
+    long zobrist = 0;
 
     String bestmove = "";
 
@@ -130,6 +132,7 @@ public class EngineInfo {
             this.fen = fen;
             this.halfmoves = board.halfmoveClock;
             this.fullMoveNumber = board.fullmoveNumber;
+            this.zobrist = board.getZobrist();
         }
     }
 
@@ -194,10 +197,15 @@ public class EngineInfo {
                 currentMove = sCurrMove.substring(9);
             }
 
+            System.out.println(line);
             Matcher matchPV = PV.matcher(line);
             if(matchPV.find()) {
                 String sMoves = matchPV.group().substring(3);
-                pvList = new ArrayList<>(Arrays.asList(sMoves.split(" ")));
+                System.out.println(sMoves);
+                pvList = new ArrayList<>(Arrays.asList(sMoves.split(" +")));
+                //for(String pv : pvList) {
+                //    System.out.println(pv);
+                //}
                 updateSan(multiPv);
             }
 
@@ -241,7 +249,7 @@ public class EngineInfo {
     @Override
     public String toString() {
 
-        // id (Level MAX) | current Move + depth  |  nps | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
+        // id (Level MAX) | zobrist curr pos | nps| current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
         StringBuilder outStr = new StringBuilder();
         outStr.append("|");
 
@@ -257,6 +265,10 @@ public class EngineInfo {
                 outStr.append(id);
             }
         }
+
+        outStr.append("|");
+
+        outStr.append(zobrist);
 
         outStr.append("|");
 

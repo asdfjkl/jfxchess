@@ -97,8 +97,10 @@ public class EngineThread extends Thread {
                                             +"|"+engineInfo.score.get(0)
                                             +"|"+String.join(" ", engineInfo.pvList)
                                             +"|"+engineInfo.seesMate.get(0)
-                                            +"|"+engineInfo.mate.get(0);
+                                            +"|"+engineInfo.mate.get(0)
+                                            +"|"+engineInfo.zobrist;
                                 } else {
+                                    //System.out.println("thread: "+line);
                                     engineInfo.update(line);
                                 }
                             }
@@ -113,6 +115,7 @@ public class EngineThread extends Thread {
             long currentMs = System.currentTimeMillis();
             if((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
+                //System.out.println("thread info: "+engineInfo.toString());
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,

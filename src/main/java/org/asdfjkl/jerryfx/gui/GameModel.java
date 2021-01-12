@@ -68,13 +68,11 @@ public class GameModel {
 
     public boolean doNotNotifyAboutResult = false;
 
-    public String lastSeenBestmove = "";
-
     public final Polyglot book;
 
     private Preferences prefs;
 
-    private static final int modelVersion = 400;
+    private static final int modelVersion = 410;
 
     private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = -1;
