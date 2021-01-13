@@ -355,6 +355,8 @@ public class EnterPosBoard extends Canvas {
             } else {
                 board.setPieceAt(boardPos.x, boardPos.y, selectedPiece);
             }
+            // update piece list
+
             notifyBoardChange();
         }
         updateCanvas();

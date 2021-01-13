@@ -1313,6 +1313,7 @@ public class Board {
     public ArrayList<Move> legalMoves() {
 
         ArrayList<Move> pseudoLegals = this.pseudoLegalMoves();
+        // System.out.println("pseudoLegalSize: "+pseudoLegals.size());
         ArrayList<Move> legals = new ArrayList<Move>();
         for(Move mi : pseudoLegals) {
             try {
@@ -1631,6 +1632,9 @@ public class Board {
         {
             int idx = this.xyToInternal(x,y);
             this.board[idx] = piece;
+            // we need to recalculate the piece list, if the board
+            // was manually modified
+            this.initPieceList();
         } else {
             throw new IllegalArgumentException("called setPieceAt with invalid paramters, (x,y,piece): "+x+","+y+","+piece);
         }
