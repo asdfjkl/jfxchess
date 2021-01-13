@@ -329,7 +329,25 @@ public class GameModel {
             setGameAnalysisThinkTimeSecs(gameAnalysisSecs);
             setGameAnalysisThreshold(gameAnalysisThreshold);
         }
+    }
 
+    public void saveNewGameSettings() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putInt("COMPUTER_THINK_TIME_SECS", getComputerThinkTimeSecs());
+        prefs.putDouble("COMPUTER_STRENGTH", getEngineStrength());
+    }
+
+    public void restoreNewGameSettings() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        if(mVersion == modelVersion) {
+            int secs = prefs.getInt("COMPUTER_THINK_TIME_SECS", 3);
+            int strength = prefs.getInt("COMPUTER_STRENGTH", 20);
+            setComputerThinkTimeSecs(secs);
+            setEngineStrength(strength);
+        }
     }
 
     public void restoreBoardStyle() {

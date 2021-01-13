@@ -72,6 +72,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreBoardStyle();
         gameModel.restoreEngines();
         gameModel.restoreGameAnalysisThresholds();
+        gameModel.restoreNewGameSettings();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
@@ -767,6 +768,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveBoardStyle();
         gameModel.saveEngines();
         gameModel.saveGameAnalysisThresholds();
+        gameModel.saveNewGameSettings();
 
         engineController.sendCommand("quit");
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();
