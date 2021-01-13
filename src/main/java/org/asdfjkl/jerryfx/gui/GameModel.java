@@ -51,8 +51,8 @@ public class GameModel {
     Engine activeEngine = null;
 
     private int gameAnalysisForPlayer = BOTH_PLAYERS;
-    private int gameAnalysisThreshold = 500; // centipawns
-    private int gameAnalysisThinkTime = 3000;
+    private double gameAnalysisThreshold = 0.5; // pawns
+    private int gameAnalysisThinkTimeSecs = 3;  // seconds
 
     private boolean gameAnalysisJustStarted = false;
 
@@ -199,13 +199,13 @@ public class GameModel {
 
     public void setGameAnalysisForPlayer(int player) { gameAnalysisForPlayer = player; }
 
-    public int getGameAnalysisThreshold() { return gameAnalysisThreshold; }
+    public double getGameAnalysisThreshold() { return gameAnalysisThreshold; }
 
-    public void setGameAnalysisThreshold(int threshold) { gameAnalysisThreshold = threshold; }
+    public void setGameAnalysisThreshold(double threshold) { gameAnalysisThreshold = threshold; }
 
-    public void setGameAnalysisThinkTime(int thinktime) { gameAnalysisThinkTime = thinktime; }
+    public void setGameAnalysisThinkTimeSecs(int thinktimeSecs) { gameAnalysisThinkTimeSecs = thinktimeSecs; }
 
-    public int getGameAnalysisThinkTime() { return gameAnalysisThinkTime; }
+    public int getGameAnalysisThinkTimeSecs() { return gameAnalysisThinkTimeSecs; }
 
     public void setMode(int mode) {
         this.currentMode = mode;
@@ -310,6 +310,26 @@ public class GameModel {
             prefs.put("ENGINE"+i, engineString);
         }
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+    }
+
+    public void saveGameAnalysisThresholds() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putInt("GAME_ANALYSIS_SECS", getGameAnalysisThinkTimeSecs());
+        prefs.putDouble("GAME_ANALYSIS_THRESHOLD", getGameAnalysisThreshold());
+    }
+
+    public void restoreGameAnalysisThresholds() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        if(mVersion == modelVersion) {
+            int gameAnalysisSecs = prefs.getInt("GAME_ANALYSIS_SECS", 3);
+            double gameAnalysisThreshold = prefs.getDouble("GAME_ANALYSIS_THRESHOLD", 0.5);
+            setGameAnalysisThinkTimeSecs(gameAnalysisSecs);
+            setGameAnalysisThreshold(gameAnalysisThreshold);
+        }
+
     }
 
     public void restoreBoardStyle() {

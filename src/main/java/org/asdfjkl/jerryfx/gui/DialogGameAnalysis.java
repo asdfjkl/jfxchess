@@ -46,6 +46,8 @@ public class DialogGameAnalysis {
 
     public boolean show(int currSecs, double currThreshold) {
 
+        //System.out.println(currSecs + " " + currThreshold);
+
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
 
@@ -72,11 +74,13 @@ public class DialogGameAnalysis {
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 30, 5);
         sSecs.setValueFactory(valueFactorySecs);
         sSecs.setEditable(true);
+        sSecs.getValueFactory().setValue(currSecs);
 
         SpinnerValueFactory<Double> valueFactoryThres =
                 new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 1.0, 0.5, 0.1);
         sPawnThreshold.setValueFactory(valueFactoryThres);
         sPawnThreshold.setEditable(true);
+        sPawnThreshold.getValueFactory().setValue(currThreshold);
 
         HBox hbColors = new HBox(rbBoth, rbWhite, rbBlack);
         hbColors.setSpacing(10);

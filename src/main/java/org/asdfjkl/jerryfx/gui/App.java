@@ -21,7 +21,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jerryfx.lib.*;
@@ -72,6 +71,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
         gameModel.restoreEngines();
+        gameModel.restoreGameAnalysisThresholds();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
@@ -766,6 +766,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveScreenGeometry(g);
         gameModel.saveBoardStyle();
         gameModel.saveEngines();
+        gameModel.saveGameAnalysisThresholds();
 
         engineController.sendCommand("quit");
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();
@@ -809,7 +810,8 @@ public class App extends Application implements StateChangeListener {
 
     private void handleFullGameAnalysis() {
         DialogGameAnalysis dlg = new DialogGameAnalysis();
-        boolean accepted = dlg.show(3, 0.5);
+        boolean accepted = dlg.show(gameModel.getGameAnalysisThinkTimeSecs(),
+                ((double) gameModel.getGameAnalysisThreshold()));
         if(accepted) {
             itmEnterMoves.setSelected(true);
             tglEngineOnOff.setSelected(true);
@@ -824,13 +826,14 @@ public class App extends Application implements StateChangeListener {
             if(dlg.rbBlack.isSelected()) {
                 gameModel.setGameAnalysisForPlayer(CONSTANTS.IBLACK);
             }
-            gameModel.setGameAnalysisThinkTime(dlg.sSecs.getValue());
-            gameModel.setGameAnalysisThreshold((int) (dlg.sPawnThreshold.getValue()*100.0));
+            gameModel.setGameAnalysisThinkTimeSecs(dlg.sSecs.getValue());
+            gameModel.setGameAnalysisThreshold(dlg.sPawnThreshold.getValue());
             gameModel.setMode(GameModel.MODE_GAME_ANALYSIS);
             modeMenuController.activateGameAnalysisMode();
         }
     }
 
+    /*
     private void FooTest() {
 
         ArrayList<PgnDatabaseEntry> entries = new ArrayList<>();
@@ -873,5 +876,7 @@ public class App extends Application implements StateChangeListener {
         }
 
     }
+
+     */
 
 }

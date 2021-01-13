@@ -120,8 +120,8 @@ public class ModeMenuController implements StateChangeListener {
                 String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
                 engineController.sendCommand("stop");
                 engineController.sendCommand("position fen " + fen);
-                //System.out.println("go movetime "  + (gameModel.getGameAnalysisThinkTime() * 1000));
-                engineController.sendCommand("go movetime " + (gameModel.getGameAnalysisThinkTime() * 1000));
+                //System.out.println("go movetime "  + (gameModel.getGameAnalysisThinkTimeSecs() * 1000));
+                engineController.sendCommand("go movetime " + (gameModel.getGameAnalysisThinkTimeSecs() * 1000));
             }
         } else {
             continueAnalysis = false;
@@ -383,11 +383,13 @@ public class ModeMenuController implements StateChangeListener {
                         || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IWHITE && turn == CONSTANTS.WHITE)
                         || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
 
+                    int centiPawnThreshold = (int) (gameModel.getGameAnalysisThreshold() * 100.0);
+                    //System.out.println(centiPawnThreshold);
                     // first case if there was simply a better move; i.e. no checkmate overseen or
                     // moved into a checkmate
                     if (!gameModel.currentIsMate && !gameModel.childIsMate) {
-                        boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= gameModel.getGameAnalysisThreshold());
-                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(gameModel.getGameAnalysisThreshold()));
+                        boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= centiPawnThreshold);
+                        boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(centiPawnThreshold));
 
                         //System.out.println("threshold: "+gameModel.getGameAnalysisThreshold());
                         //System.out.println("mistake  : " + (gameModel.currentBestEval - gameModel.childBestEval));
