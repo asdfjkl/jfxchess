@@ -47,6 +47,9 @@ public class App extends Application implements StateChangeListener {
 
     RadioMenuItem itmEnterMoves;
 
+    ToolBar tbMainWindow;
+    CheckMenuItem itmToggleToolbar;
+
     final KeyCombination keyCombinationCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationPaste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationSave = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -152,13 +155,15 @@ public class App extends Application implements StateChangeListener {
                 itmEnterMoves, itmFullGameAnalysis, itmPlayOutPosition,
                 new SeparatorMenuItem(), itmEngines);
 
-
+        // View Menu
         MenuItem itmFullscreen = new MenuItem("Fullscreen");
         itmFullscreen.setAccelerator(new KeyCodeCombination(KeyCode.F11));
+        itmToggleToolbar = new CheckMenuItem("Show Toolbar");
+        itmToggleToolbar.setSelected(true);
         MenuItem itmAppearance = new MenuItem("Appearance");
         MenuItem itmResetLayout = new MenuItem("Reset Layout");
 
-        mnuView.getItems().addAll(itmFullscreen, itmAppearance, itmResetLayout);
+        mnuView.getItems().addAll(itmFullscreen, itmToggleToolbar, itmAppearance, itmResetLayout);
 
         // Database Menu
         MenuItem itmBrowseDatabase = new MenuItem("Browse Database");
@@ -178,7 +183,7 @@ public class App extends Application implements StateChangeListener {
         mnuBar.getMenus().addAll(mnuFile, mnuEdit, mnuMode, mnuView, mnuDatabase, mnuHelp);
 
         // TOOLBAR
-        ToolBar tbMainWindow = new ToolBar();
+        tbMainWindow = new ToolBar();
         Button btnNew = new Button("New");
         btnNew.setGraphic(new ImageView( new Image("icons/document-new.png")));
         btnNew.setContentDisplay(ContentDisplay.TOP);
@@ -483,6 +488,16 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        itmToggleToolbar.setOnAction(e -> {
+            if(itmToggleToolbar.isSelected()) {
+                tbMainWindow.setVisible(true);
+                tbMainWindow.setManaged(true);
+            } else {
+                tbMainWindow.setVisible(false);
+                tbMainWindow.setManaged(false);
+            }
+        });
+
         itmEngines.setOnAction(e -> {
             modeMenuController.editEngines();
         });
@@ -722,6 +737,17 @@ public class App extends Application implements StateChangeListener {
             stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
         }
 
+        boolean toolBarVisible = gameModel.restoreToolbarVisibility();
+        if(toolBarVisible) {
+            itmToggleToolbar.setSelected(true);
+            tbMainWindow.setVisible(true);
+            tbMainWindow.setManaged(true);
+        } else {
+            itmToggleToolbar.setSelected(false);
+            tbMainWindow.setVisible(false);
+            tbMainWindow.setManaged(false);
+        }
+
         gameModel.triggerStateChange();
 
         // un-focus any default button etc.
@@ -775,6 +801,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveEngines();
         gameModel.saveGameAnalysisThresholds();
         gameModel.saveNewGameSettings();
+        gameModel.saveToolbarVisibility(tbMainWindow.isVisible());
 
         engineController.sendCommand("quit");
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();

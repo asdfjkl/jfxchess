@@ -426,6 +426,16 @@ public class GameModel {
 
     }
 
+    public void saveToolbarVisibility(boolean isVisible) {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putBoolean("SHOW_TOOLBAR", isVisible);
+    }
+
+    public boolean restoreToolbarVisibility() {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        return prefs.getBoolean("SHOW_TOOLBAR", true);
+    }
+
     public void restoreModel() {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
