@@ -57,7 +57,9 @@ public class DialogAbout {
                 "        by Marc Lacrosse/Jose-Chess Tool        \n\n" +
                 "Piece Images\n" +
                 "from Raptor Chess Interface\n\n" +
-                "all licensed under GNU GPL 2");
+                "all licensed under GNU GPL 2\n\n" +
+                "Thanks to all who provided\n"+
+                "feedback and/or bug-reports!");
 
 
         tfAbout.getChildren().addAll(
