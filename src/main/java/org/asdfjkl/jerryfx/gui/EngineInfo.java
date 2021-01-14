@@ -65,6 +65,7 @@ public class EngineInfo {
     final ArrayList<Integer> score;
     final ArrayList<Integer> mate;
     final ArrayList<Boolean> seesMate;
+    final ArrayList<String> pvUci;
 
     boolean turn = CONSTANTS.WHITE;
     String fen = "";
@@ -82,12 +83,14 @@ public class EngineInfo {
         score = new ArrayList<>();
         mate = new ArrayList<>();
         seesMate = new ArrayList<>();
+        pvUci = new ArrayList<>();
 
         for(int i=0;i<MAX_PV;i++ ) {
             pvSan.add("");
             score.add(0);
             mate.add(0);
             seesMate.add(false);
+            pvUci.add("");
         }
 
     }
@@ -197,16 +200,23 @@ public class EngineInfo {
                 currentMove = sCurrMove.substring(9);
             }
 
-            //System.out.println(line);
             Matcher matchPV = PV.matcher(line);
             if(matchPV.find()) {
                 String sMoves = matchPV.group().substring(3);
-                //System.out.println(sMoves);
-                pvList = new ArrayList<>(Arrays.asList(sMoves.split(" +")));
-                //for(String pv : pvList) {
-                //    System.out.println(pv);
-                //}
-                updateSan(multiPv);
+                // some engines (i.e. Stockfish 12) provide a deep line like
+                // pv e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 b1c3 f8c5 f3e5 c6e5 d2d4 c5b4 d4e5 f6e4 d1d4 e4c3 b2c3 b4e7 e1g1 e8g8 a4b3
+                // and then afterwards
+                // pv e2e4
+                // pv e2e4
+                // Which is not helpful to the user. we should check if the information given in this update
+                // is just a subset of a previous line. If so, ignore this information w.r.t. to pv
+                // i.e. only update if there is really no information
+                if(!pvUci.get(multiPv).startsWith(sMoves)) {
+                    //System.out.println(sMoves);
+                    pvUci.set(multiPv, sMoves);
+                    pvList = new ArrayList<>(Arrays.asList(sMoves.split(" +")));
+                    updateSan(multiPv);
+                }
             }
 
             Matcher matchId = IDNAME.matcher(line);

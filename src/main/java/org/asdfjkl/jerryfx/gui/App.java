@@ -53,6 +53,12 @@ public class App extends Application implements StateChangeListener {
     final KeyCombination keyCombinationOpen = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationNextGame = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationPreviousGame = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationEnterPosition = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationFlipBoard = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationAnalysis = new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationPlayWhite = new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationPlayBlack = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationEnterMoves = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
 
     @Override
     public void start(Stage stage) {
@@ -110,9 +116,9 @@ public class App extends Application implements StateChangeListener {
         itmPaste.setAccelerator(keyCombinationPaste);
         MenuItem itmEditGame = new MenuItem("Edit Game Data");
         MenuItem itmEnterPosition = new MenuItem("Enter Position");
-        itmEnterPosition.setAccelerator(new KeyCodeCombination(KeyCode.E));
+        itmEnterPosition.setAccelerator(keyCombinationEnterPosition);
         MenuItem itmFlipBoard = new MenuItem("Flip Board");
-        itmFlipBoard.setAccelerator(new KeyCodeCombination(KeyCode.F));
+        itmFlipBoard.setAccelerator(keyCombinationFlipBoard);
         MenuItem itmShowSearchInfo = new MenuItem("Show/Hide Search Info");
 
         mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmPaste,
@@ -121,13 +127,13 @@ public class App extends Application implements StateChangeListener {
 
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
-        itmAnalysis.setAccelerator(new KeyCodeCombination(KeyCode.A));
+        itmAnalysis.setAccelerator(keyCombinationAnalysis);
         RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
-        itmPlayAsWhite.setAccelerator(new KeyCodeCombination(KeyCode.W));
+        itmPlayAsWhite.setAccelerator(keyCombinationPlayWhite);
         RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
-        itmPlayAsBlack.setAccelerator(new KeyCodeCombination(KeyCode.B));
+        itmPlayAsBlack.setAccelerator(keyCombinationPlayBlack);
         itmEnterMoves = new RadioMenuItem("Enter Moves");
-        itmEnterMoves.setAccelerator(new KeyCodeCombination(KeyCode.M));
+        itmEnterMoves.setAccelerator(keyCombinationEnterMoves);
 
         RadioMenuItem itmFullGameAnalysis = new RadioMenuItem("Full Game Analysis");
         RadioMenuItem itmPlayOutPosition = new RadioMenuItem("Play Out Position");
@@ -623,16 +629,16 @@ public class App extends Application implements StateChangeListener {
             if (event.getCode() == KeyCode.END) {
                 moveView.seekToEnd();
             }
-            if (event.getCode() == KeyCode.E) {
+            if (keyCombinationEnterPosition.match(event)) {
                 // setup position
                 double height = Math.max(stage.getHeight() * 0.6, 520);
                 editMenuController.enterPosition(height, chessboard.boardStyle);
             }
-            if (event.getCode() == KeyCode.F) {
+            if (keyCombinationFlipBoard.match(event)) {
                 gameModel.setFlipBoard(!gameModel.getFlipBoard());
                 gameModel.triggerStateChange();
             }
-            if(event.getCode() == KeyCode.A) {
+            if(keyCombinationAnalysis.match(event)) {
                 // enter analysis mode
                 if(gameModel.getMode() != GameModel.MODE_ANALYSIS) {
                     itmAnalysis.setSelected(true);
@@ -641,7 +647,7 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activateAnalysisMode();
                 }
             }
-            if(event.getCode() == KeyCode.W) {
+            if(keyCombinationPlayWhite.match(event)) {
                 if(gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
                     itmPlayAsWhite.setSelected(true);
                     tglEngineOnOff.setSelected(true);
@@ -649,7 +655,7 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activatePlayWhiteMode();
                 }
             }
-            if(event.getCode() == KeyCode.B) {
+            if(keyCombinationPlayBlack.match(event)) {
                 if(gameModel.getMode() != GameModel.MODE_PLAY_BLACK) {
                     itmPlayAsBlack.setSelected(true);
                     tglEngineOnOff.setSelected(true);
@@ -657,7 +663,7 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activatePlayBlackMode();
                 }
             }
-            if(event.getCode() == KeyCode.M || event.getCode() == KeyCode.ESCAPE) {
+            if(keyCombinationEnterMoves.match(event)|| event.getCode() == KeyCode.ESCAPE) {
                 // enter moves mode
                 tglEngineOnOff.setSelected(false);
                 tglEngineOnOff.setText("Off");
