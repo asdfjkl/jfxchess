@@ -28,6 +28,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.text.*;
 import jfxtras.styles.jmetro.JMetro;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
@@ -88,14 +89,19 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
-        vbButtonsRight.setPrefWidth(140);
+        //vbButtonsRight.setPrefWidth(140);
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         Region spacer3 = new Region();
-        btnFlipBoard.setMinWidth(vbButtonsRight.getPrefWidth());
-        btnInitialPosition.setMinWidth(vbButtonsRight.getPrefWidth());
-        btnClearBoard.setMinWidth(vbButtonsRight.getPrefWidth());
-        btnCurrentPosition.setMinWidth(vbButtonsRight.getPrefWidth());
+        // initial position is the longest text. other buttons follow
+        final Text tmpTxt = new Text("Initial Position ");
+        double btnWidth = tmpTxt.getLayoutBounds().getWidth();
+        System.out.println(btnWidth);
+
+        btnInitialPosition.setMinWidth(140);
+        btnFlipBoard.setMinWidth(140);
+        btnClearBoard.setMinWidth(140);
+        btnCurrentPosition.setMinWidth(140);
 
         vbButtonsRight.getChildren().addAll(lblCastlingRights,
                 cbCastlesWK, cbCastlesWQ, cbCastlesBK, cbCastlesBQ,
@@ -107,6 +113,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
                 btnInitialPosition, btnClearBoard, btnCurrentPosition);
         vbButtonsRight.setSpacing(10);
         vbButtonsRight.setPadding( new Insets(10,30,10,30));
+        vbButtonsRight.setMinWidth(140+60);
 
         HBox hbMain = new HBox();
         hbMain.getChildren().addAll(enterPosBoard, vbButtonsRight);
@@ -214,8 +221,8 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         stage.setScene(scene);
-        stage.setWidth(width);
-        stage.setHeight(height);
+        stage.setWidth(width+40);
+        //stage.setHeight(height);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

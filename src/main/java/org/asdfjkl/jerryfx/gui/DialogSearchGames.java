@@ -108,18 +108,20 @@ public class DialogSearchGames {
         HBox hbLblAfter = new HBox();
         HBox hbLblBefore = new HBox();
         Label lblAfter = new Label("After Move:");
-        lblAfter.setMinWidth(80);
+        lblAfter.setMinWidth(100);
         Label lblBefore = new Label("Before Move:");
-        lblBefore.setMinWidth(80);
+        lblBefore.setMinWidth(100);
         spinnerAfter = new Spinner<Integer>();
         SpinnerValueFactory<Integer> valueFactoryAfter = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1);
         spinnerAfter.setValueFactory(valueFactoryAfter);
         spinnerAfter.setEditable(true);
+        spinnerAfter.setMinWidth(70);
 
         spinnerBefore = new Spinner<Integer>();
         SpinnerValueFactory<Integer> valueFactoryBefore = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 40);
         spinnerBefore.setValueFactory(valueFactoryBefore);
         spinnerBefore.setEditable(true);
+        spinnerBefore.setMinWidth(70);
 
         hbLblAfter.getChildren().addAll(lblAfter, spinnerAfter);
         hbLblAfter.setAlignment(Pos.CENTER);
