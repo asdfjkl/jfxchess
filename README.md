@@ -19,14 +19,23 @@ Jerry is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.0.0
+Current Version: 4.1.0
 
-* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.0.0)
+* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.1.0)
 * Linux
   - install from [Snapstore](https://snapcraft.io/jerry) 
-  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.0.0)
+  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.1.0)
 
 ## Changelog
+
+Version 4.1.0 (Jan 2021)
+ * several bugfixes (see issue tracker)
+ * database: edit & save for large PGNs
+ * colorize last move
+ * drawing arrows & colorizing fields
+ * keyboard shortcuts
+ * fullscreen mode
+ * option to hide toolbar
 
 Version 4.0.0 (Oct 2020)
  * complete rewrite
@@ -45,14 +54,6 @@ Version 3.2.0 (July 2019)
  
 Current plans for future versions:
  
-Version 4.1
-- bugfixes
-- [done] database: edit & save for large PGNs
-- [done] colorize last move
-- [done] drawing arrows & colorizing fields
-- [done] keyboard shortcuts
-- [done] Fullscreen mode
-
 Version 4.2
 - opening book support
 - visual representation (i.e. graph) of game progress
