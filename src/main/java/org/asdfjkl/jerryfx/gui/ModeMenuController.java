@@ -238,7 +238,7 @@ public class ModeMenuController implements StateChangeListener {
         if(gameModel.book.inBook(zobrist)) {
             ArrayList<String> uciMoves = gameModel.book.findMoves(zobrist);
             int idx = (int) (Math.random() * uciMoves.size());
-            handleBestMove("BESTMOVE|"+uciMoves.get(idx));
+            handleBestMove("BESTMOVE|"+uciMoves.get(idx)+"|"+zobrist);
         } else {
             String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
             engineController.sendCommand("stop");
