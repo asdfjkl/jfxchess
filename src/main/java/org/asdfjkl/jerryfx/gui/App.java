@@ -63,6 +63,8 @@ public class App extends Application implements StateChangeListener {
     final KeyCombination keyCombinationPlayBlack = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationEnterMoves = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
 
+    String moveBuffer = "";
+
     @Override
     public void start(Stage stage) {
 
@@ -632,6 +634,69 @@ public class App extends Application implements StateChangeListener {
         Scene scene = new Scene(spMain);
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
+            /* to enter moves via keyboard */
+            if (event.getCode() == KeyCode.A ) {
+                addToMoveBuffer("a");
+            }
+            if (event.getCode() == KeyCode.B ) {
+                addToMoveBuffer("b");
+            }
+            if (event.getCode() == KeyCode.C ) {
+                addToMoveBuffer("c");
+            }
+            if (event.getCode() == KeyCode.D ) {
+                addToMoveBuffer("d");
+            }
+            if (event.getCode() == KeyCode.E ) {
+                addToMoveBuffer("e");
+            }
+            if (event.getCode() == KeyCode.F ) {
+                addToMoveBuffer("f");
+            }
+            if (event.getCode() == KeyCode.G ) {
+                addToMoveBuffer("g");
+            }
+            if (event.getCode() == KeyCode.H ) {
+                addToMoveBuffer("h");
+            }
+            if (event.getCode() == KeyCode.Q ) {
+                addToMoveBuffer("q");
+            }
+            if (event.getCode() == KeyCode.R ) {
+                addToMoveBuffer("r");
+            }
+            if (event.getCode() == KeyCode.N ) {
+                addToMoveBuffer("n");
+            }
+            if (event.getCode() == KeyCode.B ) {
+                addToMoveBuffer("b");
+            }
+            if (event.getCode() == KeyCode.DIGIT1 ) {
+                addToMoveBuffer("1");
+            }
+            if (event.getCode() == KeyCode.DIGIT2 ) {
+                addToMoveBuffer("2");
+            }
+            if (event.getCode() == KeyCode.DIGIT3 ) {
+                addToMoveBuffer("3");
+            }
+            if (event.getCode() == KeyCode.DIGIT4 ) {
+                addToMoveBuffer("4");
+            }
+            if (event.getCode() == KeyCode.DIGIT5 ) {
+                addToMoveBuffer("5");
+            }
+            if (event.getCode() == KeyCode.DIGIT6 ) {
+                addToMoveBuffer("6");
+            }
+            if (event.getCode() == KeyCode.DIGIT7 ) {
+                addToMoveBuffer("7");
+            }
+            if (event.getCode() == KeyCode.DIGIT8 ) {
+                addToMoveBuffer("8");
+            }
+
+            /* other gui controls */
             if (event.getCode() == KeyCode.RIGHT) {
                 moveView.goForward();
             }
@@ -787,6 +852,31 @@ public class App extends Application implements StateChangeListener {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private void addToMoveBuffer(String s) {
+
+        moveBuffer += s;
+        if(moveBuffer.length() == 4) {
+            Move move = new Move(moveBuffer);
+            Board board = gameModel.getGame().getCurrentNode().getBoard();
+            if (!board.isLegalAndPromotes(move)) {
+                if (board.isLegal(move)) {
+                    gameModel.getGame().applyMove(move);
+                    gameModel.triggerStateChange();
+                }
+                moveBuffer = "";
+            }
+        }
+        if(moveBuffer.length() == 5) {
+            Move move = new Move(moveBuffer);
+            Board board = gameModel.getGame().getCurrentNode().getBoard();
+            if (board.isLegal(move)) {
+                gameModel.getGame().applyMove(move);
+                gameModel.triggerStateChange();
+            }
+            moveBuffer = "";
+        }
     }
 
     private void onExit(Stage stage) {
