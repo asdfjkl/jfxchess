@@ -26,6 +26,10 @@ Current Version: 4.1.1
   - install from [Snapstore](https://snapcraft.io/jerry) 
   - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.1.1)
 
+## Blog
+
+Once in a while I blog about the development of Jerry at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
+
 ## Changelog
 
 Version 4.1.1 (Jan 2021)
