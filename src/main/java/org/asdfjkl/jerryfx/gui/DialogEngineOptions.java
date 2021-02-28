@@ -78,6 +78,13 @@ public class DialogEngineOptions {
         int i = 0;
         for(EngineOption enOpt : engineOptions) {
 
+            // ignore multipv and do not display this to the user
+            // as this is completely handled directly in the GUI
+            // by the comboBox above the engine window
+            if(enOpt.name.toLowerCase().contains("multipv")) {
+                continue;
+            }
+
             Label lblEnOpt = new Label(enOpt.name+":");
             gridPane.add(lblEnOpt, 0, i);
 

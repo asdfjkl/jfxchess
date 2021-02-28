@@ -142,14 +142,6 @@ public class EngineOption {
 
     public boolean parseUciOptionString(String optionString) {
 
-        // we completely ignore multipv, as this is
-        // handled via the gui (and we currently only support
-        // up to 4 lines in the GUI
-
-        if(optionString.toLowerCase().contains("multipv")) {
-            return false;
-        }
-
         if(optionString.startsWith("option name")) {
 
             if (optionString.contains("type spin")) {
