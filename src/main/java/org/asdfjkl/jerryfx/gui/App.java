@@ -23,6 +23,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -777,8 +778,9 @@ public class App extends Application implements StateChangeListener {
         itmEnterMoves.setSelected(true);
 
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro = new JMetro(Style.DARK);
         jMetro.setScene(scene);
+        jMetro.setAutomaticallyColorPanes(true);
 
         SplashScreen splash = SplashScreen.getSplashScreen();
 
@@ -858,6 +860,7 @@ public class App extends Application implements StateChangeListener {
 
         moveBuffer += s;
         if(moveBuffer.length() == 4) {
+            System.out.println("move4: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (!board.isLegalAndPromotes(move)) {
@@ -869,6 +872,7 @@ public class App extends Application implements StateChangeListener {
             }
         }
         if(moveBuffer.length() == 5) {
+            System.out.println("move5: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (board.isLegal(move)) {

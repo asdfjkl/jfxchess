@@ -131,7 +131,7 @@ public class Chessboard extends Canvas implements StateChangeListener {
         // fill background
         gc.beginPath();
         //gc.setFill(Color.rgb(152, 152, 152));
-        gc.setFill(boardStyle.getLightSquareColor());
+        gc.setFill(boardStyle.getDarkSquareColor());
         gc.rect(0, 0, this.getWidth(), this.getHeight());
         gc.fill();
 
@@ -200,13 +200,26 @@ public class Chessboard extends Canvas implements StateChangeListener {
                 gc.rect(x,y,squareSize,squareSize);
                 gc.fill();
 
-                if(lastMoveFrom != null && lastMoveTo != null &&
-                        ((lastMoveFrom.getX() == i && lastMoveFrom.getY() == j)
-                            || (lastMoveTo.getX() == i && lastMoveTo.getY() == j))) {
-                    gc.beginPath();
-                    gc.setFill(lastMoveColor);
-                    gc.rect(x,y,squareSize,squareSize);
-                    gc.fill();
+                if(lastMoveFrom != null && lastMoveTo != null) {
+                    boolean markField = false;
+                    if(!flipBoard) {
+                        if ((lastMoveFrom.getX() == i && lastMoveFrom.getY() == j) ||
+                                (lastMoveTo.getX() == i && lastMoveTo.getY() == j)) {
+                            markField = true;
+                        }
+                    }
+                    if(flipBoard) {
+                        if ((lastMoveFrom.getX() == i && lastMoveFrom.getY() == 7 - j) ||
+                                (lastMoveTo.getX() == i && lastMoveTo.getY() == 7 - j)) {
+                            markField = true;
+                        }
+                    }
+                    if(markField) {
+                        gc.beginPath();
+                        gc.setFill(lastMoveColor);
+                        gc.rect(x, y, squareSize, squareSize);
+                        gc.fill();
+                    }
                 }
             }
         }

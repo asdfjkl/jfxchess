@@ -83,7 +83,7 @@ public class Polyglot {
         int toFile = 0;
         int promotion = 0;
 
-        from      = (move>>6)&077;
+        from      = (move>>6)&077; // octal!, i.e. = 0x3F, mask 6 bits
         fromRow   = (from>>3)&0x7;
         fromFile  = from&0x7;
         to        = move&077;
