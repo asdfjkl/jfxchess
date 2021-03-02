@@ -189,7 +189,9 @@ public class DialogEngines {
     private void btnRemoveEngineClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         engineList.remove(selectedEngine);
-        if(engineList.size() > 9) {
+        // Don't know how the size could have got bigger
+        // when we removed an engine, but...
+        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
             btnAdd.setDisable(true);
         } else {
             btnAdd.setDisable(false);
@@ -318,7 +320,7 @@ public class DialogEngines {
             }
         }
 
-        if(engineList.size() > 9) {
+        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
             btnAdd.setDisable(true);
         } else {
             btnAdd.setDisable(false);

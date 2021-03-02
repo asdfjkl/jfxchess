@@ -29,6 +29,7 @@ import java.lang.System;
 
 public class GameModel {
 
+    public static final int MAX_N_ENGINES = 10;
     public static final int MODE_ENTER_MOVES = 0;
     public static final int MODE_ANALYSIS = 1;
     public static final int MODE_PLAY_WHITE = 2;
@@ -304,6 +305,11 @@ public class GameModel {
     public void saveEngines() {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
+        // Clean up preferences. Preferences for engines
+        // which have been removed may still be there.
+        for(int i=1;i<MAX_N_ENGINES;i++) {
+            prefs.remove("ENGINE"+i);
+        }
         for(int i=1;i<engines.size();i++) {
             Engine engine = engines.get(i);
             String engineString = engine.writeToString();
@@ -372,7 +378,7 @@ public class GameModel {
 
         if(mVersion == modelVersion) {
 
-            for(int i=1;i<99;i++) {
+            for(int i=1;i<MAX_N_ENGINES;i++) {
                 String engineString = prefs.get("ENGINE"+i, "");
                 if(!engineString.isEmpty()) {
                     Engine engine = new Engine();
