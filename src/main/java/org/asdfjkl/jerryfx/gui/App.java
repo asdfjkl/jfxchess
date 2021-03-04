@@ -920,6 +920,7 @@ public class App extends Application implements StateChangeListener {
             g.getRootNode().setBoard(new Board(true));
             gameModel.setGame(g);
             gameModel.getGame().setTreeWasChanged(true);
+            gameModel.getGame().setHeaderWasChanged(true);
             if(dlg.rbWhite.isSelected()) {
                 gameModel.setFlipBoard(false);
             } else {
