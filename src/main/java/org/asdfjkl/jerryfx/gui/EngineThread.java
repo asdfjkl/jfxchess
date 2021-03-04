@@ -199,6 +199,10 @@ public class EngineThread extends Thread {
                                 // if the command is "position fen moves", first count the
                                 // numbers of moves so far to generate move numbers in engine info
                                 // todo: needed???
+                                if(cmd.startsWith("sleep")) {
+                                    Thread.sleep(10000);
+                                }
+
                                 if(cmd.startsWith("position")) {
                                     Matcher matchMoves = REG_MOVES.matcher(cmd);
                                     int cnt = 0;

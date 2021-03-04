@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jerryfx.gui;
 
+import com.sun.webkit.Timer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,10 +29,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class EngineController {
 
-    final EngineThread engineThread;
-    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<String>();
+    EngineThread engineThread;
+    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<String>();;
+    ModeMenuController mmc = null;
 
     public EngineController(ModeMenuController modeMenuController) {
+
+        mmc = modeMenuController;
+
+    }
+
+    private void startEngineThread() {
 
         final AtomicReference<String> count = new AtomicReference<>();
         //cmdQueue = new LinkedBlockingQueue<String>();
@@ -45,7 +53,7 @@ public class EngineController {
                         @Override
                         public void run() {
                             String value = count.getAndSet(null);
-                            modeMenuController.handleEngineInfo(value);
+                            mmc.handleEngineInfo(value);
                         }
                     });
                 }
@@ -53,7 +61,6 @@ public class EngineController {
         });
 
         engineThread.start();
-
     }
 
     public void testStartAndGoInf() {
@@ -73,7 +80,27 @@ public class EngineController {
 
     public void sendCommand(String cmd) {
         try {
-            cmdQueue.put(cmd);
+            if(cmd.startsWith("quit")) {
+                cmdQueue.put(cmd);
+                if(engineThread != null) {
+                    Thread.sleep(100);
+                    engineThread.terminate();
+                    engineThread.join();
+                    engineThread = null;
+                }
+            } else {
+                if(cmd.startsWith("start ")) {
+                    System.out.println("start received, restarting engine");
+                    if(engineThread == null) {
+                        System.out.println("engine thread was null, restarting");
+                        startEngineThread();
+                        Thread.sleep(100);
+                        cmdQueue.put(cmd);
+                    }
+                } else {
+                    cmdQueue.put(cmd);
+                }
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
