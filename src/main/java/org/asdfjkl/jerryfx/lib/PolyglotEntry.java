@@ -25,5 +25,4 @@ public class PolyglotEntry {
     int weight;
     int learn;
     String uci;
-
 }

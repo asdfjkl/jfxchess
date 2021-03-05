@@ -287,8 +287,20 @@ public class App extends Application implements StateChangeListener {
         hbGameNavigation.setAlignment(Pos.CENTER);
         hbGameNavigation.getChildren().addAll(btnMoveBegin, btnMovePrev, btnMoveNext, btnMoveEnd);
 
+        TabPane tabPaneMovesNotationBook = new TabPane();
+
+        BookView bookView = new BookView();
+
+        Tab tabMoves = new Tab("Moves", moveView.getWebView());
+        Tab tabNotation = new Tab("Score Sheet"  , new Label("score sheet"));
+        Tab tabBook = new Tab("Book" , new Label("book"));
+
+        tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabNotation, tabBook);
+        tabPaneMovesNotationBook.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPaneMovesNotationBook.getStyleClass().add("underlined");
+
         VBox vbGameDataMovesNavigation = new VBox();
-        vbGameDataMovesNavigation.getChildren().addAll(hbGameData, moveView.getWebView(), hbGameNavigation);
+        vbGameDataMovesNavigation.getChildren().addAll(hbGameData, tabPaneMovesNotationBook, hbGameNavigation);
         vbGameDataMovesNavigation.setVgrow(moveView.getWebView(), Priority.ALWAYS);
 
         // put together  Chessboard | Game Navigation
@@ -847,6 +859,16 @@ public class App extends Application implements StateChangeListener {
         } else {
             tglEngineOnOff.setSelected(true);
             tglEngineOnOff.setText("On");
+        }
+
+        /*
+         temp: check book output
+         */
+        Board b = gameModel.getGame().getCurrentNode().getBoard();
+        ArrayList<PolyglotExtEntry> entries = gameModel.largeBook.findEntries(b);
+        System.out.println("Zobrist   Move   UCI    PosCount    wWin    draw     bWin    AvgElo");
+        for(PolyglotExtEntry e : entries) {
+            System.out.println(e);
         }
 
     }

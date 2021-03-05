@@ -70,6 +70,7 @@ public class GameModel {
     public boolean doNotNotifyAboutResult = false;
 
     public final Polyglot book;
+    public final PolyglotExt largeBook;
 
     private Preferences prefs;
 
@@ -115,6 +116,11 @@ public class GameModel {
             file = new File(bookPath);
             book.loadBook(file);
         }
+
+        largeBook = new PolyglotExt();
+        File fLargeBook = new File("/home/user/code/bookmaker/book.bin");
+        largeBook.loadBook(fLargeBook);
+
 
     }
 
