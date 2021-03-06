@@ -55,7 +55,7 @@ public class PolyglotExt {
 
     public PolyglotExtEntry getEntryFromOffset(int offset) {
 
-        if (book == null || offset >= book.length - 19) {
+        if (book == null || offset >= book.length - 18) {
             throw new IllegalArgumentException("polyglot ext-book is not loaded or offset out of range");
         }
 
@@ -63,16 +63,16 @@ public class PolyglotExt {
         byte[] bMove = Arrays.copyOfRange(book, offset + 8, offset + 10);
         byte[] bPosCount = Arrays.copyOfRange(book, offset + 10, offset + 14);
         byte[] bWhiteWin = Arrays.copyOfRange(book, offset + 14, offset + 15);
-        byte[] bDraw = Arrays.copyOfRange(book, offset + 15, offset + 16);
-        byte[] bBlackWin = Arrays.copyOfRange(book, offset + 16, offset + 17);
-        byte[] bAvgElo = Arrays.copyOfRange(book, offset + 17, offset + 19);
+        //byte[] bDraw = Arrays.copyOfRange(book, offset + 15, offset + 16);
+        byte[] bBlackWin = Arrays.copyOfRange(book, offset + 15, offset + 16);
+        byte[] bAvgElo = Arrays.copyOfRange(book, offset + 16, offset + 18);
 
         long key = ByteBuffer.wrap(bKey).getLong();
         int move = ByteBuffer.wrap(bMove).getShort();
         int posCount = ByteBuffer.wrap(bPosCount).getInt();
         int whiteWinPerc = ByteBuffer.wrap(bWhiteWin).get();
         int blackWinPerc = ByteBuffer.wrap(bBlackWin).get();
-        int drawPerc = ByteBuffer.wrap(bDraw).get();
+        int drawPerc = 100 - whiteWinPerc - blackWinPerc;
         int avgElo = ByteBuffer.wrap(bAvgElo).getShort();
 
         int from = 0;
@@ -141,12 +141,12 @@ public class PolyglotExt {
         if(readFile) {
 
             int low = 0;
-            int high = Integer.divideUnsigned(book.length, 19);
+            int high = Integer.divideUnsigned(book.length, 18);
 
             // find entry fast
             while(Integer.compareUnsigned(low, high) < 0) {
                 int middle = Integer.divideUnsigned(low + high, 2);
-                PolyglotExtEntry e = getEntryFromOffset(middle*19);
+                PolyglotExtEntry e = getEntryFromOffset(middle*18);
                 long middleKey = e.key;
                 if(Long.compareUnsigned(middleKey, zobrist) < 0) {
                     low = middle + 1;
@@ -155,12 +155,12 @@ public class PolyglotExt {
                 }
             }
             int offset = low;
-            int size = Integer.divideUnsigned(book.length, 16);
+            int size = Integer.divideUnsigned(book.length, 18);
 
             // now we have the lowest key pos
             // where a possible entry is. collect all
             while(Integer.compareUnsigned(offset, size) < 0) {
-                PolyglotExtEntry e = getEntryFromOffset(offset*19);
+                PolyglotExtEntry e = getEntryFromOffset(offset*18);
                 if(Long.compareUnsigned(e.key,zobrist) != 0L) {
                     break;
                 }
@@ -187,7 +187,7 @@ public class PolyglotExt {
         }
 
         int low = 0;
-        int high = Integer.divideUnsigned(book.length, 16);
+        int high = Integer.divideUnsigned(book.length, 18);
 
         // find entry fast
         while(Integer.compareUnsigned(low, high) < 0) {
@@ -201,12 +201,12 @@ public class PolyglotExt {
             }
         }
         int offset = low;
-        int size = Integer.divideUnsigned(book.length, 16);
+        int size = Integer.divideUnsigned(book.length, 18);
 
         // now we have the lowest key pos
         // where a possible entry is.
         if(Integer.compareUnsigned(offset, size) < 0) {
-            PolyglotExtEntry e = getEntryFromOffset(offset*16);
+            PolyglotExtEntry e = getEntryFromOffset(offset*18);
             if(Long.compareUnsigned(e.key, zobrist) == 0) {
                 return true;
             } else {
