@@ -52,13 +52,13 @@ public class DialogAbout {
         txtCredits.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
         Text txtCreditText = new Text(
+                "Contributors\n" +
+                  "mipper, TTorell\n\n"+
                 "Stockfish Chess Engine\n" +
                 "by the Stockfish-Team\n\n" +
-                "'VARIED.BIN' opening book\n" +
-                "        by Marc Lacrosse/Jose-Chess Tool        \n\n" +
                 "Piece Images\n" +
                 "from Raptor Chess Interface\n\n" +
-                "all licensed under GNU GPL 2\n\n" +
+                "        all licensed under GNU GPL 2        \n\n" +
                 "Thanks to all who provided\n"+
                 "feedback and/or bug-reports!");
 
