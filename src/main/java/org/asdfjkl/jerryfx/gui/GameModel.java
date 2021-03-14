@@ -74,7 +74,7 @@ public class GameModel {
 
     private Preferences prefs;
 
-    private static final int modelVersion = 410;
+    private static final int modelVersion = 420;
 
     private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = -1;

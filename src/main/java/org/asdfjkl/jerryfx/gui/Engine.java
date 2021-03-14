@@ -120,13 +120,15 @@ public class Engine {
     }
 
     public boolean supportsMultiPV() {
-        for(EngineOption option : options) {
-            if(option.name.equals("MultiPV")) {
-                return true;
+        if (isInternal) {
+            return true;
+        } else {
+            for (EngineOption option : options) {
+                if (option.name.equals("MultiPV")) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
     }
-
-
 }

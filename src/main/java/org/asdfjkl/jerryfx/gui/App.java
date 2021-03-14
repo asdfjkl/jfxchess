@@ -460,7 +460,9 @@ public class App extends Application implements StateChangeListener {
             int multiPv = cmbMultiPV.getValue();
             if(multiPv != gameModel.getMultiPv()) {
                 gameModel.setMultiPv(multiPv);
-                engineController.sendCommand("setoption name MultiPV value "+multiPv);
+                if(gameModel.activeEngine.supportsMultiPV()) {
+                    engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
+                }
                 gameModel.triggerStateChange();
             }
         });
