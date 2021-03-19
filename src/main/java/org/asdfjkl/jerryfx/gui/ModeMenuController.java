@@ -218,6 +218,11 @@ public class ModeMenuController implements StateChangeListener {
         if(gameModel.activeEngine.supportsMultiPV()) {
             engineController.sendCommand("setoption name MultiPV value 1");
         }
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            if(enOpt.isNotDefault()) {
+                engineController.sendCommand(enOpt.toUciCommand());
+            }
+        }
         gameModel.setFlipBoard(false);
         gameModel.getGame().goToRoot();
         gameModel.getGame().goToLeaf();
