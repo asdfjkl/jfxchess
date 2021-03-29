@@ -2148,5 +2148,93 @@ public class Board {
             }
         }
     }
+    
+    public int getPieceType(int piece)
+    {
+      return piece & 0x0000000F;
+    }
 
+    public int getSquareColorAt(int x, int y)
+    {
+      // optional TODO: Check that x and y values are within range 0..7.
+      if ((x+y)%2 == 0) {
+          return CONSTANTS.IBLACK;
+      }
+      return CONSTANTS.IWHITE;
+    }
+    
+    public boolean isInsufficientMaterial() {
+        int pCounter = 0;
+        int lastPiece = CONSTANTS.EMPTY;
+        int lastPieceSquareColor = CONSTANTS.IWHITE; // just default
+        
+        // Scan the board:
+        for(int x=0;x<8;x++) {
+            for(int y=0;y<8;y++) {
+                int piece = getPieceAt(x,y);
+                if (piece == CONSTANTS.EMPTY)
+                    continue;
+                
+                switch (getPieceType(piece)) {
+                    case CONSTANTS.KING:
+                        continue;
+
+                    case CONSTANTS.PAWN:
+                    case CONSTANTS.QUEEN:
+                    case CONSTANTS.ROOK:
+                        // Possible to force mate.
+                        return false;
+
+                    case CONSTANTS.KNIGHT:
+                        if(++pCounter > 1) {
+                            // More than a knight:
+                            // Theoretically possible to mate or to force mate,
+                            // depending on the color of the pieces.
+                            return false;
+                        }
+                        // This is the first knight that we find:
+                        // Save it. (not necessary)
+                        lastPiece = piece;
+                        break;
+
+                    case CONSTANTS.BISHOP:
+                        if(++pCounter > 2) {
+                            // More than two bishops):
+                            // Theroetically possible to mate or to force mate.
+                            return false;
+                        }
+                        else if (pCounter > 1)
+                        {
+                            // We hsve found another piece (knight or bishop) 
+                            // before this one:
+                            if (getPieceType(lastPiece) != CONSTANTS.BISHOP)
+                                // A knight and a bishop:
+                                // Theoretically possible to mate
+                                // or to force mate.
+                                return false;
+                            
+                            // Two bishops:
+                            if (getPieceAt(x,y) == lastPiece)
+                                // Two Bishops with the same "pieceColor":
+                                // Possible to force checkmate.
+                                return false;
+                            
+                            // One bishop each:
+                            if (getSquareColorAt(x,y) != lastPieceSquareColor)
+                                // One bishop each on squares of different
+                                // colors: Theoretically Possible to mate.
+                                return false;
+                        }
+                        else
+                        {
+                            // This is the first piece (bishop) that we find: Save it.
+                            lastPieceSquareColor = getSquareColorAt(x,y);
+                            lastPiece = piece;
+                        }
+                        break;
+                }
+            }
+        }
+        return true;
+    }
 }
