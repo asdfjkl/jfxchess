@@ -379,5 +379,10 @@ public class Game {
         return false;
     }
 
+    public boolean isInsufficientMaterial() {
+        if (current != null && current.getBoard() != null)
+            return current.getBoard().isInsufficientMaterial();
+        return false;
+    }
 
 }

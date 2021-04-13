@@ -528,14 +528,15 @@ public class ModeMenuController implements StateChangeListener {
         boolean isCheckmate = board.isCheckmate();
         boolean isStalemate = board.isStalemate();
         boolean isThreefoldRepetition = gameModel.getGame().isThreefoldRepetition();
+        boolean isInsufficientMaterial = gameModel.getGame().isInsufficientMaterial();
 
         boolean abort = false;
 
         // if we change from e.g. play white to enter moves, the state change would trigger
         // the notification again in enter moves mode after the state change. thus,
         // also check if
-        if((isCheckmate || isStalemate || isThreefoldRepetition) && !gameModel.doNotNotifyAboutResult) {
-
+        if((isCheckmate || isStalemate || isThreefoldRepetition || isInsufficientMaterial)
+                && !gameModel.doNotNotifyAboutResult) {
             String message = "";
             if(isCheckmate) {
                 message = "     Checkmate.     ";
@@ -545,6 +546,9 @@ public class ModeMenuController implements StateChangeListener {
             }
             if(isThreefoldRepetition) {
                 message = "Draw (Threefold Repetition)";
+            }
+            if(isInsufficientMaterial) {
+                message = "Draw (Insufficient material for checkmate)";
             }
             if(mode != GameModel.MODE_GAME_ANALYSIS) {
                 DialogSimpleAlert dlg = new DialogSimpleAlert();
