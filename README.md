@@ -56,6 +56,12 @@ Version 3.2.0 (July 2019)
  * MultiPV up to 4 lines
  * ability to handle and search (metadata) of large (> 1 GB) PGN files
  * user defined font-sizes
+
+## Donate
+
+You can support the development of Jerry by donating via Paypal.
+
+[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=9K2JDF5YBDZT6)
  
  ## Roadmap
  
