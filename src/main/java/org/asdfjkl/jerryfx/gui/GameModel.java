@@ -118,7 +118,7 @@ public class GameModel {
         }
 
         largeBook = new PolyglotExt();
-        File fLargeBook = new File("/home/user/code/bookmaker/book.bin");
+        File fLargeBook = new File("C:\\Users\\user\\MyFiles\\workspace\\IdeaProjects\\bookmaker\\target\\milbook.bin");
         largeBook.loadBook(fLargeBook);
 
 

@@ -30,6 +30,23 @@ public class PolyglotExtEntry {
     int avgElo;
     String uci;
 
+    public long getPosCount() { return count; }
+    public void setPosCount(long count) { this.count = count; }
+
+    public String getMove() { return uci; }
+    public void setMove(String uci) { this.uci = uci; }
+
+    public Integer getWins() { return whiteWinPerc; }
+    public void setWins(Integer whiteWinPerc) { this.whiteWinPerc = whiteWinPerc; }
+
+    public Integer getDraws() { return drawPerc; }
+    public void setDraws(Integer drawPerc) { this.drawPerc = drawPerc; }
+
+    public Integer getLosses() { return blackWinPerc; }
+    public void setLosses(Integer blackWinPerc) { this.blackWinPerc = blackWinPerc; }
+
+    public int getAvgELO() { return avgElo; }
+    public void setAvgELO(int avgElo) { this.avgElo = avgElo; }
 
     @Override
     public String toString() {

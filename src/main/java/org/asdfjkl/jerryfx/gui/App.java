@@ -289,11 +289,12 @@ public class App extends Application implements StateChangeListener {
 
         TabPane tabPaneMovesNotationBook = new TabPane();
 
-        BookView bookView = new BookView();
+        BookView bookView = new BookView(gameModel);
 
         Tab tabMoves = new Tab("Moves", moveView.getWebView());
         Tab tabNotation = new Tab("Score Sheet"  , new Label("score sheet"));
-        Tab tabBook = new Tab("Book" , new Label("book"));
+        //Tab tabBook = new Tab("Book" , new Label("book"));
+        Tab tabBook = new Tab("Book" , bookView.bookTable);
 
         tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabNotation, tabBook);
         tabPaneMovesNotationBook.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -349,6 +350,7 @@ public class App extends Application implements StateChangeListener {
         // events
         gameModel.addListener(chessboard);
         gameModel.addListener(moveView);
+        gameModel.addListener(bookView);
         gameModel.addListener(this);
 
         itmOpenFile.setOnAction(actionEvent -> { gameMenuController.handleOpenGame(); } );
@@ -792,7 +794,8 @@ public class App extends Application implements StateChangeListener {
         itmEnterMoves.setSelected(true);
 
 
-        JMetro jMetro = new JMetro(Style.DARK);
+        //JMetro jMetro = new JMetro(Style.DARK);
+        JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         jMetro.setAutomaticallyColorPanes(true);
 
@@ -866,12 +869,14 @@ public class App extends Application implements StateChangeListener {
         /*
          temp: check book output
          */
+
+        /*
         Board b = gameModel.getGame().getCurrentNode().getBoard();
         ArrayList<PolyglotExtEntry> entries = gameModel.largeBook.findEntries(b);
         System.out.println("Zobrist   Move   UCI    PosCount    wWin    draw     bWin    AvgElo");
         for(PolyglotExtEntry e : entries) {
             System.out.println(e);
-        }
+        }*/
 
     }
 
