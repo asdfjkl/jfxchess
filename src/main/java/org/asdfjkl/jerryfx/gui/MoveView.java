@@ -81,7 +81,11 @@ public class MoveView implements StateChangeListener {
         webView.setMaxHeight(Double.MAX_VALUE);
         //webEngine = webView.getEngine();
         try {
-            webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style.css").toString());
+            if(gameModel.THEME == gameModel.STYLE_LIGHT) {
+                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style_light.css").toString());
+            } else {
+                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style_dark.css").toString());
+            }
         } catch (NullPointerException e) {
 
         }

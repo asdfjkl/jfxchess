@@ -37,6 +37,9 @@ public class GameModel {
     public static final int MODE_GAME_ANALYSIS = 4;
     public static final int BOTH_PLAYERS = 5;
     public static final int MODE_PLAYOUT_POSITION = 7;
+    public static final int STYLE_LIGHT = 0;
+    public static final int STYLE_DARK = 1;
+    public int THEME = STYLE_DARK;
     Game game;
     private final ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
     private int currentMode;

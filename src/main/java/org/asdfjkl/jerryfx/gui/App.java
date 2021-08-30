@@ -794,8 +794,8 @@ public class App extends Application implements StateChangeListener {
         itmEnterMoves.setSelected(true);
 
 
-        //JMetro jMetro = new JMetro(Style.DARK);
-        JMetro jMetro = new JMetro();
+        JMetro jMetro = new JMetro(Style.DARK);
+        //JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         jMetro.setAutomaticallyColorPanes(true);
 
