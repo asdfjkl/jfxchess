@@ -29,6 +29,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 public class DialogAppearance {
 
@@ -47,10 +49,14 @@ public class DialogAppearance {
     final RadioButton rbBrown = new RadioButton("Brown");
     final RadioButton rbGreen = new RadioButton("Green");
 
+    final Label lblTheme = new Label("Theme");
+    final RadioButton rbThemeLight = new RadioButton("Light (Default)");
+    final RadioButton rbThemeDark = new RadioButton("Dark");
+
     Button btnOk;
     Button btnCancel;
 
-    public boolean show(BoardStyle currentStyle, double width, double height) {
+    public boolean show(BoardStyle currentStyle, double width, double height, int colorTheme) {
 
         appearanceBoard = new ShowAppearanceBoard();
         appearanceBoard.boardStyle.setPieceStyle(currentStyle.getPieceStyle());
@@ -68,6 +74,10 @@ public class DialogAppearance {
         rbBlue.setToggleGroup(groupBoard);
         rbBrown.setToggleGroup(groupBoard);
         rbGreen.setToggleGroup(groupBoard);
+
+        ToggleGroup groupTheme = new ToggleGroup();
+        rbThemeLight.setToggleGroup(groupTheme);
+        rbThemeDark.setToggleGroup(groupTheme);
 
         btnOk = new Button();
         btnOk.setText("OK");
@@ -95,7 +105,11 @@ public class DialogAppearance {
                 lblBoardStyle,
                 rbBlue,
                 rbBrown,
-                rbGreen);
+                rbGreen,
+                spacer2,
+                lblTheme,
+                rbThemeLight,
+                rbThemeDark);
 
         vbButtonsRight.setSpacing(10);
         vbButtonsRight.setPadding( new Insets(10,30,10,30));
@@ -167,9 +181,22 @@ public class DialogAppearance {
             rbUscf.setSelected(true);
         }
 
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            rbThemeLight.setSelected(true);
+        } else {
+            rbThemeDark.setSelected(true);
+        }
+
+        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.setWidth(width);

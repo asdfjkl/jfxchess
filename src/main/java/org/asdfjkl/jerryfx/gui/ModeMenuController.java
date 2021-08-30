@@ -133,7 +133,7 @@ public class ModeMenuController implements StateChangeListener {
             activateEnterMovesMode();
             //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
             DialogSimpleAlert dlg = new DialogSimpleAlert();
-            dlg.show("     The analysis is finished.     ");
+            dlg.show("     The analysis is finished.     ", gameModel.THEME);
         }
     }
 
@@ -305,7 +305,7 @@ public class ModeMenuController implements StateChangeListener {
         if(selectedIdx < 0) {
             selectedIdx = 0;
         }
-        boolean accepted = dlg.show(enginesCopy, selectedIdx);
+        boolean accepted = dlg.show(enginesCopy, selectedIdx, gameModel.THEME);
         if(accepted) {
             //List<Engine> engineList = dlg.engineList
             ArrayList<Engine> engineList = new ArrayList<>(dlg.engineList);
@@ -552,7 +552,7 @@ public class ModeMenuController implements StateChangeListener {
             }
             if(mode != GameModel.MODE_GAME_ANALYSIS) {
                 DialogSimpleAlert dlg = new DialogSimpleAlert();
-                dlg.show(message);
+                dlg.show(message, gameModel.THEME);
             }
 
             if(mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {

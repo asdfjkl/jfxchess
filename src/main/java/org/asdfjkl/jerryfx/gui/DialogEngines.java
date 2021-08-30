@@ -35,6 +35,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +59,14 @@ public class DialogEngines {
     final Button btnEditParameters = new Button("Edit Parameters");
     final Button btnResetParameters = new Button("Reset Parameters");
 
+    int colorTheme = GameModel.STYLE_LIGHT;
+
     Button btnOk;
     Button btnCancel;
 
     int selectedIndex = 0;
 
-    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine) {
+    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine, int colorTheme) {
 
         engineList = FXCollections.observableArrayList(engines);
 
@@ -164,9 +169,16 @@ public class DialogEngines {
 
         engineListView.getSelectionModel().select(idxSelectedEngine);
 
+        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        this.colorTheme = colorTheme;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
@@ -209,7 +221,7 @@ public class DialogEngines {
     private void btnEditParametersClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         DialogEngineOptions dlg = new DialogEngineOptions();
-        boolean accepted = dlg.show(selectedEngine.options);
+        boolean accepted = dlg.show(selectedEngine.options, colorTheme);
         if(accepted) {
             // collect all entries from dialog
             for(EngineOption enOpt : selectedEngine.options) {

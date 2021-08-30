@@ -26,6 +26,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
 import java.util.HashMap;
@@ -49,7 +51,7 @@ public class DialogEditGameData {
     final RadioButton rbDraw = new RadioButton("1/2-1/2");
     final RadioButton rbUndecided = new RadioButton("*");
 
-    public boolean show(HashMap<String, String> pgnHeaders, int gameResult) {
+    public boolean show(HashMap<String, String> pgnHeaders, int gameResult, int colorTheme) {
 
         for (Map.Entry<String, String> entry : pgnHeaders.entrySet()) {
             String key = entry.getKey();
@@ -168,9 +170,15 @@ public class DialogEditGameData {
             btnCancelClicked();
         });
 
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
 
         stage.setScene(scene);

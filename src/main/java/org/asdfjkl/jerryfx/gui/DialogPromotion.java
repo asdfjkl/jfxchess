@@ -27,6 +27,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
 public class DialogPromotion {
@@ -34,7 +36,7 @@ public class DialogPromotion {
     static Stage stage;
     static int choice;
 
-    public static int show(boolean playerColor, int pieceStyle) {
+    public static int show(boolean playerColor, int pieceStyle, int colorTheme) {
 
         PieceImageProvider provider = new PieceImageProvider();
 
@@ -87,8 +89,14 @@ public class DialogPromotion {
         pane.getChildren().addAll(btnQueen, btnRook, btnBishop, btnKnight);
 
         Scene scene = new Scene(pane);
+        pane.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
 
         stage.setScene(scene);

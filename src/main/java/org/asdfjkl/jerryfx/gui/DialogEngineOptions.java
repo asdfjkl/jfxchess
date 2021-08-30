@@ -29,6 +29,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +50,7 @@ public class DialogEngineOptions {
     HashMap<String, ComboBox<String>> comboboxWidgets;
     HashMap<String, TextField> textfieldWidgets;
 
-    public boolean show(ArrayList<EngineOption> engineOptions) {
+    public boolean show(ArrayList<EngineOption> engineOptions, int colorTheme) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -154,9 +156,15 @@ public class DialogEngineOptions {
             btnCancelClicked();
         });
 
+        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));

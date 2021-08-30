@@ -26,12 +26,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 public class DialogAbout {
 
     static Stage stage;
 
-    public static void show() {
+    public static void show(int colorTheme) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -89,7 +91,14 @@ public class DialogAbout {
 
         Scene scene = new Scene(vbox);
 
-        JMetro jMetro = new JMetro();
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
 
         stage.setScene(scene);

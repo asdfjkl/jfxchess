@@ -26,6 +26,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 
 public class DialogGameAnalysis {
@@ -44,7 +46,7 @@ public class DialogGameAnalysis {
     final RadioButton rbWhite = new RadioButton("White");
     final RadioButton rbBlack = new RadioButton("Black");
 
-    public boolean show(int currSecs, double currThreshold) {
+    public boolean show(int currSecs, double currThreshold, int colorTheme) {
 
         //System.out.println(currSecs + " " + currThreshold);
 
@@ -112,9 +114,15 @@ public class DialogGameAnalysis {
             btnCancelClicked();
         });
 
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));

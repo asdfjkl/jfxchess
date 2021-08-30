@@ -30,6 +30,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.text.*;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.Board;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
@@ -61,7 +63,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
     Board originalBoard;
     Board currentBoard;
 
-    public boolean show(Board board, BoardStyle style, double width, double height) {
+    public boolean show(Board board, BoardStyle style, double width, double height, int colorTheme) {
 
         originalBoard = board.makeCopy();
         enterPosBoard = new EnterPosBoard(originalBoard);
@@ -216,9 +218,15 @@ public class DialogEnterPosition implements EnterPosBoardListener {
             btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
         });
 
+        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.setWidth(width+40);

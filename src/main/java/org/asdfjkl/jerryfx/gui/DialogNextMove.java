@@ -34,6 +34,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 import java.util.ArrayList;
 
@@ -44,7 +46,7 @@ public class DialogNextMove {
     static ListView<String> lvMoves;
     final static double LIST_CELL_HEIGHT = 35.;
 
-    public static int show(ArrayList<String> possibleMoves) {
+    public static int show(ArrayList<String> possibleMoves, int colorTheme) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -84,6 +86,7 @@ public class DialogNextMove {
         vbox.getChildren().addAll(lvMoves, hbox);
 
         Scene scene = new Scene(vbox);
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             if (event.getCode() == KeyCode.RIGHT) {
@@ -104,7 +107,12 @@ public class DialogNextMove {
             event.consume();
         });
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
 
         stage.setScene(scene);

@@ -26,6 +26,9 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
+
 import java.util.function.DoubleFunction;
 
 public class DialogNewGame {
@@ -63,7 +66,7 @@ public class DialogNewGame {
     int thinkTime = 3;
     int strength = 20;
 
-    public boolean show(boolean isInternalEngine, int currEngineStrength, int currThinkTime) {
+    public boolean show(boolean isInternalEngine, int currEngineStrength, int currThinkTime, int colorTheme) {
 
         strength = currEngineStrength;
 
@@ -211,10 +214,16 @@ public class DialogNewGame {
             btnCancelClicked();
         });
 
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
-
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
+
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 

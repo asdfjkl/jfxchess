@@ -30,6 +30,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 
 import java.io.File;
 
@@ -190,9 +192,15 @@ public class DialogDatabase {
             table.scrollTo(gameModel.currentPgnDatabaseIdx);
         }
 
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(gameModel.THEME == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setMinWidth(1050);
         // unfocus all buttons and widgets
@@ -221,14 +229,17 @@ public class DialogDatabase {
     }
 
     private void btnAboutClicked() {
-        DialogAboutDatabase.show();
+        DialogAboutDatabase.show(gameModel.THEME);
     }
 
     private void btnSearchClicked() {
 
         DialogSearchGames dlg = new DialogSearchGames();
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
-        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(), gameModel.boardStyle, gameModel.getSearchPattern().makeCopy());
+        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(),
+                gameModel.boardStyle,
+                gameModel.getSearchPattern().makeCopy(),
+                gameModel.THEME);
         if (accepted) {
             SearchPattern pattern = dlg.getSearchPattern();
             pgnDatabase.search(pattern);

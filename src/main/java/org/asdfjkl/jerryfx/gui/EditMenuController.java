@@ -65,7 +65,7 @@ public class EditMenuController {
         DialogEnterPosition dlg = new DialogEnterPosition();
         double width = dialogHeight * 1.6;
         //double width = dialogHeight * 1.7;
-        boolean accepted = dlg.show(board, style, width, dialogHeight);
+        boolean accepted = dlg.show(board, style, width, dialogHeight, gameModel.THEME);
         if(accepted) {
             Board newBoard = dlg.currentBoard;
             if(newBoard.isConsistent()) {
@@ -81,7 +81,9 @@ public class EditMenuController {
 
     public void editGameData() {
         DialogEditGameData dlg = new DialogEditGameData();
-        boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(), gameModel.getGame().getResult());
+        boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(),
+                gameModel.getGame().getResult(),
+                gameModel.THEME);
         if(accteped) {
             for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
                 String key = entry.getKey();

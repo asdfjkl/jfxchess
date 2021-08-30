@@ -445,7 +445,9 @@ public class Chessboard extends Canvas implements StateChangeListener {
                     // case a) 2)
                     Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
                     if (b.isLegalAndPromotes(m)) {
-                        int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
+                        int promotionPiece = DialogPromotion.show(b.turn,
+                                boardStyle.getPieceStyle(),
+                                gameModel.THEME);
                         if (promotionPiece != EMPTY) {
                             m.setPromotionPiece(promotionPiece);
                             applyMove(m);
@@ -524,7 +526,9 @@ public class Chessboard extends Canvas implements StateChangeListener {
                 if (!(boardPos.x == moveSource.x && boardPos.y == moveSource.y)) {
                     Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
                     if (b.isLegalAndPromotes(m)) {
-                        int promotionPiece = DialogPromotion.show(b.turn, boardStyle.getPieceStyle());
+                        int promotionPiece = DialogPromotion.show(b.turn,
+                                boardStyle.getPieceStyle(),
+                                gameModel.THEME);
                         if (promotionPiece != EMPTY) {
                             m.setPromotionPiece(promotionPiece);
                             applyMove(m);

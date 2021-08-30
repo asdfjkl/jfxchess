@@ -3,12 +3,11 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.PolyglotExt;
-import org.asdfjkl.jerryfx.lib.PolyglotExtEntry;
+import javafx.scene.input.MouseEvent;
+import org.asdfjkl.jerryfx.lib.*;
 import org.controlsfx.control.SegmentedBar;
 
 import java.util.ArrayList;
@@ -81,6 +80,33 @@ public class BookView implements StateChangeListener {
         //bookTable.getColumns().add(colWinLoss);
         bookTable.getColumns().add(colElo);
         bookTable.setItems(this.entries);
+
+        bookTable.setRowFactory( tv -> {
+            TableRow<PolyglotExtEntry> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                    PolyglotExtEntry rowData = row.getItem();
+                    handleMoveSelection(rowData.getMove());
+                    /*
+                    System.out.println("got double click");
+                    System.out.println(rowData.getMove());
+                    System.out.println(rowData);
+                     */
+                }
+            });
+            return row ;
+        });
+
+    }
+
+    void handleMoveSelection(String uciMove) {
+
+        Move m = new Move(uciMove);
+        if(this.gameModel.getGame().getCurrentNode().getBoard().isLegal(m)) {
+            this.gameModel.getGame().applyMove(m);
+            this.gameModel.getGame().setTreeWasChanged(true);
+            this.gameModel.triggerStateChange();
+        }
 
     }
 

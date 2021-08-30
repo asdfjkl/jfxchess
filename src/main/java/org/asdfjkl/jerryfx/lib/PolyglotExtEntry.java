@@ -50,19 +50,6 @@ public class PolyglotExtEntry {
     public int getAvgELO() { return avgElo; }
     public void setAvgELO(int avgElo) { this.avgElo = avgElo; }
 
-    public SegmentedBar getWinLoss() {
-        SegmentedBar bar = new SegmentedBar();
-        bar.setMinWidth(70);
-
-        bar.getSegments().addAll(
-                new SegmentedBar.Segment(10, "10"),
-                new SegmentedBar.Segment(10, "10"),
-                new SegmentedBar.Segment(50, "50"));
-        bar.setStyle("-fx-background-color: darkgrey;");
-        return bar;
-    }
-    public void setWinLoss(SegmentedBar bar) {  }
-
     @Override
     public String toString() {
         return "" + key + "   " + count + "  " + move + " " + uci + " " + whiteWinPerc + " " + drawPerc + " " + blackWinPerc + " " + avgElo;

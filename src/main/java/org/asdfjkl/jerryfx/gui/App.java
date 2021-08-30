@@ -498,7 +498,7 @@ public class App extends Application implements StateChangeListener {
             DialogAppearance dlg = new DialogAppearance();
             double height = Math.max(stage.getHeight() * 0.6, 520);
             double width = height * 1.4;
-            boolean accepted = dlg.show(chessboard.boardStyle, width, height);
+            boolean accepted = dlg.show(chessboard.boardStyle, width, height, gameModel.THEME);
             if(accepted) {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
                 chessboard.boardStyle.setPieceStyle(dlg.appearanceBoard.boardStyle.getPieceStyle());
@@ -575,7 +575,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmAbout.setOnAction(event -> {
-            DialogAbout.show();
+            DialogAbout.show(gameModel.THEME);
         });
 
         itmJerryHomepage.setOnAction(event -> {
@@ -644,7 +644,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnAbout.setOnAction(e -> {
-            DialogAbout.show();
+            DialogAbout.show(gameModel.THEME);
         });
 
 
@@ -939,7 +939,8 @@ public class App extends Application implements StateChangeListener {
         DialogNewGame dlg = new DialogNewGame();
         boolean accepted = dlg.show(gameModel.activeEngine.isInternal(),
                 gameModel.getEngineStrength(),
-                gameModel.getComputerThinkTimeSecs());
+                gameModel.getComputerThinkTimeSecs(),
+                gameModel.THEME);
         if(accepted) {
             gameModel.wasSaved = false;
             gameModel.currentPgnDatabaseIdx = -1;
@@ -970,7 +971,8 @@ public class App extends Application implements StateChangeListener {
     private void handleFullGameAnalysis() {
         DialogGameAnalysis dlg = new DialogGameAnalysis();
         boolean accepted = dlg.show(gameModel.getGameAnalysisThinkTimeSecs(),
-                ((double) gameModel.getGameAnalysisThreshold()));
+                ((double) gameModel.getGameAnalysisThreshold()),
+                gameModel.THEME);
         if(accepted) {
             itmEnterMoves.setSelected(true);
             tglEngineOnOff.setSelected(true);

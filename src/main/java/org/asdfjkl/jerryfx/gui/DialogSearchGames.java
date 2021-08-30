@@ -27,6 +27,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.JMetroStyleClass;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.Board;
 
 public class DialogSearchGames {
@@ -68,7 +70,8 @@ public class DialogSearchGames {
 
     Board currentBoard;
 
-    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern) {
+    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern,
+                        int colorTheme) {
 
         this.currentBoard = board.makeCopy();
 
@@ -315,8 +318,14 @@ public class DialogSearchGames {
         recoverFromSearchPattern(searchPattern);
 
         Scene scene = new Scene(vbox);
+        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
-        JMetro jMetro = new JMetro();
+        JMetro jMetro;
+        if(colorTheme == GameModel.STYLE_LIGHT) {
+            jMetro = new JMetro();
+        } else {
+            jMetro = new JMetro(Style.DARK);
+        }
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
