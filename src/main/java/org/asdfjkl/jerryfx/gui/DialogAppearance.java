@@ -31,6 +31,7 @@ import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
+import org.asdfjkl.jerryfx.lib.Game;
 
 public class DialogAppearance {
 
@@ -52,6 +53,9 @@ public class DialogAppearance {
     final Label lblTheme = new Label("Theme");
     final RadioButton rbThemeLight = new RadioButton("Light (Default)");
     final RadioButton rbThemeDark = new RadioButton("Dark");
+
+    int initialColorTheme;
+    int selectedColorTheme;
 
     Button btnOk;
     Button btnCancel;
@@ -162,6 +166,14 @@ public class DialogAppearance {
             appearanceBoard.updateCanvas();
         });
 
+        rbThemeLight.setOnAction(e -> {
+            selectedColorTheme = GameModel.STYLE_LIGHT;
+        });
+
+        rbThemeDark.setOnAction(e -> {
+            selectedColorTheme = GameModel.STYLE_DARK;
+        });
+
         if(currentStyle.getColorStyle() == BoardStyle.STYLE_BLUE) {
             rbBlue.setSelected(true);
         }
@@ -186,6 +198,8 @@ public class DialogAppearance {
         } else {
             rbThemeDark.setSelected(true);
         }
+        initialColorTheme = colorTheme;
+        selectedColorTheme = colorTheme;
 
         vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
@@ -209,6 +223,11 @@ public class DialogAppearance {
 
     private void btnOkClicked() {
         accepted = true;
+        if( (rbThemeLight.isSelected() && initialColorTheme != GameModel.STYLE_LIGHT)
+                || (rbThemeDark.isSelected() && initialColorTheme != GameModel.STYLE_DARK)) {
+            DialogSimpleAlert dlg = new DialogSimpleAlert();
+            dlg.show("In order for style changes to take effect,\n please restart the application.", initialColorTheme);
+        }
         stage.close();
     }
 

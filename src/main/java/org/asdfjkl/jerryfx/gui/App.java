@@ -85,6 +85,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreEngines();
         gameModel.restoreGameAnalysisThresholds();
         gameModel.restoreNewGameSettings();
+        gameModel.restoreTheme();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
@@ -296,7 +297,8 @@ public class App extends Application implements StateChangeListener {
         //Tab tabBook = new Tab("Book" , new Label("book"));
         Tab tabBook = new Tab("Book" , bookView.bookTable);
 
-        tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabNotation, tabBook);
+        //tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabNotation, tabBook);
+        tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabBook);
         tabPaneMovesNotationBook.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tabPaneMovesNotationBook.getStyleClass().add("underlined");
 
@@ -503,6 +505,7 @@ public class App extends Application implements StateChangeListener {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
                 chessboard.boardStyle.setPieceStyle(dlg.appearanceBoard.boardStyle.getPieceStyle());
                 gameModel.boardStyle = chessboard.boardStyle;
+                gameModel.THEME = dlg.selectedColorTheme;
                 gameModel.triggerStateChange();
             }
         });
@@ -793,8 +796,11 @@ public class App extends Application implements StateChangeListener {
 
         itmEnterMoves.setSelected(true);
 
-
-        JMetro jMetro = new JMetro(Style.DARK);
+        Style style = Style.LIGHT;
+        if(gameModel.THEME == gameModel.STYLE_DARK) {
+            style = Style.DARK;
+        }
+        JMetro jMetro = new JMetro(style);
         //JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
         jMetro.setAutomaticallyColorPanes(true);
@@ -925,6 +931,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveGameAnalysisThresholds();
         gameModel.saveNewGameSettings();
         gameModel.saveToolbarVisibility(tbMainWindow.isVisible());
+        gameModel.saveTheme();
 
         engineController.sendCommand("quit");
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();

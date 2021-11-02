@@ -451,6 +451,16 @@ public class GameModel {
         return prefs.getBoolean("SHOW_TOOLBAR", true);
     }
 
+    public void saveTheme() {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putInt("COLOR_THEME", this.THEME);
+    }
+
+    public void restoreTheme() {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        this.THEME = prefs.getInt("COLOR_THEME", STYLE_LIGHT);
+    }
+
     public void restoreModel() {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
