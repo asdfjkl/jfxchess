@@ -55,7 +55,7 @@ public class Polyglot {
 
     public PolyglotEntry getEntryFromOffset(int offset) {
 
-        if (book == null || offset >= book.length - 16) {
+        if (book == null || offset > book.length - 16) {
             throw new IllegalArgumentException("polyglot book is not loaded or offset out of range");
         }
 

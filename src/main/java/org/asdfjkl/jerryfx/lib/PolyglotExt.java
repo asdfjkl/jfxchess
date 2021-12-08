@@ -55,7 +55,12 @@ public class PolyglotExt {
 
     public PolyglotExtEntry getEntryFromOffset(int offset) {
 
-        if (book == null || offset >= book.length - 18) {
+        if (book == null || offset > book.length - 18) {
+            if(book == null) {
+                System.err.println("book == null");
+            } else {
+                System.err.println("book length mismatch");
+            }
             throw new IllegalArgumentException("polyglot ext-book is not loaded or offset out of range");
         }
 

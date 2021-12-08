@@ -113,6 +113,7 @@ public class GameModel {
         engines.add(stockfish);
         activeEngine = stockfish;
 
+
         book = new Polyglot();
         File file = null;
         if(bookPath != null) {
@@ -121,9 +122,11 @@ public class GameModel {
         }
 
         largeBook = new PolyglotExt();
-        File fLargeBook = new File("C:\\Users\\user\\MyFiles\\workspace\\IdeaProjects\\bookmaker\\target\\milbook.bin");
-        largeBook.loadBook(fLargeBook);
-
+        String extBookPath = getExtBookPath();
+        if(extBookPath != null) {
+            file = new File(extBookPath);
+            largeBook.loadBook(file);
+        }
 
     }
 
@@ -140,7 +143,7 @@ public class GameModel {
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish12.exe").getPath();
+                    stockfishPath = new File(subEngine, "stockfish_14.1.exe").getPath();
                     return stockfishPath;
                 }
         }
@@ -166,33 +169,51 @@ public class GameModel {
         return null;
     }
 
-    private String getBookPath() {
+    private File getBaseBookPath() {
         String os = System.getProperty("os.name").toLowerCase();
-            if(os.contains("win")) {
-                String bookPath = "";
-                String jarPath = "";
-                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                File tmp = (new File(jarPath));
-                if(tmp.getParentFile().exists()) {
-                    File subBook = new File(tmp.getParentFile(), "book");
-                    bookPath = new File(subBook, "varied.bin").getPath();
-                    return bookPath;
-                }
+        if(os.contains("win")) {
+            String jarPath = "";
+            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+            File tmp = (new File(jarPath));
+            if(tmp.getParentFile().exists()) {
+                File subBook = new File(tmp.getParentFile(), "book");
+                return subBook;
+                //bookPath = new File(subBook, "varied.bin").getPath();
+                //return bookPath;
+            }
         }
         if(os.contains("linux")) {
-                String bookPath = "";
-                String jarPath = "";
-                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                File tmp = (new File(jarPath));
-                if(tmp.getParentFile().exists()) {
-                    if(tmp.getParentFile().getParentFile().exists()) {
+            String jarPath = "";
+            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+            File tmp = (new File(jarPath));
+            if(tmp.getParentFile().exists()) {
+                if(tmp.getParentFile().getParentFile().exists()) {
                     File subBook = new File(tmp.getParentFile().getParentFile(), "book");
-                    bookPath = new File(subBook, "varied.bin").getPath();
-                    return bookPath;
-                    }
+                    return subBook;
+                    //bookPath = new File(subBook, "varied.bin").getPath();
+                    //return bookPath;
                 }
+            }
+        }
+        return null;
+    }
+
+    private String getBookPath() {
+        File baseBook = getBaseBookPath();
+        if(baseBook != null) {
+            String bookPath = new File(baseBook, "varied.bin").getPath();
+            return bookPath;
+        }
+        return null;
+    }
+
+    private String getExtBookPath() {
+        File baseBook = getBaseBookPath();
+        if(baseBook != null) {
+            String bookPath = new File(baseBook, "extbook.bin").getPath();
+            return bookPath;
         }
         return null;
     }

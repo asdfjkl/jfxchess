@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Jerry - Das Schachprogramm"
-#define MyAppVersion "4.1"
+#define MyAppVersion "4.2"
 #define MyAppPublisher "org.asdfjkl"
 #define MyAppURL "https://github.com/asdfjkl/jerry"
 #define MyAppExeName "jerryfx.exe"
@@ -45,6 +45,9 @@ Source: "C:\Users\user\MyFiles\workspace\build dir\output\jerryfx\*"; DestDir: "
 ;Source: "C:\Users\user\MyFiles\workspace\build dir\engine\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ;Source: "C:\Users\user\MyFiles\workspace\build dir\jdk-11.0.8+10-jre\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+[Registry]
+Root: HKCU; Subkey: "Software\JavaSoft\Prefs\org.asdfjkl.jerryfx.gui./Game/Model"; Flags: uninsdeletekey
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\jerryfx.ico";

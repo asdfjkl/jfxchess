@@ -895,7 +895,7 @@ public class App extends Application implements StateChangeListener {
 
         moveBuffer += s;
         if(moveBuffer.length() == 4) {
-            System.out.println("move4: "+moveBuffer);
+            //System.out.println("move4: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (!board.isLegalAndPromotes(move)) {
@@ -907,7 +907,7 @@ public class App extends Application implements StateChangeListener {
             }
         }
         if(moveBuffer.length() == 5) {
-            System.out.println("move5: "+moveBuffer);
+            //System.out.println("move5: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (board.isLegal(move)) {

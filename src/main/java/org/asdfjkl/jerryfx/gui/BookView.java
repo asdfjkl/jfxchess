@@ -112,15 +112,16 @@ public class BookView implements StateChangeListener {
 
     @Override
     public void stateChange() {
-        System.out.println("bookview: state change received");
+        //System.out.println("bookview: state change received");
 
         entries.clear();
         Board currentBoard = gameModel.getGame().getCurrentNode().getBoard();
         ArrayList<PolyglotExtEntry> currentEntries = gameModel.largeBook.findEntries(currentBoard);
+        /*
         for(PolyglotExtEntry e : currentEntries) {
             //entries.add(e);
             System.out.println(e);
-        }
+        }*/
         entries.setAll(currentEntries);
     }
 }

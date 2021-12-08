@@ -151,6 +151,7 @@ public class ModeMenuController implements StateChangeListener {
             }
         }
         if(gameModel.activeEngine.isInternal()) {
+            //System.out.println("setoption name Skill Level value "+gameModel.getEngineStrength());
             engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
         }
         // trigger statechange

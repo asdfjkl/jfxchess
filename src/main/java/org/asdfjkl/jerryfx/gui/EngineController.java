@@ -90,9 +90,9 @@ public class EngineController {
                 }
             } else {
                 if(cmd.startsWith("start ")) {
-                    System.out.println("start received, restarting engine");
+                    //System.out.println("start received, restarting engine");
                     if(engineThread == null) {
-                        System.out.println("engine thread was null, restarting");
+                        //System.out.println("engine thread was null, restarting");
                         startEngineThread();
                         Thread.sleep(100);
                         cmdQueue.put(cmd);
