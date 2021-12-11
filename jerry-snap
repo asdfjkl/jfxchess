@@ -2,4 +2,4 @@
 
 # echo version for potential debug
 ${SNAP}/usr/lib/jvm/java-11-openjdk-${SNAP_ARCH}/bin/java -version
-${SNAP}/usr/lib/jvm/java-11-openjdk-${SNAP_ARCH}/bin/java -splash:${SNAP}/splash/splash.png -Djava.util.prefs.userRoot="$SNAP_USER_DATA" -jar $SNAP/jar/jerryfx-4.1-jar-with-dependencies.jar $*
+${SNAP}/usr/lib/jvm/java-11-openjdk-${SNAP_ARCH}/bin/java -splash:${SNAP}/splash/splash.png -Djava.util.prefs.userRoot="$SNAP_USER_DATA" -jar $SNAP/jar/jerryfx-4.2-jar-with-dependencies.jar $*
