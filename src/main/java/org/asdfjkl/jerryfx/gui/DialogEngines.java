@@ -264,14 +264,24 @@ public class DialogEngines {
             try {
                 String line;
 
+                //System.err.println("file != null, starting engine");
+
                 Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
-                OutputStream stdout = engineProcess.getOutputStream ();
-                InputStream stderr = engineProcess.getErrorStream ();
-                InputStream stdin = engineProcess.getInputStream ();
+                //OutputStream stdout = engineProcess.getOutputStream ();
+                //InputStream stderr = engineProcess.getErrorStream ();
+                //InputStream stdin = engineProcess.getInputStream ();
 
                 BufferedReader bri = new BufferedReader (new InputStreamReader(engineProcess.getInputStream()));
                 BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
                 BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
+
+                for(int i=0;i<20;i++) {
+                    try {
+                        Thread.sleep(40);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 bro.write("uci\n");
                 bro.flush();
@@ -290,6 +300,7 @@ public class DialogEngines {
                 while(bri.ready()) {
                     EngineOption engineOption = new EngineOption();
                     line = bri.readLine();
+                    //System.err.println("option: " + line);
                     if(line.startsWith("id name")) {
                         engine.setName(line.substring(7).trim());
                     }
