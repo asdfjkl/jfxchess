@@ -24,6 +24,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -32,6 +36,7 @@ import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -157,6 +162,12 @@ public class DialogEngineOptions {
         });
 
         vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int height = gd.getDisplayMode().getHeight();
+        double maxHeight = height * 0.8;
+        vbMain.setMaxHeight(maxHeight);
+
         Scene scene = new Scene(vbMain);
 
         JMetro jMetro;
@@ -168,7 +179,6 @@ public class DialogEngineOptions {
         jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
-
         stage.showAndWait();
 
         return accepted;
