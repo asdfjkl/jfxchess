@@ -74,6 +74,8 @@ Current plans for future versions:
  
 Version 4.3
 - [DONE] opening book support
+- replace Stockfish skill level with UciLimitStrength (any engine)
+- more options to edit/replace/add games in pgn files
 - visual representation (i.e. graph) of game progress
 - ability to set default database
 - ship a default database of a few thousand interesting games 
