@@ -944,15 +944,14 @@ public class App extends Application implements StateChangeListener {
 
     private void handleNewGame() {
         DialogNewGame dlg = new DialogNewGame();
-        boolean accepted = dlg.show(gameModel.activeEngine.isInternal(),
-                gameModel.getEngineStrength(),
+        boolean accepted = dlg.show(gameModel.activeEngine,
                 gameModel.getComputerThinkTimeSecs(),
                 gameModel.THEME);
         if(accepted) {
             gameModel.wasSaved = false;
             gameModel.currentPgnDatabaseIdx = -1;
             gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
-            gameModel.setEngineStrength(dlg.strength);
+            gameModel.activeEngine.setElo(dlg.strength);
             Game g = new Game();
             g.getRootNode().setBoard(new Board(true));
             gameModel.setGame(g);

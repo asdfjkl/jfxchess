@@ -64,11 +64,23 @@ public class DialogNewGame {
     final Slider sliderThinkTime = new Slider();
 
     int thinkTime = 3;
-    int strength = 20;
+    int strength = 0;
 
-    public boolean show(boolean isInternalEngine, int currEngineStrength, int currThinkTime, int colorTheme) {
+    boolean supportsUciLimitStrength = false;
 
-        strength = currEngineStrength;
+    public boolean show(Engine activEngine,
+                        int currThinkTime,
+                        int colorTheme) {
+
+        int minElo = 1200;
+        int maxElo = 3000;
+        supportsUciLimitStrength = activEngine.supportsUciLimitStrength();
+        if(supportsUciLimitStrength) {
+            strength = activEngine.getUciElo();
+            minElo = activEngine.getMinUciElo();
+            maxElo = activEngine.getMaxUciElo();
+        }
+
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -97,6 +109,17 @@ public class DialogNewGame {
         rbEnterMoves.setSelected(true);
         rbWhite.setSelected(true);
 
+        rbEnterMoves.setOnAction(actionEvent -> {
+            sliderStrength.setDisable(true);
+            sliderThinkTime.setDisable(true);
+        });
+        rbComputer.setOnAction(actionEvent -> {
+            if (supportsUciLimitStrength) {
+                sliderStrength.setDisable(false);
+            }
+            sliderThinkTime.setDisable(false);
+        });
+
         HBox hbGame = new HBox(rbEnterMoves, rbComputer);
         hbGame.setSpacing(10);
         hbGame.setPadding(new Insets(5, 20, 20, 0));
@@ -105,8 +128,8 @@ public class DialogNewGame {
         hbSide.setSpacing(10);
         hbSide.setPadding(new Insets(5, 20, 20, 0));
 
-        sliderStrength.setMin(0);
-        sliderStrength.setMax(20);
+        sliderStrength.setMin(minElo);
+        sliderStrength.setMax(maxElo);
 
         sliderStrength.setBlockIncrement(1);
         sliderStrength.setMajorTickUnit(1);
@@ -118,18 +141,17 @@ public class DialogNewGame {
         hboxStrength.getChildren().addAll(sliderStrength, txtStrength);
         hboxStrength.setSpacing(20);
 
+        int tmpStrength = strength;
         sliderStrength.valueProperty().addListener(
                 ((observableValue, number, t1) -> {
                     strength = t1.intValue();;
-                    txtStrength.setText("Level "+ strength);
+                    txtStrength.setText("Elo "+ strength);
                 })
         );
-        sliderStrength.setValue(20);
-        sliderStrength.setValue(currEngineStrength);
+        sliderStrength.setValue(3000);
+        sliderStrength.setValue(tmpStrength);
         sliderStrength.setStyle("-show-value-on-interaction: false;");
-        if(!isInternalEngine) {
-            sliderStrength.setDisable(true);
-        }
+        sliderStrength.setDisable(true);
 
         sliderThinkTime.setMin(1);
         sliderThinkTime.setMax(7);
@@ -191,6 +213,7 @@ public class DialogNewGame {
         if(currThinkTime == 30) {
             sliderThinkTime.setValue(7);
         }
+        sliderThinkTime.setDisable(true);
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(
@@ -198,7 +221,7 @@ public class DialogNewGame {
                 hbGame,
                 new Label("Chose your Side:"),
                 hbSide,
-                new Label("Computer Strength (internal engine only)"),
+                new Label("Computer Strength"),
                 hboxStrength,
                 new Label("Computer's Time per Move"),
                 hboxthinkTime,

@@ -131,4 +131,66 @@ public class Engine {
             return false;
         }
     }
+
+    public int getUciElo() {
+
+        for (EngineOption option : options) {
+            if (option.name.equals("UCI_Elo")) {
+                return option.spinValue;
+            }
+        }
+        return 0;
+    }
+
+    public int getMinUciElo() {
+
+        for (EngineOption option : options) {
+            if (option.name.equals("UCI_Elo")) {
+                return option.spinMin;
+            }
+        }
+        return 0;
+    }
+
+    public int getMaxUciElo() {
+
+        for (EngineOption option : options) {
+            if (option.name.equals("UCI_Elo")) {
+                return option.spinMax;
+            }
+        }
+        return 0;
+    }
+
+    public void setElo(int elo) {
+        for (EngineOption option : options) {
+            if (option.name.equals("UCI_Elo")) {
+                option.spinValue = elo;
+            }
+        }
+    }
+
+    public boolean supportsUciLimitStrength() {
+
+            boolean supportsLimitStrength = false;
+            boolean supportsSetElo = false;
+            for (EngineOption option : options) {
+                if (option.name.equals("UCI_LimitStrength")) {
+                    supportsLimitStrength = true;
+                }
+                if (option.name.equals("UCI_Elo")) {
+                    supportsSetElo = true;
+                }
+            }
+            return (supportsLimitStrength && supportsSetElo);
+
+    }
+
+    public void setUciLimitStrength(boolean val) {
+        for (EngineOption option : options) {
+            if (option.name.equals("UCI_LimitStrength")) {
+                option.checkStatusValue = val;
+            }
+        }
+    }
 }

@@ -64,6 +64,9 @@ public class ModeMenuController implements StateChangeListener {
     public void activateAnalysisMode() {
 
         // first change gamestate and reset engine
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
@@ -139,6 +142,9 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activatePlayWhiteMode() {
         // first change gamestate and reset engine
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(true);
+        }
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
@@ -163,6 +169,9 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activatePlayBlackMode() {
         // first change gamestate and reset engine
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(true);
+        }
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
@@ -186,6 +195,9 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activatePlayoutPositionMode() {
         // first change gamestate and reset engine
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
@@ -210,6 +222,9 @@ public class ModeMenuController implements StateChangeListener {
         gameModel.getGame().removeAllAnnotations();
         gameModel.getGame().setTreeWasChanged(true);
 
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
         engineController.sendCommand("stop");
         engineController.sendCommand("quit");
         String cmdEngine = gameModel.activeEngine.getPath();
