@@ -104,7 +104,7 @@ public class App extends Application implements StateChangeListener {
         MenuItem itmNew = new MenuItem("New...");
         MenuItem itmOpenFile = new MenuItem("Open File");
         itmOpenFile.setAccelerator(keyCombinationOpen);
-        MenuItem itmSaveCurrentGameAs = new MenuItem("Save Current Game As");
+        MenuItem itmSaveCurrentGameAs = new MenuItem("Save Game");
         itmSaveCurrentGameAs.setAccelerator(keyCombinationSave);
         MenuItem itmPrintGame = new MenuItem("Print Game");
         MenuItem itmPrintPosition = new MenuItem("Print Position");
@@ -192,11 +192,11 @@ public class App extends Application implements StateChangeListener {
         btnNew.setGraphic(new ImageView( new Image("icons/document-new.png")));
         btnNew.setContentDisplay(ContentDisplay.TOP);
 
-        Button btnOpen = new Button("Open");
+        Button btnOpen = new Button("Open File");
         btnOpen.setGraphic(new ImageView( new Image("icons/document-open.png")));
         btnOpen.setContentDisplay(ContentDisplay.TOP);
 
-        Button btnSaveAs = new Button("Save As");
+        Button btnSaveAs = new Button("Save Game");
         btnSaveAs.setGraphic(new ImageView( new Image("icons/document-save.png")));
         btnSaveAs.setContentDisplay(ContentDisplay.TOP);
 
@@ -600,6 +600,8 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnSaveAs.setOnAction(e -> {
+            DialogSave sv = new DialogSave();
+            sv.show(gameModel.THEME);
             gameMenuController.handleSaveCurrentGame();
         });
 

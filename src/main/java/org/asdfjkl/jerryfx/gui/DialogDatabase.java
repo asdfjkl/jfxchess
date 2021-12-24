@@ -61,10 +61,15 @@ public class DialogDatabase {
 
         ToolBar toolBar = new ToolBar();
 
-        Button btnOpen = new Button("Open");
+        Button btnOpen = new Button("Open File");
         btnOpen.setGraphic(new ImageView(new Image("icons/document-open.png")));
         btnOpen.setContentDisplay(ContentDisplay.TOP);
 
+        Button btnDelete = new Button("Delete Game");
+        btnDelete.setGraphic(new ImageView(new Image("icons/document-save.png")));
+        btnDelete.setContentDisplay(ContentDisplay.TOP);
+
+        /*
         Button btnSave = new Button("Save");
         btnSave.setGraphic(new ImageView(new Image("icons/document-save.png")));
         btnSave.setContentDisplay(ContentDisplay.TOP);
@@ -72,6 +77,7 @@ public class DialogDatabase {
         Button btnSaveAs = new Button("Save As...");
         btnSaveAs.setGraphic(new ImageView(new Image("icons/document-save.png")));
         btnSaveAs.setContentDisplay(ContentDisplay.TOP);
+         */
 
         Button btnSearch = new Button("Search");
         btnSearch.setGraphic(new ImageView(new Image("icons/system-search.png")));
@@ -85,7 +91,7 @@ public class DialogDatabase {
         btnAbout.setGraphic(new ImageView(new Image("icons/help-browser.png")));
         btnAbout.setContentDisplay(ContentDisplay.TOP);
 
-        toolBar.getItems().addAll(btnOpen, btnSave, btnSaveAs, btnSearch, btnResetSearch, btnAbout);
+        toolBar.getItems().addAll(btnOpen, btnDelete, btnSearch, btnResetSearch, btnAbout);
 
         table = new TableView<>();
 
@@ -167,12 +173,8 @@ public class DialogDatabase {
             btnOpenClicked();
         });
 
-        btnSave.setOnAction(e -> {
-            btnSaveClicked();
-        });
-
-        btnSaveAs.setOnAction(e -> {
-            btnSaveAsClicked();
+        btnDelete.setOnAction(e -> {
+            //btnSaveClicked();
         });
 
         btnSearch.setOnAction(e -> {
