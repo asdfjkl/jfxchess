@@ -19,18 +19,23 @@ Jerry is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.1.1
+Current Version: 4.2.0
 
-* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.1.1)
+* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0)
 * Linux
   - install from [Snapstore](https://snapcraft.io/jerry) 
-  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.1.1)
+  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0) (coming soon)
 
 ## Blog
 
 Once in a while I blog about the development of Jerry at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 4.2.0 (Dec 2021)
+ * opening book with statistics
+ * dark mode
+ * several bugfixes
 
 Version 4.1.1 (Jan 2021)
  * fixed bug when starting a new game
@@ -67,8 +72,10 @@ You can support the development of Jerry by donating via Paypal.
  
 Current plans for future versions:
  
-Version 4.2
-- opening book support
+Version 4.3
+- [DONE] opening book support
+- replace Stockfish skill level with UciLimitStrength (any engine)
+- more options to edit/replace/add games in pgn files
 - visual representation (i.e. graph) of game progress
 - ability to set default database
 - ship a default database of a few thousand interesting games 
