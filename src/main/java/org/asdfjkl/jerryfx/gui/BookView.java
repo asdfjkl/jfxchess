@@ -1,5 +1,6 @@
 package org.asdfjkl.jerryfx.gui;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -39,6 +40,15 @@ public class BookView implements StateChangeListener {
         colMove.setMinWidth(30);
         colMove.setSortable(false);
 
+        TableColumn<PolyglotExtEntry, PolyglotExtEntry> colWDL = new TableColumn<>("Win/Draw/Loss");
+        colWDL.setCellValueFactory(o ->
+                new SimpleObjectProperty<>(o.getValue())
+        );
+        colWDL.setCellFactory(p ->
+                new RatioCell(gameModel.THEME)
+        );
+
+        /*
         TableColumn<PolyglotExtEntry, Integer> colWins = new TableColumn<PolyglotExtEntry, Integer>("Win");
         colWins.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, Integer>("Wins"));
         colWins.setMinWidth(75);
@@ -58,7 +68,7 @@ public class BookView implements StateChangeListener {
         //colLosses.setStyle("-fx-alignment: CENTER;");
         //colLosses.getStyleClass().add("leftAlignedTableColumnHeader");
         colLosses.setSortable(false);
-
+*/
         TableColumn<PolyglotExtEntry, Integer> colElo = new TableColumn<PolyglotExtEntry, Integer>("Avg. ELO");
         colElo.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, Integer>("AvgELO"));
         colElo.setMinWidth(95);
@@ -74,9 +84,12 @@ public class BookView implements StateChangeListener {
 */
         bookTable.getColumns().add(colCount);
         bookTable.getColumns().add(colMove);
-        bookTable.getColumns().add(colWins);
-        bookTable.getColumns().add(colDraws);
-        bookTable.getColumns().add(colLosses);
+
+        bookTable.getColumns().add(colWDL);
+        //bookTable.getColumns().add(colWins);
+        //bookTable.getColumns().add(colDraws);
+        //bookTable.getColumns().add(colLosses);
+
         //bookTable.getColumns().add(colWinLoss);
         bookTable.getColumns().add(colElo);
         bookTable.setItems(this.entries);
