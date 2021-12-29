@@ -156,21 +156,25 @@ public class GameMenuController {
 
     public void handleSaveCurrentGame() {
 
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        if(gameModel.lastSaveDirPath != null && gameModel.lastSaveDirPath.exists()) {
-            fileChooser.setInitialDirectory(gameModel.lastSaveDirPath);
-        }
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PGN", "*.pgn")
-        );
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            if(file.getParentFile() != null) {
-                gameModel.lastSaveDirPath = file.getParentFile();
-            }
-            PgnPrinter printer = new PgnPrinter();
-            printer.writeGame(gameModel.getGame(), file.getAbsolutePath());
+        DialogSave dlg = new DialogSave();
+        int result = dlg.show(gameModel.THEME,
+                gameModel.currentPgnDatabaseIdx >= 0,
+                gameModel.getPgnDatabase().filename);
+        System.out.println("result of dlg: "+result);
+        switch(result) {
+            case DialogSave.DLG_SAVE_NEW:
+                gameModel.getPgnDatabase().saveAsNewPGN(gameModel);
+                break;
+            case DialogSave.DLG_SAVE_APPEND_CURRENT:
+                gameModel.getPgnDatabase().appendToCurrentPGN(gameModel.game);
+                break;
+            case DialogSave.DLG_SAVE_APPEND_OTHER:
+                gameModel.getPgnDatabase().appendToOtherPGN(gameModel);
+                break;
+            case DialogSave.DLG_SAVE_REPLACE:
+                gameModel.getPgnDatabase().replaceCurrentGame(gameModel.game, gameModel.currentPgnDatabaseIdx);
+                break;
+            default:
         }
     }
 

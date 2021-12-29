@@ -32,13 +32,25 @@ import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.CONSTANTS;
 
+import java.io.File;
+
 public class DialogSave {
 
-    static Stage stage;
+    static final int DLG_SAVE_CANCEL = 0;
+    static final int DLG_SAVE_APPEND_CURRENT = 1;
+    static final int DLG_SAVE_APPEND_OTHER = 2;
+    static final int DLG_SAVE_NEW = 3;
+    static final int DLG_SAVE_REPLACE = 4;
 
-    public static void show(int colorTheme) {
+    Stage stage;
+    int result = 0;
 
-        Label lblCurrentFile = new Label("C:\\Users\\user\\foo.pgn");
+    public int show(int colorTheme, boolean replacePossible, String currentFilename) {
+
+        Label lblCurrentFile = new Label("");
+        if(currentFilename != null) {
+            lblCurrentFile.setText(currentFilename);
+        }
         Button btnAddToCurrent = new Button("Append to current PGN");
         btnAddToCurrent.setPrefWidth(200);
         Button btnAddToOther = new Button("Append to other PGN");
@@ -50,7 +62,36 @@ public class DialogSave {
         Button btnCancel = new Button("Cancel");
         btnCancel.setPrefWidth(200);
 
+        if(!replacePossible) {
+            btnReplace.setDisable(true);
+        }
+        if(currentFilename == null) {
+            btnAddToCurrent.setDisable(true);
+        }
+
         stage = new Stage();
+
+        btnAddToCurrent.setOnAction(e -> {
+            result = DLG_SAVE_APPEND_CURRENT;
+            stage.close();
+        });
+        btnAddToOther.setOnAction(e -> {
+            result = DLG_SAVE_APPEND_OTHER;
+            stage.close();
+        });
+        btnSaveAsNew.setOnAction(e -> {
+            result = DLG_SAVE_NEW;
+            stage.close();
+        });
+        btnReplace.setOnAction(e -> {
+            result = DLG_SAVE_REPLACE;
+            System.out.println("btn replace clicked");
+            stage.close();
+        });
+        btnCancel.setOnAction(e -> {
+            result = DLG_SAVE_CANCEL;
+            stage.close();
+        });
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(lblCurrentFile, btnAddToCurrent, btnAddToOther,
@@ -75,7 +116,13 @@ public class DialogSave {
         // stage.initStyle(StageStyle.UTILITY); will result on window not having focus/keyboard
         //                                      input not working on Linux
         stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
+
+        btnCancel.requestFocus();
+
+
         stage.showAndWait();
+
+        return result;
     }
 
 }

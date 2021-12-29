@@ -27,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -96,6 +97,7 @@ public class PgnDatabase {
         try {
             raf = new OptimizedRandomAccessFile(filename, "r");
             if(index < entries.size()) {
+                System.out.println(entries.get(index).getOffset());
                 raf.seek(entries.get(index).getOffset());
                 g = reader.readGame(raf);
             }
@@ -274,7 +276,6 @@ public class PgnDatabase {
                 pgn.delete();
                 tmpFile.renameTo(pgn);
 
-                //System.out.println("finished");
                 return null;
             }
         };
@@ -300,6 +301,126 @@ public class PgnDatabase {
 
     }
 
+    public void appendToCurrentPGN(Game g) {
+
+        BufferedWriter writer = null;
+        try {
+            File file = new File(filename);
+            long offset = file.length() + 2;
+            PgnPrinter pgnPrinter = new PgnPrinter();
+            writer = new BufferedWriter(new FileWriter(filename, true));
+            String sGame = pgnPrinter.printGame(g);
+            writer.write(0xa); // 0xa = LF = \n
+            writer.write(0xa); // 0xa = LF = \n
+            writer.write(sGame);
+            writer.write(0xa); // 0xa = LF = \n
+            writer.write(0xa); // 0xa = LF = \n
+            PgnDatabaseEntry newEntry = new PgnDatabaseEntry();
+            newEntry.setWhite(g.getHeader("White"));
+            newEntry.setBlack(g.getHeader("Black"));
+            newEntry.setDate(g.getHeader("Date"));
+            newEntry.setOffset(offset);
+            newEntry.setEvent(g.getHeader("Event"));
+            newEntry.setEco(g.getHeader("Eco"));
+            newEntry.setResult(g.getHeader("Result"));
+            newEntry.setRound(g.getHeader("Round"));
+            newEntry.setSite(g.getHeader("Site"));
+            newEntry.setIndex(entries.size()+1);
+            entries.add(newEntry);
+            writer.close();
+        } catch(IOException e) {
+            System.err.println(e);
+        } finally {
+            if(writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.err.println(e);
+                }
+            }
+        }
+    }
+
+    public void appendToOtherPGN(GameModel gameModel) {
+
+        // write game to file, then re-load this file into database
+        FileChooser fileChooser = new FileChooser();
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        if(gameModel.lastSaveDirPath != null && gameModel.lastSaveDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastSaveDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            if(file.getParentFile() != null) {
+                gameModel.lastSaveDirPath = file.getParentFile();
+            }
+
+            BufferedWriter writer = null;
+            try {
+                PgnPrinter pgnPrinter = new PgnPrinter();
+                writer = new BufferedWriter(new FileWriter(file, true));
+                String sGame = pgnPrinter.printGame(gameModel.getGame());
+                writer.write(0xa); // 0xa = LF = \n
+                writer.write(0xa); // 0xa = LF = \n
+                writer.write(sGame);
+                writer.write(0xa); // 0xa = LF = \n
+                writer.write(0xa); // 0xa = LF = \n
+                writer.close();
+            } catch(IOException e) {
+                System.err.println(e);
+            } finally {
+                if(writer != null) {
+                    try {
+                        writer.close();
+                    } catch (IOException e) {
+                        System.err.println(e);
+                    }
+                }
+            }
+            this.filename = file.getAbsolutePath();
+            open();
+        }
+    }
+
+    public void replaceCurrentGame(Game g, int currentDatabaseIndex) {
+        entries.get(currentDatabaseIndex).setModifiedGame(g);
+        saveDatabase();
+    }
+
+    public void saveAsNewPGN(GameModel gameModel) {
+
+        // write game to file, then re-load this file into database
+        FileChooser fileChooser = new FileChooser();
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        if(gameModel.lastSaveDirPath != null && gameModel.lastSaveDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastSaveDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if(file.getParentFile() != null) {
+                gameModel.lastSaveDirPath = file.getParentFile();
+            }
+            PgnPrinter printer = new PgnPrinter();
+            printer.writeGame(gameModel.getGame(), file.getAbsolutePath());
+
+            this.filename = file.getAbsolutePath();
+            open();
+            //gameModel.currentPgnDatabaseIdx = 0;
+        }
+
+    }
+
+    public void deleteGame(int index) {
+
+    }
 
     public void open() {
 

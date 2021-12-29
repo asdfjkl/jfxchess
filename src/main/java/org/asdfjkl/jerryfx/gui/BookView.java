@@ -30,7 +30,7 @@ public class BookView implements StateChangeListener {
         // long, string, string (for now), long
         TableColumn<PolyglotExtEntry, Long> colCount = new TableColumn<PolyglotExtEntry, Long>("# Games");
         colCount.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, Long>("PosCount"));
-        colCount.setMinWidth(30);
+        colCount.setMinWidth(100);
         colCount.setStyle( "-fx-alignment: CENTER-RIGHT;");
         colCount.setSortable(false);
 

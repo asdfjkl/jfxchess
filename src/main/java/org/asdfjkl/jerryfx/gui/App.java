@@ -600,8 +600,6 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnSaveAs.setOnAction(e -> {
-            DialogSave sv = new DialogSave();
-            sv.show(gameModel.THEME);
             gameMenuController.handleSaveCurrentGame();
         });
 
