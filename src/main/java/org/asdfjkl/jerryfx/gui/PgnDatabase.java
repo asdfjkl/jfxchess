@@ -125,14 +125,10 @@ public class PgnDatabase {
 
         String tmpFilenameWoDir = Util.getRandomFilename();
 
-        System.out.println(filename);
         File file = new File(filename);
         File path = file.getParentFile();
         String filenameWithoutDir = file.getName();
-        System.out.println(filenameWithoutDir);
         File tmpFile = new File(path, tmpFilenameWoDir);
-
-        System.out.println(tmpFile.getAbsolutePath());
 
         final String currentPgnFilename = this.filename;
         final String pgnFilename = filename;
