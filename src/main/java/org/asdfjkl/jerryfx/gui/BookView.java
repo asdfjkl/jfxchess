@@ -1,6 +1,7 @@
 package org.asdfjkl.jerryfx.gui;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -34,13 +35,17 @@ public class BookView implements StateChangeListener {
         colCount.setSortable(false);
 
         TableColumn<PolyglotExtEntry, String> colMove = new TableColumn<PolyglotExtEntry, String>("Move");
-        colMove.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, String>("Move"));
+        //colMove.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, String>("Move"));
+        colMove.setCellValueFactory(entry ->
+                new SimpleStringProperty(gameModel.getGame().getCurrentNode().getBoard().san(new Move(entry.getValue().getMove())))
+        );
+
         colMove.setMinWidth(30);
         colMove.setSortable(false);
 
         TableColumn<PolyglotExtEntry, PolyglotExtEntry> colWDL = new TableColumn<>("Win/Draw/Loss");
-        colWDL.setCellValueFactory(o ->
-                new SimpleObjectProperty<>(o.getValue())
+        colWDL.setCellValueFactory(entry ->
+                new SimpleObjectProperty<>(entry.getValue())
         );
         colWDL.setCellFactory(p ->
                 new RatioCell(gameModel.THEME)
