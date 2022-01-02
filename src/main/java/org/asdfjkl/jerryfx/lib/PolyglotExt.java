@@ -197,7 +197,7 @@ public class PolyglotExt {
         // find entry fast
         while(Integer.compareUnsigned(low, high) < 0) {
             int middle = Integer.divideUnsigned(low + high, 2);
-            PolyglotExtEntry e = getEntryFromOffset(middle*16);
+            PolyglotExtEntry e = getEntryFromOffset(middle*18);
             long middleKey = e.key;
             if(Long.compareUnsigned(middleKey, zobrist) < 0L) {
                 low = middle + 1;
@@ -220,6 +220,35 @@ public class PolyglotExt {
         }
 
         return false;
+    }
+
+    /*
+      for given zobrist, get all stored moves from the
+      book and select a random move from the possible choices.
+      Return null if there is no move. The random
+      choice has a bias w.r.t. the number of times a move
+      has been played (popular moves are preferred)
+     */
+    public String getRandomMove(long zobrist) {
+
+        ArrayList<PolyglotExtEntry> entries = findEntries(zobrist);
+        if(entries.size() == 0) {
+            return null;
+        } else {
+            int overallCount = 0;
+            for(PolyglotExtEntry entry : entries) {
+                overallCount += entry.count;
+            }
+            int idx = (int) (Math.random() * overallCount);
+            int tempCount = 0;
+            for(PolyglotExtEntry entry : entries) {
+                tempCount += entry.count;
+                if(idx <= tempCount) {
+                    return entry.uci;
+                }
+            }
+            return null;
+        }
     }
 
 }

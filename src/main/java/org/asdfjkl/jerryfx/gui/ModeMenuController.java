@@ -18,10 +18,7 @@
 
 package org.asdfjkl.jerryfx.gui;
 
-import org.asdfjkl.jerryfx.lib.Board;
-import org.asdfjkl.jerryfx.lib.CONSTANTS;
-import org.asdfjkl.jerryfx.lib.GameNode;
-import org.asdfjkl.jerryfx.lib.Move;
+import org.asdfjkl.jerryfx.lib.*;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -253,19 +250,59 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleStateChangePlayWhiteOrBlack() {
+
         // first check if we can apply a bookmove
         long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
-        ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
-        if(gameModel.book.inBook(zobrist)) {
-            ArrayList<String> uciMoves = gameModel.book.findMoves(zobrist);
-            int idx = (int) (Math.random() * uciMoves.size());
-            handleBestMove("BESTMOVE|"+uciMoves.get(idx)+"|"+zobrist);
+        //ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
+        boolean maxDepthReached = false;
+        int currentDepth = gameModel.getGame().getCurrentNode().getDepth();
+        int currentElo = gameModel.activeEngine.getUciElo();
+        // engine supports setting ELO
+        // let's limit book knowledge according to ELO
+        if(currentElo > 0) {
+            if(currentElo <= 1200 && currentDepth > 10) {
+                maxDepthReached = true;
+            }
+            if(currentElo > 1200 && currentElo < 1400 && currentDepth > 10) {
+                maxDepthReached = true;
+            }
+            if(currentElo > 1400 && currentElo < 1600 && currentDepth > 12) {
+                maxDepthReached = true;
+            }
+            if(currentElo > 1600 && currentElo < 1800 && currentDepth > 14) {
+                maxDepthReached = true;
+            }
+            if(currentElo > 1800 && currentElo < 2000 && currentDepth > 16) {
+                maxDepthReached = true;
+            }
+            if(currentElo > 2000 && currentElo < 2200 && currentDepth > 18) {
+                maxDepthReached = true;
+            }
+        }
+        String bookMove = gameModel.extBook.getRandomMove(zobrist);
+        if((bookMove != null) && (!maxDepthReached)) {
+            handleBestMove("BESTMOVE|"+bookMove+"|"+zobrist);
         } else {
             String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
             engineController.sendCommand("stop");
             engineController.sendCommand("position fen "+fen);
             engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
         }
+
+        /*
+        if(gameModel.extBook.inBook(zobrist)) {
+            System.out.println("in book");
+            ArrayList<PolyglotExtEntry> moves = gameModel.extBook.findEntries(zobrist);
+            int idx = (int) (Math.random() * moves.size());
+            String uciMove = moves.get(idx).getMove();
+            handleBestMove("BESTMOVE|"+uciMove+"|"+zobrist);
+        } else {
+            System.out.println("not in book");
+            String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+            engineController.sendCommand("stop");
+            engineController.sendCommand("position fen "+fen);
+            engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
+        } */
     }
 
     public void handleStateChangePlayoutPosition() {

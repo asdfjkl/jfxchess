@@ -7,9 +7,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import org.asdfjkl.jerryfx.lib.*;
-import org.controlsfx.control.SegmentedBar;
 
 import java.util.ArrayList;
 
@@ -129,7 +127,7 @@ public class BookView implements StateChangeListener {
 
         entries.clear();
         Board currentBoard = gameModel.getGame().getCurrentNode().getBoard();
-        ArrayList<PolyglotExtEntry> currentEntries = gameModel.largeBook.findEntries(currentBoard);
+        ArrayList<PolyglotExtEntry> currentEntries = gameModel.extBook.findEntries(currentBoard);
         /*
         for(PolyglotExtEntry e : currentEntries) {
             //entries.add(e);

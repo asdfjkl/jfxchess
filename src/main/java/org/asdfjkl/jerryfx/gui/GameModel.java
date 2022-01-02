@@ -73,7 +73,7 @@ public class GameModel {
     public boolean doNotNotifyAboutResult = false;
 
     public final Polyglot book;
-    public final PolyglotExt largeBook;
+    public final PolyglotExt extBook;
 
     private Preferences prefs;
 
@@ -121,11 +121,11 @@ public class GameModel {
             book.loadBook(file);
         }
 
-        largeBook = new PolyglotExt();
+        extBook = new PolyglotExt();
         String extBookPath = getExtBookPath();
         if(extBookPath != null) {
             file = new File(extBookPath);
-            largeBook.loadBook(file);
+            extBook.loadBook(file);
         }
 
     }
@@ -211,15 +211,16 @@ public class GameModel {
 
     private String getExtBookPath() {
 
-        //return "C:\\...\\extbook\\extbook.bin";
+        return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
 
+        /*
         File baseBook = getBaseBookPath();
         if(baseBook != null) {
             String bookPath = new File(baseBook, "extbook.bin").getPath();
             return bookPath;
         }
         return null;
-
+*/
     }
 
     public Game getGame() {
