@@ -35,10 +35,10 @@ public class BookView implements StateChangeListener {
         colCount.setSortable(false);
 
         TableColumn<PolyglotExtEntry, String> colMove = new TableColumn<PolyglotExtEntry, String>("Move");
-        //colMove.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, String>("Move"));
-        colMove.setCellValueFactory(entry ->
-                new SimpleStringProperty(gameModel.getGame().getCurrentNode().getBoard().san(new Move(entry.getValue().getMove())))
-        );
+        colMove.setCellValueFactory(new PropertyValueFactory<PolyglotExtEntry, String>("Move"));
+       // colMove.setCellValueFactory(entry ->
+       //         new SimpleStringProperty(gameModel.getGame().getCurrentNode().getBoard().san(new Move(entry.getValue().getMove())))
+       // );
 
         colMove.setMinWidth(80);
         colMove.setSortable(false);
