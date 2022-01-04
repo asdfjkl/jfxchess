@@ -146,7 +146,8 @@ public class EnterPosBoard extends Canvas {
         // fill background
         gc.beginPath();
         //gc.setFill(Color.rgb(152, 152, 152));
-        gc.setFill(boardStyle.getLightSquareColor());
+        //gc.setFill(boardStyle.getLightSquareColor());
+        gc.setFill(boardStyle.getDarkSquareColor());
         gc.rect(0, 0, this.getWidth(), this.getHeight());
         gc.fill();
 

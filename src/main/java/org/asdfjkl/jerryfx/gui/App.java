@@ -16,6 +16,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -233,11 +234,11 @@ public class App extends Application implements StateChangeListener {
         btnBrowseGames.setContentDisplay(ContentDisplay.TOP);
 
         Button btnPrevGame = new Button("Prev. Game");
-        btnPrevGame.setGraphic(new ImageView( new Image("icons/go-previous.png")));
+        btnPrevGame.setGraphic(new ImageView( new Image("icons/go-previous-blue.png")));
         btnPrevGame.setContentDisplay(ContentDisplay.TOP);
 
         Button btnNextGame = new Button("Next Game");
-        btnNextGame.setGraphic(new ImageView( new Image("icons/go-next.png")));
+        btnNextGame.setGraphic(new ImageView( new Image("icons/go-next-blue.png")));
         btnNextGame.setContentDisplay(ContentDisplay.TOP);
 
         Button btnAbout = new Button("About");
@@ -276,13 +277,13 @@ public class App extends Application implements StateChangeListener {
 
         // Navigation Buttons
         Button btnMoveBegin = new Button();
-        btnMoveBegin.setGraphic(new ImageView( new Image("icons/ic_first_page_black.png")));
+        btnMoveBegin.setGraphic(new ImageView( new Image("icons/go-first.png")));
         Button btnMoveEnd = new Button();
-        btnMoveEnd.setGraphic(new ImageView( new Image("icons/ic_last_page_black.png")));
+        btnMoveEnd.setGraphic(new ImageView( new Image("icons/go-last.png")));
         Button btnMovePrev = new Button();
-        btnMovePrev.setGraphic(new ImageView( new Image("icons/ic_chevron_left_black.png")));
+        btnMovePrev.setGraphic(new ImageView( new Image("icons/go-previous.png")));
         Button btnMoveNext = new Button();
-        btnMoveNext.setGraphic(new ImageView( new Image("icons/ic_chevron_right_black.png")));
+        btnMoveNext.setGraphic(new ImageView( new Image("icons/go-next.png")));
 
         HBox hbGameNavigation = new HBox();
         hbGameNavigation.setAlignment(Pos.CENTER);
