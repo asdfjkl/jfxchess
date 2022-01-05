@@ -18,6 +18,11 @@
 
 package org.asdfjkl.jerryfx.gui;
 
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import jfxtras.styles.jmetro.FlatAlert;
+import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jerryfx.lib.*;
 
 import java.text.DecimalFormat;
@@ -107,7 +112,7 @@ public class ModeMenuController implements StateChangeListener {
             // if the current position is in the opening book,
             // we stop the analysis
             long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
-            if(gameModel.book.inBook(zobrist)) {
+            if(gameModel.extBook.inBook(zobrist)) {
                 gameModel.getGame().getCurrentNode().setComment("last book move");
                 continueAnalysis = false;
             } else {
@@ -132,8 +137,20 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.getGame().setTreeWasChanged(true);
             activateEnterMovesMode();
             //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
-            DialogSimpleAlert dlg = new DialogSimpleAlert();
-            dlg.show("     The analysis is finished.     ", gameModel.THEME);
+
+            FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
+            Scene scene = alert.getDialogPane().getScene();
+            JMetro metro = new JMetro();
+            if(gameModel.THEME == GameModel.STYLE_DARK) {
+                metro.setStyle(Style.DARK);
+            }
+            metro.setScene(scene);
+            alert.setHeaderText("Analysis Finished");
+            alert.setContentText("The game analysis is finished.");
+            alert.showAndWait();
+
+            //DialogSimpleAlert dlg = new DialogSimpleAlert();
+            //dlg.show("     The analysis is finished.     ", gameModel.THEME);
         }
     }
 

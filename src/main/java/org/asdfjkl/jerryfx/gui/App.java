@@ -802,9 +802,8 @@ public class App extends Application implements StateChangeListener {
             style = Style.DARK;
         }
         JMetro jMetro = new JMetro(style);
-        //JMetro jMetro = new JMetro();
         jMetro.setScene(scene);
-        jMetro.setAutomaticallyColorPanes(true);
+        //jMetro.setAutomaticallyColorPanes(true);
 
         SplashScreen splash = SplashScreen.getSplashScreen();
 

@@ -29,11 +29,14 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.FlatAlert;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
+import org.asdfjkl.jerryfx.lib.Game;
 
 import java.io.File;
+import java.util.Optional;
 
 public class DialogDatabase {
 
@@ -66,7 +69,7 @@ public class DialogDatabase {
         btnOpen.setContentDisplay(ContentDisplay.TOP);
 
         Button btnDelete = new Button("Delete Game");
-        btnDelete.setGraphic(new ImageView(new Image("icons/document-save.png")));
+        btnDelete.setGraphic(new ImageView(new Image("icons/mail-mark-not-junk.png")));
         btnDelete.setContentDisplay(ContentDisplay.TOP);
 
         /*
@@ -174,7 +177,7 @@ public class DialogDatabase {
         });
 
         btnDelete.setOnAction(e -> {
-            //btnSaveClicked();
+            btnDeleteClicked();
         });
 
         btnSearch.setOnAction(e -> {
@@ -218,6 +221,32 @@ public class DialogDatabase {
         stage.showAndWait();
 
         return accepted;
+    }
+
+    private void btnDeleteClicked() {
+
+        if(table.getColumns().size() > 0) {
+            int gameIndex = table.getSelectionModel().getSelectedIndex();
+            PgnDatabaseEntry selectedEntry = pgnDatabase.getEntries().get(gameIndex);
+
+            FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+            Scene scene = alert.getDialogPane().getScene();
+            JMetro metro = new JMetro();
+            if(gameModel.THEME == GameModel.STYLE_DARK) {
+                metro.setStyle(Style.DARK);
+            }
+            metro.setScene(scene);
+            //alert.setTitle("Delete Game");
+            alert.setHeaderText("Deleting Game Nr. " + (gameIndex+1) +
+                    " ("+selectedEntry.getWhite()+" - "+selectedEntry.getBlack()+")");
+            alert.setContentText("Are you sure to delete this game?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        }
     }
 
     private void btnOkClicked() {

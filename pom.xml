@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jmetro</artifactId>
-            <version>11.6.12</version>
+            <version>11.6.15</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>
