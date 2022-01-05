@@ -1,3 +1,5 @@
+[![jerry](https://snapcraft.io/jerry/badge.svg)](https://snapcraft.io/jerry)
+
 # Jerry - Das Schachprogramm
 
 ![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/jerryfx.png)
