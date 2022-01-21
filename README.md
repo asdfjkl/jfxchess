@@ -23,7 +23,9 @@ Jerry is a cross-platform chess graphical user interface.
 
 Current Version: 4.2.0
 
-* [Windows](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0)
+* Windows
+  - Exe [Installer](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0)
+  - or install via [WinGet](https://de.wikipedia.org/wiki/Windows_Package_Manager): `winget install asdfjkl.jerrychess`
 * Linux
   - install from [Snapstore](https://snapcraft.io/jerry) 
   - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0) (coming soon)
