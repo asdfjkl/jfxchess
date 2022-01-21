@@ -416,6 +416,167 @@ public class PgnDatabase {
 
     public void deleteGame(int index) {
 
+        String tmpFilenameWoDir = Util.getRandomFilename();
+
+        File file = new File(filename);
+        File path = file.getParentFile();
+        String filenameWithoutDir = file.getName();
+        File tmpFile = new File(path, tmpFilenameWoDir);
+
+        final String currentPgnFilename = this.filename;
+        final String pgnFilename = filename;
+        final String tmpFilename = tmpFile.getAbsolutePath();
+
+        final boolean overwrite = pgnFilename.equals(tmpFilename);
+
+        final ObservableList<PgnDatabaseEntry> entries = this.entries;
+
+        stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UNDECORATED);
+
+        Label lblScanPgn = new Label("Deleting Game...");
+        ProgressBar progressBar = new ProgressBar();
+
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(lblScanPgn, progressBar);
+
+        vbox.setSpacing(10);
+        vbox.setPadding( new Insets(10));
+
+        Scene scene = new Scene(vbox, 400, 200);
+
+        JMetro jMetro = new JMetro();
+        jMetro.setScene(scene);
+
+        stage.setScene(scene);
+        stage.show();
+
+        Task<Void> task = new Task<>() {
+            @Override protected Void call() throws Exception {
+
+                System.out.println("task startup...");
+                OptimizedRandomAccessFile rafReader = null;
+                OptimizedRandomAccessFile rafWriter = null;
+                BufferedWriter writer = null;
+
+                File currentPgn = new File(currentPgnFilename);
+                long fileSize = currentPgn.length();
+
+                PgnPrinter pgnPrinter = new PgnPrinter();
+
+
+                long linesWritten = 0;
+
+                try {
+                    rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
+                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
+                    writer = new BufferedWriter(new FileWriter(tmpFilename));
+
+                    long startOffset = entries.get(0).getOffset();
+                    //System.out.println("got start offset");
+                    long stopOffset = entries.get(index).getOffset();
+                    //System.out.println("got stop offset");
+                    long afterStartOffset = -1;
+                    //System.out.println("entries.size() "+entries.size());
+                    //System.out.println("index: "+(index));
+                    if(entries.size() > (index+1)) {
+                        //System.out.println("entries size > index+1");
+                        afterStartOffset = entries.get(index+1).getOffset();
+                        System.out.println("setting after delete offset");
+                    }
+                    //System.out.println("seeking...");
+                    rafReader.seek(startOffset);
+                    //System.out.println("seeking finished");
+                    while(rafReader.getFilePointer() < stopOffset) {
+                        //System.out.println("in < stopOffset");
+                          String line = rafReader.readLine();
+                          linesWritten += 1;
+                          if(linesWritten % 20000 == 0) {
+                                linesWritten = 1;
+                                updateProgress(rafReader.getFilePointer(), fileSize);
+                          }
+                          if(line == null) {
+                              break;
+                          } else {
+                              writer.write(line);
+                              writer.write(0xa); // 0xa = LF = \n
+                          }
+                    }
+                    if(afterStartOffset > 0) {
+                        //System.out.println("processing after start offset");
+                        rafReader.seek(afterStartOffset);
+                        while(rafReader.getFilePointer() < fileSize) {
+                            String line = rafReader.readLine();
+                            linesWritten++;
+                            if(linesWritten % 20000 == 0) {
+                                linesWritten = 1;
+                                updateProgress(rafReader.getFilePointer(), fileSize);
+                            }
+                            //System.out.println("write non-mod, for last case: "+line);
+                            if(line == null) {
+                                break;
+                            } else {
+                                writer.write(line);
+                                writer.write(0xa); // 0xa = LF = \n
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (rafReader != null) {
+                        try {
+                            rafReader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (rafWriter != null) {
+                        try {
+                            rafWriter.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(writer != null) {
+                        try {
+                            writer.flush();
+                            writer.close();
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                File pgn = new File(pgnFilename);
+                pgn.delete();
+                tmpFile.renameTo(pgn);
+                updateProgress(fileSize, fileSize);
+                return null;
+            }
+        };
+
+
+        progressBar.progressProperty().bind(task.progressProperty());
+
+        task.setOnSucceeded(e -> {
+            unregisterRunningTask(task);
+            task.getValue();
+            stage.close();
+            if(this.dialogDatabase != null) {
+                dialogDatabase.updateTable();
+            }
+            this.filename = pgnFilename;
+            open();
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(false);
+        registerRunningTask(task);
+        thread.start();
+
     }
 
     public void open() {

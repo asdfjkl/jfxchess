@@ -242,9 +242,8 @@ public class DialogDatabase {
             alert.setContentText("Are you sure to delete this game?");
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
-                // ... user chose OK
+                pgnDatabase.deleteGame(gameIndex);
             } else {
-                // ... user chose CANCEL or closed the dialog
             }
         }
     }
