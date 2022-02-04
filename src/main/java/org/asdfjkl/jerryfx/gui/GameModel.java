@@ -77,7 +77,7 @@ public class GameModel {
 
     private Preferences prefs;
 
-    private static final int modelVersion = 420;
+    private static final int modelVersion = 421;
 
     private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = -1;
@@ -308,7 +308,6 @@ public class GameModel {
         }
         this.multiPv = multiPv;
     }
-
 
     public void addListener(StateChangeListener toAdd) {
         stateChangeListeners.add(toAdd);

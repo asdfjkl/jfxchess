@@ -27,10 +27,8 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.asdfjkl.jerryfx.lib.Game;
-import org.asdfjkl.jerryfx.lib.OptimizedRandomAccessFile;
-import org.asdfjkl.jerryfx.lib.PgnPrinter;
-import org.asdfjkl.jerryfx.lib.PgnReader;
+import org.asdfjkl.jerryfx.lib.*;
+
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileNotFoundException;
