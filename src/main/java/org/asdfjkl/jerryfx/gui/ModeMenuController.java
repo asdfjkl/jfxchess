@@ -621,8 +621,20 @@ public class ModeMenuController implements StateChangeListener {
                 message = "Draw (Insufficient material for checkmate)";
             }
             if(mode != GameModel.MODE_GAME_ANALYSIS) {
-                DialogSimpleAlert dlg = new DialogSimpleAlert();
-                dlg.show(message, gameModel.THEME);
+                FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+                Scene scene = alert.getDialogPane().getScene();
+                JMetro metro = new JMetro();
+                if(gameModel.THEME == GameModel.STYLE_DARK) {
+                    metro.setStyle(Style.DARK);
+                }
+                metro.setScene(scene);
+                //alert.setTitle("Delete Game");
+                alert.setHeaderText("");
+                alert.setContentText(message);
+                alert.showAndWait();
+
+                //DialogSimpleAlert dlg = new DialogSimpleAlert();
+                //dlg.show(message, gameModel.THEME);
             }
 
             if(mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {

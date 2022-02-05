@@ -49,7 +49,7 @@ public class GameModel {
 
     public boolean wasSaved = false;
     private int engineStrength = 20;
-    private int engineThinkTimeSecs = 3;
+    private int engineThinkTimeSecs = 1;
 
     ArrayList<Engine> engines = new ArrayList<>();
     Engine activeEngine = null;
@@ -72,7 +72,7 @@ public class GameModel {
 
     public boolean doNotNotifyAboutResult = false;
 
-    public final Polyglot book;
+    //public final Polyglot book;
     public final PolyglotExt extBook;
 
     private Preferences prefs;
@@ -114,13 +114,15 @@ public class GameModel {
         activeEngine = stockfish;
 
 
+        /*
         book = new Polyglot();
         File file = null;
         if(bookPath != null) {
             file = new File(bookPath);
             book.loadBook(file);
-        }
+        }*/
 
+        File file = null;
         extBook = new PolyglotExt();
         String extBookPath = getExtBookPath();
         if(extBookPath != null) {
