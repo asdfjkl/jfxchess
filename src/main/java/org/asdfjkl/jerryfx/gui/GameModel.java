@@ -213,8 +213,8 @@ public class GameModel {
 
     private String getExtBookPath() {
 
-        return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
-
+        // return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
+	return System.getProperty("user.home") + "/NetBeansProjects/JerryFork/book/extbook.bin";
         /*
         File baseBook = getBaseBookPath();
         if(baseBook != null) {

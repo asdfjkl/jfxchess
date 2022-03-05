@@ -67,7 +67,7 @@ public class EditMenuController {
         //double width = dialogHeight * 1.7;
         boolean accepted = dlg.show(board, style, width, dialogHeight, gameModel.THEME);
         if(accepted) {
-            Board newBoard = dlg.currentBoard;
+            Board newBoard = dlg.getCurrentBoard();
             if(newBoard.isConsistent()) {
                 Game g = new Game();
                 g.getRootNode().setBoard(newBoard);

@@ -21,6 +21,7 @@ package org.asdfjkl.jerryfx.gui;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
@@ -35,11 +36,13 @@ import static org.asdfjkl.jerryfx.lib.CONSTANTS.FRINGE;
 
 public class EnterPosBoard extends Canvas {
 
-    private final ArrayList<EnterPosBoardListener> enterPosBoardListeners = new ArrayList<>();
+    // No one can mess with this Board reference
+    // from the outside anymore. ;-)
+    private final Board board;
 
+    private final ArrayList<EnterPosBoardListener> enterPosBoardListeners = new ArrayList<>();
     BoardStyle boardStyle;
     final double outputScaleX;
-    Board board;
     boolean flipBoard = false;
 
     int innerXOffset;
@@ -51,37 +54,60 @@ public class EnterPosBoard extends Canvas {
 
     final PieceImageProvider pieceImageProvider;
 
-    Point moveSource;
-    final GrabbedPiece grabbedPiece = new GrabbedPiece();
-    final boolean drawGrabbedPiece = false;
+    // The dragNDropMode for setting up pieces is intended to work like this:
+    // You can, of course, drag pieces around on the board, or drag pieces
+    // from the piece-selector to the board, (by using the left mouse-button).
+    // To remove a piece from the board, just drag it outside the board.
+    // It's also possible to just click a piece and then click the destination-
+    // square (or click outside the board to remove the selected piece).
+    // If you wish to copy the most recently grabbed piece to some other squares,
+    // just right-click those squares. Deleting many pieces can be done more
+    // quickly by right-clicking outside the board when nothing is selected,
+    // then right-clicking the pieces to be removed.
 
-        final int[][] pickupPieces = {
-                { CONSTANTS.WHITE_PAWN, CONSTANTS.BLACK_PAWN },
-                { CONSTANTS.WHITE_KNIGHT, CONSTANTS.BLACK_KNIGHT},
-                { CONSTANTS.WHITE_BISHOP, CONSTANTS.BLACK_BISHOP},
-                { CONSTANTS.WHITE_ROOK, CONSTANTS.BLACK_ROOK},
-                { CONSTANTS.WHITE_QUEEN, CONSTANTS.BLACK_QUEEN},
-                { CONSTANTS.WHITE_KING, CONSTANTS.BLACK_KING}
-        };
+    // Some Class-members for dragNDropMode:
+    private final boolean dragNDropMode = true;
+    // setting the boolean above to false will make everything work as before.
+    private final GrabbedPiece grabbedPiece;
+    private final Color grabbedSquareColor = Color.rgb(200, 200, 0, 0.4);
+    private final GrabbedPiece.GrabbedFrom BOARD = GrabbedPiece.GrabbedFrom.Board;
+    private final GrabbedPiece.GrabbedFrom PIECESELECTOR = GrabbedPiece.GrabbedFrom.PieceSelector;
+
+    final int[][] pickupPieces = {
+        { CONSTANTS.WHITE_PAWN, CONSTANTS.BLACK_PAWN },
+        { CONSTANTS.WHITE_KNIGHT, CONSTANTS.BLACK_KNIGHT },
+        { CONSTANTS.WHITE_BISHOP, CONSTANTS.BLACK_BISHOP },
+        { CONSTANTS.WHITE_ROOK, CONSTANTS.BLACK_ROOK },
+        { CONSTANTS.WHITE_QUEEN, CONSTANTS.BLACK_QUEEN },
+        { CONSTANTS.WHITE_KING, CONSTANTS.BLACK_KING }
+    };
 
     int selectedPiece = CONSTANTS.WHITE_PAWN;
 
-
-
     public EnterPosBoard(Board board) {
 
+        // No initial "default-piece" selected in dragNDropMode.
+        if (dragNDropMode)
+            selectedPiece = CONSTANTS.EMPTY;
+
         this.boardStyle = new BoardStyle();
-        this.board = board;
+        this.board = board.makeCopy(); // this.board will refer to a new value-copied instance.
+        this.grabbedPiece = new GrabbedPiece();
         this.pieceImageProvider = new PieceImageProvider();
         this.outputScaleX = Screen.getPrimary().getOutputScaleX();
-        this.grabbedPiece.setPiece(-1);
 
         setOnMousePressed(event -> {
             handleMousePress(event);
         });
 
-    }
+        setOnMouseDragged(event -> {
+            handleMouseDragged(event);
+        });
 
+        setOnMouseReleased(event -> {
+            handleMouseRelease(event);
+        });
+    }
 
     @Override
     public boolean isResizable() {
@@ -112,7 +138,6 @@ public class EnterPosBoard extends Canvas {
     public void resize(double width, double height) {
         this.setWidth(width);
         this.setHeight(height);
-
         updateCanvas();
     }
 
@@ -206,8 +231,32 @@ public class EnterPosBoard extends Canvas {
                 gc.setFill(fieldColor);
                 gc.rect(x,y,squareSize,squareSize);
                 gc.fill();
-            }
-        }
+
+                // Mark the grabbedPiece's source-square on the board, if in dragNDropMode.
+                if (dragNDropMode) {
+                    if (grabbedPiece.grabbedFrom == BOARD) {
+                        boolean markField = false;
+                        if (!flipBoard) {
+                            if (grabbedPiece.sourceSquareX() == i && grabbedPiece.sourceSquareY() == j) {
+                                markField = true;
+                            }
+                        } else {
+                            // Board is flipped.
+                            if (grabbedPiece.sourceSquareX() == i && grabbedPiece.sourceSquareY() == 7 - j) {
+                                markField = true;
+                            }
+                        }
+                        if (markField) {
+                            gc.beginPath();
+                            gc.setFill(grabbedSquareColor);
+                            gc.rect(x, y, squareSize, squareSize);
+                            gc.fill();
+                        }
+
+                    }
+                }
+            } // for j
+        } // for i
 
         // draw the board coordinates
         gc.setFill(boardStyle.getCoordinateColor());
@@ -251,17 +300,19 @@ public class EnterPosBoard extends Canvas {
                 }
                 if(piece != EMPTY && piece != FRINGE) {
                     if(!flipBoard) {
-                        if (!(drawGrabbedPiece && i == moveSource.x && j == moveSource.y)) {
-                            javafx.scene.image.Image pieceImage = pieceImageProvider.getImage(piece, (int) (squareSize * this.outputScaleX),
-                                    boardStyle.getPieceStyle());
+                        if (!(grabbedPiece.getDrawImage() && i == grabbedPiece.sourceSquareX() &&
+			      j == grabbedPiece.sourceSquareY())) {
+                            javafx.scene.image.Image pieceImage = pieceImageProvider.getImage(piece,
+                                                                                              (int) (squareSize * this.outputScaleX),
+											      boardStyle.getPieceStyle());
                             gc.drawImage(pieceImage, x, y, squareSize, squareSize);
                         }
-                    } else {
-                        if (!(drawGrabbedPiece && i == moveSource.x && (7-j) == moveSource.y)) {
-                            javafx.scene.image.Image pieceImage = pieceImageProvider.getImage(piece, (int) (squareSize * this.outputScaleX),
-                                    boardStyle.getPieceStyle());
-                            gc.drawImage(pieceImage, x, y, squareSize, squareSize);
-                        }
+                    } else if (!(grabbedPiece.getDrawImage() && i == grabbedPiece.sourceSquareX() &&
+				 (7 - j) == grabbedPiece.sourceSquareY())) {
+                        javafx.scene.image.Image pieceImage = pieceImageProvider.getImage(piece,
+                                                                                          (int) (squareSize * this.outputScaleX),
+											  boardStyle.getPieceStyle());
+                        gc.drawImage(pieceImage, x, y, squareSize, squareSize);
                     }
                 }
             }
@@ -276,6 +327,15 @@ public class EnterPosBoard extends Canvas {
                 (squareSize*6)+(borderMargin*2));
         gc.fill();
 
+        // Mark the selected piece in the pieceSelector-area with DarkSquareColor.
+        // In dragNDropMode we only want to do this if the user actually pressed
+        // or clicked the mouse-button in that area when the piece was grabbed.
+        if (dragNDropMode) {
+            if (grabbedPiece.grabbedFrom == PIECESELECTOR)
+                selectedPiece = grabbedPiece.getPiece();
+            else
+                selectedPiece = CONSTANTS.EMPTY;
+        }
         for(int i=0;i<6;i++) {
             for(int j=0;j<2;j++) {
                 // draw pickup squares
@@ -301,7 +361,7 @@ public class EnterPosBoard extends Canvas {
         }
 
         // draw grabbed piece
-        if(drawGrabbedPiece) {
+        if (grabbedPiece.getDrawImage()) {
             int offset = squareSize / 2;
             Image pieceImage = pieceImageProvider.getImage(grabbedPiece.getPiece(),
                     (int) (squareSize * this.outputScaleX), boardStyle.getPieceStyle());
@@ -311,6 +371,7 @@ public class EnterPosBoard extends Canvas {
 
     }
 
+    // This method is used in both dragNDropMode and "Piece-click-mode".
     Point getBoardPosition(double x, double y) {
 
         if(x > innerXOffset && y > innerYOffset
@@ -332,6 +393,7 @@ public class EnterPosBoard extends Canvas {
         return null;
     }
 
+    // This method is used in both dragNDropMode and "Piece-click-mode".
     int getSelectedPiece(double x, double y) {
         int leftOffset = xOffset + 9*squareSize + 3*borderMargin;
         int downOffset = outerMargin + borderMargin;
@@ -344,23 +406,176 @@ public class EnterPosBoard extends Canvas {
     }
 
     void handleMousePress(MouseEvent e) {
-
-        if(clickedOnPieceSelector(e.getX(),e.getY())) {
-            selectedPiece = getSelectedPiece(e.getX(), e.getY());
-        }
-        if(clickedOnBoard(e.getX(),e.getY())) {
-            Point boardPos = getBoardPosition(e.getX(), e.getY());
-            int pieceAtXY = board.getPieceAt(boardPos.x, boardPos.y);
-            if(pieceAtXY == selectedPiece) {
-                board.setPieceAt(boardPos.x, boardPos.y, EMPTY);
-            } else {
-                board.setPieceAt(boardPos.x, boardPos.y, selectedPiece);
+        if (dragNDropMode) {
+            // Inside this scope we only grab a piece from the board or from
+            // the pieceSelector or simply ignore the mouse-press,
+            // depending on the circumstances.
+            MouseButton mouseButton = e.getButton();
+            if (mouseButton != MouseButton.PRIMARY) {
+                return;
             }
-            // update piece list
-
-            notifyBoardChange();
+            // (clickedOnBoard, in this case, means "mouse-button pressed on board").
+            if (clickedOnBoard(e.getX(), e.getY())) {
+                Point boardPos = getBoardPosition(e.getX(), e.getY());
+                if (grabbedPiece.isGrabbed()) {
+                    // Do nothing. A piece has already been grabbed.
+                } else {
+                    // Select a piece from the board, if there is one on the square.
+                    if (board.isPieceAt(boardPos.x, boardPos.y)) {
+                        grabbedPiece.grab(boardPos.x,
+                                          boardPos.y,
+                                          e.getX(),
+                                          e.getY(),
+                                          board.getPieceAt(boardPos.x, boardPos.y));
+                    }
+                    // Empty square and No grabbed piece -> do nothing.
+                }
+            } else if (clickedOnPieceSelector(e.getX(), e.getY())) {
+                if (grabbedPiece.isGrabbed()) {
+                    // Do nothing here. (Remove grabbed piece later in handleMouseRelease().)
+                } else {
+                    // Grab a piece from the pieceSelector
+                    grabbedPiece.grab(e.getX(),
+                                      e.getY(),
+                                      getSelectedPiece(e.getX(), e.getY()));
+                }
+            } else {
+                // Outside board and outside the pieceSelector.
+                // Do nothing.
+            }
+        } else {
+            // Old "Piece-click-mode", Not dragNDropMode!
+            if (clickedOnPieceSelector(e.getX(), e.getY())) {
+                selectedPiece = getSelectedPiece(e.getX(), e.getY());
+            }
+            if (clickedOnBoard(e.getX(), e.getY())) {
+                Point boardPos = getBoardPosition(e.getX(), e.getY());
+                int pieceAtXY = board.getPieceAt(boardPos.x, boardPos.y);
+                if (pieceAtXY == selectedPiece) {
+                    board.setPieceAt(boardPos.x, boardPos.y, CONSTANTS.EMPTY);
+                } else {
+                    board.setPieceAt(boardPos.x, boardPos.y, selectedPiece);
+                }
+                // update piece list
+                notifyBoardChange();
+            }
+            updateCanvas();
         }
+    }
+
+    void handleMouseDragged(MouseEvent e) {
+        assert(dragNDropMode);
+        if (grabbedPiece.isGrabbed() && grabbedPiece.getDrawImage()) {
+            grabbedPiece.setCurrentXLocation(e.getX());
+            grabbedPiece.setCurrentYLocation(e.getY());
+            updateCanvas();
+        }
+    }
+
+    void updateBoard() {
+        assert(dragNDropMode);
+        grabbedPiece.reset();
         updateCanvas();
+        notifyBoardChange();
+    }
+
+    void handleMouseRelease(MouseEvent e) {
+        assert(dragNDropMode);
+        MouseButton mouseButton = e.getButton();
+        if (mouseButton != MouseButton.PRIMARY) {
+            // This is a Right click event. Copy the most
+            // recently grabbedPiece to the new square.
+            if (clickedOnBoard(e.getX(), e.getY())) {
+                Point boardPos = getBoardPosition(e.getX(), e.getY());
+                board.setPieceAt(boardPos.x, boardPos.y, grabbedPiece.rightClickPiece());
+                updateBoard();
+            }
+            else
+                {
+                    // You can set the rightClickPiece to an empty square
+                    // by right-clicking outside the board.
+                    grabbedPiece.setRightClickPiece(CONSTANTS.EMPTY);
+                }
+            return;
+        }
+
+        // Left mouse-button has been released.
+        // Here we perform an action (Moving a piece on the board, placing
+        // a piece on the board, deleting a piece from the board, resetting
+        // a grabbed piece or ignoring the mouse-release) according to the
+        // circumstances.
+
+        // We don't have to draw the grabbed piece any more,
+        // if we have been doing that.
+        grabbedPiece.setDrawImage(false);
+
+        // (clickedOnBoard, in this case, means "mouse-button released on board").
+        if (clickedOnBoard(e.getX(), e.getY())) {
+            Point boardPos = getBoardPosition(e.getX(), e.getY());
+            if (grabbedPiece.isGrabbed()) {
+                if (grabbedPiece.grabbedFrom == PIECESELECTOR) {
+                    board.setPieceAt(boardPos.x, boardPos.y, grabbedPiece.getPiece());
+                    updateBoard();
+                } else if ((boardPos.x != grabbedPiece.sourceSquareX() || boardPos.y != grabbedPiece.sourceSquareY())) {
+                    // The piece was grabbed in the board, and the mouse was
+                    // released at another square -> Move the piece on the board.
+                    board.setPieceAt(grabbedPiece.sourceSquareX(), grabbedPiece.sourceSquareY(), CONSTANTS.EMPTY);
+                    board.setPieceAt(boardPos.x, boardPos.y, grabbedPiece.getPiece());
+                    updateBoard();
+                } else {
+                    // Mouse released on the same board-square where it was pressed ->
+                    // Do nothing. (This represents a single click on the piece, with which
+                    // the purpose was just to grab the piece.) Just remove possible dragged
+                    // piece-image from the canvas. (There is a case where we press the
+                    // mouse-button on a piece, drag it around, return to the original square
+                    // and release the mouse-button.)
+                    updateCanvas(); // no board-change
+                }
+            } else {
+                // Mouse released on the board, but no piece has been grabbed -> Do nothing.
+            }
+        } else if (clickedOnPieceSelector(e.getX(), e.getY())) {
+            if (grabbedPiece.isGrabbed()) {
+                if (grabbedPiece.grabbedFrom == PIECESELECTOR) {
+                    // The piece was both grabbed and released in the pieceSelector.
+                    if (grabbedPiece.getPiece() == getSelectedPiece(e.getX(), e.getY())) {
+                        // Grabbed and released on the same piece in the pieceselector ->
+                        // Do nothing.
+                    } else {
+                        // Grabbed at one piece in the pieceSelctor and released on another
+                        // piece in the pieceSelector.
+                        grabbedPiece.reset();
+                    }
+                    // Remove possible dragged piece-image from the canvas.
+                    updateCanvas();
+                } else {
+                    // The piece was grabbed in the board and released in
+                    // the pieceSelector -> Remove piece from board.
+                    board.setPieceAt(grabbedPiece.sourceSquareX(), grabbedPiece.sourceSquareY(), CONSTANTS.EMPTY);
+                    updateBoard();
+                }
+            } else {
+                // Mouse released in pieceSelector , but no piece has been grabbed ->
+                // Do nothing.
+            }
+        } else {
+            // Mouse released both outside the board and outside the pieceSelector.
+            if (grabbedPiece.isGrabbed()) {
+                if (grabbedPiece.grabbedFrom == PIECESELECTOR) {
+                    // The piece was grabbed in the pieceSelector and released outside.
+                    grabbedPiece.reset();
+                    // Remove possible dragged piece-image from the canvas.
+                    updateCanvas();
+                } else {
+                    // The piece was grabbed in the board and released outside
+                    // -> Remove piece from board.
+                    board.setPieceAt(grabbedPiece.sourceSquareX(), grabbedPiece.sourceSquareY(), CONSTANTS.EMPTY);
+                    updateBoard();
+                }
+            } else {
+                // Mouse released outside, but no piece has been grabbed -> Do nothing.
+            }
+        }
     }
 
     public void addListener(EnterPosBoardListener toAdd) {
@@ -368,18 +583,79 @@ public class EnterPosBoard extends Canvas {
     }
 
     public void notifyBoardChange() {
-
         for (EnterPosBoardListener epbl : enterPosBoardListeners)
             epbl.boardChanged();
     }
 
+    /////////////////////////////////////////////////////////////
+    // Some wrapper methods around the internal Board instance.//
+    /////////////////////////////////////////////////////////////
+        
+    public void resetToStartingPosition() {
+        board.resetToStartingPosition();
+        grabbedPiece.full_reset();
+        updateCanvas();
+    }
 
+    public void clearBoard() {
+        board.clear();
+        grabbedPiece.full_reset();              
+        updateCanvas();
+    }
+
+    public void copyBoard(Board b) {
+        board.copy(b);
+        grabbedPiece.full_reset();              
+        updateCanvas();
+    }
+
+    public boolean isConsistent() {
+        return board.isConsistent();
+    }
+
+    public boolean turn() {
+        return board.turn;
+    }
+
+    public boolean canCastleWhiteKing() {
+        return board.canCastleWhiteKing();
+    }
+
+    public boolean canCastleWhiteQueen() {
+        return board.canCastleWhiteQueen();
+    }
+
+    public boolean canCastleBlackKing() {
+        return board.canCastleBlackKing();
+    }
+
+    public boolean canCastleBlackQueen() {
+        return board.canCastleBlackQueen();
+    }
+
+    public void setCastleWKing(boolean b) {
+        board.setCastleWKing(b);
+    }
+
+    public void setCastleWQueen(boolean b) {
+        board.setCastleWQueen(b);
+    }
+
+    public void setCastleBKing(boolean b) {
+        board.setCastleBKing(b);
+                
+    }
+
+    public void setCastleBQueen(boolean b) {
+        board.setCastleBQueen(b);
+                
+    }
+
+    public void setTurn(boolean b) {
+        board.turn = b;
+    }
+
+    public Board makeBoardCopy() {
+        return board.makeCopy();
+    }
 }
-
-
-
-
-
-
-
-
