@@ -63,7 +63,7 @@ public class Chessboard extends CanvasProperties implements StateChangeListener 
 
         boardStyle = new BoardStyle();
         this.gameModel = gameModel;
-        pieceImageProvider = new PieceImageProvider();
+        pieceImageProvider = PieceImageProvider.getInstance();
         outputScaleX = Screen.getPrimary().getOutputScaleX();
         grabbedPiece.setPiece(-1);
         moveSource = new Point(-1,-1);

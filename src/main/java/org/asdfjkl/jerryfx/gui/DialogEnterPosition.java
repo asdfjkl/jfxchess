@@ -42,7 +42,14 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
     EnterPosBoard enterPosBoard;
 
-    final Label lblCastlingRights = new Label("Castling Rights");
+    //final Label lblCastlingRights = new Label("Castling Rights");
+    Label lblCastlingRights;
+    Label getLblCastlingRightsInstance() {
+        if(lblCastlingRights==null) {
+            lblCastlingRights = new Label("Castling Rights");
+        }
+        return lblCastlingRights;
+    }
     final CheckBox cbCastlesWK = new CheckBox("White O-O");
     final CheckBox cbCastlesWQ = new CheckBox("White O-O-O");
     final CheckBox cbCastlesBK = new CheckBox("Black O-O");

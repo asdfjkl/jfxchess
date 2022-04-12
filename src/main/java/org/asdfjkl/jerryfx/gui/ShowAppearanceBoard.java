@@ -49,7 +49,7 @@ public class ShowAppearanceBoard extends CanvasProperties {
     public ShowAppearanceBoard() {
 
             this.boardStyle = new BoardStyle();
-            this.pieceImageProvider = new PieceImageProvider();
+            this.pieceImageProvider = PieceImageProvider.getInstance();
             this.outputScaleX = Screen.getPrimary().getOutputScaleX();
             this.board = new Board(true);
 

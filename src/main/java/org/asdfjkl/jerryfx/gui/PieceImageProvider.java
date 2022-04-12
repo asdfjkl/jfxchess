@@ -34,6 +34,16 @@ import static org.asdfjkl.jerryfx.gui.BoardStyle.*;
 
 public class PieceImageProvider {
 
+    private static PieceImageProvider pieceImageProvider = null;
+
+    private PieceImageProvider() {}
+    public static PieceImageProvider getInstance() {
+        if(pieceImageProvider == null) {
+            pieceImageProvider = new PieceImageProvider();
+        }
+        return pieceImageProvider;
+    }
+
     final HashMap<Integer, Image> whitePawnsMerida = new HashMap<>();
     final HashMap<Integer, Image> blackPawnsMerida = new HashMap<>();
 
