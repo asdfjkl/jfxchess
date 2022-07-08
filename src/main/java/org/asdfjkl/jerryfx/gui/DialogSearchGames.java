@@ -391,18 +391,15 @@ public class DialogSearchGames {
     }
 
     private void btnInitialPositionClicked() {
-        enterPosBoard.board = new Board(true);
-        enterPosBoard.updateCanvas();
+        enterPosBoard.resetToStartingPosition();
     }
 
     private void btnClearBoardClicked() {
-        enterPosBoard.board = new Board(false);
-        enterPosBoard.updateCanvas();
+        enterPosBoard.clearBoard();
     }
 
     private void btnCurrentPositionClicked() {
-        enterPosBoard.board = currentBoard.makeCopy();
-        enterPosBoard.updateCanvas();
+        enterPosBoard.copyBoard(currentBoard);
     }
 
     public SearchPattern getSearchPattern() {
@@ -440,7 +437,7 @@ public class DialogSearchGames {
         pattern.setResultDraw(cbResultDraw.isSelected());
         pattern.setResultUndef(cbResultUnclear.isSelected());
 
-        pattern.setBoard(enterPosBoard.board.makeCopy());
+        pattern.setBoard(enterPosBoard.makeBoardCopy());
 
         pattern.setSearchForHeader(searchHeader.isSelected());
         pattern.setSearchForPosition(searchPosition.isSelected());

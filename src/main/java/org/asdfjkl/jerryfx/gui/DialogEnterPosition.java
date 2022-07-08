@@ -61,13 +61,11 @@ public class DialogEnterPosition implements EnterPosBoardListener {
     Button btnCancel;
 
     Board originalBoard;
-    Board currentBoard;
 
     public boolean show(Board board, BoardStyle style, double width, double height, int colorTheme) {
 
         originalBoard = board.makeCopy();
         enterPosBoard = new EnterPosBoard(originalBoard);
-        currentBoard = enterPosBoard.board;
         enterPosBoard.addListener(this);
         enterPosBoard.boardStyle = style;
 
@@ -87,7 +85,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
@@ -119,23 +117,23 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
         HBox hbMain = new HBox();
         hbMain.getChildren().addAll(enterPosBoard, vbButtonsRight);
-        hbMain.setHgrow(enterPosBoard, Priority.ALWAYS);
+        HBox.setHgrow(enterPosBoard, Priority.ALWAYS);
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(hbMain, hbButtons);
-        vbMain.setVgrow(hbMain, Priority.ALWAYS);
+        VBox.setVgrow(hbMain, Priority.ALWAYS);
         vbMain.setSpacing(10);
         vbMain.setPadding( new Insets(10));
 
-        if(currentBoard.turn == CONSTANTS.WHITE) {
+        if(enterPosBoard.turn() == CONSTANTS.WHITE) {
             rbTurnWhite.setSelected(true);
         } else {
             rbTurnBlack.setSelected(true);
         }
-        cbCastlesWK.setSelected(currentBoard.canCastleWhiteKing());
-        cbCastlesWQ.setSelected(currentBoard.canCastleWhiteQueen());
-        cbCastlesBK.setSelected(currentBoard.canCastleBlackKing());
-        cbCastlesBQ.setSelected(currentBoard.canCastleBlackQueen());
+        cbCastlesWK.setSelected(enterPosBoard.canCastleWhiteKing());
+        cbCastlesWQ.setSelected(enterPosBoard.canCastleWhiteQueen());
+        cbCastlesBK.setSelected(enterPosBoard.canCastleBlackKing());
+        cbCastlesBQ.setSelected(enterPosBoard.canCastleBlackQueen());
 
         btnOk.setOnAction(e -> {
             btnOkClicked();
@@ -146,39 +144,39 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         cbCastlesWK.setOnAction(e -> {
-            enterPosBoard.board.setCastleWKing(cbCastlesWK.isSelected());
+            enterPosBoard.setCastleWKing(cbCastlesWK.isSelected());
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         cbCastlesWQ.setOnAction(e -> {
-            enterPosBoard.board.setCastleWQueen(cbCastlesWQ.isSelected());
+            enterPosBoard.setCastleWQueen(cbCastlesWQ.isSelected());
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         cbCastlesBK.setOnAction(e -> {
-            enterPosBoard.board.setCastleBKing(cbCastlesBK.isSelected());
+            enterPosBoard.setCastleBKing(cbCastlesBK.isSelected());
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         cbCastlesBQ.setOnAction(e -> {
-            enterPosBoard.board.setCastleBQueen(cbCastlesBQ.isSelected());
+            enterPosBoard.setCastleBQueen(cbCastlesBQ.isSelected());
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         rbTurnWhite.setOnAction(e -> {
-            enterPosBoard.board.turn = CONSTANTS.WHITE;
+            enterPosBoard.setTurn(CONSTANTS.WHITE);
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         rbTurnBlack.setOnAction(e -> {
-            enterPosBoard.board.turn = CONSTANTS.BLACK;
+            enterPosBoard.setTurn(CONSTANTS.BLACK);
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         btnFlipBoard.setOnAction(e -> {
@@ -187,8 +185,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         btnInitialPosition.setOnAction(e -> {
-            enterPosBoard.board = new Board(true);
-            enterPosBoard.updateCanvas();
+            enterPosBoard.resetToStartingPosition();
             rbTurnWhite.setSelected(true);
             cbCastlesWK.setSelected(true);
             cbCastlesWQ.setSelected(true);
@@ -198,8 +195,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         btnClearBoard.setOnAction(e -> {
-            enterPosBoard.board = new Board(false);
-            enterPosBoard.updateCanvas();
+            enterPosBoard.clearBoard();
             rbTurnWhite.setSelected(true);
             cbCastlesWK.setSelected(false);
             cbCastlesWQ.setSelected(false);
@@ -209,13 +205,13 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         });
 
         btnCurrentPosition.setOnAction(e -> {
-            enterPosBoard.board = originalBoard.makeCopy();
-            cbCastlesWK.setSelected(enterPosBoard.board.canCastleWhiteKing());
-            cbCastlesWQ.setSelected(enterPosBoard.board.canCastleWhiteQueen());
-            cbCastlesBK.setSelected(enterPosBoard.board.canCastleBlackKing());
-            cbCastlesBQ.setSelected(enterPosBoard.board.canCastleBlackQueen());
+            enterPosBoard.copyBoard(originalBoard); 
+            cbCastlesWK.setSelected(enterPosBoard.canCastleWhiteKing());
+            cbCastlesWQ.setSelected(enterPosBoard.canCastleWhiteQueen());
+            cbCastlesBK.setSelected(enterPosBoard.canCastleBlackKing());
+            cbCastlesBQ.setSelected(enterPosBoard.canCastleBlackQueen());
             enterPosBoard.updateCanvas();
-            btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
         vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
@@ -240,7 +236,6 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
     private void btnOkClicked() {
         accepted = true;
-        currentBoard = enterPosBoard.board;
         stage.close();
     }
 
@@ -249,12 +244,17 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         stage.close();
     }
 
-
     @Override
     public void boardChanged() {
-
-        btnOk.setDisable(!(enterPosBoard.board.isConsistent()));
-
+        btnOk.setDisable(!(enterPosBoard.isConsistent()));
     }
 
+    public boolean boardIsConsistent() {
+        return enterPosBoard.isConsistent();
+    }
+        
+    // A method for retrieving the resulting position from the dialog.
+    public Board getCurrentBoard() {
+        return enterPosBoard.makeBoardCopy();
+    }
 }
