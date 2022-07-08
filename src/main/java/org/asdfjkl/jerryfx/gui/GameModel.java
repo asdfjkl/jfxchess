@@ -217,7 +217,6 @@ public class GameModel {
 
         //return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
 
-
         File baseBook = getBaseBookPath();
         if(baseBook != null) {
             String bookPath = new File(baseBook, "extbook.bin").getPath();

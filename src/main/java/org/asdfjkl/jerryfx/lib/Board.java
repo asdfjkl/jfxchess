@@ -289,7 +289,7 @@ public class Board {
                 this.castleBqueenOk = true;
             }
         }
-        // set en passent square
+        // set en passant square
         if(fenParts[3].equals("-")) {
             this.enPassentTarget = 0;
         } else {
@@ -379,6 +379,35 @@ public class Board {
         this.zobristInitialized = false;
         this.posHashInitialized = false;
     }
+    
+    // reset to empty board
+    public void clear() {
+        this.board = new int[120];
+        this.oldBoard = new int[120];
+        this.pieceList = new int[2][7][10];
+        this.turn = CONSTANTS.WHITE;
+        for(int i=0;i<120;i++) {
+            this.board[i] = CONSTANTS.EMPTY_POS[i];
+            this.oldBoard[i] = 0xFF;
+        }
+        this.initPieceList();
+        this.castleWkingOk = false;
+        this.castleWqueenOk = false;
+        this.castleBkingOk = false;
+        this.castleBqueenOk = false;
+        this.prevCastleWkingOk = false;
+        this.prevCastleWqueenOk = false;
+        this.prevCastleBkingOk = false;
+        this.prevCastleBqueenOk = false;
+        this.enPassentTarget = 0;
+        this.halfmoveClock = 0;
+        this.fullmoveNumber = 1;
+        this.undoAvailable = false;
+        this.lastMoveWasNull = false;
+        this.prevHalfmoveClock = 0;
+        this.zobristInitialized = false;
+        this.posHashInitialized = false;
+    }
 
     public Board makeCopy() {
 
@@ -425,6 +454,49 @@ public class Board {
 
         return b;
 
+    }
+    
+    // Copies b into this current Board instance, without making a new one.
+    // (equivalent to assignment operator = , in C++)
+    public void copy(Board b) {
+        for(int i=0;i<120;i++) {
+            this.board[i] = b.board[i];
+            this.oldBoard[i] = b.oldBoard[i];
+        }
+        for(int i=0;i<2;i++) {
+            for(int j=0;j<7;j++) {
+                for(int k=0;k<10;k++) {
+                    this.pieceList[i][j][k] = b.pieceList[i][j][k];
+                }
+            }
+        }
+
+        this.turn = b.turn;
+        this.halfmoveClock = b.halfmoveClock;
+        this.fullmoveNumber = b.fullmoveNumber;
+
+        this.zobristHash = b.zobristHash;
+        this.positionHash = b.positionHash;
+
+        this.undoAvailable = b.undoAvailable;
+        this.zobristInitialized = b.zobristInitialized;
+        this.posHashInitialized = b.posHashInitialized;
+        this.lastMoveWasNull = b.lastMoveWasNull;
+
+        this.castleWkingOk = b.castleWkingOk;
+        this.castleWqueenOk = b.castleWqueenOk;
+        this.castleBkingOk = b.castleBkingOk;
+        this.castleBqueenOk = b.castleBqueenOk;
+
+        this.prevCastleWkingOk = b.prevCastleWkingOk;
+        this.prevCastleWqueenOk = b.prevCastleWqueenOk;
+        this.prevCastleBkingOk = b.prevCastleBkingOk;
+        this.prevCastleBqueenOk = b.prevCastleBqueenOk;
+
+        this.enPassentTarget = b.enPassentTarget;
+        this.prevEnPassentTarget = b.prevEnPassentTarget;
+
+        this.prevHalfmoveClock = b.prevHalfmoveClock;
     }
 
     public String fen() {
@@ -1261,7 +1333,7 @@ public class Board {
                             if (!this.isAttacked(CONSTANTS.E8, CONSTANTS.WHITE)
                                     && !this.isAttacked(CONSTANTS.D8, CONSTANTS.WHITE)
                                     && !this.isAttacked(CONSTANTS.C8, CONSTANTS.WHITE)) {
-                                ArrayList<Move> targets = this.pseudoLegalMoves(CONSTANTS.F7, CONSTANTS.ANY_SQUARE, CONSTANTS.ANY_PIECE, false, CONSTANTS.WHITE);
+                                //ArrayList<Move> targets = this.pseudoLegalMoves(CONSTANTS.F7, CONSTANTS.ANY_SQUARE, CONSTANTS.ANY_PIECE, false, CONSTANTS.WHITE);
                                 this.apply(m);
                                 boolean legal = !this.isAttacked(CONSTANTS.C8, CONSTANTS.WHITE);
                                 this.undo();
@@ -1454,7 +1526,7 @@ public class Board {
             return san.toString();
         } else {
             int pieceType = this.getPieceTypeAt(m.from);
-            int piece = this.getPieceAt(m.from);
+            //int piece = this.getPieceAt(m.from);
             if(pieceType == CONSTANTS.KNIGHT) {
                 san.append("N");
             }
@@ -1630,7 +1702,7 @@ public class Board {
                 ((piece >= 0x01 && piece <= 0x07) ||  // white piece
                  (piece >= 0x81 && piece <= 0x87) || (piece == 0x00))) // black piece or empty
         {
-            int idx = this.xyToInternal(x,y);
+            int idx = Board.xyToInternal(x,y);
             this.board[idx] = piece;
             // we need to recalculate the piece list, if the board
             // was manually modified
@@ -1642,7 +1714,7 @@ public class Board {
 
     public int getPieceAt(int x, int y) {
         if(x>=0 && x<8 && y>=0 && y <8) {
-            int idx = this.xyToInternal(x,y);
+            int idx = Board.xyToInternal(x,y);
             return this.board[idx];
         } else {
             throw new IllegalArgumentException("called getPieceAt with invalid paramters, (x,y): "+x+","+y);
@@ -1651,7 +1723,7 @@ public class Board {
 
     public boolean isPieceAt(int x, int y) {
         if (x >= 0 && x < 8 && y >= 0 && y < 8) {
-            int idx = this.xyToInternal(x, y);
+            int idx = Board.xyToInternal(x, y);
             if ((this.board[idx] >= CONSTANTS.WHITE_PAWN && this.board[idx] <= CONSTANTS.WHITE_KING) ||
                     (this.board[idx] >= CONSTANTS.BLACK_PAWN && this.board[idx] <= CONSTANTS.BLACK_KING)) {
                 return true;
@@ -1672,7 +1744,7 @@ public class Board {
 
     public int getPieceTypeAt(int x, int y) {
         if(x>=0 && x<8 && y>=0 && y <8) {
-            int idx = this.xyToInternal(x,y);
+            int idx = Board.xyToInternal(x,y);
             int piece = this.board[idx];
             if(piece >= 0x80) {
                 return piece - 0x80;
@@ -1703,7 +1775,7 @@ public class Board {
     }
 
     public boolean getPieceColorAt(int x, int y) {
-        int internalCoordinate = this.xyToInternal(x,y);
+        int internalCoordinate = Board.xyToInternal(x,y);
         return this.getPieceColorAt(internalCoordinate);
     }
 
@@ -1787,13 +1859,15 @@ public class Board {
                     }
                 } else if (pieceType == CONSTANTS.PAWN) {
                     if (pieceColor == CONSTANTS.WHITE) {
-                        if ((i / 10) == 2) { // white pawn in first rank
+                        if ((i / 10) == 2 || (i / 10) == 9) {
+                            // white pawn in first rank or on promotion square
                             return false;
                         } else {
                             cntWhitePawns++;
                         }
                     } else {
-                        if ((i / 10) == 9) { // black pawn in 8th rank
+                        if ((i / 10) == 9 || (i / 10) == 2) {
+                            // black pawn in 8th rank or on promotion square
                             return false;
                         } else {
                             cntBlackPawns++;
@@ -1806,7 +1880,7 @@ public class Board {
         if(cntWhiteKing != 1 || cntBlackKing != 1) {
             return false;
         }
-        // white and black king at least on field apart
+        // white and black king at least one field apart
         int larger = whiteKingPos;
         int smaller = blackKingPos;
         if(blackKingPos > whiteKingPos) {
@@ -1942,7 +2016,7 @@ public class Board {
             long piece = 0L;
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
-                    int internalCoordinate = this.xyToInternal(i, j);
+                    int internalCoordinate = Board.xyToInternal(i, j);
                     if (this.board[internalCoordinate] != CONSTANTS.EMPTY) {
                         int pieceAt_ij = this.getPieceAt(internalCoordinate);
                         int kind_of_piece = this.zobristPieceType(pieceAt_ij);
@@ -2200,12 +2274,12 @@ public class Board {
                     case CONSTANTS.BISHOP:
                         if(++pCounter > 2) {
                             // More than two bishops):
-                            // Theroetically possible to mate or to force mate.
+                            // Theoretically possible to mate or to force mate.
                             return false;
                         }
                         else if (pCounter > 1)
                         {
-                            // We hsve found another piece (knight or bishop) 
+                            // We have found another piece (knight or bishop) 
                             // before this one:
                             if (getPieceType(lastPiece) != CONSTANTS.BISHOP)
                                 // A knight and a bishop:

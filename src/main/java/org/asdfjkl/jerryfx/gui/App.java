@@ -311,7 +311,7 @@ public class App extends Application implements StateChangeListener {
         Chessboard chessboard = new Chessboard(gameModel);
         chessboard.boardStyle = gameModel.boardStyle;
         chessboard.resize(100,100);
-        chessboard.updateCanvas();
+        //chessboard.updateCanvas(); Already done inside resize().
 
         spChessboardMoves = new SplitPane();
         spChessboardMoves.getItems().addAll(chessboard, vbGameDataMovesNavigation);
