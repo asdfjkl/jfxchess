@@ -125,6 +125,8 @@ public class GameModel {
         File file = null;
         extBook = new PolyglotExt();
         String extBookPath = getExtBookPath();
+        //DialogSimpleAlert dlg = new DialogSimpleAlert();
+        //dlg.show(extBookPath, 0);
         if(extBookPath != null) {
             file = new File(extBookPath);
             extBook.loadBook(file);
@@ -213,16 +215,16 @@ public class GameModel {
 
     private String getExtBookPath() {
 
-        return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
+        //return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
 
-        /*
+
         File baseBook = getBaseBookPath();
         if(baseBook != null) {
             String bookPath = new File(baseBook, "extbook.bin").getPath();
             return bookPath;
         }
         return null;
-*/
+
     }
 
     public Game getGame() {
