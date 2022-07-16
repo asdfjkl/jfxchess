@@ -147,7 +147,7 @@ public class GameModel {
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish_14.1.exe").getPath();
+                    stockfishPath = new File(subEngine, "stockfish_15.exe").getPath();
                     return stockfishPath;
                 }
         }

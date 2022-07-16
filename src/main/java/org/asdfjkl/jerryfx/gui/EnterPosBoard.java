@@ -529,6 +529,8 @@ public class EnterPosBoard extends Canvas {
                     // piece-image from the canvas. (There is a case where we press the
                     // mouse-button on a piece, drag it around, return to the original square
                     // and release the mouse-button.)
+                    // we still need to reset the grabbed Piece
+                    grabbedPiece.reset();
                     updateCanvas(); // no board-change
                 }
             } else {
