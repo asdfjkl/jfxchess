@@ -21,20 +21,31 @@ Jerry is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.2.0
+Current Version: 4.2.1
 
 * Windows
-  - Exe [Installer](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0)
-  - or install via [WinGet](https://de.wikipedia.org/wiki/Windows_Package_Manager): `winget install asdfjkl.jerrychess`
+  - Exe [Installer](https://github.com/asdfjkl/jerry/releases/tag/v4.2.1)
 * Linux
   - install from [Snapstore](https://snapcraft.io/jerry) 
-  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.2.0) (coming soon)
+  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.2.1)
 
 ## Blog
 
 Once in a while I blog about the development of Jerry at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 4.2.1 (July 2022)
+ * drag and drop when setting up a position (thx @TTorel)
+ * adjust strength for any engine that supports 'uciLimitStrength'
+ * flat style dialogs to better match theme
+ * nicer looking opening book view
+ * icon to indicate whose turn it is
+ * computer's books moves are not selected randomly, but depend on chosen engine strength and opening
+ * moves in bookview are shown in SAN notation instead of uci notation
+ * some layout fixes
+ * deleting games in database view
+ * several bugfixes
 
 Version 4.2.0 (Dec 2021)
  * opening book with statistics
@@ -78,13 +89,13 @@ Current plans for future versions:
  
 Version 4.3
 - [DONE] opening book support
-- replace Stockfish skill level with UciLimitStrength (any engine)
+- [DONE] replace Stockfish skill level with UciLimitStrength (any engine)
 - more options to edit/replace/add games in pgn files
 - visual representation (i.e. graph) of game progress
 - ability to set default database
 - ship a default database of a few thousand interesting games 
 - option to show arrow that illustrates engine top-move in analysis
-- "drag" pieces in enter-position dialog
+- [DONE] "drag" pieces in enter-position dialog
 - show more engine info: Tablebase Hits and Hash percentage
 - ship with pre-configured 4-piece (size!) tablebases
 - ability to click on engine lines 
