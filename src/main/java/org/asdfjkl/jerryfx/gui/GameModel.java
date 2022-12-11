@@ -113,6 +113,12 @@ public class GameModel {
         engines.add(stockfish);
         activeEngine = stockfish;
 
+        Engine stockfish_custom = new Engine();
+        stockfish_custom.setName("Stockfish");
+        if(stockfishPath != null) {
+            stockfish_custom.setPath(stockfishPath);
+        }
+        engines.add(stockfish_custom);
 
         /*
         book = new Polyglot();
@@ -420,7 +426,15 @@ public class GameModel {
                 if(!engineString.isEmpty()) {
                     Engine engine = new Engine();
                     engine.restoreFromString(engineString);
-                    engines.add(engine);
+                    // engine 0 is Stockfish internal
+                    // engine 1 is Stockfish but where user
+                    // is allowed to change parameters
+                    // restore engine 1 to index 1
+                    if(i == 1 && engines.size() > 1) {
+                        engines.set(1, engine);
+                    } else {
+                        engines.add(engine);
+                    }
                 }
             }
             int activeIdx = prefs.getInt("ACTIVE_ENGINE_IDX", 0);

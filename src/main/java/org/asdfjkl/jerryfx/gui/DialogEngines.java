@@ -95,7 +95,12 @@ public class DialogEngines {
                     btnEditParameters.setDisable(true);
                     btnResetParameters.setDisable(true);
                     btnRemove.setDisable(true);
-                } else {
+                } else if(selectedIndex == 1) {
+                    btnEditParameters.setDisable(false);
+                    btnResetParameters.setDisable(false);
+                    btnRemove.setDisable(true);
+                } else
+                {
                     btnEditParameters.setDisable(false);
                     btnResetParameters.setDisable(false);
                     btnRemove.setDisable(false);
@@ -119,7 +124,7 @@ public class DialogEngines {
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
-        vbButtonsRight.setPrefWidth(120);
+        vbButtonsRight.setPrefWidth(140);
         Region spacer1 = new Region();
         btnAdd.setMinWidth(vbButtonsRight.getPrefWidth());
         btnRemove.setMinWidth(vbButtonsRight.getPrefWidth());
