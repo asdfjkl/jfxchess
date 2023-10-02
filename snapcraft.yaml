@@ -1,10 +1,10 @@
-name: jerry
-version: "4.2.0"
+name: jfxchess
+version: "4.3.0"
 summary: A graphical chess program
 description: |
-  Jerry - Das Schachprogramm is a chess graphical user interface
+  JFXChess is a chess graphical user interface
   with the following features:
-  * based around world's best chess program Stockfish (as of Jan, 2014)
+  * based around world's best chess program Stockfish
   * play against the computer
   * adjust strength levels to match your skill
   * enter, edit and analyse games
@@ -32,9 +32,9 @@ apps:
       JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"
 
 parts:
- jerry:
+ jfxchess:
     plugin: maven
-    source: https://github.com/asdfjkl/jerry.git
+    source: https://github.com/asdfjkl/jfxchess.git
     maven-options: ["clean", "compile", "assembly:single"]
     source-type: git
     build-packages:
@@ -42,7 +42,7 @@ parts:
     stage-packages:
       - openjdk-11-jdk
     organize:
-      ${SNAPCRAFT_PART_BUILD}/jerry-snap: usr/bin/jerry-snap
+      ${SNAPCRAFT_PART_BUILD}/jfxchess-snap: usr/bin/jfxchess-snap
 
  book:
    plugin: dump
