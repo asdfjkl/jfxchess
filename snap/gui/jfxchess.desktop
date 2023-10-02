@@ -1,0 +1,6 @@
+
+[Desktop Entry]
+Name=JFXChess
+Exec=jfxchess
+Type=Application
+Icon=${SNAP}/meta/gui/jfxchess.png
