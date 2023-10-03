@@ -3,7 +3,7 @@ Execute
 mvn clean compile assembly:single
 
 e.g. here as
-C:\Users\user\MyFiles\workspace\IdeaProjects\jerryfx>"C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2020.1.1\plugins\maven\lib\maven3\bin\mvn.cmd" clean compile assembly:single
+C:\Users\user\MyFiles\workspace\IdeaProjects\jerryfx>"C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2023.2.2\plugins\maven\lib\maven3\bin\mvn.cmd" clean compile assembly:single
 
 to create a jar with all dependencies included _except_ the OpenJFX platform dependent modules. The jar is located as
 jerryfx-4.0-jar-with-dependencies.jar in ...\jerryfx\target
