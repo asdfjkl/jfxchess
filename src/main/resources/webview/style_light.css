@@ -10,4 +10,8 @@ a:link, a:visited, a:hover, a:active {
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+    padding-left: 0.1em;
+    padding-right: 1em;
 }

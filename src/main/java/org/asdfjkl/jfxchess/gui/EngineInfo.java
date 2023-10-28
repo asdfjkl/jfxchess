@@ -140,7 +140,7 @@ public class EngineInfo {
     }
 
     public void update(String engineFeedback) {
-
+        System.out.println(engineFeedback);
         int multiPv = 0;
 
         String[] lines = engineFeedback.split("\n");

@@ -87,6 +87,8 @@ public class EngineOutputView {
 
     public void setText(String info) {
 
+        //System.out.println(info);
+
         if(isEnabled) {
 
             //pv1.setText(info);

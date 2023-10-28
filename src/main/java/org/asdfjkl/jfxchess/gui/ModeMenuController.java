@@ -44,6 +44,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
+        //System.out.println(s);
         if(s.startsWith("INFO")) {
             //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
             String[] sSplit = s.split("\\|");

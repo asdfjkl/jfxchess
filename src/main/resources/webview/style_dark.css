@@ -12,4 +12,8 @@ body {
     background-color: #333333;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+    padding-left: 0.1em;
+    padding-right: 1em;
 }
