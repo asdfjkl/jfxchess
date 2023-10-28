@@ -40,8 +40,8 @@ public class EditMenuController {
     public void copyPosition() {
 
         String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        System.out.println("fen string: "+fen);
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
-        systemClipboard.clear();
         ClipboardContent content = new ClipboardContent();
         content.putString(fen);
         systemClipboard.setContent(content);
@@ -52,7 +52,6 @@ public class EditMenuController {
 
         String pgn = pgnPrinter.printGame(gameModel.getGame());
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
-        systemClipboard.clear();
         ClipboardContent content = new ClipboardContent();
         content.putString(pgn);
         systemClipboard.setContent(content);
@@ -112,7 +111,7 @@ public class EditMenuController {
             // if not a fen string, maybe it's a full game
             PgnReader reader = new PgnReader();
             Game g = reader.readGame(s);
-            PgnPrinter prn = new PgnPrinter();
+            // PgnPrinter prn = new PgnPrinter();
             // as a heuristic we assume it's really a pasted game string if either there is at least
             // two game nodes, or if there is a fen string for the root board
             if(g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition()) {
