@@ -41,11 +41,11 @@ public class DialogAboutDatabase {
 
         TextFlow tfAbout = new TextFlow();
 
-        Text txtJerry = new Text("JerryFX\n");
+        Text txtJerry = new Text("JFXChess\n");
         txtJerry.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
         Text txtCopyright = new Text("Database Module\n" +
-                "Copyright © 2014-2020\n" +
+                "Copyright © 2014-2023\n" +
                 "Dominik Klein\n" +
                 "    licensed under GNU GPL 2    ");
 
