@@ -17,3 +17,7 @@ body {
     padding-left: 0.1em;
     padding-right: 1em;
 }
+
+.comment {
+    color: LightSteelBlue;
+}

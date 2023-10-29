@@ -249,7 +249,8 @@ public class HtmlPrinter {
     }
 
     private void printComment(String comment) {
-        String write = "{ " + comment.replace("}","").trim() + " } ";
+        //String write = "{ " + comment.replace("}","").trim() + " } ";
+        String write = "<span class=\"comment\">&nbsp;" + comment.replace("}","").trim() + "&nbsp;&nbsp;</span>";
         this.writeToken(write);
         //this->forceMoveNumber = false;
     }
