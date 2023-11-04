@@ -220,9 +220,9 @@ public class HtmlPrinter {
             // mainline, we do not need to add another linebreak
             String tkn = "";
             if(this.newLine) {
-                tkn += "&nbsp;[ ";
+                tkn += "&nbsp;<span class=\"variation\">[ ";
             } else {
-                tkn += "<br>&nbsp;[ ";
+                tkn += "<br><span class=\"variation\">&nbsp;[ ";
             }
             this.writeToken(tkn);
             this.forceMoveNumber = true;
@@ -237,7 +237,7 @@ public class HtmlPrinter {
     private void endVariation() {
         this.variationDepth--;
         if(this.variationDepth == 0) {
-            String tkn = "]<br> ";
+            String tkn = "]</span><br> ";
             this.writeToken(tkn);
             this.forceMoveNumber = true;
             this.newLine = true;

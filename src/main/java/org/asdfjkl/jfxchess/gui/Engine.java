@@ -132,6 +132,15 @@ public class Engine {
         }
     }
 
+    public int getMaxMultiPV() {
+        for (EngineOption option : options) {
+            if (option.name.equals("MultiPV")) {
+                return option.spinMax;
+            }
+        }
+        return 1;
+    }
+
     public int getUciElo() {
 
         for (EngineOption option : options) {

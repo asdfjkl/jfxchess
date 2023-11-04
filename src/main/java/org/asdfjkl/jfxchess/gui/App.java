@@ -319,15 +319,21 @@ public class App extends Application implements StateChangeListener {
         // Buttons for Engine On/Off and TextFlow for Engine Output
         tglEngineOnOff = new ToggleButton("Off");
         Label lblMultiPV = new Label("Lines:");
+        /*
         ComboBox<Integer> cmbMultiPV = new ComboBox<Integer>();
         cmbMultiPV.getItems().addAll(1,2,3,4);
         cmbMultiPV.setValue(1);
+        */
+        Button btnAddEngineLine = new Button();
+        btnAddEngineLine.setText("+");
+        Button btnRemoveEngineLine = new Button();
+        btnRemoveEngineLine.setText("-");
         Button btnSelectEngine = new Button();
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
         Region spacerEngineControl = new Region();
         hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
-                cmbMultiPV, spacerEngineControl, btnSelectEngine);
+                btnAddEngineLine, btnRemoveEngineLine, spacerEngineControl, btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
         hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
         hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
@@ -460,6 +466,7 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
+        /*
         cmbMultiPV.setOnAction(actionEvent -> {
             int multiPv = cmbMultiPV.getValue();
             if(multiPv != gameModel.getMultiPv()) {
@@ -471,6 +478,29 @@ public class App extends Application implements StateChangeListener {
                 }
                 gameModel.triggerStateChange();
             }
+        });
+         */
+
+        btnAddEngineLine.setOnAction(actionEvent -> {
+            int currentMultiPv = gameModel.getMultiPv();
+            //System.out.println("max mulpv: " + gameModel.activeEngine.getMaxMultiPV());
+            if(gameModel.activeEngine.supportsMultiPV()
+                    && gameModel.activeEngine.getMaxMultiPV() > currentMultiPv) {
+                gameModel.setMultiPv(currentMultiPv+1);
+                engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
+            }
+            gameModel.triggerStateChange();
+
+        });
+
+        btnRemoveEngineLine.setOnAction(actionEvent -> {
+            int currentMultiPv = gameModel.getMultiPv();
+            if(gameModel.activeEngine.supportsMultiPV() &&
+                    currentMultiPv > 1) {
+                gameModel.setMultiPv(currentMultiPv-1);
+                engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
+            }
+            gameModel.triggerStateChange();
         });
 
         itmNew.setOnAction(e -> {

@@ -21,3 +21,8 @@ body {
 .comment {
     color: LightSteelBlue;
 }
+
+.variation {
+    text-indent: 10em;
+    color: black;
+}

@@ -300,27 +300,27 @@ public class Chessboard extends Canvas implements StateChangeListener {
             }
         }
 
-        // mark side to move, if we are at the root (no last move)
-        if(gameModel.getGame().getRootNode() == gameModel.getGame().getCurrentNode()) {
-            int x_side_to_move = innerXOffset + 8 * squareSize + 6;
-            int y_side_to_move = innerYOffset + 8 * squareSize + 6;
-            if(b.turn == WHITE) {
-                if(gameModel.getFlipBoard()) {
-                    x_side_to_move = innerXOffset - 11;
-                    y_side_to_move = innerYOffset - 11;
-                }
+        // mark side to move
+        // if(gameModel.getGame().getRootNode() == gameModel.getGame().getCurrentNode()) {
+        int x_side_to_move = innerXOffset + 8 * squareSize + 6;
+        int y_side_to_move = innerYOffset + 8 * squareSize + 6;
+        if(b.turn == WHITE) {
+            if(gameModel.getFlipBoard()) {
+                //x_side_to_move = innerXOffset - 11;
+                y_side_to_move = innerYOffset - 11;
             }
-            if(b.turn == BLACK) {
-                if(!gameModel.getFlipBoard()) {
-                    x_side_to_move = innerXOffset - 11;
-                    y_side_to_move = innerYOffset - 11;
-                }
-            }
-            gc.beginPath();
-            gc.setFill(boardStyle.getLightSquareColor());
-            gc.rect(x_side_to_move, y_side_to_move, 4,4);
-            gc.fill();
         }
+        if(b.turn == BLACK) {
+            if(!gameModel.getFlipBoard()) {
+                //x_side_to_move = innerXOffset - 11;
+                y_side_to_move = innerYOffset - 11;
+            }
+        }
+        gc.beginPath();
+        gc.setFill(boardStyle.getLightSquareColor());
+        gc.rect(x_side_to_move, y_side_to_move, 4,4);
+        gc.fill();
+        // }
 
         // draw grabbed piece
         if(drawGrabbedPiece) {
