@@ -18,35 +18,58 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.asdfjkl.jfxchess.lib.Board;
+import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 
-public class EngineOutputView {
+import java.util.ArrayList;
+
+public class EngineOutputView implements StateChangeListener {
+
+    final GameModel gameModel;
 
     private final Text engineId;
     private final Text depth;
     private final Text nps;
+    /*
     private final Text pv1;
     private final Text pv2;
     private final Text pv3;
     private final Text pv4;
+    */
+
+    private final ArrayList<Text> pvLines;
 
     private boolean isEnabled = true;
 
-    public EngineOutputView(TextFlow txtEngineOut) {
+    private TextFlow txtEngineOut;
+
+    public EngineOutputView(GameModel gameModel, TextFlow txtEngineOut) {
+
+        this.gameModel = gameModel;
 
         this.engineId = new Text("Stockfish (internal)");
         this.depth = new Text("");
         this.nps = new Text("");
+        Text pvLine = new Text("");
+        this.pvLines = new ArrayList<Text>();
+        this.pvLines.add(pvLine);
+        /*
         this.pv1 = new Text("");
         this.pv2 = new Text("");
         this.pv3 = new Text("");
         this.pv4 = new Text("");
+        */
 
         Text spacer1 = new Text("     ");
         Text spacer2 = new Text("     ");
 
-        txtEngineOut.getChildren().addAll(
+        this.txtEngineOut = txtEngineOut;
+
+        this.txtEngineOut.getChildren().addAll(
                 this.engineId,
                 spacer1,
                 this.depth,
@@ -54,6 +77,10 @@ public class EngineOutputView {
                 this.nps,
                 new Text(System.lineSeparator()),
                 new Text(System.lineSeparator()),
+                pvLines.get(0),
+                new Text(System.lineSeparator()));
+
+        /*
                 this.pv1,
                 new Text(System.lineSeparator()),
                 this.pv2,
@@ -61,7 +88,7 @@ public class EngineOutputView {
                 this.pv3,
                 new Text(System.lineSeparator()),
                 this.pv4);
-
+        */
         //this.txtEngineOut.getChildren().addAll(currentEval);
     }
 
@@ -79,21 +106,28 @@ public class EngineOutputView {
         engineId.setText("");
         depth.setText("");
         nps.setText("");
+        for(Text pvLine : pvLines) {
+            pvLine.setText("");
+        }
+        /*
         pv1.setText("");
         pv2.setText("");
         pv3.setText("");
         pv4.setText("");
+        */
     }
 
     public void setText(String info) {
 
-        //System.out.println(info);
+        System.out.println(info);
 
         if(isEnabled) {
 
             //pv1.setText(info);
             // | id (Level MAX) | zobrist  |  nps | current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
             String[] infos = info.split("\\|");
+
+            // System.out.println(("pv infos received: "+(infos.length - 5)));
 
             if (infos.length > 1 && !infos[1].isEmpty()) {
                 engineId.setText(infos[1]);
@@ -104,24 +138,45 @@ public class EngineOutputView {
             if (infos.length > 4 && !infos[4].isEmpty()) {
                 depth.setText(infos[4]);
             }
-            if (infos.length > 5 && !infos[5].isEmpty()) {
-                pv1.setText(infos[5]);
+
+            if(infos.length > 5 && !infos[5].isEmpty()) {
+                pvLines.get(0).setText(infos[5]);
+                //System.out.println("INFO PV 1: "+infos[5]);
             }
-            if (infos.length > 6 && !infos[6].isEmpty()) {
-                pv2.setText(infos[6]);
-            } else {
-                pv2.setText("");
-            }
-            if (infos.length > 7 && !infos[7].isEmpty()) {
-                pv3.setText(infos[7]);
-            } else {
-                pv3.setText("");
-            }
-            if (infos.length > 8 && !infos[8].isEmpty()) {
-                pv4.setText(infos[8]);
-            } else {
-                pv4.setText("");
+
+            for(int i=6;i<infos.length;i++) {
+                //System.out.println("PV LINES COUNT: "+pvLines.size());
+                if(pvLines.size() > i-5) {
+                    if(!infos[i].isEmpty()) {
+                        //System.out.println("INFO PV "+(i-5)+": "+infos[i]);
+                        pvLines.get(i-5).setText(infos[i]);
+                    } else {
+                        pvLines.get(i-5).setText("");
+                    }
+                }
             }
         }
     }
+
+
+    @Override
+    public void stateChange() {
+
+        System.out.println("Engine Output View: StateChange");
+        System.out.println("no of pvs in gamestate "+gameModel.getMultiPv());
+        if(gameModel.wasMultiPvChanged()) {
+            // remove all old widgets
+            int cntChildren = txtEngineOut.getChildren().size();
+            txtEngineOut.getChildren().remove(7, cntChildren);
+            pvLines.clear();
+        }
+        gameModel.setMultiPvChange(false);
+        for(int i=0;i<gameModel.getMultiPv();i++) {
+            Text pvLine = new Text("");
+            pvLines.add(pvLine);
+            txtEngineOut.getChildren().add(pvLine);
+            txtEngineOut.getChildren().add(new Text(System.lineSeparator()));
+        }
+    }
+
 }

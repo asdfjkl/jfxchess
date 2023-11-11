@@ -21,6 +21,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.scene.control.ScrollPane;
 import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
 import jfxtras.styles.jmetro.Style;
@@ -339,8 +340,10 @@ public class App extends Application implements StateChangeListener {
         hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
         txtEngineOut.setPadding(new Insets(10,10,10,10));
+        ScrollPane scpEngineOut = new ScrollPane(txtEngineOut);
         VBox vbBottom = new VBox();
-        vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
+        //vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
+        vbBottom.getChildren().addAll(hbEngineControl, scpEngineOut);
         vbBottom.setMinHeight(10);
 
         // put everything excl. the bottom Engine part into one VBox
@@ -355,12 +358,6 @@ public class App extends Application implements StateChangeListener {
 
         GameMenuController gameMenuController = new GameMenuController(gameModel);
 
-        // events
-        gameModel.addListener(chessboard);
-        gameModel.addListener(moveView);
-        gameModel.addListener(bookView);
-        gameModel.addListener(this);
-
         itmOpenFile.setOnAction(actionEvent -> { gameMenuController.handleOpenGame(); } );
         btnOpen.setOnAction(actionEvent -> { gameMenuController.handleOpenGame(); } );
 
@@ -371,11 +368,19 @@ public class App extends Application implements StateChangeListener {
         btnMovePrev.setOnAction(event -> moveView.goBack());
         btnMoveEnd.setOnAction(event -> moveView.seekToEnd());
 
+        // events
+        gameModel.addListener(chessboard);
+        gameModel.addListener(moveView);
+        gameModel.addListener(bookView);
+        gameModel.addListener(this);
+
         // connect mode controller
-        engineOutputView = new EngineOutputView(txtEngineOut);
+        engineOutputView = new EngineOutputView(gameModel, txtEngineOut);
         modeMenuController = new ModeMenuController(gameModel, engineOutputView);
         engineController = new EngineController(modeMenuController);
         modeMenuController.setEngineController(engineController);
+
+        gameModel.addListener(engineOutputView);
 
         EditMenuController editMenuController = new EditMenuController(gameModel);
 
@@ -483,23 +488,15 @@ public class App extends Application implements StateChangeListener {
 
         btnAddEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
-            //System.out.println("max mulpv: " + gameModel.activeEngine.getMaxMultiPV());
-            if(gameModel.activeEngine.supportsMultiPV()
-                    && gameModel.activeEngine.getMaxMultiPV() > currentMultiPv) {
-                gameModel.setMultiPv(currentMultiPv+1);
-                engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
-            }
+            gameModel.setMultiPv(currentMultiPv+1);
+            engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
             gameModel.triggerStateChange();
-
         });
 
         btnRemoveEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
-            if(gameModel.activeEngine.supportsMultiPV() &&
-                    currentMultiPv > 1) {
-                gameModel.setMultiPv(currentMultiPv-1);
-                engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
-            }
+            gameModel.setMultiPv(currentMultiPv-1);
+            engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
             gameModel.triggerStateChange();
         });
 

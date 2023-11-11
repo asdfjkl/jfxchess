@@ -383,6 +383,9 @@ public class ModeMenuController implements StateChangeListener {
             Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
             gameModel.engines = engineList;
             gameModel.activeEngine = selectedEngine;
+            // reset pv line to 1 for new engine
+            gameModel.setMultiPv(1);
+            gameModel.setMultiPvChange(true);
             gameModel.triggerStateChange();
         }
     }

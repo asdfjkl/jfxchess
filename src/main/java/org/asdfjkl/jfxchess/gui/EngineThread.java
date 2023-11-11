@@ -231,7 +231,7 @@ public class EngineThread extends Thread {
                                 }
 
                                 if(cmd.startsWith("setoption name MultiPV value")) {
-                                    engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29,30));
+                                    engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29));
                                 }
 
                                 // reset engine info if we quit

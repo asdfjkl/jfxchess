@@ -29,6 +29,7 @@ import java.lang.System;
 
 public class GameModel {
 
+    public static final int MAX_PV = 64;
     public static final int MAX_N_ENGINES = 10;
     public static final int MODE_ENTER_MOVES = 0;
     public static final int MODE_ANALYSIS = 1;
@@ -44,6 +45,7 @@ public class GameModel {
     private final ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
     private int currentMode;
     private int multiPv = 1;
+    private boolean multiPvChanged = false;
     private boolean flipBoard = false;
     private boolean humanPlayerColor = CONSTANTS.WHITE;
 
@@ -77,7 +79,7 @@ public class GameModel {
 
     private Preferences prefs;
 
-    private static final int modelVersion = 421;
+    private static final int modelVersion = 430;
 
     private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = -1;
@@ -309,13 +311,18 @@ public class GameModel {
     }
 
     public void setMultiPv(int multiPv) {
-        if(multiPv < 1) {
-            throw new IllegalArgumentException("setMultiPV: "+multiPv+ " but must be >= 1!");
+        if(multiPv >= 1 && multiPv <= activeEngine.getMaxMultiPV() && multiPv <= MAX_PV) {
+            this.multiPv = multiPv;
+            this.multiPvChanged = true;
         }
-        if(multiPv > 4) {
-            throw new IllegalArgumentException("setMultiPV: "+multiPv+ " but must be <= 4!");
-        }
-        this.multiPv = multiPv;
+    }
+
+    public boolean wasMultiPvChanged() {
+        return this.multiPvChanged;
+    }
+
+    public void setMultiPvChange(boolean b) {
+        this.multiPvChanged = b;
     }
 
     public void addListener(StateChangeListener toAdd) {
