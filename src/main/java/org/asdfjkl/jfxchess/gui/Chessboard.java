@@ -407,8 +407,8 @@ public class Chessboard extends Canvas implements StateChangeListener {
                     new double[] { toPoint.getY(), arrowPoint1.getY(), arrowPoint2.getY() },
                     3);
 
-        // take the old center coord to draw the
-        // line to, so that the line doesn not
+        // take the old center coordinates to draw the
+        // line to, so that the line does not
         // cover the arrow head due to the line's thickness
         Point to = new Point(xTo, yTo);
         double currentLineWidth = gc.getLineWidth();
@@ -459,8 +459,8 @@ public class Chessboard extends Canvas implements StateChangeListener {
         if(mouseButton == MouseButton.PRIMARY) {
             Board b = this.gameModel.getGame().getCurrentNode().getBoard();
             Point boardPos = getBoardPosition(e.getX(), e.getY());
-            // case a) 1) user clicks source field, then 2) clicks destination
-            // case b) user clicks and drags piece
+            // case (a) 1) user clicks source field, then 2) clicks destination
+            // case (b) user clicks and drags piece
             if (boardPos != null) {
                 if (grabbedPiece.getPiece() != -1) {
                     // case a) 2)

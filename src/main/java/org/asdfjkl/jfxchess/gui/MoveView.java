@@ -43,7 +43,6 @@ import java.util.ArrayList;
 public class MoveView implements StateChangeListener {
 
     private final WebView webView;
-    //private WebEngine webEngine;
     final GameModel gameModel;
     final HtmlPrinter htmlPrinter;
     int currentlyMarkedNode = -1;

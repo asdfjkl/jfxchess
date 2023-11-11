@@ -157,7 +157,7 @@ public class CONSTANTS {
 
     // attack table
     // the index of this array corresponds to the distance
-    // between two squares of the board (note the board is
+    // between two squares of the board; note the board is
     // encoded as a one dim array of size 120, where A1 = 21, H1 = 28
     // A8 = 91, A8 = 98.
     // the value denotes whether an enemy rook, bishop, knight, queen, king
@@ -184,10 +184,9 @@ public class CONSTANTS {
              };
 
     // first dim is for different piece types
-    // [piece_type[0] is DCOUNT (as in Byte Magazine paper)
-    // [piece_type[1] ... [piece_type][4] resp.
-    // [piece_type[1] ... [piece_type][8] contain
-    // DPOINT table
+    // piece_type[0] ... is DCOUNT (as in Byte Magazine paper)
+    // piece_type[1] ... [piece_type][4] resp.
+    // piece_type[1] ... [piece_type][8] contain DPOINT table
     public static final int[][] DIR_TABLE =
             {
                 { 4, -10, -20, -11, -9 ,   0,   0,   0,   0 }, // max 4 black pawn directions, rest 0's

@@ -185,7 +185,6 @@ public class PgnDatabase {
                         // if game was modified, always write it out
                         if(entries.get(i).wasModified()) {
                             // first write out everything unmodified up until now
-                            //System.out.println("writing everythin out");
                             long startOffset = entries.get(startIndex).getOffset();
                             long stopOffset = entries.get(i).getOffset();
                             rafReader.seek(startOffset);
@@ -623,7 +622,7 @@ public class PgnDatabase {
                 PgnDatabaseEntry current = null;
                 long last_pos = 0;
 
-                // check if we actually read ad least one game;
+                // check if we actually read at least one game;
                 boolean readAtLeastOneGame = false;
 
                 String currentLine = "";

@@ -180,7 +180,7 @@ public class OptimizedRandomAccessFile {
      * Reads up to
      * <code>len</code> bytes of data from this file into an array of bytes.
      * This method behaves similar to the
-     * {@link java.io.BufferedReader#read(byte[],int,int)} method of
+     * {@link java.io.BufferedReader#read(char[] cbuf, int off, int len)} method of
      * <code>BufferedReader</code>.
      *
      * @param b the buffer into which the data is read.
@@ -226,7 +226,7 @@ public class OptimizedRandomAccessFile {
      * Reads up to
      * <code>b.length</code> bytes of data from this file into an array of
      * bytes. This method behaves similar to the
-     * {@link java.io.BufferedReader#read(byte[])} method of
+     * {@link java.io.BufferedReader#read()} method of
      * <code>BufferedReader</code>.
      *
      * @param b the buffer into which the data is read.
@@ -238,7 +238,7 @@ public class OptimizedRandomAccessFile {
      * if some other I/O error occurs.
      * @exception NullPointerException If <code>b</code> is <code>null</code>.
      */
-    public synchronized int read(byte b[]) throws IOException {
+    public synchronized int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
@@ -251,11 +251,11 @@ public class OptimizedRandomAccessFile {
      * detected, or an exception is thrown.
      *
      * @param b the buffer into which the data is read.
-     * @exception EOFException if this file reaches the end before reading all
+     * @exception java.io.EOFException if this file reaches the end before reading all
      * the bytes.
      * @exception IOException if an I/O error occurs.
      */
-    public synchronized final void readFully(byte b[]) throws IOException {
+    public synchronized final void readFully(byte[] b) throws IOException {
         resetPosition();
         raf.readFully(b);
     }
@@ -271,7 +271,7 @@ public class OptimizedRandomAccessFile {
      * @param b the buffer into which the data is read.
      * @param off the start offset of the data.
      * @param len the number of bytes to read.
-     * @exception EOFException if this file reaches the end before reading all
+     * @exception java.io.IOException if this file reaches the end before reading all
      * the bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -479,7 +479,7 @@ public class OptimizedRandomAccessFile {
      * the stream is detected, or an exception is thrown.
      *
      * @return the <code>boolean</code> value read.
-     * @exception EOFException if this file has reached the end.
+     * @exception java.io.IOException if this file has reached the end.
      * @exception IOException if an I/O error occurs.
      */
     public synchronized final boolean readBoolean() throws IOException {
@@ -500,7 +500,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next byte of this file as a signed eight-bit
      * <code>byte</code>.
-     * @exception EOFException if this file has reached the end.
+     * @exception java.io.IOException if this file has reached the end.
      * @exception IOException if an I/O error occurs.
      */
     public synchronized final byte readByte() throws IOException {
@@ -516,7 +516,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next byte of this file, interpreted as an unsigned eight-bit
      * number.
-     * @exception EOFException if this file has reached the end.
+     * @exception java.io.IOException if this file has reached the end.
      * @exception IOException if an I/O error occurs.
      */
     public synchronized final int readUnsignedByte() throws IOException {
@@ -539,7 +539,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next two bytes of this file, interpreted as a signed 16-bit
      * number.
-     * @exception EOFException if this file reaches the end before reading two
+     * @exception java.io.IOException if this file reaches the end before reading two
      * bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -563,7 +563,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next two bytes of this file, interpreted as an unsigned
      * 16-bit integer.
-     * @exception EOFException if this file reaches the end before reading two
+     * @exception java.io.IOException if this file reaches the end before reading two
      * bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -587,7 +587,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next two bytes of this file, interpreted as a
      * <code>char</code>.
-     * @exception EOFException if this file reaches the end before reading two
+     * @exception java.io.IOException if this file reaches the end before reading two
      * bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -613,7 +613,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next four bytes of this file, interpreted as an
      * <code>int</code>.
-     * @exception EOFException if this file reaches the end before reading four
+     * @exception java.io.IOException if this file reaches the end before reading four
      * bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -647,7 +647,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next eight bytes of this file, interpreted as a
      * <code>long</code>.
-     * @exception EOFException if this file reaches the end before reading eight
+     * @exception java.io.IOException if this file reaches the end before reading eight
      * bytes.
      * @exception IOException if an I/O error occurs.
      */
@@ -670,7 +670,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next four bytes of this file, interpreted as a
      * <code>float</code>.
-     * @exception EOFException if this file reaches the end before reading four
+     * @exception java.io.IOException if this file reaches the end before reading four
      * bytes.
      * @exception IOException if an I/O error occurs.
      * @see java.io.RandomAccessFile#readInt()
@@ -695,7 +695,7 @@ public class OptimizedRandomAccessFile {
      *
      * @return the next eight bytes of this file, interpreted as a
      * <code>double</code>.
-     * @exception EOFException if this file reaches the end before reading eight
+     * @exception java.io.IOException if this file reaches the end before reading eight
      * bytes.
      * @exception IOException if an I/O error occurs.
      * @see java.io.RandomAccessFile#readLong()
@@ -708,8 +708,7 @@ public class OptimizedRandomAccessFile {
 
     /**
      * <p> Read the file line by line omitting the line separator. </p> <p> see
-     * {@link java.io.RandomAccessFile#readLine() readLine()} and see
-     * {@link java.io.BufferedReader#readLine(boolean) readLine(boolean ignoreLF)}.
+     * {@link java.io.RandomAccessFile#readLine() readLine()}
      * <p>
      *
      * <p> Subsequent calls of this method are buffered. If certain other
@@ -838,10 +837,10 @@ public class OptimizedRandomAccessFile {
      * of the stream is detected, or an exception is thrown.
      *
      * @return a Unicode string.
-     * @exception EOFException if this file reaches the end before reading all
+     * @exception java.io.IOException if this file reaches the end before reading all
      * the bytes.
      * @exception IOException if an I/O error occurs.
-     * @exception UTFDataFormatException if the bytes do not represent valid
+     * @exception java.io.UTFDataFormatException if the bytes do not represent valid
      * modified UTF-8 encoding of a Unicode string.
      * @see java.io.RandomAccessFile#readUnsignedShort()
      */

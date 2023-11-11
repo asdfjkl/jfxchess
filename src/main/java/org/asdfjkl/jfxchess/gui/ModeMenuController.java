@@ -478,8 +478,8 @@ public class ModeMenuController implements StateChangeListener {
                             String nextMove = gameModel.getGame().getCurrentNode().getVariation(0).getMove().getUci();
                             String[] pvMoves = gameModel.currentBestPv.split(" ");
                             // if the bestmove returned by the engine is different
-                            // than the best suggested pv line, it means that e.g. the
-                            // engine took a book move, but did not gave a pv evaluation
+                            // from the best suggested pv line, it means that e.g. the
+                            // engine took a book move, but did not give a pv evaluation
                             // or there was some major async error between engine and gui
                             // in such a case, do not add the best pv line, as it is probably
                             // not a valid pv line for the current node
@@ -558,7 +558,7 @@ public class ModeMenuController implements StateChangeListener {
                     }
 
                     if (gameModel.currentIsMate && gameModel.childIsMate) {
-                        // the current player had a mate, but instead of executing it, he moved into a mate
+                        // the current player had a mate, but instead of executing it, he moved into a mate,
                         // but we also want to skip the situation where the board position is checkmate
                         if ((gameModel.currentMateInMoves >= 0 && gameModel.childMateInMoves >= 0) &&
                                 gameModel.childMateInMoves != 0) {

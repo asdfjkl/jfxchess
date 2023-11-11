@@ -634,7 +634,7 @@ public class Board {
             int oldPieceType = this.getPieceTypeAt(m.from);
             boolean color = this.getPieceColorAt(m.from);
             // if target field is not empty, remove from piece list
-            // this must be of oppsite color than the currently moving piece
+            // this must be of the opposite color of the currently moving piece
             if(this.board[m.to] != CONSTANTS.EMPTY) {
                 int currentTargetPiece = this.getPieceTypeAt(m.to);
                 this.removeFromPieceList(!color, currentTargetPiece, m.to);
@@ -1272,9 +1272,9 @@ public class Board {
     public boolean isPseudoALegal(Move m) {
         // a pseudo legal move is a legal move if
         // a) doesn't put king in check
-        // b) if castle, must ensure that 1) king is not currently in check
-        //                                2) castle over squares are not in check
-        //                                3) doesn't castle into check
+        // b) if castles, must ensure that 1) king is not currently in check
+        //                                 2) castle over squares are not in check
+        //                                 3) doesn't castle into check
         // first find color of mover
         boolean color = this.getPieceColorAt(m.from);
         // find king with that color
@@ -1901,7 +1901,7 @@ public class Board {
         if(this.isAttacked(idx_king_not_to_move, toMove)) {
             return false;
         }
-        // each side has 8 pawns or less
+        // each side has 8 pawns or fewer
         if(cntWhitePawns > 8 || cntBlackPawns > 8) {
             return false;
         }
@@ -2273,7 +2273,7 @@ public class Board {
 
                     case CONSTANTS.BISHOP:
                         if(++pCounter > 2) {
-                            // More than two bishops):
+                            // More than two bishops:
                             // Theoretically possible to mate or to force mate.
                             return false;
                         }

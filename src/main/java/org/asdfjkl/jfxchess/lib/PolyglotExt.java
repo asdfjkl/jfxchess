@@ -34,7 +34,6 @@ public class PolyglotExt {
 
         OptimizedRandomAccessFile raf = null;
         try {
-            //File file = new File(filename);
             long fileLength = file.length();
             raf = new OptimizedRandomAccessFile(file, "r");
             book = new byte[(int) fileLength];

@@ -459,7 +459,7 @@ public class EnterPosBoard extends Canvas {
         // a grabbed piece or ignoring the mouse-release) according to the
         // circumstances.
 
-        // We don't have to draw the grabbed piece any more,
+        // We don't have to draw the grabbed piece anymore,
         // if we have been doing that.
         grabbedPiece.setDrawImage(false);
 

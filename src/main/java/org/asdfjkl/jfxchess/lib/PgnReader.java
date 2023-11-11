@@ -98,7 +98,7 @@ public class PgnReader {
 
     /*
     bool PgnReader::isUtf8(const QString &filename) {
-        // very simple way to detecting majority of encodings:
+        // very simple way to detect the majority of encodings:
         // first try ISO 8859-1
         // open the file and read a max of 100 first bytes
         // if conversion to unicode works, try some more bytes (at most 40 * 100)
@@ -579,7 +579,7 @@ public class PgnReader {
                         }
                         // fix end
                         if(this.isCol(currentLine.charAt(currentIdx+1))) {
-                            // we have a disambiguation, that should resolved by
+                            // we have a disambiguation, that should be resolved by
                             // the column denoted in the san, here in @line[idx]
                             int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
                             if(currentIdx+2 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx+2))) {
@@ -1026,7 +1026,7 @@ public class PgnReader {
                             //currentLine = raf.readLine();
                             int linesRead = 0;
                             int end_index = -1;
-                            while (linesRead < 500) { // what if we never find } ??? -> stop after 500 lines
+                            while (linesRead < 500) { // what if we never find "}" ??? -> stop after 500 lines
                                 currentLine = raf.readLine();
                                 if(currentLine == null) {
                                     currentLine = "";
@@ -1270,7 +1270,7 @@ public class PgnReader {
                             //currentLine = raf.readLine();
                             int linesRead = 0;
                             int end_index = -1;
-                            while (linesRead < 500) { // what if we never find } ??? -> stop after 500 lines
+                            while (linesRead < 500) { // what if we never find "}" ??? -> stop after 500 lines
                                 lineIndex += 1;
                                 if(lineIndex >= lines.length) {
                                     currentLine = "";

@@ -119,7 +119,7 @@ public class EngineThread extends Thread {
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,
-            // and the user keeps flooding the GUI with events (i.e. by frequently resizing
+            // and the user keeps flooding the GUI with events, i.e. by frequently resizing
             // the window or other inputs, the GUI might skip to handle (the only one)
             // bestmove info. Instead, the GUI will receive bestmove frequently
             // but ignore the info, if already processed.
@@ -166,7 +166,7 @@ public class EngineThread extends Thread {
                         // check if engine is ready to receive commands
                         // but only do this once (check via requestedReadyOk)
                         if(!readyok) {
-                            // the command uci must be send immediately after startup
+                            // the command uci must be sent immediately after startup
                             // some engines will not report readyok on isready directly
                             // after startup (like e.g. arasan). thus always send
                             // 'uci' without waiting for isready

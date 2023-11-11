@@ -2,8 +2,8 @@ package org.asdfjkl.jfxchess.lib;
 
 /*
  PolyglotExt is a simple bookformat
- of consecutive entries of 19 bytes each
- entries are stored in ascending order w.r.t.
+ of consecutive entries of 19 bytes each.
+ Entries are stored in ascending order w.r.t.
  the zobrist hash; i.e. same as polyglot,
  but weights, learn etc. replaced by different data fields
  moves are encoded the same as in polyglot

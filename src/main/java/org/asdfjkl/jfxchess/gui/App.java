@@ -265,14 +265,6 @@ public class App extends Application implements StateChangeListener {
         hbGameData.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
         hbGameData.setHgrow(spacerGameDataRight, Priority.ALWAYS);
 
-        // Create a WebView
-        /*
-        WebView viewMoves = new WebView();
-        viewMoves.resize(320,200);
-        viewMoves.setMinWidth(1);
-        viewMoves.setMaxWidth(Double.MAX_VALUE);
-        viewMoves.setMaxHeight(Double.MAX_VALUE);
-         */
         MoveView moveView = new MoveView(gameModel);
 
         // Navigation Buttons

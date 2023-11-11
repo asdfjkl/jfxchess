@@ -1,11 +1,11 @@
 [![jerry](https://snapcraft.io/jerry/badge.svg)](https://snapcraft.io/jerry)
 
-# Jerry - Das Schachprogramm
+# JFXChess - JavaFX Chess GUI
 
-![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/jerryfx.png)
+![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/jfxchess.png)
 
 ## About
-Jerry is a cross-platform chess graphical user interface.
+JFXChess is a cross-platform chess graphical user interface.
 
 * based around one of the world's best chess program Stockfish
 * play against the computer
@@ -31,9 +31,12 @@ Current Version: 4.2.1
 
 ## Blog
 
-Once in a while I blog about the development of Jerry at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
+Once in a while I blog about the development of JFXChess at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 4.3.0
+ * coming soon...
 
 Version 4.2.1 (July 2022)
  * drag and drop when setting up a position (thx @TTorel)
@@ -79,15 +82,14 @@ Version 3.2.0 (July 2019)
 
 ## Donate
 
-You can support the development of Jerry by donating via Paypal.
+You can support the development of JFXChess by donating via PayPal.
 
 [![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=9K2JDF5YBDZT6)
  
  ## Roadmap
  
 Current plans for future versions:
- 
-Version 4.3
+
 - [DONE] opening book support
 - [DONE] replace Stockfish skill level with UciLimitStrength (any engine)
 - more options to edit/replace/add games in pgn files
