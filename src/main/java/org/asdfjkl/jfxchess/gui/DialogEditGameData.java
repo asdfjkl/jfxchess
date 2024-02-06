@@ -38,12 +38,17 @@ public class DialogEditGameData {
     Stage stage;
     final HashMap<String, String> pgnHeaders = new HashMap<>();
     final TextField site = new TextField();
-    final TextField date = new TextField();
-    final TextField round = new TextField();
+    final Spinner<Integer> year = new Spinner<Integer>();
+    final Spinner<Integer> month = new Spinner<Integer>();
+    final Spinner<Integer> day = new Spinner<Integer>();
+    final Spinner<Integer> round = new Spinner<Integer>();
     final TextField event = new TextField();
-    final TextField white = new TextField();
-    final TextField black = new TextField();
-    final TextField eco = new TextField();
+    final TextField whiteSurname = new TextField();
+    final TextField whiteFirstname = new TextField();
+    final TextField blackSurname = new TextField();
+    final TextField blackFirstname = new TextField();
+    final Spinner<Integer> eloWhite = new Spinner<Integer>();
+    final Spinner<Integer> eloBlack = new Spinner<Integer>();
     boolean accepted = false;
     int gameResult = -1;
     final RadioButton rbWhiteWin = new RadioButton("1-0");
@@ -81,6 +86,39 @@ public class DialogEditGameData {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 20, 0, 20));
 
+        // we default the input TextFields to grow, if the user resizes
+        // or needs more space for the e.g. event or site field
+        ColumnConstraints clnTextFields = new ColumnConstraints(100,300,Double.MAX_VALUE);
+        clnTextFields.setHgrow(Priority.ALWAYS);
+        ColumnConstraints clnLabels = new ColumnConstraints(100);
+        grid.getColumnConstraints().addAll(clnLabels, clnTextFields);
+
+        // third value: read from PGN header or set to 0 by default
+        SpinnerValueFactory<Integer> valueFactoryWhiteElo =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5000, 0);
+        eloWhite.setValueFactory(valueFactoryWhiteElo);
+        eloWhite.setEditable(true);
+        // set initial value
+        eloWhite.getValueFactory().setValue(1900);
+        eloWhite.setPrefWidth(80);
+
+        SpinnerValueFactory<Integer> valueFactoryBlackElo =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5000, 0);
+        eloBlack.setValueFactory(valueFactoryBlackElo);
+        eloBlack.setEditable(true);
+        // set initial value
+        eloBlack.getValueFactory().setValue(1900);
+        eloBlack.setPrefWidth(80);
+
+        SpinnerValueFactory<Integer> valueFactoryRound =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 999, 0);
+        round.setValueFactory(valueFactoryRound);
+        round.setEditable(true);
+        // set initial value
+        round.getValueFactory().setValue(42);
+        round.setPrefWidth(80);
+
+        /*
         site.setPromptText("Site");
         if(pgnHeaders.get("Site") != null) {
             site.setText(pgnHeaders.get("Site"));
@@ -111,27 +149,44 @@ public class DialogEditGameData {
             black.setText(pgnHeaders.get("Black"));
         }
 
-        eco.setPromptText("Eco");
-        if(pgnHeaders.get("Eco") != null) {
-            eco.setText(pgnHeaders.get("Eco"));
+        eloWhite.setPromptText("Elo White");
+        if(pgnHeaders.get("WhiteElo") != null) {
+            eloWhite.setText(pgnHeaders.get("WhiteElo"));
         }
 
-        grid.add(new Label("Site:"), 0, 0);
-        grid.add(site, 1, 0);
-        grid.add(new Label("Date:"), 0, 1);
-        grid.add(date, 1, 1);
-        grid.add(new Label("Round:"), 0, 2);
-        grid.add(round, 1, 2);
-        grid.add(new Label("Event:"), 0, 3);
-        grid.add(event, 1, 3);
-        grid.add(new Label("White:"), 0, 4);
-        grid.add(white, 1, 4);
-        grid.add(new Label("Black:"), 0, 5);
-        grid.add(black, 1, 5);
-        grid.add(new Label("Eco:"), 0, 6);
-        grid.add(eco, 1, 6);
+        eloWhite.setPromptText("Elo White");
+        if(pgnHeaders.get("WhiteElo") != null) {
+            eloWhite.setText(pgnHeaders.get("WhiteElo"));
+        }
+        */
 
-        grid.add(new Label("Result:"), 0,8);
+        // first all text information
+        // then all number inputs
+        grid.add(new Label("White Firstname:"), 0, 0);
+        grid.add(whiteFirstname, 1, 0);
+        grid.add(new Label("White Surname:"), 0, 1);
+        grid.add(whiteSurname, 1, 1);
+
+        grid.add(new Label("Black Firstname:"), 0, 2);
+        grid.add(blackFirstname, 1, 2);
+        grid.add(new Label("Black Surname:"), 0, 3);
+        grid.add(blackSurname, 1, 3);
+
+        grid.add(new Label("Site:"), 0, 4);
+        grid.add(site, 1, 4);
+        grid.add(new Label("Event:"), 0, 5);
+        grid.add(event, 1, 5);
+
+        grid.add(new Label("Round:"), 0, 6);
+        grid.add(round, 1, 6);
+
+        grid.add(new Label("Elo White:"), 0, 7);
+        grid.add(eloWhite, 1, 7);
+
+        grid.add(new Label("Elo Black:"), 0, 8);
+        grid.add(eloBlack, 1, 8);
+
+        grid.add(new Label("Result:"), 0,9);
 
         ToggleGroup radioGroup = new ToggleGroup();
 
@@ -189,6 +244,7 @@ public class DialogEditGameData {
 
     private void btnOkClicked() {
         accepted = true;
+        /*
         pgnHeaders.put("Site", site.getText());
         pgnHeaders.put("Date", date.getText());
         pgnHeaders.put("Round", round.getText());
@@ -209,7 +265,7 @@ public class DialogEditGameData {
         if(rbUndecided.isSelected()) {
             gameResult = CONSTANTS.RES_UNDEF;
         }
-
+        */
         stage.close();
     }
 

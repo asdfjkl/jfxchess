@@ -19,7 +19,7 @@ base: core18
 
 apps:
   jerry:
-    command: usr/bin/jerry-snap
+    command: usr/bin/jfxchess-snap
     plugs:
       - desktop
       - unity7
