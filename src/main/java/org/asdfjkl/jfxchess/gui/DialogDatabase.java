@@ -309,8 +309,8 @@ public class DialogDatabase {
                 gameModel.lastOpenedDirPath = file.getParentFile();
             }
             pgnDatabase.open();
-
         }
+
     }
 
     private void btnSaveClicked() {

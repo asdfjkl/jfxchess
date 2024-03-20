@@ -749,6 +749,7 @@ public class PgnDatabase {
             stage.close();
             if(this.dialogDatabase != null) {
                 dialogDatabase.updateTable();
+                dialogDatabase.table.scrollTo(0);
             }
         });
 
