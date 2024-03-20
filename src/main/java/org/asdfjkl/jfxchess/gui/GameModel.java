@@ -343,7 +343,12 @@ public class GameModel {
         PgnPrinter printer = new PgnPrinter();
         String pgn = printer.printGame(getGame());
         prefs.put("currentGame", pgn);
+    }
 
+    public void savePaths() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.put("lastOpenDir", lastOpenedDirPath.toString());
+        prefs.put("lastSaveDir", lastSaveDirPath.toString());
     }
 
     public void saveBoardStyle() {
@@ -508,6 +513,24 @@ public class GameModel {
     public void restoreTheme() {
         Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
         this.THEME = prefs.getInt("COLOR_THEME", STYLE_DARK);
+    }
+
+    public void restorePaths() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        String lastOpenDir = prefs.get("lastOpenDir", "");
+        String lastSaveDir = prefs.get("lastSaveDir", "");
+        if (!lastOpenDir.isEmpty()) {
+            lastOpenedDirPath = new File(lastOpenDir);
+            if (!lastOpenedDirPath.exists()) {
+                lastOpenedDirPath = null;
+            }
+        }
+        if (!lastSaveDir.isEmpty()) {
+            lastSaveDirPath = new File(lastSaveDir);
+            if (!lastSaveDirPath.exists()) {
+                lastSaveDirPath = null;
+            }
+        }
     }
 
     public void restoreModel() {

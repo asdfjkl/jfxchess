@@ -87,6 +87,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreGameAnalysisThresholds();
         gameModel.restoreNewGameSettings();
         gameModel.restoreTheme();
+        gameModel.restorePaths();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
@@ -952,6 +953,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveNewGameSettings();
         gameModel.saveToolbarVisibility(tbMainWindow.isVisible());
         gameModel.saveTheme();
+        gameModel.savePaths();
 
         engineController.sendCommand("quit");
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();
