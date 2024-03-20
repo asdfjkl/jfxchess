@@ -184,6 +184,7 @@ public class PgnDatabase {
 
                         // if game was modified, always write it out
                         if(entries.get(i).wasModified()) {
+                            System.out.println("the following game was modified: "+i);
                             // first write out everything unmodified up until now
                             long startOffset = entries.get(startIndex).getOffset();
                             long stopOffset = entries.get(i).getOffset();
@@ -382,6 +383,11 @@ public class PgnDatabase {
 
     public void replaceCurrentGame(Game g, int currentDatabaseIndex) {
         entries.get(currentDatabaseIndex).setModifiedGame(g);
+        entries.get(currentDatabaseIndex).markAsModified();
+        System.out.println("saving game: ");
+        PgnPrinter tmp = new PgnPrinter();
+        String tmp_game = tmp.printGame(g);
+        System.out.println(tmp_game);
         saveDatabase();
     }
 

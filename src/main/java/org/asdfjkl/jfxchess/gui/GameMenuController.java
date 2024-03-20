@@ -170,6 +170,7 @@ public class GameMenuController {
                 gameModel.getPgnDatabase().appendToOtherPGN(gameModel);
                 break;
             case DialogSave.DLG_SAVE_REPLACE:
+                System.out.println("dlg replace clicked, idx: "+gameModel.currentPgnDatabaseIdx);
                 gameModel.getPgnDatabase().replaceCurrentGame(gameModel.game, gameModel.currentPgnDatabaseIdx);
                 break;
             default:
