@@ -99,7 +99,7 @@ public class DialogEditGameData {
         eloWhite.setValueFactory(valueFactoryWhiteElo);
         eloWhite.setEditable(true);
         // set initial value
-        eloWhite.getValueFactory().setValue(1900);
+        eloWhite.getValueFactory().setValue(0);
         eloWhite.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryBlackElo =
@@ -107,7 +107,7 @@ public class DialogEditGameData {
         eloBlack.setValueFactory(valueFactoryBlackElo);
         eloBlack.setEditable(true);
         // set initial value
-        eloBlack.getValueFactory().setValue(1900);
+        eloBlack.getValueFactory().setValue(0);
         eloBlack.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryRound =
@@ -115,23 +115,36 @@ public class DialogEditGameData {
         round.setValueFactory(valueFactoryRound);
         round.setEditable(true);
         // set initial value
-        round.getValueFactory().setValue(42);
-        round.setPrefWidth(80);
+        round.getValueFactory().setValue(0);
+        round.setPrefWidth(60);
 
-        /*
+        SpinnerValueFactory<Integer> valueFactoryYear =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 3000, 0);
+        year.setValueFactory(valueFactoryYear);
+        year.setEditable(true);
+        // set initial value
+        year.getValueFactory().setValue(1900);
+        year.setPrefWidth(80);
+
+        SpinnerValueFactory<Integer> valueFactoryDay =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 31, 0);
+        day.setValueFactory(valueFactoryDay);
+        day.setEditable(true);
+        // set initial value
+        day.getValueFactory().setValue(1);
+        day.setPrefWidth(60);
+
+        SpinnerValueFactory<Integer> valueFactoryMonth =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 12, 0);
+        month.setValueFactory(valueFactoryMonth);
+        month.setEditable(true);
+        // set initial value
+        month.getValueFactory().setValue(1);
+        month.setPrefWidth(60);
+
         site.setPromptText("Site");
         if(pgnHeaders.get("Site") != null) {
             site.setText(pgnHeaders.get("Site"));
-        }
-
-        date.setPromptText("Date");
-        if(pgnHeaders.get("Date") != null) {
-            date.setText(pgnHeaders.get("Date"));
-        }
-
-        round.setPromptText("Round");
-        if(pgnHeaders.get("Round") != null) {
-            round.setText(pgnHeaders.get("Round"));
         }
 
         event.setPromptText("Event");
@@ -139,26 +152,110 @@ public class DialogEditGameData {
             event.setText(pgnHeaders.get("Event"));
         }
 
-        white.setPromptText("White");
+        whiteSurname.setPromptText("White Surname");
+        whiteFirstname.setPromptText("White First Name");
         if(pgnHeaders.get("White") != null) {
-            white.setText(pgnHeaders.get("White"));
+            String[] tmpWhiteName = pgnHeaders.get("White").split(",");
+            if(tmpWhiteName.length > 0) {
+                whiteSurname.setText(tmpWhiteName[0].strip());
+            }
+            if(tmpWhiteName.length > 1) {
+                whiteFirstname.setText(tmpWhiteName[1].strip());
+            }
         }
 
-        black.setPromptText("Black");
+        blackSurname.setPromptText("Black Surname");
+        blackFirstname.setPromptText("Black First Name");
         if(pgnHeaders.get("Black") != null) {
-            black.setText(pgnHeaders.get("Black"));
+            String[] tmpBlackName = pgnHeaders.get("Black").split(",");
+            if(tmpBlackName.length > 0) {
+                blackSurname.setText(tmpBlackName[0].strip());
+            }
+            if(tmpBlackName.length > 1) {
+                blackFirstname.setText(tmpBlackName[1].strip());
+            }
+        }
+
+        day.setPromptText("DD");
+        year.setPromptText("YYYY");
+        month.setPromptText("MM");
+        if(pgnHeaders.get("Date") != null) {
+            String[] tmpDate = pgnHeaders.get("Date").split("\\.");
+            if(tmpDate.length > 0 && tmpDate[0].length() == 4) { // hopefully YYYY.MM.DD
+                try {
+                    int iYear = Integer.parseInt(tmpDate[0].strip());
+                    year.getValueFactory().setValue(iYear);
+                } catch(NumberFormatException e) {
+                    year.getValueFactory().setValue(0);
+                }
+                if(tmpDate.length > 1) {
+                    try {
+                        int iMonth = Integer.parseInt(tmpDate[1].strip());
+                        month.getValueFactory().setValue(iMonth);
+                    } catch(NumberFormatException e) {
+                        month.getValueFactory().setValue(0);
+                    }
+                }
+                if(tmpDate.length > 2) {
+                    try {
+                        int iDay = Integer.parseInt(tmpDate[2].strip());
+                        day.getValueFactory().setValue(iDay);
+                    } catch(NumberFormatException e) {
+                        day.getValueFactory().setValue(0);
+                    }
+                }
+            } else if (tmpDate.length > 2 && tmpDate[2].length() == 4) { // probably DD.MM.YYYY
+                try {
+                    int iYear = Integer.parseInt(tmpDate[2].strip());
+                    year.getValueFactory().setValue(iYear);
+                } catch(NumberFormatException e) {
+                    year.getValueFactory().setValue(0);
+                }
+                try {
+                    int iMonth = Integer.parseInt(tmpDate[1].strip());
+                    month.getValueFactory().setValue(iMonth);
+                } catch(NumberFormatException e) {
+                    month.getValueFactory().setValue(0);
+                }
+                try {
+                    int iDay = Integer.parseInt(tmpDate[0].strip());
+                    day.getValueFactory().setValue(iDay);
+                } catch(NumberFormatException e) {
+                    day.getValueFactory().setValue(0);
+                }
+            }
         }
 
         eloWhite.setPromptText("Elo White");
         if(pgnHeaders.get("WhiteElo") != null) {
-            eloWhite.setText(pgnHeaders.get("WhiteElo"));
+            try {
+                int we = Integer.parseInt(pgnHeaders.get("WhiteElo"));
+                eloWhite.getValueFactory().setValue(we);
+            } catch (NumberFormatException e) {
+                eloWhite.getValueFactory().setValue(0);
+            }
         }
 
-        eloWhite.setPromptText("Elo White");
-        if(pgnHeaders.get("WhiteElo") != null) {
-            eloWhite.setText(pgnHeaders.get("WhiteElo"));
+        eloBlack.setPromptText("Elo Black");
+        if(pgnHeaders.get("BlackElo") != null) {
+            try {
+                int we = Integer.parseInt(pgnHeaders.get("BlackElo"));
+                eloBlack.getValueFactory().setValue(we);
+            } catch (NumberFormatException e) {
+                eloBlack.getValueFactory().setValue(0);
+            }
         }
-        */
+
+        round.setPromptText("Round");
+        if(pgnHeaders.get("Round") != null) {
+            try {
+                int iRound = Integer.parseInt(pgnHeaders.get("Round"));
+                round.getValueFactory().setValue(iRound);
+            } catch (NumberFormatException e) {
+                round.getValueFactory().setValue(0);
+            }
+        }
+
 
         // first all text information
         // then all number inputs
@@ -177,16 +274,25 @@ public class DialogEditGameData {
         grid.add(new Label("Event:"), 0, 5);
         grid.add(event, 1, 5);
 
-        grid.add(new Label("Round:"), 0, 6);
-        grid.add(round, 1, 6);
+        grid.add(new Label("Year:"), 0, 6);
+        grid.add(year, 1, 6);
 
-        grid.add(new Label("Elo White:"), 0, 7);
-        grid.add(eloWhite, 1, 7);
+        grid.add(new Label("Month:"), 0, 7);
+        grid.add(month, 1, 7);
 
-        grid.add(new Label("Elo Black:"), 0, 8);
-        grid.add(eloBlack, 1, 8);
+        grid.add(new Label("Day:"), 0, 8);
+        grid.add(day, 1, 8);
 
-        grid.add(new Label("Result:"), 0,9);
+        grid.add(new Label("Round:"), 0, 9);
+        grid.add(round, 1, 9);
+
+        grid.add(new Label("Elo White:"), 0, 10);
+        grid.add(eloWhite, 1, 10);
+
+        grid.add(new Label("Elo Black:"), 0, 11);
+        grid.add(eloBlack, 1, 11);
+
+        grid.add(new Label("Result:"), 0,12);
 
         ToggleGroup radioGroup = new ToggleGroup();
 
