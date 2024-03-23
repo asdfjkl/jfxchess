@@ -51,8 +51,8 @@ public class DialogAppearance {
     final RadioButton rbGreen = new RadioButton("Green");
 
     final Label lblTheme = new Label("Theme");
-    final RadioButton rbThemeLight = new RadioButton("Light (Default)");
-    final RadioButton rbThemeDark = new RadioButton("Dark");
+    final RadioButton rbThemeLight = new RadioButton("Light");
+    final RadioButton rbThemeDark = new RadioButton("Dark (Default)");
 
     int initialColorTheme;
     int selectedColorTheme;

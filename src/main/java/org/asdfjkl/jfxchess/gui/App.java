@@ -818,9 +818,9 @@ public class App extends Application implements StateChangeListener {
 
         itmEnterMoves.setSelected(true);
 
-        Style style = Style.LIGHT;
-        if(gameModel.THEME == gameModel.STYLE_DARK) {
-            style = Style.DARK;
+        Style style = Style.DARK;
+        if(gameModel.THEME == gameModel.STYLE_LIGHT) {
+            style = Style.LIGHT;
         }
         JMetro jMetro = new JMetro(style);
         jMetro.setScene(scene);
