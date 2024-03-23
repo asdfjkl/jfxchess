@@ -350,14 +350,54 @@ public class DialogEditGameData {
 
     private void btnOkClicked() {
         accepted = true;
-        /*
+
         pgnHeaders.put("Site", site.getText());
-        pgnHeaders.put("Date", date.getText());
-        pgnHeaders.put("Round", round.getText());
+        if(round.getValue() >= 0) {
+            pgnHeaders.put("Round", Integer.toString(round.getValue()));
+        }
+
+        if(!whiteSurname.getText().isEmpty() && !whiteFirstname.getText().isEmpty()) {
+            pgnHeaders.put("White", whiteSurname.getText()+", "+whiteFirstname.getText());
+        } else if(!whiteSurname.getText().isEmpty() && whiteFirstname.getText().isEmpty()) {
+            pgnHeaders.put("White", whiteSurname.getText());
+        } else if(whiteSurname.getText().isEmpty() && !whiteFirstname.getText().isEmpty()) {
+            pgnHeaders.put("White", whiteFirstname.getText());
+        }
+
+        if(!blackSurname.getText().isEmpty() && !blackFirstname.getText().isEmpty()) {
+            pgnHeaders.put("Black", blackSurname.getText()+", "+blackFirstname.getText());
+        } else if(!blackSurname.getText().isEmpty() && blackFirstname.getText().isEmpty()) {
+            pgnHeaders.put("Black", blackSurname.getText());
+        } else if(blackSurname.getText().isEmpty() && !blackFirstname.getText().isEmpty()) {
+            pgnHeaders.put("Black", blackFirstname.getText());
+        }
+
+        if(eloWhite.getValue() >= 0) {
+            pgnHeaders.put("WhiteElo", Integer.toString(eloWhite.getValue()));
+        }
+        if(eloBlack.getValue() >= 0) {
+            pgnHeaders.put("BlackElo", Integer.toString(eloBlack.getValue()));
+        }
+
+        String tmpDate = "";
+        if(year.getValue() > 0 && year.getValue() < 3000) {
+            tmpDate += String.format("%04d", year.getValue());
+        } else {
+            tmpDate += "????";
+        }
+        if(month.getValue() > 0 && month.getValue() <= 12) {
+            tmpDate += "." + String.format("%02d", month.getValue());
+        } else {
+            tmpDate += "." + "??";
+        }
+        if(day.getValue() > 0 && day.getValue() <= 31) {
+            tmpDate += "." + String.format("%02d", day.getValue());
+        } else {
+            tmpDate += "." + "??";
+        }
+        pgnHeaders.put("Date", tmpDate);
+
         pgnHeaders.put("Event", event.getText());
-        pgnHeaders.put("White", white.getText());
-        pgnHeaders.put("Black", black.getText());
-        pgnHeaders.put("Eco", eco.getText());
 
         if(rbWhiteWin.isSelected()) {
             gameResult = CONSTANTS.RES_WHITE_WINS;
@@ -371,7 +411,7 @@ public class DialogEditGameData {
         if(rbUndecided.isSelected()) {
             gameResult = CONSTANTS.RES_UNDEF;
         }
-        */
+
         stage.close();
     }
 
