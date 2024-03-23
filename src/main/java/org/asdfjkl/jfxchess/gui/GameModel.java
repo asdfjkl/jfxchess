@@ -115,6 +115,17 @@ public class GameModel {
         engines.add(stockfish);
         activeEngine = stockfish;
 
+        // manually add for internal stockfish up to 4 mpv
+        EngineOption internalMPV = new EngineOption();
+        internalMPV.name = "MultiPV";
+        internalMPV.spinMin = 1;
+        internalMPV.spinMax = 4;
+        internalMPV.spinDefault = 1;
+        internalMPV.spinValue = 1;
+        internalMPV.type = EngineOption.EN_OPT_TYPE_SPIN;
+        activeEngine.options.add(internalMPV);
+
+
         /*
         Engine stockfish_custom = new Engine();
         stockfish_custom.setName("Stockfish");
@@ -349,8 +360,12 @@ public class GameModel {
 
     public void savePaths() {
         prefs = Preferences.userRoot().node(this.getClass().getName());
-        prefs.put("lastOpenDir", lastOpenedDirPath.toString());
-        prefs.put("lastSaveDir", lastSaveDirPath.toString());
+        if(lastOpenedDirPath != null) {
+            prefs.put("lastOpenDir", lastOpenedDirPath.toString());
+        }
+        if(lastSaveDirPath != null) {
+            prefs.put("lastSaveDir", lastSaveDirPath.toString());
+        }
     }
 
     public void saveBoardStyle() {

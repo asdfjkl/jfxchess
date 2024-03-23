@@ -30,6 +30,8 @@ import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
+import java.time.MonthDay;
+import java.time.Year;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,7 +125,7 @@ public class DialogEditGameData {
         year.setValueFactory(valueFactoryYear);
         year.setEditable(true);
         // set initial value
-        year.getValueFactory().setValue(1900);
+        year.getValueFactory().setValue(Year.now().getValue());
         year.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryDay =
@@ -131,7 +133,7 @@ public class DialogEditGameData {
         day.setValueFactory(valueFactoryDay);
         day.setEditable(true);
         // set initial value
-        day.getValueFactory().setValue(1);
+        day.getValueFactory().setValue(MonthDay.now().getDayOfMonth());
         day.setPrefWidth(60);
 
         SpinnerValueFactory<Integer> valueFactoryMonth =
@@ -139,7 +141,7 @@ public class DialogEditGameData {
         month.setValueFactory(valueFactoryMonth);
         month.setEditable(true);
         // set initial value
-        month.getValueFactory().setValue(1);
+        month.getValueFactory().setValue(MonthDay.now().getMonthValue());
         month.setPrefWidth(60);
 
         site.setPromptText("Site");
