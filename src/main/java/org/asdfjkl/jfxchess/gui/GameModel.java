@@ -104,7 +104,7 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
-        String bookPath = getBookPath();
+        // String bookPath = getBookPath();
 
         Engine stockfish = new Engine();
         stockfish.setName("Stockfish (Internal)");
@@ -115,12 +115,14 @@ public class GameModel {
         engines.add(stockfish);
         activeEngine = stockfish;
 
+        /*
         Engine stockfish_custom = new Engine();
         stockfish_custom.setName("Stockfish");
         if(stockfishPath != null) {
             stockfish_custom.setPath(stockfishPath);
         }
         engines.add(stockfish_custom);
+        */
 
         /*
         book = new Polyglot();
@@ -155,7 +157,7 @@ public class GameModel {
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish_16.exe").getPath();
+                    stockfishPath = new File(subEngine, "stockfish.exe").getPath();
                     return stockfishPath;
                 }
         }
