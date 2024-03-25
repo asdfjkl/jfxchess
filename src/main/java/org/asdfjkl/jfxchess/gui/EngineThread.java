@@ -30,7 +30,7 @@ public class EngineThread extends Thread {
 
     static final Pattern REG_MOVES = Pattern.compile("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})");
     static final Pattern REG_BESTMOVE = Pattern.compile("bestmove\\s([a-z]\\d[a-z]\\d[a-z]{0,1})");
-    static final Pattern REG_STRENGTH = Pattern.compile("Skill Level value \\d+");
+    static final Pattern REG_STRENGTH = Pattern.compile("UCI_Elo value \\d+");
 
     private final StringProperty stringProperty;
     private final int counter = 0;
@@ -223,10 +223,19 @@ public class EngineThread extends Thread {
                                     inGoInfinite = true;
                                 }
 
-                                if(cmd.startsWith("setoption name Skill Level")) {
+                                if(cmd.startsWith("setoption name UCI_Elo")) {
                                     Matcher matchExpressionStrength = REG_STRENGTH.matcher(cmd);
                                     if(matchExpressionStrength.find()) {
-                                        engineInfo.strength = Integer.parseInt(matchExpressionStrength.group().substring(18));
+                                        engineInfo.strength = Integer.parseInt(matchExpressionStrength.group().substring(14));
+                                    }
+                                }
+
+                                if(cmd.startsWith(("setoption name UCI_LimitStrength value"))) {
+                                    String isActive = cmd.substring(38).strip();
+                                    if(isActive.equals("true")) {
+                                        engineInfo.limitedStrength = true;
+                                    } else {
+                                        engineInfo.limitedStrength = false;
                                     }
                                 }
 

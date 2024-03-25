@@ -58,6 +58,8 @@ public class EngineInfo {
     int depth = -1;
     boolean flipEval = false;
 
+    boolean limitedStrength = false;
+
     ArrayList<String> pvList;
     final ArrayList<String> pvSan;
     final ArrayList<Integer> score;
@@ -150,9 +152,9 @@ public class EngineInfo {
             Matcher matchPVIdx = MULTIPV.matcher(line);
             if(matchPVIdx.find()) {
                 String sMultiPV = matchPVIdx.group();
-                System.out.println("sMultiPV: "+sMultiPV);
+                // System.out.println("sMultiPV: "+sMultiPV);
                 multiPv = Integer.parseInt(sMultiPV.substring(8)) - 1;
-                System.out.println("parsed int val: "+multiPv);
+                // System.out.println("parsed int val: "+multiPv);
             }
 
             // update score value. need to be careful about
@@ -203,7 +205,7 @@ public class EngineInfo {
             Matcher matchPV = PV.matcher(line);
             if(matchPV.find()) {
                 String sMoves = matchPV.group().substring(3);
-                System.out.println("found moves: "+sMoves);
+                //System.out.println("found moves: "+sMoves);
                 // some engines (i.e. Stockfish 12) provide a deep line like
                 // pv e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 b1c3 f8c5 f3e5 c6e5 d2d4 c5b4 d4e5 f6e4 d1d4 e4c3 b2c3 b4e7 e1g1 e8g8 a4b3
                 // and then afterwards
@@ -215,7 +217,7 @@ public class EngineInfo {
                 if(!pvUci.get(multiPv).startsWith(sMoves)) {
                     //System.out.println(sMoves);
                     pvUci.set(multiPv, sMoves);
-                    System.out.println("setting "+multiPv+":"+sMoves);
+                    // System.out.println("setting "+multiPv+":"+sMoves);
                     pvList = new ArrayList<>(Arrays.asList(sMoves.split(" +")));
                     updateSan(multiPv);
                 }
@@ -240,13 +242,13 @@ public class EngineInfo {
                 whiteMoves = false;
                 pvSan.set(multiPvIndex, pvSan.get(multiPvIndex) + moveNo + ". ...");
             }
-            System.out.println("update san: "+multiPvIndex);
+            //System.out.println("update san: "+multiPvIndex);
                 for (String moveUci : pvList) {
-                    System.out.println("update san uci: "+moveUci);
+                    //System.out.println("update san uci: "+moveUci);
                     try {
                         Move mi = new Move(moveUci);
                         String san = b.san(mi);
-                        System.out.println("update san san: "+san);
+                        //System.out.println("update san san: "+san);
                         if (whiteMoves) {
                             pvSan.set(multiPvIndex, pvSan.get(multiPvIndex) + " " + moveNo + ". " + san);
                         } else {
@@ -270,13 +272,9 @@ public class EngineInfo {
         outStr.append("|");
 
         if(!id.isEmpty()) {
-            if(strength >= 0) {
+            if(limitedStrength) {
                 outStr.append(id);
-                if(id.contains("Stockfish") && strength == 20) {
-                    outStr.append(" (Level MAX)");
-                } else {
-                    outStr.append(" (Level ").append(strength).append(")");
-                }
+                outStr.append(" (Elo ").append(strength).append(")");
             } else {
                 outStr.append(id);
             }
@@ -301,13 +299,14 @@ public class EngineInfo {
 
         outStr.append("|");
 
+        /*
         for(int i=0;i<pvSan.size();i++) {
             System.out.println("toString pv San "+i+": "+pvSan.get(i));
-        }
+        }*/
 
         for(int i=0;i<GameModel.MAX_PV;i++) {
             if(i<nrPvLines) {
-                System.out.println("toString san ("+i+"):"+pvSan.get(i));
+                // System.out.println("toString san ("+i+"):"+pvSan.get(i));
                 if(seesMate.get(i)) {
                     int nrMates = mate.get(i);
                     // if it is black's turn, we need to invert

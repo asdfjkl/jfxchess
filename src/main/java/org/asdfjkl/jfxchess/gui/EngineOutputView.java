@@ -119,7 +119,7 @@ public class EngineOutputView implements StateChangeListener {
 
     public void setText(String info) {
 
-        System.out.println(info);
+        //System.out.println(info);
 
         if(isEnabled) {
 

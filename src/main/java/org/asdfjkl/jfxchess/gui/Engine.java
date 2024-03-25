@@ -133,7 +133,9 @@ public class Engine {
     }
 
     public int getMaxMultiPV() {
+        System.out.println("get max mpv");
         for (EngineOption option : options) {
+            System.out.println("opt name: "+option.name);
             if (option.name.equals("MultiPV")) {
                 return option.spinMax;
             }
@@ -174,6 +176,7 @@ public class Engine {
     public void setElo(int elo) {
         for (EngineOption option : options) {
             if (option.name.equals("UCI_Elo")) {
+                System.out.println("setting option spin value to elo: "+elo);
                 option.spinValue = elo;
             }
         }

@@ -169,12 +169,13 @@ public class ModeMenuController implements StateChangeListener {
         for(EngineOption enOpt : gameModel.activeEngine.options) {
             if(enOpt.isNotDefault()) {
                 engineController.sendCommand(enOpt.toUciCommand());
+                System.out.println("sending to engine: "+enOpt.toUciCommand());
             }
         }
-        if(gameModel.activeEngine.isInternal()) {
+        //if(gameModel.activeEngine.isInternal()) {
             //System.out.println("setoption name Skill Level value "+gameModel.getEngineStrength());
-            engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
-        }
+        //    engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
+        //}
         // trigger statechange
         gameModel.setMode(GameModel.MODE_PLAY_WHITE);
         gameModel.setFlipBoard(false);

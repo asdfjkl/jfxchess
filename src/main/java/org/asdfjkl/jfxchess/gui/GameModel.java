@@ -123,8 +123,24 @@ public class GameModel {
         internalMPV.spinDefault = 1;
         internalMPV.spinValue = 1;
         internalMPV.type = EngineOption.EN_OPT_TYPE_SPIN;
-        activeEngine.options.add(internalMPV);
 
+        EngineOption internalElo = new EngineOption();
+        internalElo.name = "UCI_Elo";
+        internalElo.spinMin = 1320;
+        internalElo.spinMax = 3190;
+        internalElo.spinDefault = 3190;
+        internalElo.spinValue = 3190;
+        internalElo.type = EngineOption.EN_OPT_TYPE_SPIN;
+
+        EngineOption internalLimitStrength = new EngineOption();
+        internalLimitStrength.name = "UCI_LimitStrength";
+        internalLimitStrength.type = EngineOption.EN_OPT_TYPE_CHECK;
+        internalLimitStrength.checkStatusDefault = false;
+        internalLimitStrength.checkStatusValue = false;
+
+        activeEngine.options.add(internalElo);
+        activeEngine.options.add(internalMPV);
+        activeEngine.options.add(internalLimitStrength);
 
         /*
         Engine stockfish_custom = new Engine();
@@ -324,9 +340,14 @@ public class GameModel {
     }
 
     public void setMultiPv(int multiPv) {
+        System.out.println("Received Request set MPV: "+multiPv);
         if(multiPv >= 1 && multiPv <= activeEngine.getMaxMultiPV() && multiPv <= MAX_PV) {
             this.multiPv = multiPv;
             this.multiPvChanged = true;
+        } else {
+            System.out.println("couldnt handle: ");
+            System.out.println("max mpv: " + activeEngine.getMaxMultiPV());
+            System.out.println("MAX_PV: "+MAX_PV);
         }
     }
 
