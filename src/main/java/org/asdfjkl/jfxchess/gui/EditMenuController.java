@@ -40,7 +40,6 @@ public class EditMenuController {
     public void copyPosition() {
 
         String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
-        System.out.println("fen string: "+fen);
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.putString(fen);

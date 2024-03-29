@@ -82,7 +82,6 @@ public class DialogSave {
         });
         btnReplace.setOnAction(e -> {
             result = DLG_SAVE_REPLACE;
-            System.out.println("btn replace clicked");
             stage.close();
         });
         btnCancel.setOnAction(e -> {

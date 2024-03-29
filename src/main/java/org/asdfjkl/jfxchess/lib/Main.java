@@ -69,7 +69,6 @@ public class Main {
                             System.out.println(printer.printGame(g));
                             System.out.println("\n");
                         }
-                        //printer.writeGame(g, "outtest.pgn");
                         raf.close();
                     } catch (IOException e) {
                         System.out.println("error reading: " + filename);

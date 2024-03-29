@@ -45,7 +45,7 @@ public class DialogAbout {
         txtJerry.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
         Text txtCopyright = new Text("Version 4.3.0\n" +
-                "Copyright © 2014-2023\n" +
+                "Copyright © 2014-2024\n" +
                 "Dominik Klein\n" +
                 "and contributors\n" +
                 "licensed under GNU GPL 2");

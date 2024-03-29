@@ -69,10 +69,6 @@ public class GameMenuController {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         fileChooser.setTitle("Open PGN File");
-        System.out.println("gmc: lastOpenDirPath!=0"+(gameModel.lastOpenedDirPath != null));
-        if(gameModel.lastOpenedDirPath != null) {
-            System.out.println("gmc: lastOpenDirPath.exists" + (gameModel.lastOpenedDirPath.exists()));
-        }
         if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
             fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
         }
@@ -83,8 +79,6 @@ public class GameMenuController {
         if (file != null) {
             if(file.getParentFile() != null) {
                 gameModel.lastOpenedDirPath = file.getParentFile();
-                System.out.println("game menu open: lastOpenDir Path set:");
-                System.out.println(gameModel.lastOpenedDirPath);
             }
             // for files >= 20 kb, always open in db window
             if((file.length() / 1024) < 20) {
@@ -164,7 +158,6 @@ public class GameMenuController {
         int result = dlg.show(gameModel.THEME,
                 gameModel.currentPgnDatabaseIdx >= 0,
                 gameModel.getPgnDatabase().filename);
-        System.out.println("result of dlg: "+result);
         switch(result) {
             case DialogSave.DLG_SAVE_NEW:
                 gameModel.getPgnDatabase().saveAsNewPGN(gameModel);
@@ -176,7 +169,6 @@ public class GameMenuController {
                 gameModel.getPgnDatabase().appendToOtherPGN(gameModel);
                 break;
             case DialogSave.DLG_SAVE_REPLACE:
-                System.out.println("dlg replace clicked, idx: "+gameModel.currentPgnDatabaseIdx);
                 gameModel.getPgnDatabase().replaceCurrentGame(gameModel.game, gameModel.currentPgnDatabaseIdx);
                 break;
             default:

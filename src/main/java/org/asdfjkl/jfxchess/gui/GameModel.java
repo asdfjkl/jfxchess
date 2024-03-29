@@ -174,7 +174,6 @@ public class GameModel {
     private String getStockfishPath() {
 
             String os = System.getProperty("os.name").toLowerCase();
-            //System.out.println(os);
             if(os.contains("win")) {
 
                 String stockfishPath = "";
@@ -192,15 +191,11 @@ public class GameModel {
                 String stockfishPath = "";
                 String jarPath = "";
                 String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                //System.out.println(path);
                 jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                //System.out.println(jarPath);
                 File tmp = (new File(jarPath));
                 if(tmp.getParentFile().exists()) {
-                    //System.out.println(tmp.getParentFile().getAbsolutePath());
                     if(tmp.getParentFile().getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
-                    //System.out.println(subEngine.getPath());
                     stockfishPath = new File(subEngine, "stockfish_x64").getPath();
                     return stockfishPath;
                     }
@@ -340,14 +335,9 @@ public class GameModel {
     }
 
     public void setMultiPv(int multiPv) {
-        System.out.println("Received Request set MPV: "+multiPv);
         if(multiPv >= 1 && multiPv <= activeEngine.getMaxMultiPV() && multiPv <= MAX_PV) {
             this.multiPv = multiPv;
             this.multiPvChanged = true;
-        } else {
-            System.out.println("couldnt handle: ");
-            System.out.println("max mpv: " + activeEngine.getMaxMultiPV());
-            System.out.println("MAX_PV: "+MAX_PV);
         }
     }
 

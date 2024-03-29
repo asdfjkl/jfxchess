@@ -65,10 +65,6 @@ public class BarchartWDL extends GridPane {
             lblLoss.setText("");
         }
 
-        int sum = entry.getWins() + entry.getLosses()+ entry.getDraws();
-        //System.out.println(entry.getMove() + " check 100: " + entry.getWins() + "/" + entry.getDraws() + "/" + entry.getLosses()+"/"+sum);
-
-
         colConsWins.setPercentWidth(entry.getWins());
         colConsDraws.setPercentWidth(entry.getDraws());
         colConsloss.setPercentWidth(entry.getLosses());

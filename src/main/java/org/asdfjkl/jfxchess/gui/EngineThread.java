@@ -87,7 +87,6 @@ public class EngineThread extends Thread {
                             readyok = true;
                         } else {
                             if (!line.isEmpty()) {
-                                //System.out.println(line);
                                 //lastString = line;
                                 // todo: instead of directly setting bestmove,
                                 // try updating engine info
@@ -100,12 +99,10 @@ public class EngineThread extends Thread {
                                             +"|"+engineInfo.mate.get(0)
                                             +"|"+engineInfo.zobrist;
                                 } else {
-                                    //System.out.println("thread: "+line);
                                     engineInfo.update(line);
                                 }
                             }
                         }
-                        //stringProperty.set(line);
                         linesRead++;
                     }
                 } catch (IOException e) {
@@ -115,7 +112,6 @@ public class EngineThread extends Thread {
             long currentMs = System.currentTimeMillis();
             if((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
-                //System.out.println("thread info: "+engineInfo.toString());
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,
@@ -252,7 +248,6 @@ public class EngineThread extends Thread {
                                 try {
                                     this.engineInput.write(cmd + "\n");
                                     this.engineInput.flush();
-                                    //System.out.println(cmd+"\n");
                                     // if we quit the engine, give some
                                     // time for the engine to quit
                                     if(cmd.contains("quit")) {

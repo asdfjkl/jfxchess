@@ -464,20 +464,6 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
-        /*
-        cmbMultiPV.setOnAction(actionEvent -> {
-            int multiPv = cmbMultiPV.getValue();
-            if(multiPv != gameModel.getMultiPv()) {
-                gameModel.setMultiPv(multiPv);
-                System.out.println("multi pv request received");
-                System.out.println("setoption name MultiPV value " + gameModel.getMultiPv());
-                if(gameModel.activeEngine.supportsMultiPV()) {
-                    engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
-                }
-                gameModel.triggerStateChange();
-            }
-        });
-         */
 
         btnAddEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
@@ -893,18 +879,6 @@ public class App extends Application implements StateChangeListener {
             tglEngineOnOff.setText("On");
         }
 
-        /*
-         temp: check book output
-         */
-
-        /*
-        Board b = gameModel.getGame().getCurrentNode().getBoard();
-        ArrayList<PolyglotExtEntry> entries = gameModel.largeBook.findEntries(b);
-        System.out.println("Zobrist   Move   UCI    PosCount    wWin    draw     bWin    AvgElo");
-        for(PolyglotExtEntry e : entries) {
-            System.out.println(e);
-        }*/
-
     }
 
 
@@ -916,7 +890,6 @@ public class App extends Application implements StateChangeListener {
 
         moveBuffer += s;
         if(moveBuffer.length() == 4) {
-            //System.out.println("move4: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (!board.isLegalAndPromotes(move)) {
@@ -928,7 +901,6 @@ public class App extends Application implements StateChangeListener {
             }
         }
         if(moveBuffer.length() == 5) {
-            //System.out.println("move5: "+moveBuffer);
             Move move = new Move(moveBuffer);
             Board board = gameModel.getGame().getCurrentNode().getBoard();
             if (board.isLegal(move)) {
@@ -1021,51 +993,5 @@ public class App extends Application implements StateChangeListener {
             modeMenuController.activateGameAnalysisMode();
         }
     }
-
-    /*
-    private void FooTest() {
-
-        ArrayList<PgnDatabaseEntry> entries = new ArrayList<>();
-        for(int i=0;i<7;i++) {
-            PgnDatabaseEntry entry = new PgnDatabaseEntry();
-            if(i==6 || i==5 || i==2 || i==1) {
-                entry.markAsModified();
-            }
-            entries.add(entry);
-        }
-
-        ArrayList<Pair<Long, Long>> nonModifiedRanges = new ArrayList<>();
-
-        long start = 0;
-        long stop = 0;
-        boolean hasSeenModified = true;
-        for(int i=0;i< entries.size();i++) {
-            if(entries.get(i).wasModified()) {
-                if(!hasSeenModified) {
-                    stop = i;
-                    nonModifiedRanges.add(new Pair<Long,Long>(start,stop));
-                    hasSeenModified = true;
-                }
-            } else {
-                if(hasSeenModified) {
-                    start = i;
-                    hasSeenModified = false;
-                }
-                if(i == entries.size() -1 && !hasSeenModified) {
-                    nonModifiedRanges.add(new Pair<Long,Long>(start,(long) entries.size()-1));
-                }
-            }
-        }
-
-        // replace entries size with file size?!
-        //nonModifiedRanges.add(new Pair(start, entries.size()-1));
-
-        for(Pair<Long,Long> pair : nonModifiedRanges) {
-            System.out.println(pair.getKey() + ","+pair.getValue());
-        }
-
-    }
-
-     */
 
 }

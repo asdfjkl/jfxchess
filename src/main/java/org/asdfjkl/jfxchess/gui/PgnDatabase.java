@@ -96,7 +96,6 @@ public class PgnDatabase {
         try {
             raf = new OptimizedRandomAccessFile(filename, "r");
             if(index < entries.size()) {
-                System.out.println(entries.get(index).getOffset());
                 raf.seek(entries.get(index).getOffset());
                 g = reader.readGame(raf);
             }
@@ -184,7 +183,6 @@ public class PgnDatabase {
 
                         // if game was modified, always write it out
                         if(entries.get(i).wasModified()) {
-                            System.out.println("the following game was modified: "+i);
                             // first write out everything unmodified up until now
                             long startOffset = entries.get(startIndex).getOffset();
                             long stopOffset = entries.get(i).getOffset();
@@ -204,7 +202,6 @@ public class PgnDatabase {
                                 }
                             }
                             // write the modified game
-                            //System.out.println("writing modified game");
                             Game g = entries.get(i).getModifiedGame();
                             if(g!=null) {
                                 String sGame = pgnPrinter.printGame(g);
@@ -215,12 +212,10 @@ public class PgnDatabase {
                         } else {
                             // if it wasn't modified, just collect
                             // only exception: we encountered the last game
-                            //System.out.println("just continuing");
                             if(i>0 && entries.get(i-1).wasModified()) {
                                 startIndex = i;
                             }
                             if(i == entries.size()-1) {
-                                //System.out.println("extra case for last game");
                                 rafReader.seek(entries.get(startIndex).getOffset());
                                 while(rafReader.getFilePointer() < fileSize) {
                                     String line = rafReader.readLine();
@@ -229,7 +224,6 @@ public class PgnDatabase {
                                         linesWritten = 1;
                                         updateProgress(rafReader.getFilePointer(), fileSize);
                                     }
-                                    //System.out.println("write non-mod, for last case: "+line);
                                     if(line == null) {
                                         break;
                                     } else {
@@ -384,10 +378,8 @@ public class PgnDatabase {
     public void replaceCurrentGame(Game g, int currentDatabaseIndex) {
         entries.get(currentDatabaseIndex).setModifiedGame(g);
         entries.get(currentDatabaseIndex).markAsModified();
-        System.out.println("saving game: ");
         PgnPrinter tmp = new PgnPrinter();
         String tmp_game = tmp.printGame(g);
-        System.out.println(tmp_game);
         saveDatabase();
     }
 
@@ -460,7 +452,6 @@ public class PgnDatabase {
         Task<Void> task = new Task<>() {
             @Override protected Void call() throws Exception {
 
-                System.out.println("task startup...");
                 OptimizedRandomAccessFile rafReader = null;
                 OptimizedRandomAccessFile rafWriter = null;
                 BufferedWriter writer = null;
@@ -479,22 +470,13 @@ public class PgnDatabase {
                     writer = new BufferedWriter(new FileWriter(tmpFilename));
 
                     long startOffset = entries.get(0).getOffset();
-                    //System.out.println("got start offset");
                     long stopOffset = entries.get(index).getOffset();
-                    //System.out.println("got stop offset");
                     long afterStartOffset = -1;
-                    //System.out.println("entries.size() "+entries.size());
-                    //System.out.println("index: "+(index));
                     if(entries.size() > (index+1)) {
-                        //System.out.println("entries size > index+1");
                         afterStartOffset = entries.get(index+1).getOffset();
-                        System.out.println("setting after delete offset");
                     }
-                    //System.out.println("seeking...");
                     rafReader.seek(startOffset);
-                    //System.out.println("seeking finished");
                     while(rafReader.getFilePointer() < stopOffset) {
-                        //System.out.println("in < stopOffset");
                           String line = rafReader.readLine();
                           linesWritten += 1;
                           if(linesWritten % 20000 == 0) {
@@ -509,7 +491,6 @@ public class PgnDatabase {
                           }
                     }
                     if(afterStartOffset > 0) {
-                        //System.out.println("processing after start offset");
                         rafReader.seek(afterStartOffset);
                         while(rafReader.getFilePointer() < fileSize) {
                             String line = rafReader.readLine();
@@ -518,7 +499,6 @@ public class PgnDatabase {
                                 linesWritten = 1;
                                 updateProgress(rafReader.getFilePointer(), fileSize);
                             }
-                            //System.out.println("write non-mod, for last case: "+line);
                             if(line == null) {
                                 break;
                             } else {

@@ -96,7 +96,6 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         // initial position is the longest text. other buttons follow
         final Text tmpTxt = new Text("Initial Position ");
         double btnWidth = tmpTxt.getLayoutBounds().getWidth();
-        //System.out.println(btnWidth);
 
         btnInitialPosition.setMinWidth(140);
         btnFlipBoard.setMinWidth(140);

@@ -48,8 +48,6 @@ public class DialogGameAnalysis {
 
     public boolean show(int currSecs, double currThreshold, int colorTheme) {
 
-        //System.out.println(currSecs + " " + currThreshold);
-
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
 

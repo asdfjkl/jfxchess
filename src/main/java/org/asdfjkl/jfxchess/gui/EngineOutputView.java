@@ -119,15 +119,11 @@ public class EngineOutputView implements StateChangeListener {
 
     public void setText(String info) {
 
-        //System.out.println(info);
-
         if(isEnabled) {
 
             //pv1.setText(info);
             // | id (Level MAX) | zobrist  |  nps | current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
             String[] infos = info.split("\\|");
-
-            // System.out.println(("pv infos received: "+(infos.length - 5)));
 
             if (infos.length > 1 && !infos[1].isEmpty()) {
                 engineId.setText(infos[1]);
@@ -141,14 +137,11 @@ public class EngineOutputView implements StateChangeListener {
 
             if(infos.length > 5 && !infos[5].isEmpty()) {
                 pvLines.get(0).setText(infos[5]);
-                //System.out.println("INFO PV 1: "+infos[5]);
             }
 
             for(int i=6;i<infos.length;i++) {
-                //System.out.println("PV LINES COUNT: "+pvLines.size());
                 if(pvLines.size() > i-5) {
                     if(!infos[i].isEmpty()) {
-                        //System.out.println("INFO PV "+(i-5)+": "+infos[i]);
                         pvLines.get(i-5).setText(infos[i]);
                     } else {
                         pvLines.get(i-5).setText("");
@@ -162,8 +155,6 @@ public class EngineOutputView implements StateChangeListener {
     @Override
     public void stateChange() {
 
-        System.out.println("Engine Output View: StateChange");
-        System.out.println("no of pvs in gamestate "+gameModel.getMultiPv());
         if(gameModel.wasMultiPvChanged()) {
             // remove all old widgets
             int cntChildren = txtEngineOut.getChildren().size();

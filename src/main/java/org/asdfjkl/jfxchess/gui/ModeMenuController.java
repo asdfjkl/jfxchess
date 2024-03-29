@@ -44,7 +44,6 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
-        //System.out.println(s);
         if(s.startsWith("INFO")) {
             //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
             String[] sSplit = s.split("\\|");
@@ -126,7 +125,6 @@ public class ModeMenuController implements StateChangeListener {
                 String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
                 engineController.sendCommand("stop");
                 engineController.sendCommand("position fen " + fen);
-                //System.out.println("go movetime "  + (gameModel.getGameAnalysisThinkTimeSecs() * 1000));
                 engineController.sendCommand("go movetime " + (gameModel.getGameAnalysisThinkTimeSecs() * 1000));
             }
         } else {
@@ -169,13 +167,8 @@ public class ModeMenuController implements StateChangeListener {
         for(EngineOption enOpt : gameModel.activeEngine.options) {
             if(enOpt.isNotDefault()) {
                 engineController.sendCommand(enOpt.toUciCommand());
-                System.out.println("sending to engine: "+enOpt.toUciCommand());
             }
         }
-        //if(gameModel.activeEngine.isInternal()) {
-            //System.out.println("setoption name Skill Level value "+gameModel.getEngineStrength());
-        //    engineController.sendCommand("setoption name Skill Level value "+gameModel.getEngineStrength());
-        //}
         // trigger statechange
         gameModel.setMode(GameModel.MODE_PLAY_WHITE);
         gameModel.setFlipBoard(false);
@@ -307,21 +300,6 @@ public class ModeMenuController implements StateChangeListener {
             engineController.sendCommand("position fen "+fen);
             engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
         }
-
-        /*
-        if(gameModel.extBook.inBook(zobrist)) {
-            System.out.println("in book");
-            ArrayList<PolyglotExtEntry> moves = gameModel.extBook.findEntries(zobrist);
-            int idx = (int) (Math.random() * moves.size());
-            String uciMove = moves.get(idx).getMove();
-            handleBestMove("BESTMOVE|"+uciMove+"|"+zobrist);
-        } else {
-            System.out.println("not in book");
-            String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
-            engineController.sendCommand("stop");
-            engineController.sendCommand("position fen "+fen);
-            engineController.sendCommand("go movetime "+(gameModel.getComputerThinkTimeSecs()*1000));
-        } */
     }
 
     public void handleStateChangePlayoutPosition() {

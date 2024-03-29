@@ -104,11 +104,6 @@ public class BookView implements StateChangeListener {
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     PolyglotExtEntry rowData = row.getItem();
                     handleMoveSelection(rowData.getMove());
-                    /*
-                    System.out.println("got double click");
-                    System.out.println(rowData.getMove());
-                    System.out.println(rowData);
-                     */
                 }
             });
             return row ;
@@ -129,16 +124,9 @@ public class BookView implements StateChangeListener {
 
     @Override
     public void stateChange() {
-        //System.out.println("bookview: state change received");
-
         entries.clear();
         Board currentBoard = gameModel.getGame().getCurrentNode().getBoard();
         ArrayList<PolyglotExtEntry> currentEntries = gameModel.extBook.findEntries(currentBoard);
-        /*
-        for(PolyglotExtEntry e : currentEntries) {
-            //entries.add(e);
-            System.out.println(e);
-        }*/
         entries.setAll(currentEntries);
     }
 }

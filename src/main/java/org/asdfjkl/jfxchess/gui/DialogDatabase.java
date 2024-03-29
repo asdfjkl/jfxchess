@@ -307,8 +307,6 @@ public class DialogDatabase {
             pgnDatabase.filename = file.getAbsolutePath();
             if (file.getParentFile() != null) {
                 gameModel.lastOpenedDirPath = file.getParentFile();
-                System.out.println("set last open dir path");
-                System.out.println(gameModel.lastOpenedDirPath);
             }
             pgnDatabase.open();
         }

@@ -17,7 +17,6 @@ public class Util {
             filename += c;
         }
 
-        System.out.println(filename + ".tmp");
         return filename + ".tmp";
     }
 
