@@ -403,15 +403,19 @@ public class DialogEditGameData {
 
         if(rbWhiteWin.isSelected()) {
             gameResult = CONSTANTS.RES_WHITE_WINS;
+            pgnHeaders.put("Result", "1-0");
         }
         if(rbBlackWin.isSelected()) {
             gameResult = CONSTANTS.RES_BLACK_WINS;
+            pgnHeaders.put("Result", "0-1");
         }
         if(rbDraw.isSelected()) {
             gameResult = CONSTANTS.RES_DRAW;
+            pgnHeaders.put("Result", "1/2-1/2");
         }
         if(rbUndecided.isSelected()) {
             gameResult = CONSTANTS.RES_UNDEF;
+            pgnHeaders.put("Result", "*");
         }
 
         stage.close();
