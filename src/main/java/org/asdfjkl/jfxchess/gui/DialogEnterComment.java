@@ -43,6 +43,7 @@ public class DialogEnterComment {
 
         textArea = new TextArea();
         textArea.setText(currentComment);
+        textArea.setWrapText(true);
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
