@@ -48,6 +48,9 @@ public class DialogEnterPosition implements EnterPosBoardListener {
     final CheckBox cbCastlesBK = new CheckBox("Black O-O");
     final CheckBox cbCastlesBQ = new CheckBox("Black O-O-O");
 
+    final Label lblEnPassant = new Label("En Passant Square");
+    ComboBox<String> cboxEnPassant;
+
     final Label lblTurn = new Label("Turn");
     final RadioButton rbTurnWhite = new RadioButton("White");
     final RadioButton rbTurnBlack = new RadioButton("Black");
@@ -72,6 +75,12 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
 
+        cboxEnPassant = new ComboBox<String>();
+        cboxEnPassant.getItems().addAll("-",
+                "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+                "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6");
+        cboxEnPassant.setValue(enterPosBoard.getEnPassantSquare());
+
         ToggleGroup groupTurn = new ToggleGroup();
         rbTurnWhite.setToggleGroup(groupTurn);
         rbTurnBlack.setToggleGroup(groupTurn);
@@ -93,6 +102,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         Region spacer3 = new Region();
+        Region spacer4 = new Region();
         // initial position is the longest text. other buttons follow
         final Text tmpTxt = new Text("Initial Position ");
         double btnWidth = tmpTxt.getLayoutBounds().getWidth();
@@ -105,10 +115,12 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         vbButtonsRight.getChildren().addAll(lblCastlingRights,
                 cbCastlesWK, cbCastlesWQ, cbCastlesBK, cbCastlesBQ,
                 spacer1,
-                lblTurn, rbTurnWhite, rbTurnBlack,
+                lblEnPassant, cboxEnPassant,
                 spacer2,
-                btnFlipBoard,
+                lblTurn, rbTurnWhite, rbTurnBlack,
                 spacer3,
+                btnFlipBoard,
+                spacer4,
                 btnInitialPosition, btnClearBoard, btnCurrentPosition);
         vbButtonsRight.setSpacing(10);
         vbButtonsRight.setPadding( new Insets(10,30,10,30));
@@ -163,6 +175,13 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         cbCastlesBQ.setOnAction(e -> {
             enterPosBoard.setCastleBQueen(cbCastlesBQ.isSelected());
             enterPosBoard.updateCanvas();
+            btnOk.setDisable(!(enterPosBoard.isConsistent()));
+        });
+
+        cboxEnPassant.setOnAction(e -> {
+            String epSquare = cboxEnPassant.getValue();
+            enterPosBoard.setEnPassantSquare(epSquare);
+            System.out.println(epSquare);
             btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 

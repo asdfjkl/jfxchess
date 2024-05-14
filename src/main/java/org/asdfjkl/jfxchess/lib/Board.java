@@ -158,6 +158,55 @@ public class Board {
         }
     }
 
+    /*
+    this function has no input checks, squareAlgebraic must
+    be one of "-" or "a3", ... "h6". Validate input
+    before calling!
+     */
+    public void setEnPassantSquare(String squareAlgebraic) {
+        if (squareAlgebraic.equals("-")) {
+            this.enPassentTarget = 0;
+        } else {
+            int row = 10 + Character.getNumericValue(squareAlgebraic.charAt(1)) * 10;
+            int col = 0;
+            char c = Character.toLowerCase(squareAlgebraic.charAt(0));
+            if(c == 'a') {
+                col = 1;
+            }
+            if(c == 'b') {
+                col = 2;
+            }
+            if(c == 'c') {
+                col = 3;
+            }
+            if(c == 'd') {
+                col = 4;
+            }
+            if(c == 'e') {
+                col = 5;
+            }
+            if(c == 'f') {
+                col = 6;
+            }
+            if(c == 'g') {
+                col = 7;
+            }
+            if(c == 'h') {
+                col = 8;
+            }
+            this.enPassentTarget = row + col;
+
+        }
+    }
+
+    public String getEnPassantSquare() {
+        if(this.enPassentTarget != 0) {
+            return this.internalIdxToString(this.enPassentTarget);
+        } else {
+            return "-";
+        }
+    }
+
     public Board(String fen) {
 
         this.board = new int[120];
@@ -290,6 +339,8 @@ public class Board {
             }
         }
         // set en passant square
+        this.setEnPassantSquare(fenParts[3]);
+        /*
         if(fenParts[3].equals("-")) {
             this.enPassentTarget = 0;
         } else {
@@ -322,6 +373,7 @@ public class Board {
             }
             this.enPassentTarget = row + col;
         }
+         */
         if(fenParts.length >= 5) {
             this.halfmoveClock = Integer.parseInt(fenParts[4]);
         } else {

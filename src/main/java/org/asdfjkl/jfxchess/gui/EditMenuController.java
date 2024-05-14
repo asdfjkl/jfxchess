@@ -61,7 +61,7 @@ public class EditMenuController {
 
         Board board = gameModel.getGame().getCurrentNode().getBoard();
         DialogEnterPosition dlg = new DialogEnterPosition();
-        double width = dialogHeight * 1.6;
+        double width = dialogHeight * 1.8;
         //double width = dialogHeight * 1.7;
         boolean accepted = dlg.show(board, style, width, dialogHeight, gameModel.THEME);
         if(accepted) {

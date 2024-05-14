@@ -601,6 +601,17 @@ public class EnterPosBoard extends Canvas {
                 
     }
 
+    /*
+     expect parameter of type "-", "a3", "b3", ... "g6", "h6"
+     */
+    public void setEnPassantSquare(String epSquare) {
+        board.setEnPassantSquare(epSquare);
+    }
+
+    public String getEnPassantSquare() {
+        return board.getEnPassantSquare();
+    }
+
     public void setTurn(boolean b) {
         board.turn = b;
     }
