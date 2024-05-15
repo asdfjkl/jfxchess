@@ -1983,12 +1983,32 @@ public class Board {
         if(this.canCastleBlackQueen() && this.isBlackQueenCastleLost()) {
             return false;
         }
+        // make sure that the en passant square that is specified
+        // is actually possible; i.e. if e.g. square is set to e3 then
+        // a) it must be black to move and b) there is a white pawn on e4
+        if(this.enPassentTarget != 0) {
+            if (this.enPassentTarget < 49) {
+                // a white pawn was just moved, i.e.
+                // a white pawn must stand above (offset +10) the epSquare,
+                // and it must be black's turn
+                System.out.println(this.getPieceAt(this.enPassentTarget + 10));
+                return (this.getPieceAt(this.enPassentTarget + 10) == CONSTANTS.WHITE_PAWN)
+                        && this.turn == CONSTANTS.BLACK;
+            } else {
+                // a black pawn was just move, i.e.
+                // a black pawn must stand below (offset -10) the epSquare,
+                // and it must be white's turn
+                return (this.getPieceAt(this.enPassentTarget - 10) == CONSTANTS.BLACK_PAWN)
+                        && this.turn == CONSTANTS.WHITE;
+            }
+        }
         return true;
     }
 
     public boolean isBlackKingCastleLost() {
         if(this.board[CONSTANTS.E8] == CONSTANTS.BLACK_KING &&
-        this.board[CONSTANTS.H8] == CONSTANTS.BLACK_ROOK) {
+            this.board[CONSTANTS.H8] == CONSTANTS.BLACK_ROOK)
+        {
             return false;
         }
         return true;
