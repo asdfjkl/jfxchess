@@ -88,11 +88,6 @@ public class GameMenuController {
                 }
                 if(indices.size() == 1) {
                     Game g = null;
-                    if(reader.isIsoLatin1(file.getAbsolutePath())) {
-                        reader.setEncodingIsoLatin1();
-                    } else {
-                        reader.setEncodingUTF8();
-                    }
                     OptimizedRandomAccessFile raf = null;
                     try {
                         raf = new OptimizedRandomAccessFile(file.getAbsolutePath(), "r");

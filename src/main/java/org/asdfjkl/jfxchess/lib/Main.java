@@ -55,7 +55,7 @@ public class Main {
                 }
 
                 PgnReader reader = new PgnReader();
-                reader.setEncodingIsoLatin1();
+                //reader.setEncodingIsoLatin1();
                 PgnPrinter printer = new PgnPrinter();
                 ArrayList<Long> offsets = reader.scanPgn(filename);
 

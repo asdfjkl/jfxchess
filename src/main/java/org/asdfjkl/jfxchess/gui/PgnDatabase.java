@@ -85,12 +85,6 @@ public class PgnDatabase {
 
     public Game loadGame(int index) {
 
-        if(reader.isIsoLatin1(filename)) {
-            reader.setEncodingIsoLatin1();
-        } else {
-            reader.setEncodingUTF8();
-        }
-
         OptimizedRandomAccessFile raf = null;
         Game g = new Game();
         try {
@@ -587,12 +581,6 @@ public class PgnDatabase {
         stage.setScene(scene);
         stage.show();
 
-        if(reader.isIsoLatin1(filename)) {
-            reader.setEncodingIsoLatin1();
-        } else {
-            reader.setEncodingUTF8();
-        }
-
         final String tmpFilename = this.filename;
 
         entries.clear();
@@ -647,7 +635,7 @@ public class PgnDatabase {
                                     String tag = currentLine.substring(1, spaceOffset);
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), reader.getEncoding());
+                                        String valueEncoded = new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);
                                             current.markValid();

@@ -88,6 +88,8 @@ public class GameModel {
 
     public boolean openDatabaseOnNextDialog = false;
 
+    private String bookPathFile;
+
     private SearchPattern searchPattern;
     BoardStyle boardStyle;
 
@@ -399,6 +401,13 @@ public class GameModel {
             prefs.put("ENGINE"+i, engineString);
         }
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+    }
+
+    public void saveBookPath() {
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        if(!bookPathFile.isEmpty()) {
+            prefs.put("bookPathFile", bookPathFile);
+        }
     }
 
     public void saveGameAnalysisThresholds() {

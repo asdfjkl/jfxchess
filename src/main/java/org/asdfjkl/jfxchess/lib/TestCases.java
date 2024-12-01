@@ -323,9 +323,10 @@ public class TestCases {
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(millbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -369,9 +370,10 @@ public class TestCases {
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(millbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<PgnDatabaseEntry> entries = reader.scanPgnGetSTR(millbase);
@@ -416,9 +418,10 @@ public class TestCases {
         String kingbase = "C:/Users/user/MyFiles/workspace/millbase_prev_last.pgn";
         OptimizedRandomAccessFile raf = null;
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(kingbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
         PgnPrinter printer = new PgnPrinter();
         try {
             raf = new OptimizedRandomAccessFile(kingbase, "r");
@@ -438,9 +441,10 @@ public class TestCases {
 
         OptimizedRandomAccessFile raf = null;
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(middleg)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
         ArrayList<Long> offsets = reader.scanPgn(middleg);
 
         PgnPrinter printer = new PgnPrinter();
@@ -465,9 +469,10 @@ public class TestCases {
         System.out.println("TEST: reading all games from millionbase-2.22.pgn");
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(millbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -517,9 +522,10 @@ public class TestCases {
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(millbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -630,9 +636,10 @@ public class TestCases {
         String kingbase = "C:/Users/user/MyFiles/workspace/test_databases/KingBaseLite2016-03-E60-E99.pgn";
         OptimizedRandomAccessFile raf = null;
         PgnReader reader = new PgnReader();
+        /*
         if(reader.isIsoLatin1(kingbase)) {
             reader.setEncodingIsoLatin1();
-        }
+        }*/
         PgnPrinter printer = new PgnPrinter();
         try {
             raf = new OptimizedRandomAccessFile(kingbase, "r");

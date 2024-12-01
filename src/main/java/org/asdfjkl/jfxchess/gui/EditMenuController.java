@@ -24,6 +24,9 @@ import org.asdfjkl.jfxchess.lib.Board;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
 import org.asdfjkl.jfxchess.lib.PgnReader;
+
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class EditMenuController {

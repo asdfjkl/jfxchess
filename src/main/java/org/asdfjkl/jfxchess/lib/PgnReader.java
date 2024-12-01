@@ -18,8 +18,6 @@
 
 package org.asdfjkl.jfxchess.lib;
 
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 import org.asdfjkl.jfxchess.gui.PgnDatabaseEntry;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,105 +35,8 @@ public class PgnReader {
 
     public PgnReader() {
         gameStack = new Stack<>();
-         this.encoding = "UTF-8";
-    }
-
-    public void setEncodingUTF8() {
         this.encoding = "UTF-8";
     }
-
-    public void setEncodingIsoLatin1() {
-        this.encoding = "ISO-8859-1";
-    }
-
-    public String getEncoding() { return encoding; }
-
-    public boolean isIsoLatin1(String filename) {
-
-        boolean isLatin1 = false;
-        OptimizedRandomAccessFile raf = null;
-        ArrayList<Byte> bytesRead = new ArrayList<>();
-        String line = "";
-        try {
-            raf = new OptimizedRandomAccessFile(filename, "r");
-            CharsetDetector detector = new CharsetDetector();
-            // read the first line, and from
-            // the first 10000 lines read all tags and comments
-            int i=0;
-            while((line = raf.readLine()) != null && i < 1000) {
-                if(i == 0 || (line.contains("[") || line.contains("{") || line.contains("}"))) {
-                    byte[] lineBytes = line.getBytes(StandardCharsets.ISO_8859_1);
-                    for (int j = 0; j < lineBytes.length; j++) {
-                        bytesRead.add(lineBytes[j]);
-                    }
-                }
-                i++;
-            }
-            byte[] primBytesRead = new byte[bytesRead.size()];
-            for(i = 0; i < bytesRead.size(); i++) {
-                primBytesRead[i] = bytesRead.get(i).byteValue();
-            }
-            detector.setText(primBytesRead);
-            CharsetMatch match = detector.detect();
-            String encoding = match.getName();
-            if(encoding.equals("ISO-8859-1")) {
-                isLatin1 = true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return isLatin1;
-    }
-
-
-    /*
-    bool PgnReader::isUtf8(const QString &filename) {
-        // very simple way to detect the majority of encodings:
-        // first try ISO 8859-1
-        // open the file and read a max of 100 first bytes
-        // if conversion to unicode works, try some more bytes (at most 40 * 100)
-        // if conversion errors occur, we simply assume UTF-8
-        //const char* iso = "ISO 8859-1";
-        //const char* utf8 = "UTF-8";
-        QFile file(filename);
-        if(!file.open(QFile::ReadOnly)) {
-            return true;
-        }
-        QDataStream in(&file);
-        // init some char array to read bytes
-        char first100arr[100];
-        for(int i=0;i<100;i++) {
-            first100arr[i] = 0x00;
-        }
-        char *first100 = first100arr;
-        // prep conversion tools
-        QTextCodec::ConverterState state;
-        QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-
-        int iterations = 40;
-        int i=0;
-        int l = 100;
-        bool isUtf8 = true;
-        while(i<iterations && l>=100) {
-            l = in.readRawData(first100, 100);
-        const QString text = codec->toUnicode(first100, 100, &state);
-            if (state.invalidChars > 0) {
-                isUtf8 = false;
-                break;
-            }
-            i++;
-        }
-        return isUtf8;
-    }
-    */
 
     ArrayList<PgnDatabaseEntry> scanPgnGetSTR(String filename) {
 
@@ -1102,7 +1003,7 @@ public class PgnReader {
                                 startingFen = value;
                             } else {
                                 try {
-                                    g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
+                                    g.setHeader(tag, new String(value.getBytes(StandardCharsets.UTF_8), encoding));
                                 } catch(UnsupportedEncodingException e) {
                                     e.printStackTrace();
                                 }
@@ -1152,7 +1053,7 @@ public class PgnReader {
 
         boolean firstLine = true;
 
-        try {
+        try  {
             while (true) {
                 // if we are at the first line after skipping
                 // all the empty ones, don't read another line
@@ -1256,7 +1157,7 @@ public class PgnReader {
                         int end = rest_of_line.indexOf("}");
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end+1);
-                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
+                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.UTF_8), encoding));
                             currentIdx = currentIdx + end + 1;
                         } else {
                             // get comment over multiple lines
@@ -1291,17 +1192,14 @@ public class PgnReader {
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
                             }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), encoding));
+                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.UTF_8), encoding));
                         }
                     }
                 }
-
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return g;
     }
 
