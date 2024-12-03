@@ -15,10 +15,10 @@ description: |
   * easy and intuitive GUI
 confinement: strict
 grade: stable
-base: core18
+base: core22
 
 apps:
-  jerry:
+  jfxchess:
     command: usr/bin/jfxchess-snap
     plugs:
       - desktop
@@ -26,7 +26,7 @@ apps:
       - home
       - cups-control
       - removable-media
-    extensions: [gnome-3-28]
+    extensions: [gnome]
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
       JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"
@@ -38,7 +38,7 @@ parts:
     maven-options: ["clean", "compile", "assembly:single"]
     source-type: git
     build-packages:
-      - openjdk-11-jdk
+      [openjdk-11-jdk, maven]
     stage-packages:
       - openjdk-11-jdk
     organize:
