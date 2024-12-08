@@ -15,7 +15,7 @@ description: |
   * easy and intuitive GUI
 confinement: strict
 grade: stable
-base: core18
+base: core20
 
 apps:
   jerry:

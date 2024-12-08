@@ -10,7 +10,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{392327C7-54CE-4790-B3A7-C337972BAAAF}
+AppId={{A74653C6-B15F-4EF8-B954-E7D4E17D7A81}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -18,7 +18,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\JFXChess
+DefaultDirName={autopf}\jfxchess
 DisableProgramGroupPage=yes
 LicenseFile=D:\MyFiles\workspace\IdeaProjects\jfxchess\LICENSE.TXT
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
