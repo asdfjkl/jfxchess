@@ -27,6 +27,7 @@ apps:
     command: usr/bin/jfxchess-snap
     plugs:
       - desktop
+      - x11
       - unity7
       - home
       - cups-control
@@ -43,9 +44,9 @@ parts:
     maven-parameters: ["clean", "compile", "assembly:single"]
     source-type: git
     build-packages:
-      [maven,openjdk-11-jdk]
+      [maven,openjdk-21-jdk]
     stage-packages:
-      - openjdk-11-jdk
+      - openjdk-21-jdk
 
 
  starter:
