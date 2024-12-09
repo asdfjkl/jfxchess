@@ -15,7 +15,7 @@ description: |
   * easy and intuitive GUI
 confinement: strict
 grade: stable
-base: core20
+base: core22
 
 lint:
   ignore:
