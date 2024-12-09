@@ -16,6 +16,9 @@ description: |
 confinement: strict
 grade: stable
 base: core22
+architectures:
+  - build-on: [amd64]
+    build-for: [amd64]
 
 lint:
   ignore:
@@ -43,7 +46,7 @@ parts:
     maven-parameters: ["clean", "compile", "assembly:single"]
     source-type: git
     build-packages:
-      [openjdk-11-jdk, maven]
+      [maven,openjdk-11-jdk]
     stage-packages:
       - openjdk-11-jdk
 
