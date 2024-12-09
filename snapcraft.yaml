@@ -16,9 +16,6 @@ description: |
 confinement: strict
 grade: stable
 base: core20
-architectures:
-  - build-on: [amd64]
-    build-for: [amd64]
 
 lint:
   ignore:
