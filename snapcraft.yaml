@@ -37,7 +37,7 @@ apps:
     extensions: [gnome]
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
-      JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"
+      JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"      
 
 parts:
  jfxchess:
@@ -49,6 +49,8 @@ parts:
       [maven,openjdk-11-jdk]
     stage-packages:
       - openjdk-11-jdk
+    organize:
+      ${SNAPCRAFT_PART_BUILD}/jerry-snap: usr/bin/jerry-snap      
 
  book:
    plugin: dump
