@@ -50,7 +50,7 @@ parts:
     stage-packages:
       - openjdk-11-jdk
     organize:
-      ${SNAPCRAFT_PART_BUILD}/jerry-snap: usr/bin/jfxchess-snap      
+      ${SNAPCRAFT_PART_BUILD}/jfxchess-snap: usr/bin/jfxchess-snap      
 
  book:
    plugin: dump
