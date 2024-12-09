@@ -47,7 +47,7 @@ parts:
     stage-packages:
       - openjdk-11-jdk
     organize:
-      snap/local/jfxchess-snap: usr/bin/jfxchess-snap      
+      snap/local/jfxchess-snap: ${CRAFT_PRIME}/prime/usr/bin/jfxchess-snap      
 
  book:
    plugin: dump
