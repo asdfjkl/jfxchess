@@ -15,7 +15,12 @@ description: |
   * easy and intuitive GUI
 confinement: strict
 grade: stable
-base: core18
+base: core22
+
+lint:
+  ignore:
+    - library:
+      - usr/lib/jvm/java-*/lib/*.so
 
 apps:
   jfxchess:
@@ -35,14 +40,12 @@ parts:
  jfxchess:
     plugin: maven
     source: https://github.com/asdfjkl/jfxchess.git
-    maven-options: ["clean", "compile", "assembly:single"]
+    maven-parameters: ["clean", "compile", "assembly:single"]
     source-type: git
     build-packages:
       [openjdk-11-jdk, maven]
     stage-packages:
       - openjdk-11-jdk
-    organize:
-      ${SNAPCRAFT_PART_BUILD}/jfxchess-snap: usr/bin/jfxchess-snap
 
  book:
    plugin: dump
