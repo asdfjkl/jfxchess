@@ -24,7 +24,7 @@ lint:
 
 apps:
   jfxchess:
-    command: bin/jfxchess-snap
+    command: usr/bin/jfxchess-snap
     plugs:
       - desktop
       - unity7
@@ -47,7 +47,7 @@ parts:
     stage-packages:
       - openjdk-11-jdk
     organize:
-      jfxchess-snap: bin/jfxchess-snap      
+      jfxchess-snap: usr/bin/jfxchess-snap      
 
  book:
    plugin: dump
