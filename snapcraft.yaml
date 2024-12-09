@@ -46,8 +46,13 @@ parts:
       [maven,openjdk-11-jdk]
     stage-packages:
       - openjdk-11-jdk
-    organize:
-      jfxchess-snap: usr/bin/jfxchess-snap      
+
+
+ starter:
+  plugin: dump
+  source: .
+  organize:
+    jfxchess-snap: usr/bin/jfxchess-snap      
 
  book:
    plugin: dump
