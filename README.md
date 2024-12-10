@@ -24,14 +24,14 @@ JFXChess is a cross-platform chess graphical user interface.
 Current Version: 4.3.0
 
 * Windows
-  - Exe [Installer](https://github.com/asdfjkl/jerry/releases/tag/v4.2.1)
+  - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
-  - install from [Snapstore](https://snapcraft.io/jerry) 
-  - or install [manually](https://github.com/asdfjkl/jerry/releases/tag/v4.2.1)
+  - install from [Snapstore](https://snapcraft.io/jfxchess) 
+  - or install [manually](https://github.com/asdfjkl/jfxchess/releases)
 
 ## Blog
 
-Once in a while I blog about the development of JFXChess at my blog ["Building Jerry"](https://buildingjerry.wordpress.com).
+Once in a while I blog about the development of JFXChess at my [blog](https://buildingjerry.wordpress.com).
 
 ## Changelog
 
@@ -103,7 +103,7 @@ You can support the development of JFXChess by donating via PayPal.
  
  ## Roadmap
  
-Current plans for future versions:
+various ideas for future versions:
 
 - [DONE] opening book support
 - [DONE] replace Stockfish skill level with UciLimitStrength (any engine)
