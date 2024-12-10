@@ -1,2 +1,2 @@
-# https://asdfjkl.github.io/jerry/
-This repository contains the homepage of the [Jerry-Das Schachprogramm](https://asdfjkl.github.io/jerry/)
+# https://asdfjkl.github.io/jfxchess/
+This repository contains the homepage of the [JFXChess](https://asdfjkl.github.io/jfxchess)
