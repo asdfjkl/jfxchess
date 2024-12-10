@@ -1,5 +1,3 @@
-[![jerry](https://snapcraft.io/jerry/badge.svg)](https://snapcraft.io/jerry)
-
 # JFXChess - JavaFX Chess GUI
 
 ![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/jfxchess.png)
