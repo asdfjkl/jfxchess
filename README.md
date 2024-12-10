@@ -21,7 +21,7 @@ JFXChess is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.2.1
+Current Version: 4.3.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jerry/releases/tag/v4.2.1)
@@ -35,8 +35,23 @@ Once in a while I blog about the development of JFXChess at my blog ["Building J
 
 ## Changelog
 
-Version 4.3.0
- * coming soon...
+Version 4.3.0 (December 2024)
+ * improved drag'n'drop pieces to setup a new position
+ * finer-grained centipawn threshold when analysing games
+ * new opening book based on lichess master games
+ * packaged stockfish 17
+ * multipv up to 64 lines (for custom engines; for packaged engine 4 lines)
+ * reworked the dialog to enter game information to prevent accidently entering wrong date formats
+ * added ability to setup up header tags for White and Black's Elo
+ * ability to setup en passant square when entering a new position
+ * better word wrapping when entering text comments
+ * when opening a PGN, always scroll to entry 0
+ * better support for PGN files in UTF-8; removed support for legacy iso-latin-1 encodings
+ * moved linux snap to core22
+ * fixed a bug where pasting pgn or fen via clipboard did not work
+ * fixed a bug where replacing (overwriting) a game in a PGN did not work
+ * fixed a bug where the last save and open directory path where not remembered
+ * fixed a bug where the game result was not stored in PGN despite being set in game information dialog
 
 Version 4.2.1 (July 2022)
  * drag and drop when setting up a position (thx @TTorel)
