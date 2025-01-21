@@ -1,0 +1,12 @@
+#!/bin/sh
+mvn clean compile assembly:single
+mkdir ~/jfx_deb
+mkdir ~/jfx_deb/book
+mkdir ~/jfx_deb/engine
+mkdir ~/jfx_deb/jar
+mkdir ~/jfx_deb/splash
+cp ~/build/jfxchess/book/extbook.bin ~/jfx_deb/book
+cp ~/build/jfxchess/engine/stockfish_x64 ~/jfx_deb/engine
+cp ./target/jfxchess-4.3-jar-with-dependencies.jar ~/jfx_deb/jar
+cp splash.png ~/jfx_deb/splash
+jpackage --input ~/jfx_deb --name JFXChess --main-jar ~/jfx_deb/jar/jfxchess-4.3-jar-with-dependencies.jar --type deb --linux-menu-group games --linux-shortcut --icon ./src/main/resources/icons/app_icon\@3x.png --resource-dir ./linux_desktop_entry --java-options '-splash:$APPDIR/splash/splash.png' --license-file ./LICENSE.TXT --about-url https://github.com/asdfjkl/jfxchess --linux-app-release 4.3
