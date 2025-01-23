@@ -24,6 +24,9 @@ import java.nio.channels.FileLock;
 
 public class Main {
     public static void main(String[] args) {
+        // System.setProperty("prism.lcdtext", "false");
+        // System.setProperty("prism.subpixeltext", "false");
+
         String dir = System.getProperty("user.home");
         File fDir = new File(dir);
         File file = new File(fDir, "x43890423_jry.lock");

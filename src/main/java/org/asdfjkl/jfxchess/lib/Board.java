@@ -1648,9 +1648,10 @@ public class Board {
             }
             // handle a capture, i.e. if destination field
             // is not empty
-            // in case of an en-passent capture, the destiation field
+            // in case of an en-passant capture, the destination field
             // is empty. But then the destination field is the e.p. square
-            if(this.board[m.to] != CONSTANTS.EMPTY || m.to == this.enPassentTarget) {
+            if(this.board[m.to] != CONSTANTS.EMPTY ||
+                    (m.to == this.enPassentTarget  && pieceType == CONSTANTS.PAWN)) {
                 if(pieceType == CONSTANTS.PAWN) {
                     san.append((char) (thisCol + 96));
                 }
