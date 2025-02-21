@@ -176,17 +176,21 @@ public class GameNode {
     }
 
     public void addNag(int n) {
+        int maUpperLimit = CONSTANTS.MOVE_ANNOTATION_UPPER_LIMIT;
+        int paLowerLimit = CONSTANTS.POSITION_ANNOTATION_LOWER_LIMIT;
+        int paUpperLimit = CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT;    
         if(!nags.contains(n)) {
             // if move annotation, first remove
             // old move annotation
-            if(n > 0 && n < 11) {
-                removeNagsInRange(1,10);
+            if(n > 0 && n <= maUpperLimit) {
+                removeNagsInRange(1,maUpperLimit);
             }
             // same for position annotation
-            if(n > 12 && n < 20) {
-                removeNagsInRange(12,20);
+            if(n >= paLowerLimit && n <= paUpperLimit) {
+                removeNagsInRange(paLowerLimit,paUpperLimit);
             }
             this.nags.add(n);
+            sortNags();
         }
     }
 
@@ -212,7 +216,7 @@ public class GameNode {
         this.nags = filteredNags;
     }
 
-    public void sortNags() {
+    private void sortNags() {
         Collections.sort(this.nags);
     }
 
