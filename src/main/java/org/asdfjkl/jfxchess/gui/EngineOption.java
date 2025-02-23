@@ -26,6 +26,7 @@ public class EngineOption {
     public static final int EN_OPT_TYPE_CHECK = 1;
     public static final int EN_OPT_TYPE_COMBO = 2;
     public static final int EN_OPT_TYPE_STRING = 3;
+    public static final int EN_OPT_TYPE_BUTTON = 4;
     //static final Pattern REG_EXP_OPTION_NAME = Pattern.compile("option name (.*?) type");
 
     public int type = -1;
@@ -79,7 +80,7 @@ public class EngineOption {
     }
 
     public boolean isNotDefault() {
-        if(type == EN_OPT_TYPE_CHECK) {
+        if(type == EN_OPT_TYPE_CHECK || type == EN_OPT_TYPE_BUTTON) {
             return (checkStatusDefault != checkStatusValue);
         }
 
@@ -99,27 +100,24 @@ public class EngineOption {
     }
 
     public String toUciCommand() {
-
-        if(type == EN_OPT_TYPE_CHECK) {
-            if(checkStatusValue) {
-                return "setoption name " + name + " value true";
-            } else {
-                return "setoption name " + name + " value false";
-            }
+        switch (type) {
+            case EN_OPT_TYPE_CHECK:
+                if (checkStatusValue) {
+                    return "setoption name " + name + " value true";
+                } else {
+                    return "setoption name " + name + " value false";
+                }
+            case EN_OPT_TYPE_BUTTON:
+                return "setoption name " + name;
+            case EN_OPT_TYPE_COMBO:
+                return "setoption name " + name + " value " + comboValue;
+            case EN_OPT_TYPE_SPIN:
+                return "setoption name " + name + " value " + spinValue;
+            case EN_OPT_TYPE_STRING:
+                return "setoption name " + name + " value " + stringValue;
+            default:
+                return "";
         }
-
-        if(type == EN_OPT_TYPE_COMBO) {
-            return "setoption name "+name+" value "+comboValue;
-        }
-
-        if(type == EN_OPT_TYPE_SPIN) {
-            return "setoption name "+name+" value "+spinValue;
-        }
-
-        if(type == EN_OPT_TYPE_STRING) {
-            return "setoption name "+name+" value "+stringValue;
-        }
-        return "";
     }
 
     private String getName(String optionString) {
@@ -143,12 +141,34 @@ public class EngineOption {
     public boolean parseUciOptionString(String optionString) {
 
         if(optionString.startsWith("option name")) {
+            
+            // First read the name
+            name = getName(optionString);
+            
+            // Now that we are ready with the name, we cut
+            // away everything before the word "type", so
+            // the words in the name don't mess up the rest
+            // of the parsing.
+            
+            // There is one engine called Gaviota, that had "default" inside 
+            // the option-name as well as in the "value-part". That engine
+            // couldn't be loaded by jfxchess. We got NumberFormatException
+            // on the "type"-word after the first "default".            
+            
+            if (!optionString.contains("type")) {
+                return false;
+            }
+            
+            String optionString2ndPart = new String(
+                      optionString.substring(
+                      optionString.indexOf("type"),
+                      optionString.length()));
 
-            if (optionString.contains("type spin")) {
+            // Split the rest of the string in words and numbers
+            String[] opts = optionString2ndPart.split(" ");
+
+            if (optionString2ndPart.contains("type spin")) {
                 type = EN_OPT_TYPE_SPIN;
-                name = getName(optionString);
-
-                String[] opts = optionString.split(" ");
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         spinDefault = Integer.parseInt(opts[i + 1]);
@@ -163,11 +183,9 @@ public class EngineOption {
                 }
             }
 
-            if (optionString.contains("type check")) {
+            if (optionString2ndPart.contains("type check")) {
                 type = EN_OPT_TYPE_CHECK;
-                name = getName(optionString);
-
-                if (optionString.contains("default true")) {
+                if (optionString2ndPart.contains("default true")) {
                     checkStatusDefault = true;
                     checkStatusValue = true;
                 } else {
@@ -176,10 +194,14 @@ public class EngineOption {
                 }
             }
 
-            if (optionString.contains("type string")) {
+            if (optionString2ndPart.contains("type button")) {
+                type = EN_OPT_TYPE_BUTTON;
+                checkStatusDefault = false;
+                checkStatusValue = false;
+            }
+            
+            if (optionString2ndPart.contains("type string")) {
                 type = EN_OPT_TYPE_STRING;
-                name = getName(optionString);
-                String[] opts = optionString.split(" ");
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         stringDefault = opts[i + 1];
@@ -188,10 +210,8 @@ public class EngineOption {
                 }
             }
 
-            if (optionString.contains("type combo")) {
+            if (optionString2ndPart.contains("type combo")) {
                 type = EN_OPT_TYPE_STRING;
-                name = getName(optionString);
-                String[] opts = optionString.split(" ");
                 for (int i = 0; i < opts.length; i++) {
                     if (opts[i].equals("default") && i + 1 < opts.length) {
                         comboDefault = opts[i + 1];
@@ -203,7 +223,7 @@ public class EngineOption {
                     }
                 }
             }
-
+            
             if (!name.isEmpty() && type >= 0) {
                 return true;
             } else {
@@ -215,28 +235,24 @@ public class EngineOption {
     }
 
     public String toUciOptionString() {
-
-        if(type == EN_OPT_TYPE_SPIN) {
-            return "option name "+name+" type spin default "+spinDefault+" min "+spinMin+" max "+spinMax;
+        switch (type) {
+            case EN_OPT_TYPE_CHECK:
+                return "option name " + name + " type check default " + checkStatusDefault;
+            case EN_OPT_TYPE_BUTTON:
+                return "option name " + name + " type button ";
+            case EN_OPT_TYPE_COMBO:
+                String s = "option name " + name + " type combo default " + comboDefault;
+                for (String optionVar : comboValues) {
+                    s += " var " + optionVar;
+                }
+                return s;
+            case EN_OPT_TYPE_SPIN:
+                return "option name " + name + " type spin default " + spinDefault + " min " + spinMin + " max " + spinMax;
+            case EN_OPT_TYPE_STRING:
+                return "option name " + name + " type string default " + stringValue;
+            default:
+                return "";
         }
-
-        if(type == EN_OPT_TYPE_CHECK) {
-            return "option name "+name+" type check default "+checkStatusDefault;
-        }
-
-        if(type == EN_OPT_TYPE_STRING) {
-            return "option name "+name+" type string default "+stringValue;
-        }
-
-        if(type == EN_OPT_TYPE_COMBO) {
-            String s = "option name "+name+" type combo default "+comboDefault;
-            for(String optionVar : comboValues) {
-                s += " var "+optionVar;
-            }
-            return s;
-        }
-
-        return "";
     }
 
 
