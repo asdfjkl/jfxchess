@@ -24,7 +24,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.asdfjkl.jfxchess.lib.Board;
 import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
-
+import org.asdfjkl.jfxchess.lib.CONSTANTS;
 import java.util.ArrayList;
 
 public class EngineOutputView implements StateChangeListener {
@@ -51,7 +51,7 @@ public class EngineOutputView implements StateChangeListener {
 
         this.gameModel = gameModel;
 
-        this.engineId = new Text("Stockfish (internal)");
+        this.engineId = new Text(CONSTANTS.INTERNAL_ENGINE_NAME);
         this.depth = new Text("");
         this.nps = new Text("");
         Text pvLine = new Text("");

@@ -95,15 +95,15 @@ public class DialogEngines {
                     btnEditParameters.setDisable(true);
                     btnResetParameters.setDisable(true);
                     btnRemove.setDisable(true);
-                } else if(selectedIndex == 1) {
-                    btnEditParameters.setDisable(false);
-                    btnResetParameters.setDisable(false);
-                    btnRemove.setDisable(true);
-                } else
-                {
+                } else {
                     btnEditParameters.setDisable(false);
                     btnResetParameters.setDisable(false);
                     btnRemove.setDisable(false);
+                }
+                if (engineList.size() >= GameModel.MAX_N_ENGINES) {
+                    btnAdd.setDisable(true);
+                } else {
+                    btnAdd.setDisable(false);
                 }
             }
         });
@@ -208,11 +208,6 @@ public class DialogEngines {
         engineList.remove(selectedEngine);
         // Don't know how the size could have got bigger
         // when we removed an engine, but...
-        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
-            btnAdd.setDisable(true);
-        } else {
-            btnAdd.setDisable(false);
-        }
     }
 
     private void btnResetParametersClicked() {
@@ -332,6 +327,7 @@ public class DialogEngines {
 
                 if(engine.getName() != null && !engine.getName().isEmpty()) {
                     engineList.add(engine);
+                    engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {
                         @Override
@@ -346,12 +342,6 @@ public class DialogEngines {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
-            btnAdd.setDisable(true);
-        } else {
-            btnAdd.setDisable(false);
         }
     }
 

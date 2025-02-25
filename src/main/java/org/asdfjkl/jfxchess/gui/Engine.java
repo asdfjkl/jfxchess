@@ -19,8 +19,10 @@
 package org.asdfjkl.jfxchess.gui;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
-public class Engine {
+public class Engine implements Comparator<Engine>{
 
     private String name = "";
     private String path = "";
@@ -202,4 +204,15 @@ public class Engine {
             }
         }
     }
-}
+
+    @Override
+    public int compare(Engine o1, Engine o2) {
+        if (o1.name.equals(CONSTANTS.INTERNAL_ENGINE_NAME)) {
+            return -1;
+        }
+        if (o2.name.equals(CONSTANTS.INTERNAL_ENGINE_NAME)) {
+            return 1;
+        }
+        return o1.name.compareTo(o2.name);
+    }
+ }
