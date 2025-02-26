@@ -41,6 +41,7 @@ import jfxtras.styles.jmetro.Style;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import jfxtras.styles.jmetro.FlatAlert;
 
 import static org.asdfjkl.jfxchess.gui.EngineOption.*;
 
@@ -95,21 +96,22 @@ public class DialogEngines {
                     btnEditParameters.setDisable(true);
                     btnResetParameters.setDisable(true);
                     btnRemove.setDisable(true);
-                } else if(selectedIndex == 1) {
-                    btnEditParameters.setDisable(false);
-                    btnResetParameters.setDisable(false);
-                    btnRemove.setDisable(true);
-                } else
-                {
+                } else {
                     btnEditParameters.setDisable(false);
                     btnResetParameters.setDisable(false);
                     btnRemove.setDisable(false);
+                }
+                if (engineList.size() >= GameModel.MAX_N_ENGINES) {
+                    btnAdd.setDisable(true);
+                } else {
+                    btnAdd.setDisable(false);
                 }
             }
         });
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Chessengines:");
 
         btnOk = new Button();
         btnOk.setText("OK");
@@ -120,7 +122,8 @@ public class DialogEngines {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+	// Got a "warning:static method should be called in a static way" here.
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
@@ -134,17 +137,17 @@ public class DialogEngines {
         vbButtonsRight.getChildren().addAll(btnAdd, btnRemove,
                 spacer1,
                 btnEditParameters, btnResetParameters);
-        vbButtonsRight.setVgrow(spacer1, Priority.ALWAYS);
+        VBox.setVgrow(spacer1, Priority.ALWAYS);
         vbButtonsRight.setSpacing(10);
         vbButtonsRight.setPadding( new Insets(0,0,0,10));
 
         HBox hbMain = new HBox();
         hbMain.getChildren().addAll(engineListView, vbButtonsRight);
-        hbMain.setHgrow(engineListView, Priority.ALWAYS);
+        HBox.setHgrow(engineListView, Priority.ALWAYS);
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(hbMain, hbButtons);
-        vbMain.setVgrow(hbMain, Priority.ALWAYS);
+        VBox.setVgrow(hbMain, Priority.ALWAYS);
         vbMain.setSpacing(10);
         vbMain.setPadding( new Insets(10));
 
@@ -208,11 +211,6 @@ public class DialogEngines {
         engineList.remove(selectedEngine);
         // Don't know how the size could have got bigger
         // when we removed an engine, but...
-        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
-            btnAdd.setDisable(true);
-        } else {
-            btnAdd.setDisable(false);
-        }
     }
 
     private void btnResetParametersClicked() {
@@ -265,22 +263,33 @@ public class DialogEngines {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            try {
-                String line;
 
-                //System.err.println("file != null, starting engine");
+        // This first try-catch block will catch any exception thrown        
+        // inside and present it as part of a user alert.
+        try {
+            String line;
 
-                Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
-                //OutputStream stdout = engineProcess.getOutputStream ();
-                //InputStream stderr = engineProcess.getErrorStream ();
-                //InputStream stdin = engineProcess.getInputStream ();
+            Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
 
-                BufferedReader bri = new BufferedReader (new InputStreamReader(engineProcess.getInputStream()));
-                BufferedWriter bro = new BufferedWriter (new OutputStreamWriter(engineProcess.getOutputStream()));
-                BufferedReader bre = new BufferedReader (new InputStreamReader(engineProcess.getErrorStream()));
+            if (!engineProcess.isAlive()) {
+                throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath());
+            }
 
-                for(int i=0;i<20;i++) {
+            // This is a try-with-resources block (without a catch block).
+            // When the execution leaves this block,normally or because of
+            // an exception, bre.close(), bri.close() and bro.close() will 
+            // be called automatically, in that order.
+            // I noticed that bro.close() unexpectedly also kills the 
+            // engineprocess in some way. So we don't have to do that
+            // separately. Possible exceptions during close() will be 
+            // suppressed. (Previously the engineprocess would stay alive
+            // if it had been started right and an exception abrupted the
+            // code-flow.) 
+            try ( BufferedWriter bro = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
+                  BufferedReader bri = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
+                  BufferedReader bre = new BufferedReader(new InputStreamReader(engineProcess.getErrorStream()))) {
+
+                for (int i = 0; i < 20; i++) {
                     try {
                         Thread.sleep(40);
                     } catch (InterruptedException e) {
@@ -288,10 +297,18 @@ public class DialogEngines {
                     }
                 }
 
-                bro.write("uci\n");
-                bro.flush();
+                // Send "uci" to the engine.
+                try {
+                    bro.write("uci\n");
+                    bro.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Failed to send UCI-commands to the engine process. "
+                            + file.getAbsolutePath()
+                            + e.getClass() + ": " + e.getMessage());
+                }
 
-                for(int i=0;i<20;i++) {
+                for (int i = 0; i < 20; i++) {
                     try {
                         Thread.sleep(40);
                     } catch (InterruptedException e) {
@@ -302,36 +319,66 @@ public class DialogEngines {
                 Engine engine = new Engine();
                 engine.setPath(file.getAbsolutePath());
 
-                while(bri.ready()) {
-                    EngineOption engineOption = new EngineOption();
-                    line = bri.readLine();
-                    //System.err.println("option: " + line);
-                    if(line.startsWith("id name")) {
-                        engine.setName(line.substring(7).trim());
+                // Read all the engine options.
+                try {
+                    while (bri.ready()) {
+                        EngineOption engineOption = new EngineOption();
+                        line = bri.readLine();
+                        if (line.startsWith("id name")) {
+                            engine.setName(line.substring(7).trim());
+                        }
+                        try {
+                            boolean parsed = engineOption.parseUciOptionString(line);
+                            if (parsed) {
+                                engine.options.add(engineOption);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            bre.close();
+                            bri.close();
+                            throw (new RuntimeException("Couldn't parse engine option: "
+                                    + line + "  " + e.getClass() + ": " + e.getMessage()));
+
+                        }
                     }
-                    boolean parsed = engineOption.parseUciOptionString(line);
-                    if(parsed) {
-                        engine.options.add(engineOption);
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Failed to read commands from the engine process "
+                            + file.getAbsolutePath()
+                            + e.getClass() + ": " + e.getMessage());
                 }
-                //bro.write("quit\n");
+
+                // Don't know if this is meaningful, but since we have a bre...
+                while (bre.ready()) {
+                    System.err.println("Error message from engine: " + bre.readLine());
+                }
+
+                // Stop the engine
+                try {
+                bro.write("stop\n");
+                bro.write("quit\n");
                 bro.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Failed to send stop and quit to the engine process. "
+                                               + file.getAbsolutePath()
+                                               + e.getClass() + ": " + e.getMessage());
+                }
 
-                bri.close();
-                bro.close();
-                bre.close();
-
+                // Wait for engine to quit.
                 try {
                     boolean finished = engineProcess.waitFor(500, TimeUnit.MILLISECONDS);
-                    if(!finished) {
+                    if (!finished) {
                         engineProcess.destroy();
                     }
-                } catch(InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                if(engine.getName() != null && !engine.getName().isEmpty()) {
+                // Add engine to the engineList and make the list item selected.
+                if (engine.getName() != null && !engine.getName().isEmpty()) {
                     engineList.add(engine);
+                    //engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {
                         @Override
@@ -341,18 +388,24 @@ public class DialogEngines {
                         }
                     });
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if(engineList.size() > GameModel.MAX_N_ENGINES - 1) {
-            btnAdd.setDisable(true);
-        } else {
-            btnAdd.setDisable(false);
+            } // end of try-with-resources
+        } catch (Exception e) {
+            e.printStackTrace();
+            alertUser("Sorry, couldn't load that engine: " + e.getMessage());
         }
     }
-
+    
+    private void alertUser(String message) {
+                FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+                Scene scene = alert.getDialogPane().getScene();
+                JMetro metro = new JMetro();
+                if(colorTheme == GameModel.STYLE_DARK) {
+                    metro.setStyle(Style.DARK);
+                }
+                metro.setScene(scene);
+                alert.setAlertType(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("");
+                alert.setContentText(message);
+                alert.showAndWait();
+    }
 }
