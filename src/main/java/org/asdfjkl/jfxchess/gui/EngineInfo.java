@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 
 public class EngineInfo {
 
-    final Pattern READYOK        = Pattern.compile("readok");
     final Pattern SCORECP        = Pattern.compile("score\\scp\\s-{0,1}(\\d)+");
     final Pattern NPS            = Pattern.compile("nps\\s(\\d)+");
     final Pattern SELDEPTH       = Pattern.compile("seldepth\\s(\\d)+");
@@ -46,6 +45,8 @@ public class EngineInfo {
     final Pattern MOVE           = Pattern.compile("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})\\s");
     final Pattern MOVES          = Pattern.compile("\\s[a-z]\\d[a-z]\\d([a-z]{0,1})");
     final Pattern MULTIPV        = Pattern.compile("multipv\\s(\\d)+");
+    final Pattern HASHFULL       = Pattern.compile("hashfull\\s(\\d)+");
+    final Pattern TBHITS         = Pattern.compile("tbhits\\s(\\d)+");
 
     String id = "";
     int strength = -1;
@@ -54,6 +55,8 @@ public class EngineInfo {
     int halfmoves = 0;
     String currentMove = "";
     int nps = 0;
+    int hashFull = -1;
+    int tbHits = -1;
     int selDepth = -1;
     int depth = -1;
     boolean flipEval = false;
@@ -98,10 +101,13 @@ public class EngineInfo {
     public void clear() {
         id = "";
         strength = -1;
+        limitedStrength = false;
         fullMoveNumber = 1;
         halfmoves = 0;
         currentMove = "";
         nps = 0;
+        hashFull = -1;
+        tbHits = -1;
         selDepth = -1;
         depth = -1;
         flipEval = false;
@@ -139,6 +145,15 @@ public class EngineInfo {
         }
     }
 
+    private int getInt(Pattern p, String line, int numberIndex, int previousVal) {
+        Matcher m = p.matcher(line);
+        if(m.find()) {
+            String s = m.group();
+            return Integer.parseInt(s.substring(numberIndex));
+        }
+        return previousVal;
+    }
+
     public void update(String engineFeedback) {
         int multiPv = 0;
 
@@ -147,12 +162,14 @@ public class EngineInfo {
         for(int i=0;i<lines.length;i++) {
 
             String line = lines[i];
-
-            Matcher matchPVIdx = MULTIPV.matcher(line);
-            if(matchPVIdx.find()) {
-                String sMultiPV = matchPVIdx.group();
-                multiPv = Integer.parseInt(sMultiPV.substring(8)) - 1;
-            }
+            
+            multiPv = getInt(MULTIPV, line, 8, multiPv) - 1;
+            
+            nps = getInt(NPS, line, 4, nps);
+            hashFull = getInt(HASHFULL, line, 9, hashFull);
+            tbHits = getInt(TBHITS, line, 7, tbHits);
+            selDepth = getInt(SELDEPTH, line, 9, selDepth);
+            depth = getInt(DEPTH, line, 6, depth);
 
             // update score value. need to be careful about
             // - vs +, since engine reports always positive values
@@ -166,26 +183,8 @@ public class EngineInfo {
                     score.set(multiPv, dScore);
                 }
                 seesMate.set(multiPv, false);
-                }
-
-            Matcher matchNps = NPS.matcher(line);
-            if(matchNps.find()) {
-                String sNps = matchNps.group();
-                nps = Integer.parseInt(sNps.substring(4));
             }
-
-            Matcher matchSelDepth = SELDEPTH.matcher(line);
-            if(matchSelDepth.find()) {
-                String sSelDepth = matchSelDepth.group();
-                selDepth = Integer.parseInt(sSelDepth.substring(9));
-            }
-
-            Matcher matchDepth = DEPTH.matcher(line);
-            if(matchDepth.find()) {
-                String sDepth = matchDepth.group();
-                depth = Integer.parseInt(sDepth.substring(6));
-            }
-
+            
             Matcher matchMate = MATE.matcher(line);
             if(matchMate.find()) {
                 String sMate = matchMate.group();
@@ -257,7 +256,7 @@ public class EngineInfo {
     @Override
     public String toString() {
 
-        // id (Level MAX) | zobrist curr pos | nps| current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
+        // id (Level MAX) | zobrist curr pos | nps| hashfull | tbhits | current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4
         StringBuilder outStr = new StringBuilder();
         outStr.append("|");
 
@@ -278,6 +277,18 @@ public class EngineInfo {
 
         if(nps != 0) {
             outStr.append(nps/1000.0d).append(" kn/s");
+        }
+
+        outStr.append("|");
+        
+        if(hashFull > -1) {
+            outStr.append("hashfull " + hashFull); 
+        }
+
+        outStr.append("|");
+        
+        if(tbHits > -1) {
+            outStr.append("tbhits " + tbHits); 
         }
 
         outStr.append("|");
