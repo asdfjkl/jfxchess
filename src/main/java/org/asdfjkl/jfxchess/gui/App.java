@@ -38,10 +38,13 @@ public class App extends Application implements StateChangeListener {
     Text txtGameData;
     GameModel gameModel;
     EngineOutputView engineOutputView;
-    EngineController engineController;
 
     ToggleButton tglEngineOnOff;
 
+    // Two new variables, to make it possible to hide the PV-lines when playing.
+    Label lblShowLines = new Label("    Show lines: ");
+    CheckBox cbShowEngineLines = new CheckBox("");
+    
     SplitPane spChessboardMoves;
     SplitPane spMain;
 
@@ -326,8 +329,11 @@ public class App extends Application implements StateChangeListener {
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
         Region spacerEngineControl = new Region();
+        cbShowEngineLines.setSelected(true);
         hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
-                btnAddEngineLine, btnRemoveEngineLine, spacerEngineControl, btnSelectEngine);
+                btnAddEngineLine, btnRemoveEngineLine, lblShowLines,
+	        cbShowEngineLines, spacerEngineControl, new Label("Engines: "),
+		btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
         hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
         hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
@@ -370,15 +376,17 @@ public class App extends Application implements StateChangeListener {
         // connect mode controller
         engineOutputView = new EngineOutputView(gameModel, txtEngineOut);
         modeMenuController = new ModeMenuController(gameModel, engineOutputView);
-        engineController = new EngineController(modeMenuController);
-        modeMenuController.setEngineController(engineController);
-
+        // Creation of engineController has been moved inside ModeMenuController.
         gameModel.addListener(engineOutputView);
 
         EditMenuController editMenuController = new EditMenuController(gameModel);
 
         gameModel.addListener(modeMenuController);
         modeMenuController.activateEnterMovesMode();
+        // This will set the name, pvLines, limitedStrength and ELO of the
+        // restored active engine in the engineOutputView.
+        // Previously the ID was always "Stockfish (internal) at startup.
+        modeMenuController.setEngineInfoForUnstartedEngine(gameModel.activeEngine);
 
         itmSaveCurrentGameAs.setOnAction(e -> {
            gameMenuController.handleSaveCurrentGame();
@@ -467,16 +475,29 @@ public class App extends Application implements StateChangeListener {
 
         btnAddEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
-            gameModel.setMultiPv(currentMultiPv+1);
-            engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
-            gameModel.triggerStateChange();
+            if (currentMultiPv < gameModel.activeEngine.getMaxMultiPV() &&
+		currentMultiPv < gameModel.MAX_PV) {
+                gameModel.setMultiPv(currentMultiPv + 1);
+                modeMenuController.engineSetOptionMultiPV(gameModel.getMultiPv());
+                gameModel.triggerStateChange();
+            }
         });
 
         btnRemoveEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
-            gameModel.setMultiPv(currentMultiPv-1);
-            engineController.sendCommand("setoption name MultiPV value " + gameModel.getMultiPv());
-            gameModel.triggerStateChange();
+            if (currentMultiPv > 1) {
+                gameModel.setMultiPv(currentMultiPv - 1);
+                modeMenuController.engineSetOptionMultiPV(gameModel.getMultiPv());
+                gameModel.triggerStateChange();
+            }
+        });
+
+        cbShowEngineLines.setOnAction(actionEvent -> {
+            if(!cbShowEngineLines.isSelected()) {
+                engineOutputView.disablePVLines();
+            } else {
+                engineOutputView.enablePVLines();
+            }
         });
 
         itmNew.setOnAction(e -> {
@@ -872,11 +893,26 @@ public class App extends Application implements StateChangeListener {
             txtGameData.setText(label);
         }
         if(gameModel.getMode() == GameModel.MODE_ENTER_MOVES) {
+	    // To show entermoves as selected in the menu after e.g. editing engines.
+	    // Previously the latest used menuitem was still selected.
+            itmEnterMoves.setSelected(true);
             tglEngineOnOff.setSelected(false);
             tglEngineOnOff.setText("Off");
         } else {
             tglEngineOnOff.setSelected(true);
             tglEngineOnOff.setText("On");
+        }
+        // The "show lines"-checkbox will be visible if a game is being played,
+	// but not e.g. during the analysis-modes.
+        if(gameModel.getMode() == gameModel.MODE_PLAY_BLACK ||
+           gameModel.getMode() == gameModel.MODE_PLAY_WHITE) {
+            cbShowEngineLines.setVisible(true);
+            lblShowLines.setVisible(true);
+        } else {
+            engineOutputView.enablePVLines();
+            cbShowEngineLines.setSelected(true);
+            cbShowEngineLines.setVisible(false);
+            lblShowLines.setVisible(false);
         }
 
     }
@@ -927,7 +963,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveTheme();
         gameModel.savePaths();
 
-        engineController.sendCommand("quit");
+        modeMenuController.stopEngine();
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();
         for (Task task : runningTasks) {
             task.cancel();
@@ -946,6 +982,10 @@ public class App extends Application implements StateChangeListener {
             gameModel.currentPgnDatabaseIdx = -1;
             gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
             gameModel.activeEngine.setElo(dlg.strength);
+	    // Set eloHasBeenSetInGUI to be able to separate
+	    // new Game from playblack and playwhite for
+	    // added engines supporting UCI_LimitStrength.
+            gameModel.setEloHasBeenSetInGUI(true);
             Game g = new Game();
             g.getRootNode().setBoard(new Board(true));
             gameModel.setGame(g);

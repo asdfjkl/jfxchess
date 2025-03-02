@@ -88,14 +88,14 @@ public class DialogEngineOptions {
             // ignore multipv and do not display this to the user
             // as this is completely handled directly in the GUI
             // by the comboBox above the engine window
-            if(enOpt.name.toLowerCase().contains("multipv")) {
-                continue;
-            }
+            //if(enOpt.name.toLowerCase().contains("multipv")) {
+            //    continue;
+            //}
 
             Label lblEnOpt = new Label(enOpt.name+":");
             gridPane.add(lblEnOpt, 0, i);
 
-            if(enOpt.type == EN_OPT_TYPE_CHECK) {
+            if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
                 CheckBox cbEnOpt = new CheckBox();
                 cbEnOpt.setSelected(enOpt.checkStatusValue);
                 checkboxWidgets.put(enOpt.name, cbEnOpt);

@@ -308,7 +308,7 @@ public class Game {
     }
 
     public void removeAllAnnotationsRec(GameNode node) {
-        node.removeNagsInRange(0,120);
+        node.removeNagsInRange(0, CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
         for(GameNode var_i : node.getVariations()) {
             this.removeAllAnnotationsRec(var_i);
         }

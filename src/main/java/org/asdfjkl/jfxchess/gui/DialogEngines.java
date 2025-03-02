@@ -230,7 +230,7 @@ public class DialogEngines {
             for(EngineOption enOpt : selectedEngine.options) {
 
                 String optName = enOpt.name;
-                if(enOpt.type == EN_OPT_TYPE_CHECK) {
+                if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
                     CheckBox widget = dlg.checkboxWidgets.get(optName);
                     if(widget != null) {
                         enOpt.checkStatusValue = widget.isSelected();
@@ -264,17 +264,25 @@ public class DialogEngines {
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
 
+<<<<<<< HEAD
         // This first try-catch block will catch any exception thrown        
         // inside and present it as part of a user alert.
         try {
             String line;
 
             Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
+=======
+                Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
+                //OutputStream stdout = engineProcess.getOutputStream ();
+                //InputStream stderr = engineProcess.getErrorStream ();
+                //InputStream stdin = engineProcess.getInputStream ();
+>>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
 
             if (!engineProcess.isAlive()) {
                 throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath());
             }
 
+<<<<<<< HEAD
             // This is a try-with-resources block (without a catch block).
             // When the execution leaves this block,normally or because of
             // an exception, bre.close(), bri.close() and bro.close() will 
@@ -314,10 +322,23 @@ public class DialogEngines {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+=======
+                // Ask the engine if it's a UCI engine and ask for it's
+                // configuration options.
+                bro.write("uci\n");
+                bro.flush();
+
+                // Waiting for the bri inputbuffer to be filled with engine options
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+>>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                 }
 
                 Engine engine = new Engine();
                 engine.setPath(file.getAbsolutePath());
+<<<<<<< HEAD
 
                 // Read all the engine options.
                 try {
@@ -340,6 +361,25 @@ public class DialogEngines {
                                     + line + "  " + e.getClass() + ": " + e.getMessage()));
 
                         }
+=======
+                while(bri.ready()) {
+                    line = bri.readLine();
+                    if(line.equals("uciok")){
+                        // No more options
+                        break;
+                    }
+                    if(line.startsWith("id name")) {
+                        engine.setName(line.substring(7).trim());
+                        continue;
+                    }
+                    if(line.startsWith("id author")) {
+                        continue;
+                    }
+                    EngineOption engineOption = new EngineOption();
+                    boolean parsed = engineOption.parseUciOptionString(line);
+                    if(parsed) {
+                        engine.addEngineOption(engineOption);
+>>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -347,6 +387,7 @@ public class DialogEngines {
                             + file.getAbsolutePath()
                             + e.getClass() + ": " + e.getMessage());
                 }
+<<<<<<< HEAD
 
                 // Don't know if this is meaningful, but since we have a bre...
                 while (bre.ready()) {
@@ -366,6 +407,16 @@ public class DialogEngines {
                 }
 
                 // Wait for engine to quit.
+=======
+                // This line with the quit command was outcommented, but I think
+                // it could be good if the engine process itself has control of
+                // how it exits, it may have some resources allocated that needs
+                // to be closed down in a gentle way, instead of just calling
+                // destroy further below.
+                bro.write("stop\n");
+                bro.write("quit\n");
+                bro.flush();
+>>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                 try {
                     boolean finished = engineProcess.waitFor(500, TimeUnit.MILLISECONDS);
                     if (!finished) {
@@ -375,8 +426,16 @@ public class DialogEngines {
                     e.printStackTrace();
                 }
 
+<<<<<<< HEAD
                 // Add engine to the engineList and make the list item selected.
                 if (engine.getName() != null && !engine.getName().isEmpty()) {
+=======
+                bri.close();
+                bro.close();
+                bre.close();
+
+                if(engine.getName() != null && !engine.getName().isEmpty()) {
+>>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                     engineList.add(engine);
                     //engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
