@@ -119,13 +119,13 @@ public class MoveView implements StateChangeListener {
 
         Menu posAnnotation = new Menu("Position Annotation");
         MenuItem unclear = new MenuItem("∞ Unclear");
-        MenuItem drawish = new MenuItem("= Drawish");
+        MenuItem drawish = new MenuItem("= Equal");
         MenuItem slightAdvantageWhite = new MenuItem("⩲ Slight Advantage White");
         MenuItem slightAdvantageBlack = new MenuItem("⩱ Slight Advantage Black");
         MenuItem advantageWhite = new MenuItem("+- Advantage White");
         MenuItem advantageBlack = new MenuItem("-+ Advantage Black");
         MenuItem noPosAnnotation = new MenuItem("No Position Annotation");
-        posAnnotation.getItems().addAll(unclear, slightAdvantageWhite, slightAdvantageBlack, advantageWhite, advantageBlack, noPosAnnotation);
+        posAnnotation.getItems().addAll(unclear, drawish, slightAdvantageWhite, slightAdvantageBlack, advantageWhite, advantageBlack, noPosAnnotation);
 
         MenuItem removeAnnotation = new MenuItem("Remove Annotations");
         SeparatorMenuItem separator1 = new SeparatorMenuItem();
@@ -375,7 +375,7 @@ public class MoveView implements StateChangeListener {
         try {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
-                selectedNode.removeNagsInRange(0,8);
+                selectedNode.removeNagsInRange(0,CONSTANTS.MOVE_ANNOTATION_UPPER_LIMIT);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
@@ -459,7 +459,8 @@ public class MoveView implements StateChangeListener {
         try {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
-                selectedNode.removeNagsInRange(9,20);
+                selectedNode.removeNagsInRange(CONSTANTS.POSITION_ANNOTATION_LOWER_LIMIT,
+                                                CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
@@ -471,7 +472,7 @@ public class MoveView implements StateChangeListener {
         try {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
-                selectedNode.removeNagsInRange(0,139);
+                selectedNode.removeNagsInRange(0,CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
