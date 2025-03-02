@@ -41,7 +41,6 @@ import jfxtras.styles.jmetro.Style;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import jfxtras.styles.jmetro.FlatAlert;
 
 import static org.asdfjkl.jfxchess.gui.EngineOption.*;
 
@@ -71,10 +70,10 @@ public class DialogEngines {
 
         engineList = FXCollections.observableArrayList(engines);
 
-        engineListView = new ListView<Engine>();
+        engineListView = new ListView<>();
         engineListView.setItems(engineList);
 
-        engineListView.setCellFactory(param -> new ListCell<Engine>() {
+        engineListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Engine item, boolean empty) {
                 super.updateItem(item, empty);
@@ -101,17 +100,13 @@ public class DialogEngines {
                     btnResetParameters.setDisable(false);
                     btnRemove.setDisable(false);
                 }
-                if (engineList.size() >= GameModel.MAX_N_ENGINES) {
-                    btnAdd.setDisable(true);
-                } else {
-                    btnAdd.setDisable(false);
-                }
+                btnAdd.setDisable(engineList.size() >= GameModel.MAX_N_ENGINES);
             }
         });
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Chessengines:");
+        stage.setTitle("Chess Engines:");
 
         btnOk = new Button();
         btnOk.setText("OK");
@@ -122,7 +117,7 @@ public class DialogEngines {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-	// Got a "warning:static method should be called in a static way" here.
+        // Got a "warning:static method should be called in a static way" here.
         HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
@@ -230,7 +225,7 @@ public class DialogEngines {
             for(EngineOption enOpt : selectedEngine.options) {
 
                 String optName = enOpt.name;
-                if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
+                if(enOpt.type == EN_OPT_TYPE_CHECK) {
                     CheckBox widget = dlg.checkboxWidgets.get(optName);
                     if(widget != null) {
                         enOpt.checkStatusValue = widget.isSelected();
@@ -264,35 +259,27 @@ public class DialogEngines {
         stage.initModality(Modality.APPLICATION_MODAL);
         File file = fileChooser.showOpenDialog(stage);
 
-<<<<<<< HEAD
-        // This first try-catch block will catch any exception thrown        
+        // This first try-catch block will catch any exception thrown
         // inside and present it as part of a user alert.
         try {
             String line;
 
             Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
-=======
-                Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
-                //OutputStream stdout = engineProcess.getOutputStream ();
-                //InputStream stderr = engineProcess.getErrorStream ();
-                //InputStream stdin = engineProcess.getInputStream ();
->>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
 
             if (!engineProcess.isAlive()) {
                 throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath());
             }
 
-<<<<<<< HEAD
             // This is a try-with-resources block (without a catch block).
             // When the execution leaves this block,normally or because of
-            // an exception, bre.close(), bri.close() and bro.close() will 
+            // an exception, bre.close(), bri.close() and bro.close() will
             // be called automatically, in that order.
-            // I noticed that bro.close() unexpectedly also kills the 
-            // engineprocess in some way. So we don't have to do that
-            // separately. Possible exceptions during close() will be 
-            // suppressed. (Previously the engineprocess would stay alive
-            // if it had been started right and an exception abrupted the
-            // code-flow.) 
+            // I noticed that bro.close() unexpectedly also kills the
+            // engine-process in some way. So we don't have to do that
+            // separately. Possible exceptions during close() will be
+            // suppressed. (Previously the engine-process would stay alive
+            // if it had been started right and an exception abrupt the
+            // code-flow.)
             try ( BufferedWriter bro = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                   BufferedReader bri = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
                   BufferedReader bre = new BufferedReader(new InputStreamReader(engineProcess.getErrorStream()))) {
@@ -322,23 +309,10 @@ public class DialogEngines {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-=======
-                // Ask the engine if it's a UCI engine and ask for it's
-                // configuration options.
-                bro.write("uci\n");
-                bro.flush();
-
-                // Waiting for the bri inputbuffer to be filled with engine options
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
->>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                 }
 
                 Engine engine = new Engine();
                 engine.setPath(file.getAbsolutePath());
-<<<<<<< HEAD
 
                 // Read all the engine options.
                 try {
@@ -361,25 +335,6 @@ public class DialogEngines {
                                     + line + "  " + e.getClass() + ": " + e.getMessage()));
 
                         }
-=======
-                while(bri.ready()) {
-                    line = bri.readLine();
-                    if(line.equals("uciok")){
-                        // No more options
-                        break;
-                    }
-                    if(line.startsWith("id name")) {
-                        engine.setName(line.substring(7).trim());
-                        continue;
-                    }
-                    if(line.startsWith("id author")) {
-                        continue;
-                    }
-                    EngineOption engineOption = new EngineOption();
-                    boolean parsed = engineOption.parseUciOptionString(line);
-                    if(parsed) {
-                        engine.addEngineOption(engineOption);
->>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -387,7 +342,6 @@ public class DialogEngines {
                             + file.getAbsolutePath()
                             + e.getClass() + ": " + e.getMessage());
                 }
-<<<<<<< HEAD
 
                 // Don't know if this is meaningful, but since we have a bre...
                 while (bre.ready()) {
@@ -396,27 +350,17 @@ public class DialogEngines {
 
                 // Stop the engine
                 try {
-                bro.write("stop\n");
-                bro.write("quit\n");
-                bro.flush();
+                    bro.write("stop\n");
+                    bro.write("quit\n");
+                    bro.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new RuntimeException("Failed to send stop and quit to the engine process. "
-                                               + file.getAbsolutePath()
-                                               + e.getClass() + ": " + e.getMessage());
+                            + file.getAbsolutePath()
+                            + e.getClass() + ": " + e.getMessage());
                 }
 
                 // Wait for engine to quit.
-=======
-                // This line with the quit command was outcommented, but I think
-                // it could be good if the engine process itself has control of
-                // how it exits, it may have some resources allocated that needs
-                // to be closed down in a gentle way, instead of just calling
-                // destroy further below.
-                bro.write("stop\n");
-                bro.write("quit\n");
-                bro.flush();
->>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                 try {
                     boolean finished = engineProcess.waitFor(500, TimeUnit.MILLISECONDS);
                     if (!finished) {
@@ -426,16 +370,8 @@ public class DialogEngines {
                     e.printStackTrace();
                 }
 
-<<<<<<< HEAD
                 // Add engine to the engineList and make the list item selected.
                 if (engine.getName() != null && !engine.getName().isEmpty()) {
-=======
-                bri.close();
-                bro.close();
-                bre.close();
-
-                if(engine.getName() != null && !engine.getName().isEmpty()) {
->>>>>>> 659925a718c92ba68cb1bd5582f05511091e1f31
                     engineList.add(engine);
                     //engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
@@ -450,21 +386,9 @@ public class DialogEngines {
             } // end of try-with-resources
         } catch (Exception e) {
             e.printStackTrace();
-            alertUser("Sorry, couldn't load that engine: " + e.getMessage());
+            DialogSimpleAlert alert = new DialogSimpleAlert();
+            alert.show("Sorry, couldn't load that engine: " + e.getMessage(), colorTheme);
         }
     }
-    
-    private void alertUser(String message) {
-                FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-                Scene scene = alert.getDialogPane().getScene();
-                JMetro metro = new JMetro();
-                if(colorTheme == GameModel.STYLE_DARK) {
-                    metro.setStyle(Style.DARK);
-                }
-                metro.setScene(scene);
-                alert.setAlertType(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("");
-                alert.setContentText(message);
-                alert.showAndWait();
-    }
+
 }
