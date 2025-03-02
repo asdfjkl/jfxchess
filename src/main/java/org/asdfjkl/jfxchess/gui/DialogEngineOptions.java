@@ -95,7 +95,7 @@ public class DialogEngineOptions {
             Label lblEnOpt = new Label(enOpt.name+":");
             gridPane.add(lblEnOpt, 0, i);
 
-            if(enOpt.type == EN_OPT_TYPE_CHECK) {
+            if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
                 CheckBox cbEnOpt = new CheckBox();
                 cbEnOpt.setSelected(enOpt.checkStatusValue);
                 checkboxWidgets.put(enOpt.name, cbEnOpt);

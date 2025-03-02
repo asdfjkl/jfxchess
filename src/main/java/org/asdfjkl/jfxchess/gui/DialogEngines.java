@@ -229,7 +229,7 @@ public class DialogEngines {
             for(EngineOption enOpt : selectedEngine.options) {
 
                 String optName = enOpt.name;
-                if(enOpt.type == EN_OPT_TYPE_CHECK) {
+                if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
                     CheckBox widget = dlg.checkboxWidgets.get(optName);
                     if(widget != null) {
                         enOpt.checkStatusValue = widget.isSelected();

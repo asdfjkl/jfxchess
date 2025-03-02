@@ -57,7 +57,8 @@ public class Engine {
         for(EngineOption enOpt : options) {
             sb.append('|');
             sb.append(enOpt.toUciOptionString());
-            if(enOpt.type == EngineOption.EN_OPT_TYPE_CHECK) {
+            if(enOpt.type == EngineOption.EN_OPT_TYPE_CHECK || 
+               enOpt.type == EngineOption.EN_OPT_TYPE_BUTTON) {
                 if(enOpt.checkStatusValue) {
                     sb.append("|true");
                 } else {
@@ -95,7 +96,8 @@ public class Engine {
                 EngineOption option = new EngineOption();
                 String uciOptionString = values[i];
                 option.parseUciOptionString(uciOptionString);
-                if(option.type == EngineOption.EN_OPT_TYPE_CHECK) {
+                if(option.type == EngineOption.EN_OPT_TYPE_CHECK ||
+                   option.type == EngineOption.EN_OPT_TYPE_BUTTON) {
                     if(values[i+1].equals("true")) {
                         option.checkStatusValue = true;
                     } else {
