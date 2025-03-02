@@ -44,6 +44,8 @@ public class EngineOutputView implements StateChangeListener {
     private final ArrayList<Text> pvLines;
 
     private boolean isEnabled = true;
+    
+    private boolean pvLinesAreEnabled = true;
 
     private TextFlow txtEngineOut;
 
@@ -57,12 +59,6 @@ public class EngineOutputView implements StateChangeListener {
         Text pvLine = new Text("");
         this.pvLines = new ArrayList<Text>();
         this.pvLines.add(pvLine);
-        /*
-        this.pv1 = new Text("");
-        this.pv2 = new Text("");
-        this.pv3 = new Text("");
-        this.pv4 = new Text("");
-        */
 
         Text spacer1 = new Text("     ");
         Text spacer2 = new Text("     ");
@@ -79,17 +75,6 @@ public class EngineOutputView implements StateChangeListener {
                 new Text(System.lineSeparator()),
                 pvLines.get(0),
                 new Text(System.lineSeparator()));
-
-        /*
-                this.pv1,
-                new Text(System.lineSeparator()),
-                this.pv2,
-                new Text(System.lineSeparator()),
-                this.pv3,
-                new Text(System.lineSeparator()),
-                this.pv4);
-        */
-        //this.txtEngineOut.getChildren().addAll(currentEval);
     }
 
     public void enableOutput() { isEnabled = true; }
@@ -109,12 +94,6 @@ public class EngineOutputView implements StateChangeListener {
         for(Text pvLine : pvLines) {
             pvLine.setText("");
         }
-        /*
-        pv1.setText("");
-        pv2.setText("");
-        pv3.setText("");
-        pv4.setText("");
-        */
     }
 
     public void setText(String info) {
@@ -134,7 +113,10 @@ public class EngineOutputView implements StateChangeListener {
             if (infos.length > 4 && !infos[4].isEmpty()) {
                 depth.setText(infos[4]);
             }
-
+            if(!pvLinesAreEnabled) {
+                return;
+            }
+            
             if(infos.length > 5 && !infos[5].isEmpty()) {
                 pvLines.get(0).setText(infos[5]);
             }
@@ -151,23 +133,47 @@ public class EngineOutputView implements StateChangeListener {
         }
     }
 
-
-    @Override
-    public void stateChange() {
-
-        if(gameModel.wasMultiPvChanged()) {
-            // remove all old widgets
-            int cntChildren = txtEngineOut.getChildren().size();
-            txtEngineOut.getChildren().remove(7, cntChildren);
-            pvLines.clear();
+    public void disablePVLines() {
+        if (pvLinesAreEnabled) {
+            resetPVLines();
+            depth.setText("");
+	    nps.setText("");
         }
-        gameModel.setMultiPvChange(false);
-        for(int i=0;i<gameModel.getMultiPv();i++) {
+        pvLinesAreEnabled = false;
+    }
+    
+    public void enablePVLines() {
+        pvLinesAreEnabled = true;
+    }
+
+    private void resetPVLines() {
+        int cntChildren = txtEngineOut.getChildren().size();
+        txtEngineOut.getChildren().remove(7, cntChildren);
+        pvLines.clear();
+        for (int i = 0; i < gameModel.getMultiPv(); i++) {
             Text pvLine = new Text("");
             pvLines.add(pvLine);
             txtEngineOut.getChildren().add(pvLine);
             txtEngineOut.getChildren().add(new Text(System.lineSeparator()));
         }
+    }
+
+    @Override
+    public void stateChange() {
+        if(gameModel.wasMultiPvChanged()) {
+            gameModel.setMultiPvChange(false);
+        }
+        // I think that if we always reset the pvlines here then there's 
+        // no need for the wasMultiPvCganged functionality in Gamemodel.
+	// This is the only place where it's used, so it could just as well
+	// be removed.
+        resetPVLines();
+        // The last depth-text from analysis mode remained after mode change 
+        // to playing black or white (or to a new game).
+        depth.setText("");
+        // There was a similar problem with nps (but this didn't seem to
+	// help completely).
+	nps.setText("");
     }
 
 }

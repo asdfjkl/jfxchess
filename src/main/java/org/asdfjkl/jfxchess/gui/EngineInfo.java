@@ -31,7 +31,9 @@ import java.util.regex.Pattern;
 
 public class EngineInfo {
 
-    final Pattern READYOK        = Pattern.compile("readok");
+    
+    // readok? I removed this unused pattern.
+    //final Pattern READYOK        = Pattern.compile("readok");
     final Pattern SCORECP        = Pattern.compile("score\\scp\\s-{0,1}(\\d)+");
     final Pattern NPS            = Pattern.compile("nps\\s(\\d)+");
     final Pattern SELDEPTH       = Pattern.compile("seldepth\\s(\\d)+");
@@ -98,6 +100,7 @@ public class EngineInfo {
     public void clear() {
         id = "";
         strength = -1;
+        limitedStrength = false;
         fullMoveNumber = 1;
         halfmoves = 0;
         currentMove = "";
@@ -115,7 +118,7 @@ public class EngineInfo {
         turn = CONSTANTS.WHITE;
 
         fen = "";
-        nrPvLines = 1;
+        //nrPvLines = 1;
 
         bestmove = "";
 
