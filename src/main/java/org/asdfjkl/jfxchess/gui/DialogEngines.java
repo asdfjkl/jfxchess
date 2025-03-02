@@ -284,9 +284,9 @@ public class DialogEngines {
             // suppressed. (Previously the engine-process would stay alive
             // if it had been started right and an exception abrupt the
             // code-flow.)
-            try ( BufferedWriter bro = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
-                  BufferedReader bri = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
-                  BufferedReader bre = new BufferedReader(new InputStreamReader(engineProcess.getErrorStream()))) {
+            try (BufferedWriter bro = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
+                 BufferedReader bri = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
+                 BufferedReader bre = new BufferedReader(new InputStreamReader(engineProcess.getErrorStream()))) {
 
                 for (int i = 0; i < 20; i++) {
                     try {
@@ -387,12 +387,12 @@ public class DialogEngines {
                         }
                     });
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
 }
+
