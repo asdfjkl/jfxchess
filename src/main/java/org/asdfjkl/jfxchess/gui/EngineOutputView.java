@@ -206,6 +206,5 @@ public class EngineOutputView implements StateChangeListener {
 	nps.setText("");
 	hashFull.setText("");
 	tbHits.setText("");
-    }
-
+  }
 }

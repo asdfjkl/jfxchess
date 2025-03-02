@@ -121,7 +121,7 @@ public class EngineInfo {
         turn = CONSTANTS.WHITE;
 
         fen = "";
-        nrPvLines = 1;
+        //nrPvLines = 1;
 
         bestmove = "";
 
