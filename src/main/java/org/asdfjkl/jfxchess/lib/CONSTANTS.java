@@ -21,6 +21,9 @@ package org.asdfjkl.jfxchess.lib;
 public class CONSTANTS {
 
     private CONSTANTS() {}
+    
+    public static final String INTERNAL_ENGINE_NAME =
+	new String("Stockfish (Internal)");
 
     public static final int EMPTY = 0;
     public static final int PAWN = 1;

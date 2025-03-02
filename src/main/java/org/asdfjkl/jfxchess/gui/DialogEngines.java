@@ -100,7 +100,11 @@ public class DialogEngines {
                     btnResetParameters.setDisable(false);
                     btnRemove.setDisable(false);
                 }
-                btnAdd.setDisable(engineList.size() >= GameModel.MAX_N_ENGINES);
+                if (engineList.size() >= GameModel.MAX_N_ENGINES) {
+                    btnAdd.setDisable(true);
+                } else {
+                    btnAdd.setDisable(false);
+                }
             }
         });
 
@@ -373,7 +377,7 @@ public class DialogEngines {
                 // Add engine to the engineList and make the list item selected.
                 if (engine.getName() != null && !engine.getName().isEmpty()) {
                     engineList.add(engine);
-                    //engineList.sort(engine);
+                    engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {
                         @Override
@@ -383,11 +387,11 @@ public class DialogEngines {
                         }
                     });
                 }
-            } // end of try-with-resources
-        } catch (Exception e) {
-            e.printStackTrace();
-            DialogSimpleAlert alert = new DialogSimpleAlert();
-            alert.show("Sorry, couldn't load that engine: " + e.getMessage(), colorTheme);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

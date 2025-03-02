@@ -109,7 +109,7 @@ public class GameModel {
         // String bookPath = getBookPath();
 
         Engine stockfish = new Engine();
-        stockfish.setName("Stockfish (Internal)");
+        stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
         if(stockfishPath != null) {
             stockfish.setPath(stockfishPath);
         }
