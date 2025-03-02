@@ -492,8 +492,12 @@ public class CONSTANTS {
     public static final int RES_BLACK_WINS = 2;
     public static final int RES_DRAW = 3;
     public static final int RES_ANY = 4;
+    
+    public static final int MOVE_ANNOTATION_UPPER_LIMIT = 9;
+    public static final int POSITION_ANNOTATION_LOWER_LIMIT = 10;
+    public static final int POSITION_ANNOTATION_UPPER_LIMIT = 135;
 
-    public static int NAG_NULL = 0;
+    //public static int NAG_NULL = 0;
     public static final int NAG_GOOD_MOVE = 1;
     //A good move. Can also be indicated by ``!`` in PGN notation."""
     public static final int NAG_MISTAKE = 2;

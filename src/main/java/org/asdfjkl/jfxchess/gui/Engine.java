@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import static java.lang.Integer.min;
 import java.util.ArrayList;
 import java.util.Comparator;
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
@@ -39,6 +40,16 @@ public class Engine implements Comparator<Engine>{
 
     public boolean isInternal() { return isInternal; }
     public void setInternal(boolean internal) { this.isInternal = internal; }
+    
+    public void addEngineOption(EngineOption option) {
+        // Special case for MultiPV.
+        // Manipulates spinMax value if it's higher than MAX_PV.
+        
+        if (option.name.equals("MultiPV")) {
+           option.spinMax = min(option.spinMax,GameModel.MAX_PV); 
+        }
+        options.add(option);
+    }
 
     public String writeToString() {
         StringBuilder sb = new StringBuilder();
@@ -48,7 +59,8 @@ public class Engine implements Comparator<Engine>{
         for(EngineOption enOpt : options) {
             sb.append('|');
             sb.append(enOpt.toUciOptionString());
-            if(enOpt.type == EngineOption.EN_OPT_TYPE_CHECK) {
+            if(enOpt.type == EngineOption.EN_OPT_TYPE_CHECK || 
+               enOpt.type == EngineOption.EN_OPT_TYPE_BUTTON) {
                 if(enOpt.checkStatusValue) {
                     sb.append("|true");
                 } else {
@@ -86,7 +98,8 @@ public class Engine implements Comparator<Engine>{
                 EngineOption option = new EngineOption();
                 String uciOptionString = values[i];
                 option.parseUciOptionString(uciOptionString);
-                if(option.type == EngineOption.EN_OPT_TYPE_CHECK) {
+                if(option.type == EngineOption.EN_OPT_TYPE_CHECK ||
+                   option.type == EngineOption.EN_OPT_TYPE_BUTTON) {
                     if(values[i+1].equals("true")) {
                         option.checkStatusValue = true;
                     } else {
@@ -102,7 +115,7 @@ public class Engine implements Comparator<Engine>{
                 if(option.type == EngineOption.EN_OPT_TYPE_COMBO) {
                     option.comboValue = values[i+1];
                 }
-                options.add(option);
+                addEngineOption(option);
             }
         }
     }
@@ -115,7 +128,7 @@ public class Engine implements Comparator<Engine>{
         copy.isInternal = this.isInternal;
 
         for(EngineOption option : options) {
-            copy.options.add(option);
+            copy.addEngineOption(option);
         }
 
         return copy;
@@ -142,9 +155,25 @@ public class Engine implements Comparator<Engine>{
         }
         return 1;
     }
+    
+    public int getMultiPV() {
+        for (EngineOption option : options) {
+            if (option.name.equals("MultiPV")) {
+                return option.spinValue;
+            }
+        }
+        return 1;
+    }
+
+    public void setMultiPV(int multiPv) {
+        for (EngineOption option : options) {
+            if (option.name.equals("MultiPV")) {
+                option.spinValue = multiPv;
+            }
+        }
+    }
 
     public int getUciElo() {
-
         for (EngineOption option : options) {
             if (option.name.equals("UCI_Elo")) {
                 return option.spinValue;
@@ -197,12 +226,21 @@ public class Engine implements Comparator<Engine>{
 
     }
 
-    public void setUciLimitStrength(boolean val) {
+    // public void setUciLimitStrength(boolean val) {
+    //     for (EngineOption option : options) {
+    //         if (option.name.equals("UCI_LimitStrength")) {
+    //             option.checkStatusValue = val;
+    //         }
+    //     }
+    // }
+    
+    public boolean getUciLimitStrength() {
         for (EngineOption option : options) {
             if (option.name.equals("UCI_LimitStrength")) {
-                option.checkStatusValue = val;
+               return option.checkStatusValue;
             }
         }
+        return false;
     }
 
     @Override

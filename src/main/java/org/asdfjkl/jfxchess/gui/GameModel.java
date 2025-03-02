@@ -44,10 +44,10 @@ public class GameModel {
     Game game;
     private final ArrayList<StateChangeListener> stateChangeListeners = new ArrayList<>();
     private int currentMode;
-    private int multiPv = 1;
     private boolean multiPvChanged = false;
     private boolean flipBoard = false;
     private boolean humanPlayerColor = CONSTANTS.WHITE;
+    private boolean eloHasBeenSetInGui = false;
 
     public boolean wasSaved = false;
     private int engineStrength = 20;
@@ -130,7 +130,9 @@ public class GameModel {
         internalElo.name = "UCI_Elo";
         internalElo.spinMin = 1320;
         internalElo.spinMax = 3190;
-        internalElo.spinDefault = 3190;
+	// Previously 3190 wich surprisingly caused me to
+	// beat stockfish without any problems.
+        internalElo.spinDefault = 1320;
         internalElo.spinValue = 3190;
         internalElo.type = EngineOption.EN_OPT_TYPE_SPIN;
 
@@ -301,7 +303,7 @@ public class GameModel {
     }
 
     public int getMultiPv() {
-        return multiPv;
+        return activeEngine.getMultiPV();
     }
 
     public void setFlipBoard(boolean flipBoard) {
@@ -338,7 +340,7 @@ public class GameModel {
 
     public void setMultiPv(int multiPv) {
         if(multiPv >= 1 && multiPv <= activeEngine.getMaxMultiPV() && multiPv <= MAX_PV) {
-            this.multiPv = multiPv;
+            activeEngine.setMultiPV(multiPv);
             this.multiPvChanged = true;
         }
     }
@@ -392,10 +394,10 @@ public class GameModel {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         // Clean up preferences. Preferences for engines
         // which have been removed may still be there.
-        for(int i=1;i<MAX_N_ENGINES;i++) {
+        for(int i=0;i<MAX_N_ENGINES;i++) {
             prefs.remove("ENGINE"+i);
         }
-        for(int i=1;i<engines.size();i++) {
+        for(int i=0;i<engines.size();i++) {
             Engine engine = engines.get(i);
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
@@ -467,21 +469,18 @@ public class GameModel {
 
         prefs = Preferences.userRoot().node(this.getClass().getName());
         int mVersion = prefs.getInt("modelVersion", 0);
-
-        if(mVersion == modelVersion) {
-
-            for(int i=1;i<MAX_N_ENGINES;i++) {
-                String engineString = prefs.get("ENGINE"+i, "");
-                if(!engineString.isEmpty()) {
-                    Engine engine = new Engine();
-                    engine.restoreFromString(engineString);
-                    // engine 0 is Stockfish internal
-                    // engine 1 is Stockfish but where user
-                    // is allowed to change parameters
-                    // restore engine 1 to index 1
-                    if(i == 1 && engines.size() > 1) {
-                        engines.set(1, engine);
+        if (mVersion == modelVersion) {
+            for (int i = 0; i < MAX_N_ENGINES; i++) {
+                String engineString = prefs.get("ENGINE" + i, "");
+                if (!engineString.isEmpty()) {
+                    Engine engine;
+                    if (i == 0) {
+                        // engine 0 is Stockfish internal
+                        engine = engines.get(0);
+                        engine.restoreFromString(engineString);
                     } else {
+                        engine = new Engine();
+                        engine.restoreFromString(engineString);
                         engines.add(engine);
                     }
                 }
@@ -591,6 +590,14 @@ public class GameModel {
                 }
             }
         }
+    }
+
+    public boolean eloHasBeenSetInGUI() {
+        return eloHasBeenSetInGui;
+    }
+    
+    public void setEloHasBeenSetInGUI(boolean b) {
+        eloHasBeenSetInGui = b;
     }
 }
 
