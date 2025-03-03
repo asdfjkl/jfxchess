@@ -163,7 +163,11 @@ public class EngineInfo {
 
             String line = lines[i];
             
-            multiPv = getInt(MULTIPV, line, 8, multiPv) - 1;
+            Matcher matchPVIdx = MULTIPV.matcher(line);
+            if(matchPVIdx.find()) {
+                String sMultiPV = matchPVIdx.group();
+                multiPv = Integer.parseInt(sMultiPV.substring(8)) - 1;
+            }
             
             nps = getInt(NPS, line, 4, nps);
             hashFull = getInt(HASHFULL, line, 9, hashFull);

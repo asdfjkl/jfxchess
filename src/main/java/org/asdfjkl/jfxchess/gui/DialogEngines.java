@@ -41,6 +41,7 @@ import jfxtras.styles.jmetro.Style;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import jfxtras.styles.jmetro.FlatAlert;
 
 import static org.asdfjkl.jfxchess.gui.EngineOption.*;
 
@@ -229,7 +230,7 @@ public class DialogEngines {
             for(EngineOption enOpt : selectedEngine.options) {
 
                 String optName = enOpt.name;
-                if(enOpt.type == EN_OPT_TYPE_CHECK) {
+                if(enOpt.type == EN_OPT_TYPE_CHECK || enOpt.type == EN_OPT_TYPE_BUTTON) {
                     CheckBox widget = dlg.checkboxWidgets.get(optName);
                     if(widget != null) {
                         enOpt.checkStatusValue = widget.isSelected();
@@ -271,7 +272,7 @@ public class DialogEngines {
             Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
 
             if (!engineProcess.isAlive()) {
-                throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath());
+                throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath() + " ");
             }
 
             // This is a try-with-resources block (without a catch block).
@@ -321,29 +322,34 @@ public class DialogEngines {
                 // Read all the engine options.
                 try {
                     while (bri.ready()) {
-                        EngineOption engineOption = new EngineOption();
                         line = bri.readLine();
+                        if(line.equals("uciok")){
+                            // No more options
+                           break;
+                        }
                         if (line.startsWith("id name")) {
                             engine.setName(line.substring(7).trim());
+                            continue;
+                        }
+                        if(line.startsWith("id author")) {
+                            continue;
                         }
                         try {
+                            EngineOption engineOption = new EngineOption();
                             boolean parsed = engineOption.parseUciOptionString(line);
                             if (parsed) {
-                                engine.options.add(engineOption);
+                                engine.addEngineOption(engineOption);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            bre.close();
-                            bri.close();
                             throw (new RuntimeException("Couldn't parse engine option: "
                                     + line + "  " + e.getClass() + ": " + e.getMessage()));
-
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new RuntimeException("Failed to read commands from the engine process "
-                            + file.getAbsolutePath()
+                            + file.getAbsolutePath() + " "
                             + e.getClass() + ": " + e.getMessage());
                 }
 
@@ -360,7 +366,7 @@ public class DialogEngines {
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new RuntimeException("Failed to send stop and quit to the engine process. "
-                            + file.getAbsolutePath()
+                            + file.getAbsolutePath() + " "
                             + e.getClass() + ": " + e.getMessage());
                 }
 
@@ -387,10 +393,25 @@ public class DialogEngines {
                         }
                     });
                 }
-            }
-        } catch (IOException e) {
+            } // end of try-with-resources
+        } catch (Exception e) {
             e.printStackTrace();
+            alertUser("Sorry, couldn't load that engine: " + e.getMessage());
         }
+    }
+    
+    private void alertUser(String message) {
+        FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+        Scene scene = alert.getDialogPane().getScene();
+        JMetro metro = new JMetro();
+        if (colorTheme == GameModel.STYLE_DARK) {
+            metro.setStyle(Style.DARK);
+        }
+        metro.setScene(scene);
+        alert.setAlertType(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
 
