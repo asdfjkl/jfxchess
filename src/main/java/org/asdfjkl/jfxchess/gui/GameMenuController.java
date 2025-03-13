@@ -64,20 +64,9 @@ public class GameMenuController {
         }
     }
 
-    public void handleOpenGame() {
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        fileChooser.setTitle("Open PGN File");
-        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
-            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
-        }
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PGN", "*.pgn")
-        );
-        File file = fileChooser.showOpenDialog(stage);
+    public void openFile(File file) {
         if (file != null) {
-            if(file.getParentFile() != null) {
+            if (file.getParentFile() != null) {
                 gameModel.lastOpenedDirPath = file.getParentFile();
             }
             // for files >= 20 kb, always open in db window
@@ -96,7 +85,7 @@ public class GameMenuController {
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } finally {
-                        if(raf!=null) {
+                        if(raf != null) {
                             try {
                                 raf.close();
                             } catch (IOException e) {
@@ -145,6 +134,21 @@ public class GameMenuController {
                 }
             }
         }
+    }
+
+    public void handleOpenGame() {
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        fileChooser.setTitle("Open PGN File");
+        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
+            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
+        }
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PGN", "*.pgn")
+        );
+        File file = fileChooser.showOpenDialog(stage);
+        openFile(file);
     }
 
     public void handleSaveCurrentGame() {
