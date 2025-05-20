@@ -655,7 +655,7 @@ public class PgnReader {
                                 return CONSTANTS.TKN_RES_WHITE_WIN;
                             }
                         }
-                        if(currentIdx+2 < lineSize && currentLine.charAt(currentIdx+2) == '/') {
+                        if(currentIdx+1 < lineSize && currentLine.charAt(currentIdx+1) == '/') {
                             if(currentIdx+6 < lineSize && currentLine.substring(currentIdx,currentIdx+7).equals("1/2-1/2")) {
                                 return CONSTANTS.TKN_RES_DRAW;
                             }
