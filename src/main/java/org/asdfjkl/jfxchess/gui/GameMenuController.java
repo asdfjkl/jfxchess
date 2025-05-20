@@ -122,21 +122,6 @@ public class GameMenuController {
                         int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
                         gameModel.currentPgnDatabaseIdx = gameIndex;
                         Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
-                        // parsed from database dialog
-                        System.out.println(("parsed game from db dialog:"));
-                        if(g.getResult() == CONSTANTS.RES_WHITE_WINS) {
-                            System.out.println("RESULT WHITE_WINS");
-                        }
-                        if(g.getResult() == CONSTANTS.RES_BLACK_WINS) {
-                            System.out.println("RESULT BLACK_WINS");
-                        }
-                        if(g.getResult() == CONSTANTS.RES_DRAW) {
-                            System.out.println("RESULT DRAW");
-                        }
-                        if(g.getResult() == CONSTANTS.RES_UNDEF) {
-                            System.out.println("RESULT UNDEF");
-                        }
-                        System.out.println("game result: "+(g.getResult()));
                         gameModel.setGame(g);
                         g.setHeaderWasChanged(true);
                         g.setTreeWasChanged(true);
@@ -153,20 +138,6 @@ public class GameMenuController {
                     int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
                     gameModel.currentPgnDatabaseIdx = gameIndex;
                     Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
-                    System.out.println(("parsed game from db dialog:"));
-                    if(g.getResult() == CONSTANTS.RES_WHITE_WINS) {
-                        System.out.println("RESULT WHITE_WINS");
-                    }
-                    if(g.getResult() == CONSTANTS.RES_BLACK_WINS) {
-                        System.out.println("RESULT BLACK_WINS");
-                    }
-                    if(g.getResult() == CONSTANTS.RES_DRAW) {
-                        System.out.println("RESULT DRAW");
-                    }
-                    if(g.getResult() == CONSTANTS.RES_UNDEF) {
-                        System.out.println("RESULT UNDEF");
-                    }
-                    System.out.println("game result: "+(g.getResult()));
                     gameModel.setGame(g);
                     g.setHeaderWasChanged(true);
                     g.setTreeWasChanged(true);
