@@ -123,7 +123,8 @@ public class App extends Application implements StateChangeListener {
         // Edit Menu
         MenuItem itmCopyGame = new MenuItem("Copy Game");
         itmCopyGame.setAccelerator(keyCombinationCopy);
-        MenuItem itmCopyPosition = new MenuItem("Copy Position");
+        MenuItem itmCopyPosition = new MenuItem("Copy Position (FEN)");
+        MenuItem itmCopyImage = new MenuItem("Copy Position (Image)");
         MenuItem itmPaste = new MenuItem("Paste Game/Position");
         itmPaste.setAccelerator(keyCombinationPaste);
         MenuItem itmEditGame = new MenuItem("Edit Game Data");
@@ -133,7 +134,7 @@ public class App extends Application implements StateChangeListener {
         itmFlipBoard.setAccelerator(keyCombinationFlipBoard);
         MenuItem itmShowSearchInfo = new MenuItem("Show/Hide Search Info");
 
-        mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmPaste,
+        mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmCopyImage, itmPaste,
                 new SeparatorMenuItem(), itmEditGame, itmEnterPosition,
                 new SeparatorMenuItem(), itmFlipBoard, itmShowSearchInfo);
 
@@ -563,6 +564,10 @@ public class App extends Application implements StateChangeListener {
 
         itmCopyPosition.setOnAction(e -> {
             editMenuController.copyPosition();
+        });
+
+        itmCopyImage.setOnAction(e -> {
+                editMenuController.copyImage();
         });
 
         itmPaste.setOnAction(e -> {

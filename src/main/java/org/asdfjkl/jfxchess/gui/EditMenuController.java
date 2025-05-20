@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import org.asdfjkl.jfxchess.lib.Board;
@@ -46,6 +47,17 @@ public class EditMenuController {
         Clipboard systemClipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.putString(fen);
+        systemClipboard.setContent(content);
+
+    }
+
+    public void copyImage() {
+
+        PrintableChessBoard pboard = new PrintableChessBoard();
+        Image boardImage = pboard.getImage(gameModel.getGame().getCurrentNode().getBoard(), 800, gameModel.getFlipBoard());
+        Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putImage(boardImage);
         systemClipboard.setContent(content);
 
     }
