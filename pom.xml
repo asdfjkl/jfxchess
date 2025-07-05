@@ -14,28 +14,27 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>15</version>
+            <version>21.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>15</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>15</version>
-            <classifier>win</classifier>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>15</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jmetro</artifactId>
-            <version>11.6.15</version>
+            <version>11.6.16</version>
         </dependency>
         <dependency>
             <groupId>com.weblookandfeel</groupId>
@@ -45,15 +44,8 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
+            <version>11.2.1</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.kitfox.svg</groupId>
-            <artifactId>svg-salamander</artifactId>
-            <version>1.0</version>
-        </dependency>
-        -->
     </dependencies>
     <build>
         <plugins>
@@ -63,7 +55,6 @@
                 <version>3.8.1</version>
                 <configuration>
                     <release>11</release>
-
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>
                     </compilerArgs>
