@@ -94,6 +94,10 @@ public class EngineOutputView implements StateChangeListener {
                 new Text(System.lineSeparator()),
                 pvLines.get(0),
                 new Text(System.lineSeparator()));
+        // The following line fetches the restored number
+        // of pv-lines from gameModel and modifies pvLines
+        // and txtEngineOut by adding lines and children.
+        resetPVLines();
     }
 
     public void enableOutput() { isEnabled = true; }
