@@ -113,13 +113,16 @@ public class EngineController {
         stopEngine();
         // Restart engine.
         sendCommand("start " + activeEngine.getPath());
+        int countMs = 0;
         do {
             try {
                 Thread.sleep(10);
+                countMs += 10;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } while (!engineThread.engineIsOn());
+        } while (!engineThread.engineIsOn() && countMs < 1500);
+
 
         // Since the engine is either internal, or we have
         // been able to set up the engine in the

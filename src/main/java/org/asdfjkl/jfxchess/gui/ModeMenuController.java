@@ -65,6 +65,7 @@ public class ModeMenuController implements StateChangeListener {
         engineController.setUciLimitStrength(false);
         engineController.setMultiPV(gameModel.getMultiPv());
         gameModel.setMode(GameModel.MODE_ANALYSIS);
+        System.out.println("activate analysis mode: trigger state change");
         gameModel.triggerStateChange();
     }
 
