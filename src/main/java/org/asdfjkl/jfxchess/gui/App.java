@@ -70,6 +70,9 @@ public class App extends Application implements StateChangeListener {
 
     String moveBuffer = "";
 
+    private RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
+    private RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
+
     @Override
     public void start(Stage stage) {
 
@@ -82,7 +85,6 @@ public class App extends Application implements StateChangeListener {
         //tests.pgnReadAllMillBaseTest();
 
         //FooTest();
-
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
@@ -141,9 +143,7 @@ public class App extends Application implements StateChangeListener {
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
         itmAnalysis.setAccelerator(keyCombinationAnalysis);
-        RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
         itmPlayAsWhite.setAccelerator(keyCombinationPlayWhite);
-        RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
         itmPlayAsBlack.setAccelerator(keyCombinationPlayBlack);
         itmEnterMoves = new RadioMenuItem("Enter Moves");
         itmEnterMoves.setAccelerator(keyCombinationEnterMoves);
@@ -1003,8 +1003,10 @@ public class App extends Application implements StateChangeListener {
             }
             if(dlg.rbComputer.isSelected()) {
                 if(dlg.rbWhite.isSelected()) {
+                    itmPlayAsWhite.setSelected(true);
                     modeMenuController.activatePlayWhiteMode();
                 } else {
+                    itmPlayAsBlack.setSelected(true);
                     modeMenuController.activatePlayBlackMode();
                 }
             } else {
