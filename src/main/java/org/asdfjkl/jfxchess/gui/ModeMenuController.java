@@ -29,6 +29,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import javafx.stage.Stage;
 
 public class ModeMenuController implements StateChangeListener {
 
@@ -150,6 +151,7 @@ public class ModeMenuController implements StateChangeListener {
         if (gameModel.activeEngine.isInternal() || gameModel.eloHasBeenSetInGUI()) {
             engineController.setUciLimitStrength(true);
         }
+        gameModel.setEloHasBeenSetInGUI(false);
         // trigger statechange
         gameModel.setMode(GameModel.MODE_PLAY_BLACK);
         gameModel.setFlipBoard(true);
@@ -281,14 +283,14 @@ public class ModeMenuController implements StateChangeListener {
                                              activeEngine.getUciElo());
     }
     
-    public void editEngines() {
+    public void editEngines(Stage ownerStage) {
         // To not be bothered by result notifications during editing engines.
         gameModel.doNotNotifyAboutResult = true;
         // The following call stops the engine-process, set the ENTER_MOVES_MODE
         // and calls GameModel.triggerChangeState(). Previously the engine was
         // not stopped here.
         activateEnterMovesMode();
-        DialogEngines dlg = new DialogEngines();
+        DialogEngines dlg = new DialogEngines(ownerStage);
         ArrayList<Engine> enginesCopy = new ArrayList<>();
         for(Engine engine : gameModel.engines) {
             enginesCopy.add(engine);

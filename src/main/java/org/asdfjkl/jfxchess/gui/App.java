@@ -27,7 +27,10 @@ import javafx.scene.image.ImageView;
 import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
+import javafx.event.EventHandler;
+import javafx.scene.web.WebView;
 
 
 /**
@@ -70,6 +73,11 @@ public class App extends Application implements StateChangeListener {
 
     String moveBuffer = "";
 
+    private RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
+    private RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
+
+    private String dragNDropFilePath;
+
     @Override
     public void start(Stage stage) {
 
@@ -82,7 +90,6 @@ public class App extends Application implements StateChangeListener {
         //tests.pgnReadAllMillBaseTest();
 
         //FooTest();
-
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
@@ -141,9 +148,7 @@ public class App extends Application implements StateChangeListener {
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
         itmAnalysis.setAccelerator(keyCombinationAnalysis);
-        RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
         itmPlayAsWhite.setAccelerator(keyCombinationPlayWhite);
-        RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
         itmPlayAsBlack.setAccelerator(keyCombinationPlayBlack);
         itmEnterMoves = new RadioMenuItem("Enter Moves");
         itmEnterMoves.setAccelerator(keyCombinationEnterMoves);
@@ -551,11 +556,11 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmEngines.setOnAction(e -> {
-            modeMenuController.editEngines();
+            modeMenuController.editEngines(stage);
         });
 
         btnSelectEngine.setOnAction(e -> {
-            modeMenuController.editEngines();
+            modeMenuController.editEngines(stage);
         });
 
         itmCopyGame.setOnAction(e -> {
@@ -827,6 +832,79 @@ public class App extends Application implements StateChangeListener {
             }
             event.consume();
         });
+        
+        // Below is some code to make it possible to drag and drop
+        // pgn-files from e.g. a filemanager or the desktop into
+        // jfxchess. The game in the file will be opened or, if
+        // there are many games in the file, a dialog will pop up
+        // in which the user can choose a game to open, in the same
+        // way as after selecting a file in the FileChooser-dialog
+        // via File->open...
+
+        vbMainUpperPart.setOnDragOver((DragEvent event) -> {
+            //System.out.println("vbMain onDragOver");
+            // accept it only if it is  not dragged from the same node
+            // andif it has one pgn-file */
+            Dragboard db = event.getDragboard();
+            if (event.getGestureSource() != vbMainUpperPart
+                    && db.hasFiles()) {
+                if (db.getFiles().size() == 1
+                     && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                    /* allow only for copying */
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+            }
+            event.consume();
+        });
+
+        vbMainUpperPart.setOnDragDropped((DragEvent event) -> {
+            // data dropped
+            //System.out.println("vbMain onDragDropped");
+            Dragboard db = event.getDragboard();
+            if (db.hasFiles() && db.getFiles().size() == 1
+                    && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                String filePath = db.getFiles().get(0).getAbsolutePath();
+                File file = new File(filePath);
+                gameMenuController.openFile(file);
+                event.setDropCompleted(true);
+            }
+            event.consume();
+        });
+
+        // I couldn't drop any pgn-files in the area containing the
+        // moves of the game, even though this area is part of
+        // vbMainUpperPart, so I had to treat it separately.
+        // (clue? - If the "Book"-tab was chosen (instead of "Moves")
+        // it worked fine to drop pgn-files there, without the following
+        // two methods().
+        WebView webView = moveView.getWebView();
+
+        webView.setOnDragOver((DragEvent event) -> {
+            // Data is dragged over the target.
+            //System.out.println("webView onDragOver");
+            // Accept it only if the event holds one pgn-file.
+            Dragboard db = event.getDragboard();
+            if (db.hasFiles() && db.getFiles().size() == 1
+                     && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                // Ugly fix: Here I have to save the filepath because
+                // in the setOnDragDropped((DragEvent event) for this
+                // webView, the event didn't contain any file, I don't
+                // know why.
+                dragNDropFilePath = db.getFiles().get(0).getAbsolutePath();
+                // Allow only for copying
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+
+        webView.setOnDragDropped((DragEvent event) -> {
+            // Data dropped.
+            //System.out.println("webView onDragDropped");
+            File file = new File(dragNDropFilePath);
+            gameMenuController.openFile(file);
+            event.setDropCompleted(true);
+            event.consume();
+        });
 
         itmEnterMoves.setSelected(true);
 
@@ -922,7 +1000,6 @@ public class App extends Application implements StateChangeListener {
 
     }
 
-
     public static void main(String[] args) {
         launch();
     }
@@ -1003,8 +1080,10 @@ public class App extends Application implements StateChangeListener {
             }
             if(dlg.rbComputer.isSelected()) {
                 if(dlg.rbWhite.isSelected()) {
+                    itmPlayAsWhite.setSelected(true);
                     modeMenuController.activatePlayWhiteMode();
                 } else {
+                    itmPlayAsBlack.setSelected(true);
                     modeMenuController.activatePlayBlackMode();
                 }
             } else {
