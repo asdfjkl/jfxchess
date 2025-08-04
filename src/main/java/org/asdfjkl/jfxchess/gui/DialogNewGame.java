@@ -223,7 +223,7 @@ public class DialogNewGame {
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(
-                new Label("Select Enemy:"),
+                new Label("Select Opponent:"),
                 hbGame,
                 new Label("Chose your Side:"),
                 hbSide,
