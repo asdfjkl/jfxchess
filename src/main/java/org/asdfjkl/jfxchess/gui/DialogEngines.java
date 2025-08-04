@@ -49,6 +49,7 @@ public class DialogEngines {
 
     final FileChooser fileChooser = new FileChooser();
 
+    Stage ownerStage;
     Stage stage;
     boolean accepted = false;
 
@@ -66,6 +67,10 @@ public class DialogEngines {
     Button btnCancel;
 
     int selectedIndex = 0;
+    
+    public DialogEngines(Stage ownerStage) {
+        this.ownerStage = ownerStage;
+    }
 
     public boolean show(ArrayList<Engine> engines, int idxSelectedEngine, int colorTheme) {
 
@@ -110,6 +115,7 @@ public class DialogEngines {
         });
 
         stage = new Stage();
+        stage.initOwner(ownerStage);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Chess Engines:");
 
