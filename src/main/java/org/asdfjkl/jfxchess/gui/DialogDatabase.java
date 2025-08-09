@@ -19,6 +19,7 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -35,6 +36,7 @@ import jfxtras.styles.jmetro.JMetroStyleClass;
 import jfxtras.styles.jmetro.Style;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DialogDatabase {
@@ -114,12 +116,12 @@ public class DialogDatabase {
         colDate.setSortable(false);
 
         TableColumn<PgnDatabaseEntry, String> colWhite = new TableColumn<PgnDatabaseEntry, String>("White");
-        colWhite.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("White"));
+        colWhite.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("white"));
         colWhite.setMinWidth(200);
         colWhite.setSortable(false);
 
         TableColumn<PgnDatabaseEntry, String> colBlack = new TableColumn<PgnDatabaseEntry, String>("Black");
-        colBlack.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("Black"));
+        colBlack.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, String>("black"));
         colBlack.setMinWidth(200);
         colBlack.setSortable(false);
 
@@ -280,6 +282,10 @@ public class DialogDatabase {
     public void updateTable() {
 
         table.setItems(pgnDatabase.getEntries());
+        for(PgnDatabaseEntry en : pgnDatabase.getEntries()) {
+            System.out.println(en.getWhite());
+            System.out.println(en.getBlack());
+        }
 
     }
 

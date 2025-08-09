@@ -31,11 +31,9 @@ public class PgnReader {
     String currentLine;  // current line
     int currentIdx = 0; // current index
     final Stack<GameNode> gameStack;
-    String encoding;
 
     public PgnReader() {
         gameStack = new Stack<>();
-        this.encoding = "UTF-8";
     }
 
     ArrayList<PgnDatabaseEntry> scanPgnGetSTR(String filename) {
@@ -71,7 +69,7 @@ public class PgnReader {
                         int secondQuote = currentLine.indexOf('"', firstQuote + 1);
                         String tag = currentLine.substring(1, spaceOffset);
                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding);
+                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                         if(tag.equals("Event")) {
                             current.setEvent(valueEncoded);
                         }
@@ -227,7 +225,7 @@ public class PgnReader {
                         int secondQuote = currentLine.indexOf('"', firstQuote + 1);
                         String tag = currentLine.substring(1, spaceOffset);
                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                        header.put(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
+                        header.put(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
                     }
                 } else {
                     if (foundHeader) {
@@ -763,7 +761,7 @@ public class PgnReader {
                             if (tag.equals("FEN")) {
                                 startingFen = value;
                             } else {
-                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), encoding));
+                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
                             }
                         }
                     }
@@ -913,7 +911,7 @@ public class PgnReader {
                         int end = rest_of_line.indexOf("}");
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end);
-                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), encoding));
+                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
                             currentIdx = currentIdx + end + 1;
                         } else {
                             // get comment over multiple lines
@@ -947,7 +945,7 @@ public class PgnReader {
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
                             }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), encoding));
+                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
                         }
                     }
                 }
@@ -1002,11 +1000,7 @@ public class PgnReader {
                             if (tag.equals("FEN")) {
                                 startingFen = value;
                             } else {
-                                try {
-                                    g.setHeader(tag, new String(value.getBytes(StandardCharsets.UTF_8), encoding));
-                                } catch(UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
+                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                             }
                         }
                     }
@@ -1053,7 +1047,6 @@ public class PgnReader {
 
         boolean firstLine = true;
 
-        try  {
             while (true) {
                 // if we are at the first line after skipping
                 // all the empty ones, don't read another line
@@ -1157,7 +1150,8 @@ public class PgnReader {
                         int end = rest_of_line.indexOf("}");
                         if (end >= 0) {
                             String comment_line = rest_of_line.substring(0, end+1);
-                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.UTF_8), encoding));
+                            // should this be raw (ISO 85...) to UTF-8?!
+                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                             currentIdx = currentIdx + end + 1;
                         } else {
                             // get comment over multiple lines
@@ -1192,15 +1186,14 @@ public class PgnReader {
                                 comment_lines.append("\n");
                                 currentIdx = end_index + 1;
                             }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.UTF_8), encoding));
+                            // same here - decode from UTF-8 or raw chars?!
+                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                         }
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return g;
+
+        // return g;
     }
 
 

@@ -635,7 +635,7 @@ public class PgnDatabase {
                                     String tag = currentLine.substring(1, spaceOffset);
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
-                                        String valueEncoded = new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                                        String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);
                                             current.markValid();
@@ -649,10 +649,14 @@ public class PgnDatabase {
                                             current.markValid();
                                         }
                                         if (tag.equals("White")) {
+                                            System.out.println(valueEncoded);
+
                                             current.setWhite(valueEncoded);
                                             current.markValid();
                                         }
                                         if (tag.equals("Black")) {
+                                            System.out.println(valueEncoded);
+
                                             current.setBlack(valueEncoded);
                                             current.markValid();
                                         }

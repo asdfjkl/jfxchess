@@ -198,7 +198,6 @@ public class EngineThread extends Thread {
                 // engine not running
                 // System.out.println("start of loop");
                 if (!cmdQueue.isEmpty()) {
-                    System.out.println("cmd queue size: "+cmdQueue.size());
                     try {
                         // Here we dispose of (or consume) the next command
                         // sent to a dead engine, or start a new engine process
@@ -208,7 +207,6 @@ public class EngineThread extends Thread {
                         // an engine, without first checking if the engine is on. 
                         String cmd = (String)cmdQueue.take();
                         if (cmd.startsWith("start")) {
-                            System.out.println("we got a start");
                             // reset engine info if we start
                             engineInfo.clear();
                             String engineCmd = cmd.substring(6);
@@ -220,7 +218,6 @@ public class EngineThread extends Thread {
                                 readyok = false;
                                 uciok = false;
                             } catch (IOException e) {
-                                System.out.println("caught io exec when starting");
                                 e.printStackTrace(System.out);
                             }
                             this.engineInfo.strength = -1;
@@ -234,7 +231,6 @@ public class EngineThread extends Thread {
                 // System.out.println("calling continue");
                 continue;
             }
-            System.out.println("engine startup finished");
             // When we have come this far in the while-loop
             // we know that the process is alive -> engine is running.
             // The commands uci, quit, setoption and isready are
