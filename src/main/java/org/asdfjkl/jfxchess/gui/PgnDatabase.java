@@ -649,14 +649,10 @@ public class PgnDatabase {
                                             current.markValid();
                                         }
                                         if (tag.equals("White")) {
-                                            System.out.println(valueEncoded);
-
                                             current.setWhite(valueEncoded);
                                             current.markValid();
                                         }
                                         if (tag.equals("Black")) {
-                                            System.out.println(valueEncoded);
-
                                             current.setBlack(valueEncoded);
                                             current.markValid();
                                         }
