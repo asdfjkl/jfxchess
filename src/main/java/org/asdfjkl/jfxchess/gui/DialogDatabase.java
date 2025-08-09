@@ -282,11 +282,6 @@ public class DialogDatabase {
     public void updateTable() {
 
         table.setItems(pgnDatabase.getEntries());
-        for(PgnDatabaseEntry en : pgnDatabase.getEntries()) {
-            System.out.println(en.getWhite());
-            System.out.println(en.getBlack());
-        }
-
     }
 
     public void updateTableWithSearchResults() {
