@@ -531,6 +531,16 @@ public class GameModel {
 
     }
 
+    public void saveWindowMaxStatus(boolean isWindowMaximized) {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs.putBoolean("APP_WINDOW_MAX", isWindowMaximized);
+    }
+
+    public boolean restoreWindowMaxStatus() {
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        return prefs.getBoolean("APP_WINDOW_MAX", false);
+    }
+
     public void saveToolbarVisibility(boolean isVisible) {
         Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
         prefs.putBoolean("SHOW_TOOLBAR", isVisible);
@@ -599,6 +609,7 @@ public class GameModel {
     public void setEloHasBeenSetInGUI(boolean b) {
         eloHasBeenSetInGui = b;
     }
+
 }
 
 

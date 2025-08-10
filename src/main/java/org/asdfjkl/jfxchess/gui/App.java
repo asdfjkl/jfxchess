@@ -22,20 +22,12 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane;
-//import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
-//import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.ArrayList;
-
-import atlantafx.base.theme.PrimerLight;
-import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.NordLight;
 import atlantafx.base.theme.NordDark;
-import atlantafx.base.theme.CupertinoDark;
-import atlantafx.base.theme.Dracula;
 
 /**
  * JavaFX App
@@ -91,14 +83,6 @@ public class App extends Application implements StateChangeListener {
         //tests.readGamesByStringTest();
         //tests.pgnReadAllMillBaseTest();
 
-        //Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        //Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
-        //Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
-        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
-        //Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
-        //Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
-
-        //FooTest();
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
@@ -108,6 +92,8 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreTheme();
         gameModel.restorePaths();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
+        boolean appWindowWasMaximized = gameModel.restoreWindowMaxStatus();
+        System.out.println("appWindowWasMax: "+(appWindowWasMaximized));
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
 
@@ -846,39 +832,39 @@ public class App extends Application implements StateChangeListener {
 
         itmEnterMoves.setSelected(true);
 
-        gameModel.THEME = gameModel.STYLE_LIGHT;
-        //Style style = Style.DARK;
-        if(gameModel.THEME == gameModel.STYLE_LIGHT) {
-          //  style = Style.LIGHT;
-        }
-        //JMetro jMetro = new JMetro(style);
-        //jMetro.setScene(scene);
-        //jMetro.setAutomaticallyColorPanes(true);
 
-        //URL x = this.getClass().getResource("/css/webview_style_light.css");
-        //System.out.println(x);
+        // Setup Style
+        if(gameModel.THEME == gameModel.STYLE_LIGHT) {
+            Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
+        } else {
+            Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
+        }
         scene.getStylesheets().add(getClass().getResource("/css/generic-widget.css").toString());
 
         SplashScreen splash = SplashScreen.getSplashScreen();
-
         if (splash != null && splash.isVisible()) {
             splash.close();
         }
 
         stage.setScene(scene);
-        // get primary screen bounds and set these to scene or
-        // restore previously stet screen geometry
-        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
-        if(screenGeometry.isValid()) {
-            stage.setX(screenGeometry.xOffset);
-            stage.setY(screenGeometry.yOffset);
-            stage.setWidth(screenGeometry.width);
-            stage.setHeight(screenGeometry.height);
+        // restore previous screen geometry
+        // first check if app was maximized when closing. Then set to max and don't bother
+        // with further restoring
+        if(appWindowWasMaximized) {
+            stage.setMaximized(true);
         } else {
-            //stage.setX(screenBounds.);
-            //stage.setY(screenGeometry.yOffset);
-            stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
-            stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
+            // get primary screen bounds and set these to scene or
+            // restore previously set screen geometry
+            Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+            if(screenGeometry.isValid()) {
+                stage.setX(screenGeometry.xOffset);
+                stage.setY(screenGeometry.yOffset);
+                stage.setWidth(screenGeometry.width);
+                stage.setHeight(screenGeometry.height);
+            } else {
+                stage.setWidth(screenBounds.getWidth() * ScreenGeometry.DEFAULT_WIDTH_RATIO);
+                stage.setHeight(screenBounds.getHeight() * ScreenGeometry.DEFAULT_HEIGHT_RATIO);
+            }
         }
 
         boolean toolBarVisible = gameModel.restoreToolbarVisibility();
@@ -898,6 +884,7 @@ public class App extends Application implements StateChangeListener {
         spMain.requestFocus();
 
         stage.getIcons().add(new Image("icons/app_icon.png"));
+        stage.setTitle("JFXChess");
         stage.show();
 
         // recover divider ratios at the last step, as show() might trigger resizes
@@ -981,6 +968,8 @@ public class App extends Application implements StateChangeListener {
                 spChessboardMoves.getDividerPositions()[0],
                 spMain.getDividerPositions()[0]);
         gameModel.saveScreenGeometry(g);
+        gameModel.saveWindowMaxStatus(stage.isMaximized());
+        System.out.println("I reckon window is max: "+ (stage.isMaximized()));
         gameModel.saveBoardStyle();
         gameModel.saveEngines();
         gameModel.saveGameAnalysisThresholds();
