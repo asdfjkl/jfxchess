@@ -1,11 +1,13 @@
 a:link, a:visited, a:hover, a:active {
   text-decoration: none;
-  color: black;
+  /* color: black; */
+  color: #2D333F;
 }
 
 .current {
   color: White !important;
-  background-color: LightSlateGray;
+  /* background-color: LightSlateGray; */
+  background-color: #AFC7E0;
 }
 
 body {

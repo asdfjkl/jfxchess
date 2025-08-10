@@ -22,13 +22,20 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane;
-import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetro;
 import javafx.scene.image.ImageView;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.*;
 import java.awt.*;
+import java.net.URL;
 import java.util.ArrayList;
 
+import atlantafx.base.theme.PrimerLight;
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.NordLight;
+import atlantafx.base.theme.NordDark;
+import atlantafx.base.theme.CupertinoDark;
+import atlantafx.base.theme.Dracula;
 
 /**
  * JavaFX App
@@ -83,6 +90,13 @@ public class App extends Application implements StateChangeListener {
         //tests.testPolyglot();
         //tests.readGamesByStringTest();
         //tests.pgnReadAllMillBaseTest();
+
+        //Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
 
         //FooTest();
         gameModel = new GameModel();
@@ -260,6 +274,7 @@ public class App extends Application implements StateChangeListener {
         // Text & Edit Button for Game Data
         txtGameData = new Text("");
         txtGameData.setTextAlignment(TextAlignment.CENTER);
+        txtGameData.getStyleClass().add("generic-widget");
         Button btnEditGameData = new Button();
         btnEditGameData.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         Region spacerGameDataLeft = new Region();
@@ -355,6 +370,7 @@ public class App extends Application implements StateChangeListener {
         spMain = new SplitPane();
         spMain.setOrientation(Orientation.VERTICAL);
         spMain.getItems().addAll(vbMainUpperPart, vbBottom);
+        spMain.getStyleClass().add("generic-widget");
 
         GameMenuController gameMenuController = new GameMenuController(gameModel);
 
@@ -830,13 +846,18 @@ public class App extends Application implements StateChangeListener {
 
         itmEnterMoves.setSelected(true);
 
-        Style style = Style.DARK;
+        gameModel.THEME = gameModel.STYLE_LIGHT;
+        //Style style = Style.DARK;
         if(gameModel.THEME == gameModel.STYLE_LIGHT) {
-            style = Style.LIGHT;
+          //  style = Style.LIGHT;
         }
-        JMetro jMetro = new JMetro(style);
-        jMetro.setScene(scene);
+        //JMetro jMetro = new JMetro(style);
+        //jMetro.setScene(scene);
         //jMetro.setAutomaticallyColorPanes(true);
+
+        //URL x = this.getClass().getResource("/css/webview_style_light.css");
+        //System.out.println(x);
+        scene.getStylesheets().add(getClass().getResource("/css/generic-widget.css").toString());
 
         SplashScreen splash = SplashScreen.getSplashScreen();
 

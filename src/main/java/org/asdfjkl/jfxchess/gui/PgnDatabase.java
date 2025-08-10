@@ -31,7 +31,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetro;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.io.BufferedWriter;
@@ -146,8 +146,8 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        JMetro jMetro = new JMetro();
-        jMetro.setScene(scene);
+        //JMetro jMetro = new JMetro();
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();
@@ -437,8 +437,8 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        JMetro jMetro = new JMetro();
-        jMetro.setScene(scene);
+        //JMetro jMetro = new JMetro();
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();
@@ -575,8 +575,8 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        JMetro jMetro = new JMetro();
-        jMetro.setScene(scene);
+        //JMetro jMetro = new JMetro();
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();
@@ -636,6 +636,7 @@ public class PgnDatabase {
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
                                         String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                                        //String valueEncoded = new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);
                                             current.markValid();
@@ -746,8 +747,8 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        JMetro jMetro = new JMetro();
-        jMetro.setScene(scene);
+        //JMetro jMetro = new JMetro();
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();

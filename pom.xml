@@ -19,32 +19,27 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>21.0.5</version>
+            <version>21.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>21.0.5</version>
+            <version>21.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>21.0.5</version>
+            <version>21.0.7</version>
         </dependency>
         <dependency>
-            <groupId>org.jfxtras</groupId>
-            <artifactId>jmetro</artifactId>
-            <version>11.6.16</version>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.weblookandfeel</groupId>
             <artifactId>svg-salamander</artifactId>
             <version>1.1.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.2.1</version>
         </dependency>
     </dependencies>
     <build>

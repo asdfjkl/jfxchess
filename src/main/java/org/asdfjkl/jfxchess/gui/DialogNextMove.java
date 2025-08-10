@@ -32,9 +32,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 import java.util.ArrayList;
 
@@ -85,7 +85,7 @@ public class DialogNextMove {
         vbox.getChildren().addAll(lvMoves, hbox);
 
         Scene scene = new Scene(vbox);
-        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             if (event.getCode() == KeyCode.RIGHT) {
@@ -106,13 +106,13 @@ public class DialogNextMove {
             event.consume();
         });
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.showAndWait();

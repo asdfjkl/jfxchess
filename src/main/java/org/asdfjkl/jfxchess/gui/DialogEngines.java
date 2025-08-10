@@ -34,14 +34,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import jfxtras.styles.jmetro.FlatAlert;
+//import jfxtras.styles.jmetro.FlatAlert;
 
 import static org.asdfjkl.jfxchess.gui.EngineOption.*;
 
@@ -177,17 +177,17 @@ public class DialogEngines {
 
         engineListView.getSelectionModel().select(idxSelectedEngine);
 
-        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro;
+        //JMetro jMetro;
         this.colorTheme = colorTheme;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
@@ -401,17 +401,17 @@ public class DialogEngines {
     }
     
     private void alertUser(String message) {
-        FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-        Scene scene = alert.getDialogPane().getScene();
-        JMetro metro = new JMetro();
+        //FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+        //Scene scene = alert.getDialogPane().getScene();
+        //JMetro metro = new JMetro();
         if (colorTheme == GameModel.STYLE_DARK) {
-            metro.setStyle(Style.DARK);
+            //metro.setStyle(Style.DARK);
         }
-        metro.setScene(scene);
-        alert.setAlertType(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("");
-        alert.setContentText(message);
-        alert.showAndWait();
+        //metro.setScene(scene);
+        //alert.setAlertType(Alert.AlertType.INFORMATION);
+        //alert.setHeaderText("");
+        //alert.setContentText(message);
+        //alert.showAndWait();
     }
 }
 

@@ -81,9 +81,9 @@ public class MoveView implements StateChangeListener {
         //webEngine = webView.getEngine();
         try {
             if(gameModel.THEME == gameModel.STYLE_LIGHT) {
-                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style_light.css").toString());
+                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("css/webview_style_light.css").toExternalForm());
             } else {
-                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("webview/style_dark.css").toString());
+                webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("css/webview_style_dark.css").toExternalForm());
             }
         } catch (NullPointerException e) {
 

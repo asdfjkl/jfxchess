@@ -20,9 +20,9 @@ package org.asdfjkl.jfxchess.gui;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import jfxtras.styles.jmetro.FlatAlert;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.FlatAlert;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.text.DecimalFormat;
@@ -113,16 +113,16 @@ public class ModeMenuController implements StateChangeListener {
             activateEnterMovesMode();
             //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
 
-            FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
-            Scene scene = alert.getDialogPane().getScene();
-            JMetro metro = new JMetro();
+            //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
+            //Scene scene = alert.getDialogPane().getScene();
+            //JMetro metro = new JMetro();
             if(gameModel.THEME == GameModel.STYLE_DARK) {
-                metro.setStyle(Style.DARK);
+              //  metro.setStyle(Style.DARK);
             }
-            metro.setScene(scene);
-            alert.setHeaderText("Analysis Finished");
-            alert.setContentText("The game analysis is finished.");
-            alert.showAndWait();
+            //metro.setScene(scene);
+            //alert.setHeaderText("Analysis Finished");
+            //alert.setContentText("The game analysis is finished.");
+            //alert.showAndWait();
 
             //DialogSimpleAlert dlg = new DialogSimpleAlert();
             //dlg.show("     The analysis is finished.     ", gameModel.THEME);
@@ -552,17 +552,17 @@ public class ModeMenuController implements StateChangeListener {
                 message = "Draw (Insufficient material for checkmate)";
             }
             if(mode != GameModel.MODE_GAME_ANALYSIS) {
-                FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-                Scene scene = alert.getDialogPane().getScene();
-                JMetro metro = new JMetro();
+                //FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
+                //Scene scene = alert.getDialogPane().getScene();
+                //JMetro metro = new JMetro();
                 if(gameModel.THEME == GameModel.STYLE_DARK) {
-                    metro.setStyle(Style.DARK);
+                  //  metro.setStyle(Style.DARK);
                 }
-                metro.setScene(scene);
+                //metro.setScene(scene);
                 //alert.setTitle("Delete Game");
-                alert.setHeaderText("");
-                alert.setContentText(message);
-                alert.showAndWait();
+                //alert.setHeaderText("");
+                //alert.setContentText(message);
+                //alert.showAndWait();
 
                 //DialogSimpleAlert dlg = new DialogSimpleAlert();
                 //dlg.show(message, gameModel.THEME);

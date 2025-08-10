@@ -94,6 +94,7 @@ public class EngineOutputView implements StateChangeListener {
                 new Text(System.lineSeparator()),
                 pvLines.get(0),
                 new Text(System.lineSeparator()));
+        txtEngineOut.getStyleClass().add("generic-widget");
         // The following line fetches the restored number
         // of pv-lines from gameModel and modifies pvLines
         // and txtEngineOut by adding lines and children.

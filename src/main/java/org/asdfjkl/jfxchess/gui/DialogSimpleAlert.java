@@ -25,9 +25,9 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 public class DialogSimpleAlert {
 
@@ -59,15 +59,15 @@ public class DialogSimpleAlert {
         });
 
         Scene scene = new Scene(vbox);
-        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+          //  jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+           // jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.showAndWait();

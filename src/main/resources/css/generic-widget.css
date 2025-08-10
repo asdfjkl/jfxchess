@@ -1,0 +1,9 @@
+.generic-widget {
+    -fx-background-color: -color-bg-default;
+    -fx-padding: 8;
+}
+
+.generic-widget Text {
+    -fx-fill: -color-fg-default;
+    -fx-font-family: "Segoe UI", sans-serif;
+}

@@ -1,15 +1,15 @@
 a:link, a:visited, a:hover, a:active {
   text-decoration: none;
-  color: white;
+  color: #ECEEF3; /* AtlantaFX standard text */
 }
 
 .current {
   color: White !important;
-  background-color: #004F8B;
+  background-color: #2395c2; /* cursor color */
 }
 
 body {
-    background-color: #333333;
+    background-color: #2E3440; /* AtlantaFX NordDark background */
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     padding-top: 0.1em;
@@ -24,5 +24,5 @@ body {
 
 .variation {
     text-indent: 10em;
-    color: white;
+    color: #ECEEF3; /* AtlantaFX standard text */
 }

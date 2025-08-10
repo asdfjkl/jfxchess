@@ -32,9 +32,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -161,7 +161,7 @@ public class DialogEngineOptions {
             btnCancelClicked();
         });
 
-        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
 
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int height = gd.getDisplayMode().getHeight();
@@ -170,13 +170,13 @@ public class DialogEngineOptions {
 
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.showAndWait();

@@ -27,9 +27,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 public class DialogSave {
 
@@ -95,17 +95,17 @@ public class DialogSave {
         vbox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vbox);
-        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         vbox.setSpacing(10);
         vbox.setPadding( new Insets(10));
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if (colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);

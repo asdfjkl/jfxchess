@@ -28,9 +28,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 
 public class DialogEnterComment {
 
@@ -74,16 +74,16 @@ public class DialogEnterComment {
             btnCancelClicked();
         });
 
-        vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
         stage.setScene(scene);
 
         stage.showAndWait();

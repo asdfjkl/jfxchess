@@ -29,9 +29,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.text.*;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.JMetroStyleClass;
-import jfxtras.styles.jmetro.Style;
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.JMetroStyleClass;
+//import jfxtras.styles.jmetro.Style;
 import org.asdfjkl.jfxchess.lib.Board;
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
@@ -232,16 +232,16 @@ public class DialogEnterPosition implements EnterPosBoardListener {
             btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
-        vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        //vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
 
-        JMetro jMetro;
+        //JMetro jMetro;
         if(colorTheme == GameModel.STYLE_LIGHT) {
-            jMetro = new JMetro();
+            //jMetro = new JMetro();
         } else {
-            jMetro = new JMetro(Style.DARK);
+            //jMetro = new JMetro(Style.DARK);
         }
-        jMetro.setScene(scene);
+        //jMetro.setScene(scene);
         stage.setScene(scene);
         stage.setWidth(width+40);
         //stage.setHeight(height);
