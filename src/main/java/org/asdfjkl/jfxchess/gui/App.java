@@ -40,7 +40,7 @@ public class App extends Application implements StateChangeListener {
 
     ToggleButton tglEngineOnOff;
 
-    // Two new variables, to make it possible to hide the PV-lines when playing.
+    // Two variables, to make it possible to hide the PV-lines when playing.
     Label lblShowLines = new Label("    Show lines: ");
     CheckBox cbShowEngineLines = new CheckBox("");
     
@@ -93,7 +93,6 @@ public class App extends Application implements StateChangeListener {
         gameModel.restorePaths();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         boolean appWindowWasMaximized = gameModel.restoreWindowMaxStatus();
-        System.out.println("appWindowWasMax: "+(appWindowWasMaximized));
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
 
@@ -969,7 +968,6 @@ public class App extends Application implements StateChangeListener {
                 spMain.getDividerPositions()[0]);
         gameModel.saveScreenGeometry(g);
         gameModel.saveWindowMaxStatus(stage.isMaximized());
-        System.out.println("I reckon window is max: "+ (stage.isMaximized()));
         gameModel.saveBoardStyle();
         gameModel.saveEngines();
         gameModel.saveGameAnalysisThresholds();

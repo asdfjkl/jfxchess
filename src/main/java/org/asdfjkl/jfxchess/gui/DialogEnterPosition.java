@@ -29,9 +29,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.text.*;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
+
 import org.asdfjkl.jfxchess.lib.Board;
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
@@ -98,14 +96,12 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
-        //vbButtonsRight.setPrefWidth(140);
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         Region spacer3 = new Region();
         Region spacer4 = new Region();
         // initial position is the longest text. other buttons follow
         final Text tmpTxt = new Text("Initial Position ");
-        double btnWidth = tmpTxt.getLayoutBounds().getWidth();
 
         btnInitialPosition.setMinWidth(140);
         btnFlipBoard.setMinWidth(140);
@@ -232,19 +228,9 @@ public class DialogEnterPosition implements EnterPosBoardListener {
             btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
-        //vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbMain);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
         stage.setScene(scene);
-        stage.setWidth(width+40);
-        //stage.setHeight(height);
+        stage.setWidth(width+120);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

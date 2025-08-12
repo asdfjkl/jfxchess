@@ -30,13 +30,15 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 
-public class DialogSimpleAlert {
+public class DialogSimpleConfirm {
 
     private final Stage dialog;
     private final Label messageLabel;
     private final ImageView iconView;
 
-    public DialogSimpleAlert(Stage owner, Alert.AlertType alertType, String title, String message) {
+    boolean accepted = false;
+
+    public DialogSimpleConfirm(Stage owner, Alert.AlertType alertType, String title, String message) {
         dialog = new Stage(StageStyle.UTILITY);
         dialog.initOwner(owner);
         dialog.setTitle(title);
@@ -65,9 +67,17 @@ public class DialogSimpleAlert {
         // Buttons
         Button okButton = new Button("OK");
         okButton.setDefaultButton(true);
-        okButton.setOnAction(e -> dialog.close());
+        okButton.setOnAction(e -> {
+            accepted = true;
+            dialog.close();
+        });
 
-        HBox buttonBox = new HBox(10, okButton);
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> {
+            dialog.close();
+        });
+
+        HBox buttonBox = new HBox(10, okButton, cancelButton);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.setPadding(new Insets(10, 10, 10, 10));
 

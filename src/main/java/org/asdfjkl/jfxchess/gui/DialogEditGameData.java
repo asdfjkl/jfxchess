@@ -102,7 +102,7 @@ public class DialogEditGameData {
         eloWhite.setEditable(true);
         // set initial value
         eloWhite.getValueFactory().setValue(0);
-        eloWhite.setPrefWidth(80);
+        //eloWhite.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryBlackElo =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5000, 0);
@@ -110,7 +110,7 @@ public class DialogEditGameData {
         eloBlack.setEditable(true);
         // set initial value
         eloBlack.getValueFactory().setValue(0);
-        eloBlack.setPrefWidth(80);
+        //eloBlack.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryRound =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 999, 0);
@@ -118,7 +118,7 @@ public class DialogEditGameData {
         round.setEditable(true);
         // set initial value
         round.getValueFactory().setValue(0);
-        round.setPrefWidth(60);
+        //round.setPrefWidth(60);
 
         SpinnerValueFactory<Integer> valueFactoryYear =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 3000, 0);
@@ -126,7 +126,7 @@ public class DialogEditGameData {
         year.setEditable(true);
         // set initial value
         year.getValueFactory().setValue(Year.now().getValue());
-        year.setPrefWidth(80);
+        //year.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryDay =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 31, 0);
@@ -134,7 +134,7 @@ public class DialogEditGameData {
         day.setEditable(true);
         // set initial value
         day.getValueFactory().setValue(MonthDay.now().getDayOfMonth());
-        day.setPrefWidth(60);
+        //day.setPrefWidth(60);
 
         SpinnerValueFactory<Integer> valueFactoryMonth =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 12, 0);
@@ -142,7 +142,7 @@ public class DialogEditGameData {
         month.setEditable(true);
         // set initial value
         month.getValueFactory().setValue(MonthDay.now().getMonthValue());
-        month.setPrefWidth(60);
+        //month.setPrefWidth(60);
 
         site.setPromptText("Site");
         if(pgnHeaders.get("Site") != null) {
@@ -333,16 +333,7 @@ public class DialogEditGameData {
             btnCancelClicked();
         });
 
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.showAndWait();

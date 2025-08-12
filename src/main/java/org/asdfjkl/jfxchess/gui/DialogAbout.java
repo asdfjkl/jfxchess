@@ -1,5 +1,5 @@
 /* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,9 +25,6 @@ import javafx.scene.text.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
 
 public class DialogAbout {
 
@@ -90,16 +87,6 @@ public class DialogAbout {
         vbox.setSpacing(10);
 
         Scene scene = new Scene(vbox);
-
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.showAndWait();

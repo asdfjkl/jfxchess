@@ -1,5 +1,5 @@
 /* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,9 +25,6 @@ import javafx.scene.text.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
 
 public class DialogAboutDatabase {
 
@@ -45,8 +42,6 @@ public class DialogAboutDatabase {
         txtJerry.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
         Text txtCopyright = new Text("Database Module\n" +
-                "Copyright © 2014-2023\n" +
-                "Dominik Klein\n" +
                 "    licensed under GNU GPL 2    ");
 
         tfAbout.getChildren().addAll(
@@ -70,16 +65,6 @@ public class DialogAboutDatabase {
         vbox.setSpacing(10);
 
         Scene scene = new Scene(vbox);
-
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.showAndWait();

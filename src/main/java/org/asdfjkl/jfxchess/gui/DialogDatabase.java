@@ -19,7 +19,6 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -30,14 +29,8 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-//import jfxtras.styles.jmetro.FlatAlert;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 public class DialogDatabase {
 
@@ -98,7 +91,6 @@ public class DialogDatabase {
         toolBar.getItems().addAll(btnOpen, btnDelete, btnSearch, btnResetSearch, btnAbout);
 
         table = new TableView<>();
-
 
         TableColumn<PgnDatabaseEntry, Long> colIndex = new TableColumn<PgnDatabaseEntry, Long>("No.");
         colIndex.setCellValueFactory(new PropertyValueFactory<PgnDatabaseEntry, Long>("Index"));
@@ -196,20 +188,12 @@ public class DialogDatabase {
         if (gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
             //System.out.println("current db idx");
             //System.out.println(gameModel.currentPgnDatabaseIdx);
-            //table.getSelectionModel().select(gameModel.currentPgnDatabaseIdx);
-            //table.scrollTo(gameModel.currentPgnDatabaseIdx);
+            table.getSelectionModel().select(gameModel.currentPgnDatabaseIdx);
+            table.scrollTo(gameModel.currentPgnDatabaseIdx);
         }
 
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
 
-        //JMetro jMetro;
-        if(gameModel.THEME == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
         stage.setMinWidth(1050);
         // unfocus all buttons and widgets
         vbox.requestFocus();
@@ -232,22 +216,12 @@ public class DialogDatabase {
             int gameIndex = table.getSelectionModel().getSelectedIndex();
             PgnDatabaseEntry selectedEntry = pgnDatabase.getEntries().get(gameIndex);
 
-            //FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-            //Scene scene = alert.getDialogPane().getScene();
-            //JMetro metro = new JMetro();
-            if(gameModel.THEME == GameModel.STYLE_DARK) {
-              //  metro.setStyle(Style.DARK);
+            String msg = "Deleting Game Nr. " + (gameIndex+1) + " ("+selectedEntry.getWhite()+" - "+selectedEntry.getBlack()+")";
+            DialogSimpleConfirm dlgConfirm = new DialogSimpleConfirm(this.stage, Alert.AlertType.WARNING,"Delete Game?", msg);
+            dlgConfirm.showAndWait();
+            if(dlgConfirm.accepted) {
+                pgnDatabase.deleteGame(gameIndex);
             }
-            //metro.setScene(scene);
-            //alert.setTitle("Delete Game");
-            //alert.setHeaderText("Deleting Game Nr. " + (gameIndex+1) +
-            //        " ("+selectedEntry.getWhite()+" - "+selectedEntry.getBlack()+")");
-            //alert.setContentText("Are you sure to delete this game?");
-            //Optional<ButtonType> result = alert.showAndWait();
-            //if (result.get() == ButtonType.OK){
-            //    pgnDatabase.deleteGame(gameIndex);
-            //} else {
-            //}
         }
     }
 

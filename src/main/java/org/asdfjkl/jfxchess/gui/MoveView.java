@@ -706,7 +706,7 @@ public class MoveView implements StateChangeListener {
             for(GameNode varI : variations) {
                 nextMoves.add(varI.getSan());
             }
-            int variationIdx = DialogNextMove.show(nextMoves, gameModel.THEME);
+            int variationIdx = DialogNextMove.show(nextMoves);
             if(variationIdx >= 0) {
                 this.gameModel.getGame().goToChild(variationIdx);
                 this.gameModel.triggerStateChange();

@@ -25,9 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
+
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
 public class DialogPromotion {
@@ -88,16 +86,6 @@ public class DialogPromotion {
         pane.getChildren().addAll(btnQueen, btnRook, btnBishop, btnKnight);
 
         Scene scene = new Scene(pane);
-        //pane.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
-
         stage.setScene(scene);
         stage.initModality(Modality.APPLICATION_MODAL);
         // stage.initStyle(StageStyle.UTILITY); will result on window not having focus/keyboard

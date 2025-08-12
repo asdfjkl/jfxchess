@@ -243,16 +243,7 @@ public class DialogNewGame {
             btnCancelClicked();
         });
 
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         Scene scene = new Scene(vbox);
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
-
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 

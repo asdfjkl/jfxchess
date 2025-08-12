@@ -26,9 +26,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
+
 import org.asdfjkl.jfxchess.lib.Board;
 
 public class DialogSearchGames {
@@ -318,15 +316,6 @@ public class DialogSearchGames {
         recoverFromSearchPattern(searchPattern);
 
         Scene scene = new Scene(vbox);
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-            //jMetro = new JMetro();
-        } else {
-            //jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 

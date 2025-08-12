@@ -28,10 +28,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-//import jfxtras.styles.jmetro.FlatAlert;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
 
 public class DialogAppearance {
 
@@ -201,17 +197,7 @@ public class DialogAppearance {
         initialColorTheme = colorTheme;
         selectedColorTheme = colorTheme;
 
-        //vbMain.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-
         Scene scene = new Scene(vbMain);
-
-        //JMetro jMetro;
-        if(colorTheme == GameModel.STYLE_LIGHT) {
-          //  jMetro = new JMetro();
-        } else {
-           // jMetro = new JMetro(Style.DARK);
-        }
-        //jMetro.setScene(scene);
         stage.setScene(scene);
         stage.setWidth(width);
         stage.setHeight(height);
@@ -226,18 +212,8 @@ public class DialogAppearance {
         if( (rbThemeLight.isSelected() && initialColorTheme != GameModel.STYLE_LIGHT)
                 || (rbThemeDark.isSelected() && initialColorTheme != GameModel.STYLE_DARK)) {
 
-            //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
-            //Scene scene = alert.getDialogPane().getScene();
-            //JMetro metro = new JMetro();
-            if(initialColorTheme == GameModel.STYLE_DARK) {
-            //        metro.setStyle(Style.DARK);
-            }
-            //metro.setScene(scene);
-            //alert.setHeaderText("Please Restart");
-            //alert.setContentText("In order for style changes to take effect, please restart the application.");
-            //alert.showAndWait();
-            //DialogSimpleAlert dlg = new DialogSimpleAlert();
-            //dlg.show("In order for style changes to take effect,\n please restart the application.", initialColorTheme);
+            DialogSimpleAlert dlgAlert = new DialogSimpleAlert(stage, Alert.AlertType.INFORMATION, "Please Restart!", "In order for style changes to take effect, please restart the application.");
+            dlgAlert.showAndWait();
         }
         stage.close();
     }
