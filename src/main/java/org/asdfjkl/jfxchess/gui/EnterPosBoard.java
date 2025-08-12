@@ -230,6 +230,7 @@ public class EnterPosBoard extends Canvas {
                 gc.fill();
 
                 // Mark the grabbedPiece's source-square on the board
+                /* edit: not for enter pos board!
                 if (grabbedPiece.grabbedFrom == BOARD) {
                     boolean markField = false;
                     if (!flipBoard) {
@@ -248,7 +249,7 @@ public class EnterPosBoard extends Canvas {
                         gc.rect(x, y, squareSize, squareSize);
                         gc.fill();
                     }
-                }
+                } */
             } // for j
         } // for i
 
