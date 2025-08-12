@@ -245,8 +245,7 @@ public class DialogDatabase {
         //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
         boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(),
                 gameModel.boardStyle,
-                gameModel.getSearchPattern().makeCopy(),
-                gameModel.THEME);
+                gameModel.getSearchPattern().makeCopy());
         if (accepted) {
             SearchPattern pattern = dlg.getSearchPattern();
             pgnDatabase.search(pattern);

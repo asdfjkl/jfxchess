@@ -68,8 +68,7 @@ public class DialogSearchGames {
 
     Board currentBoard;
 
-    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern,
-                        int colorTheme) {
+    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern) {
 
         this.currentBoard = board.makeCopy();
 
@@ -166,17 +165,20 @@ public class DialogSearchGames {
         enterPosBoard = new EnterPosBoard(currentBoard.makeCopy());
         enterPosBoard.boardStyle = currentBoardStyle;
         // to make sure, the enter position board is displayed correctly
-        enterPosBoard.setHeight(350);
+        //enterPosBoard.setHeight(200);
 
         HBox hbTabPosition = new HBox();
         hbTabPosition.getChildren().addAll(enterPosBoard, vbButtonsRight);
-        hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
-
+        //hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
+        hbTabPosition.setPrefWidth(1000);
 
         /*
          HEADER SEARCH TAB
          */
         GridPane gridHeaderSearch = new GridPane();
+        gridHeaderSearch.setHgap(10);
+        gridHeaderSearch.setVgap(8);
+
         Label lblWhite = new Label("White:");
         txtWhite = new TextField();
         Label lblBlack = new Label("Black:");
@@ -185,124 +187,121 @@ public class DialogSearchGames {
 
         Label lblEvent = new Label("Event:");
         txtEvent = new TextField();
-        Label lblSite = new Label("Site");
+        Label lblSite = new Label("Site:");
         txtSite = new TextField();
 
         cbYear = new CheckBox("Year:");
-        spinnerMinYear = new Spinner<Integer>();
-        SpinnerValueFactory<Integer> spinnerMinYearVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 500);
-        spinnerMinYear.setValueFactory(spinnerMinYearVF);
+        spinnerMinYear = new Spinner<>();
+        spinnerMaxYear = new Spinner<>();
+        spinnerMinYear.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 500));
+        spinnerMaxYear.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 2100));
         spinnerMinYear.setEditable(true);
-        spinnerMaxYear = new Spinner<Integer>();
-        SpinnerValueFactory<Integer> spinnerMaxYearVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(500, 2100, 2100);
-        spinnerMaxYear.setValueFactory(spinnerMaxYearVF);
         spinnerMaxYear.setEditable(true);
+
         cbECO = new CheckBox("ECO:");
         ecoMin = new TextField("A00");
         ecoMax = new TextField("E99");
 
-        GridPane gridLeft = new GridPane();
-        gridLeft.setHgap(10);
-        gridLeft.setVgap(20);
-        gridLeft.setAlignment(Pos.CENTER);
-        gridLeft.add(lblWhite, 0,0);
-        gridLeft.add(txtWhite, 1, 0);
-        gridLeft.add(lblBlack, 0, 1);
-        gridLeft.add(txtBlack, 1, 1);
-        gridLeft.add(ignoreCbColors, 1, 2);
-        gridLeft.add(lblEvent, 0, 3);
-        gridLeft.add(txtEvent, 1, 3);
-        gridLeft.add(lblSite, 0, 4);
-        gridLeft.add(txtSite, 1, 4);
-        gridLeft.add(cbYear, 0, 5);
-        gridLeft.add(cbECO, 0, 6);
-        HBox hbYear = new HBox();
-        hbYear.getChildren().addAll(spinnerMinYear, new Label("-"), spinnerMaxYear);
-        hbYear.setSpacing(10);
-        gridLeft.add(hbYear, 1, 5);
-        HBox hbEco = new HBox();
-        hbEco.getChildren().addAll(ecoMin, ecoMax);
-        hbEco.setSpacing(10);
-        gridLeft.add(hbEco, 1 , 6);
+        // Year + ECO
+        Label yearSep = new Label("to");
+        yearSep.getStyleClass().add("muted");
+        HBox hbYear = new HBox(8, spinnerMinYear, yearSep, spinnerMaxYear);
+        hbYear.setAlignment(Pos.CENTER_LEFT);
 
-        spinnerMinElo = new Spinner<Integer>();
-        spinnerMinElo.setMaxWidth(80);
-        spinnerMaxElo = new Spinner<Integer>();
-        spinnerMaxElo.setMaxWidth(80);
-        SpinnerValueFactory<Integer> spinnerMinEloVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(1000, 3000, 1000);
-        spinnerMinElo.setValueFactory(spinnerMinEloVF);
-        SpinnerValueFactory<Integer> spinnerMaxEloVF = new SpinnerValueFactory.IntegerSpinnerValueFactory(1000, 3000, 3000);
-        spinnerMaxElo.setValueFactory(spinnerMaxEloVF);
+        Label ecoSep = new Label("to");
+        ecoSep.getStyleClass().add("muted");
+        HBox hbEco = new HBox(8, ecoMin, ecoSep, ecoMax);
+        hbEco.setAlignment(Pos.CENTER_LEFT);
+
+        int row = 0;
+        gridHeaderSearch.add(lblWhite, 0, row);
+        gridHeaderSearch.add(txtWhite, 1, row++);
+
+        gridHeaderSearch.add(lblBlack, 0, row);
+        gridHeaderSearch.add(txtBlack, 1, row++);
+        gridHeaderSearch.add(ignoreCbColors, 1, row++);
+
+        gridHeaderSearch.add(lblEvent, 0, row);
+        gridHeaderSearch.add(txtEvent, 1, row++);
+
+        gridHeaderSearch.add(lblSite, 0, row);
+        gridHeaderSearch.add(txtSite, 1, row++);
+
+        gridHeaderSearch.add(cbYear, 0, row);
+        gridHeaderSearch.add(hbYear, 1, row++);
+
+        gridHeaderSearch.add(cbECO, 0, row);
+        gridHeaderSearch.add(hbEco, 1, row++);
+
+        // Elo section
+        Label lblElo = new Label("Elo");
+        lblElo.getStyleClass().add("heading"); // AtlantaFX heading style
+
+        spinnerMinElo = new Spinner<>();
+        spinnerMaxElo = new Spinner<>();
+        spinnerMinElo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1000, 3000, 1000));
+        spinnerMaxElo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1000, 3000, 3000));
         spinnerMinElo.setEditable(true);
         spinnerMaxElo.setEditable(true);
+        spinnerMinElo.setMaxWidth(120);
+        spinnerMaxElo.setMaxWidth(120);
 
         rbEloIgnore = new RadioButton("Ignore");
         rbEloOne = new RadioButton("One");
         rbEloBoth = new RadioButton("Both");
         rbEloAverage = new RadioButton("Average");
+
         ToggleGroup tgElo = new ToggleGroup();
         rbEloIgnore.setToggleGroup(tgElo);
         rbEloOne.setToggleGroup(tgElo);
         rbEloBoth.setToggleGroup(tgElo);
         rbEloAverage.setToggleGroup(tgElo);
 
-        GridPane gridElo = new GridPane();
-        gridElo.setHgap(20);
-        gridElo.setVgap(10);
-        HBox hbMinMaxElo = new HBox();
-        hbMinMaxElo.getChildren().addAll(spinnerMinElo, new Label("-"), spinnerMaxElo);
-        hbMinMaxElo.setAlignment(Pos.CENTER);
-        hbMinMaxElo.setSpacing(10);
+        Label eloSep = new Label("to");
+        eloSep.getStyleClass().add("muted");
+        HBox hbEloMain = new HBox(10,
+                spinnerMinElo, eloSep, spinnerMaxElo,
+                rbEloIgnore, rbEloOne, rbEloBoth, rbEloAverage
+        );
+        hbEloMain.setAlignment(Pos.CENTER_LEFT);
 
-        gridElo.add(hbMinMaxElo, 0,0,2, 1);
-        gridElo.add(rbEloIgnore, 0, 1);
-        gridElo.add(rbEloOne, 1, 1);
-        gridElo.add(rbEloBoth, 0, 2);
-        gridElo.add(rbEloAverage, 1, 2);
-
-        TitledPane paneElo = new TitledPane("Elo", gridElo);
-        paneElo.setCollapsible(false);
+        // Result section
+        Label lblResult = new Label("Result");
+        lblResult.getStyleClass().add("heading");
 
         cbResultWhiteWins = new CheckBox("1-0");
         cbResultBlackWins = new CheckBox("0-1");
         cbResultUnclear = new CheckBox("*");
         cbResultDraw = new CheckBox("1/2-1/2");
-        GridPane gridWin = new GridPane();
-        gridWin.setHgap(20);
-        gridWin.setVgap(10);
-        gridWin.add(cbResultWhiteWins,0,0);
-        gridWin.add(cbResultBlackWins, 1, 0);
-        gridWin.add(cbResultUnclear, 0, 1);
-        gridWin.add(cbResultDraw, 1, 1);
 
-        TitledPane paneWin = new TitledPane("Result", gridWin);
-        paneWin.setCollapsible(false);
+        HBox hbResult = new HBox(15,
+                cbResultWhiteWins,
+                cbResultBlackWins,
+                cbResultUnclear,
+                cbResultDraw
+        );
+        hbResult.setAlignment(Pos.CENTER_LEFT);
 
+        // Reset button for header search
         Button resetHeaderSearch = new Button("Reset");
-        HBox hbButtonReset = new HBox();
-        Region spacerResetButton = new Region();
-        hbButtonReset.getChildren().addAll(spacerResetButton, resetHeaderSearch);
-        hbButtonReset.setHgrow(spacerResetButton, Priority.ALWAYS);
+        resetHeaderSearch.setOnAction(e -> btnResetClicked());
+        HBox hbButtonReset = new HBox(resetHeaderSearch);
+        hbButtonReset.setAlignment(Pos.CENTER_RIGHT);
 
-        resetHeaderSearch.setOnAction(e -> {
-            btnResetClicked();
-        });
+        // final vertical layout for position search tab
+        VBox vboxGameData = new VBox(15,
+                gridHeaderSearch,
+                lblElo, hbEloMain,
+                lblResult, hbResult,
+                hbButtonReset
+        );
+        vboxGameData.setPadding(new Insets(15));
 
-        VBox vbEloResult = new VBox();
-        Region spacerRight = new Region();
-        //paneElo,
-        vbEloResult.getChildren().addAll( paneWin, spacerRight, hbButtonReset);
-        vbEloResult.setSpacing(10);
-        vbEloResult.setPadding( new Insets(30, 0, 0, 0));
-        vbEloResult.setVgrow(spacerRight, Priority.ALWAYS);
 
-        HBox hBoxGameData = new HBox();
-        hBoxGameData.getChildren().addAll(gridLeft, vbEloResult);
-        hBoxGameData.setSpacing(30);
 
         TabPane tabPane = new TabPane();
-        Tab tabHeader = new Tab("GAME DATA", hBoxGameData);
-        Tab tabPosition = new Tab("POSITION", hbTabPosition);
+        Tab tabHeader = new Tab("Game Data", vboxGameData);
+        Tab tabPosition = new Tab("Position", hbTabPosition);
         tabPane.getTabs().addAll(tabHeader, tabPosition);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tabPane.getStyleClass().add("underlined");
