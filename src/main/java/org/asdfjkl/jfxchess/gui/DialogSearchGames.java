@@ -169,7 +169,7 @@ public class DialogSearchGames {
 
         HBox hbTabPosition = new HBox();
         hbTabPosition.getChildren().addAll(enterPosBoard, vbButtonsRight);
-        //hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
+        hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
         hbTabPosition.setPrefWidth(1000);
 
         /*
