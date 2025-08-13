@@ -30,7 +30,7 @@ public class DialogAbout {
 
     static Stage stage;
 
-    public static void show(int colorTheme) {
+    public static void show(GameModel model) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -41,8 +41,8 @@ public class DialogAbout {
         Text txtJerry = new Text("JFXChess\n");
         txtJerry.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
-        Text txtCopyright = new Text("Version 4.3.0\n" +
-                "Copyright © 2014-2024\n" +
+        Text txtCopyright = new Text("Version "+ model.getVersion() + "\n" +
+                "Copyright © 2014-2025\n" +
                 "Dominik Klein\n" +
                 "and contributors\n" +
                 "licensed under GNU GPL 2");

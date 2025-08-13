@@ -613,7 +613,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmAbout.setOnAction(event -> {
-            DialogAbout.show(gameModel.THEME);
+            DialogAbout.show(gameModel);
         });
 
         itmJerryHomepage.setOnAction(event -> {
@@ -682,7 +682,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnAbout.setOnAction(e -> {
-            DialogAbout.show(gameModel.THEME);
+            DialogAbout.show(gameModel);
         });
 
 

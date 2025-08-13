@@ -79,7 +79,7 @@ public class GameModel {
 
     private Preferences prefs;
 
-    private static final int modelVersion = 430;
+    private static final int modelVersion = 450;
 
     private final PgnDatabase pgnDatabase;
     public int currentPgnDatabaseIdx = -1;
@@ -608,6 +608,16 @@ public class GameModel {
     
     public void setEloHasBeenSetInGUI(boolean b) {
         eloHasBeenSetInGui = b;
+    }
+
+    public String getVersion() {
+
+        int mainVersion = modelVersion / 100;
+        int subVersion = (modelVersion % 100) / 10;
+        int subSubVersion = ((modelVersion % 100) % 10);
+
+        return mainVersion + "." + subVersion + "." + subSubVersion;
+
     }
 
 }
