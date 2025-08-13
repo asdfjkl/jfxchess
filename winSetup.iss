@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "JFXChess"
-#define MyAppVersion "4.3.0"
+#define MyAppVersion "4.5.0"
 #define MyAppPublisher "org.asdfjkl"
 #define MyAppURL "https://github.com/asdfjkl/jfxchess"
 #define MyAppExeName "jfxchess.exe"
@@ -20,7 +20,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\jfxchess
 DisableProgramGroupPage=yes
-LicenseFile=D:\MyFiles\workspace\IdeaProjects\jfxchess\LICENSE.TXT
+LicenseFile=C:\MyFiles\workspace\IdeaProjects\jfxchess\LICENSE.TXT
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputBaseFilename=SetupJFXChess
@@ -28,8 +28,8 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64
-SetupIconFile="D:\MyFiles\workspace\build dir\jfxchess.ico"
-OutputDir="D:\MyFiles\workspace\build dir\JFXChessSetup"
+SetupIconFile="C:\MyFiles\workspace\build dir\jfxchess.ico"
+OutputDir="C:\MyFiles\workspace\build dir\JFXChessSetup"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,7 +38,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\MyFiles\workspace\build dir\output\jfxchess\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\MyFiles\workspace\build dir\output\jfxchess\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ;Source: "C:\Users\user\MyFiles\workspace\build dir\jerry.bat"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "C:\Users\user\MyFiles\workspace\build dir\jerryfx-4.0-jar-with-dependencies.jar"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "C:\Users\user\MyFiles\workspace\build dir\book\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 
 public class BarchartWDL extends GridPane {
@@ -20,6 +21,10 @@ public class BarchartWDL extends GridPane {
         lblWins.setAlignment(Pos.CENTER);
         lblDraws.setAlignment(Pos.CENTER);
         lblLoss.setAlignment(Pos.CENTER);
+
+        this.setVgrow(lblWins, Priority.ALWAYS);
+        this.setVgrow(lblDraws, Priority.ALWAYS);
+        this.setVgrow(lblLoss, Priority.ALWAYS);
 
 
         lblWins.setMaxWidth(Double.MAX_VALUE);
