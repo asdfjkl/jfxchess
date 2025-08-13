@@ -169,8 +169,8 @@ public class DialogSearchGames {
 
         HBox hbTabPosition = new HBox();
         hbTabPosition.getChildren().addAll(enterPosBoard, vbButtonsRight);
-        hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
-        hbTabPosition.setPrefWidth(1000);
+        //hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
+        //hbTabPosition.setPrefWidth(1000);
 
         /*
          HEADER SEARCH TAB
@@ -303,6 +303,7 @@ public class DialogSearchGames {
         Tab tabHeader = new Tab("Game Data", vboxGameData);
         Tab tabPosition = new Tab("Position", hbTabPosition);
         tabPane.getTabs().addAll(tabHeader, tabPosition);
+        //tabPane.getTabs().addAll(tabPosition, tabHeader);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tabPane.getStyleClass().add("underlined");
 

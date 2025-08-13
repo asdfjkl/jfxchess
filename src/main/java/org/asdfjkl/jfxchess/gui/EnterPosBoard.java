@@ -36,6 +36,11 @@ import static org.asdfjkl.jfxchess.lib.CONSTANTS.FRINGE;
 
 public class EnterPosBoard extends Canvas {
 
+
+    private static final double MIN_WIDTH = 800;
+    private static final double ASPECT_RATIO = 1.8; // width = height * ratio
+    private static final double DEFAULT_HEIGHT = 400; // fallback when height not set
+
     // No one can mess with this Board reference
     // from the outside anymore. ;-)
     private final Board board;
@@ -122,13 +127,20 @@ public class EnterPosBoard extends Canvas {
     }
 
     @Override
-    public double minWidth(double height) {
-        return Math.max(this.getHeight() * 1.5,150D);
+    public double minHeight(double width) {
+        return 80D;
     }
 
     @Override
-    public double minHeight(double width) {
-        return 80D;
+    public double minWidth(double height) {
+        if (height <= 0) height = DEFAULT_HEIGHT;
+        return Math.max(height * ASPECT_RATIO, MIN_WIDTH);
+    }
+
+    @Override
+    public double prefWidth(double height) {
+        if (height <= 0) height = DEFAULT_HEIGHT;
+        return height * ASPECT_RATIO;
     }
 
     @Override

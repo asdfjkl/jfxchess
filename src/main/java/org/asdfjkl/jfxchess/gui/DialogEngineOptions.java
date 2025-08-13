@@ -52,7 +52,7 @@ public class DialogEngineOptions {
     HashMap<String, ComboBox<String>> comboboxWidgets;
     HashMap<String, TextField> textfieldWidgets;
 
-    public boolean show(ArrayList<EngineOption> engineOptions, int colorTheme) {
+    public boolean show(ArrayList<EngineOption> engineOptions) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -75,8 +75,9 @@ public class DialogEngineOptions {
         textfieldWidgets = new HashMap<>();
 
         GridPane gridPane = new GridPane();
-        gridPane.setHgap(5);
-        gridPane.setVgap(10);
+        gridPane.setHgap(10);
+        gridPane.setVgap(8);
+        gridPane.setPadding(new Insets(10));
 
         int i = 0;
         for(EngineOption enOpt : engineOptions) {
@@ -84,9 +85,9 @@ public class DialogEngineOptions {
             // ignore multipv and do not display this to the user
             // as this is completely handled directly in the GUI
             // by the comboBox above the engine window
-            //if(enOpt.name.toLowerCase().contains("multipv")) {
-            //    continue;
-            //}
+            if(enOpt.name.toLowerCase().contains("multipv")) {
+                continue;
+            }
 
             Label lblEnOpt = new Label(enOpt.name+":");
             gridPane.add(lblEnOpt, 0, i);
@@ -140,14 +141,17 @@ public class DialogEngineOptions {
             i++;
         }
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(gridPane);
+        ScrollPane scrollPane = new ScrollPane(gridPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        //scrollPane.setMaxHeight(400);
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(scrollPane, hbButtons);
-        vbMain.setVgrow(gridPane, Priority.ALWAYS);
+        vbMain.setVgrow(scrollPane, Priority.ALWAYS);
         vbMain.setSpacing(10);
         vbMain.setPadding( new Insets(10));
+        scrollPane.setPrefViewportHeight(400);
 
         btnOk.setOnAction(e -> {
             btnOkClicked();
@@ -157,12 +161,16 @@ public class DialogEngineOptions {
             btnCancelClicked();
         });
 
+        /*
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int height = gd.getDisplayMode().getHeight();
         double maxHeight = height * 0.8;
         vbMain.setMaxHeight(maxHeight);
+        */
 
         Scene scene = new Scene(vbMain);
+        double screenHeight = javafx.stage.Screen.getPrimary().getVisualBounds().getHeight();
+        stage.setMaxHeight(screenHeight * 0.9);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.showAndWait();

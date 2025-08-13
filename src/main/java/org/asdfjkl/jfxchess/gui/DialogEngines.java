@@ -117,7 +117,6 @@ public class DialogEngines {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        // Got a "warning:static method should be called in a static way" here.
         HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
@@ -193,8 +192,6 @@ public class DialogEngines {
     private void btnRemoveEngineClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         engineList.remove(selectedEngine);
-        // Don't know how the size could have got bigger
-        // when we removed an engine, but...
     }
 
     private void btnResetParametersClicked() {
@@ -208,7 +205,7 @@ public class DialogEngines {
     private void btnEditParametersClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         DialogEngineOptions dlg = new DialogEngineOptions();
-        boolean accepted = dlg.show(selectedEngine.options, colorTheme);
+        boolean accepted = dlg.show(selectedEngine.options);
         if(accepted) {
             // collect all entries from dialog
             for(EngineOption enOpt : selectedEngine.options) {
@@ -367,7 +364,6 @@ public class DialogEngines {
                 // Add engine to the engineList and make the list item selected.
                 if (engine.getName() != null && !engine.getName().isEmpty()) {
                     engineList.add(engine);
-                    engineList.sort(engine);
                     int idx = engineList.indexOf(engine);
                     Platform.runLater(new Runnable() {
                         @Override
@@ -380,22 +376,10 @@ public class DialogEngines {
             } // end of try-with-resources
         } catch (Exception e) {
             e.printStackTrace();
-            alertUser("Sorry, couldn't load that engine: " + e.getMessage());
+            DialogSimpleAlert dlg = new DialogSimpleAlert(stage,
+                    Alert.AlertType.INFORMATION,
+                    "Error loading Engine", e.getMessage());
         }
-    }
-    
-    private void alertUser(String message) {
-        //FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-        //Scene scene = alert.getDialogPane().getScene();
-        //JMetro metro = new JMetro();
-        if (colorTheme == GameModel.STYLE_DARK) {
-            //metro.setStyle(Style.DARK);
-        }
-        //metro.setScene(scene);
-        //alert.setAlertType(Alert.AlertType.INFORMATION);
-        //alert.setHeaderText("");
-        //alert.setContentText(message);
-        //alert.showAndWait();
     }
 }
 
