@@ -987,14 +987,34 @@ public class App extends Application implements StateChangeListener {
 
     private void handleNewGame() {
         DialogNewGame dlg = new DialogNewGame();
-        boolean accepted = dlg.show(gameModel.activeEngine,
-                gameModel.getComputerThinkTimeSecs(),
-                gameModel.THEME);
-        if(accepted) {
+        int result = dlg.show();
+        if(result >= 0) {
+            if(result == DialogNewGame.ENTER_ANALYSE) {
+                System.out.println("enter & analyse");
+            }
+            if(result == DialogNewGame.PLAY_BOTS) {
+                DialogPlayBots dlgPlay = new DialogPlayBots();
+                boolean playAccepted = dlgPlay.show();
+                if(playAccepted) {
+                    System.out.println("start bot game");
+                }
+            }
+            if(result == DialogNewGame.PLAY_UCI) {
+                DialogPlayEngine dlgUci = new DialogPlayEngine();
+                boolean uciAccepted = dlgUci.show();
+                if(uciAccepted) {
+                    System.out.println("start uci game");
+                }
+            }
+        }
+        /*
+        DialogNewGame dlg = new DialogNewGame();
+        int result= dlg.show();
+        // if(accepted) {
             gameModel.wasSaved = false;
             gameModel.currentPgnDatabaseIdx = -1;
-            gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
-            gameModel.activeEngine.setElo(dlg.strength);
+            //gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
+            //gameModel.activeEngine.setElo(dlg.strength);
 	    // Set eloHasBeenSetInGUI to be able to separate
 	    // new Game from playblack and playwhite for
 	    // added engines supporting UCI_LimitStrength.
@@ -1004,6 +1024,7 @@ public class App extends Application implements StateChangeListener {
             gameModel.setGame(g);
             gameModel.getGame().setTreeWasChanged(true);
             gameModel.getGame().setHeaderWasChanged(true);
+            /*
             if(dlg.rbWhite.isSelected()) {
                 gameModel.setFlipBoard(false);
             } else {
@@ -1017,11 +1038,14 @@ public class App extends Application implements StateChangeListener {
                     itmPlayAsBlack.setSelected(true);
                     modeMenuController.activatePlayBlackMode();
                 }
-            } else {
-                modeMenuController.activateEnterMovesMode();
-            }
+
+
+            //} else {
+             //   modeMenuController.activateEnterMovesMode();
+            //}
+            */
         }
-    }
+
 
     private void handleFullGameAnalysis() {
         DialogGameAnalysis dlg = new DialogGameAnalysis();
