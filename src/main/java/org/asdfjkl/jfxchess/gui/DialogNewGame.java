@@ -40,15 +40,15 @@ public class DialogNewGame {
     public int show() {
 
         Button btnEnterAnalyse = new Button("Enter & Analyse");
-        btnEnterAnalyse.setGraphic(new ImageView( new Image("icons/edit-paste.png")));
+        btnEnterAnalyse.setGraphic(new ImageView( new Image("icons/enter-analyse.png")));
         btnEnterAnalyse.setContentDisplay(ContentDisplay.TOP);
 
         Button btnPlayBots = new Button("Play Bots");
-        btnPlayBots.setGraphic(new ImageView( new Image("icons/edit-paste.png")));
+        btnPlayBots.setGraphic(new ImageView( new Image("icons/play-bot.png")));
         btnPlayBots.setContentDisplay(ContentDisplay.TOP);
 
         Button btnPlayEngine = new Button("Play Engine");
-        btnPlayEngine.setGraphic(new ImageView( new Image("icons/edit-paste.png")));
+        btnPlayEngine.setGraphic(new ImageView( new Image("icons/play-engine.png")));
         btnPlayEngine.setContentDisplay(ContentDisplay.TOP);
 
         btnEnterAnalyse.setPrefWidth(130);
