@@ -27,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class DialogNewGame {
 
@@ -71,6 +72,7 @@ public class DialogNewGame {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
 
         HBox root = new HBox(10, btnEnterAnalyse, btnPlayBots, btnPlayEngine);
         root.setAlignment(Pos.CENTER_LEFT);

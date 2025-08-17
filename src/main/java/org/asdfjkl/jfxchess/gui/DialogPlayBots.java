@@ -25,7 +25,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class DialogPlayBots {
 
@@ -148,6 +150,9 @@ public class DialogPlayBots {
 
         Scene scene = new Scene(root);
         stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.sizeToScene();
