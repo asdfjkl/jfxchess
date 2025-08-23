@@ -1,10 +1,8 @@
 package org.asdfjkl.jfxchess.gui;
 
 import java.util.ArrayList;
-import org.asdfjkl.jfxchess.gui.Engine;
-import org.asdfjkl.jfxchess.gui.EngineOption;
 
-public class PersonalityEngines {
+public class BotEngines {
 
     private static EngineOption makeSpin(String name, int value) {
         EngineOption opt = new EngineOption();
