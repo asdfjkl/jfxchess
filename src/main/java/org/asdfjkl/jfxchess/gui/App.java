@@ -994,14 +994,39 @@ public class App extends Application implements StateChangeListener {
             }
             if(result == DialogNewGame.PLAY_BOTS) {
                 DialogPlayBots dlgPlay = new DialogPlayBots();
-                boolean playAccepted = dlgPlay.show();
+                boolean playAccepted = dlgPlay.show(gameModel.botEngines);
                 if(playAccepted) {
                     System.out.println("start bot game");
+
+                    gameModel.wasSaved = false;
+                    gameModel.currentPgnDatabaseIdx = -1;
+                    gameModel.setComputerThinkTimeSecs(3000);
+                    Game g = new Game();
+                    g.getRootNode().setBoard(new Board(true));
+                    gameModel.setGame(g);
+                    gameModel.getGame().setTreeWasChanged(true);
+                    gameModel.getGame().setHeaderWasChanged(true);
+                    gameModel.selectedPlayEngine = gameModel.botEngines.get(dlgPlay.selectedIndex);
+                    gameModel.activeEngine = gameModel.selectedPlayEngine;
+                    if(dlgPlay.startInitial) {
+                        // todo
+                    } else {
+                        // todo
+                    }
+                    if(dlgPlay.playWhite) {
+                        gameModel.setFlipBoard(false);
+                        itmPlayAsWhite.setSelected(true);
+                        modeMenuController.activatePlayWhiteMode();
+                    } else {
+                        gameModel.setFlipBoard(true);
+                        itmPlayAsBlack.setSelected(true);
+                        modeMenuController.activatePlayBlackMode();
+                    }
                 }
             }
             if(result == DialogNewGame.PLAY_UCI) {
                 DialogPlayEngine dlgUci = new DialogPlayEngine();
-                boolean uciAccepted = dlgUci.show();
+                boolean uciAccepted = dlgUci.show(gameModel.engines);
                 if(uciAccepted) {
                     System.out.println("start uci game");
                 }

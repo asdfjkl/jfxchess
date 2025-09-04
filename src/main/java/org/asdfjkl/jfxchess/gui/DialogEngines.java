@@ -62,7 +62,7 @@ public class DialogEngines {
 
     int selectedIndex = 0;
 
-    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine, int colorTheme) {
+    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine) {
 
         engineList = FXCollections.observableArrayList(engines);
 

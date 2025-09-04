@@ -55,6 +55,10 @@ public class GameModel {
 
     ArrayList<Engine> engines = new ArrayList<>();
     Engine activeEngine = null;
+    Engine selectedPlayEngine = null;
+    Engine selectedAnalysisEngine = null;
+
+    ArrayList<BotEngine> botEngines = new ArrayList<>();
 
     private int gameAnalysisForPlayer = BOTH_PLAYERS;
     private double gameAnalysisThreshold = 0.5; // pawns
@@ -115,6 +119,7 @@ public class GameModel {
         }
         stockfish.setInternal(true);
         engines.add(stockfish);
+        selectedAnalysisEngine = stockfish;
         activeEngine = stockfish;
 
         // manually add for internal stockfish up to 4 mpv
@@ -145,6 +150,11 @@ public class GameModel {
         activeEngine.options.add(internalElo);
         activeEngine.options.add(internalMPV);
         activeEngine.options.add(internalLimitStrength);
+
+        // add bots
+        String botPath = getBotEnginePath();
+        botEngines = BotEngines.createEngines(botPath);
+        selectedPlayEngine = botEngines.get(0); // set benny as default; todo: remember last selected bot
 
         /*
         Engine stockfish_custom = new Engine();
@@ -204,6 +214,40 @@ public class GameModel {
                     return stockfishPath;
                     }
                 }
+
+        }
+        return null;
+    }
+
+    private String getBotEnginePath() {
+
+        String os = System.getProperty("os.name").toLowerCase();
+        if(os.contains("win")) {
+
+            String stockfishPath = "";
+            String jarPath = "";
+            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+            File tmp = (new File(jarPath));
+            if(tmp.getParentFile().exists()) {
+                File subEngine = new File(tmp.getParentFile(), "engine");
+                stockfishPath = new File(subEngine, "stockfish5.exe").getPath();
+                return stockfishPath;
+            }
+        }
+        if(os.contains("linux")) {
+            String stockfishPath = "";
+            String jarPath = "";
+            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+            File tmp = (new File(jarPath));
+            if(tmp.getParentFile().exists()) {
+                if(tmp.getParentFile().getParentFile().exists()) {
+                    File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
+                    stockfishPath = new File(subEngine, "stockfish5_x64").getPath();
+                    return stockfishPath;
+                }
+            }
 
         }
         return null;

@@ -18,6 +18,10 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -29,91 +33,93 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
+
 public class DialogPlayBots {
 
     Stage stage;
     boolean accepted = false;
+    boolean startInitial = true;
+    public boolean playWhite = true;
 
-    final Slider sliderStrength = new Slider();
-    RadioButton rbStartInitial = new RadioButton("Initial Position (New Game)");
-    RadioButton rbStartCurrent = new RadioButton("Current Board");
-    int strength = 0;
+    ObservableList<BotEngine> botEngineList;
+    ListView<BotEngine> botEngineListView;
+    int selectedIndex = 0;
+    Label lblBioHeader = new Label();
+    Label lblBioContent = new Label();
+    ImageView ivBot = new ImageView();
 
-    public boolean show() {
-
-        /*
-        ToggleGroup grpEnterMoves = new ToggleGroup();
-
-        rbStartInitial.setToggleGroup(grpEnterMoves);
-        rbStartCurrent.setToggleGroup(grpEnterMoves);
-        rbStartInitial.setSelected(true);
-
-        VBox vbEnterMoves = new VBox(10, rbStartInitial, rbStartCurrent); // spacing = 10px
-        vbEnterMoves.setAlignment(Pos.CENTER_LEFT);
-        vbEnterMoves.setPadding(new Insets(20));
-
-        tabMoves.setContent(vbEnterMoves);
-
-        tabPane.getTabs().addAll(tabMoves, tabBots, tabEngine);
-        tabPane.setTabMinWidth(100); // or a value that ensures tabs always show
-        tabPane.setTabMaxWidth(Double.MAX_VALUE);
-         */
+    public boolean show(ArrayList<BotEngine> botEngines) {
 
         // list of bots
-        ListView<String> lvBots = new ListView<String>();
-        lvBots.getItems().add("Benny, the Beginner");
-        lvBots.getItems().add("Lila the Learner");
-        lvBots.getItems().add("Captain Castle");
-        VBox vbBots = new VBox();
-        vbBots.getChildren().addAll(lvBots);
-        vbBots.setMinWidth(160);
-        vbBots.setPadding(new Insets(10));
+        botEngineList = FXCollections.observableArrayList(botEngines);
+        botEngineListView = new ListView<>();
+        botEngineListView.setItems(botEngineList);
+        botEngineListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(BotEngine item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null || item.getName() == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName());
+                }
+            }
+        });
+        botEngineListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<BotEngine>() {
+            @Override
+            public void changed(ObservableValue<? extends BotEngine> observable, BotEngine oldValue, BotEngine newValue) {
+
+                selectedIndex = botEngineList.indexOf(newValue);
+                BotEngine selectedEngine = botEngineList.get(selectedIndex);
+                lblBioHeader.setText(selectedEngine.getName() + " (" +selectedEngine.getElo()+")");
+                lblBioContent.setText(selectedEngine.getBio());
+                ivBot.setImage(selectedEngine.getImage());
+          }
+        });
+        VBox vbBotList = new VBox();
+        botEngineListView.setMinHeight(450);
+        vbBotList.getChildren().addAll(botEngineListView);
+        vbBotList.setPadding(new Insets(10));
 
         // bot info
-        Label lblBioHeader = new Label("Bio");
+        lblBioHeader.setText("");
         lblBioHeader.setStyle("-fx-font-weight: bold;");
-        Label lblBioContent = new Label("Benny just learned how to move the pieces " +
-                "yesterday. He’s enthusiastic, sometimes forgets about his king’s safety, " +
-                "but always has fun no matter the result."        );
+        lblBioContent.setText(botEngines.get(0).getBio());
         lblBioContent.setWrapText(true);  // ensures multi-line wrapping
-        VBox section1 = new VBox(5, lblBioHeader, lblBioContent);
-
-        Label lblBotElo = new Label("Elo");
-        lblBotElo.setStyle("-fx-font-weight: bold;");
-        Label lblBotValue = new Label("1200");
-        VBox section2 = new VBox(5, lblBotElo, lblBotValue);
+        VBox vbBotInfo = new VBox(5, lblBioHeader, lblBioContent);
 
         // all remaining options
-        Label sideLabel = new Label("Choose your side");
-        sideLabel.setStyle("-fx-font-weight: bold;");
-        RadioButton whiteBtn = new RadioButton("White");
-        RadioButton blackBtn = new RadioButton("Black");
+        Label lblSide = new Label("Choose your side");
+        lblSide.setStyle("-fx-font-weight: bold;");
+        RadioButton rbWhite = new RadioButton("White");
+        RadioButton rbBlack = new RadioButton("Black");
 
-        ToggleGroup sideGroup = new ToggleGroup();
-        whiteBtn.setToggleGroup(sideGroup);
-        blackBtn.setToggleGroup(sideGroup);
-        whiteBtn.setSelected(true); // default: White
+        ToggleGroup tgSide = new ToggleGroup();
+        rbWhite.setToggleGroup(tgSide);
+        rbBlack.setToggleGroup(tgSide);
+        rbWhite.setSelected(true); // default: White
 
-        HBox sideBox = new HBox(10, whiteBtn, blackBtn);
-        VBox sideSection = new VBox(5, sideLabel, sideBox);
+        HBox hbSide = new HBox(10, rbWhite, rbBlack);
+        VBox vbSide = new VBox(5, lblSide, hbSide);
 
-        Label startLabel = new Label("Start from");
-        startLabel.setStyle("-fx-font-weight: bold;");
-        RadioButton initialBtn = new RadioButton("Initial Position");
-        RadioButton currentBtn = new RadioButton("Current Position");
+        Label lblStarPos = new Label("Start from");
+        lblStarPos.setStyle("-fx-font-weight: bold;");
+        RadioButton rbInitialPos = new RadioButton("Initial Position");
+        RadioButton rbCurrentPos = new RadioButton("Current Position");
 
-        ToggleGroup startGroup = new ToggleGroup();
-        initialBtn.setToggleGroup(startGroup);
-        currentBtn.setToggleGroup(startGroup);
-        initialBtn.setSelected(true);
+        ToggleGroup tgStarPos = new ToggleGroup();
+        rbInitialPos.setToggleGroup(tgStarPos);
+        rbCurrentPos.setToggleGroup(tgStarPos);
+        rbInitialPos.setSelected(true);
 
-        VBox startSection = new VBox(5, startLabel, initialBtn, currentBtn);
-
-        VBox bioBox = new VBox(15, sideSection, startSection, section1, section2);
-        bioBox.setPadding(new Insets(10));
+        VBox vbGameOptions = new VBox(5, lblStarPos, rbInitialPos, rbCurrentPos);
+        VBox vbMidColumn = new VBox(15, new Separator(), vbSide, vbGameOptions, new Separator(), vbBotInfo);
+        vbMidColumn.setPadding(new Insets(10));
 
         // bot image
-        ImageView ivBot = new ImageView(new Image("bots/01_benny_the_beginner.png"));
+        ivBot.setImage(botEngines.get(0).getImage());
         ivBot.setFitWidth(300);   // target width
         ivBot.setFitHeight(500);  // target height
         ivBot.setPreserveRatio(true); // keep aspect ratio (recommended)
@@ -121,23 +127,23 @@ public class DialogPlayBots {
         vbImage.getChildren().addAll(ivBot);
         vbImage.setPadding(new Insets(10));
 
-        vbBots.setPrefWidth(160);
-        bioBox.setPrefWidth(300);
+        vbBotList.setPrefWidth(180);
+        vbMidColumn.setPrefWidth(300);
         vbImage.setPrefWidth(300);
 
         HBox hbBot = new HBox();
-        hbBot.getChildren().addAll(vbBots, bioBox, vbImage);
+        hbBot.getChildren().addAll(vbBotList, vbMidColumn, vbImage);
 
         // Buttons
         Button btnOk = new Button("OK");
         Button btnCancel = new Button("Cancel");
 
-        HBox buttonBox = new HBox(10, btnOk, btnCancel);
-        buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        buttonBox.setPadding(new Insets(10));
+        HBox hbButtonBox = new HBox(10, btnOk, btnCancel);
+        hbButtonBox.setAlignment(Pos.CENTER_RIGHT);
+        hbButtonBox.setPadding(new Insets(10));
 
         VBox root = new VBox();
-        root.getChildren().addAll(hbBot, buttonBox);
+        root.getChildren().addAll(hbBot, hbButtonBox);
 
         btnOk.setOnAction(e -> {
             btnOkClicked();
@@ -147,6 +153,21 @@ public class DialogPlayBots {
             btnCancelClicked();
         });
 
+        // additional logic
+        rbWhite.setOnAction( e -> {
+            playWhite = true;
+            System.out.println("rb white event");
+        });
+        rbBlack.setOnAction( e -> {
+            playWhite = false;
+            System.out.println("rb black event");
+        });
+        rbInitialPos.setOnAction(e -> {
+            startInitial = true;
+        });
+        rbCurrentPos.setOnAction(e -> {
+            startInitial = false;
+        });
 
         Scene scene = new Scene(root);
         stage = new Stage();
@@ -156,6 +177,9 @@ public class DialogPlayBots {
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.sizeToScene();
+
+        botEngineListView.getSelectionModel().select(0);
+        botEngineListView.getFocusModel().focus(0);
 
         stage.showAndWait();
 
@@ -171,6 +195,7 @@ public class DialogPlayBots {
         accepted = false;
         stage.close();
     }
+
 
 }
 

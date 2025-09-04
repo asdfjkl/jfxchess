@@ -18,17 +18,22 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.util.ArrayList;
 
 public class DialogPlayEngine {
 
@@ -40,35 +45,47 @@ public class DialogPlayEngine {
     RadioButton rbStartCurrent = new RadioButton("Current Board");
     int strength = 0;
 
-    public boolean show() {
+    ObservableList<Engine> engineList;
+    ListView<Engine> engineListView;
+    int selectedIndex = 0;
 
-        /*
-        ToggleGroup grpEnterMoves = new ToggleGroup();
-
-        rbStartInitial.setToggleGroup(grpEnterMoves);
-        rbStartCurrent.setToggleGroup(grpEnterMoves);
-        rbStartInitial.setSelected(true);
-
-        VBox vbEnterMoves = new VBox(10, rbStartInitial, rbStartCurrent); // spacing = 10px
-        vbEnterMoves.setAlignment(Pos.CENTER_LEFT);
-        vbEnterMoves.setPadding(new Insets(20));
-
-        tabMoves.setContent(vbEnterMoves);
-
-        tabPane.getTabs().addAll(tabMoves, tabBots, tabEngine);
-        tabPane.setTabMinWidth(100); // or a value that ensures tabs always show
-        tabPane.setTabMaxWidth(Double.MAX_VALUE);
-         */
+    public boolean show(ArrayList<Engine> engines) {
 
         // list of engines
-        ListView<String> lvBots = new ListView<String>();
-        lvBots.getItems().add("Stockfish");
-        lvBots.getItems().add("Komodo");
-        lvBots.getItems().add("Crafty");
-        VBox vbBots = new VBox();
-        vbBots.getChildren().addAll(lvBots);
-        vbBots.setMinWidth(160);
-        vbBots.setPadding(new Insets(10));
+        engineList = FXCollections.observableArrayList(engines);
+        engineListView = new ListView<>();
+        engineListView.setItems(engineList);
+        engineListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Engine item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null || item.getName() == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName());
+                }
+            }
+        });
+        engineListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Engine>() {
+            @Override
+            public void changed(ObservableValue<? extends Engine> observable, Engine oldValue, Engine newValue) {
+
+                selectedIndex = engineList.indexOf(newValue);
+                Engine selectedEngine = engineList.get(selectedIndex);
+                System.out.println("selected engine: "+ (selectedEngine.getName()));
+                if(selectedEngine.supportsUciLimitStrength()) {
+                    sliderStrength.setDisable(false);
+                } else {
+                    sliderStrength.setDisable(true);
+                }
+            }
+        });
+
+        VBox vbEngineList = new VBox();
+        vbEngineList.getChildren().addAll(engineListView);
+        vbEngineList.setMinWidth(160);
+        vbEngineList.setPadding(new Insets(10));
 
         // bot info
         Label lblBotElo = new Label("Elo");
@@ -87,60 +104,51 @@ public class DialogPlayEngine {
         hboxStrength.getChildren().addAll(sliderStrength, txtStrength);
         hboxStrength.setSpacing(20);
 
-        int tmpStrength = strength;
         sliderStrength.valueProperty().addListener(
                 ((observableValue, number, t1) -> {
                     strength = t1.intValue();;
                     txtStrength.setText("Elo "+ strength);
                 })
         );
-
         sliderStrength.setValue(1800);
-        sliderStrength.setValue(tmpStrength);
         sliderStrength.setStyle("-show-value-on-interaction: false;");
-        //sliderStrength.setDisable(true);
 
-        /*
-        if (!supportsUciLimitStrength) {
-            txtStrength.setText("N.A.");
-            txtStrength.setDisable(true);
-        }*/
-        VBox section2 = new VBox(5, lblBotElo, hboxStrength);
+        VBox vbStrength = new VBox(5, lblBotElo, hboxStrength);
 
         // all remaining options
-        Label sideLabel = new Label("Choose your side");
-        sideLabel.setStyle("-fx-font-weight: bold;");
-        RadioButton whiteBtn = new RadioButton("White");
-        RadioButton blackBtn = new RadioButton("Black");
+        Label lblSide = new Label("Choose your side");
+        lblSide.setStyle("-fx-font-weight: bold;");
+        RadioButton rbWhite = new RadioButton("White");
+        RadioButton rbBlack = new RadioButton("Black");
 
-        ToggleGroup sideGroup = new ToggleGroup();
-        whiteBtn.setToggleGroup(sideGroup);
-        blackBtn.setToggleGroup(sideGroup);
-        whiteBtn.setSelected(true); // default: White
+        ToggleGroup tgSide = new ToggleGroup();
+        rbWhite.setToggleGroup(tgSide);
+        rbBlack.setToggleGroup(tgSide);
+        rbWhite.setSelected(true); // default: White
 
-        HBox sideBox = new HBox(10, whiteBtn, blackBtn);
-        VBox sideSection = new VBox(5, sideLabel, sideBox);
+        HBox hbSide = new HBox(10, rbWhite, rbBlack);
+        VBox vbSide = new VBox(5, lblSide, hbSide);
 
-        Label startLabel = new Label("Start from");
-        startLabel.setStyle("-fx-font-weight: bold;");
-        RadioButton initialBtn = new RadioButton("Initial Position");
-        RadioButton currentBtn = new RadioButton("Current Position");
+        Label lblStart = new Label("Start from");
+        lblStart.setStyle("-fx-font-weight: bold;");
+        RadioButton rbInitialPos = new RadioButton("Initial Position");
+        RadioButton rbCurrentPos = new RadioButton("Current Position");
 
-        ToggleGroup startGroup = new ToggleGroup();
-        initialBtn.setToggleGroup(startGroup);
-        currentBtn.setToggleGroup(startGroup);
-        initialBtn.setSelected(true);
+        ToggleGroup tgPos = new ToggleGroup();
+        rbInitialPos.setToggleGroup(tgPos);
+        rbCurrentPos.setToggleGroup(tgPos);
+        rbInitialPos.setSelected(true);
 
-        VBox startSection = new VBox(5, startLabel, initialBtn, currentBtn);
+        VBox vbGameOptions = new VBox(5, lblStart, rbInitialPos, rbCurrentPos);
 
-        VBox bioBox = new VBox(15, sideSection, startSection, section2);
+        VBox bioBox = new VBox(15, new Separator(), vbSide, vbGameOptions, new Separator(), vbStrength);
         bioBox.setPadding(new Insets(10));
 
-        vbBots.setPrefWidth(160);
+        vbEngineList.setPrefWidth(160);
         bioBox.setPrefWidth(300);
 
         HBox hbBot = new HBox();
-        hbBot.getChildren().addAll(vbBots, bioBox);
+        hbBot.getChildren().addAll(vbEngineList, bioBox);
 
         // Buttons
         Button btnOk = new Button("OK");

@@ -297,7 +297,7 @@ public class ModeMenuController implements StateChangeListener {
         if(selectedIdx < 0) {
             selectedIdx = 0;
         }
-        boolean accepted = dlg.show(enginesCopy, selectedIdx, gameModel.THEME);
+        boolean accepted = dlg.show(enginesCopy, selectedIdx);
         if(accepted) {
             ArrayList<Engine> engineList = new ArrayList<>(dlg.engineList);
             Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
