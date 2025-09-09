@@ -1,6 +1,7 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -86,7 +87,7 @@ public class App extends Application implements StateChangeListener {
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
-        gameModel.restoreEngines();
+        //gameModel.restoreEngines();
         gameModel.restoreGameAnalysisThresholds();
         gameModel.restoreNewGameSettings();
         gameModel.restoreTheme();
@@ -845,6 +846,8 @@ public class App extends Application implements StateChangeListener {
             splash.close();
         }
 
+
+
         stage.setScene(scene);
         // restore previous screen geometry
         // first check if app was maximized when closing. Then set to max and don't bother
@@ -890,7 +893,7 @@ public class App extends Application implements StateChangeListener {
         spChessboardMoves.setDividerPosition(0, screenGeometry.moveDividerRatio);
         spMain.setDividerPosition(0, screenGeometry.mainDividerRatio);
 
-    }
+     }
 
     @Override
     public void stateChange() {
@@ -1000,19 +1003,20 @@ public class App extends Application implements StateChangeListener {
 
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
-                    gameModel.setComputerThinkTimeSecs(3000);
+                    gameModel.setComputerThinkTimeSecs(3);
                     Game g = new Game();
-                    g.getRootNode().setBoard(new Board(true));
+                    Board b;
+                    if(dlgPlay.startInitial) {
+                        b = new Board(true);
+                    } else {
+                        b = gameModel.getGame().getCurrentNode().getBoard().makeCopy();
+                    }
+                    g.getRootNode().setBoard(b);
                     gameModel.setGame(g);
                     gameModel.getGame().setTreeWasChanged(true);
                     gameModel.getGame().setHeaderWasChanged(true);
                     gameModel.selectedPlayEngine = gameModel.botEngines.get(dlgPlay.selectedIndex);
                     gameModel.activeEngine = gameModel.selectedPlayEngine;
-                    if(dlgPlay.startInitial) {
-                        // todo
-                    } else {
-                        // todo
-                    }
                     if(dlgPlay.playWhite) {
                         gameModel.setFlipBoard(false);
                         itmPlayAsWhite.setSelected(true);

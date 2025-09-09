@@ -43,17 +43,47 @@ public class ModeMenuController implements StateChangeListener {
         this.engineOutputView = engineOutputView;
     }
 
+    private void notifyUserDuringPlay() {
+        if(gameModel.getMode() == GameModel.MODE_PLAY_WHITE) {
+            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.WHITE) {
+                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||Your turn - White to move");
+            } else {
+                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||...thinking...");
+            }
+        }
+        if(gameModel.getMode() == GameModel.MODE_PLAY_BLACK) {
+            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.BLACK) {
+                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||Your turn - Black to move");
+            } else {
+                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||...thinking...");
+            }
+        }
+
+    }
+
     public void handleEngineInfo(String s) {
 
+        // we show info only during analysis, not when playing
+        // against the
         if(s.startsWith("INFO")) {
-            //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
-            String[] sSplit = s.split("\\|");
-            if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {
-                String sTemp = "|" + sSplit[1] + "||||(#0)|";
-                this.engineOutputView.setText(sTemp);
-            } else {
-                this.engineOutputView.setText(s.substring(5));
+            if((gameModel.getMode() != GameModel.MODE_PLAY_BLACK) &&
+                (gameModel.getMode() != GameModel.MODE_PLAY_WHITE)) {
+                System.out.println("info!");
+                //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
+                String[] sSplit = s.split("\\|");
+                if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {
+                    String sTemp = "|" + sSplit[1] + "||||(#0)|";
+                    this.engineOutputView.setText(sTemp);
+                } else {
+                    this.engineOutputView.setText(s.substring(5));
+                }
             }
+        }
+        // if we get info from the engine but currently play against it,
+        // just show some dummy info
+        if((gameModel.getMode() == GameModel.MODE_PLAY_WHITE) ||
+                (gameModel.getMode() == GameModel.MODE_PLAY_BLACK)) {
+            notifyUserDuringPlay();
         }
         if(s.startsWith("BESTMOVE")) {
             handleBestMove(s);
@@ -130,26 +160,64 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayWhiteMode() {
-        // restart engine and change gamestate.
+        // restart engine
         engineController.restartEngine(gameModel.activeEngine);
-        if (gameModel.activeEngine.isInternal() || gameModel.eloHasBeenSetInGUI()) {
-            engineController.setUciLimitStrength(true);
+        // send all UCI options
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            engineController.sendCommand(enOpt.toUciCommand());
         }
-        gameModel.setEloHasBeenSetInGUI(false);
-        // trigger statechange
-	gameModel.setMode(GameModel.MODE_PLAY_WHITE);
+        // if we don't play against a bot
+        // AND if the engine supports UCILimitStrength
+        // AND if a valid UCI value is set in gameModel
+        // we additionally limit UCI strength
+        // note: for a bot, the Elo value and boolean are already included
+        //       (preset) in the engine's options, i.e. predefined during construction
+        if(!(gameModel.activeEngine instanceof BotEngine)) {
+            System.out.println("we do not have a bot");
+            if(gameModel.activeEngine.supportsUciLimitStrength()) {
+                System.out.println("engine support uci limit strength");
+                if(gameModel.getEngineStrength() >= gameModel.activeEngine.getMinUciElo()
+                && gameModel.getEngineStrength() <= gameModel.activeEngine.getMaxUciElo() ) {
+                    engineController.setUciLimitStrength(true);
+                    engineController.setUciElo(gameModel.activeEngine.getUciElo());
+                }
+            }
+        } else {
+            System.out.println("we have a bot");
+        }
+        // change game mode, trigger statechange
+	    gameModel.setMode(GameModel.MODE_PLAY_WHITE);
         gameModel.setFlipBoard(false);
         gameModel.setHumanPlayerColor(CONSTANTS.WHITE);
         gameModel.triggerStateChange();
     }
 
     public void activatePlayBlackMode() {
-        // restart engine and change gamestate.
+        // restart engine
         engineController.restartEngine(gameModel.activeEngine);
-        if (gameModel.activeEngine.isInternal() || gameModel.eloHasBeenSetInGUI()) {
-            engineController.setUciLimitStrength(true);
+        // send all UCI options
+        for(EngineOption enOpt : gameModel.activeEngine.options) {
+            engineController.sendCommand(enOpt.toUciCommand());
         }
-        gameModel.setEloHasBeenSetInGUI(false);
+        // if we don't play against a bot
+        // AND if the engine supports UCILimitStrength
+        // AND if a valid UCI value is set in gameModel
+        // we additionally limit UCI strength
+        // note: for a bot, the Elo value and boolean are already included
+        //       (preset) in the engine's options, i.e. predefined during construction
+        if(!(gameModel.activeEngine instanceof BotEngine)) {
+            System.out.println("we do not have a bot");
+            if(gameModel.activeEngine.supportsUciLimitStrength()) {
+                System.out.println("engine support uci limit strength");
+                if(gameModel.getEngineStrength() >= gameModel.activeEngine.getMinUciElo()
+                        && gameModel.getEngineStrength() <= gameModel.activeEngine.getMaxUciElo() ) {
+                    engineController.setUciLimitStrength(true);
+                    engineController.setUciElo(gameModel.activeEngine.getUciElo());
+                }
+            }
+        } else {
+            System.out.println("we have a bot");
+        }
         // trigger statechange
         gameModel.setMode(GameModel.MODE_PLAY_BLACK);
         gameModel.setFlipBoard(true);
@@ -190,6 +258,24 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleStateChangePlayWhiteOrBlack() {
+
+        System.out.println("state change play");
+
+        /*
+        if(gameModel.getMode() == GameModel.MODE_PLAY_WHITE) {
+            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.WHITE) {
+                engineOutputView.setText(gameModel.activeEngine.getName() + "|||Your Turn - White to Move");
+            } else {
+                engineOutputView.setText(gameModel.activeEngine.getName() + "||| ... thinking ...");
+            }
+        }
+        if(gameModel.getMode() == GameModel.MODE_PLAY_BLACK) {
+            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.BLACK) {
+                engineOutputView.setText(gameModel.activeEngine.getName() + "|||Your Turn - White to Move");
+            } else {
+                engineOutputView.setText(gameModel.activeEngine.getName() + "||| ... thinking ...");
+            }
+        }*/
 
         // first check if we can apply a bookmove
         long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
@@ -345,10 +431,12 @@ public class ModeMenuController implements StateChangeListener {
             if (b.isLegal(m)) {
                 if(mode == GameModel.MODE_PLAY_WHITE && b.turn == CONSTANTS.BLACK) {
                     gameModel.getGame().applyMove(m);
+                    notifyUserDuringPlay();
                     gameModel.triggerStateChange();
                 }
                 if(mode == GameModel.MODE_PLAY_BLACK && b.turn == CONSTANTS.WHITE) {
                     gameModel.getGame().applyMove(m);
+                    notifyUserDuringPlay();
                     gameModel.triggerStateChange();
                 }
                 if(mode == GameModel.MODE_PLAYOUT_POSITION) {

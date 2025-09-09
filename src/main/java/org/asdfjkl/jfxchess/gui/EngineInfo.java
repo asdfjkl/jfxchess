@@ -157,6 +157,8 @@ public class EngineInfo {
     public void update(String engineFeedback) {
         int multiPv = 0;
 
+        // System.out.println("<<< "+engineFeedback);
+
         String[] lines = engineFeedback.split("\n");
 
         for(int i=0;i<lines.length;i++) {

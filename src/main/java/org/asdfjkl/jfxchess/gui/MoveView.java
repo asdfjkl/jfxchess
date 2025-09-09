@@ -65,12 +65,12 @@ public class MoveView implements StateChangeListener {
                     "}";
 */
     final String jsIsInView = "function isScrolledIntoView(el) {\n"+
-        "var rect = el.getBoundingClientRect();\n"+
-        "var elemTop = rect.top; \n"+
-        "var elemBottom = rect.bottom; \n"+
-        "var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight); \n"+
-        "return isVisible; \n"+
-    "} ";
+            "var rect = el.getBoundingClientRect();\n"+
+            "var elemTop = rect.top; \n"+
+            "var elemBottom = rect.bottom; \n"+
+            "var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight); \n"+
+            "return isVisible; \n"+
+            "} ";
 
     public MoveView(GameModel gameModel) {
         this.webView = new WebView();
@@ -460,7 +460,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 selectedNode.removeNagsInRange(CONSTANTS.POSITION_ANNOTATION_LOWER_LIMIT,
-                                                CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
+                        CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
                 gameModel.getGame().setTreeWasChanged(true);
                 gameModel.triggerStateChange();
             }
@@ -546,7 +546,7 @@ public class MoveView implements StateChangeListener {
     }
 
     //public void updateView() {
-        //estGetElement();
+    //estGetElement();
     //    String html = htmlPrinter.printGame(gameModel.getGame());
     //    webEngine.loadContent(html);
     //}
@@ -636,18 +636,18 @@ public class MoveView implements StateChangeListener {
                     scrollToNode(currentNodeId);
                 }
             }
-        // special case: if we are at the root, make sure that the node below root (if it exists) is visible
-        if(this.gameModel.getGame().getCurrentNode() == this.gameModel.getGame().getRootNode()) {
-            if (this.gameModel.getGame().getRootNode().hasChild()) {
-                int childId = this.gameModel.getGame().getRootNode().getVariation(0).getId();
-                Element htmlBelowRoot = webView.getEngine().getDocument().getElementById("n" + childId);
-                if (htmlBelowRoot != null) {
-                    if (!hasFocus(childId)) {
-                        scrollToNode(childId);
+            // special case: if we are at the root, make sure that the node below root (if it exists) is visible
+            if(this.gameModel.getGame().getCurrentNode() == this.gameModel.getGame().getRootNode()) {
+                if (this.gameModel.getGame().getRootNode().hasChild()) {
+                    int childId = this.gameModel.getGame().getRootNode().getVariation(0).getId();
+                    Element htmlBelowRoot = webView.getEngine().getDocument().getElementById("n" + childId);
+                    if (htmlBelowRoot != null) {
+                        if (!hasFocus(childId)) {
+                            scrollToNode(childId);
+                        }
                     }
                 }
             }
-        }
         }
         //scrollToNode(currentNodeId);
         currentlyMarkedNode = currentNodeId;

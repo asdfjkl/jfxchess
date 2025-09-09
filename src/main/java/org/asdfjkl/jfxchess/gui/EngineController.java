@@ -72,6 +72,7 @@ public class EngineController {
     // }
 
     public void sendCommand(String cmd) {
+        //System.out.println(">>> "+cmd);
         if (cmd.equals("go infinite")) {
             inGoInfinite = true;
         } else {
@@ -166,6 +167,10 @@ public class EngineController {
         if (currentEngine != null && currentEngine.supportsUciLimitStrength()) {
             sendCommand("setoption name UCI_LimitStrength value " + val);
         }
+    }
+
+    public void setUciElo(int elo) {
+        sendCommand("setoption name UCI_Elo value " + elo);
     }
 
     public void setMultiPV(int n) {

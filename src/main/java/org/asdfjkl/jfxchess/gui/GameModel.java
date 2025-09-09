@@ -47,10 +47,8 @@ public class GameModel {
     private boolean multiPvChanged = false;
     private boolean flipBoard = false;
     private boolean humanPlayerColor = CONSTANTS.WHITE;
-    private boolean eloHasBeenSetInGui = false;
-
     public boolean wasSaved = false;
-    private int engineStrength = 20;
+    private int engineStrength = 2400;
     private int engineThinkTimeSecs = 1;
 
     ArrayList<Engine> engines = new ArrayList<>();
@@ -644,14 +642,6 @@ public class GameModel {
                 }
             }
         }
-    }
-
-    public boolean eloHasBeenSetInGUI() {
-        return eloHasBeenSetInGui;
-    }
-    
-    public void setEloHasBeenSetInGUI(boolean b) {
-        eloHasBeenSetInGui = b;
     }
 
     public String getVersion() {
