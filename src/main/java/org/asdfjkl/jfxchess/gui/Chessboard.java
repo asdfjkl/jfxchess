@@ -455,45 +455,47 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     void handleMousePress(MouseEvent e) {
 
-        MouseButton mouseButton = e.getButton();
-        if(mouseButton == MouseButton.PRIMARY) {
-            Board b = this.gameModel.getGame().getCurrentNode().getBoard();
-            Point boardPos = getBoardPosition(e.getX(), e.getY());
-            // case (a) 1) user clicks source field, then 2) clicks destination
-            // case (b) user clicks and drags piece
-            if (boardPos != null) {
-                if (grabbedPiece.getPiece() != -1) {
-                    // case a) 2)
-                    Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
-                    if (b.isLegalAndPromotes(m)) {
-                        int promotionPiece = DialogPromotion.show(b.turn,
-                                boardStyle.getPieceStyle(),
-                                gameModel.THEME);
-                        if (promotionPiece != EMPTY) {
-                            m.setPromotionPiece(promotionPiece);
+        if(!gameModel.blockGUI) {
+            MouseButton mouseButton = e.getButton();
+            if (mouseButton == MouseButton.PRIMARY) {
+                Board b = this.gameModel.getGame().getCurrentNode().getBoard();
+                Point boardPos = getBoardPosition(e.getX(), e.getY());
+                // case (a) 1) user clicks source field, then 2) clicks destination
+                // case (b) user clicks and drags piece
+                if (boardPos != null) {
+                    if (grabbedPiece.getPiece() != -1) {
+                        // case a) 2)
+                        Move m = new Move(moveSource.x, moveSource.y, boardPos.x, boardPos.y);
+                        if (b.isLegalAndPromotes(m)) {
+                            int promotionPiece = DialogPromotion.show(b.turn,
+                                    boardStyle.getPieceStyle(),
+                                    gameModel.THEME);
+                            if (promotionPiece != EMPTY) {
+                                m.setPromotionPiece(promotionPiece);
+                                applyMove(m);
+                            }
+                            resetMove();
+                        } else if (b.isLegal(m)) {
                             applyMove(m);
+                            resetMove();
+                        } else {
+                            resetMove();
+                            if (b.isPieceAt(boardPos.x, boardPos.y)) {
+                                touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
+                            }
                         }
-                        resetMove();
-                    } else if (b.isLegal(m)) {
-                        applyMove(m);
-                        resetMove();
-                    } else {
-                        resetMove();
+                    } else { // case a) 1) or b)
                         if (b.isPieceAt(boardPos.x, boardPos.y)) {
                             touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
                         }
                     }
-                } else { // case a) 1) or b)
-                    if (b.isPieceAt(boardPos.x, boardPos.y)) {
-                        touchPiece(boardPos.x, boardPos.y, e.getX(), e.getY());
-                    }
                 }
             }
-        }
-        if(mouseButton == MouseButton.SECONDARY) {
-            Point boardCoordinate = getBoardPosition(e.getX(), e.getY());
-            handleRightClick(boardCoordinate);
+            if (mouseButton == MouseButton.SECONDARY) {
+                Point boardCoordinate = getBoardPosition(e.getX(), e.getY());
+                handleRightClick(boardCoordinate);
 
+            }
         }
     }
 
@@ -599,8 +601,14 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
     void applyMove(Move m) {
 
+        // after applying a move, we block the GUI
+        // when we are playing against the computer
         this.gameModel.getGame().applyMove(m);
         // trigger statechange, would trigger updateCanvas itself
+        if(gameModel.getMode() == GameModel.MODE_PLAY_WHITE ||
+                gameModel.getMode() == GameModel.MODE_PLAY_BLACK ) {
+            gameModel.blockGUI = true;
+        }
         this.gameModel.triggerStateChange();
         //this.updateCanvas();
     }

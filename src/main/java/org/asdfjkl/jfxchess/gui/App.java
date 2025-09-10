@@ -365,10 +365,22 @@ public class App extends Application implements StateChangeListener {
 
         itmSavePositionAsImage.setOnAction(actionEvent -> { gameMenuController.handleSaveBoardPicture(chessboard);});
 
-        btnMoveNext.setOnAction(event -> moveView.goForward());
-        btnMoveBegin.setOnAction(event -> moveView.seekToRoot());
-        btnMovePrev.setOnAction(event -> moveView.goBack());
-        btnMoveEnd.setOnAction(event -> moveView.seekToEnd());
+        btnMoveNext.setOnAction(event -> {
+            if(!gameModel.blockGUI) {
+                moveView.goForward();
+            }});
+        btnMoveBegin.setOnAction(event -> {
+            if(!gameModel.blockGUI) {
+                moveView.seekToRoot();
+            }});
+        btnMovePrev.setOnAction(event -> {
+            if(!gameModel.blockGUI) {
+                moveView.goBack();
+            }});
+        btnMoveEnd.setOnAction(event -> {
+            if(!gameModel.blockGUI) {
+                moveView.seekToEnd();
+            }});
 
         // events
         gameModel.addListener(chessboard);
@@ -573,8 +585,12 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmPaste.setOnAction(e -> {
-            String pasteString = Clipboard.getSystemClipboard().getString().trim();
-            editMenuController.paste(pasteString);
+
+            // don't allow this while a user is playing a game
+            if(!gameModel.blockGUI) {
+                String pasteString = Clipboard.getSystemClipboard().getString().trim();
+                editMenuController.paste(pasteString);
+            }
         });
 
         itmResetLayout.setOnAction(e -> {
@@ -602,15 +618,24 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmBrowseDatabase.setOnAction(e -> {
-            gameMenuController.handleBrowseDatabase();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handleBrowseDatabase();
+            }
         });
 
         itmNextGame.setOnAction(e -> {
-            gameMenuController.handleNextGame();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handleNextGame();
+            }
         });
 
         itmPreviousGame.setOnAction(e -> {
-            gameMenuController.handlePrevGame();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handlePrevGame();
+            }
         });
 
         itmAbout.setOnAction(event -> {
@@ -657,8 +682,11 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnPaste.setOnAction(e -> {
-            String pasteString = Clipboard.getSystemClipboard().getString().trim();
-            editMenuController.paste(pasteString);
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                String pasteString = Clipboard.getSystemClipboard().getString().trim();
+                editMenuController.paste(pasteString);
+            }
         });
 
         btnEnterPosition.setOnAction(e -> {
@@ -671,15 +699,24 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnBrowseGames.setOnAction(e -> {
-            gameMenuController.handleBrowseDatabase();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handleBrowseDatabase();
+            }
         });
 
         btnPrevGame.setOnAction(e -> {
-            gameMenuController.handlePrevGame();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handlePrevGame();
+            }
         });
 
         btnNextGame.setOnAction(e -> {
-            gameMenuController.handleNextGame();
+            // don't allow this during a game
+            if(!gameModel.blockGUI) {
+                gameMenuController.handleNextGame();
+            }
         });
 
         btnAbout.setOnAction(e -> {
@@ -754,16 +791,28 @@ public class App extends Application implements StateChangeListener {
 
             /* other gui controls */
             if (event.getCode() == KeyCode.RIGHT) {
-                moveView.goForward();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    moveView.goForward();
+                }
             }
             if (event.getCode() == KeyCode.LEFT) {
-                moveView.goBack();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    moveView.goBack();
+                }
             }
             if (event.getCode() == KeyCode.HOME) {
-                moveView.seekToRoot();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    moveView.seekToRoot();
+                }
             }
             if (event.getCode() == KeyCode.END) {
-                moveView.seekToEnd();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    moveView.seekToEnd();
+                }
             }
             if (keyCombinationEnterPosition.match(event)) {
                 // setup position
@@ -809,17 +858,26 @@ public class App extends Application implements StateChangeListener {
                 stage.setFullScreen(true);
             }
             if(keyCombinationNextGame.match(event)) {
-                gameMenuController.handleNextGame();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    gameMenuController.handleNextGame();
+                }
             }
             if(keyCombinationPreviousGame.match(event)) {
-                gameMenuController.handlePrevGame();
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    gameMenuController.handlePrevGame();
+                }
             }
             if(keyCombinationCopy.match(event)) {
                 editMenuController.copyGame();
             }
             if(keyCombinationPaste.match(event)) {
-                String pasteString = Clipboard.getSystemClipboard().getString().trim();
-                editMenuController.paste(pasteString);
+                // don't allow this during a game
+                if(!gameModel.blockGUI) {
+                    String pasteString = Clipboard.getSystemClipboard().getString().trim();
+                    editMenuController.paste(pasteString);
+                }
             }
             if(keyCombinationOpen.match(event)) {
                 gameMenuController.handleOpenGame();
@@ -940,25 +998,29 @@ public class App extends Application implements StateChangeListener {
     private void addToMoveBuffer(String s) {
 
         moveBuffer += s;
-        if(moveBuffer.length() == 4) {
-            Move move = new Move(moveBuffer);
-            Board board = gameModel.getGame().getCurrentNode().getBoard();
-            if (!board.isLegalAndPromotes(move)) {
+        // don't allow this during a game when
+        // it's not the player's turn, i.e. when the GUI is blocked
+        if(!gameModel.blockGUI) {
+            if (moveBuffer.length() == 4) {
+                Move move = new Move(moveBuffer);
+                Board board = gameModel.getGame().getCurrentNode().getBoard();
+                if (!board.isLegalAndPromotes(move)) {
+                    if (board.isLegal(move)) {
+                        gameModel.getGame().applyMove(move);
+                        gameModel.triggerStateChange();
+                    }
+                    moveBuffer = "";
+                }
+            }
+            if (moveBuffer.length() == 5) {
+                Move move = new Move(moveBuffer);
+                Board board = gameModel.getGame().getCurrentNode().getBoard();
                 if (board.isLegal(move)) {
                     gameModel.getGame().applyMove(move);
                     gameModel.triggerStateChange();
                 }
                 moveBuffer = "";
             }
-        }
-        if(moveBuffer.length() == 5) {
-            Move move = new Move(moveBuffer);
-            Board board = gameModel.getGame().getCurrentNode().getBoard();
-            if (board.isLegal(move)) {
-                gameModel.getGame().applyMove(move);
-                gameModel.triggerStateChange();
-            }
-            moveBuffer = "";
         }
     }
 

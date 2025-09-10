@@ -95,12 +95,14 @@ public class ModeMenuController implements StateChangeListener {
         engineController.setUciLimitStrength(false);
         engineController.setMultiPV(gameModel.getMultiPv());
         gameModel.setMode(GameModel.MODE_ANALYSIS);
+        gameModel.blockGUI = false;
         gameModel.triggerStateChange();
     }
 
     public void activateEnterMovesMode() {
         engineController.stopEngine();
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
+        gameModel.blockGUI = false;
         gameModel.triggerStateChange();
     }
 
@@ -404,7 +406,8 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void handleBestMove(String bestmove) {
-        //System.out.println("handling bestmove: "+bestmove);
+
+        System.out.println("handling bestmove: "+bestmove);
         int mode = gameModel.getMode();
 
         if(mode == GameModel.MODE_ENTER_MOVES) {
@@ -420,6 +423,11 @@ public class ModeMenuController implements StateChangeListener {
             // if this bestmove is for a different position than the current,
             // it is a relict from thread/gui synchronisation mismatch; we just dismiss it
             return;
+        } else {
+            // If not, this is a bestmove from either playing the engine
+            // Then we need to unlock the GUI as
+            // the user wants to potentially react to that
+            gameModel.blockGUI = false;
         }
 
         if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK  || mode == GameModel.MODE_PLAYOUT_POSITION) {

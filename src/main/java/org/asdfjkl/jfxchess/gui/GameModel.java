@@ -64,6 +64,11 @@ public class GameModel {
 
     private boolean gameAnalysisJustStarted = false;
 
+    // to make sure that if the user play against the computer/bot
+    // he is not able to/does not accidentally move the computer's pieces
+    // on the computer's turn
+    public boolean blockGUI = false;
+
     public String currentBestPv = "";
     public int currentBestEval = 0;
     public int currentMateInMoves = -1;
