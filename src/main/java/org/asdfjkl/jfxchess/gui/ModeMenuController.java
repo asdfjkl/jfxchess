@@ -18,11 +18,13 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.animation.PauseTransition;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 //import jfxtras.styles.jmetro.FlatAlert;
 //import jfxtras.styles.jmetro.JMetro;
 //import jfxtras.styles.jmetro.Style;
+import javafx.util.Duration;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.text.DecimalFormat;
@@ -91,7 +93,10 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activateAnalysisMode() {
+        engineController.stopEngine();
+        gameModel.activeEngine = gameModel.selectedAnalysisEngine;
         engineController.restartEngine(gameModel.activeEngine);
+
         engineController.setUciLimitStrength(false);
         engineController.setMultiPV(gameModel.getMultiPv());
         gameModel.setMode(GameModel.MODE_ANALYSIS);
@@ -101,6 +106,12 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activateEnterMovesMode() {
         engineController.stopEngine();
+        gameModel.activeEngine = gameModel.selectedAnalysisEngine;
+        // we'll set info for the analysis engine so that the user
+        // knows which engine is active (e.g. after playing a bot
+        // and then finishing the game or aborting to enter moves mode)
+        setEngineInfoForUnstartedEngine(gameModel.activeEngine);
+
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
         gameModel.blockGUI = false;
         gameModel.triggerStateChange();
@@ -163,6 +174,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activatePlayWhiteMode() {
         // restart engine
+        gameModel.activeEngine = gameModel.selectedPlayEngine;
         engineController.restartEngine(gameModel.activeEngine);
         // send all UCI options
         for(EngineOption enOpt : gameModel.activeEngine.options) {
@@ -195,6 +207,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayBlackMode() {
+        gameModel.activeEngine = gameModel.selectedPlayEngine;
         // restart engine
         engineController.restartEngine(gameModel.activeEngine);
         // send all UCI options
@@ -309,7 +322,14 @@ public class ModeMenuController implements StateChangeListener {
         }
         String bookMove = gameModel.extBook.getRandomMove(zobrist);
         if((bookMove != null) && (!maxDepthReached)) {
-            handleBestMove("BESTMOVE|"+bookMove+"|"+zobrist);
+            // don't execute the book move immediately; we want to
+            // create the illusion of the computer thinking about his move
+            // inside your event handler or wherever:
+            PauseTransition delay = new PauseTransition(Duration.seconds(gameModel.getComputerThinkTimeSecs()));
+            delay.setOnFinished(event -> {
+                handleBestMove("BESTMOVE|"+bookMove+"|"+zobrist);
+            });
+            delay.play();
         } else {
             String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
             engineController.sendNewPosition(fen);
@@ -368,7 +388,7 @@ public class ModeMenuController implements StateChangeListener {
                                              activeEngine.getUciLimitStrength(),
                                              activeEngine.getUciElo());
     }
-    
+
     public void editEngines() {
         // To not be bothered by result notifications during editing engines.
         gameModel.doNotNotifyAboutResult = true;

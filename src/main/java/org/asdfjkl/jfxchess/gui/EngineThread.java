@@ -211,6 +211,7 @@ public class EngineThread extends Thread {
                             engineInfo.clear();
                             String engineCmd = cmd.substring(6);
                             try {
+                                System.out.println("engincCmd: " + engineCmd);
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));

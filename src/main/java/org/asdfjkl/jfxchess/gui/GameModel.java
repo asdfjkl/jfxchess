@@ -49,7 +49,7 @@ public class GameModel {
     private boolean humanPlayerColor = CONSTANTS.WHITE;
     public boolean wasSaved = false;
     private int engineStrength = 2400;
-    private int engineThinkTimeSecs = 1;
+    private int engineThinkTimeSecs = 3;
 
     ArrayList<Engine> engines = new ArrayList<>();
     Engine activeEngine = null;
@@ -449,7 +449,7 @@ public class GameModel {
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
         }
-        prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+        prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(selectedAnalysisEngine));
     }
 
     public void saveBookPath() {

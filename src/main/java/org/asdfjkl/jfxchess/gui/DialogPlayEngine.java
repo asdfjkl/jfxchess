@@ -41,9 +41,9 @@ public class DialogPlayEngine {
     boolean accepted = false;
 
     final Slider sliderStrength = new Slider();
-    RadioButton rbStartInitial = new RadioButton("Initial Position (New Game)");
-    RadioButton rbStartCurrent = new RadioButton("Current Board");
-    int strength = 0;
+    boolean startInitial = true;
+    boolean playWhite = true;
+    int elo = 0;
 
     ObservableList<Engine> engineList;
     ListView<Engine> engineListView;
@@ -55,6 +55,7 @@ public class DialogPlayEngine {
         engineList = FXCollections.observableArrayList(engines);
         engineListView = new ListView<>();
         engineListView.setItems(engineList);
+        engineListView.getSelectionModel().select(0);
         engineListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Engine item, boolean empty) {
@@ -76,6 +77,9 @@ public class DialogPlayEngine {
                 System.out.println("selected engine: "+ (selectedEngine.getName()));
                 if(selectedEngine.supportsUciLimitStrength()) {
                     sliderStrength.setDisable(false);
+                    sliderStrength.setMin(selectedEngine.getMinUciElo());
+                    sliderStrength.setMax(selectedEngine.getMaxUciElo());
+                    sliderStrength.setValue(selectedEngine.getUciElo());
                 } else {
                     sliderStrength.setDisable(true);
                 }
@@ -91,8 +95,9 @@ public class DialogPlayEngine {
         Label lblBotElo = new Label("Elo");
         lblBotElo.setStyle("-fx-font-weight: bold;");
 
-        sliderStrength.setMin(1200);
-        sliderStrength.setMax(2400);
+        Engine selectedEngine = engineList.get(selectedIndex);
+        sliderStrength.setMin(selectedEngine.getMinUciElo());
+        sliderStrength.setMax(selectedEngine.getMaxUciElo());
 
         sliderStrength.setBlockIncrement(1);
         sliderStrength.setMajorTickUnit(1);
@@ -106,11 +111,11 @@ public class DialogPlayEngine {
 
         sliderStrength.valueProperty().addListener(
                 ((observableValue, number, t1) -> {
-                    strength = t1.intValue();;
-                    txtStrength.setText("Elo "+ strength);
+                    elo = t1.intValue();;
+                    txtStrength.setText("Elo "+ elo);
                 })
         );
-        sliderStrength.setValue(1800);
+        sliderStrength.setValue(selectedEngine.getUciElo());
         sliderStrength.setStyle("-show-value-on-interaction: false;");
 
         VBox vbStrength = new VBox(5, lblBotElo, hboxStrength);
@@ -126,6 +131,13 @@ public class DialogPlayEngine {
         rbBlack.setToggleGroup(tgSide);
         rbWhite.setSelected(true); // default: White
 
+        rbWhite.setOnAction( e -> {
+            playWhite = true;
+        });
+        rbBlack.setOnAction( e -> {
+            playWhite = false;
+        });
+
         HBox hbSide = new HBox(10, rbWhite, rbBlack);
         VBox vbSide = new VBox(5, lblSide, hbSide);
 
@@ -138,6 +150,13 @@ public class DialogPlayEngine {
         rbInitialPos.setToggleGroup(tgPos);
         rbCurrentPos.setToggleGroup(tgPos);
         rbInitialPos.setSelected(true);
+
+        rbInitialPos.setOnAction(e -> {
+            startInitial = true;
+        });
+        rbCurrentPos.setOnAction(e -> {
+            startInitial = false;
+        });
 
         VBox vbGameOptions = new VBox(5, lblStart, rbInitialPos, rbCurrentPos);
 

@@ -40,11 +40,6 @@ public class App extends Application implements StateChangeListener {
     EngineOutputView engineOutputView;
 
     ToggleButton tglEngineOnOff;
-
-    // Two variables, to make it possible to hide the PV-lines when playing.
-    Label lblShowLines = new Label("    Show lines: ");
-    CheckBox cbShowEngineLines = new CheckBox("");
-    
     SplitPane spChessboardMoves;
     SplitPane spMain;
 
@@ -87,7 +82,7 @@ public class App extends Application implements StateChangeListener {
         gameModel = new GameModel();
         gameModel.restoreModel();
         gameModel.restoreBoardStyle();
-        //gameModel.restoreEngines();
+        gameModel.restoreEngines();
         gameModel.restoreGameAnalysisThresholds();
         gameModel.restoreNewGameSettings();
         gameModel.restoreTheme();
@@ -134,11 +129,10 @@ public class App extends Application implements StateChangeListener {
         itmEnterPosition.setAccelerator(keyCombinationEnterPosition);
         MenuItem itmFlipBoard = new MenuItem("Flip Board");
         itmFlipBoard.setAccelerator(keyCombinationFlipBoard);
-        MenuItem itmShowSearchInfo = new MenuItem("Show/Hide Search Info");
 
         mnuEdit.getItems().addAll(itmCopyGame, itmCopyPosition, itmCopyImage, itmPaste,
                 new SeparatorMenuItem(), itmEditGame, itmEnterPosition,
-                new SeparatorMenuItem(), itmFlipBoard, itmShowSearchInfo);
+                new SeparatorMenuItem(), itmFlipBoard);
 
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
@@ -331,10 +325,8 @@ public class App extends Application implements StateChangeListener {
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
         Region spacerEngineControl = new Region();
-        cbShowEngineLines.setSelected(true);
         hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
-                btnAddEngineLine, btnRemoveEngineLine, lblShowLines,
-	        cbShowEngineLines, spacerEngineControl, new Label("Engines: "),
+                btnAddEngineLine, btnRemoveEngineLine, spacerEngineControl, new Label("Engines: "),
 		btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
         hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
@@ -507,14 +499,6 @@ public class App extends Application implements StateChangeListener {
             }
         });
 
-        cbShowEngineLines.setOnAction(actionEvent -> {
-            if(!cbShowEngineLines.isSelected()) {
-                engineOutputView.disablePVLines();
-            } else {
-                engineOutputView.enablePVLines();
-            }
-        });
-
         itmNew.setOnAction(e -> {
             handleNewGame();
         });
@@ -605,15 +589,6 @@ public class App extends Application implements StateChangeListener {
 
         itmFlipBoard.setOnAction(e -> {
             gameModel.setFlipBoard(!gameModel.getFlipBoard());
-            gameModel.triggerStateChange();
-        });
-
-        itmShowSearchInfo.setOnAction(e -> {
-            if(engineOutputView.isEnabled()) {
-                engineOutputView.disableOutput();
-            } else {
-                engineOutputView.enableOutput();
-            }
             gameModel.triggerStateChange();
         });
 
@@ -975,19 +950,6 @@ public class App extends Application implements StateChangeListener {
             tglEngineOnOff.setSelected(true);
             tglEngineOnOff.setText("On");
         }
-        // The "show lines"-checkbox will be visible if a game is being played,
-	// but not e.g. during the analysis-modes.
-        if(gameModel.getMode() == gameModel.MODE_PLAY_BLACK ||
-           gameModel.getMode() == gameModel.MODE_PLAY_WHITE) {
-            cbShowEngineLines.setVisible(true);
-            lblShowLines.setVisible(true);
-        } else {
-            engineOutputView.enablePVLines();
-            cbShowEngineLines.setSelected(true);
-            cbShowEngineLines.setVisible(false);
-            lblShowLines.setVisible(false);
-        }
-
     }
 
 
@@ -1078,7 +1040,6 @@ public class App extends Application implements StateChangeListener {
                     gameModel.getGame().setTreeWasChanged(true);
                     gameModel.getGame().setHeaderWasChanged(true);
                     gameModel.selectedPlayEngine = gameModel.botEngines.get(dlgPlay.selectedIndex);
-                    gameModel.activeEngine = gameModel.selectedPlayEngine;
                     if(dlgPlay.playWhite) {
                         gameModel.setFlipBoard(false);
                         itmPlayAsWhite.setSelected(true);
@@ -1095,6 +1056,31 @@ public class App extends Application implements StateChangeListener {
                 boolean uciAccepted = dlgUci.show(gameModel.engines);
                 if(uciAccepted) {
                     System.out.println("start uci game");
+
+                    gameModel.wasSaved = false;
+                    gameModel.currentPgnDatabaseIdx = -1;
+                    gameModel.setComputerThinkTimeSecs(3);
+                    Game g = new Game();
+                    Board b;
+                    if(dlgUci.startInitial) {
+                        b = new Board(true);
+                    } else {
+                        b = gameModel.getGame().getCurrentNode().getBoard().makeCopy();
+                    }
+                    g.getRootNode().setBoard(b);
+                    gameModel.setGame(g);
+                    gameModel.getGame().setTreeWasChanged(true);
+                    gameModel.getGame().setHeaderWasChanged(true);
+                    gameModel.selectedPlayEngine = gameModel.engines.get(dlgUci.selectedIndex);
+                    if(dlgUci.playWhite) {
+                        gameModel.setFlipBoard(false);
+                        itmPlayAsWhite.setSelected(true);
+                        modeMenuController.activatePlayWhiteMode();
+                    } else {
+                        gameModel.setFlipBoard(true);
+                        itmPlayAsBlack.setSelected(true);
+                        modeMenuController.activatePlayBlackMode();
+                    }
                 }
             }
         }

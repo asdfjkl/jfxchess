@@ -203,13 +203,13 @@ public class EngineOutputView implements StateChangeListener {
             resetPVLines();
             gameModel.setMultiPvChange(false);
         }
-        // The last depth-text from analysis mode remained after mode change 
-        // to playing black or white (or to a new game).
+        // reset everything and wait for new info
         depth.setText("");
-        // There was a similar problem with nps (but this didn't seem to
-        // help completely).
-	nps.setText("");
-	hashFull.setText("");
-	tbHits.setText("");
+        nps.setText("");
+        hashFull.setText("");
+        tbHits.setText("");
+        for(Text pv : pvLines) {
+            pv.setText("");
+        }
   }
 }

@@ -66,6 +66,7 @@ public class BotEngines {
 
         // 3. Captain Castle
         BotEngine castle = new BotEngine();
+        castle.setPath(path);
         castle.setName("Captain Castle");
         castle.setElo("1840");
         castle.setBio("A cautious player who loves to tuck his king safely away before doing " +
