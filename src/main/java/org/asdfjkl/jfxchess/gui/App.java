@@ -1020,6 +1020,17 @@ public class App extends Application implements StateChangeListener {
         if(result >= 0) {
             if(result == DialogNewGame.ENTER_ANALYSE) {
                 System.out.println("enter & analyse");
+                // clean up current game, but otherwise not much to do
+                gameModel.wasSaved = false;
+                gameModel.currentPgnDatabaseIdx = -1;
+                gameModel.setComputerThinkTimeSecs(3);
+                Game g = new Game();
+                Board b = new Board(true);
+                g.getRootNode().setBoard(b);
+                gameModel.setGame(g);
+                gameModel.getGame().setTreeWasChanged(true);
+                gameModel.getGame().setHeaderWasChanged(true);
+                modeMenuController.activateEnterMovesMode();
             }
             if(result == DialogNewGame.PLAY_BOTS) {
                 DialogPlayBots dlgPlay = new DialogPlayBots();
