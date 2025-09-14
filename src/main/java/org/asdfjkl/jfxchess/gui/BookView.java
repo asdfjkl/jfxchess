@@ -52,7 +52,7 @@ public class BookView implements StateChangeListener {
         colWDL.setCellFactory(p ->
                 new RatioCell(gameModel.THEME)
         );
-        colWDL.setMinWidth(150);
+        colWDL.setMinWidth(280);
 
         /*
         TableColumn<PolyglotExtEntry, Integer> colWins = new TableColumn<PolyglotExtEntry, Integer>("Win");
