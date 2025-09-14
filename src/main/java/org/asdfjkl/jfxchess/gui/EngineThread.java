@@ -183,7 +183,7 @@ public class EngineThread extends Thread {
             long currentMs = System.currentTimeMillis();
             if ((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
-                System.out.println("updating INFO: " + engineInfo.toString());
+                //System.out.println("updating INFO: " + engineInfo.toString());
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,

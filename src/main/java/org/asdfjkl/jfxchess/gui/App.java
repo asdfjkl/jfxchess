@@ -19,12 +19,15 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jfxchess.lib.*;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -89,6 +92,8 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreTheme();
         gameModel.restorePaths();
         gameModel.setStageRef(stage);
+        gameModel.restoreExtBookPath();
+        gameModel.loadExtBook();
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         boolean appWindowWasMaximized = gameModel.restoreWindowMaxStatus();
         gameModel.getGame().setTreeWasChanged(true);
@@ -156,10 +161,11 @@ public class App extends Application implements StateChangeListener {
         tglMode.getToggles().add(itmPlayOutPosition);
 
         MenuItem itmEngines = new MenuItem("Engines...");
+        MenuItem itmSelectBook = new MenuItem("Select Book...");
 
         mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack,
                 itmEnterMoves, itmFullGameAnalysis, itmPlayOutPosition,
-                new SeparatorMenuItem(), itmEngines);
+                new SeparatorMenuItem(), itmEngines, itmSelectBook);
 
         // View Menu
         MenuItem itmFullscreen = new MenuItem("Fullscreen");
@@ -554,6 +560,24 @@ public class App extends Application implements StateChangeListener {
 
         itmEngines.setOnAction(e -> {
             modeMenuController.editEngines();
+        });
+
+        itmSelectBook.setOnAction(e -> {
+
+            Stage fileChooserStage = new Stage();
+            fileChooserStage.initModality(Modality.APPLICATION_MODAL);
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select Opening Book (.bin)");
+            fileChooser.setInitialDirectory(gameModel.getBaseBookPath());
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("BIN", "*.bin")
+            );
+            File file = fileChooser.showOpenDialog(fileChooserStage);
+            if (file != null) {
+                gameModel.extBookPath = file.toString();
+                gameModel.loadExtBook();
+                gameModel.triggerStateChange();
+            }
         });
 
         btnSelectEngine.setOnAction(e -> {
@@ -1006,6 +1030,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.saveToolbarVisibility(tbMainWindow.isVisible());
         gameModel.saveTheme();
         gameModel.savePaths();
+        gameModel.saveExtBookPath();
 
         modeMenuController.stopEngine();
         ArrayList<Task> runningTasks = gameModel.getPgnDatabase().getRunningTasks();

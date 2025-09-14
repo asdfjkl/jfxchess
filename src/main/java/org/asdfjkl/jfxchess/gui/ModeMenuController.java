@@ -67,7 +67,7 @@ public class ModeMenuController implements StateChangeListener {
         if(s.startsWith("INFO")) {
             if((gameModel.getMode() != GameModel.MODE_PLAY_BLACK) &&
                 (gameModel.getMode() != GameModel.MODE_PLAY_WHITE)) {
-                System.out.println("info!");
+                //System.out.println("info!");
                 //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
                 String[] sSplit = s.split("\\|");
                 if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {

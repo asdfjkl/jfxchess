@@ -83,7 +83,7 @@ public class GameModel {
     public boolean doNotNotifyAboutResult = false;
 
     //public final Polyglot book;
-    public final PolyglotExt extBook;
+    public PolyglotExt extBook;
 
     private Preferences prefs;
 
@@ -96,7 +96,7 @@ public class GameModel {
 
     public boolean openDatabaseOnNextDialog = false;
 
-    private String bookPathFile;
+    public String extBookPath;
 
     private SearchPattern searchPattern;
     BoardStyle boardStyle;
@@ -179,9 +179,15 @@ public class GameModel {
             book.loadBook(file);
         }*/
 
+    }
+
+    public void loadExtBook() {
+
         File file = null;
         extBook = new PolyglotExt();
-        String extBookPath = getExtBookPath();
+        if(extBookPath.isEmpty()) {
+            extBookPath = getExtBookPath();
+        }
         //DialogSimpleAlert dlg = new DialogSimpleAlert();
         //dlg.show(extBookPath, 0);
         if(extBookPath != null) {
@@ -267,7 +273,7 @@ public class GameModel {
         return null;
     }
 
-    private File getBaseBookPath() {
+    public File getBaseBookPath() {
         String os = System.getProperty("os.name").toLowerCase();
         if(os.contains("win")) {
             String jarPath = "";
@@ -463,11 +469,25 @@ public class GameModel {
         prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(selectedAnalysisEngine));
     }
 
-    public void saveBookPath() {
+    public void saveExtBookPath() {
         prefs = Preferences.userRoot().node(this.getClass().getName());
-        if(!bookPathFile.isEmpty()) {
-            prefs.put("bookPathFile", bookPathFile);
+        if(!extBookPath.isEmpty()) {
+            prefs.put("EXT_BOOK_PATH_FILE", extBookPath);
         }
+        System.out.println("saving extbook: "+extBookPath);
+    }
+
+    public void restoreExtBookPath() {
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+        int mVersion = prefs.getInt("modelVersion", 0);
+
+        String bookPath = getExtBookPath();
+        if(mVersion == modelVersion) {
+            bookPath = prefs.get("EXT_BOOK_PATH_FILE", bookPath);
+        }
+        System.out.println("restoring extbook: " + bookPath);
+        extBookPath = bookPath;
     }
 
     public void saveGameAnalysisThresholds() {
