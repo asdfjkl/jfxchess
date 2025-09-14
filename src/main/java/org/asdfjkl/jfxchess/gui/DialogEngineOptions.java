@@ -82,10 +82,13 @@ public class DialogEngineOptions {
         int i = 0;
         for(EngineOption enOpt : engineOptions) {
 
-            // ignore multipv and do not display this to the user
-            // as this is completely handled directly in the GUI
-            // by the comboBox above the engine window
-            if(enOpt.name.toLowerCase().contains("multipv")) {
+            // ignore multipv, UCI_Elo, UCI_LimitStrength, and Threads
+            // and do not display these to the user
+            // as these are completely handled directly in the GUI
+            if(enOpt.name.toLowerCase().contains("multipv") ||
+                    enOpt.name.toLowerCase().contains("uci_elo") ||
+                    enOpt.name.toLowerCase().contains("uci_limitstrength") ||
+                    enOpt.name.toLowerCase().contains("threads")) {
                 continue;
             }
 
