@@ -25,6 +25,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import org.asdfjkl.jfxchess.lib.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import atlantafx.base.theme.NordLight;
 import atlantafx.base.theme.NordDark;
@@ -1037,7 +1039,6 @@ public class App extends Application implements StateChangeListener {
                 boolean playAccepted = dlgPlay.show(gameModel.botEngines);
                 if(playAccepted) {
                     System.out.println("start bot game");
-
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
                     gameModel.setComputerThinkTimeSecs(3);
@@ -1053,11 +1054,21 @@ public class App extends Application implements StateChangeListener {
                     gameModel.getGame().setTreeWasChanged(true);
                     gameModel.getGame().setHeaderWasChanged(true);
                     gameModel.selectedPlayEngine = gameModel.botEngines.get(dlgPlay.selectedIndex);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                    String formattedDate = LocalDate.now().format(formatter);
+                    g.setHeader("Date", formattedDate);
+                    g.setHeader("Event", "Training Game JFXChess");
                     if(dlgPlay.playWhite) {
+                        g.setHeader("White", "N.N.");
+                        g.setHeader("Black", gameModel.selectedPlayEngine.getName());
+                        g.setHeader("BlackElo", ((BotEngine) gameModel.selectedPlayEngine).getElo());
                         gameModel.setFlipBoard(false);
                         itmPlayAsWhite.setSelected(true);
                         modeMenuController.activatePlayWhiteMode();
                     } else {
+                        g.setHeader("Black", "N.N.");
+                        g.setHeader("White", gameModel.selectedPlayEngine.getName());
+                        g.setHeader("WhiteElo", ((BotEngine) gameModel.selectedPlayEngine).getElo());
                         gameModel.setFlipBoard(true);
                         itmPlayAsBlack.setSelected(true);
                         modeMenuController.activatePlayBlackMode();
@@ -1092,11 +1103,21 @@ public class App extends Application implements StateChangeListener {
                             gameModel.selectedPlayEngine.setUciElo(newElo);
                         }
                     }
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                    String formattedDate = LocalDate.now().format(formatter);
+                    g.setHeader("Date", formattedDate);
+                    g.setHeader("Event", "Training Game JFXChess");
                     if(dlgUci.playWhite) {
+                        g.setHeader("White", "N.N.");
+                        g.setHeader("Black", gameModel.selectedPlayEngine.getName());
+                        g.setHeader("BlackElo", String.valueOf(gameModel.selectedPlayEngine.getUciElo()));
                         gameModel.setFlipBoard(false);
                         itmPlayAsWhite.setSelected(true);
                         modeMenuController.activatePlayWhiteMode();
                     } else {
+                        g.setHeader("Black", "N.N.");
+                        g.setHeader("White", gameModel.selectedPlayEngine.getName());
+                        g.setHeader("WhiteElo", String.valueOf(gameModel.selectedPlayEngine.getUciElo()));
                         gameModel.setFlipBoard(true);
                         itmPlayAsBlack.setSelected(true);
                         modeMenuController.activatePlayBlackMode();
