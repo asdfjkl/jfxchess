@@ -332,7 +332,12 @@ public class App extends Application implements StateChangeListener {
         hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
         txtEngineOut.setPadding(new Insets(10,10,10,10));
+
         ScrollPane scpEngineOut = new ScrollPane(txtEngineOut);
+        scpEngineOut.setFitToWidth(true);
+        scpEngineOut.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        txtEngineOut.prefWidthProperty().bind(scpEngineOut.widthProperty().subtract(20));
+
         VBox vbBottom = new VBox();
         //vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
         vbBottom.getChildren().addAll(hbEngineControl, scpEngineOut);
