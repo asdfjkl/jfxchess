@@ -19,9 +19,8 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.animation.PauseTransition;
-//import jfxtras.styles.jmetro.FlatAlert;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.Style;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.asdfjkl.jfxchess.lib.*;
 
@@ -154,21 +153,11 @@ public class ModeMenuController implements StateChangeListener {
             // we are at the root or found a book move
             gameModel.getGame().setTreeWasChanged(true);
             activateEnterMovesMode();
-            //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
 
-            //FlatAlert alert = new FlatAlert(Alert.AlertType.INFORMATION);
-            //Scene scene = alert.getDialogPane().getScene();
-            //JMetro metro = new JMetro();
-            if(gameModel.THEME == GameModel.STYLE_DARK) {
-              //  metro.setStyle(Style.DARK);
-            }
-            //metro.setScene(scene);
-            //alert.setHeaderText("Analysis Finished");
-            //alert.setContentText("The game analysis is finished.");
-            //alert.showAndWait();
-
-            //DialogSimpleAlert dlg = new DialogSimpleAlert();
-            //dlg.show("     The analysis is finished.     ", gameModel.THEME);
+            DialogSimpleAlert dlgAlert = new DialogSimpleAlert(
+                    gameModel.getStageRef(), Alert.AlertType.INFORMATION,
+                    "Analysis Finished", "Game Analysis Finished");
+            dlgAlert.showAndWait();
         }
     }
 
@@ -186,13 +175,6 @@ public class ModeMenuController implements StateChangeListener {
         }
         // restart
         engineController.restartEngine(gameModel.activeEngine);
-        // if we don't play against a bot
-        // AND if the engine supports UCILimitStrength
-        // AND if a valid UCI value is set in gameModel
-        // we additionally limit UCI strength
-        // note: for a bot, the Elo value and boolean are already included
-        //       (preset) in the engine's options via SkillLEvel,
-        //       i.e. predefined during construction
 
         // change game mode, trigger statechange
         setEngineNameAndInfoToOuptput();
@@ -271,31 +253,16 @@ public class ModeMenuController implements StateChangeListener {
 
         System.out.println("state change play");
 
-        /*
-        if(gameModel.getMode() == GameModel.MODE_PLAY_WHITE) {
-            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.WHITE) {
-                engineOutputView.setText(gameModel.activeEngine.getName() + "|||Your Turn - White to Move");
-            } else {
-                engineOutputView.setText(gameModel.activeEngine.getName() + "||| ... thinking ...");
-            }
-        }
-        if(gameModel.getMode() == GameModel.MODE_PLAY_BLACK) {
-            if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.BLACK) {
-                engineOutputView.setText(gameModel.activeEngine.getName() + "|||Your Turn - White to Move");
-            } else {
-                engineOutputView.setText(gameModel.activeEngine.getName() + "||| ... thinking ...");
-            }
-        }*/
-
         // first check if we can apply a bookmove
         long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
         //ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
         boolean maxDepthReached = false;
         int currentDepth = gameModel.getGame().getCurrentNode().getDepth();
         int currentElo = gameModel.activeEngine.getUciElo();
+        boolean limitElo = gameModel.activeEngine.getUciLimitStrength();
         // engine supports setting ELO
         // let's limit book knowledge according to ELO
-        if(currentElo > 0) {
+        if(limitElo && (currentElo > 0)) {
             if(currentElo <= 1200 && currentDepth > 10) {
                 maxDepthReached = true;
             }
@@ -384,13 +351,6 @@ public class ModeMenuController implements StateChangeListener {
         engineOutputView.setId(gameModel.activeEngine.getNameWithElo());
         engineOutputView.setText("|||||||||||");
 
-        /*
-        engineController.engineInfoSetValues(gameModel.activeEngine.getNameWithElo(),
-                                             gameModel.activeEngine.getMultiPV(),
-                                             gameModel.activeEngine.getUciLimitStrength(),
-                                             gameModel.activeEngine.getUciElo());
-
-         */
     }
 
     public void editEngines() {
@@ -672,20 +632,11 @@ public class ModeMenuController implements StateChangeListener {
                 message = "Draw (Insufficient material for checkmate)";
             }
             if(mode != GameModel.MODE_GAME_ANALYSIS) {
-                //FlatAlert alert = new FlatAlert(Alert.AlertType.CONFIRMATION);
-                //Scene scene = alert.getDialogPane().getScene();
-                //JMetro metro = new JMetro();
-                if(gameModel.THEME == GameModel.STYLE_DARK) {
-                  //  metro.setStyle(Style.DARK);
-                }
-                //metro.setScene(scene);
-                //alert.setTitle("Delete Game");
-                //alert.setHeaderText("");
-                //alert.setContentText(message);
-                //alert.showAndWait();
+                DialogSimpleAlert dlgAlert = new DialogSimpleAlert(
+                        gameModel.getStageRef(), Alert.AlertType.INFORMATION,
+                        "Game Finished", message);
+                dlgAlert.showAndWait();
 
-                //DialogSimpleAlert dlg = new DialogSimpleAlert();
-                //dlg.show(message, gameModel.THEME);
             }
 
             if(mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {

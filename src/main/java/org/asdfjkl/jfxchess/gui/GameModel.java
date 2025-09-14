@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.stage.Stage;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.io.File;
@@ -99,6 +100,8 @@ public class GameModel {
 
     private SearchPattern searchPattern;
     BoardStyle boardStyle;
+
+    Stage refToCurrentStage;
 
     public GameModel() {
         this.game = new Game();
@@ -186,6 +189,14 @@ public class GameModel {
             extBook.loadBook(file);
         }
 
+    }
+
+    public void setStageRef(Stage stage) {
+        refToCurrentStage = stage;
+    }
+
+    public Stage getStageRef() {
+        return refToCurrentStage;
     }
 
     private String getStockfishPath() {

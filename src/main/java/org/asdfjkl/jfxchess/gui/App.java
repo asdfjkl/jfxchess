@@ -86,6 +86,7 @@ public class App extends Application implements StateChangeListener {
         gameModel.restoreNewGameSettings();
         gameModel.restoreTheme();
         gameModel.restorePaths();
+        gameModel.setStageRef(stage);
         ScreenGeometry screenGeometry = gameModel.restoreScreenGeometry();
         boolean appWindowWasMaximized = gameModel.restoreWindowMaxStatus();
         gameModel.getGame().setTreeWasChanged(true);
