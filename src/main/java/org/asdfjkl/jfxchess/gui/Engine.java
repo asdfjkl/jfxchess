@@ -32,7 +32,17 @@ public class Engine implements Comparator<Engine>{
 
     public final ArrayList<EngineOption> options = new ArrayList<>();
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
+
+    public String getNameWithElo() {
+        if(supportsUciLimitStrength() && getUciLimitStrength()) {
+            return name + " (Elo " + getUciElo() + ")";
+        } else {
+            return name;
+        }
+    }
     public void setName(String name) { this.name = name; }
 
     public String getPath() { return path; }
@@ -202,7 +212,7 @@ public class Engine implements Comparator<Engine>{
         return 0;
     }
 
-    public void setElo(int elo) {
+    public void setUciElo(int elo) {
         for (EngineOption option : options) {
             if (option.name.equals("UCI_Elo")) {
                 option.spinValue = elo;
@@ -226,13 +236,13 @@ public class Engine implements Comparator<Engine>{
 
     }
 
-    // public void setUciLimitStrength(boolean val) {
-    //     for (EngineOption option : options) {
-    //         if (option.name.equals("UCI_LimitStrength")) {
-    //             option.checkStatusValue = val;
-    //         }
-    //     }
-    // }
+    public void setUciLimitStrength(boolean val) {
+         for (EngineOption option : options) {
+             if (option.name.equals("UCI_LimitStrength")) {
+                 option.checkStatusValue = val;
+             }
+         }
+    }
     
     public boolean getUciLimitStrength() {
         for (EngineOption option : options) {

@@ -135,12 +135,7 @@ public class EngineController {
         // which is according to the UCI-protocol, but meanwhile we
         // continue with pumping setoption commands into the cmdQueue.
         for(EngineOption enOpt : activeEngine.options) {
-            // Always send UCI_Elo even if it has default value.
-            // It won't be used without UCI_LimitStrength.
-            // (when we send UCI_LimitStrength explicitly in the program
-            // we require that UCI_Elo should have been sent at startup, so
-            // there will be a saved ELO-value to show in the EngineOutputView.)
-            if(enOpt.isNotDefault() || enOpt.name.equals("UCI_Elo")) {
+            if(enOpt.isNotDefault()) {
                 sendCommand(enOpt.toUciCommand());
             }
         }
@@ -151,26 +146,6 @@ public class EngineController {
         sendCommand("ucinewgame");
         // An isready should be sent after ucinewgame.
         sendCommand("isready");
-    }
-
-    // public void setStockfishStrength(int level) {
-    //     sendCommand("setoption name Skill Level value "+level);
-    // }
-
-    // public void setSkillLevelInternal(int engineStrength) {
-    //     if(currentEngine != null && currentEngine.isInternal()) {
-    //         sendCommand("setoption name Skill Level value " + engineStrength);
-    //     }
-    // }
-    
-    public void setUciLimitStrength(Boolean val) {
-        if (currentEngine != null && currentEngine.supportsUciLimitStrength()) {
-            sendCommand("setoption name UCI_LimitStrength value " + val);
-        }
-    }
-
-    public void setUciElo(int elo) {
-        sendCommand("setoption name UCI_Elo value " + elo);
     }
 
     public void setMultiPV(int n) {

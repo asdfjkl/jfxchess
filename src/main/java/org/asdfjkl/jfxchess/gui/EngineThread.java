@@ -71,9 +71,9 @@ public class EngineThread extends Thread {
     }
 
     // EngineThread is the only object with access to the EngineInfo.
-    // EngineInfo is assembled into a textstring which is is sent to
+    // EngineInfo is assembled into a textstring which is sent to
     // the EngineOutputview at regular intervals.
-    // I added four methods below to be able to send info to the
+    // The four methods below enable to send info to the
     // outputView without sending the UCI-commands to the engine.
     public void engineInfoSetID(String engineID)
     {
@@ -183,6 +183,7 @@ public class EngineThread extends Thread {
             long currentMs = System.currentTimeMillis();
             if ((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
+                System.out.println("updating INFO: " + engineInfo.toString());
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,

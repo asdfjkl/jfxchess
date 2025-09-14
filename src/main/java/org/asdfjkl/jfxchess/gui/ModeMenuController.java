@@ -19,8 +19,6 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.animation.PauseTransition;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 //import jfxtras.styles.jmetro.FlatAlert;
 //import jfxtras.styles.jmetro.JMetro;
 //import jfxtras.styles.jmetro.Style;
@@ -48,16 +46,16 @@ public class ModeMenuController implements StateChangeListener {
     private void notifyUserDuringPlay() {
         if(gameModel.getMode() == GameModel.MODE_PLAY_WHITE) {
             if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.WHITE) {
-                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||Your turn - White to move");
+                engineOutputView.setText("|||||||Your turn - White to move");
             } else {
-                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||...thinking...");
+                engineOutputView.setText("|||||||...thinking...");
             }
         }
         if(gameModel.getMode() == GameModel.MODE_PLAY_BLACK) {
             if(gameModel.getGame().getCurrentNode().getBoard().turn == CONSTANTS.BLACK) {
-                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||Your turn - Black to move");
+                engineOutputView.setText("|||||||Your turn - Black to move");
             } else {
-                engineOutputView.setText("|"+gameModel.activeEngine.getName()+"||||||...thinking...");
+                engineOutputView.setText("|||||||...thinking...");
             }
         }
 
@@ -95,9 +93,11 @@ public class ModeMenuController implements StateChangeListener {
     public void activateAnalysisMode() {
         engineController.stopEngine();
         gameModel.activeEngine = gameModel.selectedAnalysisEngine;
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
+        setEngineNameAndInfoToOuptput();
         engineController.restartEngine(gameModel.activeEngine);
-
-        engineController.setUciLimitStrength(false);
         engineController.setMultiPV(gameModel.getMultiPv());
         gameModel.setMode(GameModel.MODE_ANALYSIS);
         gameModel.blockGUI = false;
@@ -107,10 +107,10 @@ public class ModeMenuController implements StateChangeListener {
     public void activateEnterMovesMode() {
         engineController.stopEngine();
         gameModel.activeEngine = gameModel.selectedAnalysisEngine;
-        // we'll set info for the analysis engine so that the user
-        // knows which engine is active (e.g. after playing a bot
-        // and then finishing the game or aborting to enter moves mode)
-        setEngineInfoForUnstartedEngine(gameModel.activeEngine);
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
+        setEngineNameAndInfoToOuptput();
 
         gameModel.setMode(GameModel.MODE_ENTER_MOVES);
         gameModel.blockGUI = false;
@@ -175,31 +175,27 @@ public class ModeMenuController implements StateChangeListener {
     public void activatePlayWhiteMode() {
         // restart engine
         gameModel.activeEngine = gameModel.selectedPlayEngine;
-        engineController.restartEngine(gameModel.activeEngine);
-        // send all UCI options
-        for(EngineOption enOpt : gameModel.activeEngine.options) {
-            engineController.sendCommand(enOpt.toUciCommand());
+        if(!(gameModel.activeEngine instanceof BotEngine)) {
+            System.out.println("we do not have a bot");
+            if(gameModel.activeEngine.supportsUciLimitStrength()) {
+                System.out.println("engine support uci limit strength");
+                    gameModel.activeEngine.setUciLimitStrength(true);
+            }
+        } else {
+            System.out.println("we have a bot");
         }
+        // restart
+        engineController.restartEngine(gameModel.activeEngine);
         // if we don't play against a bot
         // AND if the engine supports UCILimitStrength
         // AND if a valid UCI value is set in gameModel
         // we additionally limit UCI strength
         // note: for a bot, the Elo value and boolean are already included
-        //       (preset) in the engine's options, i.e. predefined during construction
-        if(!(gameModel.activeEngine instanceof BotEngine)) {
-            System.out.println("we do not have a bot");
-            if(gameModel.activeEngine.supportsUciLimitStrength()) {
-                System.out.println("engine support uci limit strength");
-                if(gameModel.getEngineStrength() >= gameModel.activeEngine.getMinUciElo()
-                && gameModel.getEngineStrength() <= gameModel.activeEngine.getMaxUciElo() ) {
-                    engineController.setUciLimitStrength(true);
-                    engineController.setUciElo(gameModel.activeEngine.getUciElo());
-                }
-            }
-        } else {
-            System.out.println("we have a bot");
-        }
+        //       (preset) in the engine's options via SkillLEvel,
+        //       i.e. predefined during construction
+
         // change game mode, trigger statechange
+        setEngineNameAndInfoToOuptput();
 	    gameModel.setMode(GameModel.MODE_PLAY_WHITE);
         gameModel.setFlipBoard(false);
         gameModel.setHumanPlayerColor(CONSTANTS.WHITE);
@@ -207,33 +203,21 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void activatePlayBlackMode() {
-        gameModel.activeEngine = gameModel.selectedPlayEngine;
         // restart engine
-        engineController.restartEngine(gameModel.activeEngine);
-        // send all UCI options
-        for(EngineOption enOpt : gameModel.activeEngine.options) {
-            engineController.sendCommand(enOpt.toUciCommand());
-        }
-        // if we don't play against a bot
-        // AND if the engine supports UCILimitStrength
-        // AND if a valid UCI value is set in gameModel
-        // we additionally limit UCI strength
-        // note: for a bot, the Elo value and boolean are already included
-        //       (preset) in the engine's options, i.e. predefined during construction
+        gameModel.activeEngine = gameModel.selectedPlayEngine;
         if(!(gameModel.activeEngine instanceof BotEngine)) {
             System.out.println("we do not have a bot");
             if(gameModel.activeEngine.supportsUciLimitStrength()) {
                 System.out.println("engine support uci limit strength");
-                if(gameModel.getEngineStrength() >= gameModel.activeEngine.getMinUciElo()
-                        && gameModel.getEngineStrength() <= gameModel.activeEngine.getMaxUciElo() ) {
-                    engineController.setUciLimitStrength(true);
-                    engineController.setUciElo(gameModel.activeEngine.getUciElo());
-                }
+                gameModel.activeEngine.setUciLimitStrength(true);
             }
         } else {
             System.out.println("we have a bot");
         }
+        // restart
+        engineController.restartEngine(gameModel.activeEngine);
         // trigger statechange
+        setEngineNameAndInfoToOuptput();
         gameModel.setMode(GameModel.MODE_PLAY_BLACK);
         gameModel.setFlipBoard(true);
         gameModel.setHumanPlayerColor(CONSTANTS.BLACK);
@@ -242,8 +226,12 @@ public class ModeMenuController implements StateChangeListener {
 
     public void activatePlayoutPositionMode() {
         // first change gamestate and reset engine
+        gameModel.activeEngine = gameModel.selectedAnalysisEngine;
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
         engineController.restartEngine(gameModel.activeEngine);
-        engineController.setUciLimitStrength(false);    
+        setEngineNameAndInfoToOuptput();
         gameModel.setMode(GameModel.MODE_PLAYOUT_POSITION);
         gameModel.setFlipBoard(false);
         gameModel.triggerStateChange();
@@ -256,9 +244,16 @@ public class ModeMenuController implements StateChangeListener {
         gameModel.getGame().removeAllAnnotations();
         gameModel.getGame().setTreeWasChanged(true);
 
+        gameModel.activeEngine = gameModel.selectedAnalysisEngine;
+        if(gameModel.activeEngine.supportsUciLimitStrength()) {
+            gameModel.activeEngine.setUciLimitStrength(false);
+        }
+        if(gameModel.activeEngine.supportsMultiPV()) {
+            gameModel.activeEngine.setMultiPV(1);
+        }
+        setEngineNameAndInfoToOuptput();
         engineController.restartEngine(gameModel.activeEngine);
-        engineController.setUciLimitStrength(false);
-        //engineController.setMultiPV(1);
+
         gameModel.setFlipBoard(false);
         gameModel.getGame().goToRoot();
         gameModel.getGame().goToLeaf();
@@ -382,11 +377,20 @@ public class ModeMenuController implements StateChangeListener {
     // When the engine starts, the elo will be shown in the normal way
     // via the EngineThread and EngineInfo when the corresponding commands
     // are being sent to the engine.
-    public void setEngineInfoForUnstartedEngine(Engine activeEngine) {
-        engineController.engineInfoSetValues(activeEngine.getName(),
-                                             activeEngine.getMultiPV(),
-                                             activeEngine.getUciLimitStrength(),
-                                             activeEngine.getUciElo());
+    public void setEngineNameAndInfoToOuptput() {
+
+        // | id (Level MAX) | zobrist  |  nps | hashfull | tbhits | current Move + depth | eval+line pv1 | .. pv2 | ...pv3 | ...pv4 | ... | ...pv64 |
+        String newInfo = "|||||||||||";
+        engineOutputView.setId(gameModel.activeEngine.getNameWithElo());
+        engineOutputView.setText("|||||||||||");
+
+        /*
+        engineController.engineInfoSetValues(gameModel.activeEngine.getNameWithElo(),
+                                             gameModel.activeEngine.getMultiPV(),
+                                             gameModel.activeEngine.getUciLimitStrength(),
+                                             gameModel.activeEngine.getUciElo());
+
+         */
     }
 
     public void editEngines() {
@@ -414,7 +418,7 @@ public class ModeMenuController implements StateChangeListener {
             // Change the engine-info in the bottom panel immediately on OK
             // being pressed. Previously it didn't change until we started
             // playing.
-            setEngineInfoForUnstartedEngine(selectedEngine);
+            setEngineNameAndInfoToOuptput();
             // // reset pv line to 1 for new engine
             // gameModel.setMultiPv(1);
 

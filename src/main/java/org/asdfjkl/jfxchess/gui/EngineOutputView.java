@@ -122,6 +122,10 @@ public class EngineOutputView implements StateChangeListener {
         }
     }
 
+    public void setId(String id) {
+        engineId.setText(id);
+    }
+
     public void setText(String info) {
 
         if(isEnabled) {
@@ -135,7 +139,10 @@ public class EngineOutputView implements StateChangeListener {
             String[] infos = info.split("\\|");
 
             if (infos.length > 1 && !infos[1].isEmpty()) {
-                engineId.setText(infos[1]);
+                // we never update the engine id from the information
+                // of the engine thread. instead we rely upon the mode
+                // activation functions to set the proper name
+                //engineId.setText(infos[1]);
             }
             if (infos.length > 3 && !infos[3].isEmpty()) {
                 nps.setText(infos[3]);

@@ -1,7 +1,6 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -390,10 +389,7 @@ public class App extends Application implements StateChangeListener {
 
         gameModel.addListener(modeMenuController);
         modeMenuController.activateEnterMovesMode();
-        // This will set the name, pvLines, limitedStrength and ELO of the
-        // restored active engine in the engineOutputView.
-        // Previously the ID was always "Stockfish (internal) at startup.
-        modeMenuController.setEngineInfoForUnstartedEngine(gameModel.activeEngine);
+        modeMenuController.setEngineNameAndInfoToOuptput();
 
         itmSaveCurrentGameAs.setOnAction(e -> {
            gameMenuController.handleSaveCurrentGame();
@@ -1072,6 +1068,13 @@ public class App extends Application implements StateChangeListener {
                     gameModel.getGame().setTreeWasChanged(true);
                     gameModel.getGame().setHeaderWasChanged(true);
                     gameModel.selectedPlayEngine = gameModel.engines.get(dlgUci.selectedIndex);
+                    if(gameModel.selectedPlayEngine.supportsUciLimitStrength()) {
+                        int newElo = (int) dlgUci.sliderStrength.getValue();
+                        if (newElo >= gameModel.selectedPlayEngine.getMinUciElo()
+                                && newElo <= gameModel.selectedPlayEngine.getMaxUciElo()) {
+                            gameModel.selectedPlayEngine.setUciElo(newElo);
+                        }
+                    }
                     if(dlgUci.playWhite) {
                         gameModel.setFlipBoard(false);
                         itmPlayAsWhite.setSelected(true);
