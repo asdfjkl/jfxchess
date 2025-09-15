@@ -158,6 +158,12 @@ public class EngineController {
         engineThread.engineInfoSetPVLines(n);
     }
 
+    public void setNrThreads(int n) {
+        if (currentEngine != null && currentEngine.supportsMultiThread()) {
+            sendCommand("setoption name Threads value " + n);
+        }
+    }
+
     public void sendNewPosition(String fen) {
         sendCommand("stop");
         sendCommand("position fen " + fen);

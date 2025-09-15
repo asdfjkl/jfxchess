@@ -19,6 +19,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -53,6 +54,10 @@ public class App extends Application implements StateChangeListener {
 
     ToolBar tbMainWindow;
     CheckMenuItem itmToggleToolbar;
+
+    private String dragNDropFilePath;
+
+    Button btnThreads = new Button();
 
     final KeyCombination keyCombinationCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationPaste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN);
@@ -98,6 +103,7 @@ public class App extends Application implements StateChangeListener {
         boolean appWindowWasMaximized = gameModel.restoreWindowMaxStatus();
         gameModel.getGame().setTreeWasChanged(true);
         gameModel.getGame().setHeaderWasChanged(true);
+        gameModel.maxCpus = Runtime.getRuntime().availableProcessors();
 
         // MENU
         MenuBar mnuBar = new MenuBar();
@@ -320,24 +326,26 @@ public class App extends Application implements StateChangeListener {
         // Buttons for Engine On/Off and TextFlow for Engine Output
         tglEngineOnOff = new ToggleButton("Off");
         Label lblMultiPV = new Label("Lines:");
-        /*
-        ComboBox<Integer> cmbMultiPV = new ComboBox<Integer>();
-        cmbMultiPV.getItems().addAll(1,2,3,4);
-        cmbMultiPV.setValue(1);
-        */
         Button btnAddEngineLine = new Button();
         btnAddEngineLine.setText("+");
         Button btnRemoveEngineLine = new Button();
         btnRemoveEngineLine.setText("-");
+
+        //btnThreads.setText("1 Thread(s)");
+        int currThreads = gameModel.activeEngine.getNrThreads();
+        btnThreads.setText(currThreads + " Thread(s)");
+
         Button btnSelectEngine = new Button();
         btnSelectEngine.setGraphic(new ImageView( new Image("icons/document_properties_small.png")));
         HBox hbEngineControl = new HBox();
         Region spacerEngineControl = new Region();
         hbEngineControl.getChildren().addAll(tglEngineOnOff, lblMultiPV,
-                btnAddEngineLine, btnRemoveEngineLine, spacerEngineControl, new Label("Engines: "),
+                btnAddEngineLine, btnRemoveEngineLine,
+                btnThreads, spacerEngineControl, new Label("Engines: "),
 		btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
-        hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,10));
+        hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,15));
+        hbEngineControl.setMargin(btnThreads, new Insets(0,5,0,15));
         hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
         txtEngineOut.setPadding(new Insets(10,10,10,10));
@@ -493,7 +501,7 @@ public class App extends Application implements StateChangeListener {
         btnAddEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
             if (currentMultiPv < gameModel.activeEngine.getMaxMultiPV() &&
-		currentMultiPv < gameModel.MAX_PV) {
+		            currentMultiPv < gameModel.MAX_PV) {
                 gameModel.setMultiPv(currentMultiPv + 1);
                 modeMenuController.engineSetOptionMultiPV(gameModel.getMultiPv());
                 gameModel.triggerStateChange();
@@ -506,6 +514,33 @@ public class App extends Application implements StateChangeListener {
                 gameModel.setMultiPv(currentMultiPv - 1);
                 modeMenuController.engineSetOptionMultiPV(gameModel.getMultiPv());
                 gameModel.triggerStateChange();
+            }
+        });
+
+        btnThreads.setOnAction(actionEvent -> {
+            System.out.println("max val en opt: "+ gameModel.activeEngine.getMaxThreads());
+
+            if(!gameModel.blockGUI) {
+                if(gameModel.activeEngine.supportsMultiThread()) {
+                    int currentNrThreads = gameModel.activeEngine.getNrThreads();
+                    System.out.println("current threads: "+currentNrThreads);
+
+                    int maxThreads = Math.min(gameModel.maxCpus - 1,  gameModel.activeEngine.getMaxThreads());
+                    System.out.println("max threads cpu: "+gameModel.maxCpus);
+                    System.out.println("max val en opt: "+ gameModel.activeEngine.getMaxThreads());
+                    System.out.println("maxThredas: "+ maxThreads);
+
+                    DialogThreads dlgThreads = new DialogThreads();
+                    boolean accepted = dlgThreads.show(currentNrThreads, maxThreads);
+                    if(accepted) {
+                        int newNrThreads = dlgThreads.spThreads.getValue();
+                        if(newNrThreads != currentNrThreads) {
+                            gameModel.activeEngine.setThreads(newNrThreads);
+                            modeMenuController.engineSetThreads(newNrThreads);
+                            btnThreads.setText(newNrThreads + " Thread(s)");
+                        }
+                    }
+                }
             }
         });
 
@@ -724,6 +759,65 @@ public class App extends Application implements StateChangeListener {
 
         btnAbout.setOnAction(e -> {
             DialogAbout.show(gameModel);
+        });
+
+        vbMainUpperPart.setOnDragOver((DragEvent event) -> {
+            //System.out.println("vbMain onDragOver");
+            // accept it only if it is  not dragged from the same node
+            // andif it has one pgn-file */
+            Dragboard db = event.getDragboard();
+            if (event.getGestureSource() != vbMainUpperPart
+                    && db.hasFiles()) {
+                if (db.getFiles().size() == 1
+                        && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                    /* allow only for copying */
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+            }
+            event.consume();
+        });
+
+        vbMainUpperPart.setOnDragDropped((DragEvent event) -> {
+            // data dropped
+            //System.out.println("vbMain onDragDropped");
+            Dragboard db = event.getDragboard();
+            if (db.hasFiles() && db.getFiles().size() == 1
+                    && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                String filePath = db.getFiles().get(0).getAbsolutePath();
+                File file = new File(filePath);
+                gameMenuController.openFile(file);
+                event.setDropCompleted(true);
+            }
+            event.consume();
+        });
+
+        WebView webView = moveView.getWebView();
+
+        webView.setOnDragOver((DragEvent event) -> {
+            // Data is dragged over the target.
+            //System.out.println("webView onDragOver");
+            // Accept it only if the event holds one pgn-file.
+            Dragboard db = event.getDragboard();
+            if (db.hasFiles() && db.getFiles().size() == 1
+                    && db.getFiles().get(0).getName().endsWith(".pgn")) {
+                // Ugly fix: Here I have to save the filepath because
+                // in the setOnDragDropped((DragEvent event) for this
+                // webView, the event didn't contain any file, I don't
+                // know why.
+                dragNDropFilePath = db.getFiles().get(0).getAbsolutePath();
+                // Allow only for copying
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+
+        webView.setOnDragDropped((DragEvent event) -> {
+            // Data dropped.
+            //System.out.println("webView onDragDropped");
+            File file = new File(dragNDropFilePath);
+            gameMenuController.openFile(file);
+            event.setDropCompleted(true);
+            event.consume();
         });
 
 

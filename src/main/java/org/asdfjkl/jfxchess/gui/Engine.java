@@ -157,6 +157,19 @@ public class Engine implements Comparator<Engine>{
         }
     }
 
+    public boolean supportsMultiThread() {
+        if (isInternal) {
+            return true;
+        } else {
+            for (EngineOption option : options) {
+                if (option.name.equals("Threads")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     public int getMaxMultiPV() {
         for (EngineOption option : options) {
             if (option.name.equals("MultiPV")) {
@@ -165,7 +178,26 @@ public class Engine implements Comparator<Engine>{
         }
         return 1;
     }
-    
+
+    public int getMaxThreads() {
+        for (EngineOption option : options) {
+            if (option.name.equals("Threads")) {
+                return option.spinMax;
+            }
+        }
+        System.out.println("unable to find option Threads");
+        return 1;
+    }
+
+    public int getNrThreads() {
+        for (EngineOption option : options) {
+            if (option.name.equals("Threads")) {
+                return option.spinValue;
+            }
+        }
+        return 1;
+    }
+
     public int getMultiPV() {
         for (EngineOption option : options) {
             if (option.name.equals("MultiPV")) {
@@ -179,6 +211,16 @@ public class Engine implements Comparator<Engine>{
         for (EngineOption option : options) {
             if (option.name.equals("MultiPV")) {
                 option.spinValue = multiPv;
+            }
+        }
+    }
+
+    // doesn't check if the engine supports threading;
+    // call supportsMultiThread before
+    public void setThreads(int nrThreads) {
+        for (EngineOption option : options) {
+            if (option.name.equals("Threads")) {
+                option.spinValue = nrThreads;
             }
         }
     }

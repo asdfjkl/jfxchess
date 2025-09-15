@@ -369,7 +369,7 @@ public class ModeMenuController implements StateChangeListener {
         if(selectedIdx < 0) {
             selectedIdx = 0;
         }
-        boolean accepted = dlg.show(enginesCopy, selectedIdx);
+        boolean accepted = dlg.show(gameModel.getStageRef(), enginesCopy, selectedIdx);
         if(accepted) {
             ArrayList<Engine> engineList = new ArrayList<>(dlg.engineList);
             Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
@@ -678,5 +678,9 @@ public class ModeMenuController implements StateChangeListener {
     
     public void engineSetOptionMultiPV(int value) {
         engineController.setMultiPV(value);     
+    }
+
+    public void engineSetThreads(int value) {
+        engineController.setNrThreads(value);
     }
 }

@@ -98,6 +98,8 @@ public class GameModel {
 
     public String extBookPath;
 
+    public int maxCpus = 1;
+
     private SearchPattern searchPattern;
     BoardStyle boardStyle;
 
@@ -153,9 +155,19 @@ public class GameModel {
         internalLimitStrength.checkStatusDefault = false;
         internalLimitStrength.checkStatusValue = false;
 
+        EngineOption internalThreads = new EngineOption();
+        internalThreads.name = "Threads";
+        internalThreads.type = EngineOption.EN_OPT_TYPE_SPIN;
+        internalThreads.spinMin = 1;
+        internalThreads.spinMax = 1024;
+        internalThreads.spinDefault = 1;
+        internalThreads.spinValue = 1;
+
         activeEngine.options.add(internalElo);
         activeEngine.options.add(internalMPV);
         activeEngine.options.add(internalLimitStrength);
+        activeEngine.options.add(internalThreads);
+        System.out.println("max thread startup " + activeEngine.getMaxThreads());
 
         // add bots
         String botPath = getBotEnginePath();

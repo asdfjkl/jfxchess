@@ -62,7 +62,7 @@ public class DialogEngines {
 
     int selectedIndex = 0;
 
-    public boolean show(ArrayList<Engine> engines, int idxSelectedEngine) {
+    public boolean show(Stage owner, ArrayList<Engine> engines, int idxSelectedEngine) {
 
         engineList = FXCollections.observableArrayList(engines);
 
@@ -105,6 +105,7 @@ public class DialogEngines {
         });
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Chess Engines:");
 
