@@ -169,7 +169,7 @@ public class App extends Application implements StateChangeListener {
         MenuItem itmEngines = new MenuItem("Engines...");
         MenuItem itmSelectBook = new MenuItem("Select Book...");
 
-        mnuMode.getItems().addAll(itmAnalysis, itmPlayAsWhite, itmPlayAsBlack,
+        mnuMode.getItems().addAll(itmAnalysis, // itmPlayAsWhite, itmPlayAsBlack,
                 itmEnterMoves, itmFullGameAnalysis, itmPlayOutPosition,
                 new SeparatorMenuItem(), itmEngines, itmSelectBook);
 
