@@ -1,3 +1,21 @@
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package org.asdfjkl.jfxchess.gui;
 
 import java.util.ArrayList;
@@ -8,7 +26,7 @@ public class BotEngines {
         EngineOption opt = new EngineOption();
         opt.type = EngineOption.EN_OPT_TYPE_SPIN;
         opt.name = name;
-        opt.spinMin = -200;    // generic bounds, adjust if you know exact engine ranges
+        opt.spinMin = 1;
         opt.spinMax = 200;
         opt.spinDefault = value;
         opt.spinValue = value;

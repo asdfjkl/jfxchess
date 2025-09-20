@@ -1,4 +1,4 @@
-/* JerryFX - A Chess Graphical User Interface
+/* JFXChess - A Chess Graphical User Interface
  * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ public class DialogAbout {
 
         Text txtCreditText = new Text(
                 "Contributors\n" +
-                  "mipper, TTorell\n\n"+
+                  "TTorell, mipper\n\n"+
                 "Stockfish Chess Engine\n" +
                 "by the Stockfish-Team\n\n" +
                 "Piece Images\n" +

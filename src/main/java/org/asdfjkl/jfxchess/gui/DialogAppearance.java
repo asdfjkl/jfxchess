@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ public class DialogAppearance {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         VBox vbButtonsRight = new VBox();
@@ -116,11 +116,11 @@ public class DialogAppearance {
 
         HBox hbMain = new HBox();
         hbMain.getChildren().addAll(appearanceBoard, vbButtonsRight);
-        hbMain.setHgrow(appearanceBoard, Priority.ALWAYS);
+        HBox.setHgrow(appearanceBoard, Priority.ALWAYS);
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(hbMain, hbButtons);
-        vbMain.setVgrow(hbMain, Priority.ALWAYS);
+        VBox.setVgrow(hbMain, Priority.ALWAYS);
         vbMain.setSpacing(10);
         vbMain.setPadding( new Insets(10));
 

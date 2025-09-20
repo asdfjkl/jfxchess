@@ -1,4 +1,4 @@
-/* JerryFX - A Chess Graphical User Interface
+/* JFXChess - A Chess Graphical User Interface
  * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or

@@ -1,4 +1,4 @@
-/* JerryFX - A Chess Graphical User Interface
+/* JFXChess - A Chess Graphical User Interface
  * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
@@ -128,7 +128,6 @@ public class Chessboard extends Canvas implements StateChangeListener {
 
         // fill background
         gc.beginPath();
-        //gc.setFill(Color.rgb(152, 152, 152));
         gc.setFill(boardStyle.getDarkSquareColor());
         gc.rect(0, 0, this.getWidth(), this.getHeight());
         gc.fill();
@@ -301,18 +300,15 @@ public class Chessboard extends Canvas implements StateChangeListener {
         }
 
         // mark side to move
-        // if(gameModel.getGame().getRootNode() == gameModel.getGame().getCurrentNode()) {
         int x_side_to_move = innerXOffset + 8 * squareSize + 6;
         int y_side_to_move = innerYOffset + 8 * squareSize + 6;
         if(b.turn == WHITE) {
             if(gameModel.getFlipBoard()) {
-                //x_side_to_move = innerXOffset - 11;
                 y_side_to_move = innerYOffset - 11;
             }
         }
         if(b.turn == BLACK) {
             if(!gameModel.getFlipBoard()) {
-                //x_side_to_move = innerXOffset - 11;
                 y_side_to_move = innerYOffset - 11;
             }
         }
@@ -388,8 +384,8 @@ public class Chessboard extends Canvas implements StateChangeListener {
         double unitDy = dy / length;
 
         // adjusted according to arrow length
-        vx = vx * (squareSize/6 /length);
-        vy = vy * (squareSize/6 /length);
+        vx = vx * ((double) squareSize /6 /length);
+        vy = vy * ((double) squareSize /6 /length);
 
         toPoint = new Point((int) (toPoint.getX() - vx), (int) (toPoint.getY() - vy));
 
@@ -502,11 +498,6 @@ public class Chessboard extends Canvas implements StateChangeListener {
     private void handleRightClick(Point boardCoordinate) {
         // user clicked and is going to draw arrow or mark a field
         if(boardCoordinate != null) {
-            /*
-            if(flipBoard) {
-                boardCoordinate.x = (int) (7-boardCoordinate.x);
-                boardCoordinate.y = (int) (7-boardCoordinate.y);
-            }*/
             colorClickSource.x = boardCoordinate.x;
             colorClickSource.y = boardCoordinate.y;
 
@@ -525,11 +516,6 @@ public class Chessboard extends Canvas implements StateChangeListener {
         }
         if(drawGrabbedArrow) {
             Point xy = getBoardPosition(e.getX(), e.getY());
-            /*
-            if(flipBoard) {
-                xy.x = 7-xy.x;
-                xy.y = 7-xy.y;
-            }*/
             if(xy != null) {
                 grabbedArrow.xTo = xy.x;
                 grabbedArrow.yTo = xy.y;
@@ -576,11 +562,6 @@ public class Chessboard extends Canvas implements StateChangeListener {
     private void handleRightClickRelease(Point boardCoordinate) {
         // user clicked and is going to draw arrow
         if(boardCoordinate != null) {
-            /*
-            if (flipBoard) {
-                boardCoordinate.x = (7 - boardCoordinate.x);
-                boardCoordinate.y = (7 - boardCoordinate.y);
-            }*/
             // arrow case
             if (boardCoordinate.x != colorClickSource.x || boardCoordinate.y != colorClickSource.y) {
                 Arrow a = new Arrow();
@@ -610,7 +591,6 @@ public class Chessboard extends Canvas implements StateChangeListener {
             gameModel.blockGUI = true;
         }
         this.gameModel.triggerStateChange();
-        //this.updateCanvas();
     }
 
     void resetMove() {
