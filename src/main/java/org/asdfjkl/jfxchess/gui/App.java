@@ -55,9 +55,13 @@ public class App extends Application implements StateChangeListener {
     ToolBar tbMainWindow;
     CheckMenuItem itmToggleToolbar;
 
-    private String dragNDropFilePath;
-
     Button btnThreads = new Button();
+
+    // private RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
+    // private RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
+
+    String moveBuffer = "";
+    private String dragNDropFilePath;
 
     final KeyCombination keyCombinationCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationPaste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN);
@@ -68,14 +72,11 @@ public class App extends Application implements StateChangeListener {
     final KeyCombination keyCombinationEnterPosition = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationFlipBoard = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationAnalysis = new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN);
-    final KeyCombination keyCombinationPlayWhite = new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN);
-    final KeyCombination keyCombinationPlayBlack = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
+    // final KeyCombination keyCombinationPlayWhite = new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN);
+    // final KeyCombination keyCombinationPlayBlack = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationEnterMoves = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
 
-    String moveBuffer = "";
 
-    private RadioMenuItem itmPlayAsWhite = new RadioMenuItem("Play as White");
-    private RadioMenuItem itmPlayAsBlack = new RadioMenuItem("Play as Black");
 
     @Override
     public void start(Stage stage) {
@@ -150,8 +151,8 @@ public class App extends Application implements StateChangeListener {
         // Mode Menu
         RadioMenuItem itmAnalysis = new RadioMenuItem("Analysis");
         itmAnalysis.setAccelerator(keyCombinationAnalysis);
-        itmPlayAsWhite.setAccelerator(keyCombinationPlayWhite);
-        itmPlayAsBlack.setAccelerator(keyCombinationPlayBlack);
+        // itmPlayAsWhite.setAccelerator(keyCombinationPlayWhite);
+        // itmPlayAsBlack.setAccelerator(keyCombinationPlayBlack);
         itmEnterMoves = new RadioMenuItem("Enter Moves");
         itmEnterMoves.setAccelerator(keyCombinationEnterMoves);
 
@@ -160,8 +161,8 @@ public class App extends Application implements StateChangeListener {
 
         ToggleGroup tglMode = new ToggleGroup();
         tglMode.getToggles().add(itmAnalysis);
-        tglMode.getToggles().add(itmPlayAsWhite);
-        tglMode.getToggles().add(itmPlayAsBlack);
+        // tglMode.getToggles().add(itmPlayAsWhite);
+        // tglMode.getToggles().add(itmPlayAsBlack);
         tglMode.getToggles().add(itmEnterMoves);
         tglMode.getToggles().add(itmFullGameAnalysis);
         tglMode.getToggles().add(itmPlayOutPosition);
@@ -276,8 +277,9 @@ public class App extends Application implements StateChangeListener {
 
         HBox hbGameData = new HBox();
         hbGameData.getChildren().addAll(spacerGameDataLeft, txtGameData, spacerGameDataRight, btnEditGameData);
-        hbGameData.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
-        hbGameData.setHgrow(spacerGameDataRight, Priority.ALWAYS);
+        HBox.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
+        HBox.setHgrow(spacerGameDataLeft, Priority.ALWAYS);
+        HBox.setHgrow(spacerGameDataRight, Priority.ALWAYS);
 
         MoveView moveView = new MoveView(gameModel);
 
@@ -311,7 +313,7 @@ public class App extends Application implements StateChangeListener {
 
         VBox vbGameDataMovesNavigation = new VBox();
         vbGameDataMovesNavigation.getChildren().addAll(hbGameData, tabPaneMovesNotationBook, hbGameNavigation);
-        vbGameDataMovesNavigation.setVgrow(moveView.getWebView(), Priority.ALWAYS);
+        VBox.setVgrow(moveView.getWebView(), Priority.ALWAYS);
 
         // put together  Chessboard | Game Navigation
         Chessboard chessboard = new Chessboard(gameModel);
@@ -344,9 +346,9 @@ public class App extends Application implements StateChangeListener {
                 btnThreads, spacerEngineControl, new Label("Engines: "),
 		btnSelectEngine);
         hbEngineControl.setAlignment(Pos.CENTER);
-        hbEngineControl.setMargin(lblMultiPV, new Insets(0,5,0,15));
-        hbEngineControl.setMargin(btnThreads, new Insets(0,5,0,15));
-        hbEngineControl.setHgrow(spacerEngineControl, Priority.ALWAYS);
+        HBox.setMargin(lblMultiPV, new Insets(0,5,0,15));
+        HBox.setMargin(btnThreads, new Insets(0,5,0,15));
+        HBox.setHgrow(spacerEngineControl, Priority.ALWAYS);
         TextFlow txtEngineOut = new TextFlow();
         txtEngineOut.setPadding(new Insets(10,10,10,10));
 
@@ -363,7 +365,7 @@ public class App extends Application implements StateChangeListener {
         // put everything excl. the bottom Engine part into one VBox
         VBox vbMainUpperPart = new VBox();
         vbMainUpperPart.getChildren().addAll(mnuBar, tbMainWindow, spChessboardMoves);
-        vbMainUpperPart.setVgrow(spChessboardMoves, Priority.ALWAYS);
+        VBox.setVgrow(spChessboardMoves, Priority.ALWAYS);
 
         // add another split pane for main window part and engine output
         spMain = new SplitPane();
@@ -404,7 +406,6 @@ public class App extends Application implements StateChangeListener {
         // connect mode controller
         engineOutputView = new EngineOutputView(gameModel, txtEngineOut);
         modeMenuController = new ModeMenuController(gameModel, engineOutputView);
-        // Creation of engineController has been moved inside ModeMenuController.
         gameModel.addListener(engineOutputView);
 
         EditMenuController editMenuController = new EditMenuController(gameModel);
@@ -425,6 +426,7 @@ public class App extends Application implements StateChangeListener {
             gameMenuController.handlePrintPosition(stage);
         });
 
+        /*
         itmPlayAsWhite.setOnAction(actionEvent -> {
             if(itmPlayAsWhite.isSelected()) {
                 if(gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
@@ -434,8 +436,9 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activatePlayWhiteMode();
                 }
             }
-        });
+        }); */
 
+        /*
         itmPlayAsBlack.setOnAction(actionEvent -> {
             if(itmPlayAsBlack.isSelected()) {
                 if(gameModel.getMode() != GameModel.MODE_PLAY_BLACK) {
@@ -445,7 +448,7 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activatePlayBlackMode();
                 }
             }
-        });
+        }); */
 
         itmPlayOutPosition.setOnAction(actionEvent -> {
             if(gameModel.getMode() != GameModel.MODE_PLAYOUT_POSITION) {
@@ -464,14 +467,6 @@ public class App extends Application implements StateChangeListener {
                     tglEngineOnOff.setText("On");
                     modeMenuController.activateAnalysisMode();
                 }
-            } else {
-                /*
-                itmEnterMoves.setSelected(true);
-                tglEngineOnOff.setSelected(false);
-                tglEngineOnOff.setText("Off");
-                modeMenuController.activateEnterMovesMode();
-
-                 */
             }
         });
 
@@ -501,7 +496,7 @@ public class App extends Application implements StateChangeListener {
         btnAddEngineLine.setOnAction(actionEvent -> {
             int currentMultiPv = gameModel.getMultiPv();
             if (currentMultiPv < gameModel.activeEngine.getMaxMultiPV() &&
-		            currentMultiPv < gameModel.MAX_PV) {
+		            currentMultiPv < GameModel.MAX_PV) {
                 gameModel.setMultiPv(currentMultiPv + 1);
                 modeMenuController.engineSetOptionMultiPV(gameModel.getMultiPv());
                 gameModel.triggerStateChange();
@@ -518,18 +513,10 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnThreads.setOnAction(actionEvent -> {
-            System.out.println("max val en opt: "+ gameModel.activeEngine.getMaxThreads());
-
             if(!gameModel.blockGUI) {
                 if(gameModel.activeEngine.supportsMultiThread()) {
                     int currentNrThreads = gameModel.activeEngine.getNrThreads();
-                    System.out.println("current threads: "+currentNrThreads);
-
                     int maxThreads = Math.min(gameModel.maxCpus - 1,  gameModel.activeEngine.getMaxThreads());
-                    System.out.println("max threads cpu: "+gameModel.maxCpus);
-                    System.out.println("max val en opt: "+ gameModel.activeEngine.getMaxThreads());
-                    System.out.println("maxThredas: "+ maxThreads);
-
                     DialogThreads dlgThreads = new DialogThreads();
                     boolean accepted = dlgThreads.show(currentNrThreads, maxThreads);
                     if(accepted) {
@@ -762,9 +749,8 @@ public class App extends Application implements StateChangeListener {
         });
 
         vbMainUpperPart.setOnDragOver((DragEvent event) -> {
-            //System.out.println("vbMain onDragOver");
             // accept it only if it is  not dragged from the same node
-            // andif it has one pgn-file */
+            // and if it has one pgn-file */
             Dragboard db = event.getDragboard();
             if (event.getGestureSource() != vbMainUpperPart
                     && db.hasFiles()) {
@@ -779,7 +765,6 @@ public class App extends Application implements StateChangeListener {
 
         vbMainUpperPart.setOnDragDropped((DragEvent event) -> {
             // data dropped
-            //System.out.println("vbMain onDragDropped");
             Dragboard db = event.getDragboard();
             if (db.hasFiles() && db.getFiles().size() == 1
                     && db.getFiles().get(0).getName().endsWith(".pgn")) {
@@ -795,14 +780,13 @@ public class App extends Application implements StateChangeListener {
 
         webView.setOnDragOver((DragEvent event) -> {
             // Data is dragged over the target.
-            //System.out.println("webView onDragOver");
             // Accept it only if the event holds one pgn-file.
             Dragboard db = event.getDragboard();
             if (db.hasFiles() && db.getFiles().size() == 1
                     && db.getFiles().get(0).getName().endsWith(".pgn")) {
-                // Ugly fix: Here I have to save the filepath because
+                // Ugly fix: Here we have to save the filepath because
                 // in the setOnDragDropped((DragEvent event) for this
-                // webView, the event didn't contain any file, I don't
+                // webView, the event didn't contain any file; don't
                 // know why.
                 dragNDropFilePath = db.getFiles().get(0).getAbsolutePath();
                 // Allow only for copying
@@ -813,7 +797,6 @@ public class App extends Application implements StateChangeListener {
 
         webView.setOnDragDropped((DragEvent event) -> {
             // Data dropped.
-            //System.out.println("webView onDragDropped");
             File file = new File(dragNDropFilePath);
             gameMenuController.openFile(file);
             event.setDropCompleted(true);
@@ -929,6 +912,7 @@ public class App extends Application implements StateChangeListener {
                     modeMenuController.activateAnalysisMode();
                 }
             }
+            /*
             if(keyCombinationPlayWhite.match(event)) {
                 if(gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
                     itmPlayAsWhite.setSelected(true);
@@ -944,7 +928,7 @@ public class App extends Application implements StateChangeListener {
                     tglEngineOnOff.setText("On");
                     modeMenuController.activatePlayBlackMode();
                 }
-            }
+            } */
             if(keyCombinationEnterMoves.match(event)|| event.getCode() == KeyCode.ESCAPE) {
                 // enter moves mode
                 tglEngineOnOff.setSelected(false);
@@ -1140,7 +1124,6 @@ public class App extends Application implements StateChangeListener {
         int result = dlg.show();
         if(result >= 0) {
             if(result == DialogNewGame.ENTER_ANALYSE) {
-                System.out.println("enter & analyse");
                 // clean up current game, but otherwise not much to do
                 gameModel.wasSaved = false;
                 gameModel.currentPgnDatabaseIdx = -1;
@@ -1157,7 +1140,6 @@ public class App extends Application implements StateChangeListener {
                 DialogPlayBots dlgPlay = new DialogPlayBots();
                 boolean playAccepted = dlgPlay.show(gameModel.botEngines);
                 if(playAccepted) {
-                    System.out.println("start bot game");
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
                     gameModel.setComputerThinkTimeSecs(3);
@@ -1182,14 +1164,14 @@ public class App extends Application implements StateChangeListener {
                         g.setHeader("Black", gameModel.selectedPlayEngine.getName());
                         g.setHeader("BlackElo", ((BotEngine) gameModel.selectedPlayEngine).getElo());
                         gameModel.setFlipBoard(false);
-                        itmPlayAsWhite.setSelected(true);
+                        // itmPlayAsWhite.setSelected(true);
                         modeMenuController.activatePlayWhiteMode();
                     } else {
                         g.setHeader("Black", "N.N.");
                         g.setHeader("White", gameModel.selectedPlayEngine.getName());
                         g.setHeader("WhiteElo", ((BotEngine) gameModel.selectedPlayEngine).getElo());
                         gameModel.setFlipBoard(true);
-                        itmPlayAsBlack.setSelected(true);
+                        // itmPlayAsBlack.setSelected(true);
                         modeMenuController.activatePlayBlackMode();
                     }
                 }
@@ -1198,8 +1180,6 @@ public class App extends Application implements StateChangeListener {
                 DialogPlayEngine dlgUci = new DialogPlayEngine();
                 boolean uciAccepted = dlgUci.show(gameModel.engines);
                 if(uciAccepted) {
-                    System.out.println("start uci game");
-
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
                     gameModel.setComputerThinkTimeSecs(3);
@@ -1231,57 +1211,20 @@ public class App extends Application implements StateChangeListener {
                         g.setHeader("Black", gameModel.selectedPlayEngine.getName());
                         g.setHeader("BlackElo", String.valueOf(gameModel.selectedPlayEngine.getUciElo()));
                         gameModel.setFlipBoard(false);
-                        itmPlayAsWhite.setSelected(true);
+                        // itmPlayAsWhite.setSelected(true);
                         modeMenuController.activatePlayWhiteMode();
                     } else {
                         g.setHeader("Black", "N.N.");
                         g.setHeader("White", gameModel.selectedPlayEngine.getName());
                         g.setHeader("WhiteElo", String.valueOf(gameModel.selectedPlayEngine.getUciElo()));
                         gameModel.setFlipBoard(true);
-                        itmPlayAsBlack.setSelected(true);
+                        // itmPlayAsBlack.setSelected(true);
                         modeMenuController.activatePlayBlackMode();
                     }
                 }
             }
         }
-        /*
-        DialogNewGame dlg = new DialogNewGame();
-        int result= dlg.show();
-        // if(accepted) {
-            gameModel.wasSaved = false;
-            gameModel.currentPgnDatabaseIdx = -1;
-            //gameModel.setComputerThinkTimeSecs(dlg.thinkTime);
-            //gameModel.activeEngine.setElo(dlg.strength);
-	    // Set eloHasBeenSetInGUI to be able to separate
-	    // new Game from playblack and playwhite for
-	    // added engines supporting UCI_LimitStrength.
-            gameModel.setEloHasBeenSetInGUI(true);
-            Game g = new Game();
-            g.getRootNode().setBoard(new Board(true));
-            gameModel.setGame(g);
-            gameModel.getGame().setTreeWasChanged(true);
-            gameModel.getGame().setHeaderWasChanged(true);
-            /*
-            if(dlg.rbWhite.isSelected()) {
-                gameModel.setFlipBoard(false);
-            } else {
-                gameModel.setFlipBoard(true);
-            }
-            if(dlg.rbComputer.isSelected()) {
-                if(dlg.rbWhite.isSelected()) {
-                    itmPlayAsWhite.setSelected(true);
-                    modeMenuController.activatePlayWhiteMode();
-                } else {
-                    itmPlayAsBlack.setSelected(true);
-                    modeMenuController.activatePlayBlackMode();
-                }
-
-
-            //} else {
-             //   modeMenuController.activateEnterMovesMode();
-            //}
-            */
-        }
+    }
 
 
     private void handleFullGameAnalysis() {
