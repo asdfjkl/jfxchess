@@ -74,7 +74,6 @@ public class DialogPlayEngine {
 
                 selectedIndex = engineList.indexOf(newValue);
                 Engine selectedEngine = engineList.get(selectedIndex);
-                System.out.println("selected engine: "+ (selectedEngine.getName()));
                 if(selectedEngine.supportsUciLimitStrength()) {
                     sliderStrength.setDisable(false);
                     sliderStrength.setMin(selectedEngine.getMinUciElo());
