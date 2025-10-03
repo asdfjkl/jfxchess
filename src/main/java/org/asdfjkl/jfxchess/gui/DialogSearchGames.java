@@ -68,7 +68,7 @@ public class DialogSearchGames {
 
     Board currentBoard;
 
-    public boolean show(Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern) {
+    public boolean show(Stage owner, Board board, BoardStyle currentBoardStyle, SearchPattern searchPattern) {
 
         this.currentBoard = board.makeCopy();
 
@@ -312,6 +312,7 @@ public class DialogSearchGames {
 
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
+        stage.initOwner(owner);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

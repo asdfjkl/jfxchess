@@ -49,7 +49,7 @@ public class DialogPlayBots {
     Label lblBioContent = new Label();
     ImageView ivBot = new ImageView();
 
-    public boolean show(ArrayList<BotEngine> botEngines) {
+    public boolean show(Stage owner, ArrayList<BotEngine> botEngines) {
 
         // list of bots
         botEngineList = FXCollections.observableArrayList(botEngines);
@@ -171,6 +171,7 @@ public class DialogPlayBots {
 
         Scene scene = new Scene(root);
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
 

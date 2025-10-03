@@ -56,7 +56,7 @@ public class DialogEditGameData {
     final RadioButton rbDraw = new RadioButton("1/2-1/2");
     final RadioButton rbUndecided = new RadioButton("*");
 
-    public boolean show(HashMap<String, String> pgnHeaders, int gameResult) {
+    public boolean show(Stage owner, HashMap<String, String> pgnHeaders, int gameResult) {
 
         for (Map.Entry<String, String> entry : pgnHeaders.entrySet()) {
             String key = entry.getKey();
@@ -67,6 +67,7 @@ public class DialogEditGameData {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
         stage.initStyle(StageStyle.UTILITY);
 
         Button btnOk = new Button();

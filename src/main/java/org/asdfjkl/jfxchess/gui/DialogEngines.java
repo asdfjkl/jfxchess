@@ -205,7 +205,7 @@ public class DialogEngines {
     private void btnEditParametersClicked() {
         Engine selectedEngine = engineListView.getSelectionModel().getSelectedItem();
         DialogEngineOptions dlg = new DialogEngineOptions();
-        boolean accepted = dlg.show(selectedEngine.options);
+        boolean accepted = dlg.show(this.stage, selectedEngine.options);
         if(accepted) {
             // collect all entries from dialog
             for(EngineOption enOpt : selectedEngine.options) {

@@ -64,7 +64,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
     Board originalBoard;
 
-    public boolean show(Board board, BoardStyle style, double width, double height) {
+    public boolean show(Stage owner, Board board, BoardStyle style, double width, double height) {
 
         originalBoard = board.makeCopy();
         enterPosBoard = new EnterPosBoard(originalBoard);
@@ -72,6 +72,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         enterPosBoard.boardStyle = style;
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
 
         cboxEnPassant = new ComboBox<String>();

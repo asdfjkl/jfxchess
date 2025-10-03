@@ -33,7 +33,7 @@ public class DialogPromotion {
     static Stage stage;
     static int choice;
 
-    public static int show(boolean playerColor, int pieceStyle, int colorTheme) {
+    public static int show(Stage owner, boolean playerColor, int pieceStyle, int colorTheme) {
 
         PieceImageProvider provider = new PieceImageProvider();
 
@@ -81,6 +81,7 @@ public class DialogPromotion {
         btnKnight.setOnAction(event -> handleKnightClick());
 
         stage = new Stage();
+        stage.initOwner(owner);
 
         HBox pane = new HBox();
         pane.getChildren().addAll(btnQueen, btnRook, btnBishop, btnKnight);

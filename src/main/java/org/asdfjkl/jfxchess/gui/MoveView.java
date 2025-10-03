@@ -244,7 +244,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 DialogEnterComment dlg = new DialogEnterComment();
-                boolean accepted = dlg.show(selectedNode.getComment());
+                boolean accepted = dlg.show(gameModel.getStageRef(), selectedNode.getComment());
                 if(accepted) {
                     String newComment = dlg.textArea.getText();
                     // filter invalid stuff, like { } etc.
@@ -656,7 +656,7 @@ public class MoveView implements StateChangeListener {
             for(GameNode varI : variations) {
                 nextMoves.add(varI.getSan());
             }
-            int variationIdx = DialogNextMove.show(nextMoves);
+            int variationIdx = DialogNextMove.show(gameModel.getStageRef(), nextMoves);
             if(variationIdx >= 0) {
                 this.gameModel.getGame().goToChild(variationIdx);
                 this.gameModel.triggerStateChange();

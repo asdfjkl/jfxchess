@@ -34,9 +34,10 @@ public class DialogThreads {
     final Label lblCpuThreads = new Label("CPU Threads");
     final Spinner<Integer> spThreads = new Spinner<Integer>();
 
-    public boolean show(int currentThreads, int maxThreads) {
+    public boolean show(Stage owner, int currentThreads, int maxThreads) {
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
 
         Button btnOk = new Button();

@@ -44,10 +44,11 @@ public class DialogDatabase {
 
     final FileChooser fileChooser = new FileChooser();
 
-    public boolean show(GameModel gameModel, boolean loadFile) {
+    public boolean show(Stage owner, GameModel gameModel, boolean loadFile) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
 
         pgnDatabase = gameModel.getPgnDatabase();
         searchPattern = gameModel.getSearchPattern();
@@ -220,13 +221,13 @@ public class DialogDatabase {
     }
 
     private void btnAboutClicked() {
-        DialogAboutDatabase.show(gameModel.THEME);
+        DialogAboutDatabase.show(stage);
     }
 
     private void btnSearchClicked() {
 
         DialogSearchGames dlg = new DialogSearchGames();
-        boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(),
+        boolean accepted = dlg.show(stage, gameModel.getGame().getCurrentNode().getBoard(),
                 gameModel.boardStyle,
                 gameModel.getSearchPattern().makeCopy());
         if (accepted) {

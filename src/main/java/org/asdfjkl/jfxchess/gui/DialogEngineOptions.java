@@ -51,10 +51,11 @@ public class DialogEngineOptions {
     HashMap<String, ComboBox<String>> comboWidgets;
     HashMap<String, TextField> textFieldWidgets;
 
-    public boolean show(ArrayList<EngineOption> engineOptions) {
+    public boolean show(Stage owner, ArrayList<EngineOption> engineOptions) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
 
         btnOk = new Button();
         btnOk.setText("OK");

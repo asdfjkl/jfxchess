@@ -42,10 +42,11 @@ public class DialogNextMove {
     static ListView<String> lvMoves;
     final static double LIST_CELL_HEIGHT = 44;
 
-    public static int show(ArrayList<String> possibleMoves) {
+    public static int show(Stage owner, ArrayList<String> possibleMoves) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
         // stage.initStyle(StageStyle.UTILITY); bug: will result in window not having focus
         // stage.requestFocus();                     and thus not accepting key input on Linux
         stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon

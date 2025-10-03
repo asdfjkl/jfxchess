@@ -30,10 +30,11 @@ public class DialogAbout {
 
     static Stage stage;
 
-    public static void show(GameModel model) {
+    public static void show(Stage owner, GameModel model) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
         stage.initStyle(StageStyle.UTILITY);
 
         TextFlow tfAbout = new TextFlow();

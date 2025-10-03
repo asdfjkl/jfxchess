@@ -39,7 +39,7 @@ public class DialogSave {
     Stage stage;
     int result = 0;
 
-    public int show(boolean replacePossible, String currentFilename) {
+    public int show(Stage owner, boolean replacePossible, String currentFilename) {
 
         Label lblCurrentFile = new Label("");
         if(currentFilename != null) {
@@ -96,6 +96,7 @@ public class DialogSave {
         vbox.setPadding( new Insets(10));
 
         stage.setScene(scene);
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
         // stage.initStyle(StageStyle.UTILITY); will result on window not having focus/keyboard
         //                                      input not working on Linux

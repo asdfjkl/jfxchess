@@ -375,9 +375,9 @@ public class App extends Application implements StateChangeListener {
         scpEngineOut.setFitToWidth(true);
         scpEngineOut.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         txtEngineOut.prefWidthProperty().bind(scpEngineOut.widthProperty().subtract(20));
+        scpEngineOut.prefHeightProperty().bind(txtEngineOut.heightProperty());
 
         VBox vbBottom = new VBox();
-        //vbBottom.getChildren().addAll(hbEngineControl, txtEngineOut);
         vbBottom.getChildren().addAll(hbEngineControl, scpEngineOut);
         vbBottom.setMinHeight(10);
 
@@ -537,7 +537,7 @@ public class App extends Application implements StateChangeListener {
                     int currentNrThreads = gameModel.activeEngine.getNrThreads();
                     int maxThreads = Math.min(gameModel.maxCpus - 1,  gameModel.activeEngine.getMaxThreads());
                     DialogThreads dlgThreads = new DialogThreads();
-                    boolean accepted = dlgThreads.show(currentNrThreads, maxThreads);
+                    boolean accepted = dlgThreads.show(stage, currentNrThreads, maxThreads);
                     if(accepted) {
                         int newNrThreads = dlgThreads.spThreads.getValue();
                         if(newNrThreads != currentNrThreads) {
@@ -579,7 +579,7 @@ public class App extends Application implements StateChangeListener {
             DialogAppearance dlg = new DialogAppearance();
             double height = Math.max(stage.getHeight() * 0.6, 520);
             double width = height * 1.4;
-            boolean accepted = dlg.show(chessboard.boardStyle, width, height, gameModel.THEME);
+            boolean accepted = dlg.show(stage, chessboard.boardStyle, width, height, gameModel.THEME);
             if(accepted) {
                 chessboard.boardStyle.setColorStyle(dlg.appearanceBoard.boardStyle.getColorStyle());
                 chessboard.boardStyle.setPieceStyle(dlg.appearanceBoard.boardStyle.getPieceStyle());
@@ -683,7 +683,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         itmAbout.setOnAction(event -> {
-            DialogAbout.show(gameModel);
+            DialogAbout.show(stage, gameModel);
         });
 
         itmJerryHomepage.setOnAction(event -> {
@@ -764,7 +764,7 @@ public class App extends Application implements StateChangeListener {
         });
 
         btnAbout.setOnAction(e -> {
-            DialogAbout.show(gameModel);
+            DialogAbout.show(stage, gameModel);
         });
 
         vbMainUpperPart.setOnDragOver((DragEvent event) -> {
@@ -1140,7 +1140,7 @@ public class App extends Application implements StateChangeListener {
 
     private void handleNewGame() {
         DialogNewGame dlg = new DialogNewGame();
-        int result = dlg.show();
+        int result = dlg.show(gameModel.getStageRef());
         if(result >= 0) {
             if(result == DialogNewGame.ENTER_ANALYSE) {
                 // clean up current game, but otherwise not much to do
@@ -1157,7 +1157,8 @@ public class App extends Application implements StateChangeListener {
             }
             if(result == DialogNewGame.PLAY_BOTS) {
                 DialogPlayBots dlgPlay = new DialogPlayBots();
-                boolean playAccepted = dlgPlay.show(gameModel.botEngines);
+                boolean playAccepted = dlgPlay.show(gameModel.getStageRef(),
+                        gameModel.botEngines);
                 if(playAccepted) {
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
@@ -1197,7 +1198,7 @@ public class App extends Application implements StateChangeListener {
             }
             if(result == DialogNewGame.PLAY_UCI) {
                 DialogPlayEngine dlgUci = new DialogPlayEngine();
-                boolean uciAccepted = dlgUci.show(gameModel.engines);
+                boolean uciAccepted = dlgUci.show(gameModel.getStageRef(), gameModel.engines);
                 if(uciAccepted) {
                     gameModel.wasSaved = false;
                     gameModel.currentPgnDatabaseIdx = -1;
@@ -1248,7 +1249,8 @@ public class App extends Application implements StateChangeListener {
 
     private void handleFullGameAnalysis() {
         DialogGameAnalysis dlg = new DialogGameAnalysis();
-        boolean accepted = dlg.show(gameModel.getGameAnalysisThinkTimeSecs(),
+        boolean accepted = dlg.show(gameModel.getStageRef(),
+                gameModel.getGameAnalysisThinkTimeSecs(),
                 ((double) gameModel.getGameAnalysisThreshold()));
         if(accepted) {
             itmEnterMoves.setSelected(true);

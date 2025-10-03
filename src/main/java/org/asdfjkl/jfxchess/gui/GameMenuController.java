@@ -50,9 +50,9 @@ public class GameMenuController {
         DialogDatabase dlg = new DialogDatabase();
         boolean accepted = false;
         if(gameModel.openDatabaseOnNextDialog) {
-            accepted = dlg.show(gameModel,true);
+            accepted = dlg.show(gameModel.getStageRef(), gameModel,true);
         } else {
-            accepted = dlg.show(gameModel,false);
+            accepted = dlg.show(gameModel.getStageRef(), gameModel,false);
         }
         if(accepted) {
             int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
@@ -121,7 +121,7 @@ public class GameMenuController {
                 } else {  // indices > 1, show db dialog
                     DialogDatabase dlg = new DialogDatabase();
                     gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                    boolean accepted = dlg.show(gameModel, true);
+                    boolean accepted = dlg.show(gameModel.getStageRef(), gameModel, true);
                     if(accepted) {
                         int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
                         gameModel.currentPgnDatabaseIdx = gameIndex;
@@ -137,7 +137,7 @@ public class GameMenuController {
                 // then show database dialog
                 DialogDatabase dlg = new DialogDatabase();
                 gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                boolean accepted = dlg.show(gameModel, true);
+                boolean accepted = dlg.show(gameModel.getStageRef(), gameModel, true);
                 if(accepted) {
                     int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
                     gameModel.currentPgnDatabaseIdx = gameIndex;
@@ -154,7 +154,8 @@ public class GameMenuController {
     public void handleSaveCurrentGame() {
 
         DialogSave dlg = new DialogSave();
-        int result = dlg.show(gameModel.currentPgnDatabaseIdx >= 0,
+        int result = dlg.show(gameModel.getStageRef(),
+                gameModel.currentPgnDatabaseIdx >= 0,
                 gameModel.getPgnDatabase().filename);
         switch(result) {
             case DialogSave.DLG_SAVE_NEW:

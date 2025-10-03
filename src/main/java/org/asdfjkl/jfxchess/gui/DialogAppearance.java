@@ -56,7 +56,7 @@ public class DialogAppearance {
     Button btnOk;
     Button btnCancel;
 
-    public boolean show(BoardStyle currentStyle, double width, double height, int colorTheme) {
+    public boolean show(Stage owner, BoardStyle currentStyle, double width, double height, int colorTheme) {
 
         appearanceBoard = new ShowAppearanceBoard();
         appearanceBoard.boardStyle.setPieceStyle(currentStyle.getPieceStyle());
@@ -64,6 +64,7 @@ public class DialogAppearance {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
 
         ToggleGroup groupPiece = new ToggleGroup();
         rbMerida.setToggleGroup(groupPiece);

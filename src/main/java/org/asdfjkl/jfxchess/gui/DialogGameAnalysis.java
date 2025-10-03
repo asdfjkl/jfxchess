@@ -42,9 +42,10 @@ public class DialogGameAnalysis {
     final RadioButton rbWhite = new RadioButton("White");
     final RadioButton rbBlack = new RadioButton("Black");
 
-    public boolean show(int currSecs, double currThreshold) {
+    public boolean show(Stage owner, int currSecs, double currThreshold) {
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
 
         Button btnOk = new Button();

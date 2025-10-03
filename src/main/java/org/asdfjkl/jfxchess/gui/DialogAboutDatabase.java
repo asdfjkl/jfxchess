@@ -30,10 +30,11 @@ public class DialogAboutDatabase {
 
     static Stage stage;
 
-    public static void show(int colorTheme) {
+    public static void show(Stage owner) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
         stage.initStyle(StageStyle.UTILITY);
 
         TextFlow tfAbout = new TextFlow();

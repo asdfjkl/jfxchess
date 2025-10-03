@@ -38,7 +38,7 @@ public class DialogNewGame {
     Stage stage;
     public int result = -1;
 
-    public int show() {
+    public int show(Stage owner) {
 
         Button btnEnterAnalyse = new Button("Enter & Analyse");
         btnEnterAnalyse.setGraphic(new ImageView( new Image("icons/enter-analyse.png")));
@@ -71,6 +71,7 @@ public class DialogNewGame {
 
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
 

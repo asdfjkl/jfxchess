@@ -49,7 +49,7 @@ public class DialogPlayEngine {
     ListView<Engine> engineListView;
     int selectedIndex = 0;
 
-    public boolean show(ArrayList<Engine> engines) {
+    public boolean show(Stage owner, ArrayList<Engine> engines) {
 
         // list of engines
         engineList = FXCollections.observableArrayList(engines);
@@ -191,6 +191,7 @@ public class DialogPlayEngine {
 
         Scene scene = new Scene(root);
         stage = new Stage();
+        stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
 

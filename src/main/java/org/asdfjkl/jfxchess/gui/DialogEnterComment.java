@@ -36,7 +36,7 @@ public class DialogEnterComment {
 
     TextArea textArea;
 
-    public boolean show(String currentComment) {
+    public boolean show(Stage owner, String currentComment) {
 
         textArea = new TextArea();
         textArea.setText(currentComment);
@@ -44,6 +44,7 @@ public class DialogEnterComment {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
         stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
 
         Button btnOk = new Button();
