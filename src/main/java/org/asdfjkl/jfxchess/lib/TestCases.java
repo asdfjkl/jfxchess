@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -323,10 +323,6 @@ public class TestCases {
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
         PgnReader reader = new PgnReader();
-        /*
-        if(reader.isIsoLatin1(millbase)) {
-            reader.setEncodingIsoLatin1();
-        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -441,10 +437,6 @@ public class TestCases {
 
         OptimizedRandomAccessFile raf = null;
         PgnReader reader = new PgnReader();
-        /*
-        if(reader.isIsoLatin1(middleg)) {
-            reader.setEncodingIsoLatin1();
-        }*/
         ArrayList<Long> offsets = reader.scanPgn(middleg);
 
         PgnPrinter printer = new PgnPrinter();
@@ -469,10 +461,6 @@ public class TestCases {
         System.out.println("TEST: reading all games from millionbase-2.22.pgn");
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         PgnReader reader = new PgnReader();
-        /*
-        if(reader.isIsoLatin1(millbase)) {
-            reader.setEncodingIsoLatin1();
-        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -487,7 +475,6 @@ public class TestCases {
             startTime = System.currentTimeMillis();
             for (int i = 0; i < offsets.size(); i++) {
                 long offset_i = offsets.get(i);
-                //System.out.println("reading game "+i);
                 if(i%100000 == 0) {
                     System.out.println("i: "+i);
                     stopTime = System.currentTimeMillis();
@@ -522,10 +509,6 @@ public class TestCases {
         String millbase = "C:/Users/user/MyFiles/workspace/test_databases/millionbase-2.22.pgn";
         String middleg = "C:/Users/user/MyFiles/workspace/test_databases/middleg.pgn";
         PgnReader reader = new PgnReader();
-        /*
-        if(reader.isIsoLatin1(millbase)) {
-            reader.setEncodingIsoLatin1();
-        }*/
 
         long startTime = System.currentTimeMillis();
         ArrayList<Long> offsets = reader.scanPgn(millbase);
@@ -636,19 +619,12 @@ public class TestCases {
         String kingbase = "C:/Users/user/MyFiles/workspace/test_databases/KingBaseLite2016-03-E60-E99.pgn";
         OptimizedRandomAccessFile raf = null;
         PgnReader reader = new PgnReader();
-        /*
-        if(reader.isIsoLatin1(kingbase)) {
-            reader.setEncodingIsoLatin1();
-        }*/
         PgnPrinter printer = new PgnPrinter();
         try {
             raf = new OptimizedRandomAccessFile(kingbase, "r");
             Game g = reader.readGame(raf);
-            //System.out.println("reading game ok");
             boolean hasStartingPos = g.containsPosition(key1, 0 , 100);
             System.out.println("found pos: "+hasStartingPos);
-            //String pgn = printer.printGame(g);
-            //System.out.println(pgn);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -708,7 +684,6 @@ public class TestCases {
     }
 
     public void testPolyglot() {
-        //URL invalid = getClass().getClassLoader().getResource("foobar");
 
         Polyglot pg1 = new Polyglot();
 

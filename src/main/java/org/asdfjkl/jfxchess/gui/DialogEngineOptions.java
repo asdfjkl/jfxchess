@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,7 +33,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,8 +48,8 @@ public class DialogEngineOptions {
 
     HashMap<String, Spinner<Integer>> spinnerWidgets;
     HashMap<String, CheckBox> checkboxWidgets;
-    HashMap<String, ComboBox<String>> comboboxWidgets;
-    HashMap<String, TextField> textfieldWidgets;
+    HashMap<String, ComboBox<String>> comboWidgets;
+    HashMap<String, TextField> textFieldWidgets;
 
     public boolean show(ArrayList<EngineOption> engineOptions) {
 
@@ -66,13 +65,13 @@ public class DialogEngineOptions {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         spinnerWidgets = new HashMap<>();
         checkboxWidgets = new HashMap<>();
-        comboboxWidgets = new HashMap<>();
-        textfieldWidgets = new HashMap<>();
+        comboWidgets = new HashMap<>();
+        textFieldWidgets = new HashMap<>();
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -105,7 +104,7 @@ public class DialogEngineOptions {
             if(enOpt.type == EN_OPT_TYPE_STRING) {
                 TextField tfEnOpt = new TextField();
                 tfEnOpt.setText(enOpt.stringValue);
-                textfieldWidgets.put(enOpt.name, tfEnOpt);
+                textFieldWidgets.put(enOpt.name, tfEnOpt);
                 gridPane.add(tfEnOpt, 1, i);
             }
 
@@ -131,7 +130,7 @@ public class DialogEngineOptions {
                     idx++;
                 }
                 ComboBox<String> cbEnOpt = new ComboBox<String>(options);
-                comboboxWidgets.put(enOpt.name, cbEnOpt);
+                comboWidgets.put(enOpt.name, cbEnOpt);
                 gridPane.add(cbEnOpt, 1, i);
                 final int fSelectedIdx = selectedIdx;
                 Platform.runLater(new Runnable() {
@@ -151,7 +150,7 @@ public class DialogEngineOptions {
 
         VBox vbMain = new VBox();
         vbMain.getChildren().addAll(scrollPane, hbButtons);
-        vbMain.setVgrow(scrollPane, Priority.ALWAYS);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
         vbMain.setSpacing(10);
         vbMain.setPadding( new Insets(10));
         scrollPane.setPrefViewportHeight(400);
@@ -163,13 +162,6 @@ public class DialogEngineOptions {
         btnCancel.setOnAction(e -> {
             btnCancelClicked();
         });
-
-        /*
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int height = gd.getDisplayMode().getHeight();
-        double maxHeight = height * 0.8;
-        vbMain.setMaxHeight(maxHeight);
-        */
 
         Scene scene = new Scene(vbMain);
         double screenHeight = javafx.stage.Screen.getPrimary().getVisualBounds().getHeight();

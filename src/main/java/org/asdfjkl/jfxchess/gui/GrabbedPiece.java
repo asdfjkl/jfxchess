@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,7 +30,6 @@ public class GrabbedPiece {
     private double currentXLocation;
     private double currentYLocation;
     private int pieceType;
-    // private int selectionPieceType;
     private int rightClickPieceType;
     private boolean drawImage;
     GrabbedFrom grabbedFrom;

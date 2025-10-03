@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -76,7 +76,7 @@ public class DialogNextMove {
         HBox hbox = new HBox();
         Region spacer = new Region();
         hbox.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(lvMoves, hbox);

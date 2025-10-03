@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +26,6 @@ import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
 import org.asdfjkl.jfxchess.lib.PgnReader;
 
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class EditMenuController {
@@ -77,8 +75,7 @@ public class EditMenuController {
         Board board = gameModel.getGame().getCurrentNode().getBoard();
         DialogEnterPosition dlg = new DialogEnterPosition();
         double width = dialogHeight * 1.8;
-        //double width = dialogHeight * 1.7;
-        boolean accepted = dlg.show(board, style, width, dialogHeight, gameModel.THEME);
+        boolean accepted = dlg.show(board, style, width, dialogHeight);
         if(accepted) {
             Board newBoard = dlg.getCurrentBoard();
             if(newBoard.isConsistent()) {
@@ -94,10 +91,9 @@ public class EditMenuController {
 
     public void editGameData() {
         DialogEditGameData dlg = new DialogEditGameData();
-        boolean accteped = dlg.show(gameModel.getGame().getPgnHeaders(),
-                gameModel.getGame().getResult(),
-                gameModel.THEME);
-        if(accteped) {
+        boolean accepted = dlg.show(gameModel.getGame().getPgnHeaders(),
+                gameModel.getGame().getResult());
+        if(accepted) {
             for (Map.Entry<String, String> entry : dlg.pgnHeaders.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -125,7 +121,6 @@ public class EditMenuController {
             // if not a fen string, maybe it's a full game
             PgnReader reader = new PgnReader();
             Game g = reader.readGame(s);
-            // PgnPrinter prn = new PgnPrinter();
             // as a heuristic we assume it's really a pasted game string if either there is at least
             // two game nodes, or if there is a fen string for the root board
             if(g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition()) {

@@ -1,5 +1,6 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +21,6 @@ package org.asdfjkl.jfxchess.gui;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Alert;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.asdfjkl.jfxchess.lib.*;
 
@@ -63,11 +63,10 @@ public class ModeMenuController implements StateChangeListener {
     public void handleEngineInfo(String s) {
 
         // we show info only during analysis, not when playing
-        // against the
+        // against the bots/engine
         if(s.startsWith("INFO")) {
             if((gameModel.getMode() != GameModel.MODE_PLAY_BLACK) &&
                 (gameModel.getMode() != GameModel.MODE_PLAY_WHITE)) {
-                //System.out.println("info!");
                 //"INFO |Stockfish 12 (Level MAX)|zobrist|145.081 kn/s||(#0)  23. Be7#||||"
                 String[] sSplit = s.split("\\|");
                 if(gameModel.getGame().getCurrentNode().getBoard().isCheckmate() && sSplit.length > 1) {
@@ -165,13 +164,9 @@ public class ModeMenuController implements StateChangeListener {
         // restart engine
         gameModel.activeEngine = gameModel.selectedPlayEngine;
         if(!(gameModel.activeEngine instanceof BotEngine)) {
-            System.out.println("we do not have a bot");
             if(gameModel.activeEngine.supportsUciLimitStrength()) {
-                System.out.println("engine support uci limit strength");
                     gameModel.activeEngine.setUciLimitStrength(true);
             }
-        } else {
-            System.out.println("we have a bot");
         }
         // restart
         engineController.restartEngine(gameModel.activeEngine);
@@ -188,13 +183,9 @@ public class ModeMenuController implements StateChangeListener {
         // restart engine
         gameModel.activeEngine = gameModel.selectedPlayEngine;
         if(!(gameModel.activeEngine instanceof BotEngine)) {
-            System.out.println("we do not have a bot");
             if(gameModel.activeEngine.supportsUciLimitStrength()) {
-                System.out.println("engine support uci limit strength");
                 gameModel.activeEngine.setUciLimitStrength(true);
             }
-        } else {
-            System.out.println("we have a bot");
         }
         // restart
         engineController.restartEngine(gameModel.activeEngine);
@@ -251,11 +242,8 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleStateChangePlayWhiteOrBlack() {
 
-        System.out.println("state change play");
-
         // first check if we can apply a bookmove
         long zobrist = gameModel.getGame().getCurrentNode().getBoard().getZobrist();
-        //ArrayList<String> uciMoves0 = gameModel.book.findMoves(zobrist);
         boolean maxDepthReached = false;
         int currentDepth = gameModel.getGame().getCurrentNode().getDepth();
         int currentElo = gameModel.activeEngine.getUciElo();
@@ -307,7 +295,6 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     private void addBestPv(String[] uciMoves) {
-        //String[] uciMoves = gameModel.currentBestPv.split(" ");
         GameNode currentNode = gameModel.getGame().getCurrentNode();
 
         for (String uciMove : uciMoves) {
@@ -391,7 +378,6 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleBestMove(String bestmove) {
 
-        System.out.println("handling bestmove: "+bestmove);
         int mode = gameModel.getMode();
 
         if(mode == GameModel.MODE_ENTER_MOVES) {
@@ -439,7 +425,6 @@ public class ModeMenuController implements StateChangeListener {
         }
 
         if(mode == GameModel.MODE_GAME_ANALYSIS) {
-            //gameModel.getGame().getCurrentNode().setComment(bestmove);
 
             // first update information for current node
             gameModel.childBestPv = gameModel.currentBestPv;
@@ -457,10 +442,8 @@ public class ModeMenuController implements StateChangeListener {
                 gameModel.currentIsMate = true;
             }
 
-
             // ignore leafs (game ended here)
             if(!gameModel.getGame().getCurrentNode().isLeaf()) {
-                //System.out.println("handling bestmove: "+bestmove);
 
                 // completely skip analysis for black or white, if
                 // that option was chosen
@@ -470,15 +453,11 @@ public class ModeMenuController implements StateChangeListener {
                         || (gameModel.getGameAnalysisForPlayer() == CONSTANTS.IBLACK && turn == CONSTANTS.BLACK)) {
 
                     int centiPawnThreshold = (int) (gameModel.getGameAnalysisThreshold() * 100.0);
-                    //System.out.println(centiPawnThreshold);
                     // first case if there was simply a better move; i.e. no checkmate overseen or
                     // moved into a checkmate
                     if (!gameModel.currentIsMate && !gameModel.childIsMate) {
                         boolean wMistake = turn == CONSTANTS.WHITE && ((gameModel.currentBestEval - gameModel.childBestEval) >= centiPawnThreshold);
                         boolean bMistake = turn == CONSTANTS.BLACK && ((gameModel.currentBestEval - gameModel.childBestEval) <= -(centiPawnThreshold));
-
-                        //System.out.println("threshold: "+gameModel.getGameAnalysisThreshold());
-                        //System.out.println("mistake  : " + (gameModel.currentBestEval - gameModel.childBestEval));
 
                         if (wMistake || bMistake) {
                             String uci = bestmoveItems[1].split(" ")[0];

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -150,7 +150,6 @@ public class PgnPrinter {
     private void printComment(String comment) {
         String write = "{ " + comment.replace("}","").trim() + " } ";
         this.writeToken(write);
-        //this->forceMoveNumber = false;
     }
 
     private void printGameContent(GameNode g) {

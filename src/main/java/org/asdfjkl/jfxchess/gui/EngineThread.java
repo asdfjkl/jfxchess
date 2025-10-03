@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,7 +60,7 @@ public class EngineThread extends Thread {
     public synchronized boolean engineIsOn() {
         return (engineProcess != null && engineProcess.isAlive());
     }
-        
+
     // bestmove result comes from the engine via this method.
     public String getString() {
         return stringProperty.get();
@@ -70,43 +70,19 @@ public class EngineThread extends Thread {
         return stringProperty;
     }
 
-    // EngineThread is the only object with access to the EngineInfo.
-    // EngineInfo is assembled into a textstring which is sent to
-    // the EngineOutputview at regular intervals.
-    // The four methods below enable to send info to the
-    // outputView without sending the UCI-commands to the engine.
-    public void engineInfoSetID(String engineID)
-    {
-        // System.out.println("engineInfoSetID " + engineID);
-        engineInfo.id = engineID;
-    }
-
-    public void engineInfoSetLimitedStrength(boolean b)
-    {
-        // System.out.println("engineInfoSetLimitedStrength " + b);
-        engineInfo.limitedStrength = b;
-    }
-
-    public void engineInfoSetStrength(int elo)
-    {
-        // System.out.println("engineInfoSetStrength " + elo);
-        engineInfo.strength = elo;
-    }
-
     public void engineInfoSetPVLines(int n)
     {
-        // System.out.println("engineInfoSetPvLines " + n);
         engineInfo.nrPvLines = n;
     }
 
     private void take_write_and_flush(String cmd) {
-	try {
-	    cmdQueue.take();
-	    engineInput.write(cmd + "\n");
-	    engineInput.flush();
-	} catch (IOException | InterruptedException e) {
-	    e.printStackTrace(System.out);
-	}
+        try {
+            cmdQueue.take();
+            engineInput.write(cmd + "\n");
+            engineInput.flush();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace(System.out);
+        }
     }
 
     @Override
@@ -115,7 +91,7 @@ public class EngineThread extends Thread {
         while (running) {
             // Set the thread to loop at about 1000 times per second.
             // It Keeps CPU-load down and is probably more than enough.
-        	try {
+            try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -135,7 +111,7 @@ public class EngineThread extends Thread {
                             engineProcess.destroy();
                         }
                     } catch(IOException | InterruptedException e) {
-                    e.printStackTrace(System.out);
+                        e.printStackTrace(System.out);
                     }
                 }
                 // Stop this thread.
@@ -157,7 +133,6 @@ public class EngineThread extends Thread {
                             continue;
                         }
                         if (!line.isEmpty()) {
-                            //lastString = line;
                             // todo: instead of directly setting bestmove,
                             // try updating engine info
                             if (line.startsWith("bestmove")) {
@@ -183,7 +158,6 @@ public class EngineThread extends Thread {
             long currentMs = System.currentTimeMillis();
             if ((currentMs - lastInfoUpdate) > 100) {
                 stringProperty.set("INFO " + engineInfo.toString());
-                //System.out.println("updating INFO: " + engineInfo.toString());
                 lastInfoUpdate = currentMs;
             }
             // we need to constantly send "bestmove". If we only send it once,
@@ -197,7 +171,6 @@ public class EngineThread extends Thread {
             }
             if (!engineIsOn()) {
                 // engine not running
-                // System.out.println("start of loop");
                 if (!cmdQueue.isEmpty()) {
                     try {
                         // Here we dispose of (or consume) the next command
@@ -212,7 +185,6 @@ public class EngineThread extends Thread {
                             engineInfo.clear();
                             String engineCmd = cmd.substring(6);
                             try {
-                                System.out.println("engincCmd: " + engineCmd);
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
@@ -227,10 +199,7 @@ public class EngineThread extends Thread {
                     } catch (InterruptedException e) {
                         e.printStackTrace(System.out);
                     }
-                } else {
-                    // System.out.println("cmd queue is empty");
                 }
-                // System.out.println("calling continue");
                 continue;
             }
             // When we have come this far in the while-loop
@@ -242,8 +211,7 @@ public class EngineThread extends Thread {
             // from the engine.
             if (!cmdQueue.isEmpty()) {
                 // The problem of sending stop first if we are in "go infinite"-mode
-		// is handled in EngineController.
-		
+                // is handled in EngineController.
                 // Don't remove from queue until we know which command it is.
                 // It could be some other command just waiting for us to
                 // pass the readyok check below, now or in the next loop, maybe.
@@ -253,7 +221,7 @@ public class EngineThread extends Thread {
                     // Better luck next loop!
                     continue;
                 }
-                
+
                 // I noticed that even after stop, quit and waiting for
                 // the process to die, the process.isAlive() method took time
                 // before it answered false. So when restarting, the start
@@ -262,7 +230,7 @@ public class EngineThread extends Thread {
                 if (cmd.startsWith("start")) {
                     continue;
                 }
-                
+
                 // The command uci must be sent immediately after startup.
                 // Some engines will not report readyok on isready directly
                 // after startup (like e.g. arasan). thus we require of the
@@ -270,18 +238,16 @@ public class EngineThread extends Thread {
                 // engine process by the start command.
                 if (cmd.equals("uci")) {
                     take_write_and_flush(cmd);
-		    // Set the uciok flag to false.
-		    // This thread won't send any other commands
-		    // until uciok has been received.
-		    uciok = false;
+                    // Set the uciok flag to false.
+                    // This thread won't send any other commands
+                    // until uciok has been received.
+                    uciok = false;
                     continue;
                 }
-                
                 if (!uciok) {
                     // Go no further until we have received uciok.
                     continue;
                 }
-                
                 // When we have reached this point in the while-loop
                 // we know that the engine is ready to receive other 
                 // commands than uci. We could always be ready to send
@@ -309,55 +275,55 @@ public class EngineThread extends Thread {
                 // be ready to send the setoption commands directly after uciok
                 // has been received.
                 if (cmd.startsWith("setoption")) {
-		    if (cmd.startsWith("setoption name UCI_Elo")) {
+                    if (cmd.startsWith("setoption name UCI_Elo")) {
                         // We must save the elo value if elo is set before limit-strength
                         // The value is only valid in connection with limitedStrength == true
-			Matcher matchExpressionStrength = REG_STRENGTH.matcher(cmd);
-			if (matchExpressionStrength.find()) {
-			    savedElo = Integer.parseInt(matchExpressionStrength.group().substring(14));
-			}
+                        Matcher matchExpressionStrength = REG_STRENGTH.matcher(cmd);
+                        if (matchExpressionStrength.find()) {
+                            savedElo = Integer.parseInt(matchExpressionStrength.group().substring(14));
+                        }
                         if (engineInfo.limitedStrength == true) {
                             engineInfo.strength = savedElo;
                             savedElo = -1;
                         }
-		    }
+                    }
                     if (cmd.startsWith(("setoption name UCI_LimitStrength value"))) {
-			String isActive = cmd.substring(38).strip();
-			if (isActive.equals("true")) {
-			    engineInfo.limitedStrength = true;
+                        String isActive = cmd.substring(38).strip();
+                        if (isActive.equals("true")) {
+                            engineInfo.limitedStrength = true;
                             // If there is a saved elo value show it in the outputview
                             // (in that case elo has been set before limitedStrength).
                             if (savedElo > -1) {
                                 engineInfo.strength = savedElo;
                             }
-			} else {
-			    engineInfo.limitedStrength = false;
-			}
+                        } else {
+                            engineInfo.limitedStrength = false;
+                        }
                         // Clear savedElo (for next start of the engine)
                         savedElo = -1; // also done at quit, so maybe it's redundant.
-		    }
-		    if (cmd.startsWith("setoption name MultiPV value")) {
-			engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29));
-		    }
+                    }
+                    if (cmd.startsWith("setoption name MultiPV value")) {
+                        engineInfo.nrPvLines = Integer.parseInt(cmd.substring(29));
+                    }
                     take_write_and_flush(cmd);
-		    continue;                        
+                    continue;
                 }
 
-		// Always be ready to send stop
+                // Always be ready to send stop
                 if (cmd.equals("stop")) {
                     take_write_and_flush(cmd);
                     continue;
-	        }
-		    
+                }
+
                 if (cmd.equals("isready")) {
-		    // We wish to be able to send isready more than
-		    // once during the lifetime of an engineprocess,
-		    // so the next line is important.
+                    // We wish to be able to send isready more than
+                    // once during the lifetime of an engineprocess,
+                    // so the next line is important.
                     readyok = false;
-		    take_write_and_flush(cmd);
+                    take_write_and_flush(cmd);
                     continue;
                 }
-                
+
                 if (!readyok) {
                     // Wait for readyok before proceeding to
                     // the sending of other commands below.
@@ -389,7 +355,6 @@ public class EngineThread extends Thread {
             }
         }
     }
-
 
     public void terminate() {
         running = false;

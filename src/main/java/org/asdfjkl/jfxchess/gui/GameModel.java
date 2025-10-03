@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -82,7 +82,6 @@ public class GameModel {
 
     public boolean doNotNotifyAboutResult = false;
 
-    //public final Polyglot book;
     public PolyglotExt extBook;
 
     private Preferences prefs;
@@ -118,7 +117,6 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
-        // String bookPath = getBookPath();
 
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
@@ -143,9 +141,7 @@ public class GameModel {
         internalElo.name = "UCI_Elo";
         internalElo.spinMin = 1320;
         internalElo.spinMax = 3190;
-	// Previously 3190 wich surprisingly caused me to
-	// beat stockfish without any problems.
-        internalElo.spinDefault = 1320;
+    	internalElo.spinDefault = 1320;
         internalElo.spinValue = 3190;
         internalElo.type = EngineOption.EN_OPT_TYPE_SPIN;
 
@@ -167,29 +163,11 @@ public class GameModel {
         activeEngine.options.add(internalMPV);
         activeEngine.options.add(internalLimitStrength);
         activeEngine.options.add(internalThreads);
-        System.out.println("max thread startup " + activeEngine.getMaxThreads());
 
         // add bots
         String botPath = getBotEnginePath();
         botEngines = BotEngines.createEngines(botPath);
         selectedPlayEngine = botEngines.get(0); // set benny as default; todo: remember last selected bot
-
-        /*
-        Engine stockfish_custom = new Engine();
-        stockfish_custom.setName("Stockfish");
-        if(stockfishPath != null) {
-            stockfish_custom.setPath(stockfishPath);
-        }
-        engines.add(stockfish_custom);
-        */
-
-        /*
-        book = new Polyglot();
-        File file = null;
-        if(bookPath != null) {
-            file = new File(bookPath);
-            book.loadBook(file);
-        }*/
 
     }
 
@@ -200,8 +178,6 @@ public class GameModel {
         if(extBookPath.isEmpty()) {
             extBookPath = getExtBookPath();
         }
-        //DialogSimpleAlert dlg = new DialogSimpleAlert();
-        //dlg.show(extBookPath, 0);
         if(extBookPath != null) {
             file = new File(extBookPath);
             extBook.loadBook(file);
@@ -295,8 +271,6 @@ public class GameModel {
             if(tmp.getParentFile().exists()) {
                 File subBook = new File(tmp.getParentFile(), "book");
                 return subBook;
-                //bookPath = new File(subBook, "varied.bin").getPath();
-                //return bookPath;
             }
         }
         if(os.contains("linux")) {
@@ -308,8 +282,6 @@ public class GameModel {
                 if(tmp.getParentFile().getParentFile().exists()) {
                     File subBook = new File(tmp.getParentFile().getParentFile(), "book");
                     return subBook;
-                    //bookPath = new File(subBook, "varied.bin").getPath();
-                    //return bookPath;
                 }
             }
         }
@@ -326,8 +298,6 @@ public class GameModel {
     }
 
     private String getExtBookPath() {
-
-        //return "C:\\Users\\user\\MyFiles\\workspace\\extbook\\extbook.bin";
 
         File baseBook = getBaseBookPath();
         if(baseBook != null) {
@@ -486,7 +456,6 @@ public class GameModel {
         if(!extBookPath.isEmpty()) {
             prefs.put("EXT_BOOK_PATH_FILE", extBookPath);
         }
-        System.out.println("saving extbook: "+extBookPath);
     }
 
     public void restoreExtBookPath() {
@@ -498,7 +467,6 @@ public class GameModel {
         if(mVersion == modelVersion) {
             bookPath = prefs.get("EXT_BOOK_PATH_FILE", bookPath);
         }
-        System.out.println("restoring extbook: " + bookPath);
         extBookPath = bookPath;
     }
 
@@ -674,7 +642,6 @@ public class GameModel {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         int mVersion = prefs.getInt("modelVersion", 0);
 
-        //intln(mVersion);
         if(mVersion == modelVersion) {
             PgnReader reader = new PgnReader();
 
@@ -686,7 +653,6 @@ public class GameModel {
                 if (g.getRootNode().getBoard().isConsistent()) {
                     setGame(g);
                     g.setTreeWasChanged(true);
-                    //triggerStateChange();
                 }
             }
         }

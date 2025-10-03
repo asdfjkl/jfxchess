@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,6 @@ import static org.asdfjkl.jfxchess.lib.CONSTANTS.EMPTY;
 import static org.asdfjkl.jfxchess.lib.CONSTANTS.FRINGE;
 
 public class EnterPosBoard extends Canvas {
-
 
     private static final double MIN_WIDTH = 800;
     private static final double ASPECT_RATIO = 1.8; // width = height * ratio
@@ -177,10 +176,9 @@ public class EnterPosBoard extends Canvas {
 
         GraphicsContext gc = this.getGraphicsContext2D();
 
-        // fill background
         gc.beginPath();
-        //gc.setFill(Color.rgb(152, 152, 152));
-        //gc.setFill(boardStyle.getLightSquareColor());
+        // gc.setFill(Color.rgb(152, 152, 152));
+        // gc.setFill(boardStyle.getLightSquareColor());
         gc.setFill(boardStyle.getDarkSquareColor());
         gc.rect(0, 0, this.getWidth(), this.getHeight());
         gc.fill();
@@ -240,28 +238,6 @@ public class EnterPosBoard extends Canvas {
                 gc.setFill(fieldColor);
                 gc.rect(x,y,squareSize,squareSize);
                 gc.fill();
-
-                // Mark the grabbedPiece's source-square on the board
-                /* edit: not for enter pos board!
-                if (grabbedPiece.grabbedFrom == BOARD) {
-                    boolean markField = false;
-                    if (!flipBoard) {
-                        if (grabbedPiece.sourceSquareX() == i && grabbedPiece.sourceSquareY() == j) {
-                            markField = true;
-                        }
-                    } else {
-                        // Board is flipped.
-                        if (grabbedPiece.sourceSquareX() == i && grabbedPiece.sourceSquareY() == 7 - j) {
-                            markField = true;
-                        }
-                    }
-                    if (markField) {
-                        gc.beginPath();
-                        gc.setFill(grabbedSquareColor);
-                        gc.rect(x, y, squareSize, squareSize);
-                        gc.fill();
-                    }
-                } */
             } // for j
         } // for i
 

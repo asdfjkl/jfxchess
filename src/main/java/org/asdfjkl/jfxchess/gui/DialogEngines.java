@@ -1,5 +1,6 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,8 +55,6 @@ public class DialogEngines {
     final Button btnRemove = new Button("Remove...");
     final Button btnEditParameters = new Button("Edit Parameters");
     final Button btnResetParameters = new Button("Reset Parameters");
-
-    int colorTheme = GameModel.STYLE_LIGHT;
 
     Button btnOk;
     Button btnCancel;
@@ -219,7 +218,7 @@ public class DialogEngines {
                     }
                 }
                 if(enOpt.type == EN_OPT_TYPE_COMBO) {
-                    ComboBox<String> widget = dlg.comboboxWidgets.get(optName);
+                    ComboBox<String> widget = dlg.comboWidgets.get(optName);
                     if(widget != null) {
                         enOpt.comboValue = widget.getSelectionModel().getSelectedItem();
                     }
@@ -231,7 +230,7 @@ public class DialogEngines {
                     }
                 }
                 if(enOpt.type == EN_OPT_TYPE_STRING) {
-                    TextField widget = dlg.textfieldWidgets.get(optName);
+                    TextField widget = dlg.textFieldWidgets.get(optName);
                     if(widget != null) {
                         enOpt.stringValue = widget.getText();
                     }
@@ -261,7 +260,7 @@ public class DialogEngines {
             // When the execution leaves this block,normally or because of
             // an exception, bre.close(), bri.close() and bro.close() will
             // be called automatically, in that order.
-            // I noticed that bro.close() unexpectedly also kills the
+            // Notice that bro.close() unexpectedly also kills the
             // engine-process in some way. So we don't have to do that
             // separately. Possible exceptions during close() will be
             // suppressed. (Previously the engine-process would stay alive

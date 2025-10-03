@@ -1,5 +1,6 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -120,7 +121,6 @@ public class GameMenuController {
                 } else {  // indices > 1, show db dialog
                     DialogDatabase dlg = new DialogDatabase();
                     gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                    //gameModel.getPgnDatabase().open(file.getAbsolutePath());
                     boolean accepted = dlg.show(gameModel, true);
                     if(accepted) {
                         int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
@@ -132,11 +132,11 @@ public class GameMenuController {
                         gameModel.triggerStateChange();
                     }
                 }
-            } else { // for larger files, we always assume there is more than one game
+            } else {
+                // for larger files, we always assume there is more than one game
                 // then show database dialog
                 DialogDatabase dlg = new DialogDatabase();
                 gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                //gameModel.getPgnDatabase().open(file.getAbsolutePath());
                 boolean accepted = dlg.show(gameModel, true);
                 if(accepted) {
                     int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
@@ -150,98 +150,11 @@ public class GameMenuController {
             }
         }
     }
-
-    /*
-    public void handleOpenGame() {
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        fileChooser.setTitle("Open PGN File");
-        if(gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
-            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
-        }
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PGN", "*.pgn")
-        );
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            if(file.getParentFile() != null) {
-                gameModel.lastOpenedDirPath = file.getParentFile();
-            }
-            // for files >= 20 kb, always open in db window
-            if((file.length() / 1024) < 20) {
-                ArrayList<Long> indices = reader.scanPgn(file.getAbsolutePath());
-                if(indices.size() == 0) {
-                    return;
-                }
-                if(indices.size() == 1) {
-                    Game g = null;
-                    OptimizedRandomAccessFile raf = null;
-                    try {
-                        raf = new OptimizedRandomAccessFile(file.getAbsolutePath(), "r");
-                        g = reader.readGame(raf);
-                        gameModel.currentPgnDatabaseIdx = 0;
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if(raf!=null) {
-                            try {
-                                raf.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    if(g != null && (g.getRootNode().hasChild() || !g.getRootNode().getBoard().isInitialPosition())) {
-                        gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                        gameModel.openDatabaseOnNextDialog = true;
-                        gameModel.setGame(g);
-                        g.setHeaderWasChanged(true);
-                        g.setTreeWasChanged(true);
-                        gameModel.triggerStateChange();
-                        return;
-                    }
-                } else {  // indices > 1, show db dialog
-                    DialogDatabase dlg = new DialogDatabase();
-                    gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                    //gameModel.getPgnDatabase().open(file.getAbsolutePath());
-                    boolean accepted = dlg.show(gameModel, true);
-                    if(accepted) {
-                        int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
-                        gameModel.currentPgnDatabaseIdx = gameIndex;
-                        Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
-                        gameModel.setGame(g);
-                        g.setHeaderWasChanged(true);
-                        g.setTreeWasChanged(true);
-                        gameModel.triggerStateChange();
-                    }
-                }
-            } else { // for larger files, we always assume there is more than one game
-                // then show database dialog
-                DialogDatabase dlg = new DialogDatabase();
-                gameModel.getPgnDatabase().filename = file.getAbsolutePath();
-                //gameModel.getPgnDatabase().open(file.getAbsolutePath());
-                boolean accepted = dlg.show(gameModel, true);
-                if(accepted) {
-                    int gameIndex = dlg.table.getSelectionModel().getSelectedIndex();
-                    gameModel.currentPgnDatabaseIdx = gameIndex;
-                    Game g = gameModel.getPgnDatabase().loadGame(gameIndex);
-                    gameModel.setGame(g);
-                    g.setHeaderWasChanged(true);
-                    g.setTreeWasChanged(true);
-                    gameModel.triggerStateChange();
-                }
-            }
-        }
-    }
-
-     */
 
     public void handleSaveCurrentGame() {
 
         DialogSave dlg = new DialogSave();
-        int result = dlg.show(gameModel.THEME,
-                gameModel.currentPgnDatabaseIdx >= 0,
+        int result = dlg.show(gameModel.currentPgnDatabaseIdx >= 0,
                 gameModel.getPgnDatabase().filename);
         switch(result) {
             case DialogSave.DLG_SAVE_NEW:

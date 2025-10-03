@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,9 +53,6 @@ public class HtmlPrinter {
     }
 
     private void writeToken(String token) {
-        //if(80 - this.currentLine.length() < token.length()) {
-        //    this.flushCurrentLine();
-        //}
         this.currentLine.append(token);
     }
 
@@ -108,9 +105,6 @@ public class HtmlPrinter {
         writeToken("<span id=\"n");
         writeToken(sNodeId);
         writeToken("\">");
-        //writeToken("<a id=\"n");
-        //writeToken(sNodeId);
-        //writeToken("\" href=\"#");
         writeToken("<a href=\"#");
         writeToken(sNodeId);
         writeToken("\">");
@@ -249,10 +243,8 @@ public class HtmlPrinter {
     }
 
     private void printComment(String comment) {
-        //String write = "{ " + comment.replace("}","").trim() + " } ";
         String write = "<span class=\"comment\">&nbsp;" + comment.replace("}","").trim() + "&nbsp;&nbsp;</span>";
         this.writeToken(write);
-        //this->forceMoveNumber = false;
     }
 
     private void printGameContent(GameNode g, boolean onMainLine) {
@@ -315,10 +307,6 @@ public class HtmlPrinter {
 
         this.reset();
 
-        //this.printHeaders(g);
-
-        //this.writeLine("");
-        //this.writeLine("<html><body>");
         GameNode root = g.getRootNode();
 
         // special case if the root node has
@@ -329,8 +317,6 @@ public class HtmlPrinter {
 
         this.printGameContent(root, true);
         this.printResult(g.getResult());
-        //this.html.append(this.currentLine.toString());
-        //this.writeLine("</body></html>");
         this.writeLine("");
 
         return this.html.toString();

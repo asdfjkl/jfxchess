@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//package org.bitbucket.kienerj.io;
+
 package org.asdfjkl.jfxchess.lib;
 
 import java.io.File;
@@ -54,7 +54,6 @@ public class OptimizedRandomAccessFile {
     private static int defaultExpectedLineLength = 80;
     private RandomAccessFile raf;
     private Long actualFilePointer;
-    //private char[] charBuffer;
     private byte[] charBuffer;
     private int nChars, nextChar;
     private int bufferSize;

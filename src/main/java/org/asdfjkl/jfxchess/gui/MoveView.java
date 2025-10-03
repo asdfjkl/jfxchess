@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,19 +51,6 @@ public class MoveView implements StateChangeListener {
 
     int rightClickedNode = -1;
 
-    /*
-    String jsIsInView =
-            "function isScrolledIntoView(elem)\n" +
-                    "{\n" +
-                    "    var docViewTop = $(window).scrollTop();\n" +
-                    "    var docViewBottom = docViewTop + $(window).height();\n" +
-                    "\n" +
-                    "    var elemTop = $(elem).offset().top;\n" +
-                    "    var elemBottom = elemTop + $(elem).height();\n" +
-                    "\n" +
-                    "    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));\n" +
-                    "}";
-*/
     final String jsIsInView = "function isScrolledIntoView(el) {\n"+
             "var rect = el.getBoundingClientRect();\n"+
             "var elemTop = rect.top; \n"+
@@ -74,11 +61,9 @@ public class MoveView implements StateChangeListener {
 
     public MoveView(GameModel gameModel) {
         this.webView = new WebView();
-        //webView.resize(320,200);
         webView.setMinWidth(1);
         webView.setMaxWidth(Double.MAX_VALUE);
         webView.setMaxHeight(Double.MAX_VALUE);
-        //webEngine = webView.getEngine();
         try {
             if(gameModel.THEME == gameModel.STYLE_LIGHT) {
                 webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("css/webview_style_light.css").toExternalForm());
@@ -86,7 +71,6 @@ public class MoveView implements StateChangeListener {
                 webView.getEngine().setUserStyleSheetLocation(getClass().getClassLoader().getResource("css/webview_style_dark.css").toExternalForm());
             }
         } catch (NullPointerException e) {
-
         }
 
         webView.setContextMenuEnabled(false);
@@ -94,9 +78,6 @@ public class MoveView implements StateChangeListener {
 
         this.gameModel = gameModel;
         this.htmlPrinter = new HtmlPrinter();
-
-        //String foo = "<html><body><a href=#213 id=\"bar\">foo</a></body></html>";
-        //webEngine.loadContent(foo);
 
         addEventListener();
 
@@ -238,16 +219,9 @@ public class MoveView implements StateChangeListener {
 
         webView.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
-                /*
-                System.out.println( webView.getEngine().executeScript("document.elementFromPoint("
-                        +e.getX()
-                        +"," +  e.getY()+").tagName;"));
-                 */
                 JSObject object = (JSObject) webView.getEngine().executeScript("document.elementFromPoint("
                         +e.getX()
                         +"," +  e.getY()+");");
-                //int clickedNodeId = Integer.parseInt(e.getTarget().toString().substring(1));
-                //GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
                 try {
                     int clickedNodeId = Integer.parseInt(object.toString().substring(1));
                     rightClickedNode = clickedNodeId;
@@ -270,7 +244,7 @@ public class MoveView implements StateChangeListener {
             if(rightClickedNode >= 0) {
                 GameNode selectedNode = gameModel.getGame().findNodeById(rightClickedNode);
                 DialogEnterComment dlg = new DialogEnterComment();
-                boolean accepted = dlg.show(selectedNode.getComment(), gameModel.THEME);
+                boolean accepted = dlg.show(selectedNode.getComment());
                 if(accepted) {
                     String newComment = dlg.textArea.getText();
                     // filter invalid stuff, like { } etc.
@@ -545,12 +519,6 @@ public class MoveView implements StateChangeListener {
         return webView;
     }
 
-    //public void updateView() {
-    //estGetElement();
-    //    String html = htmlPrinter.printGame(gameModel.getGame());
-    //    webEngine.loadContent(html);
-    //}
-
     public void addEventListener() {
 
         webView.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
@@ -649,7 +617,6 @@ public class MoveView implements StateChangeListener {
                 }
             }
         }
-        //scrollToNode(currentNodeId);
         currentlyMarkedNode = currentNodeId;
     }
 
@@ -657,7 +624,10 @@ public class MoveView implements StateChangeListener {
     @Override
     public void stateChange() {
         // if tree was changed, we need to update the webview
-        if(gameModel.getGame().isTreeChanged()) {
+        // we also need to do so, if header was changed, since the
+        // result might have changed
+        if(gameModel.getGame().isTreeChanged()
+            || gameModel.getGame().isHeaderChanged()) {
             // remember scrollbar position
             x = getVScrollValue();
             y = getVScrollValue();
@@ -667,14 +637,8 @@ public class MoveView implements StateChangeListener {
                     this.jsIsInView + "</script></head><body>" +
                     htmlBody +
                     "</body></html>";
-            //String htmlDoc = "<html><head></head><body>" +
-            //        htmlBody +
-            //        "</body></html>";
             webView.getEngine().loadContent(htmlDoc);
-            //updateMarkedNode();
-
             gameModel.getGame().setTreeWasChanged(false);
-
         } else {
             // otherwise:
             // remove marking of old node
@@ -685,21 +649,7 @@ public class MoveView implements StateChangeListener {
     }
 
     public void goForward() {
-        /*
 
-            if(this->gameModel->getGame()->getCurrentNode()->hasVariations()) {
-        DialogNextMove *d = new DialogNextMove(this->gameModel->getGame()->getCurrentNode(), this->parentWidget());
-        //bool answer = d->exec();
-        if(d->exec() == QDialog::Accepted) {
-            int variation_index = d->selectedIndex;
-            this->gameModel->getGame()->goToChild(variation_index);
-        }
-        delete d;
-    } else {
-        this->gameModel->getGame()->goToMainLineChild();
-    }
-
-         */
         ArrayList<GameNode> variations = this.gameModel.getGame().getCurrentNode().getVariations();
         if(variations.size() > 1) {
             ArrayList<String> nextMoves = new ArrayList<>();

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 
 package org.asdfjkl.jfxchess.gui;
 
@@ -63,7 +64,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
 
     Board originalBoard;
 
-    public boolean show(Board board, BoardStyle style, double width, double height, int colorTheme) {
+    public boolean show(Board board, BoardStyle style, double width, double height) {
 
         originalBoard = board.makeCopy();
         enterPosBoard = new EnterPosBoard(originalBoard);
@@ -100,8 +101,6 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         Region spacer2 = new Region();
         Region spacer3 = new Region();
         Region spacer4 = new Region();
-        // initial position is the longest text. other buttons follow
-        final Text tmpTxt = new Text("Initial Position ");
 
         btnInitialPosition.setMinWidth(140);
         btnFlipBoard.setMinWidth(140);

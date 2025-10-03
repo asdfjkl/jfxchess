@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ public class EngineOption {
     public static final int EN_OPT_TYPE_COMBO = 2;
     public static final int EN_OPT_TYPE_STRING = 3;
     public static final int EN_OPT_TYPE_BUTTON = 4;
-    //static final Pattern REG_EXP_OPTION_NAME = Pattern.compile("option name (.*?) type");
 
     public int type = -1;
     public String name = "";

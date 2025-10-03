@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ public class DialogEnterComment {
 
     TextArea textArea;
 
-    public boolean show(String currentComment, int colorTheme) {
+    public boolean show(String currentComment) {
 
         textArea = new TextArea();
         textArea.setText(currentComment);
@@ -55,7 +55,7 @@ public class DialogEnterComment {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         VBox vbox = new VBox();

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -84,7 +84,7 @@ public class DialogSearchGames {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         btnOk.setOnAction(e -> {
@@ -164,13 +164,9 @@ public class DialogSearchGames {
 
         enterPosBoard = new EnterPosBoard(currentBoard.makeCopy());
         enterPosBoard.boardStyle = currentBoardStyle;
-        // to make sure, the enter position board is displayed correctly
-        //enterPosBoard.setHeight(200);
 
         HBox hbTabPosition = new HBox();
         hbTabPosition.getChildren().addAll(enterPosBoard, vbButtonsRight);
-        //hbTabPosition.setHgrow(enterPosBoard, Priority.ALWAYS);
-        //hbTabPosition.setPrefWidth(1000);
 
         /*
          HEADER SEARCH TAB
@@ -303,13 +299,12 @@ public class DialogSearchGames {
         Tab tabHeader = new Tab("Game Data", vboxGameData);
         Tab tabPosition = new Tab("Position", hbTabPosition);
         tabPane.getTabs().addAll(tabHeader, tabPosition);
-        //tabPane.getTabs().addAll(tabPosition, tabHeader);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tabPane.getStyleClass().add("underlined");
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(tabPane, hbCheckboxes, hbButtons);
-        vbox.setVgrow(tabPane, Priority.ALWAYS);
+        VBox.setVgrow(tabPane, Priority.ALWAYS);
         vbox.setSpacing(10);
         vbox.setPadding( new Insets(15, 25, 10, 25));
 

@@ -1,5 +1,6 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,7 +51,6 @@ public class EngineInfo {
 
     String id = "";
     int strength = -1;
-    //int currentFullmoveNumber = 0; // store fullmove from uci output, not from game
     int fullMoveNumber = 1;
     int halfmoves = 0;
     String currentMove = "";
@@ -121,8 +121,6 @@ public class EngineInfo {
         turn = CONSTANTS.WHITE;
 
         fen = "";
-        //nrPvLines = 1;
-
         bestmove = "";
 
         for(int i=0;i<GameModel.MAX_PV;i++ ) {
@@ -155,10 +153,8 @@ public class EngineInfo {
     }
 
     public void update(String engineFeedback) {
+
         int multiPv = 0;
-
-        // System.out.println("<<< "+engineFeedback);
-
         String[] lines = engineFeedback.split("\n");
 
         for(int i=0;i<lines.length;i++) {

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,7 +31,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-//import jfxtras.styles.jmetro.JMetro;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.io.BufferedWriter;
@@ -40,6 +39,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
 public class PgnDatabase {
 
     private ObservableList<PgnDatabaseEntry> entries;
@@ -49,8 +49,6 @@ public class PgnDatabase {
     static Stage stage;
 
     DialogDatabase dialogDatabase = null;
-
-    //public String lastOpenedFilePath = "";
 
     private final ArrayList<Task> runningTasks = new ArrayList<Task>();
 
@@ -146,9 +144,6 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        //JMetro jMetro = new JMetro();
-        //jMetro.setScene(scene);
-
         stage.setScene(scene);
         stage.show();
 
@@ -170,7 +165,6 @@ public class PgnDatabase {
 
                 try {
                     rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
-                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
                     writer = new BufferedWriter(new FileWriter(tmpFilename));
 
                     for (int i = 0; i < entries.size(); i++) {
@@ -399,7 +393,6 @@ public class PgnDatabase {
 
             this.filename = file.getAbsolutePath();
             open();
-            //gameModel.currentPgnDatabaseIdx = 0;
         }
 
     }
@@ -437,9 +430,6 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        //JMetro jMetro = new JMetro();
-        //jMetro.setScene(scene);
-
         stage.setScene(scene);
         stage.show();
 
@@ -455,12 +445,10 @@ public class PgnDatabase {
 
                 PgnPrinter pgnPrinter = new PgnPrinter();
 
-
                 long linesWritten = 0;
 
                 try {
                     rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
-                    //rafWriter = new OptimizedRandomAccessFile(tmpFilename, "rw");
                     writer = new BufferedWriter(new FileWriter(tmpFilename));
 
                     long startOffset = entries.get(0).getOffset();
@@ -575,9 +563,6 @@ public class PgnDatabase {
 
         Scene scene = new Scene(vbox, 400, 200);
 
-        //JMetro jMetro = new JMetro();
-        //jMetro.setScene(scene);
-
         stage.setScene(scene);
         stage.show();
 
@@ -624,8 +609,6 @@ public class PgnDatabase {
                             if (game_pos == -1) {
                                 game_pos = last_pos;
                                 current = new PgnDatabaseEntry();
-                                //System.out.println(currentLine);
-
                             }
                             last_pos = raf.getFilePointer();
                             if (currentLine.length() > 4) {
@@ -636,7 +619,6 @@ public class PgnDatabase {
                                     if(secondQuote > firstQuote) {
                                         String value = currentLine.substring(firstQuote + 1, secondQuote);
                                         String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-                                        //String valueEncoded = new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                                         if (tag.equals("Event")) {
                                             current.setEvent(valueEncoded);
                                             current.markValid();
@@ -746,9 +728,6 @@ public class PgnDatabase {
         vbox.setPadding( new Insets(10));
 
         Scene scene = new Scene(vbox, 400, 200);
-
-        //JMetro jMetro = new JMetro();
-        //jMetro.setScene(scene);
 
         stage.setScene(scene);
         stage.show();

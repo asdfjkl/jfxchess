@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,8 +42,6 @@ public class DialogDatabase {
     SearchPattern searchPattern;
     GameModel gameModel;
 
-    int idxCurrentlyOpen = -1;
-
     final FileChooser fileChooser = new FileChooser();
 
     public boolean show(GameModel gameModel, boolean loadFile) {
@@ -65,16 +63,6 @@ public class DialogDatabase {
         Button btnDelete = new Button("Delete Game");
         btnDelete.setGraphic(new ImageView(new Image("icons/mail-mark-not-junk.png")));
         btnDelete.setContentDisplay(ContentDisplay.TOP);
-
-        /*
-        Button btnSave = new Button("Save");
-        btnSave.setGraphic(new ImageView(new Image("icons/document-save.png")));
-        btnSave.setContentDisplay(ContentDisplay.TOP);
-
-        Button btnSaveAs = new Button("Save As...");
-        btnSaveAs.setGraphic(new ImageView(new Image("icons/document-save.png")));
-        btnSaveAs.setContentDisplay(ContentDisplay.TOP);
-         */
 
         Button btnSearch = new Button("Search");
         btnSearch.setGraphic(new ImageView(new Image("icons/system-search.png")));
@@ -127,8 +115,6 @@ public class DialogDatabase {
         colEco.setMinWidth(30);
         colEco.setSortable(false);
 
-        //ObservableList<PgnSTR> emptyList = FXCollections.observableArrayList();
-
         table.getColumns().add(colIndex);
         table.getColumns().add(colWhite);
         table.getColumns().add(colBlack);
@@ -148,12 +134,12 @@ public class DialogDatabase {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(toolBar, table, hbButtons);
-        vbox.setVgrow(table, Priority.ALWAYS);
+        VBox.setVgrow(table, Priority.ALWAYS);
         vbox.setSpacing(10);
         vbox.setPadding(new Insets(10));
 
@@ -186,8 +172,6 @@ public class DialogDatabase {
         });
 
         if (gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
-            //System.out.println("current db idx");
-            //System.out.println(gameModel.currentPgnDatabaseIdx);
             table.getSelectionModel().select(gameModel.currentPgnDatabaseIdx);
             table.scrollTo(gameModel.currentPgnDatabaseIdx);
         }
@@ -242,7 +226,6 @@ public class DialogDatabase {
     private void btnSearchClicked() {
 
         DialogSearchGames dlg = new DialogSearchGames();
-        //dlg.recoverFromSearchPattern(gameModel.getSearchPattern());
         boolean accepted = dlg.show(gameModel.getGame().getCurrentNode().getBoard(),
                 gameModel.boardStyle,
                 gameModel.getSearchPattern().makeCopy());
@@ -285,38 +268,6 @@ public class DialogDatabase {
                 gameModel.lastOpenedDirPath = file.getParentFile();
             }
             pgnDatabase.open();
-        }
-
-    }
-
-    private void btnSaveClicked() {
-
-        if(gameModel.currentPgnDatabaseIdx >= 0 && gameModel.currentPgnDatabaseIdx < pgnDatabase.getNrGames()) {
-            pgnDatabase.getEntries().get(gameModel.currentPgnDatabaseIdx).markAsModified();
-            pgnDatabase.getEntries().get(gameModel.currentPgnDatabaseIdx).setModifiedGame(gameModel.getGame());
-        }
-        pgnDatabase.saveDatabase();
-
-    }
-
-    private void btnSaveAsClicked() {
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        fileChooser.setTitle("Save PGN File As...");
-        if (gameModel.lastOpenedDirPath != null && gameModel.lastOpenedDirPath.exists()) {
-            fileChooser.setInitialDirectory(gameModel.lastOpenedDirPath);
-        }
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PGN", "*.pgn")
-        );
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            String newFilename = file.getAbsolutePath();
-            if (file.getParentFile() != null) {
-                gameModel.lastOpenedDirPath = file.getParentFile();
-            }
-            pgnDatabase.saveDatabaseAs(newFilename);
         }
 
     }

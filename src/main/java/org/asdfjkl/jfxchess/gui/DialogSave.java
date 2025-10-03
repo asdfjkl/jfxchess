@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ public class DialogSave {
     Stage stage;
     int result = 0;
 
-    public int show(int colorTheme, boolean replacePossible, String currentFilename) {
+    public int show(boolean replacePossible, String currentFilename) {
 
         Label lblCurrentFile = new Label("");
         if(currentFilename != null) {
@@ -92,7 +92,6 @@ public class DialogSave {
         vbox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vbox);
-        //vbox.getStyleClass().add(JMetroStyleClass.BACKGROUND);
         vbox.setSpacing(10);
         vbox.setPadding( new Insets(10));
 

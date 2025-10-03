@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,6 @@ public class ShowAppearanceBoard extends Canvas {
 
         }
 
-
         @Override
         public boolean isResizable() {
             return true;
@@ -95,8 +94,6 @@ public class ShowAppearanceBoard extends Canvas {
 
             // fill background
             gc.beginPath();
-            //gc.setFill(Color.rgb(152, 152, 152));
-            //gc.setFill(boardStyle.getLightSquareColor());
             gc.setFill(boardStyle.getDarkSquareColor());
             gc.rect(0, 0, this.getWidth(), this.getHeight());
             gc.fill();

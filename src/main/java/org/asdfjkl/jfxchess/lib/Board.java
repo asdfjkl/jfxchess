@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@ package org.asdfjkl.jfxchess.lib;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.lang.Math;
-
 
 public class Board {
 
@@ -340,40 +339,6 @@ public class Board {
         }
         // set en passant square
         this.setEnPassantSquare(fenParts[3]);
-        /*
-        if(fenParts[3].equals("-")) {
-            this.enPassentTarget = 0;
-        } else {
-            int row = 10 + Character.getNumericValue(fenParts[3].charAt(1)) * 10;
-            int col = 0;
-            char c = Character.toLowerCase(fenParts[3].charAt(0));
-            if(c == 'a') {
-                col = 1;
-            }
-            if(c == 'b') {
-                col = 2;
-            }
-            if(c == 'c') {
-                col = 3;
-            }
-            if(c == 'd') {
-                col = 4;
-            }
-            if(c == 'e') {
-                col = 5;
-            }
-            if(c == 'f') {
-                col = 6;
-            }
-            if(c == 'g') {
-                col = 7;
-            }
-            if(c == 'h') {
-                col = 8;
-            }
-            this.enPassentTarget = row + col;
-        }
-         */
         if(fenParts.length >= 5) {
             this.halfmoveClock = Integer.parseInt(fenParts[4]);
         } else {
@@ -694,14 +659,14 @@ public class Board {
             // also remove the currently moving piece from the list
             this.removeFromPieceList(color, oldPieceType, m.from);
             // increase halfmove clock only if no capture or pawn advance
-            // happend
+            // happened
             this.prevHalfmoveClock = this.halfmoveClock;
             if(oldPieceType == CONSTANTS.PAWN || this.board[m.to] != CONSTANTS.EMPTY) {
                 this.halfmoveClock = 0;
             } else {
                 this.halfmoveClock++;
             }
-            // if we move a pawn two steps up, set the en_passent field
+            // if we move a pawn two steps up, set the en_passant field
             if(oldPieceType == CONSTANTS.PAWN) {
                 // white pawn moved two steps up
                 if((m.to - m.from) == 20) {
@@ -712,9 +677,9 @@ public class Board {
                     this.enPassentTarget = m.from - 10;
                 }
             }
-            // if the move is an en-passent capture,
+            // if the move is an en-passant capture,
             // remove the (non-target) corresponding pawn
-            // move is an en passent move, if
+            // move is an en passant move, if
             // a) color is white, piece type is pawn, target
             // is up left or upright and empty
             // b) color is black, piece type is pawn, target
@@ -904,14 +869,6 @@ public class Board {
         }
     }
 
-    //private boolean isOffside(int internalCoordinate) {
-    //    return (this.board[internalCoordinate] == 0xFF);
-    //}
-
-    //private boolean isEmpty(int internalCoordinate) {
-    //    return (this.board[internalCoordinate] == 0);
-    //}
-
     public ArrayList<Move> pseudoLegalMoves() {
         return this.pseudoLegalMoves(CONSTANTS.ANY_SQUARE, CONSTANTS.ANY_SQUARE, CONSTANTS.ANY_PIECE,true, this.turn);
     }
@@ -990,7 +947,7 @@ public class Board {
                         moves.add(new Move(from,idx_1up));
                     }
                 }
-                // finally, potential en-passent capture is handled
+                // finally, potential en-passant capture is handled
                 // left up
                 if(internalToSquare == CONSTANTS.ANY_SQUARE || internalToSquare == this.enPassentTarget) {
                     if (color == CONSTANTS.WHITE && (this.enPassentTarget - from) == 9) {
@@ -1437,7 +1394,6 @@ public class Board {
     public ArrayList<Move> legalMoves() {
 
         ArrayList<Move> pseudoLegals = this.pseudoLegalMoves();
-        // System.out.println("pseudoLegalSize: "+pseudoLegals.size());
         ArrayList<Move> legals = new ArrayList<Move>();
         for(Move mi : pseudoLegals) {
             try {
@@ -1550,7 +1506,7 @@ public class Board {
             return "--";
         }
         // first test for checkmate and check (to be appended later)
-        // create temp board, since appyling move and
+        // create temp board, since applying move and
         // testing for checkmate (which again needs
         // application of a move) makes it impossible
         // to undo (undo can only be done once, not twice in a row)
@@ -1578,7 +1534,6 @@ public class Board {
             return san.toString();
         } else {
             int pieceType = this.getPieceTypeAt(m.from);
-            //int piece = this.getPieceAt(m.from);
             if(pieceType == CONSTANTS.KNIGHT) {
                 san.append("N");
             }
@@ -1594,14 +1549,12 @@ public class Board {
             if(pieceType == CONSTANTS.KING) {
                 san.append("K");
             }
-            //QVector<Move> col_disambig;
-            //QVector<Move> row_disambig;
             int thisRow = (m.from / 10) - 1;
             int thisCol = m.from % 10;
 
             ArrayList<Move> colDisAmbig = new ArrayList<>();
             ArrayList<Move> rowDisAmbig = new ArrayList<>();
-            // find amibguous moves (except for pawns)
+            // find ambiguous moves (except for pawns)
             if(pieceType != CONSTANTS.PAWN) {
                 // if piece list contains only one piece, skip move generation
                 // for testing disambiguity
@@ -1749,8 +1702,8 @@ public class Board {
     }
 
     public void setPieceAt(int x, int y, int piece) {
-        // check wether x,y is a valid location on chess board
-        // and wether piece is a valid piece
+        // check whether  x,y is a valid location on chess board
+        // and whether  piece is a valid piece
         if(x>=0 && x<8 && y>=0 && y <8 &&
                 ((piece >= 0x01 && piece <= 0x07) ||  // white piece
                  (piece >= 0x81 && piece <= 0x87) || (piece == 0x00))) // black piece or empty
@@ -1992,7 +1945,6 @@ public class Board {
                 // a white pawn was just moved, i.e.
                 // a white pawn must stand above (offset +10) the epSquare,
                 // and it must be black's turn
-                System.out.println(this.getPieceAt(this.enPassentTarget + 10));
                 return (this.getPieceAt(this.enPassentTarget + 10) == CONSTANTS.WHITE_PAWN)
                         && this.turn == CONSTANTS.BLACK;
             } else {

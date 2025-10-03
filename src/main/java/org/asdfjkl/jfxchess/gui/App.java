@@ -1,5 +1,6 @@
 /* JFXChess - A Chess Graphical User Interface
  * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1248,8 +1249,7 @@ public class App extends Application implements StateChangeListener {
     private void handleFullGameAnalysis() {
         DialogGameAnalysis dlg = new DialogGameAnalysis();
         boolean accepted = dlg.show(gameModel.getGameAnalysisThinkTimeSecs(),
-                ((double) gameModel.getGameAnalysisThreshold()),
-                gameModel.THEME);
+                ((double) gameModel.getGameAnalysisThreshold()));
         if(accepted) {
             itmEnterMoves.setSelected(true);
             tglEngineOnOff.setSelected(true);

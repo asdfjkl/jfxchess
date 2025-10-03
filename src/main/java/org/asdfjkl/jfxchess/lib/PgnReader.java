@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -483,7 +483,7 @@ public class PgnReader {
                             int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
                             if(currentIdx+2 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx+2))) {
                                 int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+2)) - 1;
-                                // move w/ disambig on col, i.e. Qee4
+                                // move w/ disambiguate on col, i.e. Qee4
                                 // provide line[idx] to cratePieceMove to resolve disamb.
                                 currentIdx+=3;
                                 try {
@@ -600,25 +600,21 @@ public class PgnReader {
             }
             return;
         }
-        //if(currentIdx+1 < lineSize && currentLine.substring(currentIdx,currentIdx+2).equals("??")) {
         if(currentLine.startsWith("??", currentIdx)) {
             currentNode.addNag(CONSTANTS.NAG_BLUNDER);
             currentIdx += 3;
             return;
         }
-        //if(currentIdx+1 < lineSize && currentLine.substring(currentIdx,2).equals("!!")) {
         if(currentLine.startsWith("!!", currentIdx)) {
             currentNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
             currentIdx += 3;
             return;
         }
-        //if(currentIdx+1 < lineSize && currentLine.substring(currentIdx,2).equals("!?")) {
         if(currentLine.startsWith("!?", currentIdx)) {
             currentNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
             currentIdx += 3;
             return;
         }
-        //if(currentIdx+1 < lineSize && currentLine.substring(currentIdx,2).equals("?!")) {
         if(currentLine.startsWith("?!", currentIdx)) {
             currentNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
             currentIdx += 3;
@@ -1145,7 +1141,6 @@ public class PgnReader {
                         parseNAG();
                     }
                     if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
-                        //String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
                         String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
                         int end = rest_of_line.indexOf("}");
                         if (end >= 0) {
@@ -1156,13 +1151,11 @@ public class PgnReader {
                         } else {
                             // get comment over multiple lines
                             StringBuilder comment_lines = new StringBuilder();
-                            //String comment_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
                             String comment_line = currentLine.substring(currentIdx + 1);
                             comment_lines.append(comment_line).append("\n");
                             // we already have the comment part of the current line,
                             // so read-in the next line, and then loop until we find
                             // the end marker "}"
-                            //currentLine = raf.readLine();
                             int linesRead = 0;
                             int end_index = -1;
                             while (linesRead < 500) { // what if we never find "}" ??? -> stop after 500 lines
@@ -1192,8 +1185,6 @@ public class PgnReader {
                     }
                 }
             }
-
-        // return g;
     }
 
 

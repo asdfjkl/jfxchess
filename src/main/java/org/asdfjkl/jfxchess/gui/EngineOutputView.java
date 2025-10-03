@@ -1,5 +1,6 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2025 Torsten Torell
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,12 +19,8 @@
 
 package org.asdfjkl.jfxchess.gui;
 
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.asdfjkl.jfxchess.lib.Board;
-import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 import java.util.ArrayList;
 
@@ -36,13 +33,6 @@ public class EngineOutputView implements StateChangeListener {
     private final Text nps;
     private final Text hashFull;
     private final Text tbHits;
-    
-    /*
-    private final Text pv1;
-    private final Text pv2;
-    private final Text pv3;
-    private final Text pv4;
-    */
 
     private final ArrayList<Text> pvLines;
 
@@ -100,15 +90,6 @@ public class EngineOutputView implements StateChangeListener {
         // and txtEngineOut by adding lines and children.
         resetPVLines();
     }
-
-    public void enableOutput() { isEnabled = true; }
-
-    public void disableOutput() {
-        isEnabled = false;
-        clearOutput();
-    }
-
-    public boolean isEnabled() { return isEnabled; }
 
     private void clearOutput() {
 
@@ -177,19 +158,6 @@ public class EngineOutputView implements StateChangeListener {
                 }
             }
         }
-    }
-
-    public void disablePVLines() {
-        if (pvLinesAreEnabled) {
-            resetPVLines();
-            depth.setText("");
-	    nps.setText("");
-        }
-        pvLinesAreEnabled = false;
-    }
-    
-    public void enablePVLines() {
-        pvLinesAreEnabled = true;
     }
 
     private void resetPVLines() {

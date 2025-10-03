@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,9 +25,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-//import jfxtras.styles.jmetro.JMetro;
-//import jfxtras.styles.jmetro.JMetroStyleClass;
-//import jfxtras.styles.jmetro.Style;
+
 import org.asdfjkl.jfxchess.lib.CONSTANTS;
 
 import java.time.MonthDay;
@@ -58,7 +56,7 @@ public class DialogEditGameData {
     final RadioButton rbDraw = new RadioButton("1/2-1/2");
     final RadioButton rbUndecided = new RadioButton("*");
 
-    public boolean show(HashMap<String, String> pgnHeaders, int gameResult, int colorTheme) {
+    public boolean show(HashMap<String, String> pgnHeaders, int gameResult) {
 
         for (Map.Entry<String, String> entry : pgnHeaders.entrySet()) {
             String key = entry.getKey();
@@ -80,7 +78,7 @@ public class DialogEditGameData {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         GridPane grid = new GridPane();
@@ -92,7 +90,7 @@ public class DialogEditGameData {
         // or needs more space for the e.g. event or site field
         ColumnConstraints clnTextFields = new ColumnConstraints(100,300,Double.MAX_VALUE);
         clnTextFields.setHgrow(Priority.ALWAYS);
-        ColumnConstraints clnLabels = new ColumnConstraints(100);
+        ColumnConstraints clnLabels = new ColumnConstraints(120);
         grid.getColumnConstraints().addAll(clnLabels, clnTextFields);
 
         // third value: read from PGN header or set to 0 by default
@@ -102,7 +100,6 @@ public class DialogEditGameData {
         eloWhite.setEditable(true);
         // set initial value
         eloWhite.getValueFactory().setValue(0);
-        //eloWhite.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryBlackElo =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5000, 0);
@@ -110,7 +107,6 @@ public class DialogEditGameData {
         eloBlack.setEditable(true);
         // set initial value
         eloBlack.getValueFactory().setValue(0);
-        //eloBlack.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryRound =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 999, 0);
@@ -118,7 +114,6 @@ public class DialogEditGameData {
         round.setEditable(true);
         // set initial value
         round.getValueFactory().setValue(0);
-        //round.setPrefWidth(60);
 
         SpinnerValueFactory<Integer> valueFactoryYear =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 3000, 0);
@@ -126,7 +121,6 @@ public class DialogEditGameData {
         year.setEditable(true);
         // set initial value
         year.getValueFactory().setValue(Year.now().getValue());
-        //year.setPrefWidth(80);
 
         SpinnerValueFactory<Integer> valueFactoryDay =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 31, 0);
@@ -134,7 +128,6 @@ public class DialogEditGameData {
         day.setEditable(true);
         // set initial value
         day.getValueFactory().setValue(MonthDay.now().getDayOfMonth());
-        //day.setPrefWidth(60);
 
         SpinnerValueFactory<Integer> valueFactoryMonth =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 12, 0);
@@ -142,7 +135,6 @@ public class DialogEditGameData {
         month.setEditable(true);
         // set initial value
         month.getValueFactory().setValue(MonthDay.now().getMonthValue());
-        //month.setPrefWidth(60);
 
         site.setPromptText("Site");
         if(pgnHeaders.get("Site") != null) {

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,7 +48,6 @@ public class Engine implements Comparator<Engine>{
     public String getPath() { return path; }
     public void setPath(String path) { this.path = path; }
 
-    public boolean isInternal() { return isInternal; }
     public void setInternal(boolean internal) { this.isInternal = internal; }
     
     public void addEngineOption(EngineOption option) {

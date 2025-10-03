@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@ package org.asdfjkl.jfxchess.lib;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 public class Main {
 
@@ -43,8 +42,6 @@ public class Main {
                 cases.pgnReadSingleEntryTestSeekWithinRAF();
                 cases.pgnReadAllMillBaseTest();
 
-
-
             } else {
 
                 boolean printOutput = true;
@@ -55,7 +52,6 @@ public class Main {
                 }
 
                 PgnReader reader = new PgnReader();
-                //reader.setEncodingIsoLatin1();
                 PgnPrinter printer = new PgnPrinter();
                 ArrayList<Long> offsets = reader.scanPgn(filename);
 

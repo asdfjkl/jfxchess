@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,6 @@ public class EngineController {
     
     public EngineController(ModeMenuController modeMenuController) {
         final AtomicReference<String> count = new AtomicReference<>();
-        //cmdQueue = new LinkedBlockingQueue<String>();
         engineThread = new EngineThread(cmdQueue);
         engineThread.stringProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -56,23 +55,7 @@ public class EngineController {
         engineThread.start();
     }
 
-    // public void testStartAndGoInf() {
-
-    //     //engineThread.start();
-    //     String cmdStockfish = "C:\\Program Files (x86)\\Jerry_Chess\\engine\\stockfish.exe";
-    //     String goInf = "go infinite";
-
-    //     try {
-    //         cmdQueue.put("start "+cmdStockfish);
-    //         cmdQueue.put(goInf);
-    //     } catch (InterruptedException e) {
-    //         e.printStackTrace();
-    //     }
-
-    // }
-
     public void sendCommand(String cmd) {
-        //System.out.println(">>> "+cmd);
         if (cmd.equals("go infinite")) {
             inGoInfinite = true;
         } else {
@@ -83,7 +66,6 @@ public class EngineController {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                //inGoInfinite = false;
             }
             inGoInfinite = false;
         }
@@ -177,14 +159,4 @@ public class EngineController {
         sendCommand("go infinite");
     }
 
-    // The next method is for setting information in the
-    // engineOutputView (indirectly via engineInfo) when the engine
-    // has not been started yet, after editing engines or at
-    // startup of the program when restoring engines.
-    public void engineInfoSetValues(String engineID, int pvLines, boolean limitStrength, int elo) {
-        engineThread.engineInfoSetID(engineID);
-        engineThread.engineInfoSetPVLines(pvLines);
-        engineThread.engineInfoSetLimitedStrength(limitStrength);
-        engineThread.engineInfoSetStrength(elo);
-    }
 }

@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@ import java.nio.channels.FileLock;
 
 public class Main {
     public static void main(String[] args) {
+
         //System.setProperty("prism.lcdtext", "false");
         //System.setProperty("prism.subpixeltext", "false");
 

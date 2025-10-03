@@ -1,5 +1,5 @@
-/* JerryFX - A Chess Graphical User Interface
- * Copyright (C) 2020 Dominik Klein
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2025 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ public class DialogGameAnalysis {
     final RadioButton rbWhite = new RadioButton("White");
     final RadioButton rbBlack = new RadioButton("Black");
 
-    public boolean show(int currSecs, double currThreshold, int colorTheme) {
+    public boolean show(int currSecs, double currThreshold) {
 
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -56,7 +56,7 @@ public class DialogGameAnalysis {
 
         HBox hbButtons = new HBox();
         hbButtons.getChildren().addAll(spacer, btnOk, btnCancel);
-        hbButtons.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         hbButtons.setSpacing(10);
 
         ToggleGroup radioGroupColors = new ToggleGroup();
@@ -89,7 +89,6 @@ public class DialogGameAnalysis {
         grd.add(sPawnThreshold, 1, 1);
         grd.setHgap(10);
         grd.setVgap(10);
-        //grd.setPadding(new Insets(5, 20, 20, 0));
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(
