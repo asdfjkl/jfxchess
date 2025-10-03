@@ -6,7 +6,7 @@ cd "C:\MyFiles\workspace\build dir"
 rd /s output
 REM build fat jar
 cd "C:\MyFiles\workspace\IdeaProjects\jfxchess"
-call "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.1.3\plugins\maven\lib\maven3\bin\mvn.cmd" clean compile assembly:single
+call "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.2.1\plugins\maven\lib\maven3\bin\mvn.cmd" clean compile assembly:single
 REM copy output
 copy target\jfxchess-4.5-jar-with-dependencies.jar "C:\MyFiles\workspace\build dir\jar"
 cd "C:\MyFiles\workspace\build dir"
