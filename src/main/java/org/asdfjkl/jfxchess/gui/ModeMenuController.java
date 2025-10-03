@@ -341,8 +341,7 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     public void editEngines() {
-        // To not be bothered by result notifications during editing engines.
-        gameModel.doNotNotifyAboutResult = true;
+
         // The following call stops the engine-process, set the ENTER_MOVES_MODE
         // and calls GameModel.triggerChangeState(). Previously the engine was
         // not stopped here.
@@ -372,8 +371,6 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.setMultiPvChange(true); // Not important anymore.            
             gameModel.triggerStateChange(); // Important.
         }
-        // Here we must reset result notifications.
-        gameModel.doNotNotifyAboutResult = false;
     }
 
     public void handleBestMove(String bestmove) {
@@ -592,47 +589,47 @@ public class ModeMenuController implements StateChangeListener {
 
         boolean abort = false;
 
+        // first we check if the game is finished due to checkmate, stalemate, three-fold repetition
+        // or insufficient material
+        // if that is the case
+        //      we check if we play against the computer or are in analysis or playoutposition mode
+        //         if so, we are going to abort the game and switch to entermovesmode
+        //      then we check if we play against the computer
+        //         if so, we are going to inform the user
+
         // if we change from e.g. play white to enter moves, the state change would trigger
         // the notification again in enter moves mode after the state change. thus,
         // also check if
-        if((isCheckmate || isStalemate || isThreefoldRepetition || isInsufficientMaterial)
-                && !gameModel.doNotNotifyAboutResult) {
-            String message = "";
-            if(isCheckmate) {
-                message = "     Checkmate.     ";
+        if ((isCheckmate || isStalemate || isThreefoldRepetition || isInsufficientMaterial)) {
+            if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {
+                abort = true;
             }
-            if(isStalemate) {
-                message = "     Stalemate.     ";
-            }
-            if(isThreefoldRepetition) {
-                message = "Draw (Threefold Repetition)";
-            }
-            if(isInsufficientMaterial) {
-                message = "Draw (Insufficient material for checkmate)";
-            }
-            if(mode != GameModel.MODE_GAME_ANALYSIS) {
+
+            if (mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK) {
+
+                String message = "";
+                if (isCheckmate) {
+                    message = "     Checkmate.     ";
+                }
+                if (isStalemate) {
+                    message = "     Stalemate.     ";
+                }
+                if (isThreefoldRepetition) {
+                    message = "Draw (Threefold Repetition)";
+                }
+                if (isInsufficientMaterial) {
+                    message = "Draw (Insufficient material for checkmate)";
+                }
                 DialogSimpleAlert dlgAlert = new DialogSimpleAlert(
                         gameModel.getStageRef(), Alert.AlertType.INFORMATION,
                         "Game Finished", message);
                 dlgAlert.showAndWait();
-
-            }
-
-            if(mode == GameModel.MODE_PLAY_WHITE || mode == GameModel.MODE_PLAY_BLACK || mode == GameModel.MODE_PLAYOUT_POSITION) {
-                abort = true;
             }
         }
 
         if(abort) {
-            // if we change from e.g. play white to enter moves, the state change would trigger
-            // the notification again in enter moves mode after the state change. thus
-            // set a marker here, that for the next state change we ignore
-            // the result notification
-            gameModel.doNotNotifyAboutResult = true;
-            // The following call also stops the engine.
             activateEnterMovesMode();
         } else {
-            gameModel.doNotNotifyAboutResult = false;
             if (mode == GameModel.MODE_ANALYSIS) {
                 handleStateChangeAnalysis();
             }

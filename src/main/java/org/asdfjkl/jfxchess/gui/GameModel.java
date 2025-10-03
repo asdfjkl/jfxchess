@@ -80,7 +80,7 @@ public class GameModel {
     public int childMateInMoves = -1;
     public boolean childIsMate = false;
 
-    public boolean doNotNotifyAboutResult = false;
+    //public boolean doNotNotifyAboutResult = false;
 
     public PolyglotExt extBook;
 
