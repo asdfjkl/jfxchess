@@ -91,8 +91,7 @@ public class App extends Application implements StateChangeListener {
     final KeyCombination keyCombinationEnterPosition = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationFlipBoard = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationAnalysis = new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN);
-    // final KeyCombination keyCombinationPlayWhite = new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN);
-    // final KeyCombination keyCombinationPlayBlack = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
+    final KeyCombination keyCombinationNewGame = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
     final KeyCombination keyCombinationEnterMoves = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
 
 
@@ -137,6 +136,7 @@ public class App extends Application implements StateChangeListener {
 
         // File Menu
         MenuItem itmNew = new MenuItem("New...");
+        itmNew.setAccelerator(keyCombinationNewGame);
         MenuItem itmOpenFile = new MenuItem("Open File");
         itmOpenFile.setAccelerator(keyCombinationOpen);
         MenuItem itmSaveCurrentGameAs = new MenuItem("Save Game");
@@ -1084,31 +1084,46 @@ public class App extends Application implements StateChangeListener {
 
     private void addToMoveBuffer(String s) {
 
+        /* TODO
+           this is buggy for now, remove for release 4.5
+         */
+
+        /*
         moveBuffer += s;
         // don't allow this during a game when
         // it's not the player's turn, i.e. when the GUI is blocked
         if(!gameModel.blockGUI) {
             if (moveBuffer.length() == 4) {
-                Move move = new Move(moveBuffer);
-                Board board = gameModel.getGame().getCurrentNode().getBoard();
-                if (!board.isLegalAndPromotes(move)) {
-                    if (board.isLegal(move)) {
-                        gameModel.getGame().applyMove(move);
-                        gameModel.triggerStateChange();
+                try {
+                    Move move = new Move(moveBuffer);
+                    Board board = gameModel.getGame().getCurrentNode().getBoard();
+                    if (!board.isLegalAndPromotes(move)) {
+                        if (board.isLegal(move)) {
+                            gameModel.getGame().applyMove(move);
+                            gameModel.triggerStateChange();
+                        }
+                        moveBuffer = "";
                     }
-                    moveBuffer = "";
+                } catch (IllegalArgumentException e) {
+                    // ignore
                 }
             }
             if (moveBuffer.length() == 5) {
-                Move move = new Move(moveBuffer);
-                Board board = gameModel.getGame().getCurrentNode().getBoard();
-                if (board.isLegal(move)) {
-                    gameModel.getGame().applyMove(move);
-                    gameModel.triggerStateChange();
+                try {
+                    Move move = new Move(moveBuffer);
+                    Board board = gameModel.getGame().getCurrentNode().getBoard();
+                    if (board.isLegal(move)) {
+                        gameModel.getGame().applyMove(move);
+                        gameModel.triggerStateChange();
+                        moveBuffer = "";
+                    }
+                } catch (IllegalArgumentException e) {
+                        // ignore
                 }
                 moveBuffer = "";
             }
         }
+         */
     }
 
     private void onExit(Stage stage) {
