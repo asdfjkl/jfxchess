@@ -95,6 +95,7 @@ public class ModeMenuController implements StateChangeListener {
             gameModel.activeEngine.setUciLimitStrength(false);
         }
         setEngineNameAndInfoToOuptput();
+        System.out.println("current engine path: "+gameModel.activeEngine.getPath());
         engineController.restartEngine(gameModel.activeEngine);
         engineController.setMultiPV(gameModel.getMultiPv());
         gameModel.setMode(GameModel.MODE_ANALYSIS);

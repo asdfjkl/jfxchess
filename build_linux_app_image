@@ -1,0 +1,19 @@
+#!/bin/sh
+# new build script
+# clean old build remains
+cd ~/jfx_build/build_dir/jar
+rm *.jar
+cd ~/jfx_build/build_dir
+rm -r -f ~/output
+cd ~/jfx_build/build_dir/javafx-mods
+rm *.jar
+# build both jar w/o deps (to collect and copy platform dependent jfx modules)
+# and then build fat jar
+cd ~/code/jfxchess
+mvn clean package
+# copy fat jar and platform dependent jfx modules to build dir
+cp target/jfxchess-4.5-jar-with-dependencies.jar ~/jfx_build/build_dir/jar
+cp target/javafx-mods/*.* ~/jfx_build/build_dir/javafx-mods
+# assemble with jpackage
+cd ~/jfx_build
+jpackage --module-path build_dir/javafx-mods  --add-modules javafx.controls,javafx.web,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i build_dir/jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon app_icon.png --resource-dir build_dir

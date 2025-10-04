@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.prefs.Preferences;
 import java.lang.System;
 
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class GameModel {
 
     public static final int MAX_PV = 64;
@@ -117,12 +122,17 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
+	System.out.println("stockfish path det: "+stockfishPath);
+
+        //System.out.println("FOOOOOBAR");
+        //Path foo = locateEngineBinary("stockfish_x64");
 
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
-        if(stockfishPath != null) {
+        //if(stockfishPath != null) {
             stockfish.setPath(stockfishPath);
-        }
+        //}
+        System.out.println("stock fish path is now: "+stockfish.getPath());
         stockfish.setInternal(true);
         engines.add(stockfish);
         selectedAnalysisEngine = stockfish;
@@ -169,6 +179,7 @@ public class GameModel {
         botEngines = BotEngines.createEngines(botPath);
         selectedPlayEngine = botEngines.get(0); // set benny as default; todo: remember last selected bot
 
+        System.out.println("stock fish path at the end of gamemodel: "+stockfish.getPath());
     }
 
     public void loadExtBook() {
@@ -192,6 +203,21 @@ public class GameModel {
     public Stage getStageRef() {
         return refToCurrentStage;
     }
+    
+    private Path getJarPath() {
+    try {
+    	Path jarPath = Paths.get(GameModel.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        Path jarDir = jarPath.getParent();
+        System.out.println("GET JAR PATH: "+jarDir);
+        return jarDir;
+        } catch (URISyntaxException e) {
+            System.err.println("[ERROR] Failed to resolve JAR location: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.err.println("[ERROR] Unexpected error locating engine binary: " + e.getMessage());
+            return null;
+        }
+    }
 
     private String getStockfishPath() {
 
@@ -212,16 +238,25 @@ public class GameModel {
         if(os.contains("linux")) {
                 String stockfishPath = "";
                 String jarPath = "";
-                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                File tmp = (new File(jarPath));
+                //String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                //jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+                Path jarDir = getJarPath();
+                System.out.println("det SF 17: "+jarDir);
+                Path engineBinary = jarDir.resolve("engine").resolve("stockfish_x64");
+                System.out.println("det SF 17: "+engineBinary);
+                return engineBinary.toString();
+                
+                /*
+                //jarPath = URLDecoder.decode(jarDir, StandardCharsets.UTF_8);
+                jarPath = jarDir.toString();
+                File tmp = (new File(jarPath), "engine");
                 if(tmp.getParentFile().exists()) {
                     if(tmp.getParentFile().getParentFile().exists()) {
                     File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
                     stockfishPath = new File(subEngine, "stockfish_x64").getPath();
                     return stockfishPath;
                     }
-                }
+                }*/
 
         }
         return null;
@@ -295,6 +330,49 @@ public class GameModel {
             return bookPath;
         }
         return null;
+    }
+
+    private Path locateEngineBinary(String binaryName) {
+        try {
+            // Find the JAR directory
+            Path jarPath = Paths.get(
+                GameModel.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+            );
+            Path jarDir = jarPath.getParent();
+            System.out.println("[DEBUG] jarPath = " + jarPath);
+            System.out.println("[DEBUG] jarDir  = " + jarDir);
+
+// In jpackage app-image, jars are under ".../app"
+            Path appRoot = (jarDir != null && jarDir.endsWith("app"))
+                    ? jarDir.getParent()
+                    : jarDir;
+
+            System.out.println("[DEBUG] appRoot = " + appRoot);
+
+            Path engineBinary = appRoot.resolve("engine").resolve(binaryName);
+            System.out.println("[DEBUG] engineBinary = " + engineBinary);
+
+            if (!Files.exists(engineBinary)) {
+                System.err.println("[ERROR] Engine binary not found: " + engineBinary);
+                return null;
+            }
+
+            if (!Files.isExecutable(engineBinary)) {
+                System.err.println("[WARN] Engine binary exists but is not marked executable: " + engineBinary);
+            }
+            return engineBinary;
+
+        } catch (URISyntaxException e) {
+            System.err.println("[ERROR] Failed to resolve JAR location: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.err.println("[ERROR] Unexpected error locating engine binary: " + e.getMessage());
+            return null;
+        }
     }
 
     private String getExtBookPath() {
@@ -534,8 +612,8 @@ public class GameModel {
                     Engine engine;
                     if (i == 0) {
                         // engine 0 is Stockfish internal
-                        engine = engines.get(0);
-                        engine.restoreFromString(engineString);
+                        // engine = engines.get(0);
+                        // engine.restoreFromString(engineString);
                     } else {
                         engine = new Engine();
                         engine.restoreFromString(engineString);
