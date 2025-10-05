@@ -609,7 +609,7 @@ public class App extends Application implements StateChangeListener {
             fileChooserStage.initModality(Modality.APPLICATION_MODAL);
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select Opening Book (.bin)");
-            fileChooser.setInitialDirectory(gameModel.getBaseBookPath());
+            fileChooser.setInitialDirectory(gameModel.getJarPath().toFile());
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("BIN", "*.bin")
             );

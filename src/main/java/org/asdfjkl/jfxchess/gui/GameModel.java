@@ -122,16 +122,13 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
-	System.out.println("stockfish path det: "+stockfishPath);
-
-        //System.out.println("FOOOOOBAR");
-        //Path foo = locateEngineBinary("stockfish_x64");
+	    System.out.println("Computed Stockfish Path as: "+stockfishPath);
 
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
-        //if(stockfishPath != null) {
+        if(stockfishPath != null) {
             stockfish.setPath(stockfishPath);
-        //}
+        }
         System.out.println("stock fish path is now: "+stockfish.getPath());
         stockfish.setInternal(true);
         engines.add(stockfish);
@@ -204,9 +201,9 @@ public class GameModel {
         return refToCurrentStage;
     }
     
-    private Path getJarPath() {
+    public Path getJarPath() {
     try {
-    	Path jarPath = Paths.get(GameModel.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    	Path jarPath = Paths.get(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         Path jarDir = jarPath.getParent();
         System.out.println("GET JAR PATH: "+jarDir);
         return jarDir;
@@ -221,169 +218,74 @@ public class GameModel {
 
     private String getStockfishPath() {
 
-            String os = System.getProperty("os.name").toLowerCase();
-            if(os.contains("win")) {
-
-                String stockfishPath = "";
-                String jarPath = "";
-                String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                File tmp = (new File(jarPath));
-                if(tmp.getParentFile().exists()) {
-                    File subEngine = new File(tmp.getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish.exe").getPath();
-                    return stockfishPath;
-                }
+        // currently redundant, but let's keep it here if we
+        // have different packaging requirements in the future
+        Path jarDir = getJarPath();
+        String os = System.getProperty("os.name").toLowerCase();
+        if(os.contains("win")) {
+            if (jarDir != null) {
+                Path engineBinary = jarDir.resolve("engine").resolve("stockfish.exe");
+                System.out.println("WINDOWS Stockfish Internal@: "+engineBinary);
+                return engineBinary.toString();
+            }
         }
         if(os.contains("linux")) {
-                String stockfishPath = "";
-                String jarPath = "";
-                //String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-                //jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-                Path jarDir = getJarPath();
-                System.out.println("det SF 17: "+jarDir);
-                Path engineBinary = jarDir.resolve("engine").resolve("stockfish_x64");
-                System.out.println("det SF 17: "+engineBinary);
+            Path engineBinary = null;
+            if (jarDir != null) {
+                engineBinary = jarDir.resolve("engine").resolve("stockfish_x64");
+                System.out.println("LINUX Stockfish Internal@: "+engineBinary);
                 return engineBinary.toString();
-                
-                /*
-                //jarPath = URLDecoder.decode(jarDir, StandardCharsets.UTF_8);
-                jarPath = jarDir.toString();
-                File tmp = (new File(jarPath), "engine");
-                if(tmp.getParentFile().exists()) {
-                    if(tmp.getParentFile().getParentFile().exists()) {
-                    File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish_x64").getPath();
-                    return stockfishPath;
-                    }
-                }*/
-
+            }
         }
         return null;
     }
 
     private String getBotEnginePath() {
 
+        // currently redundant, but let's keep it here if we
+        // have different packaging requirements in the future
+        Path jarDir = getJarPath();
         String os = System.getProperty("os.name").toLowerCase();
         if(os.contains("win")) {
-
-            String stockfishPath = "";
-            String jarPath = "";
-            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-            File tmp = (new File(jarPath));
-            if(tmp.getParentFile().exists()) {
-                File subEngine = new File(tmp.getParentFile(), "engine");
-                stockfishPath = new File(subEngine, "stockfish5.exe").getPath();
-                return stockfishPath;
+            if (jarDir != null) {
+                Path engineBinary = jarDir.resolve("engine").resolve("stockfish5.exe");
+                System.out.println("WINDOWS Stockfish5 Internal@: "+engineBinary);
+                return engineBinary.toString();
             }
         }
         if(os.contains("linux")) {
-            String stockfishPath = "";
-            String jarPath = "";
-            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-            File tmp = (new File(jarPath));
-            if(tmp.getParentFile().exists()) {
-                if(tmp.getParentFile().getParentFile().exists()) {
-                    File subEngine = new File(tmp.getParentFile().getParentFile(), "engine");
-                    stockfishPath = new File(subEngine, "stockfish5_x64").getPath();
-                    return stockfishPath;
-                }
+            Path engineBinary = null;
+            if (jarDir != null) {
+                engineBinary = jarDir.resolve("engine").resolve("stockfish5_x64");
+                System.out.println("LINUX Stockfish5 Internal@: "+engineBinary);
+                return engineBinary.toString();
             }
-
         }
         return null;
+
     }
 
-    public File getBaseBookPath() {
+    public String getExtBookPath() {
+
+        Path jarDir = getJarPath();
         String os = System.getProperty("os.name").toLowerCase();
         if(os.contains("win")) {
-            String jarPath = "";
-            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-            File tmp = (new File(jarPath));
-            if(tmp.getParentFile().exists()) {
-                File subBook = new File(tmp.getParentFile(), "book");
-                return subBook;
+            Path extBookBinary = null;
+            if (jarDir != null) {
+                extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
+                System.out.println("WINDOWS Book@: "+extBookBinary);
+                return extBookBinary.toString();
             }
         }
         if(os.contains("linux")) {
-            String jarPath = "";
-            String path = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            jarPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-            File tmp = (new File(jarPath));
-            if(tmp.getParentFile().exists()) {
-                if(tmp.getParentFile().getParentFile().exists()) {
-                    File subBook = new File(tmp.getParentFile().getParentFile(), "book");
-                    return subBook;
-                }
+            Path extBookBinary = null;
+            if (jarDir != null) {
+                extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
+                System.out.println("LINUX Book@: "+extBookBinary);
+                return extBookBinary.toString();
             }
         }
         return null;
-    }
-
-    private String getBookPath() {
-        File baseBook = getBaseBookPath();
-        if(baseBook != null) {
-            String bookPath = new File(baseBook, "varied.bin").getPath();
-            return bookPath;
-        }
-        return null;
-    }
-
-    private Path locateEngineBinary(String binaryName) {
-        try {
-            // Find the JAR directory
-            Path jarPath = Paths.get(
-                GameModel.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()
-            );
-            Path jarDir = jarPath.getParent();
-            System.out.println("[DEBUG] jarPath = " + jarPath);
-            System.out.println("[DEBUG] jarDir  = " + jarDir);
-
-// In jpackage app-image, jars are under ".../app"
-            Path appRoot = (jarDir != null && jarDir.endsWith("app"))
-                    ? jarDir.getParent()
-                    : jarDir;
-
-            System.out.println("[DEBUG] appRoot = " + appRoot);
-
-            Path engineBinary = appRoot.resolve("engine").resolve(binaryName);
-            System.out.println("[DEBUG] engineBinary = " + engineBinary);
-
-            if (!Files.exists(engineBinary)) {
-                System.err.println("[ERROR] Engine binary not found: " + engineBinary);
-                return null;
-            }
-
-            if (!Files.isExecutable(engineBinary)) {
-                System.err.println("[WARN] Engine binary exists but is not marked executable: " + engineBinary);
-            }
-            return engineBinary;
-
-        } catch (URISyntaxException e) {
-            System.err.println("[ERROR] Failed to resolve JAR location: " + e.getMessage());
-            return null;
-        } catch (Exception e) {
-            System.err.println("[ERROR] Unexpected error locating engine binary: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private String getExtBookPath() {
-
-        File baseBook = getBaseBookPath();
-        if(baseBook != null) {
-            String bookPath = new File(baseBook, "extbook.bin").getPath();
-            return bookPath;
-        }
-        return null;
-
     }
 
     public Game getGame() {
