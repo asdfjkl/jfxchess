@@ -62,6 +62,7 @@ public class ModeMenuController implements StateChangeListener {
 
     public void handleEngineInfo(String s) {
 
+        //System.out.println("got engine info (handle Engine Info");
         // we show info only during analysis, not when playing
         // against the bots/engine
         if(s.startsWith("INFO")) {
@@ -353,6 +354,8 @@ public class ModeMenuController implements StateChangeListener {
             enginesCopy.add(engine);
         }
         int selectedIdx = gameModel.engines.indexOf(gameModel.activeEngine);
+        System.out.println("edit engine: active: "+gameModel.activeEngine.getName());
+        System.out.println("selected index (i.e. index of active engine: " + selectedIdx);
         if(selectedIdx < 0) {
             selectedIdx = 0;
         }
@@ -362,6 +365,7 @@ public class ModeMenuController implements StateChangeListener {
             Engine selectedEngine = dlg.engineList.get(dlg.selectedIndex);
             gameModel.engines = engineList;
             gameModel.activeEngine = selectedEngine;
+            gameModel.selectedAnalysisEngine = selectedEngine;
             // Change the engine-info in the bottom panel immediately on OK
             // being pressed. Previously it didn't change until we started
             // playing.

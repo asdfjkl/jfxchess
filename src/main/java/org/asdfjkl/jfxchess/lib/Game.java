@@ -118,7 +118,7 @@ public class Game {
 
     public boolean isHeaderChanged() { return headerWasChanged; }
 
-    public void setHeaderWasChanged(boolean state) { headerWasChanged = true; }
+    public void setHeaderWasChanged(boolean state) { headerWasChanged = state; }
 
     public void setHeader(String tag, String value) {
         this.pgnHeaders.put(tag, value);

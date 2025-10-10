@@ -79,6 +79,40 @@ public class MoveView implements StateChangeListener {
         this.gameModel = gameModel;
         this.htmlPrinter = new HtmlPrinter();
 
+        /*
+        // loading the document (e.g. when updating the game tree) on the
+        // webview might take time. Immediately afterwards the document might
+        // thus be null. If we thus call to update the marked node immediately after
+        // loading a document, this might fail as the document is still null
+        // here we need to add an event listener to execute that after loading succeeds
+        WebEngine webEngine = webView.getEngine();
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
+            System.out.println("state of doc changed");
+
+            System.out.println("State: " + newState + " | URL: " + webEngine.getLocation());
+
+            Throwable ex = webEngine.getLoadWorker().getException();
+            if (ex != null) ex.printStackTrace();
+
+            System.out.println("state: "+newState);
+            if (newState == State.SUCCEEDED) {
+                System.out.println("state of doc changed: updating marked node");
+                updateMarkedNode();
+            }
+
+            if(newState == State.CANCELLED) {
+                if (webEngine.getDocument() != null) {
+                    System.out.println("HTML ready, even though cancelled!!!");
+                    // do your post-load actions here
+                    updateMarkedNode();
+
+                } else {
+
+                }
+            }
+        });
+         */
+
         addEventListener();
 
     }
@@ -530,6 +564,7 @@ public class MoveView implements StateChangeListener {
                             //var e = Window.e || e;
                             try {
                                 int clickedNodeId = Integer.parseInt(ev.getTarget().toString().substring(1));
+                                //System.out.println("clickedNodeId: "+clickedNodeId);
                                 GameNode nextCurrent = gameModel.getGame().findNodeById(clickedNodeId);
                                 gameModel.getGame().setCurrent(nextCurrent);
                                 gameModel.triggerStateChange();
@@ -585,11 +620,16 @@ public class MoveView implements StateChangeListener {
     }
 
     private void updateMarkedNode() {
+        //System.out.println("update marked node");
+        //System.out.println("status of document: "+webView.getEngine().getDocument());
         // remove marker from old node
         if(currentlyMarkedNode >= 0) {
+            //System.out.println("currently marked: "+currentlyMarkedNode);
             if(webView.getEngine().getDocument() != null) {
+                //System.out.println("document is not null");
                 Element htmlOldNode = webView.getEngine().getDocument().getElementById("n" + currentlyMarkedNode);
                 if (htmlOldNode != null) {
+                    //System.out.println("found old node, removing class attr");
                     htmlOldNode.removeAttribute("class");
                 }
             }
@@ -599,6 +639,7 @@ public class MoveView implements StateChangeListener {
         if(webView.getEngine().getDocument() != null) {
             Element htmlCurrent = webView.getEngine().getDocument().getElementById("n" + currentNodeId);
             if (htmlCurrent != null) {
+                //System.out.println("found new node, adding current attr");
                 htmlCurrent.setAttribute("class", "current");
                 if (!hasFocus(currentNodeId)) {
                     scrollToNode(currentNodeId);
@@ -623,6 +664,9 @@ public class MoveView implements StateChangeListener {
 
     @Override
     public void stateChange() {
+        //System.out.println("MoveView: RECEIVING state change");
+        //System.out.println("Tree change:" + gameModel.getGame().isTreeChanged());
+        //System.out.println("Header change:" + gameModel.getGame().isHeaderChanged());
         // if tree was changed, we need to update the webview
         // we also need to do so, if header was changed, since the
         // result might have changed
@@ -637,14 +681,22 @@ public class MoveView implements StateChangeListener {
                     this.jsIsInView + "</script></head><body>" +
                     htmlBody +
                     "</body></html>";
+            //System.out.println("I am setting the htmlDoc: "+ htmlDoc);
             webView.getEngine().loadContent(htmlDoc);
             gameModel.getGame().setTreeWasChanged(false);
+            gameModel.getGame().setHeaderWasChanged(false);
+            System.out.println("state changed; tree change");
+            updateMarkedNode();
+
+
         } else {
+            //System.out.println("state changed, but no tree change");
             // otherwise:
             // remove marking of old node
             // add marking of current node
             // (scroll to node)
             updateMarkedNode();
+            //webView.requestLayout();
         }
     }
 
@@ -659,10 +711,12 @@ public class MoveView implements StateChangeListener {
             int variationIdx = DialogNextMove.show(gameModel.getStageRef(), nextMoves);
             if(variationIdx >= 0) {
                 this.gameModel.getGame().goToChild(variationIdx);
+                //System.out.println("MoveView: Triggering state change");
                 this.gameModel.triggerStateChange();
             }
         } else {
             this.gameModel.getGame().goToMainLineChild();
+            //System.out.println("MoveView: Triggering state change");
             this.gameModel.triggerStateChange();
         }
 

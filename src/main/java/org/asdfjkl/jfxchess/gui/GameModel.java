@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.asdfjkl.jfxchess.lib.*;
 
@@ -122,14 +123,14 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
-	    System.out.println("Computed Stockfish Path as: "+stockfishPath);
+	    // System.out.println("Computed Stockfish Path as: "+stockfishPath);
 
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
         if(stockfishPath != null) {
             stockfish.setPath(stockfishPath);
         }
-        System.out.println("stock fish path is now: "+stockfish.getPath());
+        // System.out.println("stock fish path is now: "+stockfish.getPath());
         stockfish.setInternal(true);
         engines.add(stockfish);
         selectedAnalysisEngine = stockfish;
@@ -176,7 +177,7 @@ public class GameModel {
         botEngines = BotEngines.createEngines(botPath);
         selectedPlayEngine = botEngines.get(0); // set benny as default; todo: remember last selected bot
 
-        System.out.println("stock fish path at the end of gamemodel: "+stockfish.getPath());
+        // System.out.println("stock fish path at the end of gamemodel: "+stockfish.getPath());
     }
 
     public void loadExtBook() {
@@ -205,7 +206,10 @@ public class GameModel {
     try {
     	Path jarPath = Paths.get(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         Path jarDir = jarPath.getParent();
-        System.out.println("GET JAR PATH: "+jarDir);
+        // DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
+        //        "JAR PATH", jarDir.toString());
+        //dlg.showAndWait();
+        //System.out.println("GET JAR PATH: "+jarDir);
         return jarDir;
         } catch (URISyntaxException e) {
             System.err.println("[ERROR] Failed to resolve JAR location: " + e.getMessage());
@@ -225,7 +229,10 @@ public class GameModel {
         if(os.contains("win")) {
             if (jarDir != null) {
                 Path engineBinary = jarDir.resolve("engine").resolve("stockfish.exe");
-                System.out.println("WINDOWS Stockfish Internal@: "+engineBinary);
+                //System.out.println("WINDOWS Stockfish Internal@: "+engineBinary);
+                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
+                //        "WIN STOCKFISH INTERNAL", engineBinary.toString());
+                //dlg.showAndWait();
                 return engineBinary.toString();
             }
         }
@@ -233,7 +240,7 @@ public class GameModel {
             Path engineBinary = null;
             if (jarDir != null) {
                 engineBinary = jarDir.resolve("engine").resolve("stockfish_x64");
-                System.out.println("LINUX Stockfish Internal@: "+engineBinary);
+                //System.out.println("LINUX Stockfish Internal@: "+engineBinary);
                 return engineBinary.toString();
             }
         }
@@ -249,7 +256,9 @@ public class GameModel {
         if(os.contains("win")) {
             if (jarDir != null) {
                 Path engineBinary = jarDir.resolve("engine").resolve("stockfish5.exe");
-                System.out.println("WINDOWS Stockfish5 Internal@: "+engineBinary);
+                //System.out.println("WINDOWS Stockfish5 Internal@: "+engineBinary);
+                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
+                //        "WIN STOCKFISH 5 INTERNAL", engineBinary.toString());
                 return engineBinary.toString();
             }
         }
@@ -257,7 +266,7 @@ public class GameModel {
             Path engineBinary = null;
             if (jarDir != null) {
                 engineBinary = jarDir.resolve("engine").resolve("stockfish5_x64");
-                System.out.println("LINUX Stockfish5 Internal@: "+engineBinary);
+                //System.out.println("LINUX Stockfish5 Internal@: "+engineBinary);
                 return engineBinary.toString();
             }
         }
@@ -273,7 +282,9 @@ public class GameModel {
             Path extBookBinary = null;
             if (jarDir != null) {
                 extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
-                System.out.println("WINDOWS Book@: "+extBookBinary);
+                //System.out.println("WINDOWS Book@: "+extBookBinary);
+                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
+                //        "EXT BOOK BINARY", extBookBinary.toString());
                 return extBookBinary.toString();
             }
         }
@@ -281,7 +292,7 @@ public class GameModel {
             Path extBookBinary = null;
             if (jarDir != null) {
                 extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
-                System.out.println("LINUX Book@: "+extBookBinary);
+                //System.out.println("LINUX Book@: "+extBookBinary);
                 return extBookBinary.toString();
             }
         }
@@ -423,7 +434,7 @@ public class GameModel {
         for(int i=0;i<MAX_N_ENGINES;i++) {
             prefs.remove("ENGINE"+i);
         }
-        for(int i=0;i<engines.size();i++) {
+        for(int i=1;i<engines.size();i++) {
             Engine engine = engines.get(i);
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
@@ -508,26 +519,30 @@ public class GameModel {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         int mVersion = prefs.getInt("modelVersion", 0);
         if (mVersion == modelVersion) {
-            for (int i = 0; i < MAX_N_ENGINES; i++) {
+            // don't restore engine with idx 0 (that's stockfish internal)
+            for (int i = 1; i < MAX_N_ENGINES; i++) {
                 String engineString = prefs.get("ENGINE" + i, "");
                 if (!engineString.isEmpty()) {
                     Engine engine;
-                    if (i == 0) {
-                        // engine 0 is Stockfish internal
-                        // engine = engines.get(0);
-                        // engine.restoreFromString(engineString);
-                    } else {
+                    //if (i == 0) {
+                    //    // engine 0 is Stockfish internal
+                    //    // engine = engines.get(0);
+                    //    // engine.restoreFromString(engineString);
+                    //} else {
                         engine = new Engine();
                         engine.restoreFromString(engineString);
                         engines.add(engine);
-                    }
+                    //}
                 }
             }
             int activeIdx = prefs.getInt("ACTIVE_ENGINE_IDX", 0);
             if(activeIdx < engines.size()) {
+                System.out.println("RESTORE ACTIVE ENGINE IDX: "+activeIdx);
                 activeEngine = engines.get(activeIdx);
+                selectedAnalysisEngine = engines.get(activeIdx);
             } else {
                 activeEngine = engines.get(0);
+                selectedAnalysisEngine = engines.get(0);
             }
         }
     }

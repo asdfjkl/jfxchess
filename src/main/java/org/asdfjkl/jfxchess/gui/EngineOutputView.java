@@ -38,8 +38,6 @@ public class EngineOutputView implements StateChangeListener {
 
     private boolean isEnabled = true;
     
-    private boolean pvLinesAreEnabled = true;
-
     private TextFlow txtEngineOut;
 
     // This is the index of the first pv-line
@@ -80,8 +78,11 @@ public class EngineOutputView implements StateChangeListener {
                 this.hashFull,
                 spacer4,
                 this.tbHits,
-                new Text(System.lineSeparator()),
-                new Text(System.lineSeparator()),
+                new Text(" " + System.lineSeparator()),
+                new Text(" " + System.lineSeparator()),
+                //new Text(System.lineSeparator()),
+                //new Text(System.lineSeparator()),
+                // new Text("Separator #2"),
                 pvLines.get(0),
                 new Text(System.lineSeparator()));
         txtEngineOut.getStyleClass().add("generic-widget");
@@ -89,18 +90,6 @@ public class EngineOutputView implements StateChangeListener {
         // of pv-lines from gameModel and modifies pvLines
         // and txtEngineOut by adding lines and children.
         resetPVLines();
-    }
-
-    private void clearOutput() {
-
-        engineId.setText("");
-        depth.setText("");
-        nps.setText("");
-        hashFull.setText("");
-        tbHits.setText("");
-        for(Text pvLine : pvLines) {
-            pvLine.setText("");
-        }
     }
 
     public void setId(String id) {
@@ -138,10 +127,6 @@ public class EngineOutputView implements StateChangeListener {
                 depth.setText(infos[6]);
             }
 
-            if(!pvLinesAreEnabled) {
-                return;
-            }
-
             // Set but don't clear the first pvLine-text.
             if(infos.length > FirstPVLineInfosIndex && !infos[ FirstPVLineInfosIndex].isEmpty()) {
                 pvLines.get(0).setText(infos[7]);
@@ -165,7 +150,7 @@ public class EngineOutputView implements StateChangeListener {
         txtEngineOut.getChildren().remove(FirstPVLineChildIndex, cntChildren);
         pvLines.clear();
         for (int i = 0; i < gameModel.getMultiPv(); i++) {
-            Text pvLine = new Text("");
+            Text pvLine = new Text("i:__"+i+"");
             pvLines.add(pvLine);
             txtEngineOut.getChildren().add(pvLine);
             txtEngineOut.getChildren().add(new Text(System.lineSeparator()));
@@ -184,7 +169,7 @@ public class EngineOutputView implements StateChangeListener {
         hashFull.setText("");
         tbHits.setText("");
         for(Text pv : pvLines) {
-            pv.setText("");
+            pv.setText("(0.00)");
         }
   }
 }
