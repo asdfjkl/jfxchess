@@ -168,8 +168,12 @@ public class EngineOutputView implements StateChangeListener {
         nps.setText("");
         hashFull.setText("");
         tbHits.setText("");
-        for(Text pv : pvLines) {
-            pv.setText("(0.00)");
+        // don't set 0.00 if we play a game against the engine
+        if(gameModel.getMode() != GameModel.MODE_PLAY_BLACK &&
+            gameModel.getMode() != GameModel.MODE_PLAY_WHITE) {
+            for (Text pv : pvLines) {
+                pv.setText("(0.00)");
+            }
         }
   }
 }
