@@ -18,19 +18,15 @@
 
 package org.asdfjkl.jfxchess.gui;
 
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.asdfjkl.jfxchess.lib.*;
 
 import java.io.File;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 import java.lang.System;
 
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -85,8 +81,6 @@ public class GameModel {
     public int childBestEval = 0;
     public int childMateInMoves = -1;
     public boolean childIsMate = false;
-
-    //public boolean doNotNotifyAboutResult = false;
 
     public PolyglotExt extBook;
 

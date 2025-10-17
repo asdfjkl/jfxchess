@@ -124,10 +124,6 @@ public class App extends Application implements StateChangeListener {
         gameModel.getGame().setHeaderWasChanged(true);
         gameModel.maxCpus = Runtime.getRuntime().availableProcessors();
 
-        System.out.println("After startup:");
-        System.out.println(gameModel.activeEngine.getName());
-        System.out.println(gameModel.engines.indexOf(gameModel.activeEngine));
-
         // MENU
         MenuBar mnuBar = new MenuBar();
 
