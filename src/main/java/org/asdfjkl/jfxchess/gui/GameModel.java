@@ -433,7 +433,12 @@ public class GameModel {
             String engineString = engine.writeToString();
             prefs.put("ENGINE"+i, engineString);
         }
-        prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+        int activeEngineIdx = engines.indexOf(activeEngine);
+        if(activeEngineIdx > 0) {
+            prefs.putInt("ACTIVE_ENGINE_IDX", engines.indexOf(activeEngine));
+        } else {
+            prefs.putInt("ACTIVE_ENGINE_IDX", 0);
+        }
     }
 
     public void saveExtBookPath() {
