@@ -286,7 +286,7 @@ public class App extends Application implements StateChangeListener {
 
 
         // Text & Edit Button for Game Data
-        txtGameData = new Text("");
+        txtGameData = new Text("FOO BAR");
         txtGameData.setTextAlignment(TextAlignment.CENTER);
         txtGameData.getStyleClass().add("generic-widget");
         Button btnEditGameData = new Button();
@@ -1056,7 +1056,7 @@ public class App extends Application implements StateChangeListener {
     @Override
     public void stateChange() {
 
-        if(gameModel.getGame().isHeaderChanged()) {
+        //if(gameModel.getGame().isHeaderChanged()) {
             String white = gameModel.getGame().getHeader("White");
             String black = gameModel.getGame().getHeader("Black");
             String site = gameModel.getGame().getHeader("Site");
@@ -1064,7 +1064,7 @@ public class App extends Application implements StateChangeListener {
 
             String label = white + " - " + black + "\n" + site + ", " + date;
             txtGameData.setText(label);
-        }
+        //}
         if(gameModel.getMode() == GameModel.MODE_ENTER_MOVES) {
 	    // To show entermoves as selected in the menu after e.g. editing engines.
 	    // Previously the latest used menuitem was still selected.
