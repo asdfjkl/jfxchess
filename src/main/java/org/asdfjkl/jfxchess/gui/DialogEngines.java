@@ -251,7 +251,8 @@ public class DialogEngines {
         try {
             String line;
 
-            Process engineProcess = Runtime.getRuntime().exec(file.getAbsolutePath());
+            String[] cmd = { file.getAbsolutePath() };
+            Process engineProcess = Runtime.getRuntime().exec(cmd);
 
             if (!engineProcess.isAlive()) {
                 throw new RuntimeException("Couldn't start engine process " + file.getAbsolutePath() + " ");

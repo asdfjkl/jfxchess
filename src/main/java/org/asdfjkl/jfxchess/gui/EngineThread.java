@@ -186,6 +186,7 @@ public class EngineThread extends Thread {
                             String engineCmd = cmd.substring(6);
                             try {
                                 this.engineProcess = new ProcessBuilder(engineCmd).start();
+                                System.out.println(engineCmd);
                                 this.engineInput = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));
                                 this.engineOutput = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
                                 // Reset some "state" variables.
