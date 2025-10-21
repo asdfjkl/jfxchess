@@ -179,11 +179,6 @@ public class EngineInfo {
             if (matchScoreCP.find()) {
                 String sScore = matchScoreCP.group();
                 Integer dScore = Integer.parseInt(sScore.substring(9));
-                if(dScore > 5 || dScore < -5) {
-                    System.out.println("feedback: "  +engineFeedback);
-                    System.out.println("sScore: "+sScore);
-                    System.out.println("dScore: "+dScore);
-                }
                 if(this.turn == CONSTANTS.BLACK) {
                     score.set(multiPv, -dScore);
                 } else {

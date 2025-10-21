@@ -156,11 +156,9 @@ public class DialogPlayBots {
         // additional logic
         rbWhite.setOnAction( e -> {
             playWhite = true;
-            System.out.println("rb white event");
         });
         rbBlack.setOnAction( e -> {
             playWhite = false;
-            System.out.println("rb black event");
         });
         rbInitialPos.setOnAction(e -> {
             startInitial = true;

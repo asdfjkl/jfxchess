@@ -117,14 +117,11 @@ public class GameModel {
         this.currentMode = MODE_ENTER_MOVES;
 
         String stockfishPath = getStockfishPath();
-	    // System.out.println("Computed Stockfish Path as: "+stockfishPath);
-
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
         if(stockfishPath != null) {
             stockfish.setPath(stockfishPath);
         }
-        // System.out.println("stock fish path is now: "+stockfish.getPath());
         stockfish.setInternal(true);
         engines.add(stockfish);
         selectedAnalysisEngine = stockfish;
@@ -170,8 +167,6 @@ public class GameModel {
         String botPath = getBotEnginePath();
         botEngines = BotEngines.createEngines(botPath);
         selectedPlayEngine = botEngines.get(0); // set benny as default; todo: remember last selected bot
-
-        // System.out.println("stock fish path at the end of gamemodel: "+stockfish.getPath());
     }
 
     public void loadExtBook() {
@@ -200,10 +195,6 @@ public class GameModel {
     try {
     	Path jarPath = Paths.get(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         Path jarDir = jarPath.getParent();
-        // DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
-        //        "JAR PATH", jarDir.toString());
-        //dlg.showAndWait();
-        //System.out.println("GET JAR PATH: "+jarDir);
         return jarDir;
         } catch (URISyntaxException e) {
             System.err.println("[ERROR] Failed to resolve JAR location: " + e.getMessage());
@@ -223,10 +214,6 @@ public class GameModel {
         if(os.contains("win")) {
             if (jarDir != null) {
                 Path engineBinary = jarDir.resolve("engine").resolve("stockfish.exe");
-                //System.out.println("WINDOWS Stockfish Internal@: "+engineBinary);
-                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
-                //        "WIN STOCKFISH INTERNAL", engineBinary.toString());
-                //dlg.showAndWait();
                 return engineBinary.toString();
             }
         }
@@ -234,7 +221,6 @@ public class GameModel {
             Path engineBinary = null;
             if (jarDir != null) {
                 engineBinary = jarDir.resolve("engine").resolve("stockfish_x64");
-                //System.out.println("LINUX Stockfish Internal@: "+engineBinary);
                 return engineBinary.toString();
             }
         }
@@ -250,9 +236,6 @@ public class GameModel {
         if(os.contains("win")) {
             if (jarDir != null) {
                 Path engineBinary = jarDir.resolve("engine").resolve("stockfish5.exe");
-                //System.out.println("WINDOWS Stockfish5 Internal@: "+engineBinary);
-                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
-                //        "WIN STOCKFISH 5 INTERNAL", engineBinary.toString());
                 return engineBinary.toString();
             }
         }
@@ -260,7 +243,6 @@ public class GameModel {
             Path engineBinary = null;
             if (jarDir != null) {
                 engineBinary = jarDir.resolve("engine").resolve("stockfish5_x64");
-                //System.out.println("LINUX Stockfish5 Internal@: "+engineBinary);
                 return engineBinary.toString();
             }
         }
@@ -276,9 +258,6 @@ public class GameModel {
             Path extBookBinary = null;
             if (jarDir != null) {
                 extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
-                //System.out.println("WINDOWS Book@: "+extBookBinary);
-                //DialogSimpleAlert dlg = new DialogSimpleAlert(this.getStageRef(), Alert.AlertType.INFORMATION,
-                //        "EXT BOOK BINARY", extBookBinary.toString());
                 return extBookBinary.toString();
             }
         }
@@ -286,7 +265,6 @@ public class GameModel {
             Path extBookBinary = null;
             if (jarDir != null) {
                 extBookBinary = jarDir.resolve("book").resolve("extbook.bin");
-                //System.out.println("LINUX Book@: "+extBookBinary);
                 return extBookBinary.toString();
             }
         }
