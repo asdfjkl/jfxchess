@@ -67,6 +67,7 @@ public class DialogAboutDatabase {
 
         Scene scene = new Scene(vbox);
 
+        PlatformUtils.applyDialogSizeFix(stage, 250, 150);
         stage.setScene(scene);
         stage.showAndWait();
 

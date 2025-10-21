@@ -167,6 +167,7 @@ public class DialogEngineOptions {
         Scene scene = new Scene(vbMain);
         double screenHeight = javafx.stage.Screen.getPrimary().getVisualBounds().getHeight();
         stage.setMaxHeight(screenHeight * 0.9);
+        PlatformUtils.applyDialogSizeFix(stage, 500, 550);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.showAndWait();

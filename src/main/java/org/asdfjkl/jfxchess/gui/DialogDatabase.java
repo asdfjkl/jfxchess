@@ -180,6 +180,7 @@ public class DialogDatabase {
         Scene scene = new Scene(vbox);
 
         stage.setMinWidth(1050);
+        PlatformUtils.applyDialogSizeFix(stage, 1050, 500);
         // unfocus all buttons and widgets
         vbox.requestFocus();
 

@@ -74,7 +74,7 @@ public class DialogEnterComment {
 
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
-
+        PlatformUtils.applyDialogSizeFix(stage, 600, 250);
         stage.showAndWait();
 
         return accepted;

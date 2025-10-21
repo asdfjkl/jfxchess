@@ -178,6 +178,7 @@ public class DialogPlayBots {
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.sizeToScene();
+        PlatformUtils.applyDialogSizeFix(stage, 700, 550);
 
         botEngineListView.getSelectionModel().select(0);
         botEngineListView.getFocusModel().focus(0);

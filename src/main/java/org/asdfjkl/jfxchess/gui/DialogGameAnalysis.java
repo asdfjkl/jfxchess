@@ -110,6 +110,7 @@ public class DialogGameAnalysis {
 
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
+        PlatformUtils.applyDialogSizeFix(stage, 380, 275);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

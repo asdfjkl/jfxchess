@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -79,23 +80,17 @@ public class DialogAbout {
 
         tfAbout.setTextAlignment(TextAlignment.CENTER);
 
-        Button btnOk = new Button();
-        btnOk.setText("OK");
-        btnOk.setOnAction(e -> btnOkClicked());
-
         VBox vbox = new VBox();
         vbox.getChildren().addAll(tfAbout);
         vbox.setSpacing(10);
+        vbox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vbox);
 
+        PlatformUtils.applyDialogSizeFix(stage, 250, 550);
         stage.setScene(scene);
         stage.showAndWait();
 
-    }
-
-    private static void btnOkClicked() {
-        stage.close();
     }
 
 }

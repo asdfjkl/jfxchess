@@ -81,6 +81,7 @@ public class DialogNewGame {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        PlatformUtils.applyDialogSizeFix(stage, 450, 150);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

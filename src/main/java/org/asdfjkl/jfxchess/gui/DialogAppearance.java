@@ -202,6 +202,7 @@ public class DialogAppearance {
         stage.setScene(scene);
         stage.setWidth(width);
         stage.setHeight(height);
+        PlatformUtils.applyDialogSizeFix(stage, width, height);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.showAndWait();
 

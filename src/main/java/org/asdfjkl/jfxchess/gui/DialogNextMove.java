@@ -104,6 +104,7 @@ public class DialogNextMove {
         });
 
         stage.setScene(scene);
+        PlatformUtils.applyDialogSizeFix(stage, 300, 200);
         stage.showAndWait();
 
         return selectedMove;

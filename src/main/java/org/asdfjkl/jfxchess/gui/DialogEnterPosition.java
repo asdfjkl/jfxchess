@@ -231,6 +231,7 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         Scene scene = new Scene(vbMain);
         stage.setScene(scene);
         stage.setWidth(width+120);
+        PlatformUtils.applyDialogSizeFix(stage, width+120, 650);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

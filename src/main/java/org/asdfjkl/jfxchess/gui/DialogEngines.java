@@ -172,6 +172,7 @@ public class DialogEngines {
 
         Scene scene = new Scene(vbMain);
         stage.setScene(scene);
+        PlatformUtils.applyDialogSizeFix(stage, 500, 550);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

@@ -81,7 +81,7 @@ public class DialogThreads {
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
         stage.getIcons().add(new Image("icons/app_icon.png"));
-
+        PlatformUtils.applyDialogSizeFix(stage, 500, 50);
         stage.showAndWait();
 
         return accepted;

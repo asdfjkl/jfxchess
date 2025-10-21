@@ -313,6 +313,7 @@ public class DialogSearchGames {
         Scene scene = new Scene(vbox);
         stage.setScene(scene);
         stage.initOwner(owner);
+        PlatformUtils.applyDialogSizeFix(stage, 800, 600);
         stage.getIcons().add(new Image("icons/app_icon.png"));
 
         stage.showAndWait();

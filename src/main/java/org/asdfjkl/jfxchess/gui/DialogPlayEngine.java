@@ -195,6 +195,7 @@ public class DialogPlayEngine {
         stage.initStyle(StageStyle.UTILITY);
 
         stage.setScene(scene);
+        PlatformUtils.applyDialogSizeFix(stage, 600, 450);
         stage.getIcons().add(new Image("icons/app_icon.png"));
         stage.sizeToScene();
 

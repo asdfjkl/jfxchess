@@ -100,6 +100,7 @@ public class DialogSave {
         stage.initModality(Modality.APPLICATION_MODAL);
         // stage.initStyle(StageStyle.UTILITY); will result on window not having focus/keyboard
         //                                      input not working on Linux
+        PlatformUtils.applyDialogSizeFix(stage, 300, 320);
         stage.getIcons().add(new Image("icons/app_icon.png")); // To add an icon
 
         btnCancel.requestFocus();
