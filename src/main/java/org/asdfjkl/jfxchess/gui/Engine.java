@@ -184,7 +184,6 @@ public class Engine implements Comparator<Engine>{
                 return option.spinMax;
             }
         }
-        System.out.println("unable to find option Threads");
         return 1;
     }
 

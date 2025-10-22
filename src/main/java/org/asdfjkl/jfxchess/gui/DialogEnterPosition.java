@@ -177,7 +177,6 @@ public class DialogEnterPosition implements EnterPosBoardListener {
         cboxEnPassant.setOnAction(e -> {
             String epSquare = cboxEnPassant.getValue();
             enterPosBoard.setEnPassantSquare(epSquare);
-            System.out.println(epSquare);
             btnOk.setDisable(!(enterPosBoard.isConsistent()));
         });
 
