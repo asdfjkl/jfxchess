@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=jfxchess
+Comment=jfxchess
+Exec=/opt/jfxchess/bin/jfxchess
+Icon=/opt/jfxchess/lib/jfxchess.png
+StartupWMClass=org.asdfjkl.jfxchess.gui.App
+Terminal=false
+Type=Application
+Categories=Games
+MimeType=

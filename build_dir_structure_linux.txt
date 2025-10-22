@@ -1,0 +1,21 @@
+jfx_build
++-- output (contains the final deb)
++-- build_dir
+   +-- jar
+       jfxchess-4-x-jar-with-dependencies.jar
+       splash.png
+       +-- book
+           extbook.bin
+       +-- engine
+           stockfish_x64
+           stockfish5_x64
+   +-- javafx-mods
+       javafx-base-...jar
+       javafx-controls...jar
+       ...
+       javafx-web...jar
+   +-- linux
+       app_icon.png (copied from @3x app icon for high res)
+       jfxchess.desktop (note StartupWMClass=org.asdfjkl.jfxchess.gui.App so that icon is displayed in taskbar)
+   LICENSE.txt
+
