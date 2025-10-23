@@ -19,19 +19,28 @@ JFXChess is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.3.0
+Current Version: 4.5.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
-  - install from [Snapstore](https://snapcraft.io/jfxchess) 
-  - or install [manually](https://github.com/asdfjkl/jfxchess/releases)
+  - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
+  - or [generic binary](https://github.com/asdfjkl/jfxchess/releases)
 
 ## Blog
 
 Once in a while I blog about the development of JFXChess at my [blog](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 4.5.0 (October 2025)
+ * new dark and light theme
+ * packaged Stockfish 17.1
+ * new bots to play against
+ * more engine info
+ * drag 'n' drop support (thanks @TTorell)
+ * ability to select own opening book (can be created by e.g. [bookmaker](https://github.com/asdfjkl/bookmaker))
+ * various bugfixes
 
 Version 4.3.0 (December 2024)
  * improved drag'n'drop pieces to setup a new position
@@ -99,7 +108,22 @@ You can support the development of JFXChess by donating via PayPal.
 
 [![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=9K2JDF5YBDZT6)
  
- ## Roadmap
+## Keyboard Shortcuts
+
+- CTRL + N : New Game
+- CTRL + O : Open File (.pgn)
+- CTRL + S : Save Game
+- CTRL + C : Copy Game (.pgn) to clipboard
+- CTRL + V : Paste Game (.pgn) or position (FEN) from clipboard
+- CTRL + E : Setup new position
+- CTRL + F : Flip Board
+- CTRL + A : Switch to "Analysis Mode"
+- CTRL + M : Switch to "Enter Moves Mode" (deactivate analysis)
+- F11 : Switch to Full-Screen Mode
+- CTRL + RIGHT ARROW : Load next game (when .pgn has been opened)
+- CTRL + LEFT ARROW : Load previous game (when .pgn has been opened)
+
+## Roadmap
  
 various ideas for future versions:
 
@@ -111,7 +135,7 @@ various ideas for future versions:
 - ship a default database of a few thousand interesting games 
 - option to show arrow that illustrates engine top-move in analysis
 - [DONE] "drag" pieces in enter-position dialog
-- show more engine info: Tablebase Hits and Hash percentage
+- [DONE] show more engine info: Tablebase Hits and Hash percentage
 - ship with pre-configured 4-piece (size!) tablebases
 - ability to click on engine lines 
-- drag and drop for pgn files
+- [DONE] drag and drop for pgn files
