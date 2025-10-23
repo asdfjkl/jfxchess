@@ -3,8 +3,8 @@
 # clean old build remains
 cd ~/jfx_build/build_dir/jar
 rm *.jar
-cd ~/jfx_build/build_dir
-rm -r -f ~/output
+cd ~/jfx_build
+rm -r -f output
 cd ~/jfx_build/build_dir/javafx-mods
 rm *.jar
 # build both jar w/o deps (to collect and copy platform dependent jfx modules)
