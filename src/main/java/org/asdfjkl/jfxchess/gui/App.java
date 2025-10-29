@@ -38,7 +38,6 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -320,10 +319,19 @@ public class App extends Application implements StateChangeListener {
 
         BookView bookView = new BookView(gameModel);
 
-        Tab tabMoves = new Tab("Moves", moveView.getWebView());
+        ScrollPane spMoves = new ScrollPane();
+        spMoves.setContent(moveView.flow);
+
+        spMoves.setFitToWidth(true);   // makes the TextFlow fit horizontally
+        spMoves.setFitToHeight(false);
+
+        //Tab tabMoves = new Tab("Moves", moveView.getWebView());
+        Tab tabMoves = new Tab("Moves", spMoves);
         Tab tabNotation = new Tab("Score Sheet"  , new Label("score sheet"));
         //Tab tabBook = new Tab("Book" , new Label("book"));
         Tab tabBook = new Tab("Book" , bookView.bookTable);
+
+
 
         //tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabNotation, tabBook);
         tabPaneMovesNotationBook.getTabs().addAll(tabMoves, tabBook);
@@ -332,7 +340,7 @@ public class App extends Application implements StateChangeListener {
 
         VBox vbGameDataMovesNavigation = new VBox();
         vbGameDataMovesNavigation.getChildren().addAll(hbGameData, tabPaneMovesNotationBook, hbGameNavigation);
-        VBox.setVgrow(moveView.getWebView(), Priority.ALWAYS);
+        VBox.setVgrow(moveView.flow, Priority.ALWAYS);
 
         // put together  Chessboard | Game Navigation
         Chessboard chessboard = new Chessboard(gameModel);
@@ -795,32 +803,6 @@ public class App extends Application implements StateChangeListener {
             event.consume();
         });
 
-        WebView webView = moveView.getWebView();
-
-        webView.setOnDragOver((DragEvent event) -> {
-            // Data is dragged over the target.
-            // Accept it only if the event holds one pgn-file.
-            Dragboard db = event.getDragboard();
-            if (db.hasFiles() && db.getFiles().size() == 1
-                    && db.getFiles().get(0).getName().endsWith(".pgn")) {
-                // Ugly fix: Here we have to save the filepath because
-                // in the setOnDragDropped((DragEvent event) for this
-                // webView, the event didn't contain any file; don't
-                // know why.
-                dragNDropFilePath = db.getFiles().get(0).getAbsolutePath();
-                // Allow only for copying
-                event.acceptTransferModes(TransferMode.COPY);
-            }
-            event.consume();
-        });
-
-        webView.setOnDragDropped((DragEvent event) -> {
-            // Data dropped.
-            File file = new File(dragNDropFilePath);
-            gameMenuController.openFile(file);
-            event.setDropCompleted(true);
-            event.consume();
-        });
 
 
         Scene scene = new Scene(spMain);
@@ -892,25 +874,21 @@ public class App extends Application implements StateChangeListener {
             if (event.getCode() == KeyCode.RIGHT) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
-                    moveView.goForward();
                 }
             }
             if (event.getCode() == KeyCode.LEFT) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
-                    moveView.goBack();
                 }
             }
             if (event.getCode() == KeyCode.HOME) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
-                    moveView.seekToRoot();
                 }
             }
             if (event.getCode() == KeyCode.END) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
-                    moveView.seekToEnd();
                 }
             }
             if (keyCombinationEnterPosition.match(event)) {

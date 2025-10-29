@@ -23,11 +23,6 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
-            <version>21.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
             <version>21.0.7</version>
         </dependency>
@@ -53,6 +48,8 @@
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>
                     </compilerArgs>
+                    <source>16</source>
+                    <target>16</target>
 
                 </configuration>
             </plugin>
