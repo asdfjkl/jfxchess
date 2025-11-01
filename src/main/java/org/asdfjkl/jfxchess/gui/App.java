@@ -874,21 +874,25 @@ public class App extends Application implements StateChangeListener {
             if (event.getCode() == KeyCode.RIGHT) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
+                    moveView.goForward();
                 }
             }
             if (event.getCode() == KeyCode.LEFT) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
+                    moveView.goBack();
                 }
             }
             if (event.getCode() == KeyCode.HOME) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
+                    moveView.seekToRoot();
                 }
             }
             if (event.getCode() == KeyCode.END) {
                 // don't allow this during a game
                 if(!gameModel.blockGUI) {
+                    moveView.seekToEnd();
                 }
             }
             if (keyCombinationEnterPosition.match(event)) {
