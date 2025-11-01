@@ -131,12 +131,74 @@ public class EngineInfo {
         }
     }
 
+    /*
     public void setFen(String fen) {
         // update turn
         if(!fen.isEmpty()) {
             Board board = new Board(fen);
             this.turn = board.turn;
             this.fen = fen;
+            this.halfmoves = board.halfmoveClock;
+            this.fullMoveNumber = board.fullmoveNumber;
+            this.zobrist = board.getZobrist();
+        }
+    } */
+
+    public void setFen(String uciSetPosition) {
+        System.out.println("engineInfo, parsing: "+uciSetPosition);
+        if(uciSetPosition.startsWith("position fen")) {
+            System.out.println("case a) position fen");
+            String[] s_fen_moves = uciSetPosition.split("moves");
+            if(s_fen_moves.length > 0) {
+                String strFen = s_fen_moves[0].substring(13).trim();
+                System.out.println("strFen: "+strFen);
+                Board board = new Board();
+                try {
+                    board = new Board(strFen);
+                } catch(IllegalArgumentException e) {
+                        return;
+                }
+                if (s_fen_moves.length > 1) {
+                        System.out.println("s_fen_moves[1]: "+s_fen_moves[1]);
+                        String[] uciMoves = s_fen_moves[1].split(" ");
+                        for(String uciMove : uciMoves) {
+                            String uci = uciMove.trim();
+                            System.out.println("applying move: "+uci);
+                            try {
+                                Move m = new Move(uci);
+                                board.apply(m);
+                            } catch(IllegalArgumentException e) {
+                                continue;
+                            }
+                    }
+                }
+                this.turn = board.turn;
+                this.fen = board.fen();
+                this.halfmoves = board.halfmoveClock;
+                this.fullMoveNumber = board.fullmoveNumber;
+                this.zobrist = board.getZobrist();
+            }
+        }
+        if(uciSetPosition.startsWith("position startpos")) {
+            Board board = new Board(true);
+            if(uciSetPosition.contains("moves")) {
+                String[] spl = uciSetPosition.split("moves");
+                if (spl.length > 1) {
+                    String[] uciMoves = spl[1].split(" ");
+                    for(String uciMove : uciMoves) {
+                        String uci = uciMove.trim();
+                        try {
+                            Move m = new Move(uci);
+                            board.apply(m);
+                        } catch(IllegalArgumentException e) {
+                            continue;
+                        }
+
+                    }
+                }
+            }
+            this.turn = board.turn;
+            this.fen = board.fen();
             this.halfmoves = board.halfmoveClock;
             this.fullMoveNumber = board.fullmoveNumber;
             this.zobrist = board.getZobrist();

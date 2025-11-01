@@ -379,6 +379,35 @@ public class Game {
         return false;
     }
 
+    public String getUciPositionString() {
+        StringBuilder sb = new StringBuilder();
+        GameNode node = current;
+        while(node.getParent() != null) {
+            String uci = node.getMove().getUci();
+            if(uci != "0000") {
+                sb.insert(0, uci +  " ");
+            } else {
+                break;
+            }
+            node = node.getParent();
+        }
+        if(node.getBoard().isInitialPosition()) {
+            if(sb.length() == 0) {
+                return "position startpos";
+            } else{
+                sb.insert(0, "position startpos moves ");
+            }
+        } else {
+            if(sb.length() == 0) {
+                return "position fen " + node.getBoard().fen();
+            } else {
+                sb.insert(0, "position fen " + node.getBoard().fen() + " moves ");
+            }
+        }
+        System.out.println("getUciPositionString: " + sb.toString());
+        return sb.toString();
+    }
+
     public boolean isInsufficientMaterial() {
         if (current != null && current.getBoard() != null)
             return current.getBoard().isInsufficientMaterial();

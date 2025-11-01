@@ -116,7 +116,9 @@ public class ModeMenuController implements StateChangeListener {
     }
 
     private void handleStateChangeAnalysis() {
-        String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        //String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        String fen = gameModel.getGame().getUciPositionString();
+        System.out.println("MMController, sending: " + gameModel.getGame().getUciPositionString());
         engineController.sendNewPosition(fen);
         engineController.uciGoInfinite();
     }
@@ -140,8 +142,11 @@ public class ModeMenuController implements StateChangeListener {
                 } else {
                     gameModel.getGame().goToParent();
                 }
-                String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+                //String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+                String fen = gameModel.getGame().getUciPositionString();
                 engineController.sendNewPosition(fen);
+                System.out.println(gameModel.getGame().getUciPositionString());
+
                 engineController.uciGoMoveTime(gameModel.getGameAnalysisThinkTimeSecs() * 1000);
             }
         } else {
@@ -281,16 +286,20 @@ public class ModeMenuController implements StateChangeListener {
             });
             delay.play();
         } else {
-            String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+            //String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+            String fen = gameModel.getGame().getUciPositionString();
             engineController.sendNewPosition(fen);
+            System.out.println(gameModel.getGame().getUciPositionString());
             engineController.uciGoMoveTime(gameModel.getComputerThinkTimeSecs()*1000);
         }
     }
 
     public void handleStateChangePlayoutPosition() {
 
-        String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        //String fen = gameModel.getGame().getCurrentNode().getBoard().fen();
+        String fen = gameModel.getGame().getUciPositionString();
         engineController.sendNewPosition(fen);
+        System.out.println(gameModel.getGame().getUciPositionString());
         engineController.uciGoMoveTime(gameModel.getComputerThinkTimeSecs()*1000);
     }
 

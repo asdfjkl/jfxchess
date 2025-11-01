@@ -146,9 +146,15 @@ public class EngineController {
         }
     }
 
+    /*
     public void sendNewPosition(String fen) {
         sendCommand("stop");
         sendCommand("position fen " + fen);
+    } */
+
+    public void sendNewPosition(String s) {
+        sendCommand("stop");
+        sendCommand(s);
     }
 
     public void uciGoMoveTime(int milliseconds) {

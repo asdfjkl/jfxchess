@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "JFXChess"
-#define MyAppVersion "4.5.0"
+#define MyAppVersion "4.6.0"
 #define MyAppPublisher "org.asdfjkl"
 #define MyAppURL "https://github.com/asdfjkl/jfxchess"
 #define MyAppExeName "jfxchess.exe"

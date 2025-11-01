@@ -343,9 +343,10 @@ public class EngineThread extends Thread {
                         engineInfo.halfmoves = cnt;
                     }
                 }
-                if (cmd.startsWith("position fen")) {
-                    String fen = cmd.substring(13);
-                    engineInfo.setFen(fen);
+                if ((cmd.startsWith("position fen")) || (cmd.startsWith("position startpos"))) {
+                    System.out.println("engine controller, rec.: "+cmd);
+                    //String fen = cmd.substring(13);
+                    engineInfo.setFen(cmd);
                 }
                 // All other commands can be sent as they are,
                 // without any action.
