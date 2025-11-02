@@ -320,6 +320,7 @@ public class App extends Application implements StateChangeListener {
         BookView bookView = new BookView(gameModel);
 
         ScrollPane spMoves = new ScrollPane();
+        moveView.flow.setPrefHeight(4000);
         spMoves.setContent(moveView.flow);
 
         spMoves.setFitToWidth(true);   // makes the TextFlow fit horizontally
@@ -340,7 +341,9 @@ public class App extends Application implements StateChangeListener {
 
         VBox vbGameDataMovesNavigation = new VBox();
         vbGameDataMovesNavigation.getChildren().addAll(hbGameData, tabPaneMovesNotationBook, hbGameNavigation);
-        VBox.setVgrow(moveView.flow, Priority.ALWAYS);
+        hbGameNavigation.setMaxHeight(200);
+        VBox.setVgrow(spMoves, Priority.ALWAYS);
+        //VBox.setVgrow(moveView.flow, Priority.ALWAYS);
 
         // put together  Chessboard | Game Navigation
         Chessboard chessboard = new Chessboard(gameModel);
