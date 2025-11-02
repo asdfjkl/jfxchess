@@ -404,7 +404,6 @@ public class Game {
                 sb.insert(0, "position fen " + node.getBoard().fen() + " moves ");
             }
         }
-        System.out.println("getUciPositionString: " + sb.toString());
         return sb.toString();
     }
 

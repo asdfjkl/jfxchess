@@ -145,13 +145,10 @@ public class EngineInfo {
     } */
 
     public void setFen(String uciSetPosition) {
-        System.out.println("engineInfo, parsing: "+uciSetPosition);
         if(uciSetPosition.startsWith("position fen")) {
-            System.out.println("case a) position fen");
             String[] s_fen_moves = uciSetPosition.split("moves");
             if(s_fen_moves.length > 0) {
                 String strFen = s_fen_moves[0].substring(13).trim();
-                System.out.println("strFen: "+strFen);
                 Board board = new Board();
                 try {
                     board = new Board(strFen);
@@ -159,11 +156,9 @@ public class EngineInfo {
                         return;
                 }
                 if (s_fen_moves.length > 1) {
-                        System.out.println("s_fen_moves[1]: "+s_fen_moves[1]);
                         String[] uciMoves = s_fen_moves[1].split(" ");
                         for(String uciMove : uciMoves) {
                             String uci = uciMove.trim();
-                            System.out.println("applying move: "+uci);
                             try {
                                 Move m = new Move(uci);
                                 board.apply(m);

@@ -422,7 +422,6 @@ public class TestCases {
         try {
             raf = new OptimizedRandomAccessFile(kingbase, "r");
             Game g = reader.readGame(raf);
-            //System.out.println("reading game ok");
             String pgn = printer.printGame(g);
             System.out.println(pgn);
         } catch (IOException e) {

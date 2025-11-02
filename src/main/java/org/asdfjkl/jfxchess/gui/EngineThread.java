@@ -344,8 +344,6 @@ public class EngineThread extends Thread {
                     }
                 }
                 if ((cmd.startsWith("position fen")) || (cmd.startsWith("position startpos"))) {
-                    System.out.println("engine controller, rec.: "+cmd);
-                    //String fen = cmd.substring(13);
                     engineInfo.setFen(cmd);
                 }
                 // All other commands can be sent as they are,

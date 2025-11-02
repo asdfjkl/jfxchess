@@ -33,10 +33,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.asdfjkl.jfxchess.lib.*;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -165,8 +162,12 @@ public class PgnDatabase {
 
                 try {
                     rafReader = new OptimizedRandomAccessFile(currentPgnFilename, "r");
-                    writer = new BufferedWriter(new FileWriter(tmpFilename));
-
+                    writer = new BufferedWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(tmpFilename),
+                                    StandardCharsets.UTF_8
+                            )
+                    );
                     for (int i = 0; i < entries.size(); i++) {
 
                         // if game was modified, always write it out
@@ -177,6 +178,7 @@ public class PgnDatabase {
                             rafReader.seek(startOffset);
                             while(rafReader.getFilePointer() < stopOffset) {
                                 String line = rafReader.readLine();
+                                line = new String(line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                 linesWritten += 1;
                                 if(linesWritten % 20000 == 0) {
                                     linesWritten = 1;
@@ -207,6 +209,7 @@ public class PgnDatabase {
                                 rafReader.seek(entries.get(startIndex).getOffset());
                                 while(rafReader.getFilePointer() < fileSize) {
                                     String line = rafReader.readLine();
+                                    line = new String(line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                                     linesWritten++;
                                     if(linesWritten % 20000 == 0) {
                                         linesWritten = 1;
