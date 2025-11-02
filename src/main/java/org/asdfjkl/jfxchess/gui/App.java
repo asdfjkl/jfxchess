@@ -320,7 +320,7 @@ public class App extends Application implements StateChangeListener {
         BookView bookView = new BookView(gameModel);
 
         ScrollPane spMoves = new ScrollPane();
-        moveView.flow.setPrefHeight(4000);
+        moveView.flow.setPrefHeight(10000);
         spMoves.setContent(moveView.flow);
 
         spMoves.setFitToWidth(true);   // makes the TextFlow fit horizontally
