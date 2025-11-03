@@ -22,4 +22,4 @@ cp ~/code/jfxchess/linux_desktop_entry/jfxchess.desktop ~/jfx_build_ai/build_dir
 cp ~/code/jfxchess/splash.png ~/jfx_build_ai/build_dir/jar/
 # assemble with jpackage
 cd ~/jfx_build_ai
-jpackage --module-path build_dir/javafx-mods  --add-modules javafx.controls,javafx.web,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i build_dir/jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon build_dir/linux/app_icon.png --resource-dir build_dir/linux --main-class org.asdfjkl.jfxchess.gui.Main
+jpackage --module-path build_dir/javafx-mods  --add-modules javafx.controls,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i build_dir/jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon build_dir/linux/app_icon.png --resource-dir build_dir/linux --main-class org.asdfjkl.jfxchess.gui.Main
