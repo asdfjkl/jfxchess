@@ -12,7 +12,7 @@ REM copy output
 copy target\jfxchess-4.5-jar-with-dependencies.jar "C:\MyFiles\workspace\build dir\jar"
 copy target\javafx-mods\*.* "C:\MyFiles\workspace\build dir\javafx-mods"
 cd "C:\MyFiles\workspace\build dir"
-jpackage --module-path javafx-mods  --add-modules javafx.controls,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon jfxchess.ico
+jpackage --module-path javafx-mods  --add-modules javafx.controls,javafx.web,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon jfxchess.ico  
 copy jfxchess.ico "C:\MyFiles\workspace\build dir\output\jfxchess"
 xcopy engine /s /i "C:\MyFiles\workspace\build dir\output\jfxchess\app\engine"
 xcopy book /s /i "C:\MyFiles\workspace\build dir\output\jfxchess\app\book"
