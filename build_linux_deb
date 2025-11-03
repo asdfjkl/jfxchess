@@ -22,4 +22,4 @@ cp ~/code/jfxchess/linux_desktop_entry/jfxchess.desktop ~/jfx_build/build_dir/li
 cp ~/code/jfxchess/splash.png ~/jfx_build/build_dir/jar/
 # assemble with jpackage
 cd ~/jfx_build
-jpackage --module-path build_dir/javafx-mods  --add-modules javafx.controls,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type deb -n jfxchess -i build_dir/jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon build_dir/linux/app_icon.png --resource-dir build_dir/linux --linux-menu-group games --linux-shortcut --license-file build_dir/LICENSE.TXT --about-url https://github.com/asdfjkl/jfxchess --linux-app-release 4.5 --main-class org.asdfjkl.jfxchess.gui.Main
+jpackage --module-path build_dir/javafx-mods  --add-modules javafx.controls,javafx.web,javafx.swing --java-options '-splash:$APPDIR/splash.png' --type deb -n jfxchess -i build_dir/jar --main-jar jfxchess-4.5-jar-with-dependencies.jar -d output --icon build_dir/linux/app_icon.png --resource-dir build_dir/linux --linux-menu-group games --linux-shortcut --license-file build_dir/LICENSE.TXT --about-url https://github.com/asdfjkl/jfxchess --linux-app-release 4.5 --main-class org.asdfjkl.jfxchess.gui.Main
