@@ -20,6 +20,7 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.util.Duration;
 import org.asdfjkl.jfxchess.lib.*;
@@ -621,10 +622,13 @@ public class ModeMenuController implements StateChangeListener {
                 if (isInsufficientMaterial) {
                     message = "Draw (Insufficient material for checkmate)";
                 }
-                DialogSimpleAlert dlgAlert = new DialogSimpleAlert(
-                        gameModel.getStageRef(), Alert.AlertType.INFORMATION,
-                        "Game Finished", message);
-                dlgAlert.showAndWait();
+                String finalMessage = message;
+                Platform.runLater(() -> {
+                    DialogSimpleAlert dlgAlert = new DialogSimpleAlert(
+                            gameModel.getStageRef(), Alert.AlertType.INFORMATION,
+                            "Game Finished", finalMessage);
+                    dlgAlert.showAndWait();
+                });
             }
         }
 

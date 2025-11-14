@@ -28,7 +28,7 @@ public class BotEngines {
         opt.name = name;
         opt.spinMin = 1;
         opt.spinMax = 200;
-        opt.spinDefault = value;
+        opt.spinDefault = value+1;
         opt.spinValue = value;
         return opt;
     }
