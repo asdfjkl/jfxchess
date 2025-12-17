@@ -28,6 +28,8 @@ public class Main {
         //System.setProperty("prism.lcdtext", "false");
         //System.setProperty("prism.subpixeltext", "false");
 
+        //System.setProperty("prism.text", "t2k");
+
         String dir = System.getProperty("user.home");
         File fDir = new File(dir);
         File file = new File(fDir, "x43890423_jry.lock");

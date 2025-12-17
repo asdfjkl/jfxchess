@@ -534,6 +534,7 @@ public class App extends Application implements StateChangeListener {
         btnThreads.setOnAction(actionEvent -> {
             if(!gameModel.blockGUI) {
                 if(gameModel.activeEngine.supportsMultiThread()) {
+                    modeMenuController.activateEnterMovesMode();
                     int currentNrThreads = gameModel.activeEngine.getNrThreads();
                     int maxThreads = Math.min(gameModel.maxCpus - 1,  gameModel.activeEngine.getMaxThreads());
                     DialogThreads dlgThreads = new DialogThreads();
