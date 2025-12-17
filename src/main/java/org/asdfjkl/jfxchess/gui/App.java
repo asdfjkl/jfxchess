@@ -993,7 +993,7 @@ public class App extends Application implements StateChangeListener {
 
 
         // Setup Style
-        if(gameModel.THEME == gameModel.STYLE_LIGHT) {
+        if(gameModel.THEME == GameModel.STYLE_LIGHT) {
             Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         } else {
             Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
