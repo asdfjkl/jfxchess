@@ -19,7 +19,7 @@ JFXChess is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 4.5.0
+Current Version: 4.6.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
@@ -32,6 +32,9 @@ Current Version: 4.5.0
 Once in a while I blog about the development of JFXChess at my [blog](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 4.6.0 (December 2025)
+ * improved engine communication
 
 Version 4.5.0 (October 2025)
  * new dark and light theme
