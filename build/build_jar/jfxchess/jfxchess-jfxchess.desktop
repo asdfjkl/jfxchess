@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=jfxchess
+Comment=jfxchess
+Exec=/usr/bin/java -splash:/home/USERNAME/jfxchess/splash.png -jar /home/USERNAME/jfxchess/jfxchess-5.0-jar-with-dependencies.jar
+Icon=/home/USERNAME/jfxchess/jfxchess.png
+StartupWMClass=org-asdfjkl-jfxchess-gui-App
+Terminal=false
+Type=Application
+Categories=Games
+MimeType=

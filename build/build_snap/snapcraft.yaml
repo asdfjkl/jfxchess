@@ -1,0 +1,76 @@
+name: jfxchess
+version: "5.0.0"
+summary: A graphical chess program
+description: |
+  JFXChess is a chess graphical user interface
+  with the following features:
+  * based around world's best chess program Stockfish
+  * play against the computer
+  * adjust strength levels to match your skill
+  * enter, edit and analyse games
+  * automatic game analysis
+  * read and save games in standard pgn format
+  * copy and paste FEN positions and pgn games from clipboard
+  * cross-platform, available for Linux and Windows
+  * easy and intuitive GUI
+confinement: strict
+grade: stable
+base: core22
+
+lint:
+  ignore:
+    - library:
+      - usr/lib/jvm/java-*/lib/*.so
+
+apps:
+  jfxchess:
+    command: usr/bin/jfxchess-snap
+    plugs:
+      - desktop
+      - x11
+      - wayland
+      - home
+      - cups
+      - removable-media
+    extensions: [gnome]
+    environment:
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-21-openjdk-amd64"
+      JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_COMMON"      
+
+parts:
+ jfxchess:
+    plugin: maven
+    source: https://github.com/asdfjkl/jfxchess.git
+    maven-parameters: ["clean", "package"]
+    source-type: git
+    build-packages:
+      [maven,openjdk-21-jdk]
+    stage-packages:
+      - openjdk-21-jdk
+    override-build: |
+     sed -i 's|//[[:space:]]*btnAdd\.setEnabled(false);|btnAdd.setEnabled(false);|' src/main/java/org/asdfjkl/jfxchess/gui/DialogEngines.java
+     craftctl default
+
+ starter:
+  plugin: dump
+  source: .
+  organize:
+    jfxchess-snap: usr/bin/jfxchess-snap      
+
+ book:
+   plugin: dump
+   source: snap/local
+   organize: 
+     book: jar/book
+
+ engine:
+  plugin: dump
+  source: snap/local
+  organize:
+    engine: jar/engine
+
+ splash:
+   plugin: dump
+   source: snap/local
+   stage:
+     - splash

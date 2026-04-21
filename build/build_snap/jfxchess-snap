@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# echo version for potential debug
+${SNAP}/usr/lib/jvm/java-21-openjdk-${SNAP_ARCH}/bin/java -version
+${SNAP}/usr/lib/jvm/java-21-openjdk-${SNAP_ARCH}/bin/java -splash:${SNAP}/splash/splash.png -Djava.util.prefs.userRoot="$SNAP_USER_DATA" -jar $SNAP/jar/jfxchess-5.0-jar-with-dependencies.jar $*

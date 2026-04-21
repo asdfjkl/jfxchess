@@ -1,0 +1,3 @@
+1) add "extbook.bin" to "build/build_linux/build/jar/book/extbook.bin"          <- (extended) polyglot opening book
+2) add "stockfish_x64" to "build/build_linux/build/jar/engine/stockfish_x64"    <- internal engine
+3) add "stockfish5_x64" to "build/build_linux/build/jar/engine/stockfish5_x64"  <- engine for bots
