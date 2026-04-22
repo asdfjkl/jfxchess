@@ -38,4 +38,6 @@ copy jfxchess.ico %OUTPUT_DIR%
 xcopy engine /s /i %OUTPUT_ENGINE_DIR%
 xcopy book /s /i %OUTPUT_BOOK_DIR%
 copy %SPLASH_ICON_PATH% %OUTPUT_APP_DIR%
+cd %SRC_DIR%\src\main\java\org\asdfjkl\jfxchess\gui
+powershell -Command "(Get-Content DialogEngines.java) -replace 'btnAdd.setEnabled\(false\)', '//btnAdd.setEnabled(false)' | Set-Content DialogEngines.java"
 cd %BUILD_TOOL_DIR%
