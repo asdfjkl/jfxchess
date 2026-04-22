@@ -1,4 +1,4 @@
-# JFXChess - JavaFX Chess GUI
+# JFXChess - Chess GUI
 
 ![alt text](https://raw.githubusercontent.com/asdfjkl/jerry/master/jfxchess.png)
 
