@@ -57,8 +57,6 @@ public class DialogAbout extends JDialog {
                 "Dominik Klein\n" +
                 "and contributors\n" +
                 "licensed under GNU GPL 2" + "\n\n" +
-                "Contributors\n" +
-                "TTorell, mipper\n\n"+
                 "Stockfish Chess Engine\n" +
                 "by the Stockfish-Team\n\n" +
                 "Piece Images\n" +
