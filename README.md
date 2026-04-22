@@ -138,10 +138,10 @@ You can support the development of JFXChess by donating via PayPal.
  
 various ideas for future versions:
 
-- [DONE] opening book support
+- opening book support
 - [DONE] replace Stockfish skill level with UciLimitStrength (any engine)
 - more options to edit/replace/add games in pgn files
-- visual representation (i.e. graph) of game progress
+- [DONE] visual representation (i.e. graph) of game progress
 - ability to set default database
 - ship a default database of a few thousand interesting games 
 - option to show arrow that illustrates engine top-move in analysis
@@ -149,4 +149,4 @@ various ideas for future versions:
 - [DONE] show more engine info: Tablebase Hits and Hash percentage
 - ship with pre-configured 4-piece (size!) tablebases
 - ability to click on engine lines 
-- [DONE] drag and drop for pgn files
+- drag and drop for pgn files
