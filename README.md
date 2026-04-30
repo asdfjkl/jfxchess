@@ -23,7 +23,7 @@ Current Version: 5.0.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
-  - Zip [Installer](https://github.com/asdfjkl/jfxchess/releases)
+  - Zip [Folder](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
   - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
   - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases) 
