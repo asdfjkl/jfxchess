@@ -22,10 +22,11 @@ JFXChess is a cross-platform chess graphical user interface.
 Current Version: 5.0.0
 
 * Windows
-  - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases) (coming soon)
+  - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
+  - Zip [Installer](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
-  - install [.deb](https://github.com/asdfjkl/jfxchess/releases) (coming soon)
-  - or [generic binary](https://github.com/asdfjkl/jfxchess/releases) (coming soon)
+  - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
+  - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases) 
   - or [SNAP](https://snapcraft.io/jfxchess)
 
 ## Blog
