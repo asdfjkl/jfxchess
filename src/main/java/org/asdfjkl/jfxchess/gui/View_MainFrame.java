@@ -824,9 +824,15 @@ public class View_MainFrame extends JFrame
             updateHighlightedMove();
         }
         if("gameChanged".equals(evt.getPropertyName()) || "treeChanged".equals(evt.getPropertyName())) {
+            int oldCaretPos = view_Moves.getCaretPosition();
             htmlString =  htmlPrinter.printGame(model.getGame());
             view_Moves.setText(htmlString);
-            view_Moves.setCaretPosition(0);
+            try {
+                view_Moves.setCaretPosition(oldCaretPos);
+            } catch (IllegalArgumentException e) {
+                view_Moves.setCaretPosition(0);
+            }
+            updateHighlightedMove();
             updatePgnHeaders();
         }
 
