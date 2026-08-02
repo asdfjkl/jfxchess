@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.prefs.Preferences;
 
+import static org.asdfjkl.jfxchess.lib.CONSTANTS.*;
+
 public class Model_JFXChess {
 
     private static final int modelVersion = 500;
@@ -424,6 +426,29 @@ public class Model_JFXChess {
     public void setPgnHeaders(HashMap<String, String> data) {
         game.setPgnHeaders(data);
         pcs.firePropertyChange("pgnHeadersChanged", null, null);
+        // Special case: If the PGN header for the result changed, we also need to
+        // update the game tree. Therefore, fire treeChanged as well.
+        String result = data.get("Result");
+        if(result != null) {
+            if(result.equals("1-0") && game.getResult() != RES_WHITE_WINS) {
+                game.setResult(RES_WHITE_WINS);
+                pcs.firePropertyChange("treeChanged", null, null);
+            }
+            if(result.equals("0-1") && game.getResult() != RES_BLACK_WINS) {
+                game.setResult(RES_BLACK_WINS);
+                pcs.firePropertyChange("treeChanged", null, null);
+            }
+            if(result.equals("1/2-1/2") && game.getResult() != RES_DRAW) {
+                game.setResult(RES_DRAW);
+                pcs.firePropertyChange("treeChanged", null, null);
+            }
+            if(result.equals("*") && game.getResult() != RES_UNDEF) {
+                game.setResult(RES_UNDEF);
+                pcs.firePropertyChange("treeChanged", null, null);
+            }
+        }
+
+
     }
 
     public void goToNode(int id) {
@@ -457,7 +482,7 @@ public class Model_JFXChess {
 
     public void setGameResult(int resultCode) {
         game.setResult(resultCode);
-        if(resultCode == CONSTANTS.RES_WHITE_WINS) {
+        if(resultCode == RES_WHITE_WINS) {
             game.setHeader("Result", "1-0");
         }
         if(resultCode == CONSTANTS.RES_BLACK_WINS) {
