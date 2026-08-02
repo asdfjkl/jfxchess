@@ -112,6 +112,11 @@ public class Model_JFXChess {
 
     private boolean shortcutsEnabled = true;
 
+    private int fontSizeMoveView = 12;
+    private int fontSizeEngineOutput = 12;
+    private boolean useCustomFontSizeMoveView = false;
+    private boolean useCustomFontSizeEngineOutput = false;
+
     public Model_JFXChess() {
         game = new Game();
         Board b = new Board(true);
@@ -684,6 +689,11 @@ public class Model_JFXChess {
         prefs.putInt("DIVIDER_HORIZONTAL", mainFrameRef.horizontalSplit.getDividerLocation());
         prefs.putInt("DIVIDER_VERTICAL", mainFrameRef.verticalSplit.getDividerLocation());
 
+        prefs.putInt("FONT_SIZE_MOVES", fontSizeMoveView);
+        prefs.putBoolean("USE_CUSTOM_FONT_SIZE_MOVES", useCustomFontSizeMoveView);
+
+        prefs.putInt("FONT_SIZE_ENGINE", fontSizeEngineOutput);
+        prefs.putBoolean("USE_CUSTOM_FONT_SIZE_ENGINE", useCustomFontSizeEngineOutput);
 
     }
 
@@ -780,6 +790,12 @@ public class Model_JFXChess {
             // path of opening book
             extBookPath = prefs.get("EXT_BOOK_PATH_FILE", getExtBookPath());
 
+            fontSizeMoveView = prefs.getInt("FONT_SIZE_MOVES", 12);
+            useCustomFontSizeMoveView = prefs.getBoolean("USE_CUSTOM_FONT_SIZE_MOVES", false);
+
+            fontSizeEngineOutput = prefs.getInt("FONT_SIZE_ENGINE", 12);
+            useCustomFontSizeEngineOutput = prefs.getBoolean("USE_CUSTOM_FONT_SIZE_ENGINE", false);
+
             }
     }
 
@@ -790,4 +806,49 @@ public class Model_JFXChess {
         activeEngine.setThreads(newNrThreads);
     }
 
+    public int getFontSizeMoveView() {
+        return fontSizeMoveView;
+    }
+
+    public void setFontSizeMoveView(int size) {
+        fontSizeMoveView = size;
+        useCustomFontSizeMoveView = true;
+        pcs.firePropertyChange("setFontSizeMoveView", null, null);
+    }
+
+    public void resetFontSizeMoveView() {
+        useCustomFontSizeMoveView = false;
+        pcs.firePropertyChange("resetFontSizeMoveView", null, null);
+    }
+
+    public int getFontSizeEngineOutput() {
+        return fontSizeEngineOutput;
+    }
+
+    public void setFontSizeEngineOutput(int size) {
+        useCustomFontSizeEngineOutput = true;
+        fontSizeEngineOutput = size;
+        pcs.firePropertyChange("setFontSizeEngineOutput", null, null);
+    }
+
+    public void resetFontSizeEngineOutput() {
+        useCustomFontSizeEngineOutput = false;
+        pcs.firePropertyChange("resetFontSizeEngineOutput", null, null);
+    }
+
+    public boolean isUseCustomFontSizeMoveView() {
+        return useCustomFontSizeMoveView;
+    }
+
+    public void setUseCustomFontSizeMoveView(boolean useCustomFontSizeMoveView) {
+        this.useCustomFontSizeMoveView = useCustomFontSizeMoveView;
+    }
+
+    public boolean isUseCustomFontSizeEngineOutput() {
+        return useCustomFontSizeEngineOutput;
+    }
+
+    public void setUseCustomFontSizeEngineOutput(boolean useCustomFontSizeEngineOutput) {
+        this.useCustomFontSizeEngineOutput = useCustomFontSizeEngineOutput;
+    }
 }

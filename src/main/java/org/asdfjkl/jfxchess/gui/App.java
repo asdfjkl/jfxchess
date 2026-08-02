@@ -46,6 +46,14 @@ public class App {
         model.setGame(model.getGame());
         frame.setVisible(true);
 
+        // trigger custom font update
+        if(model.isUseCustomFontSizeMoveView()) {
+            model.setFontSizeMoveView(model.getFontSizeMoveView());
+        }
+        if(model.isUseCustomFontSizeEngineOutput()) {
+            model.setFontSizeEngineOutput(model.getFontSizeEngineOutput());
+        }
+
     }
 
 }

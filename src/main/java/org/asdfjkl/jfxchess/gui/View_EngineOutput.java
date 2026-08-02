@@ -19,8 +19,10 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -102,6 +104,43 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
          */
     }
 
+    public void updateFontSize(int fontSize) {
+        if (fontSize <= 0) {
+            return;
+        }
+
+        Font uiFont = UIManager.getFont("EditorPane.font");
+        Font newFont = uiFont.deriveFont((float) fontSize);
+        setFont(newFont);
+
+        // Update HTML documents as well
+        if (getDocument() instanceof HTMLDocument htmlDoc) {
+            StyleSheet styleSheet = htmlDoc.getStyleSheet();
+            styleSheet.addRule(
+                    "body { font-family: '" + newFont.getFamily() +
+                            "'; font-size: " + fontSize + "pt; }");
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    public void resetFontSize() {
+        Font uiFont = UIManager.getFont("EditorPane.font");
+        setFont(uiFont);
+
+        // Update HTML documents as well
+        if (getDocument() instanceof HTMLDocument htmlDoc) {
+            StyleSheet styleSheet = htmlDoc.getStyleSheet();
+            styleSheet.addRule(
+                    "body { font-family: '" + uiFont.getFamily() +
+                            "'; font-size: " + uiFont.getSize() + "pt; }");
+        }
+
+        revalidate();
+        repaint();
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
 
@@ -123,6 +162,13 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
                     setText(s);
                 }
             }
+        }
+
+        if(evt.getPropertyName().equals("setFontSizeEngineOutput")) {
+            updateFontSize(model.getFontSizeMoveView());
+        }
+        if(evt.getPropertyName().equals("resetFontSizeEngineOutput")) {
+            resetFontSize();
         }
     }
 }

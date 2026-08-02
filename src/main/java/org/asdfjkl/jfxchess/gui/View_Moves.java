@@ -29,10 +29,13 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class View_Moves extends JEditorPane {
+public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
     Model_JFXChess model;
     Controller_UI controller_UI;
@@ -45,6 +48,8 @@ public class View_Moves extends JEditorPane {
         this.model = model;
         this.controller_UI = controller_UI;
         this.controller_Board = controller_Board;
+
+        model.addListener(this);
 
         // set up formatting
         HTMLEditorKit kit = new HTMLEditorKit();
@@ -206,5 +211,56 @@ public class View_Moves extends JEditorPane {
         deleteAllVariants.addActionListener(controller_UI.deleteAllVariants());
 
     }
+
+
+    public void updateFontSize(int fontSize) {
+        if (fontSize <= 0) {
+            return;
+        }
+
+        Font uiFont = UIManager.getFont("EditorPane.font");
+        Font newFont = uiFont.deriveFont((float) fontSize);
+        setFont(newFont);
+
+        // Update HTML documents as well
+        if (getDocument() instanceof HTMLDocument htmlDoc) {
+            StyleSheet styleSheet = htmlDoc.getStyleSheet();
+            styleSheet.addRule(
+                    "body { font-family: '" + newFont.getFamily() +
+                            "'; font-size: " + fontSize + "pt; }");
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    public void resetFontSize() {
+        Font uiFont = UIManager.getFont("EditorPane.font");
+        setFont(uiFont);
+
+        // Update HTML documents as well
+        if (getDocument() instanceof HTMLDocument htmlDoc) {
+            StyleSheet styleSheet = htmlDoc.getStyleSheet();
+            styleSheet.addRule(
+                    "body { font-family: '" + uiFont.getFamily() +
+                            "'; font-size: " + uiFont.getSize() + "pt; }");
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        if(evt.getPropertyName().equals("setFontSizeMoveView")) {
+            System.out.println("move view: got property change set font size");
+            updateFontSize(model.getFontSizeMoveView());
+        }
+        if(evt.getPropertyName().equals("resetFontSizeMoveView")) {
+            resetFontSize();
+        }
+    }
+
 
 }

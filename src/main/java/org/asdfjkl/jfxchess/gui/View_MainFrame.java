@@ -346,6 +346,10 @@ public class View_MainFrame extends JFrame
         grpUiPieceStyle.add(jmiPieceStyleOld);
         grpUiPieceStyle.add(jmiPieceStyleUSCF);
 
+        JMenuItem jmiSetFontSize = new JMenuItem("Set Font Size");
+        jmiSetFontSize.addActionListener(controller_UI.changeFontSize());
+        viewMenu.add(jmiSetFontSize);
+
         JMenuItem jmiResetLayout = new JMenuItem("Reset Window Layout");
         jmiResetLayout.addActionListener(e -> {
             setSize(1000, 700);

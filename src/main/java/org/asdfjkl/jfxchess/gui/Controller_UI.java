@@ -479,7 +479,29 @@ public class Controller_UI {
             } catch (java.io.IOException ex) {
                 ex.printStackTrace();
             }
+        };
+    }
 
+    public ActionListener changeFontSize() {
+        return e -> {
+            DialogFontSize dialog = new DialogFontSize(model.mainFrameRef,
+                    model.getFontSizeMoveView(),
+                    model.isUseCustomFontSizeMoveView(),
+                    model.getFontSizeEngineOutput(),
+                    model.isUseCustomFontSizeEngineOutput());
+            dialog.setVisible(true);
+            if(dialog.isConfirmed()) {
+                if(dialog.useCustomMoveFont()) {
+                    model.setFontSizeMoveView(dialog.getFontSizeMoveView());
+                } else {
+                    model.resetFontSizeMoveView();
+                }
+                if(dialog.useCustomEngineFont()) {
+                    model.setFontSizeEngineOutput(dialog.getFontSizeEngineOutput());
+                } else {
+                    model.resetFontSizeEngineOutput();
+                }
+            }
         };
     }
 
