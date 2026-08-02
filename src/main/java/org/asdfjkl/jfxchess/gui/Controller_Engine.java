@@ -278,6 +278,7 @@ public class Controller_Engine implements PropertyChangeListener {
                     // clean up current game, but otherwise not much to do
                     model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
                     model.setComputerThinkTimeSecs(3);
+                    model.setFlipBoard(false);
                     Game g = new Game();
                     Board b = new Board(true);
                     g.getRootNode().setBoard(b);
