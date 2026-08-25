@@ -26,6 +26,11 @@ public class BotEngine extends Engine {
     private String bio = "";
     private BufferedImage image;
     private String elo = "";
+    private String imageResource;
+
+    public void setImageResource(String resourcePath) {
+        this.imageResource = resourcePath;
+    }
 
     public void setBio(String bio) {
         this.bio = bio;
@@ -57,6 +62,13 @@ public class BotEngine extends Engine {
     }
 
     public BufferedImage getImage() {
+        if (image == null && imageResource != null) {
+            try {
+                image = ImageLoader.loadImage(imageResource);
+            } catch (IOException e) {
+                image = null;
+            }
+        }
         return image;
     }
 

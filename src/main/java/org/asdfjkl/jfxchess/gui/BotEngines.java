@@ -46,7 +46,7 @@ public class BotEngines {
         benny.setElo("1612");
         benny.setBio("Benny just learned how to move the pieces yesterday. He’s enthusiastic, " +
                 "sometimes forgets about his king’s safety, but always has fun no matter the result.");
-        benny.loadImage("bots/01_Benny_the_Beginner.png");
+        benny.setImageResource("bots/01_Benny_the_Beginner.png");
         benny.addEngineOption(makeSpin("Contempt Factor", -20));
         benny.addEngineOption(makeSpin("Mobility (Midgame)", 60));
         benny.addEngineOption(makeSpin("Mobility (Endgame)", 60));
@@ -68,7 +68,7 @@ public class BotEngines {
         lila.setBio("Lila is bright and eager, with a growing collection of chess books she " +
                 "doesn’t quite understand yet. She loves developing her pieces but gets easily " +
                 "distracted by  “fun” moves.");
-        lila.loadImage("bots/02_Lila_the_Learner.png");
+        lila.setImageResource("bots/02_Lila_the_Learner.png");
         lila.addEngineOption(makeSpin("Contempt Factor", -10));
         lila.addEngineOption(makeSpin("Mobility (Midgame)", 80));
         lila.addEngineOption(makeSpin("Mobility (Endgame)", 70));
@@ -89,7 +89,7 @@ public class BotEngines {
         castle.setElo("1840");
         castle.setBio("A cautious player who loves to tuck his king safely away before doing " +
                 "anything else. His friends joke he plays chess “like building a fortress.”");
-        castle.loadImage("bots/03_Captain_Castle.png");
+        castle.setImageResource("bots/03_Captain_Castle.png");
         castle.addEngineOption(makeSpin("Contempt Factor", 0));
         castle.addEngineOption(makeSpin("Mobility (Midgame)", 70));
         castle.addEngineOption(makeSpin("Mobility (Endgame)", 70));
@@ -110,7 +110,7 @@ public class BotEngines {
         zara.setElo("1912");
         zara.setBio("Quick-thinking and daring, Zara rushes into attacks before you’ve had time " +
                 "to blink. She’s unpredictable and loves flashy sacrifices.");
-        zara.loadImage("bots/04_Zara_the_Zippy.png");
+        zara.setImageResource("bots/04_Zara_the_Zippy.png");
         zara.addEngineOption(makeSpin("Contempt Factor", 10));
         zara.addEngineOption(makeSpin("Mobility (Midgame)", 140));
         zara.addEngineOption(makeSpin("Mobility (Endgame)", 130));
@@ -131,7 +131,7 @@ public class BotEngines {
         gregory.setElo("1994");
         gregory.setBio("Patient and methodical, Gregory wins by slowly squeezing his opponents. " +
                 "He thrives in long endgames where his careful pawn moves shine.");
-        gregory.loadImage("bots/05_Gregory_the_Grinder.png");
+        gregory.setImageResource("bots/05_Gregory_the_Grinder.png");
         gregory.addEngineOption(makeSpin("Contempt Factor", 0));
         gregory.addEngineOption(makeSpin("Mobility (Midgame)", 90));
         gregory.addEngineOption(makeSpin("Mobility (Endgame)", 100));
@@ -152,7 +152,7 @@ public class BotEngines {
         mira.setElo("2095");
         mira.setBio("Mira dazzles opponents with unexpected tactical tricks. She seems to pull moves " +
                 "out of thin air, turning lost positions into victories.");
-        mira.loadImage("bots/06_Mira_the_Magician.png");
+        mira.setImageResource("bots/06_Mira_the_Magician.png");
         mira.addEngineOption(makeSpin("Contempt Factor", 5));
         mira.addEngineOption(makeSpin("Mobility (Midgame)", 130));
         mira.addEngineOption(makeSpin("Mobility (Endgame)", 120));
@@ -173,7 +173,7 @@ public class BotEngines {
         sylvia.setElo("2040");
         sylvia.setBio("Sylvia plans her games like military campaigns, always several moves ahead. " +
                 "She’s positionally sound and rarely falls for traps.");
-        sylvia.loadImage("bots/07_Sylvia_the_Strategist.png");
+        sylvia.setImageResource("bots/07_Sylvia_the_Strategist.png");
         sylvia.addEngineOption(makeSpin("Contempt Factor", 10));
         sylvia.addEngineOption(makeSpin("Mobility (Midgame)", 120));
         sylvia.addEngineOption(makeSpin("Mobility (Endgame)", 110));
@@ -215,7 +215,7 @@ public class BotEngines {
         helena.setElo("2086");
         helena.setBio("Helena stalks her opponent’s weaknesses with deadly precision, combining " +
                 "tactics and strategy seamlessly. Her endgames are as sharp as her middlegame attacks.");
-        helena.loadImage("bots/09_Helena_the_Huntress.png");
+        helena.setImageResource("bots/09_Helena_the_Huntress.png");
         helena.addEngineOption(makeSpin("Contempt Factor", 25));
         helena.addEngineOption(makeSpin("Mobility (Midgame)", 140));
         helena.addEngineOption(makeSpin("Mobility (Endgame)", 140));
@@ -236,7 +236,7 @@ public class BotEngines {
         sorcerer.setElo("2131");
         sorcerer.setBio("The legendary Chess Sorcerer, whose wisdom spans centuries of play. Every " +
                 "move feels inevitable, as if he knows the entire game before it starts.");
-        sorcerer.loadImage("bots/10_The_Chess_Sorcerer.png");
+        sorcerer.setImageResource("bots/10_The_Chess_Sorcerer.png");
         sorcerer.addEngineOption(makeSpin("Contempt Factor", 30));
         sorcerer.addEngineOption(makeSpin("Mobility (Midgame)", 160));
         sorcerer.addEngineOption(makeSpin("Mobility (Endgame)", 150));
