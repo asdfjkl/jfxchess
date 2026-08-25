@@ -648,7 +648,7 @@ public class Model_JFXChess {
 
     public void save() {
 
-        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs = Preferences.userRoot().node("/org/asdfjkl/jfxchess");
 
         // Version
         prefs.putInt("modelVersion",modelVersion);
@@ -725,7 +725,7 @@ public class Model_JFXChess {
 
     public void restore() {
 
-        prefs = Preferences.userRoot().node(this.getClass().getName());
+        prefs = Preferences.userRoot().node("/org/asdfjkl/jfxchess");
         int mVersion = prefs.getInt("modelVersion", 0);
 
         // only restore if modelVersion fits - otherwise
