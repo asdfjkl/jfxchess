@@ -38,14 +38,16 @@ public class App {
 
         Model_JFXChess model = new Model_JFXChess();
         model.restore();
+        try {
+            UIManager.setLookAndFeel(model.getLookAndFeel());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         View_MainFrame frame = new View_MainFrame(model);
         model.mainFrameRef = frame;
         frame.setGeometry(model.getScreenGeometry());
-        model.setLookAndFeel(model.getLookAndFeel());
-        // to ensure that property change events are triggered and received by gui
         model.setGame(model.getGame());
         frame.setVisible(true);
-
         // trigger custom font update
         if(model.isUseCustomFontSizeMoveView()) {
             model.setFontSizeMoveView(model.getFontSizeMoveView());
@@ -53,7 +55,6 @@ public class App {
         if(model.isUseCustomFontSizeEngineOutput()) {
             model.setFontSizeEngineOutput(model.getFontSizeEngineOutput());
         }
-
     }
 
 }

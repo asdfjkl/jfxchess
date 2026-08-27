@@ -194,7 +194,7 @@ public class BotEngines {
         victor.setElo("2022");
         victor.setBio("Fearless and aggressive, Victor charges forward in attack like a raid " +
                 "on the chessboard. He’s a terror in open positions.");
-        victor.loadImage("bots/08_Victor_the_Viking.png");
+        victor.setImageResource("bots/08_Victor_the_Viking.png");
         victor.addEngineOption(makeSpin("Contempt Factor", 20));
         victor.addEngineOption(makeSpin("Mobility (Midgame)", 150));
         victor.addEngineOption(makeSpin("Mobility (Endgame)", 130));

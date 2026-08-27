@@ -73,6 +73,7 @@ public class View_MainFrame extends JFrame
     Map<KeyStroke, ActionListener> shortcuts = new HashMap<>();
 
     public View_MainFrame(Model_JFXChess model) {
+
         this.model = model;
         model.addListener(this);
 
@@ -110,7 +111,6 @@ public class View_MainFrame extends JFrame
                 });
 
         initUI();
-
     }
 
     private void initUI() {
@@ -132,7 +132,6 @@ public class View_MainFrame extends JFrame
 
         // ===== Tool Bar =====
         JToolBar toolBar = createToolBar();
-
         toolBar.putClientProperty("JToolBar.isRollover", true);
 
         // ===== Main Content =====
@@ -147,7 +146,6 @@ public class View_MainFrame extends JFrame
         topPanel.add(mainContent, BorderLayout.CENTER);
 
         setContentPane(topPanel);
-
     }
 
     // ----------------------------------------------------
@@ -672,7 +670,7 @@ public class View_MainFrame extends JFrame
         verticalSplit.setDividerLocation(450);
         verticalSplit.setContinuousLayout(true);
 
-        return verticalSplit;
+         return verticalSplit;
     }
 
 
