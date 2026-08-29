@@ -121,7 +121,7 @@ public class DialogSetupPosition extends JDialog implements SetupPositionListene
         jcbWhite00 = new JCheckBox("White 0-0");
         jcbWhite000 = new JCheckBox("White 0-0-0");
         jcbBlack00 = new JCheckBox("Black 0-0");
-        jcbBlack000 = new JCheckBox("Black 0-0");
+        jcbBlack000 = new JCheckBox("Black 0-0-0");
 
         panel.add(jcbWhite00);
         panel.add(jcbWhite000);
@@ -144,12 +144,12 @@ public class DialogSetupPosition extends JDialog implements SetupPositionListene
             btnOk.setEnabled(viewSetupPosition.isConsistent());
         });
         jcbBlack00.addActionListener(e -> {
-            viewSetupPosition.setCastleWKing(jcbBlack00.isSelected());
+            viewSetupPosition.setCastleBKing(jcbBlack00.isSelected());
             viewSetupPosition.repaint();
             btnOk.setEnabled(viewSetupPosition.isConsistent());
         });
         jcbBlack000.addActionListener(e -> {
-            viewSetupPosition.setCastleWKing(jcbBlack000.isSelected());
+            viewSetupPosition.setCastleBQueen(jcbBlack000.isSelected());
             viewSetupPosition.repaint();
             btnOk.setEnabled(viewSetupPosition.isConsistent());
         });
