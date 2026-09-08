@@ -30,6 +30,7 @@ WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64
 SetupIconFile="C:\MyFiles\workspace\jfxchess\build\build_win\jfxchess.ico"
 OutputDir="C:\MyFiles\workspace\jfxchess\build\build_win\JFXChessSetup"
+UninstallDisplayIcon="C:\MyFiles\workspace\jfxchess\build\build_win\jfxchess.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
