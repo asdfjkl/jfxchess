@@ -422,6 +422,13 @@ public class Model_JFXChess {
         pcs.firePropertyChange("currentGameNodeChanged", null, null);
     }
 
+    public void notifySessionPositionChanged(GameSession changedSession) {
+        if (gameSession != changedSession) {
+            return;
+        }
+        pcs.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
     public void goToChild(int idx) {
         getGame().goToChild(idx);
         pcs.firePropertyChange("currentGameNodeChanged", null, null);

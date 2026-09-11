@@ -35,7 +35,6 @@ public class View_MainFrame extends JFrame
 
     private final Model_JFXChess model;
     private final Controller_UI controller_UI;
-    private final Controller_Board controller_Board;
     private final Controller_Engine controller_Engine;
     private final Controller_Pgn controller_Pgn;
     private final Workspace workspace;
@@ -78,7 +77,6 @@ public class View_MainFrame extends JFrame
         });
 
         controller_UI = new Controller_UI(model);
-        controller_Board = new Controller_Board(model);
         controller_Engine = new Controller_Engine(model);
         controller_Pgn = new Controller_Pgn(model);
 
@@ -513,7 +511,6 @@ public class View_MainFrame extends JFrame
                 model,
                 session,
                 controller_UI,
-                controller_Board,
                 controller_Engine,
                 commandContext
         );
@@ -634,19 +631,19 @@ public class View_MainFrame extends JFrame
         // Keyboard Shortcuts
         shortcuts.put(
                 moveForwardKey,
-                command(controller_Board.moveForward())
+                selectedSessionBoardCommand(Controller_Board::moveForward)
         );
         shortcuts.put(
                 moveBackKey,
-                command(controller_Board.moveBack())
+                selectedSessionBoardCommand(Controller_Board::moveBack)
         );
         shortcuts.put(
                 seekFirstKey,
-                command(controller_Board.seekToBeginning())
+                selectedSessionBoardCommand(Controller_Board::seekToBeginning)
         );
         shortcuts.put(
                 seekEndKey,
-                command(controller_Board.seekToEnd())
+                selectedSessionBoardCommand(Controller_Board::seekToEnd)
         );
         shortcuts.put(
                 copyKey,
@@ -684,6 +681,12 @@ public class View_MainFrame extends JFrame
 
     private ActionListener command(ActionListener listener) {
         return commandContext.bind(listener);
+    }
+
+    private ActionListener selectedSessionBoardCommand(
+            java.util.function.Function<Controller_Board, ActionListener> action) {
+        return command(event -> action.apply(new Controller_Board(
+                model, model.getGameSession())).actionPerformed(event));
     }
 
     @Override

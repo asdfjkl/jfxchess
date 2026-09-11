@@ -55,7 +55,6 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     public GameTabView(Model_JFXChess model,
                        GameSession gameSession,
                        Controller_UI controllerUI,
-                       Controller_Board controllerBoard,
                        Controller_Engine controllerEngine,
                        CommandContext commandContext) {
 
@@ -63,7 +62,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         this.model = model;
         this.gameSession = gameSession;
         this.controllerUI = controllerUI;
-        this.controllerBoard = controllerBoard;
+        this.controllerBoard = new Controller_Board(model, gameSession);
         this.controllerEngine = controllerEngine;
         this.commandContext = commandContext;
 
@@ -95,10 +94,9 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
         add(verticalSplit, BorderLayout.CENTER);
         model.addListener(this);
-        if (model.getGameSession() == gameSession) {
-            updateGameView();
-            updateEngineSwitch();
-        }
+        gameSession.addPropertyChangeListener(this);
+        updateGameView();
+        updateEngineSwitch();
     }
 
     public GameSession getGameSession() {
@@ -136,7 +134,6 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
         View_Book viewBook = new View_Book(
                 model, gameSession, controllerBoard, commandContext);
-        model.addListener(viewBook);
         JScrollPane bookScroll = new JScrollPane(viewBook);
 
         View_Eval viewEval = new View_Eval(model, 6.0f);
@@ -272,7 +269,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     }
 
     private void updatePgnHeaders() {
-        HashMap<String, String> pgnHeaders = model.getGame().getPgnHeaders();
+        HashMap<String, String> pgnHeaders = gameSession.getGame().getPgnHeaders();
         String newGameInfo = "<html><div style='text-align:center;'>" +
                 pgnHeaders.get("White") + " - " +
                 pgnHeaders.get("Black") + "<br>" +
@@ -284,13 +281,13 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     }
 
     private void updateHighlightedMove() {
-        int id = model.getGame().getCurrentNode().getId();
+        int id = gameSession.getGame().getCurrentNode().getId();
         HTMLDocument document = (HTMLDocument) viewMoves.getDocument();
         Element element = document.getElement("n" + id);
         Highlighter highlighter = viewMoves.getHighlighter();
 
         if (element == null) {
-            if (model.getGame().getCurrentNode() == model.getGame().getRootNode()
+            if (gameSession.getGame().getCurrentNode() == gameSession.getGame().getRootNode()
                     && currentHighlight != null) {
                 highlighter.removeHighlight(currentHighlight);
                 currentHighlight = null;
@@ -315,7 +312,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
     private void updateGameView() {
         int oldCaretPosition = viewMoves.getCaretPosition();
-        viewMoves.setText(htmlPrinter.printGame(model.getGame()));
+        viewMoves.setText(htmlPrinter.printGame(gameSession.getGame()));
         try {
             viewMoves.setCaretPosition(oldCaretPosition);
         } catch (IllegalArgumentException exception) {
@@ -326,7 +323,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     }
 
     private void updateEngineSwitch() {
-        switch (model.getMode()) {
+        switch (gameSession.getMode()) {
             case Model_JFXChess.MODE_ANALYSIS:
             case Model_JFXChess.MODE_PLAY_WHITE:
             case Model_JFXChess.MODE_PLAY_BLACK:
@@ -346,7 +343,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (model.getGameSession() != gameSession) {
+        if (event.getSource() == model && model.getGameSession() != gameSession) {
             return;
         }
         String propertyName = event.getPropertyName();

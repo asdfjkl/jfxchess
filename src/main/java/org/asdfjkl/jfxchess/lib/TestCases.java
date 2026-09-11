@@ -20,6 +20,7 @@ package org.asdfjkl.jfxchess.lib;
 
 import org.asdfjkl.jfxchess.gui.GameSession;
 import org.asdfjkl.jfxchess.gui.CommandContext;
+import org.asdfjkl.jfxchess.gui.Controller_Board;
 import org.asdfjkl.jfxchess.gui.Model_JFXChess;
 import org.asdfjkl.jfxchess.gui.PgnDocument;
 import org.asdfjkl.jfxchess.gui.PgnGameId;
@@ -66,6 +67,41 @@ public class TestCases {
         }
 
         System.out.println("TEST: command context session target passed");
+    }
+
+    public void detachedBoardControllerSessionTargetTest() {
+
+        Game source = new Game();
+        source.getRootNode().setBoard(new Board(true));
+        Workspace workspace = new Workspace();
+        GameSession first = workspace.createSession(source);
+        GameSession second = workspace.createSession(source);
+
+        Model_JFXChess model = new Model_JFXChess();
+        model.setWorkspace(workspace);
+        model.setGameSession(second);
+
+        Controller_Board detachedBoardController =
+                new Controller_Board(model, first);
+        detachedBoardController.applyMove(new Move("e2e4"));
+
+        if (workspace.getActiveSession() != second ||
+                model.getGameSession() != second) {
+            throw new AssertionError(
+                    "A detached board action must not activate its bound session");
+        }
+        if (first.getGame().countHalfmoves() != 1 ||
+                !"e2e4".equals(first.getGame().getCurrentNode().getMove().getUci())) {
+            throw new AssertionError(
+                    "The detached board controller must apply its move to session A");
+        }
+        if (second.getGame().countHalfmoves() != 0 ||
+                second.getGame().getCurrentNode() != second.getGame().getRootNode()) {
+            throw new AssertionError(
+                    "The active workspace session B must remain unchanged");
+        }
+
+        System.out.println("TEST: detached board controller session target passed");
     }
 
     public void workspaceSessionIsolationTest() {

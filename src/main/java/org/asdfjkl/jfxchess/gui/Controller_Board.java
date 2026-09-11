@@ -23,76 +23,97 @@ import org.asdfjkl.jfxchess.lib.ColoredField;
 import org.asdfjkl.jfxchess.lib.GameNode;
 import org.asdfjkl.jfxchess.lib.Move;
 
+import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class Controller_Board {
 
     private final Model_JFXChess model;
+    private final GameSession gameSession;
 
-    public Controller_Board(Model_JFXChess model) {
+    public Controller_Board(Model_JFXChess model, GameSession gameSession) {
 
         this.model = model;
+        this.gameSession = gameSession;
     }
 
     public void applyMove(Move m) {
 
-        model.applyMove(m);
+        gameSession.applyMove(m);
+        model.notifySessionPositionChanged(gameSession);
     }
 
     public void addOrRemoveArrow(Arrow a) {
 
-        model.getGame().getCurrentNode().addOrRemoveArrow(a);
+        gameSession.addOrRemoveArrow(a);
     }
 
     public void addOrRemoveColoredField(ColoredField c) {
 
-        model.getGame().getCurrentNode().addOrRemoveColoredField(c);
+        gameSession.addOrRemoveColoredField(c);
     }
 
     public ActionListener moveForward() {
         return e -> {
-            ArrayList<GameNode> variations = model.getGame().getCurrentNode().getVariations();
+            ArrayList<GameNode> variations = gameSession.getGame().getCurrentNode().getVariations();
             if (variations.size() > 1) {
                 ArrayList<String> nextMoves = new ArrayList<>();
                 for (GameNode varI : variations) {
                     nextMoves.add(varI.getSan());
                 }
                 model.setShortcutsEnabled(false);
-                DialogNextMove dlgNextMove = new DialogNextMove(model.mainFrameRef, nextMoves);
+                DialogNextMove dlgNextMove = new DialogNextMove(dialogOwner(e), nextMoves);
                 dlgNextMove.setVisible(true);
                 model.setShortcutsEnabled(true);
                 int selectedMove = dlgNextMove.getSelectedMove();
                 // if selectedMove == -1, user aborted. Don't change anything.
                 if (selectedMove >= 0) {
-                    model.goToChild(selectedMove);
+                    gameSession.goToChild(selectedMove);
+                    model.notifySessionPositionChanged(gameSession);
                 }
             } else { // only one move -> go to child
-                model.goToChild(0);
+                gameSession.goToChild(0);
+                model.notifySessionPositionChanged(gameSession);
             }
         };
     }
 
     public ActionListener moveBack() {
         return e -> {
-            model.goToParent();
+            gameSession.goToParent();
+            model.notifySessionPositionChanged(gameSession);
         };
     }
 
     public ActionListener seekToEnd() {
         return e -> {
-            model.seekToEnd();
+            gameSession.seekToEnd();
+            model.notifySessionPositionChanged(gameSession);
         };
     }
 
     public ActionListener seekToBeginning() {
         return e -> {
-            model.seekToBeginning();
+            gameSession.seekToBeginning();
+            model.notifySessionPositionChanged(gameSession);
         };
     }
 
     public void goToNode(int node) {
-        model.goToNode(node);
+        gameSession.goToNode(node);
+        model.notifySessionPositionChanged(gameSession);
+    }
+
+    private Window dialogOwner(java.awt.event.ActionEvent event) {
+        if (event.getSource() instanceof Component component) {
+            Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
+            if (window != null) {
+                return window;
+            }
+        }
+        return model.mainFrameRef;
     }
 
 }

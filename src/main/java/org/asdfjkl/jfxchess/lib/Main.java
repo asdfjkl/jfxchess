@@ -50,6 +50,10 @@ public class Main {
                 TestCases cases = new TestCases();
                 cases.commandContextSessionTargetTest();
 
+            } else if (filename.equals("detached-board-controller-session-target-test")) {
+                TestCases cases = new TestCases();
+                cases.detachedBoardControllerSessionTargetTest();
+
             } else if (filename.equals("pgn-document-session-synchronization-test")) {
                 TestCases cases = new TestCases();
                 cases.pgnDocumentSessionSynchronizationTest();

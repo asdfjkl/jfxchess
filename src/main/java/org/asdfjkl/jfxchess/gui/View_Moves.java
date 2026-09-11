@@ -121,7 +121,7 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
                 if (href != null) {
                     int nodeId = Integer.parseInt(href.substring(1));
-                    model.goToNode(nodeId);
+                    controller_Board.goToNode(nodeId);
                     showContextMenu(e, nodeId);
                 }
             }

@@ -19,7 +19,10 @@
 package org.asdfjkl.jfxchess.gui;
 
 import org.asdfjkl.jfxchess.lib.Game;
+import org.asdfjkl.jfxchess.lib.GameNode;
 import org.asdfjkl.jfxchess.lib.Move;
+import org.asdfjkl.jfxchess.lib.Arrow;
+import org.asdfjkl.jfxchess.lib.ColoredField;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -83,6 +86,44 @@ public class GameSession {
         }
         propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
         return treeChanged;
+    }
+
+    public void goToChild(int index) {
+        game.goToChild(index);
+        propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
+    public void goToParent() {
+        game.goToParent();
+        propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
+    public void goToNode(int nodeId) {
+        GameNode node = game.findNodeById(nodeId);
+        game.setCurrent(node);
+        propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
+    public void seekToEnd() {
+        game.goToLeaf();
+        propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
+    public void seekToBeginning() {
+        game.goToRoot();
+        propertyChangeSupport.firePropertyChange("currentGameNodeChanged", null, null);
+    }
+
+    public void addOrRemoveArrow(Arrow arrow) {
+        game.getCurrentNode().addOrRemoveArrow(arrow);
+        markDirty();
+        propertyChangeSupport.firePropertyChange("treeChanged", null, null);
+    }
+
+    public void addOrRemoveColoredField(ColoredField coloredField) {
+        game.getCurrentNode().addOrRemoveColoredField(coloredField);
+        markDirty();
+        propertyChangeSupport.firePropertyChange("treeChanged", null, null);
     }
 
     public boolean isDirty() {

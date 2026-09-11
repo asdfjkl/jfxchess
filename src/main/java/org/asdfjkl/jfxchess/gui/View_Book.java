@@ -48,6 +48,8 @@ public class View_Book extends JTable implements PropertyChangeListener {
         this.gameSession = gameSession;
         this.controller_Board = controller_Board;
         this.commandContext = commandContext;
+        gameSession.addPropertyChangeListener(this);
+        model.addListener(this);
         ArrayList<PolyglotExtEntry> data = new ArrayList<>();
         // Set model
         tableModel = new ExtPolyglotTableModel(data);
@@ -110,10 +112,9 @@ public class View_Book extends JTable implements PropertyChangeListener {
         }
     }
 
-    // Dummy method (you will implement later)
     private void applyMove(String move) {
-        commandContext.activate(gameSession);
-        Move m = new Move(move);
+    commandContext.activate(gameSession);
+    Move m = new Move(move);
         controller_Board.applyMove(m);
     }
 
@@ -132,7 +133,8 @@ public class View_Book extends JTable implements PropertyChangeListener {
                 || "gameChanged".equals(evt.getPropertyName())
                 || "bookChanged".equals(evt.getPropertyName()))
         {
-            ArrayList<PolyglotExtEntry> moves = model.extBook.findEntries(model.getGame().getCurrentNode().getBoard());
+            ArrayList<PolyglotExtEntry> moves = model.extBook.findEntries(
+                    gameSession.getGame().getCurrentNode().getBoard());
             tableModel.setData(moves);
 
         }
