@@ -42,6 +42,18 @@ public class Main {
                 cases.pgnReadSingleEntryTestSeekWithinRAF();
                 cases.pgnReadAllMillBaseTest();
 
+            } else if (filename.equals("workspace-session-isolation-test")) {
+                TestCases cases = new TestCases();
+                cases.workspaceSessionIsolationTest();
+
+            } else if (filename.equals("command-context-session-target-test")) {
+                TestCases cases = new TestCases();
+                cases.commandContextSessionTargetTest();
+
+            } else if (filename.equals("pgn-document-session-synchronization-test")) {
+                TestCases cases = new TestCases();
+                cases.pgnDocumentSessionSynchronizationTest();
+
             } else {
 
                 boolean printOutput = true;

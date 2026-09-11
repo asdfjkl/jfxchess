@@ -34,13 +34,20 @@ public class View_Book extends JTable implements PropertyChangeListener {
 
     private final ExtPolyglotTableModel tableModel;
     private final Model_JFXChess model;
+    private final GameSession gameSession;
     private final Controller_Board controller_Board;
+    private final CommandContext commandContext;
 
-    public View_Book(Model_JFXChess model, Controller_Board controller_Board) {
+    public View_Book(Model_JFXChess model,
+                     GameSession gameSession,
+                     Controller_Board controller_Board,
+                     CommandContext commandContext) {
         super();
 
         this.model = model;
+        this.gameSession = gameSession;
         this.controller_Board = controller_Board;
+        this.commandContext = commandContext;
         ArrayList<PolyglotExtEntry> data = new ArrayList<>();
         // Set model
         tableModel = new ExtPolyglotTableModel(data);
@@ -105,6 +112,7 @@ public class View_Book extends JTable implements PropertyChangeListener {
 
     // Dummy method (you will implement later)
     private void applyMove(String move) {
+        commandContext.activate(gameSession);
         Move m = new Move(move);
         controller_Board.applyMove(m);
     }

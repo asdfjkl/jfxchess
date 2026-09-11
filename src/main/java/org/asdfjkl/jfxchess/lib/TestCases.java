@@ -18,14 +18,212 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import org.asdfjkl.jfxchess.gui.GameSession;
+import org.asdfjkl.jfxchess.gui.CommandContext;
+import org.asdfjkl.jfxchess.gui.Model_JFXChess;
+import org.asdfjkl.jfxchess.gui.PgnDocument;
+import org.asdfjkl.jfxchess.gui.PgnGameId;
+import org.asdfjkl.jfxchess.gui.PgnSourceReference;
+import org.asdfjkl.jfxchess.gui.Workspace;
+
 //import org.asdfjkl.jfxchess.gui.PgnDatabaseEntry;
 
+import javax.swing.SwingUtilities;
+import javax.swing.JTabbedPane;
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TestCases {
+
+    public void commandContextSessionTargetTest() {
+
+        Game source = new Game();
+        source.getRootNode().setBoard(new Board(true));
+        Workspace workspace = new Workspace();
+        GameSession first = workspace.createSession(source);
+        GameSession second = workspace.createSession(source);
+
+        Model_JFXChess model = new Model_JFXChess();
+        model.setWorkspace(workspace);
+        CommandContext commandContext = new CommandContext(
+                model, workspace, new JTabbedPane(), null);
+        final GameSession[] invokedSession = {null};
+
+        commandContext.bind(first, event -> invokedSession[0] = model.getGameSession())
+                .actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "test"));
+
+        if (model.getGameSession() != first || invokedSession[0] != first ||
+                workspace.getActiveSession() != first) {
+            throw new AssertionError("A command must activate its explicit game session");
+        }
+        if (second == model.getGameSession()) {
+            throw new AssertionError("A command must not use the previously active session");
+        }
+
+        System.out.println("TEST: command context session target passed");
+    }
+
+    public void workspaceSessionIsolationTest() {
+
+        Game source = new Game();
+        source.getRootNode().setBoard(new Board(true));
+
+        Workspace workspace = new Workspace();
+        final int[] activeSessionChanges = {0};
+        workspace.addPropertyChangeListener(event -> {
+            if ("activeSessionChanged".equals(event.getPropertyName())) {
+                activeSessionChanges[0]++;
+            }
+        });
+        GameSession first = workspace.createSession(source);
+        GameSession second = workspace.createSession(source);
+        PgnDocument firstDocument =
+                workspace.getOrCreateDocument(Path.of("workspace-test.pgn"));
+        PgnDocument secondDocument =
+                workspace.getOrCreateDocument(Path.of(".", "workspace-test.pgn"));
+
+        if(first.getGame() == source || first.getGame() == second.getGame()) {
+            throw new AssertionError("Workspace sessions must own different game instances");
+        }
+        if(workspace.getActiveSession() != second || activeSessionChanges[0] != 2) {
+            throw new AssertionError("Creating sessions must activate the newest session");
+        }
+        if(firstDocument != secondDocument || workspace.getDocuments().size() != 1) {
+            throw new AssertionError("Workspace must share canonical PGN documents");
+        }
+
+        Move e2e4 = new Move("e2e4");
+        if(!first.applyMove(e2e4)) {
+            throw new AssertionError("Expected e2e4 to be applied to the first session");
+        }
+        if(first.getGame().countHalfmoves() != 1 ||
+                second.getGame().countHalfmoves() != 0) {
+            throw new AssertionError("A move in one session changed another session");
+        }
+        if(!first.isDirty() || second.isDirty()) {
+            throw new AssertionError("Dirty state must be session-specific");
+        }
+
+        first.setFlipBoard(true);
+        first.setMode(Model_JFXChess.MODE_ANALYSIS);
+        first.setCurrentEngineInfo("first");
+        if(!first.getFlipBoard() ||
+                first.getMode() != Model_JFXChess.MODE_ANALYSIS ||
+                !"first".equals(first.getCurrentEngineInfo()) ||
+                second.getFlipBoard() ||
+                second.getMode() != Model_JFXChess.MODE_ENTER_MOVES ||
+                !"".equals(second.getCurrentEngineInfo())) {
+            throw new AssertionError("Per-session UI and analysis state was shared");
+        }
+        if(first.getEngineSession() == second.getEngineSession()) {
+            throw new AssertionError("Sessions must not share an engine worker");
+        }
+
+        Move d2d4 = new Move("d2d4");
+        if(!second.applyMove(d2d4)) {
+            throw new AssertionError("Expected d2d4 to be applied to the second session");
+        }
+        workspace.setActiveSession(first);
+        if(!"e2e4".equals(first.getGame().getCurrentNode().getMove().getUci()) ||
+                !"d2d4".equals(second.getGame().getCurrentNode().getMove().getUci())) {
+            throw new AssertionError("Changing the active session changed a session position");
+        }
+        workspace.closeSession(first);
+        if(workspace.getActiveSession() != second || activeSessionChanges[0] != 4) {
+            throw new AssertionError("Closing the active session must select its replacement");
+        }
+        if(!first.getEngineSession().isShutdownRequested() ||
+                second.getEngineSession().isShutdownRequested()) {
+            throw new AssertionError("Closing a session affected another engine worker");
+        }
+
+        System.out.println("TEST: workspace session isolation passed");
+    }
+
+    public void pgnDocumentSessionSynchronizationTest() {
+        Path path = null;
+        try {
+            path = Files.createTempFile("jfxchess-pgn-document-", ".pgn");
+            Workspace workspace = new Workspace();
+            PgnDocument document = workspace.getOrCreateDocument(path);
+
+            Game firstGame = new Game();
+            firstGame.getRootNode().setBoard(new Board(true));
+            firstGame.setHeader("Event", "First");
+            PgnGameId firstGameId = document.writeSingleGame(firstGame);
+
+            GameSession cleanFirst = workspace.createSession(document.loadGame(firstGameId));
+            cleanFirst.setPgnSourceReference(new PgnSourceReference(
+                    document.getPath(), firstGameId, document.getRevision()));
+            Game cleanFirstGame = cleanFirst.getGame();
+
+            Game secondGame = new Game();
+            secondGame.getRootNode().setBoard(new Board(true));
+            secondGame.setHeader("Event", "Second");
+            PgnGameId secondGameId = document.appendGame(secondGame);
+            flushEdt();
+            if (cleanFirst.getGame() != cleanFirstGame || cleanFirst.isStale()) {
+                throw new AssertionError("Appending must not change unrelated sessions");
+            }
+
+            GameSession dirtyFirst = workspace.createSession(document.loadGame(firstGameId));
+            dirtyFirst.setPgnSourceReference(new PgnSourceReference(
+                    document.getPath(), firstGameId, document.getRevision()));
+            GameSession unaffectedSecond = workspace.createSession(document.loadGame(secondGameId));
+            unaffectedSecond.setPgnSourceReference(new PgnSourceReference(
+                    document.getPath(), secondGameId, document.getRevision()));
+            Game unaffectedSecondGame = unaffectedSecond.getGame();
+            if (!dirtyFirst.applyMove(new Move("e2e4"))) {
+                throw new AssertionError("Expected a dirty session for the replacement test");
+            }
+
+            Game replacement = document.loadGame(firstGameId);
+            replacement.setHeader("Event", "Replacement");
+            document.replaceGame(firstGameId, new PgnPrinter().printGame(replacement));
+            flushEdt();
+            if (!"Replacement".equals(cleanFirst.getGame().getHeader("Event")) ||
+                    cleanFirst.isStale() || cleanFirst.isDirty()) {
+                throw new AssertionError("Clean sessions for a replaced game must reload");
+            }
+            if (!dirtyFirst.isStale() || !dirtyFirst.isDirty()) {
+                throw new AssertionError("Dirty sessions for a replaced game must become stale");
+            }
+            if (unaffectedSecond.getGame() != unaffectedSecondGame ||
+                    unaffectedSecond.isStale()) {
+                throw new AssertionError("Unrelated game sessions must remain unchanged");
+            }
+
+            document.deleteGame(secondGameId);
+            flushEdt();
+            if (!unaffectedSecond.isStale() || document.getGameIds().size() != 1) {
+                throw new AssertionError("Deleting a game must only stale sessions for that game");
+            }
+            System.out.println("TEST: PGN document session synchronization passed");
+        } catch (IOException exception) {
+            throw new AssertionError("PGN document synchronization test failed", exception);
+        } finally {
+            if (path != null) {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException exception) {
+                    throw new AssertionError("Unable to remove test PGN", exception);
+                }
+            }
+        }
+    }
+
+    private void flushEdt() {
+        try {
+            SwingUtilities.invokeAndWait(() -> { });
+        } catch (Exception exception) {
+            throw new AssertionError("Unable to synchronize with the event thread", exception);
+        }
+    }
 
     public void fenTest() {
 

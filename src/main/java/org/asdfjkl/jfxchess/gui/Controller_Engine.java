@@ -30,17 +30,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Controller_Engine implements PropertyChangeListener {
 
     private final Model_JFXChess model;
-    final EngineThread engineThread;
-    final BlockingQueue<String> cmdQueue = new LinkedBlockingQueue<>();
-    Engine currentEngine = null;
+    private EngineSession listenedEngineSession;
     private final String playInfo =
             "INFO <table border=\"0\" cellspacing=\"0\" cellpadding=\"4\" width=\"100%\">" +
                     "  <tr>" +
@@ -69,15 +65,28 @@ public class Controller_Engine implements PropertyChangeListener {
     public Controller_Engine(Model_JFXChess model) {
         this.model = model;
         model.addListener(this);
+        listenToActiveEngineSession();
+    }
 
-        engineThread = new EngineThread(cmdQueue);
-        engineThread.addPropertyChangeListener(this);
-        engineThread.start();
+    private EngineSession getEngineSession() {
+        return model.getGameSession().getEngineSession();
+    }
+
+    private void listenToActiveEngineSession() {
+        EngineSession activeEngineSession = getEngineSession();
+        if (activeEngineSession == listenedEngineSession) {
+            return;
+        }
+        if (listenedEngineSession != null) {
+            listenedEngineSession.removePropertyChangeListener(this);
+        }
+        listenedEngineSession = activeEngineSession;
+        listenedEngineSession.addPropertyChangeListener(this);
     }
 
     public void sendCommand(String cmd) {
         try {
-            cmdQueue.put(cmd);
+            getEngineSession().sendCommand(cmd);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -89,7 +98,7 @@ public class Controller_Engine implements PropertyChangeListener {
     }
 
     public void restartEngine(Engine activeEngine) {
-        currentEngine = activeEngine;
+        getEngineSession().setActiveEngine(activeEngine);
         // It's OK to send stop and quit even if the engine process
         // inside the engine thread is not running. These commands will
         // just be consumed by the engine thread in that case.
@@ -104,7 +113,7 @@ public class Controller_Engine implements PropertyChangeListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } while (!engineThread.engineIsOn() && countMs < 1500);
+        } while (!getEngineSession().isEngineRunning() && countMs < 1500);
 
 
         // Since the engine is either internal, or we have
@@ -131,11 +140,12 @@ public class Controller_Engine implements PropertyChangeListener {
     }
 
     public void setMultiPV(int n) {
+        Engine currentEngine = getEngineSession().getActiveEngine();
         if (currentEngine != null && currentEngine.supportsMultiPV()) {
             sendCommand("setoption name MultiPV value " + n);
         }
         // in case the engine hasn't been started yet:
-        engineThread.engineInfoSetPVLines(n);
+        getEngineSession().setPvLines(n);
     }
 
     public ActionListener incMultiPV() {
@@ -277,13 +287,13 @@ public class Controller_Engine implements PropertyChangeListener {
                 if(result == DialogNewGame.ENTER_ANALYSE) {
                     // clean up current game, but otherwise not much to do
                     model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
-                    model.setComputerThinkTimeSecs(3);
-                    model.setFlipBoard(false);
                     Game g = new Game();
                     Board b = new Board(true);
                     g.getRootNode().setBoard(b);
-                    model.setGame(g);
-                    model.goToNode(g.getRootNode().getId());
+                    model.openGameInNewSession(g);
+                    model.setComputerThinkTimeSecs(3);
+                    model.setFlipBoard(false);
+                    model.goToNode(model.getGame().getRootNode().getId());
                     activateEnterMovesMode();
                 }
                 if(result == DialogNewGame.PLAY_BOT) {
@@ -292,7 +302,6 @@ public class Controller_Engine implements PropertyChangeListener {
                     if(dlgPlayBot.isConfirmed()) {
                         model.wasSaved = false;
                         model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
-                        model.setComputerThinkTimeSecs(3);
                         Game g = new Game();
                         Board b;
                         if(dlgPlayBot.getPlayInitialPosition()) {
@@ -301,9 +310,6 @@ public class Controller_Engine implements PropertyChangeListener {
                             b = model.getGame().getCurrentNode().getBoard().makeCopy();
                         }
                         g.getRootNode().setBoard(b);
-                        model.setGame(g);
-                        model.getGame().setTreeWasChanged(true);
-                        model.getGame().setHeaderWasChanged(true);
                         model.selectedPlayEngine = model.botEngines.get(dlgPlayBot.getBotIndex());
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
                         String formattedDate = LocalDate.now().format(formatter);
@@ -313,12 +319,16 @@ public class Controller_Engine implements PropertyChangeListener {
                             g.setHeader("White", "N.N.");
                             g.setHeader("Black", model.selectedPlayEngine.getName());
                             g.setHeader("BlackElo", ((BotEngine) model.selectedPlayEngine).getElo());
+                            model.openGameInNewSession(g);
+                            model.setComputerThinkTimeSecs(3);
                             model.setFlipBoard(false);
                             activatePlayWhiteMode();
                         } else {
                             g.setHeader("Black", "N.N.");
                             g.setHeader("White", model.selectedPlayEngine.getName());
                             g.setHeader("WhiteElo", ((BotEngine) model.selectedPlayEngine).getElo());
+                            model.openGameInNewSession(g);
+                            model.setComputerThinkTimeSecs(3);
                             model.setFlipBoard(true);
                             activatePlayBlackMode();
                         }
@@ -331,7 +341,6 @@ public class Controller_Engine implements PropertyChangeListener {
                     if(uciAccepted) {
                         model.wasSaved = false;
                         model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
-                        model.setComputerThinkTimeSecs(3);
                         Game g = new Game();
                         Board b;
                         if(dlgUci.getPlayInitialPosition()) {
@@ -340,9 +349,6 @@ public class Controller_Engine implements PropertyChangeListener {
                             b = model.getGame().getCurrentNode().getBoard().makeCopy();
                         }
                         g.getRootNode().setBoard(b);
-                        model.setGame(g);
-                        model.getGame().setTreeWasChanged(true);
-                        model.getGame().setHeaderWasChanged(true);
                         model.selectedPlayEngine = model.engines.get(dlgUci.getSelectedEngineIdx());
                         if(model.selectedPlayEngine.supportsUciLimitStrength()) {
                             int newElo = dlgUci.getElo();
@@ -359,12 +365,16 @@ public class Controller_Engine implements PropertyChangeListener {
                             g.setHeader("White", "N.N.");
                             g.setHeader("Black", model.selectedPlayEngine.getName());
                             g.setHeader("BlackElo", String.valueOf(model.selectedPlayEngine.getUciElo()));
+                            model.openGameInNewSession(g);
+                            model.setComputerThinkTimeSecs(3);
                             model.setFlipBoard(false);
                             activatePlayWhiteMode();
                         } else {
                             g.setHeader("Black", "N.N.");
                             g.setHeader("White", model.selectedPlayEngine.getName());
                             g.setHeader("WhiteElo", String.valueOf(model.selectedPlayEngine.getUciElo()));
+                            model.openGameInNewSession(g);
+                            model.setComputerThinkTimeSecs(3);
                             model.setFlipBoard(true);
                             activatePlayBlackMode();
                         }
@@ -837,19 +847,19 @@ public class Controller_Engine implements PropertyChangeListener {
             if (isCheckmate) {
                 // white to move, but cannot: black checkmated
                 if(board.turn == CONSTANTS.WHITE) {
-                    model.game.setResult(CONSTANTS.RES_BLACK_WINS);
+                    model.getGame().setResult(CONSTANTS.RES_BLACK_WINS);
                 } else {
-                    model.game.setResult(CONSTANTS.RES_WHITE_WINS);
+                    model.getGame().setResult(CONSTANTS.RES_WHITE_WINS);
                 }
             }
             if (isStalemate) {
-                model.game.setResult(CONSTANTS.RES_DRAW);
+                model.getGame().setResult(CONSTANTS.RES_DRAW);
             }
             if (isThreefoldRepetition) {
-                model.game.setResult(CONSTANTS.RES_DRAW);
+                model.getGame().setResult(CONSTANTS.RES_DRAW);
             }
             if (isInsufficientMaterial) {
-                model.game.setResult(CONSTANTS.RES_DRAW);
+                model.getGame().setResult(CONSTANTS.RES_DRAW);
             }
         } else {
             if (mode == Model_JFXChess.MODE_ANALYSIS) {
@@ -894,6 +904,9 @@ public class Controller_Engine implements PropertyChangeListener {
 
         if (evt.getPropertyName().equals("engineInfoFromThread")) {
             handleNewEngineInfo((String) evt.getNewValue());
+        }
+        if (evt.getPropertyName().equals("gameChanged")) {
+            listenToActiveEngineSession();
         }
         if (evt.getPropertyName().equals("currentGameNodeChanged")) {
             handleNewBoardPosition();

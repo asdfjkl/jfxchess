@@ -38,16 +38,22 @@ import java.beans.PropertyChangeListener;
 public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
     Model_JFXChess model;
+    GameSession gameSession;
     Controller_UI controller_UI;
     Controller_Board controller_Board;
+    CommandContext commandContext;
 
     public View_Moves(Model_JFXChess model,
+                      GameSession gameSession,
                       Controller_UI controller_UI,
-                      Controller_Board controller_Board) {
+                      Controller_Board controller_Board,
+                      CommandContext commandContext) {
 
         this.model = model;
+        this.gameSession = gameSession;
         this.controller_UI = controller_UI;
         this.controller_Board = controller_Board;
+        this.commandContext = commandContext;
 
         model.addListener(this);
 
@@ -87,6 +93,7 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
     public void onLinkClick(HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            commandContext.activate(gameSession);
             String id;
             if (e.getURL() != null)
                 id = e.getURL().getRef();
@@ -97,6 +104,7 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
     }
 
     private void handleRightClick(MouseEvent e) {
+        commandContext.activate(gameSession);
         JEditorPane pane = (JEditorPane) e.getSource();
         int pos = pane.viewToModel2D(e.getPoint());
 
@@ -183,33 +191,37 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
         contextMenu.show(e.getComponent(), e.getX(), e.getY());
 
-        addEditComment.addActionListener(controller_UI.editComment());
-        deleteComment.addActionListener(controller_UI.deleteComment(nodeId));
-        blunder.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_BLUNDER));
-        mistake.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_MISTAKE));
-        dubiousMove.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_DUBIOUS_MOVE));
-        interestingMove.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_SPECULATIVE_MOVE));
-        goodMove.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_GOOD_MOVE));
-        brilliantMove.addActionListener(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_BRILLIANT_MOVE));
-        noMoveAnnotation.addActionListener(controller_UI.removeMoveAnnotations(nodeId));
+        addEditComment.addActionListener(command(controller_UI.editComment()));
+        deleteComment.addActionListener(command(controller_UI.deleteComment(nodeId)));
+        blunder.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_BLUNDER)));
+        mistake.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_MISTAKE)));
+        dubiousMove.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_DUBIOUS_MOVE)));
+        interestingMove.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_SPECULATIVE_MOVE)));
+        goodMove.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_GOOD_MOVE)));
+        brilliantMove.addActionListener(command(controller_UI.addMoveAnnotation(nodeId, CONSTANTS.NAG_BRILLIANT_MOVE)));
+        noMoveAnnotation.addActionListener(command(controller_UI.removeMoveAnnotations(nodeId)));
 
-        unclear.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_DRAWISH_POSITION));
-        drawish.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_DRAWISH_POSITION));
-        slightAdvantageWhite.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_WHITE_SLIGHT_ADVANTAGE));
-        slightAdvantageBlack.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_BLACK_SLIGHT_ADVANTAGE));
-        advantageWhite.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_WHITE_DECISIVE_ADVANTAGE));
-        advantageBlack.addActionListener(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_BLACK_DECISIVE_ADVANTAGE));
-        noPosAnnotation.addActionListener(controller_UI.removePosAnnotations(nodeId));
-        removeAnnotation.addActionListener(controller_UI.removeMoveAndPosAnnotations(nodeId));
+        unclear.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_DRAWISH_POSITION)));
+        drawish.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_DRAWISH_POSITION)));
+        slightAdvantageWhite.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_WHITE_SLIGHT_ADVANTAGE)));
+        slightAdvantageBlack.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_BLACK_SLIGHT_ADVANTAGE)));
+        advantageWhite.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_WHITE_DECISIVE_ADVANTAGE)));
+        advantageBlack.addActionListener(command(controller_UI.addPosAnnotation(nodeId, CONSTANTS.NAG_BLACK_DECISIVE_ADVANTAGE)));
+        noPosAnnotation.addActionListener(command(controller_UI.removePosAnnotations(nodeId)));
+        removeAnnotation.addActionListener(command(controller_UI.removeMoveAndPosAnnotations(nodeId)));
 
-        moveVariantUp.addActionListener(controller_UI.moveVariantUp(nodeId));
-        moveVariantDown.addActionListener(controller_UI.moveVariantDown(nodeId));
-        deleteVariant.addActionListener(controller_UI.deleteVariant(nodeId));
-        deleteFromHere.addActionListener(controller_UI.deleteFromHere(nodeId));
+        moveVariantUp.addActionListener(command(controller_UI.moveVariantUp(nodeId)));
+        moveVariantDown.addActionListener(command(controller_UI.moveVariantDown(nodeId)));
+        deleteVariant.addActionListener(command(controller_UI.deleteVariant(nodeId)));
+        deleteFromHere.addActionListener(command(controller_UI.deleteFromHere(nodeId)));
 
-        deleteAllComments.addActionListener(controller_UI.deleteAllComments());
-        deleteAllVariants.addActionListener(controller_UI.deleteAllVariants());
+        deleteAllComments.addActionListener(command(controller_UI.deleteAllComments()));
+        deleteAllVariants.addActionListener(command(controller_UI.deleteAllVariants()));
 
+    }
+
+    private java.awt.event.ActionListener command(java.awt.event.ActionListener listener) {
+        return commandContext.bind(gameSession, listener);
     }
 
 

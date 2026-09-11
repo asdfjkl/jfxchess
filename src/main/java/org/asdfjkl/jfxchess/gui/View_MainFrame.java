@@ -19,18 +19,16 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.*;
-import org.asdfjkl.jfxchess.lib.HtmlPrinter;
 
 public class View_MainFrame extends JFrame
         implements PropertyChangeListener {
@@ -40,27 +38,18 @@ public class View_MainFrame extends JFrame
     private final Controller_Board controller_Board;
     private final Controller_Engine controller_Engine;
     private final Controller_Pgn controller_Pgn;
+    private final Workspace workspace;
 
-    public JSplitPane horizontalSplit;
-    public JSplitPane verticalSplit;
-
-    JLabel lblGameHeader;
-
-    private JToggleButton btnEngineSwitch;
-    private JButton btnThreads;
-
-    View_Moves view_Moves;
-    private JScrollPane scrollMoves;
-    View_EngineOutput view_EngineOutput;
-    View_Chessboard viewChessboard;
-
-    HtmlPrinter htmlPrinter = new HtmlPrinter();
-    String htmlString = "";
-
-    private Object currentHighlight = null;
+    private JTabbedPane gameTabs;
+    private final Map<GameSession, GameTabView> gameTabViews =
+            new IdentityHashMap<>();
+    private WindowManager windowManager;
+    private CommandContext commandContext;
 
     KeyStroke pasteKey = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
     KeyStroke copyKey = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
+    KeyStroke openKey = KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
+    KeyStroke saveKey = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK);
     KeyStroke flipKey = KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK);
     KeyStroke setupPosKey = KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
     KeyStroke moveForwardKey = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0);
@@ -75,7 +64,12 @@ public class View_MainFrame extends JFrame
     public View_MainFrame(Model_JFXChess model) {
 
         this.model = model;
+        workspace = model.getWorkspace();
+        if (workspace == null) {
+            throw new IllegalStateException("View_MainFrame requires a workspace");
+        }
         model.addListener(this);
+        workspace.addPropertyChangeListener(this::workspacePropertyChange);
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -127,15 +121,15 @@ public class View_MainFrame extends JFrame
         setLocationRelativeTo(null);
         setIconImages(icons);
 
+        // ===== Main Content =====
+        JComponent mainContent = createMainContent();
+
         // ===== Menu Bar =====
         setJMenuBar(createMenuBar());
 
         // ===== Tool Bar =====
         JToolBar toolBar = createToolBar();
         toolBar.putClientProperty("JToolBar.isRollover", true);
-
-        // ===== Main Content =====
-        JComponent mainContent = createMainContent();
 
         // ===== Key Shortcuts
         assignKeyShortcuts();
@@ -157,22 +151,27 @@ public class View_MainFrame extends JFrame
 
         JMenu gameMenu = new JMenu("Game");
         JMenuItem jmiNewGame = new JMenuItem("New Game");
-        jmiNewGame.addActionListener(controller_Engine.startNewGame());
+        jmiNewGame.addActionListener(command(controller_Engine.startNewGame()));
         gameMenu.add(jmiNewGame);
 
         JMenuItem jmiOpenFile = new JMenuItem("Open File");
-        jmiOpenFile.addActionListener(controller_Pgn.openFile());
+        jmiOpenFile.addActionListener(command(controller_Pgn.openFile()));
+        jmiOpenFile.setAccelerator(openKey);
         gameMenu.add(jmiOpenFile);
         JMenuItem jmiSaveGame = new JMenuItem("Save Game");
         gameMenu.add(jmiSaveGame);
-        jmiSaveGame.addActionListener(controller_Pgn.saveGame());
+        jmiSaveGame.addActionListener(command(controller_Pgn.saveGame()));
+        jmiSaveGame.setAccelerator(saveKey);
+        JMenuItem jmiDetachGame = new JMenuItem("Detach Game Window");
+        jmiDetachGame.addActionListener(command(e -> detachActiveGame()));
+        gameMenu.add(jmiDetachGame);
         gameMenu.addSeparator();
         JMenuItem jmiPrintGame = new JMenuItem("Print Game");
         gameMenu.add(jmiPrintGame);
-        jmiPrintGame.addActionListener(controller_UI.printGame());
+        jmiPrintGame.addActionListener(command(controller_UI.printGame()));
         JMenuItem jmiPrintPosition =  new JMenuItem("Print Position");
         gameMenu.add(jmiPrintPosition);
-        jmiPrintPosition.addActionListener(controller_UI.printFen());
+        jmiPrintPosition.addActionListener(command(controller_UI.printFen()));
         gameMenu.addSeparator();
         JMenuItem jmiQuit = new JMenuItem("Quit");
         jmiQuit.addActionListener(e -> { dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)); });
@@ -180,52 +179,52 @@ public class View_MainFrame extends JFrame
 
         JMenu editMenu = new JMenu("Edit");
         JMenuItem jmiCopyGame = new JMenuItem("Copy Game");
-        jmiCopyGame.addActionListener(controller_UI.copyPgnToClipboard());
+        jmiCopyGame.addActionListener(command(controller_UI.copyPgnToClipboard()));
         jmiCopyGame.setAccelerator(copyKey);
         editMenu.add(jmiCopyGame);
         JMenuItem jmiCopyFEN = new JMenuItem("Copy Position (FEN)");
-        jmiCopyFEN.addActionListener(controller_UI.copyFenToClipboard());
+        jmiCopyFEN.addActionListener(command(controller_UI.copyFenToClipboard()));
         editMenu.add(jmiCopyFEN);
 
         JMenuItem jmiCopyImage = new JMenuItem("Copy Position (Image)");
-        jmiCopyImage.addActionListener(controller_UI.copyBitmapToClipboard());
+        jmiCopyImage.addActionListener(command(controller_UI.copyBitmapToClipboard()));
         editMenu.add(jmiCopyImage);
 
         JMenuItem jmiPaste =  new JMenuItem("Paste Game/Position");
-        jmiPaste.addActionListener(controller_UI.pasteFenOrGame());
+        jmiPaste.addActionListener(command(controller_UI.pasteFenOrGame()));
         jmiPaste.setAccelerator(pasteKey);
         editMenu.add(jmiPaste);
         editMenu.addSeparator();
 
         JMenuItem jmiEditGameData = new JMenuItem("Edit Game Data");
-        jmiEditGameData.addActionListener(controller_UI.editGameData());
+        jmiEditGameData.addActionListener(command(controller_UI.editGameData()));
         editMenu.add(jmiEditGameData);
 
         JMenuItem jmiSetupPosition = new JMenuItem("Setup Position");
         editMenu.add(jmiSetupPosition);
-        jmiSetupPosition.addActionListener(controller_UI.setupNewPosition());
+        jmiSetupPosition.addActionListener(command(controller_UI.setupNewPosition()));
         jmiSetupPosition.setAccelerator(setupPosKey);
         editMenu.addSeparator();
         JMenuItem jmiFlipBoard = new JMenuItem("Flip Board");
         editMenu.add(jmiFlipBoard);
-        jmiFlipBoard.addActionListener(controller_UI.flipBoard());
+        jmiFlipBoard.addActionListener(command(controller_UI.flipBoard()));
         jmiFlipBoard.setAccelerator(flipKey);
 
         JMenu modeMenu = new JMenu("Engine");
 
         JMenuItem jmiStartEngine = new JMenuItem("Start Engine");
-        jmiStartEngine.addActionListener(controller_Engine.startAnalysisMode());
+        jmiStartEngine.addActionListener(command(controller_Engine.startAnalysisMode()));
         jmiStartEngine.setAccelerator(turnEngineOnKey);
         modeMenu.add(jmiStartEngine);
         JMenuItem jmiStopEngine = new JMenuItem("Stop Engine");
-        jmiStopEngine.addActionListener(controller_Engine.startEnterMovesMode());
+        jmiStopEngine.addActionListener(command(controller_Engine.startEnterMovesMode()));
         jmiStopEngine.setAccelerator(turnEngineOffKey);
         modeMenu.add(jmiStopEngine);
         JMenuItem jmiFullGameAnalysis = new JMenuItem("Full Game Analysis");
-        jmiFullGameAnalysis.addActionListener(controller_Engine.startGameAnalysisMode());
+        jmiFullGameAnalysis.addActionListener(command(controller_Engine.startGameAnalysisMode()));
         modeMenu.add(jmiFullGameAnalysis);
         JMenuItem jmiPlayoutPosition = new JMenuItem("Playout Position");
-        jmiPlayoutPosition.addActionListener(controller_Engine.startPlayoutPositionMode());
+        jmiPlayoutPosition.addActionListener(command(controller_Engine.startPlayoutPositionMode()));
         modeMenu.add(jmiPlayoutPosition);
 
         modeMenu.addSeparator();
@@ -355,14 +354,7 @@ public class View_MainFrame extends JFrame
             revalidate();
 
             SwingUtilities.invokeLater(() -> {
-                verticalSplit.setResizeWeight(0.8);
-                verticalSplit.setDividerLocation(450);
-
-                horizontalSplit.setResizeWeight(0.7);
-                horizontalSplit.setDividerLocation(600);
-
-                viewChessboard.revalidate();
-                viewChessboard.repaint();
+                getSelectedGameTabView().resetLayout();
             });
         });
         viewMenu.add(jmiResetLayout);
@@ -373,10 +365,10 @@ public class View_MainFrame extends JFrame
         databaseMenu.add(jmiDatabase);
         JMenuItem jmiNextGameinDatabase = new JMenuItem("Next Game");
         databaseMenu.add(jmiNextGameinDatabase);
-        jmiNextGameinDatabase.addActionListener(controller_Pgn.goToNextGameInDatabase());
+        jmiNextGameinDatabase.addActionListener(command(controller_Pgn.goToNextGameInDatabase()));
         JMenuItem jmiPreviousGameinDatabase = new JMenuItem("Previous Game");
         databaseMenu.add(jmiPreviousGameinDatabase);
-        jmiPreviousGameinDatabase.addActionListener(controller_Pgn.goToPrevGameInDatabase());
+        jmiPreviousGameinDatabase.addActionListener(command(controller_Pgn.goToPrevGameInDatabase()));
 
         JMenu helpMenu = new JMenu("Help");
         JMenuItem jmiAbout = new JMenuItem("About");
@@ -407,43 +399,43 @@ public class View_MainFrame extends JFrame
 
         JButton btnTbNew = createToolButton("New Game", "open_in_new.svg");
         toolBar.add(btnTbNew);
-        btnTbNew.addActionListener(controller_Engine.startNewGame());
+        btnTbNew.addActionListener(command(controller_Engine.startNewGame()));
         JButton btnTbOpen = createToolButton("Open File", "open_folder.svg");
         toolBar.add(btnTbOpen);
-        btnTbOpen.addActionListener(controller_Pgn.openFile());
+        btnTbOpen.addActionListener(command(controller_Pgn.openFile()));
         JButton btnTbSave = createToolButton("Save Game", "file_save.svg");
-        btnTbSave.addActionListener(controller_Pgn.saveGame());
+        btnTbSave.addActionListener(command(controller_Pgn.saveGame()));
         toolBar.add(btnTbSave);
 
         toolBar.addSeparator();
 
         JButton btnTbPrint = createToolButton("Print Game", "print.svg");
         toolBar.add(btnTbPrint);
-        btnTbPrint.addActionListener(controller_UI.printGame());
+        btnTbPrint.addActionListener(command(controller_UI.printGame()));
         JButton btnTbFlip = createToolButton("Flip Board", "flip3.svg");
         toolBar.add(btnTbFlip);
-        btnTbFlip.addActionListener(controller_UI.flipBoard());
+        btnTbFlip.addActionListener(command(controller_UI.flipBoard()));
 
         toolBar.addSeparator();
 
         JButton btnTbCopyGame = createToolButton("Copy Game", "copy1.svg");
         toolBar.add(btnTbCopyGame);
-        btnTbCopyGame.addActionListener(controller_UI.copyPgnToClipboard());
+        btnTbCopyGame.addActionListener(command(controller_UI.copyPgnToClipboard()));
         JButton btnTbCopyPosition = createToolButton("Copy Position (FEN)", "copy2.svg");
         toolBar.add(btnTbCopyPosition);
-        btnTbCopyPosition.addActionListener(controller_UI.copyFenToClipboard());
+        btnTbCopyPosition.addActionListener(command(controller_UI.copyFenToClipboard()));
         JButton btnTbPaste = createToolButton("Paste Game/Position", "paste.svg");
         toolBar.add(btnTbPaste);
-        btnTbPaste.addActionListener(controller_UI.pasteFenOrGame());
+        btnTbPaste.addActionListener(command(controller_UI.pasteFenOrGame()));
         JButton btnTbSetupPosition = createToolButton("Setup Position", "setup_new_position.svg");
         toolBar.add(btnTbSetupPosition);
-        btnTbSetupPosition.addActionListener(controller_UI.setupNewPosition());
+        btnTbSetupPosition.addActionListener(command(controller_UI.setupNewPosition()));
 
         toolBar.addSeparator();
 
         JButton btnTbFullAnalysis = createToolButton("Full Game Analysis", "game_analysis.svg");
         toolBar.add(btnTbFullAnalysis);
-        btnTbFullAnalysis.addActionListener(controller_Engine.startGameAnalysisMode());
+        btnTbFullAnalysis.addActionListener(command(controller_Engine.startGameAnalysisMode()));
 
         toolBar.addSeparator();
 
@@ -452,10 +444,10 @@ public class View_MainFrame extends JFrame
         btnTbBrowseDatabase.addActionListener(controller_Pgn.showDatabase());
         JButton btnTbDatabasePrevGame = createToolButton("Previous Game", "arrow_left_alt.svg");
         toolBar.add(btnTbDatabasePrevGame);
-        btnTbDatabasePrevGame.addActionListener(controller_Pgn.goToPrevGameInDatabase());
+        btnTbDatabasePrevGame.addActionListener(command(controller_Pgn.goToPrevGameInDatabase()));
         JButton btnTbDatabaseNextGame = createToolButton("Next Game", "arrow_right_alt.svg");
         toolBar.add(btnTbDatabaseNextGame);
-        btnTbDatabaseNextGame.addActionListener(controller_Pgn.goToNextGameInDatabase());
+        btnTbDatabaseNextGame.addActionListener(command(controller_Pgn.goToNextGameInDatabase()));
 
         toolBar.addSeparator();
 
@@ -483,194 +475,107 @@ public class View_MainFrame extends JFrame
     // ----------------------------------------------------
 
     private JComponent createMainContent() {
+        gameTabs = new JTabbedPane();
+        gameTabs.addChangeListener(e -> selectTabSession());
+        windowManager = new WindowManager(model, workspace, this, gameTabs);
+        commandContext = new CommandContext(model, workspace, gameTabs, windowManager);
+        for (GameSession session : workspace.getSessions()) {
+            attachGameTab(session);
+        }
+        GameSession activeSession = workspace.getActiveSession();
+        if (activeSession != null) {
+            activateSession(activeSession);
+        }
+        return gameTabs;
+    }
 
-        // ===== Left: Chessboard Placeholder =====
-        viewChessboard = new View_Chessboard(model, controller_UI, controller_Board);
+    private void workspacePropertyChange(PropertyChangeEvent event) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> workspacePropertyChange(event));
+            return;
+        }
+        if ("sessionAdded".equals(event.getPropertyName())) {
+            attachGameTab((GameSession) event.getNewValue());
+        }
+        if ("sessionRemoved".equals(event.getPropertyName())) {
+            removeGameTab((GameSession) event.getOldValue());
+        }
+        if ("activeSessionChanged".equals(event.getPropertyName())) {
+            activateSession((GameSession) event.getNewValue());
+        }
+    }
 
-        // ===== Right: Game Header Pane/Button + Text Pane + Nav Buttons =====
-
-        // ===== Multiline Label =====
-        lblGameHeader = new JLabel(
-                "<html><div style='text-align:center;'>N., N. - N., N.<br>" +
-                        "Somewhere, 01.01.1900</div></html>"
+    private void attachGameTab(GameSession session) {
+        if (gameTabViews.containsKey(session)) {
+            return;
+        }
+        GameTabView tabView = new GameTabView(
+                model,
+                session,
+                controller_UI,
+                controller_Board,
+                controller_Engine,
+                commandContext
         );
+        gameTabViews.put(session, tabView);
+        gameTabs.addTab("Game " + gameTabViews.size(), tabView);
+    }
 
-        lblGameHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        lblGameHeader.setVerticalAlignment(SwingConstants.CENTER);
+    private void activateSession(GameSession session) {
+        if (session == null) {
+            return;
+        }
+        attachGameTab(session);
+        if (model.getGameSession() != session) {
+            model.setGameSession(session);
+        }
+        GameTabView tabView = gameTabViews.get(session);
+        if (windowManager.isDetached(session)) {
+            windowManager.activateDetachedWindow(session);
+            return;
+        }
+        if (gameTabs.getSelectedComponent() != tabView) {
+            gameTabs.setSelectedComponent(tabView);
+        }
+    }
 
-
-        // ===== Button next to it =====
-        JButton btnGameHeader = new JButton();
-        btnGameHeader.putClientProperty("JButton.buttonType", "toolBarButton");
-        btnGameHeader.setIcon(new FlatSVGIcon("icons/edit_game_header_18px.svg"));
-        btnGameHeader.setToolTipText("Edit Game  Data");
-        btnGameHeader.setFocusable(false);
-        btnGameHeader.addActionListener(controller_UI.editGameData());
-
-        // ===== Header panel (Label + Button) =====
-        JPanel headerPanel = new JPanel(new BorderLayout(8, 0));
-
-        headerPanel.add(lblGameHeader, BorderLayout.CENTER);
-        headerPanel.add(btnGameHeader, BorderLayout.EAST);
-
-        headerPanel.setBorder(
-                BorderFactory.createEmptyBorder(4, 6, 4, 6)
-        );
-
-        // ===== TextPane for the navPanel
-        view_Moves = new View_Moves(model, controller_UI, controller_Board);
-        scrollMoves = new JScrollPane(view_Moves);
-
-        // ===== View for opening book
-        View_Book view_Book = new View_Book(model, controller_Board);
-        JScrollPane scrollBook = new JScrollPane(view_Book);
-        model.addListener(view_Book);
-
-        // evaluation barchart
-        View_Eval view_Eval = new View_Eval(model,6.0f);
-        model.addListener(view_Eval);
-        // temp: remove later
-        //for (int i = 0; i < 30; i++) {
-        //    view_Eval.setEvalAt(i, (float)(Math.sin(i * 0.2) * 3));
-        //}
-
-        // Navigation buttons panel
-        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        JButton btnToStart = new JButton();
-        btnToStart.putClientProperty("JButton.buttonType", "toolBarButton");
-        btnToStart.setIcon(new FlatSVGIcon("icons/fast_rewind.svg"));
-        btnToStart.setToolTipText("Seek To Beginning");
-        btnToStart.setFocusable(false);
-        btnToStart.addActionListener(controller_Board.seekToBeginning());
-
-        JButton btnPrev = new JButton();
-        btnPrev.putClientProperty("JButton.buttonType", "toolBarButton");
-        btnPrev.setIcon(new FlatSVGIcon("icons/arrow_back.svg"));
-        btnPrev.setToolTipText("Move Back");
-        btnPrev.setFocusable(false);
-        btnPrev.addActionListener(controller_Board.moveBack());
-
-        JButton btnNext = new JButton();
-        btnNext.putClientProperty("JButton.buttonType", "toolBarButton");
-        btnNext.setIcon(new FlatSVGIcon("icons/play_arrow.svg"));
-        btnNext.setToolTipText("Move Forward");
-        btnNext.setFocusable(false);
-        btnNext.addActionListener(controller_Board.moveForward());
-
-        JButton btnToEnd = new JButton();
-        btnToEnd.putClientProperty("JButton.buttonType", "toolBarButton");
-        btnToEnd.setIcon(new FlatSVGIcon("icons/fast_forward.svg"));
-        btnToEnd.setToolTipText("Seek to End");
-        btnToEnd.setFocusable(false);
-        btnToEnd.addActionListener(controller_Board.seekToEnd());
-
-        navPanel.add(btnToStart);
-        navPanel.add(btnPrev);
-        navPanel.add(btnNext);
-        navPanel.add(btnToEnd);
-
-        // put view_moves and view_book inside a tabbed pane
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Moves", scrollMoves);
-        tabbedPane.addTab("Book", scrollBook);
-
-        // container for move-view/book-view and eval barchart
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(tabbedPane, BorderLayout.CENTER);
-
-        view_Eval.setPreferredSize(new Dimension(0, (int) (navPanel.getPreferredSize().height * 1.5)));
-        centerPanel.add(view_Eval, BorderLayout.SOUTH);
-
-        // Container for right side
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(headerPanel, BorderLayout.NORTH);
-        //rightPanel.add(tabbedPane, BorderLayout.CENTER);
-        //rightPanel.add(view_eval, BorderLayout.SOUTH);
-        rightPanel.add(centerPanel, BorderLayout.CENTER);
-        rightPanel.add(navPanel, BorderLayout.SOUTH);
-
-        // ===== Horizontal Split (Board | Right Pane) =====
-        horizontalSplit = new JSplitPane(
-                JSplitPane.HORIZONTAL_SPLIT,
-                viewChessboard,
-                rightPanel
-        );
-
-        horizontalSplit.setResizeWeight(0.7);
-        horizontalSplit.setDividerLocation(600);
-        horizontalSplit.setContinuousLayout(true);
-
-
-        // ===== Engine On/Off, Thread Buttons etc. above Engine Info =====
-        JPanel bottomControlBar = new JPanel(new BorderLayout());
-        // --- Left side group ---
-        JPanel leftGroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-
-        btnEngineSwitch = new JToggleButton("Start Engine");
-        btnEngineSwitch.addActionListener(e -> {
-            if(!btnEngineSwitch.isSelected()) {
-                controller_Engine.activateEnterMovesMode();
-            } else {
-                controller_Engine.activateAnalysisMode();
+    private void selectTabSession() {
+        Component selectedComponent = gameTabs.getSelectedComponent();
+        for (Map.Entry<GameSession, GameTabView> entry : gameTabViews.entrySet()) {
+            if (entry.getValue() == selectedComponent &&
+                    workspace.getActiveSession() != entry.getKey()) {
+                workspace.setActiveSession(entry.getKey());
+                return;
             }
-        });
-        JButton btnAddLine = new JButton("+");
-        btnAddLine.addActionListener(controller_Engine.incMultiPV());
-        JButton btnRemoveLine = new JButton("-");
-        btnRemoveLine.addActionListener(controller_Engine.decMultiPV());
-        btnThreads  = new JButton("Set # Threads");
-        btnThreads.addActionListener(controller_Engine.changeNrThreads());
+        }
+    }
 
-        btnEngineSwitch.setFocusable(false);
-        btnAddLine.setFocusable(false);
-        btnRemoveLine.setFocusable(false);
-        btnThreads.setFocusable(false);
+    private GameTabView getSelectedGameTabView() {
+        GameTabView tabView = gameTabViews.get(workspace.getActiveSession());
+        if (tabView == null) {
+            throw new IllegalStateException("No active game tab");
+        }
+        return tabView;
+    }
 
-        leftGroup.add(btnEngineSwitch);
-        leftGroup.add(btnAddLine);
-        leftGroup.add(btnRemoveLine);
-        leftGroup.add(btnThreads);
+    private void detachActiveGame() {
+        GameSession session = workspace.getActiveSession();
+        if (session == null) {
+            return;
+        }
+        windowManager.detach(session, getSelectedGameTabView());
+    }
 
-        // --- Right side group ---
-        JPanel rightGroup = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-
-        JButton btnEngines = new JButton();
-        //int h = btnEngineSwitch.getHeight();
-        btnEngines.setIcon(new FlatSVGIcon("icons/engine_18px.svg"));
-        btnEngines.setToolTipText("Select Engine");
-        btnEngines.setFocusable(false);
-        btnEngines.addActionListener(controller_Engine.editEngines());
-
-        rightGroup.add(btnEngines);
-
-        // --- Assemble ---
-        bottomControlBar.add(leftGroup, BorderLayout.WEST);
-        bottomControlBar.add(rightGroup, BorderLayout.EAST);
-
-        // ===== Bottom Text Pane =====
-        view_EngineOutput = new View_EngineOutput(model);
-        model.addListener(view_EngineOutput);
-        JScrollPane bottomScroll = new JScrollPane(view_EngineOutput);
-
-        // Container for bottom area
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-
-        bottomPanel.add(bottomControlBar, BorderLayout.NORTH);
-        bottomPanel.add(bottomScroll, BorderLayout.CENTER);
-
-        // ===== Vertical Split (Top | Bottom) =====
-        verticalSplit = new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                horizontalSplit,
-                bottomPanel
-        );
-
-        verticalSplit.setResizeWeight(0.8);
-        verticalSplit.setDividerLocation(450);
-        verticalSplit.setContinuousLayout(true);
-
-         return verticalSplit;
+    private void removeGameTab(GameSession session) {
+        GameTabView tabView = gameTabViews.remove(session);
+        if (tabView == null) {
+            return;
+        }
+        if (windowManager.isDetached(session)) {
+            windowManager.disposeDetachedSession(session);
+        } else {
+            gameTabs.remove(tabView);
+        }
     }
 
 
@@ -688,6 +593,7 @@ public class View_MainFrame extends JFrame
             UIManager.setLookAndFeel(lafClass);
 
             SwingUtilities.updateComponentTreeUI(this);
+            windowManager.updateLookAndFeel();
 
             invalidate();
             validate();
@@ -713,105 +619,71 @@ public class View_MainFrame extends JFrame
         int dividerHorizontal = g.dividerHorizontal;
         int dividerVertical = g.dividerVertical;
 
-        horizontalSplit.setDividerLocation(dividerHorizontal);
-        verticalSplit.setDividerLocation(dividerVertical);
+        getSelectedGameTabView().setDividerLocations(dividerHorizontal, dividerVertical);
     }
 
-    private void updatePgnHeaders() {
-        // update label
-        HashMap<String, String> pgnHeaders = model.getGame().getPgnHeaders();
-        String newGameInfo = "<html><div style='text-align:center;'>" +
-                pgnHeaders.get("White") + " - " +
-                pgnHeaders.get("Black") + "<br>" +
-                pgnHeaders.get("Site");
-        if(!(pgnHeaders.get("Date").isEmpty())) {
-            newGameInfo = newGameInfo + ", " + pgnHeaders.get("Date");
-        }
-        newGameInfo += "</div></html>";
-        lblGameHeader.setText(newGameInfo);
+    public int getHorizontalDividerLocation() {
+        return getSelectedGameTabView().getHorizontalDividerLocation();
     }
 
-    private void updateHighlightedMove() {
-        try {
-            int id = model.getGame().getCurrentNode().getId();
-            HTMLDocument doc = (HTMLDocument) view_Moves.getDocument();
-            Element element = doc.getElement("n" + id);
-
-            Highlighter highlighter = view_Moves.getHighlighter();
-
-            if (element == null) {
-                // if root node, remove annotation before returning
-                if(model.getGame().getCurrentNode() == model.game.getRootNode()
-                        && currentHighlight != null) {
-                    highlighter.removeHighlight(currentHighlight);
-                }
-                return;
-            }
-
-            int start = element.getStartOffset();
-            int end = element.getEndOffset();
-
-            if (currentHighlight != null) {
-                highlighter.removeHighlight(currentHighlight);
-            }
-
-            currentHighlight = highlighter.addHighlight(
-                    start,
-                    end,
-                    new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY)
-            );
-
-            /*
-            Rectangle r = view_Moves.modelToView(start);
-
-            if (r != null) {
-                view_Moves.scrollRectToVisible(r);
-            }
-             */
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public int getVerticalDividerLocation() {
+        return getSelectedGameTabView().getVerticalDividerLocation();
     }
 
     public void assignKeyShortcuts() {
         // Keyboard Shortcuts
         shortcuts.put(
                 moveForwardKey,
-                controller_Board.moveForward()
+                command(controller_Board.moveForward())
         );
         shortcuts.put(
                 moveBackKey,
-                controller_Board.moveBack()
+                command(controller_Board.moveBack())
         );
         shortcuts.put(
                 seekFirstKey,
-                controller_Board.seekToBeginning()
+                command(controller_Board.seekToBeginning())
         );
         shortcuts.put(
                 seekEndKey,
-                controller_Board.seekToEnd()
+                command(controller_Board.seekToEnd())
         );
         shortcuts.put(
                 copyKey,
-                controller_UI.copyPgnToClipboard()
+                command(controller_UI.copyPgnToClipboard())
+        );
+        shortcuts.put(
+                openKey,
+                command(controller_Pgn.openFile())
+        );
+        shortcuts.put(
+                saveKey,
+                command(controller_Pgn.saveGame())
         );
         shortcuts.put(
                 pasteKey,
-                controller_UI.pasteFenOrGame()
+                command(controller_UI.pasteFenOrGame())
         );
         shortcuts.put(
                 flipKey,
-                controller_UI.flipBoard()
+                command(controller_UI.flipBoard())
+        );
+        shortcuts.put(
+                setupPosKey,
+                command(controller_UI.setupNewPosition())
         );
         shortcuts.put(
                 turnEngineOnKey,
-                controller_Engine.startAnalysisMode()
+                command(controller_Engine.startAnalysisMode())
         );
         shortcuts.put(
                 turnEngineOffKey,
-                controller_Engine.startEnterMovesMode()
+                command(controller_Engine.startEnterMovesMode())
         );
+    }
+
+    private ActionListener command(ActionListener listener) {
+        return commandContext.bind(listener);
     }
 
     @Override
@@ -819,43 +691,6 @@ public class View_MainFrame extends JFrame
         if ("switchLaf".equals(evt.getPropertyName())) {
             setLookAndFeel(model.getLookAndFeel());
         }
-        if ("pgnHeadersChanged".equals(evt.getPropertyName())) {
-            updatePgnHeaders();
-        }
-        if("currentGameNodeChanged".equals(evt.getPropertyName())) {
-            updateHighlightedMove();
-        }
-        if("gameChanged".equals(evt.getPropertyName()) || "treeChanged".equals(evt.getPropertyName())) {
-            int oldCaretPos = view_Moves.getCaretPosition();
-            htmlString =  htmlPrinter.printGame(model.getGame());
-            view_Moves.setText(htmlString);
-            try {
-                view_Moves.setCaretPosition(oldCaretPos);
-            } catch (IllegalArgumentException e) {
-                view_Moves.setCaretPosition(0);
-            }
-            updateHighlightedMove();
-            updatePgnHeaders();
-        }
-
-        if("modeChanged".equals(evt.getPropertyName())) {
-            int mode = model.getMode();
-            switch(mode) {
-                case Model_JFXChess.MODE_ANALYSIS:
-                case Model_JFXChess.MODE_PLAY_WHITE:
-                case Model_JFXChess.MODE_PLAY_BLACK:
-                case Model_JFXChess.MODE_PLAYOUT_POSITION:
-                case Model_JFXChess.MODE_GAME_ANALYSIS:
-                    btnEngineSwitch.setText("Stop Engine");
-                    btnEngineSwitch.setSelected(true);
-                    break;
-                case Model_JFXChess.MODE_ENTER_MOVES:
-                    btnEngineSwitch.setText("Start Engine");
-                    btnEngineSwitch.setSelected(false);
-                    break;
-            }
-        }
     }
 
 }
-

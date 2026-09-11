@@ -19,114 +19,34 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javax.swing.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class PgnReplaceGameWorker extends SwingWorker<String, Integer> {
 
-    private final String filePath;
+    private final PgnDocument document;
+    private final PgnGameId gameId;
     private final String text;
-    private final long offset1;
-    private final long offset2;
     private final PgnReplaceListener listener;
 
-    public PgnReplaceGameWorker(String filePath, String text, long offset1, long offset2,
+    public PgnReplaceGameWorker(PgnDocument document, PgnGameId gameId, String text,
                              PgnReplaceListener listener) {
-        this.filePath = filePath;
+        this.document = document;
+        this.gameId = gameId;
         this.text = text;
-        this.offset1 = offset1;
-        this.offset2 = offset2;
         this.listener = listener;
     }
 
     @Override
     protected String doInBackground() {
-        Path originalPath = Paths.get(filePath);
-
         try {
-            if (!Files.exists(originalPath)) {
-                throw new FileNotFoundException("File not found: " + filePath);
-            }
-
-            long fileSize = Files.size(originalPath);
-
-            if (offset1 < 0 || offset2 < 0 || offset1 > offset2 || offset2 > fileSize) {
-                throw new IllegalArgumentException(
-                        "Invalid offsets: offset1=" + offset1 + ", offset2=" + offset2
-                );
-            }
-
-            Path tempPath = Files.createTempFile(originalPath.getParent(), "replace_tmp_", ".tmp");
-
-            try (
-                    InputStream in = Files.newInputStream(originalPath);
-                    OutputStream out = Files.newOutputStream(tempPath, StandardOpenOption.WRITE)
-            ) {
-                byte[] buffer = new byte[8192];
-                long totalProcessed = 0;
-
-                // Copy [0, offset1)
-                while (totalProcessed < offset1) {
-                    if (isCancelled()) return "CANCELLED";
-
-                    int toRead = (int) Math.min(buffer.length, offset1 - totalProcessed);
-                    int read = in.read(buffer, 0, toRead);
-                    if (read == -1) break;
-
-                    out.write(buffer, 0, read);
-                    totalProcessed += read;
-                    updateProgress(totalProcessed, fileSize);
-                }
-
-                // Skip
-                long bytesToSkip = offset2 - offset1;
-                while (bytesToSkip > 0) {
-                    if (isCancelled()) return "CANCELLED";
-
-                    long skipped = in.skip(bytesToSkip);
-                    if (skipped <= 0) {
-                        int read = in.read(buffer, 0, (int)Math.min(buffer.length, bytesToSkip));
-                        if (read == -1) break;
-                        skipped = read;
-                    }
-                    bytesToSkip -= skipped;
-                    totalProcessed += skipped;
-                    updateProgress(totalProcessed, fileSize);
-                }
-
-                // Insert
-                String insertion = "\n" + text + "\n\n";
-                out.write(insertion.getBytes(StandardCharsets.UTF_8));
-
-                // Copy rest
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    if (isCancelled()) return "CANCELLED";
-
-                    out.write(buffer, 0, read);
-                    totalProcessed += read;
-                    updateProgress(totalProcessed, fileSize);
-                }
-            }
-
-            Files.move(
-                    tempPath,
-                    originalPath,
-                    StandardCopyOption.REPLACE_EXISTING,
-                    StandardCopyOption.ATOMIC_MOVE
-            );
-
+            document.replaceGame(gameId, text);
+            setProgress(100);
             return "SUCCESS";
 
         } catch (Exception e) {
             return stackTraceToString(e);
         }
-    }
-
-    private void updateProgress(long processed, long total) {
-        int progress = (int) ((processed * 100) / total);
-        setProgress(progress);
     }
 
     @Override

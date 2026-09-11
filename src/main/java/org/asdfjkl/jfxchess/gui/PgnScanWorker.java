@@ -27,20 +27,18 @@ import java.util.ArrayList;
 
 public class PgnScanWorker extends SwingWorker<ArrayList<PgnGameInfo>, Integer> {
 
-    private final String filename;
-    private final PgnReader pgnReader;
+    private final PgnDocument document;
     private final PgnScanListener pgnScanListener;
 
-    public PgnScanWorker(String filename, PgnReader lib, PgnScanListener listener) {
-        this.filename = filename;
-        this.pgnReader = lib;
+    public PgnScanWorker(PgnDocument document, PgnScanListener listener) {
+        this.document = document;
         this.pgnScanListener = listener;
     }
 
     @Override
     protected ArrayList<PgnGameInfo> doInBackground() throws Exception {
 
-        return pgnReader.scanPgn(filename, new ProgressListener() {
+        document.reload(new ProgressListener() {
             @Override
             public void onProgress(int percent) {
                 setProgress(percent); // SwingWorker built-in support
@@ -51,6 +49,7 @@ public class PgnScanWorker extends SwingWorker<ArrayList<PgnGameInfo>, Integer> 
                 return PgnScanWorker.this.isCancelled();
             }
         });
+        return document.getEntries();
     }
 
     @Override

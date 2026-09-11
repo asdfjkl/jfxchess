@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 import static org.asdfjkl.jfxchess.lib.CONSTANTS.*;
@@ -58,12 +59,9 @@ public class Model_JFXChess {
     public static final String THEME_NIMBUS = "javax.swing.plaf.nimbus.NimbusLookAndFeel";
     public static final String THEME_SYSTEM = "system.default";
 
-    Game game;
-    private int currentMode;
-    private boolean flipBoard = false;
-    private boolean humanPlayerColor = CONSTANTS.WHITE;
+    private GameSession gameSession;
+    private Workspace workspace;
     public boolean wasSaved = false;
-    private int engineThinkTimeSecs = 3;
 
     ArrayList<Engine> engines = new ArrayList<>();
     Engine activeEngine = null;
@@ -72,16 +70,11 @@ public class Model_JFXChess {
 
     ArrayList<BotEngine> botEngines = new ArrayList<>();
 
-    private int gameAnalysisForPlayer = BOTH_PLAYERS;
-    private double gameAnalysisThreshold = 0.5; // pawns
-    private int gameAnalysisThinkTimeSecs = 3;  // seconds
-
     private ScreenGeometry screenGeometry = new ScreenGeometry();
 
     // to make sure that if the user play against the computer/bot
     // he is not able to/does not accidentally move the computer's pieces
     // on the computer's turn
-    private boolean blockGUI = false;
 
     public String currentBestPv = "";
     public int currentBestEval = 0;
@@ -110,7 +103,6 @@ public class Model_JFXChess {
 
     private String lookAndFeel;
     public View_MainFrame mainFrameRef;
-    private String latestEngineInfo = "";
 
     private boolean shortcutsEnabled = true;
 
@@ -120,15 +112,14 @@ public class Model_JFXChess {
     private boolean useCustomFontSizeEngineOutput = false;
 
     public Model_JFXChess() {
-        game = new Game();
+        Game game = new Game();
         Board b = new Board(true);
 
         boardStyle = new BoardStyle();
         lookAndFeel = THEME_FLATLAF_INTELLIJ;
 
         game.getRootNode().setBoard(b);
-        currentMode = MODE_ENTER_MOVES;
-
+        gameSession = new GameSession(game);
         String stockfishPath = getStockfishPath();
         Engine stockfish = new Engine();
         stockfish.setName(CONSTANTS.INTERNAL_ENGINE_NAME);
@@ -292,41 +283,78 @@ public class Model_JFXChess {
 
 
     public Game getGame() {
-        return game;
+        return gameSession.getGame();
     }
 
     public void setGame(Game game) {
-        this.game = game;
+        gameSession.setGame(game);
         pcs.firePropertyChange("gameChanged", null, null);
     }
 
-    public int getGameAnalysisForPlayer() { return gameAnalysisForPlayer; }
+    public void setGame(GameSession gameSession, Game game) {
+        Objects.requireNonNull(gameSession, "gameSession");
+        gameSession.setGame(game);
+        if (this.gameSession == gameSession) {
+            pcs.firePropertyChange("gameChanged", null, null);
+        }
+    }
 
-    public void setGameAnalysisForPlayer(int player) { gameAnalysisForPlayer = player; }
+    public void setWorkspace(Workspace workspace) {
+        this.workspace = Objects.requireNonNull(workspace, "workspace");
+    }
 
-    public double getGameAnalysisThreshold() { return gameAnalysisThreshold; }
+    public Workspace getWorkspace() {
+        return workspace;
+    }
 
-    public void setGameAnalysisThreshold(double threshold) { gameAnalysisThreshold = threshold; }
+    public GameSession openGameInNewSession(Game game) {
+        if (workspace == null) {
+            throw new IllegalStateException("Workspace has not been configured");
+        }
+        GameSession session = workspace.createSession(game);
+        setGameSession(session);
+        return session;
+    }
 
-    public void setGameAnalysisThinkTimeSecs(int thinktimeSecs) { gameAnalysisThinkTimeSecs = thinktimeSecs; }
+    public void setGameSession(GameSession gameSession) {
+        this.gameSession = Objects.requireNonNull(gameSession, "gameSession");
+        if (workspace != null && workspace.getActiveSession() != gameSession) {
+            workspace.setActiveSession(gameSession);
+        }
+        pcs.firePropertyChange("gameChanged", null, null);
+    }
 
-    public int getGameAnalysisThinkTimeSecs() { return gameAnalysisThinkTimeSecs; }
+    public GameSession getGameSession() {
+        return gameSession;
+    }
+
+    public int getGameAnalysisForPlayer() { return gameSession.getGameAnalysisForPlayer(); }
+
+    public void setGameAnalysisForPlayer(int player) { gameSession.setGameAnalysisForPlayer(player); }
+
+    public double getGameAnalysisThreshold() { return gameSession.getGameAnalysisThreshold(); }
+
+    public void setGameAnalysisThreshold(double threshold) { gameSession.setGameAnalysisThreshold(threshold); }
+
+    public void setGameAnalysisThinkTimeSecs(int thinktimeSecs) { gameSession.setGameAnalysisThinkTimeSecs(thinktimeSecs); }
+
+    public int getGameAnalysisThinkTimeSecs() { return gameSession.getGameAnalysisThinkTimeSecs(); }
 
     public void setMode(int mode) {
-        this.currentMode = mode;
+        gameSession.setMode(mode);
         pcs.firePropertyChange("modeChanged", null, null);
     }
 
     public void setComputerThinkTimeSecs(int secs) {
-        engineThinkTimeSecs = secs;
+        gameSession.setComputerThinkTimeSecs(secs);
     }
 
     public int getComputerThinkTimeSecs() {
-        return engineThinkTimeSecs;
+        return gameSession.getComputerThinkTimeSecs();
     }
 
     public int getMode() {
-        return currentMode;
+        return gameSession.getMode();
     }
 
     public int getMultiPv() {
@@ -334,20 +362,20 @@ public class Model_JFXChess {
     }
 
     public void setFlipBoard(boolean flipBoard) {
-        this.flipBoard = flipBoard;
+        gameSession.setFlipBoard(flipBoard);
         pcs.firePropertyChange("boardFlipped", null, null);
     }
 
     public boolean getFlipBoard() {
-        return flipBoard;
+        return gameSession.getFlipBoard();
     }
 
     public void setHumanPlayerColor(boolean humanPlayerColor) {
-        this.humanPlayerColor = humanPlayerColor;
+        gameSession.setHumanPlayerColor(humanPlayerColor);
     }
 
     public boolean getHumanPlayerColor() {
-        return humanPlayerColor;
+        return gameSession.getHumanPlayerColor();
     }
 
     public void setMultiPv(int multiPv) {
@@ -368,13 +396,12 @@ public class Model_JFXChess {
     }
 
     public boolean isBlockGUI() {
-        return blockGUI;
+        return gameSession.isBlockGui();
     }
 
     public void setBlockGUI(boolean blockGUI) {
-        boolean tmp = this.blockGUI;
-        this.blockGUI = blockGUI;
-        pcs.firePropertyChange("blockGUI", tmp, this.blockGUI);
+        gameSession.setBlockGui(blockGUI);
+        pcs.firePropertyChange("blockGUI", null, blockGUI);
     }
 
     public void setShortcutsEnabled(boolean enabled) {
@@ -388,7 +415,7 @@ public class Model_JFXChess {
     public void applyMove(Move m) {
         // after applying a move, we block the GUI
         // when we are playing against the computer
-        boolean treeWasChanged = getGame().applyMove(m);
+        boolean treeWasChanged = gameSession.applyMove(m);
         if(treeWasChanged) {
             pcs.firePropertyChange("treeChanged", null, null);
         }
@@ -396,12 +423,12 @@ public class Model_JFXChess {
     }
 
     public void goToChild(int idx) {
-        game.goToChild(idx);
+        getGame().goToChild(idx);
         pcs.firePropertyChange("currentGameNodeChanged", null, null);
     }
 
     public void goToParent() {
-        game.goToParent();
+        getGame().goToParent();
         pcs.firePropertyChange("currentGameNodeChanged", null, null);
     }
 
@@ -424,26 +451,26 @@ public class Model_JFXChess {
     }
 
     public void setPgnHeaders(HashMap<String, String> data) {
-        game.setPgnHeaders(data);
+        getGame().setPgnHeaders(data);
         pcs.firePropertyChange("pgnHeadersChanged", null, null);
         // Special case: If the PGN header for the result changed, we also need to
         // update the game tree. Therefore, fire treeChanged as well.
         String result = data.get("Result");
         if(result != null) {
-            if(result.equals("1-0") && game.getResult() != RES_WHITE_WINS) {
-                game.setResult(RES_WHITE_WINS);
+            if(result.equals("1-0") && getGame().getResult() != RES_WHITE_WINS) {
+                getGame().setResult(RES_WHITE_WINS);
                 pcs.firePropertyChange("treeChanged", null, null);
             }
-            if(result.equals("0-1") && game.getResult() != RES_BLACK_WINS) {
-                game.setResult(RES_BLACK_WINS);
+            if(result.equals("0-1") && getGame().getResult() != RES_BLACK_WINS) {
+                getGame().setResult(RES_BLACK_WINS);
                 pcs.firePropertyChange("treeChanged", null, null);
             }
-            if(result.equals("1/2-1/2") && game.getResult() != RES_DRAW) {
-                game.setResult(RES_DRAW);
+            if(result.equals("1/2-1/2") && getGame().getResult() != RES_DRAW) {
+                getGame().setResult(RES_DRAW);
                 pcs.firePropertyChange("treeChanged", null, null);
             }
-            if(result.equals("*") && game.getResult() != RES_UNDEF) {
-                game.setResult(RES_UNDEF);
+            if(result.equals("*") && getGame().getResult() != RES_UNDEF) {
+                getGame().setResult(RES_UNDEF);
                 pcs.firePropertyChange("treeChanged", null, null);
             }
         }
@@ -453,8 +480,8 @@ public class Model_JFXChess {
 
     public void goToNode(int id) {
         try {
-            GameNode node = game.findNodeById(id);
-            game.setCurrent(node);
+            GameNode node = getGame().findNodeById(id);
+            getGame().setCurrent(node);
             pcs.firePropertyChange("currentGameNodeChanged", null, null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -462,18 +489,18 @@ public class Model_JFXChess {
     }
 
     public void seekToEnd() {
-        game.goToLeaf();
+        getGame().goToLeaf();
         pcs.firePropertyChange("currentGameNodeChanged", null, null);
     }
 
     public void seekToBeginning() {
-        game.goToRoot();
+        getGame().goToRoot();
         pcs.firePropertyChange("currentGameNodeChanged", null, null);
     }
 
     public void setComment(int nodeId, String s) {
         try {
-            GameNode node = game.findNodeById(nodeId);
+            GameNode node = getGame().findNodeById(nodeId);
             node.setComment(s);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
@@ -481,25 +508,25 @@ public class Model_JFXChess {
     }
 
     public void setGameResult(int resultCode) {
-        game.setResult(resultCode);
+        getGame().setResult(resultCode);
         if(resultCode == RES_WHITE_WINS) {
-            game.setHeader("Result", "1-0");
+            getGame().setHeader("Result", "1-0");
         }
         if(resultCode == CONSTANTS.RES_BLACK_WINS) {
-            game.setHeader("Result", "0-1");
+            getGame().setHeader("Result", "0-1");
         }
         if(resultCode == CONSTANTS.RES_DRAW) {
-            game.setHeader("Result", "1/2-1/2");
+            getGame().setHeader("Result", "1/2-1/2");
         }
         if(resultCode == CONSTANTS.RES_UNDEF) {
-            game.setHeader("Result", "*");
+            getGame().setHeader("Result", "*");
         }
         pcs.firePropertyChange("treeChanged", null, null);
     }
 
     public void setComment(String s) {
         try {
-            GameNode node = game.getCurrentNode();
+            GameNode node = getGame().getCurrentNode();
             node.setComment(s);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
@@ -508,7 +535,7 @@ public class Model_JFXChess {
 
     public void addNag(int nodeId, int nag) {
         try {
-            GameNode node = game.findNodeById(nodeId);
+            GameNode node = getGame().findNodeById(nodeId);
             node.addNag(nag);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
@@ -518,7 +545,7 @@ public class Model_JFXChess {
 
     public void removeMoveAnnotations(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
             selectedNode.removeNagsInRange(0, CONSTANTS.MOVE_ANNOTATION_UPPER_LIMIT);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
@@ -528,7 +555,7 @@ public class Model_JFXChess {
 
     public void removePosAnnotations(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
             selectedNode.removeNagsInRange(CONSTANTS.POSITION_ANNOTATION_LOWER_LIMIT,
                     CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
             pcs.firePropertyChange("treeChanged", null, null);
@@ -539,7 +566,7 @@ public class Model_JFXChess {
 
     public void removeMoveAndPosAnnotation(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
             selectedNode.removeNagsInRange(0, CONSTANTS.POSITION_ANNOTATION_UPPER_LIMIT);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
@@ -549,8 +576,8 @@ public class Model_JFXChess {
 
     public void moveVariantUp(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
-            game.moveUp(selectedNode);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
+            getGame().moveUp(selectedNode);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
 
@@ -559,8 +586,8 @@ public class Model_JFXChess {
 
     public void moveVariantDown(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
-            game.moveDown(selectedNode);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
+            getGame().moveDown(selectedNode);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
 
@@ -569,8 +596,8 @@ public class Model_JFXChess {
 
     public void deleteVariant(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
-            game.delVariant(selectedNode);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
+            getGame().delVariant(selectedNode);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
 
@@ -579,8 +606,8 @@ public class Model_JFXChess {
 
     public void deleteFromHere(int nodeId) {
         try {
-            GameNode selectedNode = game.findNodeById(nodeId);
-            game.delBelow(selectedNode);
+            GameNode selectedNode = getGame().findNodeById(nodeId);
+            getGame().delBelow(selectedNode);
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
 
@@ -589,7 +616,7 @@ public class Model_JFXChess {
 
     public void deleteAllComments() {
         try {
-            game.removeAllComments();
+            getGame().removeAllComments();
             pcs.firePropertyChange("treeChanged", null, null);
         } catch(IllegalArgumentException ignored) {
 
@@ -597,7 +624,7 @@ public class Model_JFXChess {
     }
 
     public void deleteAllVariants() {
-        game.removeAllVariants();
+        getGame().removeAllVariants();
         pcs.firePropertyChange("treeChanged", null, null);
     }
 
@@ -606,11 +633,11 @@ public class Model_JFXChess {
     }
 
     public String getCurrentEngineInfo() {
-        return latestEngineInfo;
+        return gameSession.getCurrentEngineInfo();
     }
 
     public void setCurrentEngineInfo(String info) {
-        latestEngineInfo = info;
+        gameSession.setCurrentEngineInfo(info);
         pcs.firePropertyChange("engineInfo", null, null);
     }
 
@@ -711,8 +738,8 @@ public class Model_JFXChess {
                 (mainFrameRef.getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
         prefs.putBoolean("WINDOW_MAXIMIZED", maximized);
 
-        prefs.putInt("DIVIDER_HORIZONTAL", mainFrameRef.horizontalSplit.getDividerLocation());
-        prefs.putInt("DIVIDER_VERTICAL", mainFrameRef.verticalSplit.getDividerLocation());
+        prefs.putInt("DIVIDER_HORIZONTAL", mainFrameRef.getHorizontalDividerLocation());
+        prefs.putInt("DIVIDER_VERTICAL", mainFrameRef.getVerticalDividerLocation());
 
         prefs.putInt("FONT_SIZE_MOVES", fontSizeMoveView);
         prefs.putBoolean("USE_CUSTOM_FONT_SIZE_MOVES", useCustomFontSizeMoveView);

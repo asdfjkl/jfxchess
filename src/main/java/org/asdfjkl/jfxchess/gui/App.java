@@ -23,6 +23,8 @@ import java.awt.*;
 
 public class App {
 
+    private ApplicationModel applicationModel;
+
     public static void main(String[] args) {
 
         // set to false, for platform independent jar
@@ -38,6 +40,9 @@ public class App {
 
         Model_JFXChess model = new Model_JFXChess();
         model.restore();
+        applicationModel = new ApplicationModel();
+        model.setWorkspace(applicationModel.getWorkspace());
+        model.openGameInNewSession(model.getGame());
         try {
             UIManager.setLookAndFeel(model.getLookAndFeel());
         } catch (Exception e) {

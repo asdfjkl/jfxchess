@@ -226,7 +226,6 @@ public class DialogDatabase extends JDialog {
 
         int modelRow = table.convertRowIndexToModel(row);
         PgnGameInfo gameInfo = tableModel.getGameAt(modelRow);
-        long startOffset = gameInfo.getOffset();
         // check for confirmation
         int result = JOptionPane.showConfirmDialog(this,
                 "Deleting '" +
@@ -236,14 +235,8 @@ public class DialogDatabase extends JDialog {
                 JOptionPane.OK_CANCEL_OPTION
         );
         if (result == JOptionPane.OK_OPTION) {
-            if(modelRow + 1 < tableModel.getRowCount()) {
-                long nextGameOffset = tableModel.getGameAt(modelRow + 1).getOffset();
-                controller_Pgn.deleteGame(pgnDatabase.getAbsoluteFilename(), startOffset, nextGameOffset);
-                tableModel.removeRow(modelRow);
-            } else { // last game - delete until end
-                controller_Pgn.deleteGame(pgnDatabase.getAbsoluteFilename(), startOffset);
-                tableModel.removeRow(modelRow);
-            }
+            controller_Pgn.deleteGame(gameInfo);
+            tableModel.removeRow(modelRow);
         }
     }
 
