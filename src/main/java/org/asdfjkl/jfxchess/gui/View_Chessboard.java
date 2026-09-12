@@ -44,7 +44,6 @@ public class View_Chessboard extends JPanel
     private final GameSession gameSession;
     private final Controller_UI controller_UI;
     private final Controller_Board controller_Board;
-    private final CommandContext commandContext;
 
     final double outputScaleX = HighDPIHelper.getUIScaleFactor();
 
@@ -74,8 +73,7 @@ public class View_Chessboard extends JPanel
     public View_Chessboard(Model_JFXChess model,
                            GameSession gameSession,
                            Controller_UI controller_UI,
-                           Controller_Board controller_Board,
-                           CommandContext commandContext) {
+                           Controller_Board controller_Board) {
 
         setPreferredSize(new Dimension(500, 500));
 
@@ -85,7 +83,6 @@ public class View_Chessboard extends JPanel
         this.gameSession.addPropertyChangeListener(this);
         this.controller_UI = controller_UI;
         this.controller_Board = controller_Board;
-        this.commandContext = commandContext;
 
         grabbedPiece.setPiece(-1);
         moveSource = new Point(-1,-1);
@@ -100,7 +97,6 @@ public class View_Chessboard extends JPanel
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
-                activateSession();
                 handleMousePress(me);
                 repaint();
             }
@@ -108,7 +104,6 @@ public class View_Chessboard extends JPanel
 
         addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent me) {
-                activateSession();
                 handleMouseReleased(me);
                 repaint();
             }
@@ -116,7 +111,6 @@ public class View_Chessboard extends JPanel
 
         addMouseMotionListener(new MouseAdapter() {
             public void mouseDragged(MouseEvent me) {
-                activateSession();
                 handleMouseDragged(me);
                 repaint();
             }
@@ -129,10 +123,6 @@ public class View_Chessboard extends JPanel
                 repaint();
             }
         });
-    }
-
-    private void activateSession() {
-        commandContext.activate(gameSession);
     }
 
     public void refreshBackground() {

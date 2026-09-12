@@ -107,12 +107,6 @@ public class Controller_Board {
     }
 
     private Window dialogOwner(java.awt.event.ActionEvent event) {
-        if (event.getSource() instanceof Component component) {
-            Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
-            if (window != null) {
-                return window;
-            }
-        }
         return model.mainFrameRef;
     }
 

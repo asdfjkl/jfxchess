@@ -39,7 +39,6 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     private final Controller_UI controllerUI;
     private final Controller_Board controllerBoard;
     private final Controller_Engine controllerEngine;
-    private final CommandContext commandContext;
 
     private final HtmlPrinter htmlPrinter = new HtmlPrinter();
 
@@ -55,8 +54,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     public GameTabView(Model_JFXChess model,
                        GameSession gameSession,
                        Controller_UI controllerUI,
-                       Controller_Engine controllerEngine,
-                       CommandContext commandContext) {
+                       Controller_Engine controllerEngine) {
 
         super(new BorderLayout());
         this.model = model;
@@ -64,13 +62,10 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         this.controllerUI = controllerUI;
         this.controllerBoard = new Controller_Board(model, gameSession);
         this.controllerEngine = controllerEngine;
-        this.commandContext = commandContext;
 
-        chessboard = new View_Chessboard(model, gameSession, controllerUI, controllerBoard,
-                commandContext);
+        chessboard = new View_Chessboard(model, gameSession, controllerUI, controllerBoard);
         gameHeader = createGameHeader();
-        viewMoves = new View_Moves(model, gameSession, controllerUI, controllerBoard,
-                commandContext);
+        viewMoves = new View_Moves(model, gameSession, controllerUI, controllerBoard);
 
         JPanel rightPanel = createRightPanel();
         horizontalSplit = new JSplitPane(
@@ -103,8 +98,8 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         return gameSession;
     }
 
-    private java.awt.event.ActionListener command(java.awt.event.ActionListener listener) {
-        return commandContext.bind(gameSession, listener);
+    public Controller_Board getControllerBoard() {
+        return controllerBoard;
     }
 
     private JLabel createGameHeader() {
@@ -123,7 +118,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         editGameHeader.setIcon(new FlatSVGIcon("icons/edit_game_header_18px.svg"));
         editGameHeader.setToolTipText("Edit Game Data");
         editGameHeader.setFocusable(false);
-        editGameHeader.addActionListener(command(controllerUI.editGameData()));
+        editGameHeader.addActionListener(controllerUI.editGameData());
 
         JPanel headerPanel = new JPanel(new BorderLayout(8, 0));
         headerPanel.add(gameHeader, BorderLayout.CENTER);
@@ -133,7 +128,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         JScrollPane movesScroll = new JScrollPane(viewMoves);
 
         View_Book viewBook = new View_Book(
-                model, gameSession, controllerBoard, commandContext);
+                model, gameSession, controllerBoard);
         JScrollPane bookScroll = new JScrollPane(viewBook);
 
         View_Eval viewEval = new View_Eval(model, 6.0f);
@@ -164,22 +159,22 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         navigationPanel.add(createNavigationButton(
                 "icons/fast_rewind.svg",
                 "Seek To Beginning",
-                command(controllerBoard.seekToBeginning())
+                controllerBoard.seekToBeginning()
         ));
         navigationPanel.add(createNavigationButton(
                 "icons/arrow_back.svg",
                 "Move Back",
-                command(controllerBoard.moveBack())
+                controllerBoard.moveBack()
         ));
         navigationPanel.add(createNavigationButton(
                 "icons/play_arrow.svg",
                 "Move Forward",
-                command(controllerBoard.moveForward())
+                controllerBoard.moveForward()
         ));
         navigationPanel.add(createNavigationButton(
                 "icons/fast_forward.svg",
                 "Seek to End",
-                command(controllerBoard.seekToEnd())
+                controllerBoard.seekToEnd()
         ));
         return navigationPanel;
     }
@@ -201,20 +196,20 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         JPanel leftGroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
 
         engineSwitch = new JToggleButton("Start Engine");
-        engineSwitch.addActionListener(command(e -> {
+        engineSwitch.addActionListener(e -> {
             if (!engineSwitch.isSelected()) {
                 controllerEngine.activateEnterMovesMode();
             } else {
                 controllerEngine.activateAnalysisMode();
             }
-        }));
+        });
 
         JButton addLine = new JButton("+");
-        addLine.addActionListener(command(controllerEngine.incMultiPV()));
+        addLine.addActionListener(controllerEngine.incMultiPV());
         JButton removeLine = new JButton("-");
-        removeLine.addActionListener(command(controllerEngine.decMultiPV()));
+        removeLine.addActionListener(controllerEngine.decMultiPV());
         JButton threads = new JButton("Set # Threads");
-        threads.addActionListener(command(controllerEngine.changeNrThreads()));
+        threads.addActionListener(controllerEngine.changeNrThreads());
 
         engineSwitch.setFocusable(false);
         addLine.setFocusable(false);
@@ -231,7 +226,7 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
         engines.setIcon(new FlatSVGIcon("icons/engine_18px.svg"));
         engines.setToolTipText("Select Engine");
         engines.setFocusable(false);
-        engines.addActionListener(command(controllerEngine.editEngines()));
+        engines.addActionListener(controllerEngine.editEngines());
         rightGroup.add(engines);
 
         bottomControlBar.add(leftGroup, BorderLayout.WEST);
