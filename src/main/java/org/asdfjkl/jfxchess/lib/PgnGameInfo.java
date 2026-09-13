@@ -1,3 +1,21 @@
+/* JFXChess - A Chess Graphical User Interface
+ * Copyright (C) 2020-2026 Dominik Klein
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package org.asdfjkl.jfxchess.lib;
 
 public class PgnGameInfo {
@@ -17,6 +35,46 @@ public class PgnGameInfo {
     Game modifiedGame = null;
 
     private boolean foundAtLeast1Tag = false;
+
+    public static String extractSurname(String name) {
+        if (name == null) {
+            return "N.N.";
+        }
+        String s = name.strip();
+        if (s.isEmpty() || "?".equals(s) || "N.N.".equalsIgnoreCase(s)) {
+            return "N.N.";
+        }
+        if (s.contains(",")) {
+            String beforeComma = s.substring(0, s.indexOf(',')).strip();
+            if (!beforeComma.isEmpty()) {
+                return beforeComma;
+            }
+        }
+        if (s.toLowerCase().startsWith("stockfish")) {
+            return s;
+        }
+        int lastSpace = s.lastIndexOf(' ');
+        if (lastSpace > 0 && lastSpace < s.length() - 1) {
+            return s.substring(lastSpace + 1).strip();
+        }
+        return s;
+    }
+
+    public static String formatVersusTitle(String white, String black) {
+        return extractSurname(white) + " vs. " + extractSurname(black);
+    }
+
+    public String getWhiteSurname() {
+        return extractSurname(this.white);
+    }
+
+    public String getBlackSurname() {
+        return extractSurname(this.black);
+    }
+
+    public String getVersusTitle() {
+        return formatVersusTitle(this.white, this.black);
+    }
 
     public long getOffset() {
         return offset;

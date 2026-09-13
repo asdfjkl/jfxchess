@@ -140,6 +140,10 @@ public class Game {
         }
     }
 
+    public String getVersusTitle() {
+        return PgnGameInfo.formatVersusTitle(getHeader("White"), getHeader("Black"));
+    }
+
     public void resetHeaders() {
         this.pgnHeaders = new HashMap<String, String>();
     }

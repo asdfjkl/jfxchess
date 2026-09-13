@@ -26,6 +26,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.*;
@@ -39,7 +40,10 @@ public class View_MainFrame extends JFrame
     private final Controller_Pgn controller_Pgn;
     private final Workspace workspace;
 
-    private JTabbedPane gameTabs;
+    private BrowserTabBar browserTabBar;
+    private JPanel tabContentPanel;
+    private CardLayout cardLayout;
+    private boolean handlingPlusTab = false;
     private final Map<GameSession, GameTabView> gameTabViews =
             new IdentityHashMap<>();
 
@@ -468,8 +472,10 @@ public class View_MainFrame extends JFrame
     // ----------------------------------------------------
 
     private JComponent createMainContent() {
-        gameTabs = new JTabbedPane();
-        gameTabs.addChangeListener(e -> selectTabSession());
+        cardLayout = new CardLayout();
+        tabContentPanel = new JPanel(cardLayout);
+        browserTabBar = new BrowserTabBar(this::handlePlusTab);
+
         for (GameSession session : workspace.getSessions()) {
             attachGameTab(session);
         }
@@ -477,7 +483,11 @@ public class View_MainFrame extends JFrame
         if (activeSession != null) {
             activateSession(activeSession);
         }
-        return gameTabs;
+
+        JPanel mainContent = new JPanel(new BorderLayout());
+        mainContent.add(browserTabBar, BorderLayout.NORTH);
+        mainContent.add(tabContentPanel, BorderLayout.CENTER);
+        return mainContent;
     }
 
     private void workspacePropertyChange(PropertyChangeEvent event) {
@@ -507,7 +517,12 @@ public class View_MainFrame extends JFrame
                 controller_Engine
         );
         gameTabViews.put(session, tabView);
-        gameTabs.addTab("Game " + gameTabViews.size(), tabView);
+        tabContentPanel.add(tabView, session.getId().toString());
+        browserTabBar.addTab(
+                session,
+                this::activateSession,
+                this::closeGameTab
+        );
     }
 
     private void activateSession(GameSession session) {
@@ -518,20 +533,49 @@ public class View_MainFrame extends JFrame
         if (model.getGameSession() != session) {
             model.setGameSession(session);
         }
-        GameTabView tabView = gameTabViews.get(session);
-        if (gameTabs.getSelectedComponent() != tabView) {
-            gameTabs.setSelectedComponent(tabView);
+        if (workspace.getActiveSession() != session) {
+            workspace.setActiveSession(session);
         }
+        browserTabBar.selectTab(session);
+        cardLayout.show(tabContentPanel, session.getId().toString());
     }
 
-    private void selectTabSession() {
-        Component selectedComponent = gameTabs.getSelectedComponent();
-        for (Map.Entry<GameSession, GameTabView> entry : gameTabViews.entrySet()) {
-            if (entry.getValue() == selectedComponent &&
-                    workspace.getActiveSession() != entry.getKey()) {
-                workspace.setActiveSession(entry.getKey());
-                return;
+    private void closeGameTab(GameSession session) {
+        if (workspace.getSessions().size() <= 1) {
+            controller_Engine.startNewGame().actionPerformed(
+                    new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "newGame")
+            );
+            return;
+        }
+
+        List<GameSession> sessions = workspace.getSessions();
+        int index = sessions.indexOf(session);
+        if (index < 0) {
+            return;
+        }
+
+        GameSession targetSession = (index > 0) ? sessions.get(index - 1) : sessions.get(1);
+        workspace.setActiveSession(targetSession);
+        workspace.closeSession(session);
+    }
+
+    private void handlePlusTab() {
+        if (handlingPlusTab) {
+            return;
+        }
+        handlingPlusTab = true;
+        try {
+            GameSession previousSession = workspace.getActiveSession();
+            controller_Engine.startNewGame().actionPerformed(
+                    new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "newGame")
+            );
+            if (workspace.getActiveSession() == previousSession) {
+                if (previousSession != null) {
+                    activateSession(previousSession);
+                }
             }
+        } finally {
+            handlingPlusTab = false;
         }
     }
 
@@ -548,7 +592,12 @@ public class View_MainFrame extends JFrame
         if (tabView == null) {
             return;
         }
-        gameTabs.remove(tabView);
+        tabContentPanel.remove(tabView);
+        browserTabBar.removeTab(session);
+        GameSession activeSession = workspace.getActiveSession();
+        if (activeSession != null) {
+            activateSession(activeSession);
+        }
     }
 
 
@@ -664,6 +713,12 @@ public class View_MainFrame extends JFrame
     public void propertyChange(PropertyChangeEvent evt) {
         if ("switchLaf".equals(evt.getPropertyName())) {
             setLookAndFeel(model.getLookAndFeel());
+        }
+        if ("gameChanged".equals(evt.getPropertyName())) {
+            GameSession active = workspace.getActiveSession();
+            if (active != null && browserTabBar != null) {
+                browserTabBar.updateTab(active);
+            }
         }
     }
 

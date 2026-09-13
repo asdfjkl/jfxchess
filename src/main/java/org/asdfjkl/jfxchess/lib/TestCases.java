@@ -24,6 +24,7 @@ import org.asdfjkl.jfxchess.gui.PgnDocument;
 import org.asdfjkl.jfxchess.gui.PgnGameId;
 import org.asdfjkl.jfxchess.gui.PgnSourceReference;
 import org.asdfjkl.jfxchess.gui.Workspace;
+import java.util.List;
 
 //import org.asdfjkl.jfxchess.gui.PgnDatabaseEntry;
 
@@ -114,6 +115,125 @@ public class TestCases {
         }
 
         System.out.println("TEST: workspace session isolation passed");
+    }
+
+    public void pgnGameInfoSurnameExtractionTest() {
+        if (!"Kasparov".equals(PgnGameInfo.extractSurname("Kasparov, Garry"))) {
+            throw new AssertionError("Failed to extract surname from 'Kasparov, Garry'");
+        }
+        if (!"Carlsen".equals(PgnGameInfo.extractSurname("Magnus Carlsen"))) {
+            throw new AssertionError("Failed to extract surname from 'Magnus Carlsen'");
+        }
+        if (!"Stockfish 18".equals(PgnGameInfo.extractSurname("Stockfish 18"))) {
+            throw new AssertionError("Failed to retain bot name 'Stockfish 18'");
+        }
+        if (!"N.N.".equals(PgnGameInfo.extractSurname("N.N."))) {
+            throw new AssertionError("Failed on 'N.N.'");
+        }
+        if (!"N.N.".equals(PgnGameInfo.extractSurname(""))) {
+            throw new AssertionError("Failed on empty name");
+        }
+        if (!"N.N.".equals(PgnGameInfo.extractSurname(null))) {
+            throw new AssertionError("Failed on null name");
+        }
+        if (!"N.N.".equals(PgnGameInfo.extractSurname("?"))) {
+            throw new AssertionError("Failed on '?' name");
+        }
+        if (!"Kasparov vs. Karpov".equals(PgnGameInfo.formatVersusTitle("Kasparov, Garry", "Karpov, Anatoly"))) {
+            throw new AssertionError("Failed formatVersusTitle");
+        }
+
+        PgnGameInfo info = new PgnGameInfo();
+        info.setWhite("Fischer, Robert J.");
+        info.setBlack("Spassky, Boris V.");
+        if (!"Fischer vs. Spassky".equals(info.getVersusTitle())) {
+            throw new AssertionError("Failed PgnGameInfo getVersusTitle");
+        }
+
+        Game game = new Game();
+        game.setHeader("White", "Deep Blue");
+        game.setHeader("Black", "Kasparov, Garry");
+        if (!"Blue vs. Kasparov".equals(game.getVersusTitle())) {
+            throw new AssertionError("Failed Game getVersusTitle");
+        }
+
+        System.out.println("TEST: PgnGameInfo surname extraction passed");
+    }
+
+    public void browserTabBehaviorTest() {
+        Workspace workspace = new Workspace();
+
+        Game g1 = new Game();
+        g1.getRootNode().setBoard(new Board(true));
+        g1.setHeader("White", "Kasparov, Garry");
+        g1.setHeader("Black", "Karpov, Anatoly");
+        GameSession s1 = workspace.createSession(g1);
+
+        Game g2 = new Game();
+        g2.getRootNode().setBoard(new Board(true));
+        g2.setHeader("White", "Fischer, Robert J.");
+        g2.setHeader("Black", "Spassky, Boris V.");
+        GameSession s2 = workspace.createSession(g2);
+
+        Game g3 = new Game();
+        g3.getRootNode().setBoard(new Board(true));
+        g3.setHeader("White", "Carlsen, Magnus");
+        g3.setHeader("Black", "Caruana, Fabiano");
+        GameSession s3 = workspace.createSession(g3);
+
+        if (!"Kasparov vs. Karpov".equals(s1.getGame().getVersusTitle())) {
+            throw new AssertionError("Failed s1 versus title");
+        }
+        if (!"Fischer vs. Spassky".equals(s2.getGame().getVersusTitle())) {
+            throw new AssertionError("Failed s2 versus title");
+        }
+        if (!"Carlsen vs. Caruana".equals(s3.getGame().getVersusTitle())) {
+            throw new AssertionError("Failed s3 versus title");
+        }
+
+        // Test context switch when closing an intermediate tab (s2):
+        // Context should switch to the tab to the left (s1)
+        List<GameSession> sessions = workspace.getSessions();
+        int index = sessions.indexOf(s2);
+        GameSession targetSession = (index > 0) ? sessions.get(index - 1) : sessions.get(1);
+        if (targetSession != s1) {
+            throw new AssertionError("Target session for closing s2 must be s1 (left tab)");
+        }
+        workspace.setActiveSession(targetSession);
+        workspace.closeSession(s2);
+
+        if (workspace.getActiveSession() != s1) {
+            throw new AssertionError("Active session must be s1 after closing s2");
+        }
+        if (workspace.getSessions().size() != 2) {
+            throw new AssertionError("Workspace should have 2 sessions left");
+        }
+
+        // Test context switch when closing the leftmost tab (s1):
+        // Since index == 0, context switches to the next available tab (s3)
+        sessions = workspace.getSessions();
+        index = sessions.indexOf(s1);
+        targetSession = (index > 0) ? sessions.get(index - 1) : sessions.get(1);
+        if (targetSession != s3) {
+            throw new AssertionError("Target session for closing s1 must be s3");
+        }
+        workspace.setActiveSession(targetSession);
+        workspace.closeSession(s1);
+
+        if (workspace.getActiveSession() != s3) {
+            throw new AssertionError("Active session must be s3 after closing s1");
+        }
+        if (workspace.getSessions().size() != 1) {
+            throw new AssertionError("Workspace should have 1 session left");
+        }
+
+        // Single session left: verify protection condition
+        boolean singleTabProtected = workspace.getSessions().size() <= 1;
+        if (!singleTabProtected) {
+            throw new AssertionError("Should be single tab protected");
+        }
+
+        System.out.println("TEST: browser tab behavior passed");
     }
 
     public void pgnDocumentSessionSynchronizationTest() {

@@ -50,6 +50,14 @@ public class Main {
                 TestCases cases = new TestCases();
                 cases.pgnDocumentSessionSynchronizationTest();
 
+            } else if (filename.equals("pgn-game-info-surname-test")) {
+                TestCases cases = new TestCases();
+                cases.pgnGameInfoSurnameExtractionTest();
+
+            } else if (filename.equals("browser-tab-behavior-test")) {
+                TestCases cases = new TestCases();
+                cases.browserTabBehaviorTest();
+
             } else {
 
                 boolean printOutput = true;
