@@ -54,21 +54,19 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
         model.addListener(this);
 
-        // set up formatting
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+
+        setContentType("text/html");
         HTMLEditorKit kit = new HTMLEditorKit();
         StyleSheet css = kit.getStyleSheet();
-        css.addRule("body { font-family: sans-serif; }");
-        css.addRule(
-                "a { " +
-                        "text-decoration: none; " +
-                        "font-weight: normal; " +
-                        "color: #333333; " +
-                        "}"
-        );
+        css.addRule("a { text-decoration: none; }");
         setEditorKit(kit);
         setEditable(false);
         setFocusable(false);
-        setContentType("text/html");
+
+        if (model.isUseCustomFontSizeMoveView()) {
+            updateFontSize(model.getFontSizeMoveView());
+        }
 
         // left click
         addHyperlinkListener(e -> {
@@ -222,16 +220,14 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
         }
 
         Font uiFont = UIManager.getFont("EditorPane.font");
+        if (uiFont == null) {
+            uiFont = UIManager.getFont("Label.font");
+        }
+        if (uiFont == null) {
+            uiFont = getFont();
+        }
         Font newFont = uiFont.deriveFont((float) fontSize);
         setFont(newFont);
-
-        // Update HTML documents as well
-        if (getDocument() instanceof HTMLDocument htmlDoc) {
-            StyleSheet styleSheet = htmlDoc.getStyleSheet();
-            styleSheet.addRule(
-                    "body { font-family: '" + newFont.getFamily() +
-                            "'; font-size: " + fontSize + "pt; }");
-        }
 
         revalidate();
         repaint();
@@ -239,18 +235,24 @@ public class View_Moves extends JEditorPane implements PropertyChangeListener {
 
     public void resetFontSize() {
         Font uiFont = UIManager.getFont("EditorPane.font");
-        setFont(uiFont);
-
-        // Update HTML documents as well
-        if (getDocument() instanceof HTMLDocument htmlDoc) {
-            StyleSheet styleSheet = htmlDoc.getStyleSheet();
-            styleSheet.addRule(
-                    "body { font-family: '" + uiFont.getFamily() +
-                            "'; font-size: " + uiFont.getSize() + "pt; }");
+        if (uiFont == null) {
+            uiFont = UIManager.getFont("Label.font");
+        }
+        if (uiFont != null) {
+            setFont(uiFont);
         }
 
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        if (model != null && model.isUseCustomFontSizeMoveView()) {
+            updateFontSize(model.getFontSizeMoveView());
+        }
     }
 
     @Override

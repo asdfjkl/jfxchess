@@ -19,9 +19,6 @@
 package org.asdfjkl.jfxchess.gui;
 
 import javax.swing.*;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,24 +29,17 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
 
     String cachedInfo = "";
 
-    public  View_EngineOutput(Model_JFXChess model) {
+    public View_EngineOutput(Model_JFXChess model) {
         this.model = model;
 
-        // set up formatting
-        HTMLEditorKit kit = new HTMLEditorKit();
-        StyleSheet css = kit.getStyleSheet();
-        css.addRule("body { font-family: sans-serif; }");
-        css.addRule(
-                "a { " +
-                        "text-decoration: none; " +
-                        "font-weight: normal; " +
-                        "color: #333333; " +
-                        "}"
-        );
-        setEditorKit(kit);
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        setContentType("text/html");
         setEditable(false);
         setFocusable(false);
-        setContentType("text/html");
+
+        if (model.isUseCustomFontSizeEngineOutput()) {
+            updateFontSize(model.getFontSizeEngineOutput());
+        }
 
         /*
         htmlTest = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\" width=\"100%\">" +
@@ -110,16 +100,14 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
         }
 
         Font uiFont = UIManager.getFont("EditorPane.font");
+        if (uiFont == null) {
+            uiFont = UIManager.getFont("Label.font");
+        }
+        if (uiFont == null) {
+            uiFont = getFont();
+        }
         Font newFont = uiFont.deriveFont((float) fontSize);
         setFont(newFont);
-
-        // Update HTML documents as well
-        if (getDocument() instanceof HTMLDocument htmlDoc) {
-            StyleSheet styleSheet = htmlDoc.getStyleSheet();
-            styleSheet.addRule(
-                    "body { font-family: '" + newFont.getFamily() +
-                            "'; font-size: " + fontSize + "pt; }");
-        }
 
         revalidate();
         repaint();
@@ -127,18 +115,24 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
 
     public void resetFontSize() {
         Font uiFont = UIManager.getFont("EditorPane.font");
-        setFont(uiFont);
-
-        // Update HTML documents as well
-        if (getDocument() instanceof HTMLDocument htmlDoc) {
-            StyleSheet styleSheet = htmlDoc.getStyleSheet();
-            styleSheet.addRule(
-                    "body { font-family: '" + uiFont.getFamily() +
-                            "'; font-size: " + uiFont.getSize() + "pt; }");
+        if (uiFont == null) {
+            uiFont = UIManager.getFont("Label.font");
+        }
+        if (uiFont != null) {
+            setFont(uiFont);
         }
 
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        if (model != null && model.isUseCustomFontSizeEngineOutput()) {
+            updateFontSize(model.getFontSizeEngineOutput());
+        }
     }
 
     @Override
@@ -165,7 +159,7 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
         }
 
         if(evt.getPropertyName().equals("setFontSizeEngineOutput")) {
-            updateFontSize(model.getFontSizeMoveView());
+            updateFontSize(model.getFontSizeEngineOutput());
         }
         if(evt.getPropertyName().equals("resetFontSizeEngineOutput")) {
             resetFontSize();
