@@ -90,7 +90,7 @@ public class Model_JFXChess {
 
     private Preferences prefs;
 
-    private PgnDatabase pgnDatabase = new PgnDatabase();
+    private ChessDatabase activeDatabase;
     private File lastOpenedDirPath = null;
     private File lastSaveDirPath = null;
 
@@ -648,12 +648,12 @@ public class Model_JFXChess {
         pcs.firePropertyChange("engineInfo", null, null);
     }
 
-    public PgnDatabase getPgnDatabase() {
-        return pgnDatabase;
+    public ChessDatabase getActiveDatabase() {
+        return activeDatabase;
     }
 
-    public void setPgnDatabase(PgnDatabase pgnDatabase) {
-        this.pgnDatabase = pgnDatabase;
+    public void setActiveDatabase(ChessDatabase activeDatabase) {
+        this.activeDatabase = activeDatabase;
     }
 
     public File getLastOpenedDirPath() {

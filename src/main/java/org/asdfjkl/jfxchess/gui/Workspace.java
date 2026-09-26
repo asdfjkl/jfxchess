@@ -18,7 +18,11 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import org.asdfjkl.jfxchess.lib.ChessDatabase;
+import org.asdfjkl.jfxchess.lib.ChessDatabaseEvent;
 import org.asdfjkl.jfxchess.lib.Game;
+import org.asdfjkl.jfxchess.lib.GameInfo;
+import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
 import org.asdfjkl.jfxchess.lib.PgnReader;
 
@@ -26,6 +30,7 @@ import javax.swing.SwingUtilities;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +45,7 @@ public class Workspace {
     private final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
     private final ArrayList<GameSession> sessions = new ArrayList<>();
+    private final Map<Path, ChessDatabase> databases = new HashMap<>();
     private final Map<Path, PgnDocument> documents = new HashMap<>();
 
     private GameSession activeSession;
@@ -97,10 +103,38 @@ public class Workspace {
         return null;
     }
 
+    public ChessDatabase getOrCreateDatabase(Path path) {
+        Path canonicalPath = Objects.requireNonNull(path, "path")
+                .toAbsolutePath()
+                .normalize();
+        ChessDatabase database = databases.get(canonicalPath);
+        if (database == null) {
+            PgnChessDatabase pgnDb = new PgnChessDatabase();
+            try {
+                if (Files.exists(canonicalPath)) {
+                    pgnDb.open(canonicalPath.toString());
+                } else {
+                    pgnDb.createNew(canonicalPath.toString());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            pgnDb.addListener(this::onDatabaseChanged);
+            databases.put(canonicalPath, pgnDb);
+            database = pgnDb;
+        }
+        return database;
+    }
+
+    public List<ChessDatabase> getDatabases() {
+        return List.copyOf(databases.values());
+    }
+
     public PgnDocument getOrCreateDocument(Path path) {
         Path canonicalPath = Objects.requireNonNull(path, "path")
                 .toAbsolutePath()
                 .normalize();
+        getOrCreateDatabase(canonicalPath);
         PgnDocument document = documents.get(canonicalPath);
         if (document == null) {
             document = new PgnDocument(canonicalPath, new PgnReader());
@@ -127,6 +161,64 @@ public class Workspace {
         PgnPrinter printer = new PgnPrinter();
         PgnReader reader = new PgnReader();
         return reader.readGame(printer.printGame(game));
+    }
+
+    public void onDatabaseChanged(ChessDatabaseEvent event) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> onDatabaseChanged(event));
+            return;
+        }
+        for (GameSession session : sessions) {
+            PgnSourceReference source = session.getPgnSourceReference();
+            if (source == null ||
+                    !source.getDocumentPath().equals(event.getDatabase().getPath())) {
+                continue;
+            }
+
+            boolean isAffected = false;
+            for (GameInfo affected : event.getAffectedGames()) {
+                if (affected.getId().equals(source.getGameId().getValue())) {
+                    isAffected = true;
+                    break;
+                }
+            }
+
+            if (!isAffected && event.getType() != ChessDatabaseEvent.Type.INDEX_REBUILT) {
+                continue;
+            }
+
+            if (event.getType() == ChessDatabaseEvent.Type.GAME_DELETED) {
+                session.markStale();
+                continue;
+            }
+
+            if (session.isDirty()) {
+                session.markStale();
+                continue;
+            }
+
+            try {
+                GameInfo currentInfo = null;
+                for (GameInfo info : event.getDatabase().getIndex()) {
+                    if (info.getId().equals(source.getGameId().getValue())) {
+                        currentInfo = info;
+                        break;
+                    }
+                }
+                if (currentInfo == null) {
+                    session.markStale();
+                    continue;
+                }
+                session.setGame(event.getDatabase().loadGame(currentInfo));
+                session.setPgnSourceReference(new PgnSourceReference(
+                        event.getDatabase().getPath(),
+                        source.getGameId(),
+                        event.getRevision()
+                ));
+            } catch (IOException | IllegalArgumentException exception) {
+                session.markStale();
+            }
+        }
     }
 
     private void onDocumentChanged(PgnDocumentEvent event) {

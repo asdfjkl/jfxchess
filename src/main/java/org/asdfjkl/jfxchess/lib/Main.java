@@ -50,6 +50,10 @@ public class Main {
                 TestCases cases = new TestCases();
                 cases.pgnDocumentSessionSynchronizationTest();
 
+            } else if (filename.equals("chess-database-test")) {
+                TestCases cases = new TestCases();
+                cases.chessDatabaseSessionSynchronizationTest();
+
             } else if (filename.equals("pgn-game-info-surname-test")) {
                 TestCases cases = new TestCases();
                 cases.pgnGameInfoSurnameExtractionTest();

@@ -18,62 +18,20 @@
 
 package org.asdfjkl.jfxchess.lib;
 
-public class PgnGameInfo {
+import java.util.UUID;
+
+public class PgnGameInfo extends GameInfo {
 
     private long offset = 0;
-    private String event = "";
-    private String site = "";
-    private String date = "";
-    private String round = "";
-    private String white = "";
-    private String black = "";
-    private String result = "";
-    private String eco = "";
-    private String whiteElo = "";
-    private String blackElo = "";
     private boolean modifiedFlag = false;
     Game modifiedGame = null;
 
-    private boolean foundAtLeast1Tag = false;
-
-    public static String extractSurname(String name) {
-        if (name == null) {
-            return "N.N.";
-        }
-        String s = name.strip();
-        if (s.isEmpty() || "?".equals(s) || "N.N.".equalsIgnoreCase(s)) {
-            return "N.N.";
-        }
-        if (s.contains(",")) {
-            String beforeComma = s.substring(0, s.indexOf(',')).strip();
-            if (!beforeComma.isEmpty()) {
-                return beforeComma;
-            }
-        }
-        if (s.toLowerCase().startsWith("stockfish")) {
-            return s;
-        }
-        int lastSpace = s.lastIndexOf(' ');
-        if (lastSpace > 0 && lastSpace < s.length() - 1) {
-            return s.substring(lastSpace + 1).strip();
-        }
-        return s;
+    public PgnGameInfo() {
+        super();
     }
 
-    public static String formatVersusTitle(String white, String black) {
-        return extractSurname(white) + " vs. " + extractSurname(black);
-    }
-
-    public String getWhiteSurname() {
-        return extractSurname(this.white);
-    }
-
-    public String getBlackSurname() {
-        return extractSurname(this.black);
-    }
-
-    public String getVersusTitle() {
-        return formatVersusTitle(this.white, this.black);
+    public PgnGameInfo(UUID id) {
+        super(id);
     }
 
     public long getOffset() {
@@ -84,88 +42,19 @@ public class PgnGameInfo {
         this.offset = offset;
     }
 
-    public String getEvent() {
-        return event;
+    public boolean isModified() {
+        return modifiedFlag;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setModified(boolean modified) {
+        this.modifiedFlag = modified;
     }
 
-    public String getSite() {
-        return site;
+    public Game getModifiedGame() {
+        return modifiedGame;
     }
 
-    public void setSite(String site) {
-        this.site = site;
+    public void setModifiedGame(Game modifiedGame) {
+        this.modifiedGame = modifiedGame;
     }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getRound() {
-        return round;
-    }
-
-    public void setRound(String round) {
-        this.round = round;
-    }
-
-    public String getWhite() {
-        return white;
-    }
-
-    public void setWhite(String white) {
-        this.white = white;
-    }
-
-    public String getBlack() {
-        return black;
-    }
-
-    public void setBlack(String black) {
-        this.black = black;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public void setWhiteElo(String valueEncoded) {
-        this.whiteElo = valueEncoded;
-    }
-
-    public String getWhiteElo() {
-        return whiteElo;
-    }
-
-    public void setBlackElo(String valueEncoded) {
-        this.blackElo = valueEncoded;
-    }
-
-    public String getBlackElo() {
-        return blackElo;
-    }
-
-    public void setEco(String eco) {
-        this.eco = eco;
-    }
-
-    public void markValid() {
-        foundAtLeast1Tag = true;
-    }
-
-    public boolean isValid() {
-        return foundAtLeast1Tag;
-    }
-
 }

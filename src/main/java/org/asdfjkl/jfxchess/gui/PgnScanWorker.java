@@ -18,8 +18,10 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import org.asdfjkl.jfxchess.lib.ChessDatabase;
+import org.asdfjkl.jfxchess.lib.GameInfo;
+import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnGameInfo;
-import org.asdfjkl.jfxchess.lib.PgnReader;
 import org.asdfjkl.jfxchess.lib.ProgressListener;
 
 import javax.swing.*;
@@ -27,29 +29,53 @@ import java.util.ArrayList;
 
 public class PgnScanWorker extends SwingWorker<ArrayList<PgnGameInfo>, Integer> {
 
-    private final PgnDocument document;
+    private final ChessDatabase database;
     private final PgnScanListener pgnScanListener;
 
+    public PgnScanWorker(ChessDatabase database, PgnScanListener listener) {
+        this.database = database;
+        this.pgnScanListener = listener;
+    }
+
     public PgnScanWorker(PgnDocument document, PgnScanListener listener) {
-        this.document = document;
+        ChessDatabase db = null;
+        if (document != null) {
+            PgnChessDatabase pgnDb = new PgnChessDatabase();
+            try {
+                pgnDb.open(document.getPath().toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            db = pgnDb;
+        }
+        this.database = db;
         this.pgnScanListener = listener;
     }
 
     @Override
     protected ArrayList<PgnGameInfo> doInBackground() throws Exception {
+        if (database != null) {
+            database.scanGames(new ProgressListener() {
+                @Override
+                public void onProgress(int percent) {
+                    setProgress(percent);
+                }
 
-        document.reload(new ProgressListener() {
-            @Override
-            public void onProgress(int percent) {
-                setProgress(percent); // SwingWorker built-in support
-            }
+                @Override
+                public boolean isCancelled() {
+                    return PgnScanWorker.this.isCancelled();
+                }
+            });
 
-            @Override
-            public boolean isCancelled() {
-                return PgnScanWorker.this.isCancelled();
+            ArrayList<PgnGameInfo> pgnList = new ArrayList<>();
+            for (GameInfo info : database.getIndex()) {
+                if (info instanceof PgnGameInfo pgnInfo) {
+                    pgnList.add(pgnInfo);
+                }
             }
-        });
-        return document.getEntries();
+            return pgnList;
+        }
+        return new ArrayList<>();
     }
 
     @Override

@@ -308,6 +308,101 @@ public class TestCases {
         }
     }
 
+    public void chessDatabaseSessionSynchronizationTest() {
+        Path path = null;
+        try {
+            path = Files.createTempFile("jfxchess-database-sync-", ".pgn");
+            Workspace workspace = new Workspace();
+            ChessDatabase database = workspace.getOrCreateDatabase(path);
+
+            final List<ChessDatabaseEvent> events = new ArrayList<>();
+            database.addListener(events::add);
+
+            Game firstGame = new Game();
+            firstGame.getRootNode().setBoard(new Board(true));
+            firstGame.setHeader("Event", "InitialEvent");
+            firstGame.setHeader("White", "PlayerOne");
+            firstGame.setHeader("Black", "PlayerTwo");
+            GameInfo firstInfo = database.appendGame(firstGame);
+
+            if (database.getIndex().size() != 1) {
+                throw new AssertionError("Database should have 1 game");
+            }
+            if (events.isEmpty() || events.get(events.size() - 1).getType() != ChessDatabaseEvent.Type.GAME_APPENDED) {
+                throw new AssertionError("Expected GAME_APPENDED event");
+            }
+
+            Game loaded = database.loadGame(firstInfo);
+            if (!"PlayerOne".equals(loaded.getHeader("White"))) {
+                throw new AssertionError("Loaded game mismatch");
+            }
+
+            // Create clean session for first game
+            GameSession cleanSession = workspace.createSession(database.loadGame(firstInfo));
+            long rev = (database instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+            cleanSession.setPgnSourceReference(new PgnSourceReference(path, firstInfo.getId(), rev));
+
+            // Append second game
+            Game secondGame = new Game();
+            secondGame.getRootNode().setBoard(new Board(true));
+            secondGame.setHeader("Event", "SecondGameEvent");
+            GameInfo secondInfo = database.appendGame(secondGame);
+            flushEdt();
+
+            if (cleanSession.isStale() || cleanSession.isDirty()) {
+                throw new AssertionError("Appending unrelated game must not stale clean session");
+            }
+
+            // Create dirty session for first game
+            GameSession dirtySession = workspace.createSession(database.loadGame(firstInfo));
+            dirtySession.setPgnSourceReference(new PgnSourceReference(path, firstInfo.getId(), rev));
+            dirtySession.applyMove(new Move("e2e4"));
+            if (!dirtySession.isDirty()) {
+                throw new AssertionError("Expected dirty session");
+            }
+
+            // Replace first game
+            Game replacement = database.loadGame(firstInfo);
+            replacement.setHeader("Event", "ReplacedEvent");
+            database.replaceGame(replacement, firstInfo);
+            flushEdt();
+
+            if (!"ReplacedEvent".equals(cleanSession.getGame().getHeader("Event")) || cleanSession.isStale()) {
+                throw new AssertionError("Clean session for replaced game must automatically reload");
+            }
+            if (!dirtySession.isStale() || !dirtySession.isDirty()) {
+                throw new AssertionError("Dirty session for replaced game must be marked stale");
+            }
+
+            // Test search
+            SearchPattern pattern = new SearchPattern();
+            pattern.setEvent("ReplacedEvent");
+            database.search(pattern);
+            if (database.getSearchResults().size() != 1) {
+                throw new AssertionError("Search should find 1 matching game");
+            }
+
+            // Test delete
+            database.deleteGame(secondInfo);
+            flushEdt();
+            if (database.getIndex().size() != 1) {
+                throw new AssertionError("After deletion, index should have 1 game");
+            }
+
+            System.out.println("TEST: Chess database session synchronization passed");
+        } catch (IOException exception) {
+            throw new AssertionError("Chess database synchronization test failed", exception);
+        } finally {
+            if (path != null) {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException exception) {
+                    throw new AssertionError("Unable to remove test database", exception);
+                }
+            }
+        }
+    }
+
     private void flushEdt() {
         try {
             SwingUtilities.invokeAndWait(() -> { });

@@ -18,12 +18,15 @@
 
 package org.asdfjkl.jfxchess.gui;
 
-import org.asdfjkl.jfxchess.lib.*;
+import org.asdfjkl.jfxchess.lib.ChessDatabase;
+import org.asdfjkl.jfxchess.lib.GameInfo;
+import org.asdfjkl.jfxchess.lib.SearchPattern;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DialogDatabase extends JDialog {
 
@@ -31,7 +34,7 @@ public class DialogDatabase extends JDialog {
     private final GameTableModel tableModel;
 
     private final Controller_Pgn controller_Pgn;
-    private final PgnDatabase pgnDatabase;
+    private final ChessDatabase database;
 
     private JButton btnReset;
     private boolean isConfirmed = false;
@@ -39,24 +42,33 @@ public class DialogDatabase extends JDialog {
     private SearchPattern pattern = new SearchPattern();
 
     public DialogDatabase(Frame owner,
-                          Model_JFXChess model_JFXChess,
+                          ChessDatabase database,
                           Controller_Pgn controller) {
-        super(owner, model_JFXChess.getPgnDatabase().getAbsoluteFilename(), true);
+        this(owner, database, controller, null);
+    }
+
+    public DialogDatabase(Frame owner,
+                          ChessDatabase database,
+                          Controller_Pgn controller,
+                          GameInfo activeGame) {
+        super(owner, database != null ? database.getFilename() : "", true);
 
         this.controller_Pgn = controller;
-        this.pgnDatabase = model_JFXChess.getPgnDatabase();
-        // if user searched for games last time, display search results (i.e. remember search)
-        if(pgnDatabase.isSearchActive()) {
-            this.tableModel = new GameTableModel(pgnDatabase.getSearchResult());
+        this.database = database;
+
+        if (database != null && database.isSearchActive()) {
+            this.tableModel = new GameTableModel(database.getSearchResults());
+        } else if (database != null) {
+            this.tableModel = new GameTableModel(database.getIndex());
         } else {
-            this.tableModel = new GameTableModel(pgnDatabase.getEntries());
+            this.tableModel = new GameTableModel(new ArrayList<>());
         }
+
         initUI();
-        if(!pgnDatabase.isSearchActive()) {
-            // in this case, we (pre)select the currently opened game, if possible
-            // but we must do this after initializing the gui component
-            int idx = pgnDatabase.getIdxOfCurrentlyOpenedGame();
-            if(idx >= 0 && idx < pgnDatabase.getEntries().size()) {
+
+        if (database != null && !database.isSearchActive() && activeGame != null) {
+            int idx = database.indexOf(activeGame);
+            if (idx >= 0 && idx < database.getIndex().size()) {
                 this.table.setRowSelectionInterval(idx, idx);
             }
         }
@@ -68,7 +80,6 @@ public class DialogDatabase extends JDialog {
     private void initUI() {
         setLayout(new BorderLayout());
 
-        // ===== TABLE =====
         // ===== TABLE =====
         table = new JTable(tableModel);
         table.setAutoCreateRowSorter(false);
@@ -109,27 +120,24 @@ public class DialogDatabase extends JDialog {
             isConfirmed = true;
             dispose();
         });
-        // make sure, open is disabled if no entry in table is selected
+
         btnOpen.setEnabled(false);
         table.getSelectionModel().addListSelectionListener(e -> {
-            // Avoid double events while adjusting
             if (!e.getValueIsAdjusting()) {
                 boolean rowSelected = table.getSelectedRow() != -1;
                 btnOpen.setEnabled(rowSelected);
             }
         });
 
-        // only allow reset, if search is active (otherwise nothing to reset;
-        // and indicates to user if opened dialog shows all games vs last search results)
-        if(pgnDatabase.isSearchActive()) {
+        if (database != null && database.isSearchActive()) {
             btnReset.setEnabled(true);
         } else {
             btnReset.setEnabled(false);
         }
 
-        btnDelete.addActionListener(e -> { deleteSelectedGame(); });
-        btnReset.addActionListener(e -> { resetSearch(); });
-        btnSearch.addActionListener(e -> { onBtnSearch(); });
+        btnDelete.addActionListener(e -> deleteSelectedGame());
+        btnReset.addActionListener(e -> resetSearch());
+        btnSearch.addActionListener(e -> onBtnSearch());
     }
 
     // ===== TABLE MODEL =====
@@ -139,10 +147,10 @@ public class DialogDatabase extends JDialog {
                 "No", "White", "Elo", "Black", "Elo", "Result", "Event", "Date"
         };
 
-        private ArrayList<PgnGameInfo> games;
+        private List<GameInfo> games;
 
-        public GameTableModel(ArrayList<PgnGameInfo> games) {
-            this.games = games;
+        public GameTableModel(List<GameInfo> games) {
+            this.games = games != null ? new ArrayList<>(games) : new ArrayList<>();
         }
 
         @Override
@@ -162,7 +170,7 @@ public class DialogDatabase extends JDialog {
 
         @Override
         public Object getValueAt(int row, int col) {
-            PgnGameInfo g = games.get(row);
+            GameInfo g = games.get(row);
 
             switch (col) {
                 case 0: return row + 1;
@@ -187,7 +195,7 @@ public class DialogDatabase extends JDialog {
             }
         }
 
-        public PgnGameInfo getGameAt(int row) {
+        public GameInfo getGameAt(int row) {
             return games.get(row);
         }
 
@@ -196,18 +204,17 @@ public class DialogDatabase extends JDialog {
             fireTableRowsDeleted(row, row);
         }
 
-        public void setData(ArrayList<PgnGameInfo> newEntries) {
-            this.games = newEntries;
+        public void setData(List<GameInfo> newEntries) {
+            this.games = newEntries != null ? new ArrayList<>(newEntries) : new ArrayList<>();
             fireTableDataChanged();
         }
     }
 
     // ===== ACCESS HELPERS =====
-    public PgnGameInfo getSelectedGame() {
+    public GameInfo getSelectedGame() {
         int row = table.getSelectedRow();
         if (row < 0) return null;
 
-        // convert if sorting is active
         int modelRow = table.convertRowIndexToModel(row);
         return tableModel.getGameAt(modelRow);
     }
@@ -216,7 +223,6 @@ public class DialogDatabase extends JDialog {
         int row = table.getSelectedRow();
         if (row < 0) return -1;
 
-        // convert if sorting is active
         return table.convertRowIndexToModel(row);
     }
 
@@ -225,11 +231,10 @@ public class DialogDatabase extends JDialog {
         if (row < 0) return;
 
         int modelRow = table.convertRowIndexToModel(row);
-        PgnGameInfo gameInfo = tableModel.getGameAt(modelRow);
-        // check for confirmation
+        GameInfo gameInfo = tableModel.getGameAt(modelRow);
         int result = JOptionPane.showConfirmDialog(this,
                 "Deleting '" +
-                        gameInfo.getWhite() + " vs. " +  gameInfo.getBlack() +
+                        gameInfo.getWhite() + " vs. " + gameInfo.getBlack() +
                         "', please confirm",
                 "Confirm Deletion",
                 JOptionPane.OK_CANCEL_OPTION
@@ -244,20 +249,18 @@ public class DialogDatabase extends JDialog {
         DialogSearchGames dlgSearch = new DialogSearchGames(this, pattern);
         dlgSearch.setVisible(true);
         pattern = dlgSearch.getSearchPattern();
-        if(dlgSearch.isConfirmed()) {
+        if (dlgSearch.isConfirmed()) {
             searchGames(pattern);
         }
     }
 
     private void searchGames(SearchPattern pattern) {
-
-        PgnSearchWorker worker = new PgnSearchWorker(pgnDatabase.getEntries(),
-                pattern,
-                new PgnReader(),
+        if (database == null) {
+            return;
+        }
+        PgnSearchWorker worker = new PgnSearchWorker(database, pattern,
                 entriesFromWorker -> {
-                    tableModel.setData(entriesFromWorker);
-                    pgnDatabase.setSearchResults(entriesFromWorker);
-                    pgnDatabase.setSearchActive(true);
+                    tableModel.setData(database.getSearchResults());
                     btnReset.setEnabled(true);
                     invalidate();
                 }
@@ -268,15 +271,15 @@ public class DialogDatabase extends JDialog {
     }
 
     private void resetSearch() {
-
-        tableModel.setData(pgnDatabase.getEntries());
+        if (database == null) {
+            return;
+        }
+        database.resetSearch();
+        tableModel.setData(database.getIndex());
         btnReset.setEnabled(false);
-        pgnDatabase.setSearchActive(false);
-        pgnDatabase.setSearchResults(new  ArrayList<>());
     }
 
     public boolean isConfirmed() {
         return isConfirmed;
     }
-
 }

@@ -36,197 +36,47 @@ public class PgnReader {
         gameStack = new Stack<>();
     }
 
+    @Deprecated
     public ArrayList<PgnGameInfo> scanPgn(String filename, ProgressListener progressListener) {
-
-        ArrayList<PgnGameInfo> newEntries = new ArrayList<>();
-
-        boolean inComment = false;
-        long game_pos = -1;
-        PgnGameInfo current = null;
-        long last_pos = 0;
-
-        // check if we actually read at least one game;
-        boolean readAtLeastOneGame = false;
-
-        String currentLine = "";
-        OptimizedRandomAccessFile raf = null;
-
-        File file = new File(filename);
-        long fileSize = file.length();
-
-        long gamesRead = 0;
-
         try {
-            raf = new OptimizedRandomAccessFile(filename, "r");
-            int cnt_i = 0;
-            while ((currentLine = raf.readLine()) != null) {
-                cnt_i++;
-
-                // skip comments
-                if (currentLine.startsWith("%")) {
-                    continue;
+            PgnChessDatabase db = new PgnChessDatabase();
+            db.open(filename);
+            db.scanGames(progressListener);
+            ArrayList<PgnGameInfo> result = new ArrayList<>();
+            for (GameInfo info : db.getIndex()) {
+                if (info instanceof PgnGameInfo pgnInfo) {
+                    result.add(pgnInfo);
                 }
-
-                if (!inComment && currentLine.startsWith("[")) {
-                    if (game_pos == -1) {
-                        game_pos = last_pos;
-                        current = new PgnGameInfo();
-                    }
-                    last_pos = raf.getFilePointer();
-                    if (currentLine.length() > 4) {
-                        int spaceOffset = currentLine.indexOf(' ');
-                        int firstQuote = currentLine.indexOf('"');
-                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                        String tag = currentLine.substring(1, spaceOffset);
-                        if(secondQuote > firstQuote) {
-                            String value = currentLine.substring(firstQuote + 1, secondQuote);
-                            String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-                            if (tag.equals("Event")) {
-                                current.setEvent(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("Site")) {
-                                current.setSite(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("Round")) {
-                                current.setRound(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("White")) {
-                                current.setWhite(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("Black")) {
-                                current.setBlack(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("Result")) {
-                                current.setResult(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("Date")) {
-                                current.setDate(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("ECO")) {
-                                current.setEco(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("WhiteElo")) {
-                                current.setWhiteElo(valueEncoded);
-                                current.markValid();
-                            }
-                            if (tag.equals("BlackElo")) {
-                                current.setBlackElo(valueEncoded);
-                                current.markValid();
-                            }
-                        }
-                    }
-                    continue;
-                }
-                if ((!inComment && currentLine.contains("{"))
-                        || (inComment && currentLine.contains("}"))) {
-                    inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
-                }
-
-                if (game_pos != -1) {
-                    current.setOffset(game_pos);
-                    //current.setIndex(newEntries.size()+1);
-                    gamesRead += 1;
-                    if(gamesRead > 10000) {
-                        if (progressListener != null && fileSize > 0) {
-                            int percent = (int) (game_pos * 100 / fileSize);
-                            progressListener.onProgress(percent);
-                        }
-                        gamesRead = 0;
-                    }
-                    if(current.isValid()) {
-                        newEntries.add(current);
-                    }
-                    game_pos = -1;
-                }
-                last_pos = raf.getFilePointer();
             }
+            return result;
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            return new ArrayList<>();
         }
-        return newEntries;
     }
 
-
     public ArrayList<Long> scanPgn(String filename) {
-
         ArrayList<Long> offsets = new ArrayList<>();
-
-        boolean inComment = false;
-        long game_pos = -1;
-        long last_pos = 0;
-
-        String currentLine = "";
-        OptimizedRandomAccessFile raf = null;
-        try {
-            raf = new OptimizedRandomAccessFile(filename, "r");
-            while ((currentLine = raf.readLine()) != null) {
-                // skip comments
-                if (currentLine.startsWith("%")) {
-                    continue;
-                }
-
-                if (!inComment && currentLine.startsWith("[")) {
-                    if (game_pos == -1) {
-                        game_pos = last_pos;
-                    }
-                    last_pos = raf.getFilePointer();
-                    continue;
-                }
-                if ((!inComment && currentLine.contains("{"))
-                        || (inComment && currentLine.contains("}"))) {
-                    inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
-                }
-
-                if (game_pos != -1) {
-                    offsets.add(game_pos);
-                    game_pos = -1;
-                }
-
-                last_pos = raf.getFilePointer();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        ArrayList<PgnGameInfo> infos = scanPgn(filename, null);
+        for (PgnGameInfo info : infos) {
+            offsets.add(info.getOffset());
         }
         return offsets;
     }
 
+    @Deprecated
     public ArrayList<PgnGameInfo> searchPgn(ArrayList<PgnGameInfo> gameInfos,
                                             SearchPattern pattern,
                                             ProgressListener progressListener) {
-
         ArrayList<PgnGameInfo> matchingEntries = new ArrayList<>();
-        for(int i=0;i<gameInfos.size();i++) {
+        for (int i = 0; i < gameInfos.size(); i++) {
             PgnGameInfo gameInfo = gameInfos.get(i);
-            if(pattern.matchesHeader(gameInfo)) {
+            if (pattern.matchesHeader(gameInfo)) {
                 matchingEntries.add(gameInfo);
             }
-            if(i % 10000 == 0) {
-                if (progressListener != null) {
-                    int percent = (int) (i * 100 / gameInfos.size());
+            if (i % 10000 == 0) {
+                if (progressListener != null && !gameInfos.isEmpty()) {
+                    int percent = (int) ((long) i * 100 / gameInfos.size());
                     progressListener.onProgress(percent);
                 }
             }
@@ -234,40 +84,7 @@ public class PgnReader {
         return matchingEntries;
     }
 
-    public void deleteGame(String filename, long startOffset) {
-        File f = new File(filename);
-        long size = f.length();
-        deleteGame(filename, startOffset, size);
-    }
-
-    public void deleteGame(String filename, long startOffset, long nextGameOffset) {
-
-        OptimizedRandomAccessFile raf = null;
-        try {
-            raf = new OptimizedRandomAccessFile(filename, "rw");
-            raf.seek(startOffset);
-            for(long i=startOffset; i<nextGameOffset-2; i++) {
-                raf.writeByte(0x20);
-            }
-            // first space out, but then write a final newline so that next game does not start in
-            // the middle of a new line
-            raf.writeByte(0x0A);
-            raf.writeByte(0x0A);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if(raf != null) {
-                    raf.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public HashMap<String, String> readSingleHeader(String filename, long offset) {
-
         OptimizedRandomAccessFile raf = null;
         HashMap<String, String> header = null;
         try {
@@ -285,34 +102,24 @@ public class PgnReader {
             }
         }
         if (header == null) {
-            return new HashMap<String, String>();
+            return new HashMap<>();
         } else {
             return header;
         }
     }
 
-
     public HashMap<String, String> readSingleHeader(OptimizedRandomAccessFile raf, long offset) {
-
         HashMap<String, String> header = new HashMap<>();
-
         String currentLine = "";
-
-        boolean continueSearch = true;
         boolean foundHeader = false;
-
         try {
             raf.seek(offset);
             while ((currentLine = raf.readLine()) != null) {
-                // skip comments
                 if (currentLine.startsWith("%")) {
                     continue;
                 }
-
                 if (currentLine.startsWith("[")) {
-
                     foundHeader = true;
-                    //
                     if (currentLine.length() > 4) {
                         int spaceOffset = currentLine.indexOf(' ');
                         int firstQuote = currentLine.indexOf('"');

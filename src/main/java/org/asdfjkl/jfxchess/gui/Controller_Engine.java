@@ -286,7 +286,6 @@ public class Controller_Engine implements PropertyChangeListener {
             if(result >= 0) {
                 if(result == DialogNewGame.ENTER_ANALYSE) {
                     // clean up current game, but otherwise not much to do
-                    model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
                     Game g = new Game();
                     Board b = new Board(true);
                     g.getRootNode().setBoard(b);
@@ -301,7 +300,6 @@ public class Controller_Engine implements PropertyChangeListener {
                     dlgPlayBot.setVisible(true);
                     if(dlgPlayBot.isConfirmed()) {
                         model.wasSaved = false;
-                        model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
                         Game g = new Game();
                         Board b;
                         if(dlgPlayBot.getPlayInitialPosition()) {
@@ -340,7 +338,6 @@ public class Controller_Engine implements PropertyChangeListener {
                     boolean uciAccepted = dlgUci.isConfirmed();
                     if(uciAccepted) {
                         model.wasSaved = false;
-                        model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
                         Game g = new Game();
                         Board b;
                         if(dlgUci.getPlayInitialPosition()) {

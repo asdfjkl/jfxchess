@@ -35,6 +35,14 @@ public final class PgnSourceReference {
         this.documentRevision = documentRevision;
     }
 
+    public PgnSourceReference(Path documentPath,
+                              java.util.UUID gameId,
+                              long documentRevision) {
+        this.documentPath = Objects.requireNonNull(documentPath, "documentPath");
+        this.gameId = new PgnGameId(Objects.requireNonNull(gameId, "gameId"));
+        this.documentRevision = documentRevision;
+    }
+
     public Path getDocumentPath() {
         return documentPath;
     }

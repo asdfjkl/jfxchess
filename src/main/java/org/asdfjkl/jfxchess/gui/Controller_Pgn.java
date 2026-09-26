@@ -18,14 +18,20 @@
 
 package org.asdfjkl.jfxchess.gui;
 
-import org.asdfjkl.jfxchess.lib.*;
+import org.asdfjkl.jfxchess.lib.ChessDatabase;
+import org.asdfjkl.jfxchess.lib.Game;
+import org.asdfjkl.jfxchess.lib.GameInfo;
+import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
+import org.asdfjkl.jfxchess.lib.PgnReader;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Controller_Pgn {
 
@@ -33,22 +39,19 @@ public class Controller_Pgn {
     private final Model_JFXChess model;
 
     public Controller_Pgn(Model_JFXChess model) {
-        reader = new PgnReader();
+        this.reader = new PgnReader();
         this.model = model;
     }
 
     // === Opening a PGN via Game -> Open Menu
     public ActionListener openFile() {
-        return e -> {
-            openAndScanPgn();
-        };
+        return e -> openAndScanPgn();
     }
 
     private void openAndScanPgn() {
-
         File lastDir = model.getLastOpenedDirPath();
         JFileChooser chooser;
-        if(lastDir != null && lastDir.exists() && lastDir.isDirectory()) {
+        if (lastDir != null && lastDir.exists() && lastDir.isDirectory()) {
             chooser = new JFileChooser(lastDir);
         } else {
             chooser = new JFileChooser();
@@ -61,13 +64,10 @@ public class Controller_Pgn {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = chooser.getSelectedFile();
                 model.setLastOpenedDirPath(chooser.getCurrentDirectory());
-                if (selectedFile != null &&
-                        selectedFile.exists() &&
-                        selectedFile.canRead()
-                ) {
-                    PgnDocument document = getDocument(selectedFile.getAbsolutePath());
-                    PgnScanWorker worker = new PgnScanWorker(document,
-                            entriesFromWorker -> { onScanPgnCompletion(document); }
+                if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
+                    ChessDatabase database = getDatabase(selectedFile.getAbsolutePath());
+                    PgnScanWorker worker = new PgnScanWorker(database,
+                            entriesFromWorker -> onScanPgnCompletion(database)
                     );
                     DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning PGN");
                     worker.execute();
@@ -84,31 +84,25 @@ public class Controller_Pgn {
         }
     }
 
-    private void onScanPgnCompletion(PgnDocument document) {
+    private void onScanPgnCompletion(ChessDatabase database) {
+        model.setActiveDatabase(database);
 
-        PgnDatabase database = model.getPgnDatabase();
-        database.setEntries(document.getEntries());
-        database.setAbsoluteFilename(document.getPath().toString());
-
-        if(database.getEntries().size() == 1) {
-            // read game from file and show, don't display database dialog
+        if (database.getIndex().size() == 1) {
             try {
-                openGameInNewSession(document, document.getGameIdAt(0));
-                database.setIdxOfCurrentlyOpenedGame(0);
+                openGameInNewSession(database, database.getIndex().get(0));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        if(database.getEntries().size() > 1) {
+        } else if (database.getIndex().size() > 1) {
             model.setShortcutsEnabled(false);
-            DialogDatabase dlgDatabase = new DialogDatabase(model.mainFrameRef, model,this);
+            GameInfo currentInfo = getCurrentSessionGameInfo(database);
+            DialogDatabase dlgDatabase = new DialogDatabase(model.mainFrameRef, database, this, currentInfo);
             dlgDatabase.setVisible(true);
             model.setShortcutsEnabled(true);
-            if(dlgDatabase.isConfirmed()) {
-                PgnGameInfo gameInfo = dlgDatabase.getSelectedGame();
+            if (dlgDatabase.isConfirmed()) {
+                GameInfo gameInfo = dlgDatabase.getSelectedGame();
                 try {
-                    openGameInNewSession(document, document.getGameId(gameInfo));
-                    database.setIdxOfCurrentlyOpenedGame(dlgDatabase.getIndexOfSelectedGame());
+                    openGameInNewSession(database, gameInfo);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -118,75 +112,67 @@ public class Controller_Pgn {
 
     // ==== Save Game as New PGN (Game -> Save Game), main function
     public ActionListener saveGame() {
-
-        return e -> {
-            saveGame(model.getGameSession());
-        };
+        return e -> saveGame(model.getGameSession());
     }
 
     private void saveGame(GameSession gameSession) {
+        boolean replaceAllowed = false;
+        boolean appendToCurrentAllowed = false;
 
-            // first check, which options are actually possible
-            // if we haven't opened a pgn before, there can be
-            // no replacement/append to the current database
-            boolean replaceAllowed = false;
-            boolean appendToCurrentAllowed = false;
-
-            PgnDatabase database = model.getPgnDatabase();
-            String fnPgnDatabase = database.getAbsoluteFilename();
-            PgnDocument document = getCurrentDocument();
-            if(fnPgnDatabase != null) {
-                File f = new File(fnPgnDatabase);
-                if(f.exists() && !f.isDirectory()) {
-                    appendToCurrentAllowed = true;
+        ChessDatabase database = getCurrentDatabase();
+        if (database != null && database.getFilename() != null && !database.getFilename().isBlank()) {
+            File f = new File(database.getFilename());
+            if (f.exists() && !f.isDirectory()) {
+                appendToCurrentAllowed = true;
+            }
+        }
+        PgnSourceReference source = gameSession.getPgnSourceReference();
+        GameInfo currentGameInfo = null;
+        if (database != null && source != null &&
+                source.getDocumentPath().equals(database.getPath())) {
+            for (GameInfo info : database.getIndex()) {
+                if (info.getId().equals(source.getGameId().getValue())) {
+                    currentGameInfo = info;
+                    replaceAllowed = true;
+                    break;
                 }
             }
-            PgnSourceReference source = gameSession.getPgnSourceReference();
-            if (document != null && source != null &&
-                    source.getDocumentPath().equals(document.getPath()) &&
-                    document.indexOf(source.getGameId()) >= 0) {
-                replaceAllowed = true;
-            }
+        }
 
-            // show dialog
-            model.setShortcutsEnabled(false);
-            DialogSave dlgSave = new DialogSave(model.mainFrameRef, appendToCurrentAllowed, replaceAllowed);
-            dlgSave.setVisible(true);
-            model.setShortcutsEnabled(true);
-            int res = dlgSave.getResult();
-            if (res != DialogSave.CANCEL) {
-                if (res == DialogSave.SAVE_NEW) {
-                    saveAsNewPGN(gameSession);
-                }
-                if (res == DialogSave.APPEND_CURRENT) {
-                    appendToCurrentPGN(gameSession);
-                }
-                if (res == DialogSave.APPEND_OTHER) {
-                    appendToOtherPGN(gameSession);
-                }
-                if (res == DialogSave.REPLACE_CURRENT) {
-                    PgnPrinter printer = new PgnPrinter();
-                    String currentAsPgn = printer.printGame(gameSession.getGame());
-                    replaceCurrentPgn(gameSession, document, source.getGameId(), currentAsPgn);
-                }
+        // show dialog
+        model.setShortcutsEnabled(false);
+        DialogSave dlgSave = new DialogSave(model.mainFrameRef, appendToCurrentAllowed, replaceAllowed);
+        dlgSave.setVisible(true);
+        model.setShortcutsEnabled(true);
+        int res = dlgSave.getResult();
+        if (res != DialogSave.CANCEL) {
+            if (res == DialogSave.SAVE_NEW) {
+                saveAsNewPGN(gameSession);
             }
+            if (res == DialogSave.APPEND_CURRENT) {
+                appendToCurrentPGN(gameSession);
+            }
+            if (res == DialogSave.APPEND_OTHER) {
+                appendToOtherPGN(gameSession);
+            }
+            if (res == DialogSave.REPLACE_CURRENT && currentGameInfo != null) {
+                replaceCurrentPgn(gameSession, database, currentGameInfo);
+            }
+        }
     }
 
     // save, case a) Save As New...
     private void saveAsNewPGN(GameSession gameSession) {
         JFileChooser chooser;
         File lastSaveDir = model.getLastSaveDirPath();
-        if(lastSaveDir != null &&  lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
             chooser = new JFileChooser(lastSaveDir);
         } else {
             chooser = new JFileChooser();
         }
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
         chooser.setFileFilter(pgnFilter);
-
         chooser.setAcceptAllFileFilterUsed(true);
-
-        PgnDatabase database = model.getPgnDatabase();
 
         try {
             int result = chooser.showSaveDialog(model.mainFrameRef);
@@ -196,12 +182,16 @@ public class Controller_Pgn {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     String pgnFilename = selectedFile.getAbsolutePath();
                     Game g = gameSession.getGame();
-                    PgnDocument document = getDocument(pgnFilename);
-                    PgnGameId gameId = document.writeSingleGame(g);
-                    database.setAbsoluteFilename(pgnFilename);
-                    database.setIdxOfCurrentlyOpenedGame(0);
-                    database.setEntries(document.getEntries());
-                    setCurrentSessionSource(gameSession, document, gameId);
+                    ChessDatabase database = getDatabase(pgnFilename);
+                    GameInfo info;
+                    if (database instanceof PgnChessDatabase pgnDb) {
+                        info = pgnDb.writeSingleGame(g);
+                    } else {
+                        database.createNew(pgnFilename);
+                        info = database.appendGame(g);
+                    }
+                    model.setActiveDatabase(database);
+                    setCurrentSessionSource(gameSession, database, info);
                 } else {
                     JOptionPane.showMessageDialog(null,
                             "Error saving PGN.",
@@ -216,10 +206,9 @@ public class Controller_Pgn {
 
     // save, case b) Append to other PGN
     private void appendToOtherPGN(GameSession gameSession) {
-
         JFileChooser chooser;
         File lastSaveDir = model.getLastSaveDirPath();
-        if(lastSaveDir != null &&  lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
             chooser = new JFileChooser(lastSaveDir);
         } else {
             chooser = new JFileChooser();
@@ -227,30 +216,23 @@ public class Controller_Pgn {
 
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
         chooser.setFileFilter(pgnFilter);
-
         chooser.setAcceptAllFileFilterUsed(true);
-        PgnDatabase database = model.getPgnDatabase();
 
         try {
             int result = chooser.showSaveDialog(model.mainFrameRef);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = chooser.getSelectedFile();
-                if (selectedFile != null &&
-                        selectedFile.exists() &&
-                        selectedFile.canRead()
-                ) {
+                if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     try {
-                        PgnDocument document = getDocument(selectedFile.getAbsolutePath());
-                        if (document.getGameIds().isEmpty()) {
-                            document.reload();
+                        ChessDatabase database = getDatabase(selectedFile.getAbsolutePath());
+                        if (database.getIndex().isEmpty()) {
+                            database.scanGames();
                         }
-                        PgnGameId gameId = document.appendGame(gameSession.getGame());
-                        database.setAbsoluteFilename(selectedFile.getAbsolutePath());
-                        database.setEntries(document.getEntries());
-                        database.setIdxOfCurrentlyOpenedGame(document.indexOf(gameId));
-                        setCurrentSessionSource(gameSession, document, gameId);
-                    } catch(IOException e) {
+                        GameInfo info = database.appendGame(gameSession.getGame());
+                        model.setActiveDatabase(database);
+                        setCurrentSessionSource(gameSession, database, info);
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
@@ -271,35 +253,30 @@ public class Controller_Pgn {
     }
 
     private void appendToCurrentPGN(GameSession gameSession) {
-
         Game g = gameSession.getGame();
-        PgnDatabase database = model.getPgnDatabase();
         try {
-            PgnDocument document = getCurrentDocument();
-            if (document == null) {
-                throw new IOException("No PGN database is open");
+            ChessDatabase database = getCurrentDatabase();
+            if (database == null) {
+                throw new IOException("No chess database is open");
             }
-            PgnGameId gameId = document.appendGame(g);
-            database.setEntries(document.getEntries());
-            database.setIdxOfCurrentlyOpenedGame(document.indexOf(gameId));
-            setCurrentSessionSource(gameSession, document, gameId);
-        } catch(IOException e) {
+            GameInfo info = database.appendGame(g);
+            setCurrentSessionSource(gameSession, database, info);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void replaceCurrentPgn(PgnDocument document, PgnGameId gameId, String gamePgn) {
-        replaceCurrentPgn(model.getGameSession(), document, gameId, gamePgn);
+    public void replaceCurrentPgn(ChessDatabase database, GameInfo currentGameInfo) {
+        replaceCurrentPgn(model.getGameSession(), database, currentGameInfo);
     }
 
     private void replaceCurrentPgn(GameSession gameSession,
-                                   PgnDocument document,
-                                   PgnGameId gameId,
-                                   String gamePgn) {
-        PgnReplaceGameWorker worker = new PgnReplaceGameWorker(document, gameId, gamePgn,
+                                   ChessDatabase database,
+                                   GameInfo currentGameInfo) {
+        PgnReplaceGameWorker worker = new PgnReplaceGameWorker(database, gameSession.getGame(), currentGameInfo,
                 resultString -> onReplaceCurrentPgnFinished(
-                        gameSession, document, gameId, resultString));
-        DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Replacing PGN");
+                        gameSession, database, currentGameInfo, resultString));
+        DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Replacing Game");
         worker.execute();
         dlgProgress.setVisible(true);
     }
@@ -307,53 +284,51 @@ public class Controller_Pgn {
     public void onReplaceCurrentPgnFinished(String resultString) {
         GameSession gameSession = model.getGameSession();
         PgnSourceReference source = gameSession.getPgnSourceReference();
-        PgnDocument document = getCurrentDocument();
-        if (source == null || document == null) {
+        ChessDatabase database = getCurrentDatabase();
+        if (source == null || database == null) {
             return;
         }
-        onReplaceCurrentPgnFinished(gameSession, document, source.getGameId(), resultString);
+        GameInfo targetInfo = null;
+        for (GameInfo info : database.getIndex()) {
+            if (info.getId().equals(source.getGameId().getValue())) {
+                targetInfo = info;
+                break;
+            }
+        }
+        if (targetInfo != null) {
+            onReplaceCurrentPgnFinished(gameSession, database, targetInfo, resultString);
+        }
     }
 
     private void onReplaceCurrentPgnFinished(GameSession gameSession,
-                                              PgnDocument document,
-                                              PgnGameId gameId,
-                                              String resultString) {
-
-        if(!resultString.equals("SUCCESS")) {
+                                             ChessDatabase database,
+                                             GameInfo currentGameInfo,
+                                             String resultString) {
+        if (!resultString.equals("SUCCESS")) {
             String msg = "Error replacing Game";
-            if(!resultString.equals("CANCELLED")) {
-                    msg += "\n" + resultString;
+            if (!resultString.equals("CANCELLED")) {
+                msg += "\n" + resultString;
             }
             JOptionPane.showMessageDialog(null,
                     msg,
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
-            // something went wrong here, so we can't say anymore where
-            // the current game belongs
-            model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(-1);
         } else {
-            model.getPgnDatabase().setEntries(document.getEntries());
             try {
-                model.setGame(gameSession, document.loadGame(gameId));
-                setCurrentSessionSource(gameSession, document, gameId);
-                model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(document.indexOf(gameId));
+                model.setGame(gameSession, database.loadGame(currentGameInfo));
+                setCurrentSessionSource(gameSession, database, currentGameInfo);
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
         }
     }
 
-    // function used for: a) after user appends to another pgn we need to open
-    // that pgn and read all games + indices b) after user replaces game
-    // in current pgn, we need to re-scan to get all new indices
     public void reloadPgn() {
-        PgnDocument document = getCurrentDocument();
-        if (document == null) {
+        ChessDatabase database = getCurrentDatabase();
+        if (database == null) {
             return;
         }
-        PgnScanWorker worker = new PgnScanWorker(document,
-                entriesFromWorker -> { model.getPgnDatabase().setEntries(entriesFromWorker ); }
-        );
+        PgnScanWorker worker = new PgnScanWorker(database, entriesFromWorker -> { });
         DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning PGN");
         worker.execute();
         dlgProgress.setVisible(true);
@@ -361,19 +336,19 @@ public class Controller_Pgn {
 
     public ActionListener showDatabase() {
         return e -> {
+            ChessDatabase database = getCurrentDatabase();
+            if (database == null) {
+                return;
+            }
             model.setShortcutsEnabled(false);
-            DialogDatabase dlgDatabase = new DialogDatabase(model.mainFrameRef, model, this);
+            GameInfo currentInfo = getCurrentSessionGameInfo(database);
+            DialogDatabase dlgDatabase = new DialogDatabase(model.mainFrameRef, database, this, currentInfo);
             model.setShortcutsEnabled(true);
             dlgDatabase.setVisible(true);
-            if(dlgDatabase.isConfirmed()) {
-                PgnGameInfo gameInfo = dlgDatabase.getSelectedGame();
+            if (dlgDatabase.isConfirmed()) {
+                GameInfo gameInfo = dlgDatabase.getSelectedGame();
                 try {
-                    PgnDocument document = getCurrentDocument();
-                    if (document == null) {
-                        return;
-                    }
-                    openGameInNewSession(document, document.getGameId(gameInfo));
-                    model.getPgnDatabase().setIdxOfCurrentlyOpenedGame(dlgDatabase.getIndexOfSelectedGame());
+                    openGameInNewSession(database, gameInfo);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -381,28 +356,26 @@ public class Controller_Pgn {
         };
     }
 
-    public void deleteGame(PgnGameInfo gameInfo) {
-        PgnDocument document = getCurrentDocument();
-        if (document == null) {
-            throw new IllegalStateException("No PGN database is open");
+    public void deleteGame(GameInfo gameInfo) {
+        ChessDatabase database = getCurrentDatabase();
+        if (database == null) {
+            throw new IllegalStateException("No chess database is open");
         }
         try {
-            document.deleteGame(document.getGameId(gameInfo));
-            model.getPgnDatabase().setEntries(document.getEntries());
+            database.deleteGame(gameInfo);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public Game loadGameAt(int index) {
-
-        PgnDocument document = getCurrentDocument();
-        if (document == null) {
+        ChessDatabase database = getCurrentDatabase();
+        if (database == null) {
             return null;
         }
         try {
-            if(index < document.getEntries().size()) {
-                return document.loadGame(document.getGameIdAt(index));
+            if (index >= 0 && index < database.getIndex().size()) {
+                return database.loadGame(index);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -411,64 +384,92 @@ public class Controller_Pgn {
     }
 
     public ActionListener goToNextGameInDatabase() {
-        PgnDatabase database = model.getPgnDatabase();
         return e -> {
             GameSession gameSession = model.getGameSession();
-            int nextIdx = database.getIdxOfCurrentlyOpenedGame() + 1;
-            if (nextIdx < database.getEntries().size()) {
-                Game g = loadGameAt(nextIdx);
-                if (g != null) {
+            ChessDatabase database = getCurrentDatabase();
+            if (database == null) {
+                return;
+            }
+            int currentIdx = getCurrentSessionGameIndex(gameSession, database);
+            int nextIdx = currentIdx + 1;
+            if (nextIdx >= 0 && nextIdx < database.getIndex().size()) {
+                GameInfo nextInfo = database.getIndex().get(nextIdx);
+                try {
+                    Game g = database.loadGame(nextInfo);
                     model.setGame(gameSession, g);
-                    PgnDocument document = getCurrentDocument();
-                    setCurrentSessionSource(gameSession, document, document.getGameIdAt(nextIdx));
-                    database.setIdxOfCurrentlyOpenedGame(nextIdx);
+                    setCurrentSessionSource(gameSession, database, nextInfo);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
             }
         };
     }
 
     public ActionListener goToPrevGameInDatabase() {
-        PgnDatabase database = model.getPgnDatabase();
         return e -> {
             GameSession gameSession = model.getGameSession();
-            int nextIdx = database.getIdxOfCurrentlyOpenedGame() - 1;
-            if (nextIdx >= 0) {
-                Game g = loadGameAt(nextIdx);
-                if (g != null) {
+            ChessDatabase database = getCurrentDatabase();
+            if (database == null) {
+                return;
+            }
+            int currentIdx = getCurrentSessionGameIndex(gameSession, database);
+            int prevIdx = currentIdx - 1;
+            if (prevIdx >= 0 && prevIdx < database.getIndex().size()) {
+                GameInfo prevInfo = database.getIndex().get(prevIdx);
+                try {
+                    Game g = database.loadGame(prevInfo);
                     model.setGame(gameSession, g);
-                    PgnDocument document = getCurrentDocument();
-                    setCurrentSessionSource(gameSession, document, document.getGameIdAt(nextIdx));
-                    database.setIdxOfCurrentlyOpenedGame(nextIdx);
+                    setCurrentSessionSource(gameSession, database, prevInfo);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
             }
         };
     }
 
-    private PgnDocument getDocument(String filename) {
-        return model.getWorkspace().getOrCreateDocument(Path.of(filename));
-    }
-
-    private PgnDocument getCurrentDocument() {
-        String filename = model.getPgnDatabase().getAbsoluteFilename();
-        if (filename == null || filename.isBlank()) {
-            return null;
+    private int getCurrentSessionGameIndex(GameSession session, ChessDatabase database) {
+        if (session == null || session.getPgnSourceReference() == null || database == null) {
+            return -1;
         }
-        return getDocument(filename);
+        UUID gameId = session.getPgnSourceReference().getGameId().getValue();
+        ArrayList<GameInfo> index = database.getIndex();
+        for (int i = 0; i < index.size(); i++) {
+            if (index.get(i).getId().equals(gameId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
-    private void openGameInNewSession(PgnDocument document, PgnGameId gameId)
+    private GameInfo getCurrentSessionGameInfo(ChessDatabase database) {
+        GameSession session = model.getGameSession();
+        int idx = getCurrentSessionGameIndex(session, database);
+        if (idx >= 0 && idx < database.getIndex().size()) {
+            return database.getIndex().get(idx);
+        }
+        return null;
+    }
+
+    private ChessDatabase getDatabase(String filename) {
+        return model.getWorkspace().getOrCreateDatabase(Path.of(filename));
+    }
+
+    private ChessDatabase getCurrentDatabase() {
+        return model.getActiveDatabase();
+    }
+
+    private void openGameInNewSession(ChessDatabase database, GameInfo gameInfo)
             throws IOException {
-        GameSession session = model.openGameInNewSession(document.loadGame(gameId));
-        session.setPgnSourceReference(new PgnSourceReference(document.getPath(), gameId,
-                document.getRevision()));
+        GameSession session = model.openGameInNewSession(database.loadGame(gameInfo));
+        long rev = (database instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+        session.setPgnSourceReference(new PgnSourceReference(database.getPath(), gameInfo.getId(), rev));
     }
 
     private void setCurrentSessionSource(GameSession gameSession,
-                                         PgnDocument document,
-                                         PgnGameId gameId) {
-        gameSession.setPgnSourceReference(new PgnSourceReference(document.getPath(), gameId,
-                document.getRevision()));
+                                         ChessDatabase database,
+                                         GameInfo gameInfo) {
+        long rev = (database instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+        gameSession.setPgnSourceReference(new PgnSourceReference(database.getPath(), gameInfo.getId(), rev));
         gameSession.markClean();
     }
-
 }

@@ -194,7 +194,7 @@ public class SearchPattern {
 
     }
 
-    public boolean matchesHeader(PgnGameInfo pgnGameInfo) {
+    public boolean matchesHeader(GameInfo pgnGameInfo) {
 
         if(!event.isEmpty() && !(pgnGameInfo.getEvent().toLowerCase().contains(event.toLowerCase()))) {
             return false;
