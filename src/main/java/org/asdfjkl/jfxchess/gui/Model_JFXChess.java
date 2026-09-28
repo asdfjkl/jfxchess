@@ -976,7 +976,7 @@ public class Model_JFXChess {
                             ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
                             db.scanGames();
                             setActiveDatabase(db);
-                            long rev = (db instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+                            long rev = db.getRevision();
                             ArrayList<GameInfo> indexList = db.getIndex();
 
                             for (int i = 0; i < restoredSessions.size(); i++) {

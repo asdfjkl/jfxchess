@@ -21,6 +21,7 @@ package org.asdfjkl.jfxchess.lib;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public interface ChessDatabase {
 
@@ -78,5 +79,38 @@ public interface ChessDatabase {
 
     default int indexOf(GameInfo info) {
         return getIndex().indexOf(info);
+    }
+
+    long getRevision();
+
+    static ChessDatabase openDatabase(String filename) throws IOException {
+        Objects.requireNonNull(filename, "filename");
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".pgn")) {
+            PgnChessDatabase db = new PgnChessDatabase();
+            db.open(filename);
+            return db;
+        } else if (lower.endsWith(".si5") || lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
+            Scid5ChessDatabase db = new Scid5ChessDatabase();
+            db.open(filename);
+            return db;
+        } else {
+            throw new IllegalArgumentException("Unsupported database format: " + filename);
+        }
+    }
+
+    static ChessDatabase createDatabase(String filename) throws IOException {
+        Objects.requireNonNull(filename, "filename");
+        String lower = filename.toLowerCase();
+        ChessDatabase db;
+        if (lower.endsWith(".si5") || lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
+            db = new Scid5ChessDatabase();
+        } else if (lower.endsWith(".pgn")) {
+            db = new PgnChessDatabase();
+        } else {
+            throw new IllegalArgumentException("Unsupported database format: " + filename);
+        }
+        db.createNew(filename);
+        return db;
     }
 }

@@ -21,7 +21,6 @@ package org.asdfjkl.jfxchess.gui;
 import org.asdfjkl.jfxchess.lib.ChessDatabase;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameInfo;
-import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnReader;
 
 import javax.swing.*;
@@ -65,8 +64,11 @@ public class Controller_Pgn {
             chooser = new JFileChooser();
         }
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        chooser.addChoosableFileFilter(pgnFilter);
+        chooser.addChoosableFileFilter(scidFilter);
         chooser.setFileFilter(pgnFilter);
-        chooser.setAcceptAllFileFilterUsed(true);
+        chooser.setAcceptAllFileFilterUsed(false);
 
         try {
             int result = chooser.showSaveDialog(model.mainFrameRef);
@@ -75,8 +77,13 @@ public class Controller_Pgn {
                 if (selectedFile != null) {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     String filename = selectedFile.getAbsolutePath();
-                    if (!filename.toLowerCase().endsWith(".pgn")) {
-                        filename += ".pgn";
+                    String lower = filename.toLowerCase();
+                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")) {
+                        if (chooser.getFileFilter() == scidFilter) {
+                            filename += ".si5";
+                        } else {
+                            filename += ".pgn";
+                        }
                     }
                     ChessDatabase database = getDatabase(filename);
                     database.createNew(filename);
@@ -87,7 +94,7 @@ public class Controller_Pgn {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
+            JOptionPane.showMessageDialog(model.mainFrameRef,
                     "Error creating new database: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -117,8 +124,13 @@ public class Controller_Pgn {
         } else {
             chooser = new JFileChooser();
         }
+        FileNameExtensionFilter allDbsFilter = new FileNameExtensionFilter("Chess Databases (*.pgn, *.si5)", "pgn", "si5");
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
-        chooser.setFileFilter(pgnFilter);
+        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        chooser.addChoosableFileFilter(allDbsFilter);
+        chooser.addChoosableFileFilter(pgnFilter);
+        chooser.addChoosableFileFilter(scidFilter);
+        chooser.setFileFilter(allDbsFilter);
         chooser.setAcceptAllFileFilterUsed(true);
         try {
             int result = chooser.showOpenDialog(model.mainFrameRef);
@@ -126,15 +138,24 @@ public class Controller_Pgn {
                 File selectedFile = chooser.getSelectedFile();
                 model.setLastOpenedDirPath(chooser.getCurrentDirectory());
                 if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
-                    ChessDatabase database = getDatabase(selectedFile.getAbsolutePath());
-                    PgnScanWorker worker = new PgnScanWorker(database,
+                    String filename = selectedFile.getAbsolutePath();
+                    String lower = filename.toLowerCase();
+                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5") && !lower.endsWith(".sn5") && !lower.endsWith(".sg5")) {
+                        JOptionPane.showMessageDialog(model.mainFrameRef,
+                                "Unsupported database format. Please select a .pgn or .si5 file.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    ChessDatabase database = getDatabase(filename);
+                    ChessScanWorker worker = new ChessScanWorker(database,
                             entriesFromWorker -> onScanPgnCompletion(database)
                     );
-                    DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning PGN");
+                    DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning Database");
                     worker.execute();
                     dlgProgress.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(null,
+                    JOptionPane.showMessageDialog(model.mainFrameRef,
                             "Error reading file.",
                             "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -142,6 +163,10 @@ public class Controller_Pgn {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Error opening database: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -219,8 +244,11 @@ public class Controller_Pgn {
             chooser = new JFileChooser();
         }
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        chooser.addChoosableFileFilter(pgnFilter);
+        chooser.addChoosableFileFilter(scidFilter);
         chooser.setFileFilter(pgnFilter);
-        chooser.setAcceptAllFileFilterUsed(true);
+        chooser.setAcceptAllFileFilterUsed(false);
 
         try {
             int result = chooser.showSaveDialog(model.mainFrameRef);
@@ -229,112 +257,43 @@ public class Controller_Pgn {
                 if (selectedFile != null) {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     String filename = selectedFile.getAbsolutePath();
-                    if (!filename.toLowerCase().endsWith(".pgn")) {
-                        filename += ".pgn";
+                    String lower = filename.toLowerCase();
+                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")) {
+                        if (chooser.getFileFilter() == scidFilter) {
+                            filename += ".si5";
+                        } else {
+                            filename += ".pgn";
+                        }
                     }
                     ChessDatabase database = getDatabase(filename);
                     database.createNew(filename);
                     model.setActiveDatabase(database);
                     model.detachAllSessions();
 
-                    GameInfo info = database.appendGame(gameSession.getGame());
-                    setCurrentSessionSource(gameSession, database, info);
+                    ChessSaveGameWorker worker = new ChessSaveGameWorker(database, gameSession.getGame(), (savedInfo, error) -> {
+                        if (error != null) {
+                            JOptionPane.showMessageDialog(model.mainFrameRef,
+                                    "Error saving into new database: " + error.getMessage(),
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        } else if (savedInfo != null) {
+                            setCurrentSessionSource(gameSession, database, savedInfo);
+                        }
+                    });
+                    DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Saving Game");
+                    worker.execute();
+                    dlgProgress.setVisible(true);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
+            JOptionPane.showMessageDialog(model.mainFrameRef,
                     "Error saving into new database: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // save, case a) Save As New...
-    private void saveAsNewPGN(GameSession gameSession) {
-        JFileChooser chooser;
-        File lastSaveDir = model.getLastSaveDirPath();
-        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
-            chooser = new JFileChooser(lastSaveDir);
-        } else {
-            chooser = new JFileChooser();
-        }
-        FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
-        chooser.setFileFilter(pgnFilter);
-        chooser.setAcceptAllFileFilterUsed(true);
-
-        try {
-            int result = chooser.showSaveDialog(model.mainFrameRef);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = chooser.getSelectedFile();
-                if (selectedFile != null) {
-                    model.setLastSaveDirPath(chooser.getCurrentDirectory());
-                    String pgnFilename = selectedFile.getAbsolutePath();
-                    Game g = gameSession.getGame();
-                    ChessDatabase database = getDatabase(pgnFilename);
-                    GameInfo info;
-                    if (database instanceof PgnChessDatabase pgnDb) {
-                        info = pgnDb.writeSingleGame(g);
-                    } else {
-                        database.createNew(pgnFilename);
-                        info = database.appendGame(g);
-                    }
-                    model.setActiveDatabase(database);
-                    setCurrentSessionSource(gameSession, database, info);
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Error saving PGN.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // save, case b) Append to other PGN
-    private void appendToOtherPGN(GameSession gameSession) {
-        JFileChooser chooser;
-        File lastSaveDir = model.getLastSaveDirPath();
-        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
-            chooser = new JFileChooser(lastSaveDir);
-        } else {
-            chooser = new JFileChooser();
-        }
-
-        FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
-        chooser.setFileFilter(pgnFilter);
-        chooser.setAcceptAllFileFilterUsed(true);
-
-        try {
-            int result = chooser.showSaveDialog(model.mainFrameRef);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = chooser.getSelectedFile();
-                if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
-                    model.setLastSaveDirPath(chooser.getCurrentDirectory());
-                    try {
-                        ChessDatabase database = getDatabase(selectedFile.getAbsolutePath());
-                        if (database.getIndex().isEmpty()) {
-                            database.scanGames();
-                        }
-                        GameInfo info = database.appendGame(gameSession.getGame());
-                        model.setActiveDatabase(database);
-                        setCurrentSessionSource(gameSession, database, info);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Error saving PGN.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     // save, case c) Append to current PGN
     public void appendToCurrentPGN() {
@@ -343,16 +302,27 @@ public class Controller_Pgn {
 
     private void appendToCurrentPGN(GameSession gameSession) {
         Game g = gameSession.getGame();
-        try {
-            ChessDatabase database = getCurrentDatabase();
-            if (database == null) {
-                throw new IOException("No chess database is open");
-            }
-            GameInfo info = database.appendGame(g);
-            setCurrentSessionSource(gameSession, database, info);
-        } catch (IOException e) {
-            e.printStackTrace();
+        ChessDatabase database = getCurrentDatabase();
+        if (database == null) {
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "No chess database is open",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        ChessSaveGameWorker worker = new ChessSaveGameWorker(database, g, (savedInfo, error) -> {
+            if (error != null) {
+                JOptionPane.showMessageDialog(model.mainFrameRef,
+                        "Error saving game: " + error.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            } else if (savedInfo != null) {
+                setCurrentSessionSource(gameSession, database, savedInfo);
+            }
+        });
+        DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Saving Game");
+        worker.execute();
+        dlgProgress.setVisible(true);
     }
 
     public void replaceCurrentPgn(ChessDatabase database, GameInfo currentGameInfo) {
@@ -362,7 +332,7 @@ public class Controller_Pgn {
     private void replaceCurrentPgn(GameSession gameSession,
                                    ChessDatabase database,
                                    GameInfo currentGameInfo) {
-        PgnReplaceGameWorker worker = new PgnReplaceGameWorker(database, gameSession.getGame(), currentGameInfo,
+        ChessReplaceGameWorker worker = new ChessReplaceGameWorker(database, gameSession.getGame(), currentGameInfo,
                 resultString -> onReplaceCurrentPgnFinished(
                         gameSession, database, currentGameInfo, resultString));
         DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Replacing Game");
@@ -417,8 +387,8 @@ public class Controller_Pgn {
         if (database == null) {
             return;
         }
-        PgnScanWorker worker = new PgnScanWorker(database, entriesFromWorker -> { });
-        DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning PGN");
+        ChessScanWorker worker = new ChessScanWorker(database, entriesFromWorker -> { });
+        DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning Database");
         worker.execute();
         dlgProgress.setVisible(true);
     }
@@ -550,14 +520,14 @@ public class Controller_Pgn {
     private void openGameInNewSession(ChessDatabase database, GameInfo gameInfo)
             throws IOException {
         GameSession session = model.openGameInNewSession(database.loadGame(gameInfo));
-        long rev = (database instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+        long rev = database.getRevision();
         session.setPgnSourceReference(new PgnSourceReference(database.getPath(), gameInfo.getId(), rev));
     }
 
     private void setCurrentSessionSource(GameSession gameSession,
                                          ChessDatabase database,
                                          GameInfo gameInfo) {
-        long rev = (database instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+        long rev = database.getRevision();
         gameSession.setPgnSourceReference(new PgnSourceReference(database.getPath(), gameInfo.getId(), rev));
         gameSession.markClean();
     }

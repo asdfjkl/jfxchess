@@ -19,7 +19,9 @@
 package org.asdfjkl.jfxchess.gui;
 
 import org.asdfjkl.jfxchess.lib.Game;
+import org.asdfjkl.jfxchess.lib.GameInfo;
 import org.asdfjkl.jfxchess.lib.OptimizedRandomAccessFile;
+import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnGameInfo;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
 import org.asdfjkl.jfxchess.lib.PgnReader;
@@ -222,7 +224,19 @@ public class PgnDocument {
                          PgnGameId forcedAffectedId,
                          List<PgnGameId> knownUnchangedIds,
                          ProgressListener progressListener) {
-        ArrayList<PgnGameInfo> scannedEntries = reader.scanPgn(path.toString(), progressListener);
+        ArrayList<PgnGameInfo> scannedEntries = new ArrayList<>();
+        try {
+            PgnChessDatabase db = new PgnChessDatabase();
+            db.open(path.toString());
+            db.scanGames(progressListener);
+            for (GameInfo info : db.getIndex()) {
+                if (info instanceof PgnGameInfo pgnInfo) {
+                    scannedEntries.add(pgnInfo);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         int forcedIndex = type == PgnDocumentEvent.Type.GAME_REPLACED
                 ? indexOf(forcedAffectedId)
                 : -1;

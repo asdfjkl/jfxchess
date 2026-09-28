@@ -36,54 +36,6 @@ public class PgnReader {
         gameStack = new Stack<>();
     }
 
-    @Deprecated
-    public ArrayList<PgnGameInfo> scanPgn(String filename, ProgressListener progressListener) {
-        try {
-            PgnChessDatabase db = new PgnChessDatabase();
-            db.open(filename);
-            db.scanGames(progressListener);
-            ArrayList<PgnGameInfo> result = new ArrayList<>();
-            for (GameInfo info : db.getIndex()) {
-                if (info instanceof PgnGameInfo pgnInfo) {
-                    result.add(pgnInfo);
-                }
-            }
-            return result;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    public ArrayList<Long> scanPgn(String filename) {
-        ArrayList<Long> offsets = new ArrayList<>();
-        ArrayList<PgnGameInfo> infos = scanPgn(filename, null);
-        for (PgnGameInfo info : infos) {
-            offsets.add(info.getOffset());
-        }
-        return offsets;
-    }
-
-    @Deprecated
-    public ArrayList<PgnGameInfo> searchPgn(ArrayList<PgnGameInfo> gameInfos,
-                                            SearchPattern pattern,
-                                            ProgressListener progressListener) {
-        ArrayList<PgnGameInfo> matchingEntries = new ArrayList<>();
-        for (int i = 0; i < gameInfos.size(); i++) {
-            PgnGameInfo gameInfo = gameInfos.get(i);
-            if (pattern.matchesHeader(gameInfo)) {
-                matchingEntries.add(gameInfo);
-            }
-            if (i % 10000 == 0) {
-                if (progressListener != null && !gameInfos.isEmpty()) {
-                    int percent = (int) ((long) i * 100 / gameInfos.size());
-                    progressListener.onProgress(percent);
-                }
-            }
-        }
-        return matchingEntries;
-    }
-
     public HashMap<String, String> readSingleHeader(String filename, long offset) {
         OptimizedRandomAccessFile raf = null;
         HashMap<String, String> header = null;

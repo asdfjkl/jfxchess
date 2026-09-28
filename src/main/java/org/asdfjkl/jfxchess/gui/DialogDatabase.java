@@ -258,7 +258,7 @@ public class DialogDatabase extends JDialog {
         if (database == null) {
             return;
         }
-        PgnSearchWorker worker = new PgnSearchWorker(database, pattern,
+        ChessSearchWorker worker = new ChessSearchWorker(database, pattern,
                 entriesFromWorker -> {
                     tableModel.setData(database.getSearchResults());
                     btnReset.setEnabled(true);

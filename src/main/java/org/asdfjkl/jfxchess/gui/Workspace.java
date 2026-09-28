@@ -22,7 +22,6 @@ import org.asdfjkl.jfxchess.lib.ChessDatabase;
 import org.asdfjkl.jfxchess.lib.ChessDatabaseEvent;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameInfo;
-import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
 import org.asdfjkl.jfxchess.lib.PgnReader;
 
@@ -107,21 +106,24 @@ public class Workspace {
         Path canonicalPath = Objects.requireNonNull(path, "path")
                 .toAbsolutePath()
                 .normalize();
+        String filename = canonicalPath.toString();
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
+            canonicalPath = Path.of(filename.substring(0, filename.length() - 4) + ".si5");
+        }
         ChessDatabase database = databases.get(canonicalPath);
         if (database == null) {
-            PgnChessDatabase pgnDb = new PgnChessDatabase();
             try {
                 if (Files.exists(canonicalPath)) {
-                    pgnDb.open(canonicalPath.toString());
+                    database = ChessDatabase.openDatabase(canonicalPath.toString());
                 } else {
-                    pgnDb.createNew(canonicalPath.toString());
+                    database = ChessDatabase.createDatabase(canonicalPath.toString());
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            pgnDb.addListener(this::onDatabaseChanged);
-            databases.put(canonicalPath, pgnDb);
-            database = pgnDb;
+            database.addListener(this::onDatabaseChanged);
+            databases.put(canonicalPath, database);
         }
         return database;
     }
