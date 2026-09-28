@@ -51,7 +51,7 @@ public class DialogDatabase extends JDialog {
                           ChessDatabase database,
                           Controller_Pgn controller,
                           GameInfo activeGame) {
-        super(owner, database != null ? database.getFilename() : "", true);
+        super(owner, getDatabaseTitle(database), true);
 
         this.controller_Pgn = controller;
         this.database = database;
@@ -281,5 +281,12 @@ public class DialogDatabase extends JDialog {
 
     public boolean isConfirmed() {
         return isConfirmed;
+    }
+
+    private static String getDatabaseTitle(ChessDatabase database) {
+        if (database != null && database.getFilename() != null && !database.getFilename().isBlank()) {
+            return "Database - " + new java.io.File(database.getFilename()).getName();
+        }
+        return "Database";
     }
 }

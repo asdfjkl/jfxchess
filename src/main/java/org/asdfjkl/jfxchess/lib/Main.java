@@ -62,6 +62,10 @@ public class Main {
                 TestCases cases = new TestCases();
                 cases.browserTabBehaviorTest();
 
+            } else if (filename.equals("database-lifecycle-test")) {
+                TestCases cases = new TestCases();
+                cases.databaseLifecycleAndPersistenceTest();
+
             } else {
 
                 boolean printOutput = true;

@@ -26,10 +26,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
@@ -653,7 +655,36 @@ public class Model_JFXChess {
     }
 
     public void setActiveDatabase(ChessDatabase activeDatabase) {
+        ChessDatabase oldDatabase = this.activeDatabase;
         this.activeDatabase = activeDatabase;
+        pcs.firePropertyChange("activeDatabaseChanged", oldDatabase, activeDatabase);
+    }
+
+    public void detachAllSessions() {
+        if (workspace != null) {
+            for (GameSession session : workspace.getSessions()) {
+                session.setPgnSourceReference(null);
+            }
+        }
+    }
+
+    public void closeActiveDatabase() throws java.io.IOException {
+        if (activeDatabase != null) {
+            ChessDatabase db = activeDatabase;
+            db.close();
+            detachAllSessions();
+            setActiveDatabase(null);
+        }
+    }
+
+    private boolean databaseModifiedWarning = false;
+
+    public boolean isDatabaseModifiedWarning() {
+        return databaseModifiedWarning;
+    }
+
+    public void setDatabaseModifiedWarning(boolean warning) {
+        this.databaseModifiedWarning = warning;
     }
 
     public File getLastOpenedDirPath() {
@@ -725,6 +756,63 @@ public class Model_JFXChess {
         String pgn = printer.printGame(getGame());
         prefs.put("currentGame", pgn);
 
+        // All open sessions
+        if (workspace != null) {
+            List<GameSession> sessions = workspace.getSessions();
+            prefs.putInt("SESSION_COUNT", sessions.size());
+            GameSession activeSess = workspace.getActiveSession();
+            int activeIndex = sessions.indexOf(activeSess);
+            prefs.putInt("ACTIVE_SESSION_INDEX", activeIndex >= 0 ? activeIndex : 0);
+
+            for (int i = 0; i < sessions.size(); i++) {
+                GameSession sess = sessions.get(i);
+                String sessionPgn = printer.printGame(sess.getGame());
+                prefs.put("SESSION_" + i + "_PGN", sessionPgn);
+
+                int dbIndex = -1;
+                PgnSourceReference ref = sess.getPgnSourceReference();
+                if (ref != null && activeDatabase != null && activeDatabase.isOpen()) {
+                    if (ref.getDocumentPath().toAbsolutePath().normalize().equals(
+                            activeDatabase.getPath().toAbsolutePath().normalize())) {
+                        ArrayList<GameInfo> indexList = activeDatabase.getIndex();
+                        for (int j = 0; j < indexList.size(); j++) {
+                            if (indexList.get(j).getId().equals(ref.getGameId().getValue())) {
+                                dbIndex = j;
+                                break;
+                            }
+                        }
+                    }
+                }
+                prefs.putInt("SESSION_" + i + "_DB_INDEX", dbIndex);
+            }
+        } else {
+            prefs.putInt("SESSION_COUNT", 0);
+        }
+
+        // Active database persistence
+        if (activeDatabase != null && activeDatabase.isOpen() && activeDatabase.getFilename() != null && !activeDatabase.getFilename().isBlank()) {
+            String dbFilename = activeDatabase.getFilename();
+            prefs.put("LAST_DATABASE_PATH", dbFilename);
+            String lastModifiedStr = "";
+            try {
+                Path p = activeDatabase.getPath();
+                if (p != null && Files.exists(p)) {
+                    lastModifiedStr = Files.getLastModifiedTime(p).toString();
+                }
+            } catch (Exception e) {
+                lastModifiedStr = "";
+            }
+            prefs.put("LAST_DATABASE_MODIFIED", lastModifiedStr);
+            try {
+                activeDatabase.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            prefs.put("LAST_DATABASE_PATH", "");
+            prefs.put("LAST_DATABASE_MODIFIED", "");
+        }
+
         // last used directories
         if(lastOpenedDirPath != null) {
             prefs.put("lastOpenDir", lastOpenedDirPath.toString());
@@ -767,16 +855,18 @@ public class Model_JFXChess {
         prefs.putDouble("GAME_ANALYSIS_THRESHOLD", getGameAnalysisThreshold());
 
         // screen geometry (i.e. window size, position of dividers)
-        Rectangle bounds = mainFrameRef.getBounds();
+        if (mainFrameRef != null) {
+            Rectangle bounds = mainFrameRef.getBounds();
 
-        prefs.putInt("WINDOW_WIDTH" , bounds.width);
-        prefs.putInt("WINDOW_HEIGHT" , bounds.height);
-        prefs.putInt("WINDOW_POSITION_X" , bounds.x);
-        prefs.putInt("WINDOW_POSITION_Y" , bounds.y);
+            prefs.putInt("WINDOW_WIDTH" , bounds.width);
+            prefs.putInt("WINDOW_HEIGHT" , bounds.height);
+            prefs.putInt("WINDOW_POSITION_X" , bounds.x);
+            prefs.putInt("WINDOW_POSITION_Y" , bounds.y);
 
-        boolean maximized =
-                (mainFrameRef.getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
-        prefs.putBoolean("WINDOW_MAXIMIZED", maximized);
+            boolean maximized =
+                    (mainFrameRef.getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
+            prefs.putBoolean("WINDOW_MAXIMIZED", maximized);
+        }
 
         prefs.putInt("DIVIDER_HORIZONTAL", screenGeometry.dividerHorizontal);
         prefs.putInt("DIVIDER_VERTICAL", screenGeometry.dividerVertical);
@@ -799,14 +889,115 @@ public class Model_JFXChess {
         // it was from a different version
         if(mVersion == modelVersion) {
 
-            // restore game
+            // restore sessions
             PgnReader reader = new PgnReader();
-            String pgn = prefs.get("currentGame", "");
-            if(!pgn.isEmpty()) {
-                Game g = reader.readGame(pgn);
-                if (g.getRootNode().getBoard().isConsistent()) {
-                    setGame(g);
-                    g.setTreeWasChanged(true);
+            int sessionCount = prefs.getInt("SESSION_COUNT", 0);
+            List<Game> restoredGames = new ArrayList<>();
+            List<Integer> restoredDbIndices = new ArrayList<>();
+
+            if (sessionCount > 0) {
+                for (int i = 0; i < sessionCount; i++) {
+                    String pgnStr = prefs.get("SESSION_" + i + "_PGN", "");
+                    int dbIdx = prefs.getInt("SESSION_" + i + "_DB_INDEX", -1);
+                    if (!pgnStr.isEmpty()) {
+                        Game g = reader.readGame(pgnStr);
+                        if (g.getRootNode().getBoard().isConsistent()) {
+                            restoredGames.add(g);
+                            restoredDbIndices.add(dbIdx);
+                        }
+                    }
+                }
+            }
+
+            if (restoredGames.isEmpty()) {
+                String pgn = prefs.get("currentGame", "");
+                if (!pgn.isEmpty()) {
+                    Game g = reader.readGame(pgn);
+                    if (g.getRootNode().getBoard().isConsistent()) {
+                        restoredGames.add(g);
+                        restoredDbIndices.add(-1);
+                    }
+                }
+            }
+
+            List<GameSession> restoredSessions = new ArrayList<>();
+            if (workspace != null) {
+                for (Game g : restoredGames) {
+                    GameSession sess = workspace.createSession(g);
+                    restoredSessions.add(sess);
+                }
+                int activeIndex = prefs.getInt("ACTIVE_SESSION_INDEX", 0);
+                if (activeIndex >= 0 && activeIndex < restoredSessions.size()) {
+                    workspace.setActiveSession(restoredSessions.get(activeIndex));
+                    setGameSession(restoredSessions.get(activeIndex));
+                } else if (!restoredSessions.isEmpty()) {
+                    workspace.setActiveSession(restoredSessions.get(0));
+                    setGameSession(restoredSessions.get(0));
+                }
+            } else if (!restoredGames.isEmpty()) {
+                setGame(restoredGames.get(0));
+                restoredGames.get(0).setTreeWasChanged(true);
+            }
+
+            // Restore database
+            String lastDbPath = prefs.get("LAST_DATABASE_PATH", "");
+            String lastDbModified = prefs.get("LAST_DATABASE_MODIFIED", "");
+            databaseModifiedWarning = false;
+
+            if (!lastDbPath.isEmpty() && workspace != null) {
+                Path dbPath = Path.of(lastDbPath);
+                if (!Files.exists(dbPath)) {
+                    setActiveDatabase(null);
+                    for (GameSession sess : restoredSessions) {
+                        sess.setPgnSourceReference(null);
+                    }
+                } else {
+                    String currentModified = "";
+                    try {
+                        currentModified = Files.getLastModifiedTime(dbPath).toString();
+                    } catch (Exception e) {
+                        currentModified = "";
+                    }
+
+                    if (lastDbModified.isEmpty() || !currentModified.equals(lastDbModified)) {
+                        try {
+                            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
+                            db.scanGames();
+                            setActiveDatabase(db);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        for (GameSession sess : restoredSessions) {
+                            sess.setPgnSourceReference(null);
+                        }
+                        databaseModifiedWarning = true;
+                    } else {
+                        try {
+                            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
+                            db.scanGames();
+                            setActiveDatabase(db);
+                            long rev = (db instanceof PgnChessDatabase pgnDb) ? pgnDb.getRevision() : 0;
+                            ArrayList<GameInfo> indexList = db.getIndex();
+
+                            for (int i = 0; i < restoredSessions.size(); i++) {
+                                int dbIdx = restoredDbIndices.get(i);
+                                GameSession sess = restoredSessions.get(i);
+                                if (dbIdx >= 0 && dbIdx < indexList.size()) {
+                                    GameInfo info = indexList.get(dbIdx);
+                                    sess.setPgnSourceReference(new PgnSourceReference(db.getPath(), info.getId(), rev));
+                                } else {
+                                    sess.setPgnSourceReference(null);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } else if (workspace != null) {
+                setActiveDatabase(null);
+                for (GameSession sess : restoredSessions) {
+                    sess.setPgnSourceReference(null);
                 }
             }
 

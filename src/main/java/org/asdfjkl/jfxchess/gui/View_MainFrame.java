@@ -115,7 +115,7 @@ public class View_MainFrame extends JFrame
         icons.add(new ImageIcon(App.class.getResource("/icons/app_icon@2x.png")).getImage());
         icons.add(new ImageIcon(App.class.getResource("/icons/app_icon@3x.png")).getImage());
 
-        setTitle("JFXChess");
+        updateWindowTitle();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
@@ -142,6 +142,16 @@ public class View_MainFrame extends JFrame
         setContentPane(topPanel);
     }
 
+    public void updateWindowTitle() {
+        org.asdfjkl.jfxchess.lib.ChessDatabase db = model.getActiveDatabase();
+        if (db != null && db.isOpen() && db.getFilename() != null && !db.getFilename().isBlank()) {
+            String name = new java.io.File(db.getFilename()).getName();
+            setTitle("JFXChess - " + name);
+        } else {
+            setTitle("JFXChess");
+        }
+    }
+
     // ----------------------------------------------------
     // Menu Bar
     // ----------------------------------------------------
@@ -154,10 +164,6 @@ public class View_MainFrame extends JFrame
         jmiNewGame.addActionListener(controller_Engine.startNewGame());
         gameMenu.add(jmiNewGame);
 
-        JMenuItem jmiOpenFile = new JMenuItem("Open File");
-        jmiOpenFile.addActionListener(controller_Pgn.openFile());
-        jmiOpenFile.setAccelerator(openKey);
-        gameMenu.add(jmiOpenFile);
         JMenuItem jmiSaveGame = new JMenuItem("Save Game");
         gameMenu.add(jmiSaveGame);
         jmiSaveGame.addActionListener(controller_Pgn.saveGame());
@@ -360,12 +366,29 @@ public class View_MainFrame extends JFrame
         viewMenu.add(jmiResetLayout);
 
         JMenu databaseMenu = new JMenu("Database");
-        JMenuItem jmiDatabase = new JMenuItem("Browse Database");
-        jmiDatabase.addActionListener(controller_Pgn.showDatabase());
-        databaseMenu.add(jmiDatabase);
+        JMenuItem jmiDbCreateNew = new JMenuItem("Create New...");
+        jmiDbCreateNew.addActionListener(controller_Pgn.createNewDatabase());
+        databaseMenu.add(jmiDbCreateNew);
+
+        JMenuItem jmiDbOpen = new JMenuItem("Open");
+        jmiDbOpen.addActionListener(controller_Pgn.openFile());
+        jmiDbOpen.setAccelerator(openKey);
+        databaseMenu.add(jmiDbOpen);
+
+        JMenuItem jmiDbClose = new JMenuItem("Close");
+        jmiDbClose.addActionListener(controller_Pgn.closeDatabase());
+        databaseMenu.add(jmiDbClose);
+
+        databaseMenu.addSeparator();
+
+        JMenuItem jmiBrowseGames = new JMenuItem("Browse Games");
+        jmiBrowseGames.addActionListener(controller_Pgn.showDatabase());
+        databaseMenu.add(jmiBrowseGames);
+
         JMenuItem jmiNextGameinDatabase = new JMenuItem("Next Game");
         databaseMenu.add(jmiNextGameinDatabase);
         jmiNextGameinDatabase.addActionListener(controller_Pgn.goToNextGameInDatabase());
+
         JMenuItem jmiPreviousGameinDatabase = new JMenuItem("Previous Game");
         databaseMenu.add(jmiPreviousGameinDatabase);
         jmiPreviousGameinDatabase.addActionListener(controller_Pgn.goToPrevGameInDatabase());
@@ -739,6 +762,9 @@ public class View_MainFrame extends JFrame
             if (active != null && browserTabBar != null) {
                 browserTabBar.updateTab(active);
             }
+        }
+        if ("activeDatabaseChanged".equals(evt.getPropertyName())) {
+            updateWindowTitle();
         }
     }
 

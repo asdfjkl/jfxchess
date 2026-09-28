@@ -23,66 +23,53 @@ import java.awt.*;
 
 public class DialogSave extends JDialog {
 
-    public static int CANCEL = 0;
-    public static int SAVE_NEW = 1;
-    public static int APPEND_CURRENT = 2;
-    public static int REPLACE_CURRENT = 3;
-    public static int APPEND_OTHER = 4;
+    public static final int CANCEL = 0;
+    public static final int SAVE_REPLACE = 1;
+    public static final int SAVE_NEW_APPEND = 2;
+
+    // Backward-compatibility aliases
+    public static final int REPLACE_CURRENT = SAVE_REPLACE;
+    public static final int APPEND_CURRENT = SAVE_NEW_APPEND;
+    public static final int SAVE_NEW = SAVE_NEW_APPEND;
+    public static final int APPEND_OTHER = SAVE_NEW_APPEND;
 
     private int result = CANCEL;
 
-    public DialogSave(Frame parent,
-                     boolean appendCurrentEnabled,
-                     boolean replaceCurrentEnabled) {
-        super(parent, "Choose Action", true);
+    public DialogSave(Frame parent, boolean replaceEnabled) {
+        super(parent, "Save Game", true);
 
-        setLayout(new GridLayout(5, 1, 5, 5));
+        setLayout(new GridLayout(3, 1, 5, 5));
         ((JComponent) getContentPane()).setBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         );
 
-        JButton btnSaveNew = new JButton("Save as new PGN");
-        JButton btnAppendOther = new JButton("Append to other PGN");
-        JButton btnAppendCurrent = new JButton("Append to current PGN");
-        JButton btnReplaceCurrent = new JButton("Replace current Game");
+        JButton btnReplace = new JButton("Save (Replace)");
+        JButton btnAppend = new JButton("Save as New (Append)");
         JButton btnCancel = new JButton("Cancel");
 
-        // Enable/disable based on parameters
-        btnAppendCurrent.setEnabled(appendCurrentEnabled);
-        btnReplaceCurrent.setEnabled(replaceCurrentEnabled);
+        btnReplace.setEnabled(replaceEnabled);
 
-        // Make all buttons same width
-        Dimension maxSize = getMaxButtonSize(
-                btnSaveNew,
-                btnAppendCurrent,
-                btnReplaceCurrent,
-                btnAppendOther,
-                btnCancel
-        );
-
-        for (JButton b : new JButton[]{
-                btnSaveNew, btnAppendCurrent, btnReplaceCurrent,
-                btnAppendOther, btnCancel
-        }) {
+        Dimension maxSize = getMaxButtonSize(btnReplace, btnAppend, btnCancel);
+        for (JButton b : new JButton[]{btnReplace, btnAppend, btnCancel}) {
             b.setPreferredSize(maxSize);
         }
 
-        // Action listeners
-        btnSaveNew.addActionListener(e -> { result = SAVE_NEW; dispose(); });
-        btnAppendCurrent.addActionListener(e -> { result = APPEND_CURRENT; dispose(); });
-        btnReplaceCurrent.addActionListener(e -> { result = REPLACE_CURRENT; dispose(); });
-        btnAppendOther.addActionListener(e -> { result = APPEND_OTHER; dispose(); });
+        btnReplace.addActionListener(e -> { result = SAVE_REPLACE; dispose(); });
+        btnAppend.addActionListener(e -> { result = SAVE_NEW_APPEND; dispose(); });
         btnCancel.addActionListener(e -> { result = CANCEL; dispose(); });
 
-        // Add buttons
-        add(btnSaveNew);
-        add(btnAppendOther);
-        add(btnAppendCurrent);
-        add(btnReplaceCurrent);
+        add(btnReplace);
+        add(btnAppend);
         add(btnCancel);
 
         pack();
         setLocationRelativeTo(parent);
+    }
+
+    public DialogSave(Frame parent,
+                      boolean appendCurrentEnabled,
+                      boolean replaceCurrentEnabled) {
+        this(parent, replaceCurrentEnabled);
     }
 
     public int getResult() {

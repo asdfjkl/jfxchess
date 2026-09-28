@@ -43,9 +43,70 @@ public class Controller_Pgn {
         this.model = model;
     }
 
-    // === Opening a PGN via Game -> Open Menu
+    // === Opening a PGN via Database -> Open Menu
     public ActionListener openFile() {
         return e -> openAndScanPgn();
+    }
+
+    public ActionListener openDatabase() {
+        return openFile();
+    }
+
+    public ActionListener createNewDatabase() {
+        return e -> createNewDatabaseAction();
+    }
+
+    public boolean createNewDatabaseAction() {
+        JFileChooser chooser;
+        File lastSaveDir = model.getLastSaveDirPath();
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+            chooser = new JFileChooser(lastSaveDir);
+        } else {
+            chooser = new JFileChooser();
+        }
+        FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        chooser.setFileFilter(pgnFilter);
+        chooser.setAcceptAllFileFilterUsed(true);
+
+        try {
+            int result = chooser.showSaveDialog(model.mainFrameRef);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                if (selectedFile != null) {
+                    model.setLastSaveDirPath(chooser.getCurrentDirectory());
+                    String filename = selectedFile.getAbsolutePath();
+                    if (!filename.toLowerCase().endsWith(".pgn")) {
+                        filename += ".pgn";
+                    }
+                    ChessDatabase database = getDatabase(filename);
+                    database.createNew(filename);
+                    model.setActiveDatabase(database);
+                    model.detachAllSessions();
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Error creating new database: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
+    public ActionListener closeDatabase() {
+        return e -> {
+            try {
+                model.closeActiveDatabase();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null,
+                        "Error closing database: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        };
     }
 
     private void openAndScanPgn() {
@@ -110,54 +171,82 @@ public class Controller_Pgn {
         }
     }
 
-    // ==== Save Game as New PGN (Game -> Save Game), main function
+    // ==== Save Game (Game -> Save Game), main function
     public ActionListener saveGame() {
         return e -> saveGame(model.getGameSession());
     }
 
     private void saveGame(GameSession gameSession) {
-        boolean replaceAllowed = false;
-        boolean appendToCurrentAllowed = false;
-
         ChessDatabase database = getCurrentDatabase();
-        if (database != null && database.getFilename() != null && !database.getFilename().isBlank()) {
-            File f = new File(database.getFilename());
-            if (f.exists() && !f.isDirectory()) {
-                appendToCurrentAllowed = true;
-            }
-        }
+        boolean isDbOpen = (database != null && database.isOpen());
         PgnSourceReference source = gameSession.getPgnSourceReference();
         GameInfo currentGameInfo = null;
-        if (database != null && source != null &&
-                source.getDocumentPath().equals(database.getPath())) {
+
+        if (isDbOpen && source != null && source.getDocumentPath().equals(database.getPath())) {
             for (GameInfo info : database.getIndex()) {
                 if (info.getId().equals(source.getGameId().getValue())) {
                     currentGameInfo = info;
-                    replaceAllowed = true;
                     break;
                 }
             }
         }
 
+        boolean replaceAllowed = (isDbOpen && currentGameInfo != null);
+
         // show dialog
         model.setShortcutsEnabled(false);
-        DialogSave dlgSave = new DialogSave(model.mainFrameRef, appendToCurrentAllowed, replaceAllowed);
+        DialogSave dlgSave = new DialogSave(model.mainFrameRef, replaceAllowed);
         dlgSave.setVisible(true);
         model.setShortcutsEnabled(true);
         int res = dlgSave.getResult();
-        if (res != DialogSave.CANCEL) {
-            if (res == DialogSave.SAVE_NEW) {
-                saveAsNewPGN(gameSession);
-            }
-            if (res == DialogSave.APPEND_CURRENT) {
+        if (res == DialogSave.SAVE_REPLACE && currentGameInfo != null) {
+            replaceCurrentPgn(gameSession, database, currentGameInfo);
+        } else if (res == DialogSave.SAVE_NEW_APPEND) {
+            if (isDbOpen) {
                 appendToCurrentPGN(gameSession);
+            } else {
+                createNewDatabaseAndSave(gameSession);
             }
-            if (res == DialogSave.APPEND_OTHER) {
-                appendToOtherPGN(gameSession);
+        }
+    }
+
+    private void createNewDatabaseAndSave(GameSession gameSession) {
+        JFileChooser chooser;
+        File lastSaveDir = model.getLastSaveDirPath();
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+            chooser = new JFileChooser(lastSaveDir);
+        } else {
+            chooser = new JFileChooser();
+        }
+        FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        chooser.setFileFilter(pgnFilter);
+        chooser.setAcceptAllFileFilterUsed(true);
+
+        try {
+            int result = chooser.showSaveDialog(model.mainFrameRef);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                if (selectedFile != null) {
+                    model.setLastSaveDirPath(chooser.getCurrentDirectory());
+                    String filename = selectedFile.getAbsolutePath();
+                    if (!filename.toLowerCase().endsWith(".pgn")) {
+                        filename += ".pgn";
+                    }
+                    ChessDatabase database = getDatabase(filename);
+                    database.createNew(filename);
+                    model.setActiveDatabase(database);
+                    model.detachAllSessions();
+
+                    GameInfo info = database.appendGame(gameSession.getGame());
+                    setCurrentSessionSource(gameSession, database, info);
+                }
             }
-            if (res == DialogSave.REPLACE_CURRENT && currentGameInfo != null) {
-                replaceCurrentPgn(gameSession, database, currentGameInfo);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Error saving into new database: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

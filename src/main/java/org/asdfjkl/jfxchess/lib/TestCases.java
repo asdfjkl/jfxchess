@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import org.asdfjkl.jfxchess.gui.DialogSave;
 import org.asdfjkl.jfxchess.gui.GameSession;
 import org.asdfjkl.jfxchess.gui.Model_JFXChess;
 import org.asdfjkl.jfxchess.gui.PgnDocument;
@@ -28,6 +29,7 @@ import java.util.List;
 
 //import org.asdfjkl.jfxchess.gui.PgnDatabaseEntry;
 
+import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.JTabbedPane;
 import java.awt.event.ActionEvent;
@@ -408,6 +410,176 @@ public class TestCases {
             SwingUtilities.invokeAndWait(() -> { });
         } catch (Exception exception) {
             throw new AssertionError("Unable to synchronize with the event thread", exception);
+        }
+    }
+
+    public void databaseLifecycleAndPersistenceTest() {
+        Path path = null;
+        try {
+            path = Files.createTempFile("jfxchess-db-lifecycle-", ".pgn");
+            Workspace workspace = new Workspace();
+            ChessDatabase database = workspace.getOrCreateDatabase(path);
+
+            Model_JFXChess model = new Model_JFXChess();
+            model.setWorkspace(workspace);
+
+            // 1. Initial creation
+            database.createNew(path.toString());
+            model.setActiveDatabase(database);
+
+            if (!database.isOpen()) {
+                throw new AssertionError("Database should be open after createNew");
+            }
+            if (!database.getIndex().isEmpty()) {
+                throw new AssertionError("New database should be empty");
+            }
+
+            Game g1 = new Game();
+            g1.getRootNode().setBoard(new Board(true));
+            g1.setHeader("White", "Alice");
+            g1.setHeader("Black", "Bob");
+            GameSession s1 = workspace.createSession(g1);
+
+            Game g2 = new Game();
+            g2.getRootNode().setBoard(new Board(true));
+            g2.setHeader("White", "Charlie");
+            g2.setHeader("Black", "Dave");
+            GameSession s2 = workspace.createSession(g2);
+
+            // Append g1 to database
+            GameInfo info1 = database.appendGame(g1);
+            s1.setPgnSourceReference(new PgnSourceReference(path, info1.getId(), 0));
+
+            if (s1.getPgnSourceReference() == null) {
+                throw new AssertionError("s1 should be attached to database");
+            }
+            if (s2.getPgnSourceReference() != null) {
+                throw new AssertionError("s2 should be detached");
+            }
+
+            // Test Close Database detaches all open sessions
+            model.closeActiveDatabase();
+            if (model.getActiveDatabase() != null) {
+                throw new AssertionError("Active database should be null after close");
+            }
+            if (database.isOpen()) {
+                throw new AssertionError("Database should be closed");
+            }
+            if (s1.getPgnSourceReference() != null || s2.getPgnSourceReference() != null) {
+                throw new AssertionError("All sessions must be detached on database close");
+            }
+
+            // Test creating a new database detaches all open sessions
+            database.open(path.toString());
+            database.scanGames();
+            model.setActiveDatabase(database);
+            s1.setPgnSourceReference(new PgnSourceReference(path, info1.getId(), 0));
+
+            Path secondDbPath = Files.createTempFile("jfxchess-db2-", ".pgn");
+            ChessDatabase db2 = workspace.getOrCreateDatabase(secondDbPath);
+            db2.createNew(secondDbPath.toString());
+            model.setActiveDatabase(db2);
+            model.detachAllSessions();
+
+            if (s1.getPgnSourceReference() != null || s2.getPgnSourceReference() != null) {
+                throw new AssertionError("All sessions must be detached when new database is created");
+            }
+            Files.deleteIfExists(secondDbPath);
+
+            // Re-open first database and re-attach s1
+            database.open(path.toString());
+            database.scanGames();
+            model.setActiveDatabase(database);
+            GameInfo currentInfo1 = database.getIndex().get(0);
+            s1.setPgnSourceReference(new PgnSourceReference(database.getPath(), currentInfo1.getId(), 0));
+
+            // Test DialogSave button enablement
+            DialogSave dlgAttached = new DialogSave(null, true);
+            JButton btnReplaceAttached = (JButton) dlgAttached.getContentPane().getComponent(0);
+            if (!btnReplaceAttached.isEnabled()) {
+                throw new AssertionError("Save (Replace) must be enabled when attached");
+            }
+            dlgAttached.dispose();
+
+            DialogSave dlgDetached = new DialogSave(null, false);
+            JButton btnReplaceDetached = (JButton) dlgDetached.getContentPane().getComponent(0);
+            if (btnReplaceDetached.isEnabled()) {
+                throw new AssertionError("Save (Replace) must be disabled when detached");
+            }
+            dlgDetached.dispose();
+
+            // Test persistence on save()
+            model.save();
+
+            // Scenario A: Checksum matches upon restore
+            Model_JFXChess modelRestore = new Model_JFXChess();
+            Workspace workspaceRestore = new Workspace();
+            modelRestore.setWorkspace(workspaceRestore);
+            modelRestore.restore();
+
+            if (modelRestore.getActiveDatabase() == null || !modelRestore.getActiveDatabase().isOpen()) {
+                throw new AssertionError("Active database should be restored and open");
+            }
+            if (workspaceRestore.getSessions().size() != 2) {
+                throw new AssertionError("Expected 2 restored sessions, got: " + workspaceRestore.getSessions().size());
+            }
+            GameSession restoredS1 = workspaceRestore.getSessions().get(0);
+            GameSession restoredS2 = workspaceRestore.getSessions().get(1);
+            if (restoredS1.getPgnSourceReference() == null) {
+                throw new AssertionError("Restored s1 should be linked to database index");
+            }
+            if (restoredS2.getPgnSourceReference() != null) {
+                throw new AssertionError("Restored s2 should be detached");
+            }
+            if (modelRestore.isDatabaseModifiedWarning()) {
+                throw new AssertionError("No warning expected when checksum matches");
+            }
+
+            // Scenario B: Last modified time changed on disk
+            Files.setLastModifiedTime(path, java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis() + 60000));
+            Model_JFXChess modelRestoreMod = new Model_JFXChess();
+            Workspace workspaceRestoreMod = new Workspace();
+            modelRestoreMod.setWorkspace(workspaceRestoreMod);
+            modelRestoreMod.restore();
+
+            if (modelRestoreMod.getActiveDatabase() == null || !modelRestoreMod.getActiveDatabase().isOpen()) {
+                throw new AssertionError("Modified database should still be opened");
+            }
+            if (!modelRestoreMod.isDatabaseModifiedWarning()) {
+                throw new AssertionError("Expected database modified warning when last modified time changed");
+            }
+            for (GameSession sess : workspaceRestoreMod.getSessions()) {
+                if (sess.getPgnSourceReference() != null) {
+                    throw new AssertionError("All sessions must be detached when database modified time changed");
+                }
+            }
+
+            // Scenario C: File missing
+            Files.deleteIfExists(path);
+            Model_JFXChess modelRestoreMissing = new Model_JFXChess();
+            Workspace workspaceRestoreMissing = new Workspace();
+            modelRestoreMissing.setWorkspace(workspaceRestoreMissing);
+            modelRestoreMissing.restore();
+
+            if (modelRestoreMissing.getActiveDatabase() != null) {
+                throw new AssertionError("Database should not be opened when file is missing");
+            }
+            for (GameSession sess : workspaceRestoreMissing.getSessions()) {
+                if (sess.getPgnSourceReference() != null) {
+                    throw new AssertionError("All sessions must be detached when database file is missing");
+                }
+            }
+
+            System.out.println("TEST: Database lifecycle, detachment and persistence passed");
+        } catch (Exception exception) {
+            throw new AssertionError("Database lifecycle and persistence test failed", exception);
+        } finally {
+            if (path != null) {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 

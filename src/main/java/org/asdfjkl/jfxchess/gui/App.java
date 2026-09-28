@@ -39,10 +39,12 @@ public class App {
     private void start() {
 
         Model_JFXChess model = new Model_JFXChess();
-        model.restore();
         applicationModel = new ApplicationModel();
         model.setWorkspace(applicationModel.getWorkspace());
-        model.openGameInNewSession(model.getGame());
+        model.restore();
+        if (applicationModel.getWorkspace().getSessions().isEmpty()) {
+            model.openGameInNewSession(model.getGame());
+        }
         try {
             UIManager.setLookAndFeel(model.getLookAndFeel());
         } catch (Exception e) {
@@ -58,6 +60,13 @@ public class App {
                     model.getHorizontalDividerLocation(),
                     model.getVerticalDividerLocation()
             );
+            if (model.isDatabaseModifiedWarning()) {
+                model.setDatabaseModifiedWarning(false);
+                JOptionPane.showMessageDialog(frame,
+                        "Database has been modified on disk. All currently opened games are detached from database.",
+                        "Database Modified",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         });
         // trigger custom font update
         if(model.isUseCustomFontSizeMoveView()) {
