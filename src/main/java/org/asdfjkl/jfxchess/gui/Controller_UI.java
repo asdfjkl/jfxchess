@@ -67,6 +67,24 @@ public class Controller_UI {
         };
     }
 
+    public void changeDividerHorizontal(int location) {
+        model.setDividerHorizontal(location);
+    }
+
+    public void changeDividerVertical(int location) {
+        model.setDividerVertical(location);
+    }
+
+    public void changeDividerLocations(int horizontal, int vertical) {
+        model.setDividerLocations(horizontal, vertical);
+    }
+
+    public ActionListener resetWindowLayout() {
+        return e -> {
+            model.resetDividerLocations();
+        };
+    }
+
     public ActionListener copyFenToClipboard() {
         return e -> {
             String fen = model.getGame().getCurrentNode().getBoard().fen();

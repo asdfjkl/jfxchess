@@ -32,7 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
-public class GameTabView extends JPanel implements PropertyChangeListener {
+public class View_GameTab extends JPanel implements PropertyChangeListener {
 
     private final Model_JFXChess model;
     private final GameSession gameSession;
@@ -51,10 +51,10 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
     private Object currentHighlight;
 
-    public GameTabView(Model_JFXChess model,
-                       GameSession gameSession,
-                       Controller_UI controllerUI,
-                       Controller_Engine controllerEngine) {
+    public View_GameTab(Model_JFXChess model,
+                        GameSession gameSession,
+                        Controller_UI controllerUI,
+                        Controller_Engine controllerEngine) {
 
         super(new BorderLayout());
         this.model = model;
@@ -74,8 +74,15 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
                 rightPanel
         );
         horizontalSplit.setResizeWeight(0.7);
-        horizontalSplit.setDividerLocation(600);
+        horizontalSplit.setDividerLocation(model.getHorizontalDividerLocation());
         horizontalSplit.setContinuousLayout(true);
+        horizontalSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, evt -> {
+            if (isCurrentActiveTab() && evt.getNewValue() instanceof Integer loc && loc > 0) {
+                if (loc != model.getHorizontalDividerLocation()) {
+                    controllerUI.changeDividerHorizontal(loc);
+                }
+            }
+        });
 
         JPanel bottomPanel = createBottomPanel();
         verticalSplit = new JSplitPane(
@@ -84,8 +91,15 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
                 bottomPanel
         );
         verticalSplit.setResizeWeight(0.8);
-        verticalSplit.setDividerLocation(450);
+        verticalSplit.setDividerLocation(model.getVerticalDividerLocation());
         verticalSplit.setContinuousLayout(true);
+        verticalSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, evt -> {
+            if (isCurrentActiveTab() && evt.getNewValue() instanceof Integer loc && loc > 0) {
+                if (loc != model.getVerticalDividerLocation()) {
+                    controllerUI.changeDividerVertical(loc);
+                }
+            }
+        });
 
         add(verticalSplit, BorderLayout.CENTER);
         model.addListener(this);
@@ -242,8 +256,16 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
     }
 
     public void setDividerLocations(int horizontal, int vertical) {
-        horizontalSplit.setDividerLocation(horizontal);
-        verticalSplit.setDividerLocation(vertical);
+        if (horizontal > 0 && horizontalSplit.getDividerLocation() != horizontal) {
+            horizontalSplit.setDividerLocation(horizontal);
+        }
+        if (vertical > 0 && verticalSplit.getDividerLocation() != vertical) {
+            verticalSplit.setDividerLocation(vertical);
+        }
+    }
+
+    private boolean isCurrentActiveTab() {
+        return model.getGameSession() == this.gameSession;
     }
 
     public int getHorizontalDividerLocation() {
@@ -338,10 +360,27 @@ public class GameTabView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
+        String propertyName = event.getPropertyName();
+        if ("dividerHorizontal".equals(propertyName)) {
+            if (event.getNewValue() instanceof Integer loc && loc > 0) {
+                if (horizontalSplit.getDividerLocation() != loc) {
+                    horizontalSplit.setDividerLocation(loc);
+                }
+            }
+            return;
+        }
+        if ("dividerVertical".equals(propertyName)) {
+            if (event.getNewValue() instanceof Integer loc && loc > 0) {
+                if (verticalSplit.getDividerLocation() != loc) {
+                    verticalSplit.setDividerLocation(loc);
+                }
+            }
+            return;
+        }
+
         if (event.getSource() == model && model.getGameSession() != gameSession) {
             return;
         }
-        String propertyName = event.getPropertyName();
         if ("pgnHeadersChanged".equals(propertyName)) {
             updatePgnHeaders();
         }

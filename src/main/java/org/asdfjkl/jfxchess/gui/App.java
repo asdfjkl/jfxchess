@@ -53,6 +53,12 @@ public class App {
         frame.setGeometry(model.getScreenGeometry());
         model.setGame(model.getGame());
         frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            frame.applyDividerLocations(
+                    model.getHorizontalDividerLocation(),
+                    model.getVerticalDividerLocation()
+            );
+        });
         // trigger custom font update
         if(model.isUseCustomFontSizeMoveView()) {
             model.setFontSizeMoveView(model.getFontSizeMoveView());

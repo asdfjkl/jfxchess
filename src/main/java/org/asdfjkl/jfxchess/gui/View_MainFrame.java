@@ -44,7 +44,7 @@ public class View_MainFrame extends JFrame
     private JPanel tabContentPanel;
     private CardLayout cardLayout;
     private boolean handlingPlusTab = false;
-    private final Map<GameSession, GameTabView> gameTabViews =
+    private final Map<GameSession, View_GameTab> gameTabViews =
             new IdentityHashMap<>();
 
     KeyStroke pasteKey = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
@@ -351,7 +351,10 @@ public class View_MainFrame extends JFrame
             revalidate();
 
             SwingUtilities.invokeLater(() -> {
-                getSelectedGameTabView().resetLayout();
+                controller_UI.resetWindowLayout().actionPerformed(e);
+                for (View_GameTab tabView : gameTabViews.values()) {
+                    tabView.resetLayout();
+                }
             });
         });
         viewMenu.add(jmiResetLayout);
@@ -510,7 +513,7 @@ public class View_MainFrame extends JFrame
         if (gameTabViews.containsKey(session)) {
             return;
         }
-        GameTabView tabView = new GameTabView(
+        View_GameTab tabView = new View_GameTab(
                 model,
                 session,
                 controller_UI,
@@ -538,6 +541,13 @@ public class View_MainFrame extends JFrame
         }
         browserTabBar.selectTab(session);
         cardLayout.show(tabContentPanel, session.getId().toString());
+        View_GameTab tabView = gameTabViews.get(session);
+        if (tabView != null) {
+            tabView.setDividerLocations(
+                    model.getHorizontalDividerLocation(),
+                    model.getVerticalDividerLocation()
+            );
+        }
     }
 
     private void closeGameTab(GameSession session) {
@@ -579,16 +589,20 @@ public class View_MainFrame extends JFrame
         }
     }
 
-    private GameTabView getSelectedGameTabView() {
-        GameTabView tabView = gameTabViews.get(workspace.getActiveSession());
+    private View_GameTab getSelectedGameTab() {
+        View_GameTab tabView = gameTabViews.get(workspace.getActiveSession());
         if (tabView == null) {
             throw new IllegalStateException("No active game tab");
         }
         return tabView;
     }
 
+    private View_GameTab getSelectedGameTabView() {
+        return getSelectedGameTab();
+    }
+
     private void removeGameTab(GameSession session) {
-        GameTabView tabView = gameTabViews.remove(session);
+        View_GameTab tabView = gameTabViews.remove(session);
         if (tabView == null) {
             return;
         }
@@ -636,19 +650,25 @@ public class View_MainFrame extends JFrame
             setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
 
-        // Restore divider (after layout is ready)
+        // Restore divider across all tabs
         int dividerHorizontal = g.dividerHorizontal;
         int dividerVertical = g.dividerVertical;
 
-        getSelectedGameTabView().setDividerLocations(dividerHorizontal, dividerVertical);
+        applyDividerLocations(dividerHorizontal, dividerVertical);
+    }
+
+    public void applyDividerLocations(int horizontal, int vertical) {
+        for (View_GameTab tabView : gameTabViews.values()) {
+            tabView.setDividerLocations(horizontal, vertical);
+        }
     }
 
     public int getHorizontalDividerLocation() {
-        return getSelectedGameTabView().getHorizontalDividerLocation();
+        return model.getHorizontalDividerLocation();
     }
 
     public int getVerticalDividerLocation() {
-        return getSelectedGameTabView().getVerticalDividerLocation();
+        return model.getVerticalDividerLocation();
     }
 
     public void assignKeyShortcuts() {

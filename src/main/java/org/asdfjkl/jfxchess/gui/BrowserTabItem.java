@@ -132,6 +132,9 @@ public class BrowserTabItem extends JPanel {
     }
 
     private void updateFontAndColor() {
+        if (titleLabel == null) {
+            return;
+        }
         Color fg = UIManager.getColor("TabbedPane.foreground");
         if (fg == null) {
             fg = UIManager.getColor("Label.foreground");

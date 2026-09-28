@@ -680,6 +680,39 @@ public class Model_JFXChess {
         this.screenGeometry = screenGeometry;
     }
 
+    public int getHorizontalDividerLocation() {
+        return screenGeometry.dividerHorizontal;
+    }
+
+    public int getVerticalDividerLocation() {
+        return screenGeometry.dividerVertical;
+    }
+
+    public void setDividerHorizontal(int location) {
+        if (location > 0 && screenGeometry.dividerHorizontal != location) {
+            int old = screenGeometry.dividerHorizontal;
+            screenGeometry.dividerHorizontal = location;
+            pcs.firePropertyChange("dividerHorizontal", old, location);
+        }
+    }
+
+    public void setDividerVertical(int location) {
+        if (location > 0 && screenGeometry.dividerVertical != location) {
+            int old = screenGeometry.dividerVertical;
+            screenGeometry.dividerVertical = location;
+            pcs.firePropertyChange("dividerVertical", old, location);
+        }
+    }
+
+    public void setDividerLocations(int horizontal, int vertical) {
+        setDividerHorizontal(horizontal);
+        setDividerVertical(vertical);
+    }
+
+    public void resetDividerLocations() {
+        setDividerLocations(600, 450);
+    }
+
     public void save() {
 
         prefs = Preferences.userRoot().node("/org/asdfjkl/jfxchess");
@@ -745,8 +778,8 @@ public class Model_JFXChess {
                 (mainFrameRef.getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
         prefs.putBoolean("WINDOW_MAXIMIZED", maximized);
 
-        prefs.putInt("DIVIDER_HORIZONTAL", mainFrameRef.getHorizontalDividerLocation());
-        prefs.putInt("DIVIDER_VERTICAL", mainFrameRef.getVerticalDividerLocation());
+        prefs.putInt("DIVIDER_HORIZONTAL", screenGeometry.dividerHorizontal);
+        prefs.putInt("DIVIDER_VERTICAL", screenGeometry.dividerVertical);
 
         prefs.putInt("FONT_SIZE_MOVES", fontSizeMoveView);
         prefs.putBoolean("USE_CUSTOM_FONT_SIZE_MOVES", useCustomFontSizeMoveView);
@@ -783,8 +816,10 @@ public class Model_JFXChess {
             screenGeometry.posX = prefs.getInt("WINDOW_POSITION_X", screenGeometry.posX);
             screenGeometry.posY = prefs.getInt("WINDOW_POSITION_Y", screenGeometry.posY);
             screenGeometry.isMaximized = prefs.getBoolean("WINDOW_MAXIMIZED", false);
-            screenGeometry.dividerHorizontal = prefs.getInt("DIVIDER_HORIZONTAL", screenGeometry.dividerHorizontal);
-            screenGeometry.dividerVertical = prefs.getInt("DIVIDER_VERTICAL", screenGeometry.dividerVertical);
+            int divH = prefs.getInt("DIVIDER_HORIZONTAL", screenGeometry.dividerHorizontal);
+            int divV = prefs.getInt("DIVIDER_VERTICAL", screenGeometry.dividerVertical);
+            screenGeometry.dividerHorizontal = divH > 0 ? divH : 600;
+            screenGeometry.dividerVertical = divV > 0 ? divV : 450;
 
 
             // look and feel
