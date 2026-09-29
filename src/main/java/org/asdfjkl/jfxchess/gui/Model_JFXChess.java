@@ -39,7 +39,7 @@ import static org.asdfjkl.jfxchess.lib.CONSTANTS.*;
 
 public class Model_JFXChess {
 
-    private static final int modelVersion = 501;
+    private static final int modelVersion = 2610;
 
     public static final int MAX_PV = 64;
     public static final int MAX_N_ENGINES = 10;

@@ -135,6 +135,55 @@ You can support the development of JFXChess by donating via PayPal.
 - CTRL + RIGHT ARROW : Load next game (when .pgn has been opened)
 - CTRL + LEFT ARROW : Load previous game (when .pgn has been opened)
 
+## Running Tests
+
+All unit, integration, SCID5/PGN database, and domain logic verification tests are located under `src/test/java` and test resources under `src/test/resources`. They are not packaged into production distribution JARs.
+
+To compile test classes and run the test suite:
+
+### Prerequisites
+Run `mvn package` at least once so that `target/jfxchess-5.0-jar-with-dependencies.jar` exists to provide runtime dependencies:
+```powershell
+mvn clean package
+```
+
+### Windows (PowerShell / CMD)
+```powershell
+# Compile test sources and copy test database fixtures
+mvn test-compile
+
+# Run the complete test suite (Domain logic, PGN, SCID5, Session, and Perft)
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --all-tests
+
+# Run session lifecycle & database tests
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
+
+# Run SCID5 database tests
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --scid-tests
+
+# Run individual focused regression tests
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-lifecycle-test
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main workspace-session-isolation-test
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-document-session-synchronization-test
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main browser-tab-behavior-test
+java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-game-info-surname-test
+```
+
+### Linux / macOS (Bash)
+```bash
+# Compile test sources and copy test database fixtures
+mvn test-compile
+
+# Run the complete test suite
+java -cp "target/test-classes:target/classes:target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --all-tests
+
+# Run session tests
+java -cp "target/test-classes:target/classes:target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
+
+# Run individual test
+java -cp "target/test-classes:target/classes:target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-lifecycle-test
+```
+
 ## Roadmap
  
 various ideas for future versions:
