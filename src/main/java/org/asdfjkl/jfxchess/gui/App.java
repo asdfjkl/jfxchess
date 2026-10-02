@@ -41,7 +41,7 @@ public class App {
         Model_JFXChess model = new Model_JFXChess();
         applicationModel = new ApplicationModel();
         model.setWorkspace(applicationModel.getWorkspace());
-        model.restore();
+        model.restorePreferencesAndSessions();
         if (applicationModel.getWorkspace().getSessions().isEmpty()) {
             model.openGameInNewSession(model.getGame());
         }
@@ -60,6 +60,7 @@ public class App {
                     model.getHorizontalDividerLocation(),
                     model.getVerticalDividerLocation()
             );
+            model.restoreDatabaseWithProgress(frame);
             if (model.isDatabaseModifiedWarning()) {
                 model.setDatabaseModifiedWarning(false);
                 JOptionPane.showMessageDialog(frame,

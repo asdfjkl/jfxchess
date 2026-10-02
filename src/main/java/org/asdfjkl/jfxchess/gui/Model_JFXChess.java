@@ -96,6 +96,10 @@ public class Model_JFXChess {
     private File lastOpenedDirPath = null;
     private File lastSaveDirPath = null;
 
+    private String pendingDbPath = "";
+    private String pendingDbModified = "";
+    private List<Integer> pendingRestoredDbIndices = new ArrayList<>();
+
     private String extBookPath = "";
     public int maxCpus = Runtime.getRuntime().availableProcessors();
     BoardStyle boardStyle;
@@ -880,7 +884,7 @@ public class Model_JFXChess {
     }
 
 
-    public void restore() {
+    public void restorePreferencesAndSessions() {
 
         prefs = Preferences.userRoot().node("/org/asdfjkl/jfxchess");
         int mVersion = prefs.getInt("modelVersion", 0);
@@ -939,67 +943,11 @@ public class Model_JFXChess {
                 restoredGames.get(0).setTreeWasChanged(true);
             }
 
-            // Restore database
-            String lastDbPath = prefs.get("LAST_DATABASE_PATH", "");
-            String lastDbModified = prefs.get("LAST_DATABASE_MODIFIED", "");
+            // Record pending database restoration info
+            pendingDbPath = prefs.get("LAST_DATABASE_PATH", "");
+            pendingDbModified = prefs.get("LAST_DATABASE_MODIFIED", "");
+            pendingRestoredDbIndices = new ArrayList<>(restoredDbIndices);
             databaseModifiedWarning = false;
-
-            if (!lastDbPath.isEmpty() && workspace != null) {
-                Path dbPath = Path.of(lastDbPath);
-                if (!Files.exists(dbPath)) {
-                    setActiveDatabase(null);
-                    for (GameSession sess : restoredSessions) {
-                        sess.setPgnSourceReference(null);
-                    }
-                } else {
-                    String currentModified = "";
-                    try {
-                        currentModified = Files.getLastModifiedTime(dbPath).toString();
-                    } catch (Exception e) {
-                        currentModified = "";
-                    }
-
-                    if (lastDbModified.isEmpty() || !currentModified.equals(lastDbModified)) {
-                        try {
-                            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
-                            db.scanGames();
-                            setActiveDatabase(db);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        for (GameSession sess : restoredSessions) {
-                            sess.setPgnSourceReference(null);
-                        }
-                        databaseModifiedWarning = true;
-                    } else {
-                        try {
-                            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
-                            db.scanGames();
-                            setActiveDatabase(db);
-                            long rev = db.getRevision();
-                            ArrayList<GameInfo> indexList = db.getIndex();
-
-                            for (int i = 0; i < restoredSessions.size(); i++) {
-                                int dbIdx = restoredDbIndices.get(i);
-                                GameSession sess = restoredSessions.get(i);
-                                if (dbIdx >= 0 && dbIdx < indexList.size()) {
-                                    GameInfo info = indexList.get(dbIdx);
-                                    sess.setPgnSourceReference(new PgnSourceReference(db.getPath(), info.getId(), rev));
-                                } else {
-                                    sess.setPgnSourceReference(null);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } else if (workspace != null) {
-                setActiveDatabase(null);
-                for (GameSession sess : restoredSessions) {
-                    sess.setPgnSourceReference(null);
-                }
-            }
 
             // screen geometry (i.e. window size + slide positions)
             screenGeometry.height = prefs.getInt("WINDOW_HEIGHT", screenGeometry.height);
@@ -1081,7 +1029,112 @@ public class Model_JFXChess {
             fontSizeEngineOutput = prefs.getInt("FONT_SIZE_ENGINE", 12);
             useCustomFontSizeEngineOutput = prefs.getBoolean("USE_CUSTOM_FONT_SIZE_ENGINE", false);
 
+        }
+    }
+
+    public void restore() {
+        restorePreferencesAndSessions();
+        restoreDatabaseSync();
+    }
+
+    public void restoreDatabaseSync() {
+        if (pendingDbPath == null || pendingDbPath.isEmpty() || workspace == null) {
+            if (workspace != null) {
+                setActiveDatabase(null);
+                detachAllSessions();
             }
+            return;
+        }
+
+        Path dbPath = Path.of(pendingDbPath);
+        if (!Files.exists(dbPath)) {
+            setActiveDatabase(null);
+            detachAllSessions();
+            return;
+        }
+
+        try {
+            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
+            db.scanGames();
+            applyRestoredDatabase(db, dbPath, pendingDbModified, pendingRestoredDbIndices);
+        } catch (Exception e) {
+            e.printStackTrace();
+            setActiveDatabase(null);
+            detachAllSessions();
+        }
+    }
+
+    public void restoreDatabaseWithProgress(JFrame parentFrame) {
+        if (pendingDbPath == null || pendingDbPath.isEmpty() || workspace == null) {
+            if (workspace != null) {
+                setActiveDatabase(null);
+                detachAllSessions();
+            }
+            return;
+        }
+
+        Path dbPath = Path.of(pendingDbPath);
+        if (!Files.exists(dbPath)) {
+            setActiveDatabase(null);
+            detachAllSessions();
+            return;
+        }
+
+        try {
+            ChessDatabase db = workspace.getOrCreateDatabase(dbPath);
+            ChessScanWorker worker = new ChessScanWorker(db, entriesFromWorker -> {
+                applyRestoredDatabase(db, dbPath, pendingDbModified, pendingRestoredDbIndices);
+            });
+            DialogProgress dlgProgress = new DialogProgress(parentFrame, worker, "Scanning Database");
+            worker.execute();
+            dlgProgress.setVisible(true);
+
+            if (worker.isCancelled() || getActiveDatabase() == null) {
+                if (worker.isCancelled()) {
+                    try {
+                        db.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    setActiveDatabase(null);
+                }
+                detachAllSessions();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            setActiveDatabase(null);
+            detachAllSessions();
+        }
+    }
+
+    private void applyRestoredDatabase(ChessDatabase db, Path dbPath, String lastDbModified, List<Integer> restoredDbIndices) {
+        String currentModified = "";
+        try {
+            currentModified = Files.getLastModifiedTime(dbPath).toString();
+        } catch (Exception e) {
+            currentModified = "";
+        }
+
+        setActiveDatabase(db);
+
+        if (lastDbModified == null || lastDbModified.isEmpty() || !currentModified.equals(lastDbModified)) {
+            detachAllSessions();
+            databaseModifiedWarning = true;
+        } else {
+            long rev = db.getRevision();
+            ArrayList<GameInfo> indexList = db.getIndex();
+            List<GameSession> currentSessions = (workspace != null) ? workspace.getSessions() : List.of();
+            for (int i = 0; i < currentSessions.size(); i++) {
+                int dbIdx = (restoredDbIndices != null && i < restoredDbIndices.size()) ? restoredDbIndices.get(i) : -1;
+                GameSession sess = currentSessions.get(i);
+                if (dbIdx >= 0 && dbIdx < indexList.size()) {
+                    GameInfo info = indexList.get(dbIdx);
+                    sess.setPgnSourceReference(new PgnSourceReference(db.getPath(), info.getId(), rev));
+                } else {
+                    sess.setPgnSourceReference(null);
+                }
+            }
+        }
     }
 
 

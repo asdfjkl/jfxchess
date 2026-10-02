@@ -48,8 +48,29 @@ public class Scid5Namebase {
     private final Map<String, Integer> eventLookup = new HashMap<>();
     private final Map<String, Integer> siteLookup = new HashMap<>();
     private final Map<String, Integer> roundLookup = new HashMap<>();
+    private boolean lookupsPopulated = false;
+
+    private synchronized void ensureLookups() {
+        if (lookupsPopulated) {
+            return;
+        }
+        for (int i = 0; i < players.size(); i++) {
+            playerLookup.putIfAbsent(players.get(i), i);
+        }
+        for (int i = 0; i < events.size(); i++) {
+            eventLookup.putIfAbsent(events.get(i), i);
+        }
+        for (int i = 0; i < sites.size(); i++) {
+            siteLookup.putIfAbsent(sites.get(i), i);
+        }
+        for (int i = 0; i < rounds.size(); i++) {
+            roundLookup.putIfAbsent(rounds.get(i), i);
+        }
+        lookupsPopulated = true;
+    }
 
     public void clear() {
+        lookupsPopulated = false;
         players.clear();
         events.clear();
         sites.clear();
@@ -87,22 +108,10 @@ public class Scid5Namebase {
             pos += len;
 
             switch (type) {
-                case NAME_PLAYER -> {
-                    playerLookup.putIfAbsent(str, players.size());
-                    players.add(str);
-                }
-                case NAME_EVENT -> {
-                    eventLookup.putIfAbsent(str, events.size());
-                    events.add(str);
-                }
-                case NAME_SITE -> {
-                    siteLookup.putIfAbsent(str, sites.size());
-                    sites.add(str);
-                }
-                case NAME_ROUND -> {
-                    roundLookup.putIfAbsent(str, rounds.size());
-                    rounds.add(str);
-                }
+                case NAME_PLAYER -> players.add(str);
+                case NAME_EVENT -> events.add(str);
+                case NAME_SITE -> sites.add(str);
+                case NAME_ROUND -> rounds.add(str);
                 case NAME_INFO -> parseDbInfo(str);
             }
         }
@@ -188,22 +197,27 @@ public class Scid5Namebase {
     }
 
     public Integer findExistingPlayer(String name) {
+        ensureLookups();
         return playerLookup.get(name);
     }
 
     public Integer findExistingEvent(String event) {
+        ensureLookups();
         return eventLookup.get(event);
     }
 
     public Integer findExistingSite(String site) {
+        ensureLookups();
         return siteLookup.get(site);
     }
 
     public Integer findExistingRound(String round) {
+        ensureLookups();
         return roundLookup.get(round);
     }
 
     public synchronized int findOrAdd(Path sn5Path, String name, int type) throws IOException {
+        ensureLookups();
         String cleanName = (name != null) ? name : "";
         Integer existing = switch (type) {
             case NAME_PLAYER -> playerLookup.get(cleanName);

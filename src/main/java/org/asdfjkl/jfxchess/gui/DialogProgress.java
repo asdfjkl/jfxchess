@@ -92,6 +92,14 @@ public class DialogProgress extends JDialog {
     }
 
     private void bindWorker(SwingWorker worker) {
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                worker.cancel(true);
+                dispose();
+            }
+        });
         worker.addPropertyChangeListener(evt -> {
             switch (evt.getPropertyName()) {
                 case "progress":

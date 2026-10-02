@@ -188,8 +188,10 @@ public class Scid5ChessDatabase implements ChessDatabase {
             }
             ArrayList<Scid5GameInfo> scanned = Scid5Index.readAll(si5Path, namebase, listener);
             allEntries.clear();
+            allEntries.ensureCapacity(scanned.size());
             allEntries.addAll(scanned);
             entries.clear();
+            entries.ensureCapacity(scanned.size());
             for (Scid5GameInfo info : scanned) {
                 if (includeDeleted || !info.isDeleted()) {
                     entries.add(info);
@@ -340,8 +342,7 @@ public class Scid5ChessDatabase implements ChessDatabase {
 
         // 4. Construct Scid5GameInfo record
         int newGameNumber = allEntries.size();
-        Scid5GameInfo info = new Scid5GameInfo();
-        info.setGameNumber(newGameNumber);
+        Scid5GameInfo info = new Scid5GameInfo(newGameNumber);
         info.setSg5Offset(actualOffset);
         info.setSg5Length(dataSize);
 

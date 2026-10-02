@@ -45,10 +45,31 @@ public class Scid5GameInfo extends GameInfo {
     private int halfMoves = 0;
     private int flags = 0;
 
+    private static final String[] ECO_BASE_CACHE = new String[500];
+    private static final String[] ELO_CACHE = new String[3500];
+
+    static {
+        for (int i = 0; i < 500; i++) {
+            char letter = (char) ('A' + (i / 100));
+            int num = i % 100;
+            ECO_BASE_CACHE[i] = "" + letter + (num < 10 ? "0" : "") + num;
+        }
+        for (int i = 0; i < ELO_CACHE.length; i++) {
+            ELO_CACHE[i] = String.valueOf(i);
+        }
+    }
+
+    private static String cachedElo(int elo) {
+        if (elo >= 0 && elo < ELO_CACHE.length) {
+            return ELO_CACHE[elo];
+        }
+        return String.valueOf(elo);
+    }
+
     private int storedLineCode = 0;
     private int finalMatSig = 0;
     private int homePawnCount = 0;
-    private byte[] homePawnData = new byte[8];
+    private byte[] homePawnData = null;
     private int ecoCode = 0;
 
     private int commentRating = 0;
@@ -61,6 +82,11 @@ public class Scid5GameInfo extends GameInfo {
 
     public Scid5GameInfo() {
         super();
+    }
+
+    public Scid5GameInfo(int gameNumber) {
+        super(new UUID(0, gameNumber));
+        this.gameNumber = gameNumber;
     }
 
     public Scid5GameInfo(UUID id) {
@@ -111,15 +137,42 @@ public class Scid5GameInfo extends GameInfo {
 
     // Date packing / unpacking helpers
     public static String decodeDate(int packedDate) {
+        if (packedDate == 0) {
+            return "????.??.??";
+        }
         int year = (packedDate >>> 9) & 0x7FF;
         int month = (packedDate >>> 5) & 0x0F;
         int day = packedDate & 0x1F;
 
-        String yStr = (year > 0) ? String.format("%04d", year) : "????";
-        String mStr = (month > 0 && month <= 12) ? String.format("%02d", month) : "??";
-        String dStr = (day > 0 && day <= 31) ? String.format("%02d", day) : "??";
-
-        return yStr + "." + mStr + "." + dStr;
+        char[] b = new char[10];
+        if (year > 0) {
+            b[0] = (char) ('0' + (year / 1000) % 10);
+            b[1] = (char) ('0' + (year / 100) % 10);
+            b[2] = (char) ('0' + (year / 10) % 10);
+            b[3] = (char) ('0' + year % 10);
+        } else {
+            b[0] = '?';
+            b[1] = '?';
+            b[2] = '?';
+            b[3] = '?';
+        }
+        b[4] = '.';
+        if (month > 0 && month <= 12) {
+            b[5] = (char) ('0' + (month / 10));
+            b[6] = (char) ('0' + (month % 10));
+        } else {
+            b[5] = '?';
+            b[6] = '?';
+        }
+        b[7] = '.';
+        if (day > 0 && day <= 31) {
+            b[8] = (char) ('0' + (day / 10));
+            b[9] = (char) ('0' + (day % 10));
+        } else {
+            b[8] = '?';
+            b[9] = '?';
+        }
+        return new String(b);
     }
 
     public static int encodeDate(String dateStr) {
@@ -152,18 +205,22 @@ public class Scid5GameInfo extends GameInfo {
         int base = c / 131;
         if (base > 499) return ""; // 500 ECO codes: A00 to E99
 
+        int sub = c % 131;
+        if (sub == 0) {
+            return ECO_BASE_CACHE[base];
+        }
+
         char letter = (char) ('A' + (base / 100));
         int num = base % 100;
-        int sub = c % 131;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(5);
         sb.append(letter);
         if (num < 10) sb.append('0');
         sb.append(num);
 
-        if (sub > 0 && sub <= 26) {
+        if (sub <= 26) {
             sb.append((char) ('a' + (sub - 1)));
-        } else if (sub > 26) {
+        } else {
             sb.append(sub - 26);
         }
         return sb.toString();
@@ -289,7 +346,7 @@ public class Scid5GameInfo extends GameInfo {
     public void setWhiteEloVal(int whiteEloVal) {
         this.whiteEloVal = whiteEloVal;
         if (whiteEloVal > 0) {
-            super.setWhiteElo(String.valueOf(whiteEloVal));
+            super.setWhiteElo(cachedElo(whiteEloVal));
         }
     }
 
@@ -300,7 +357,7 @@ public class Scid5GameInfo extends GameInfo {
     public void setBlackEloVal(int blackEloVal) {
         this.blackEloVal = blackEloVal;
         if (blackEloVal > 0) {
-            super.setBlackElo(String.valueOf(blackEloVal));
+            super.setBlackElo(cachedElo(blackEloVal));
         }
     }
 
@@ -378,13 +435,11 @@ public class Scid5GameInfo extends GameInfo {
     }
 
     public byte[] getHomePawnData() {
-        return homePawnData;
+        return (homePawnData != null) ? homePawnData : new byte[8];
     }
 
     public void setHomePawnData(byte[] homePawnData) {
-        if (homePawnData != null) {
-            this.homePawnData = Arrays.copyOf(homePawnData, 8);
-        }
+        this.homePawnData = homePawnData;
     }
 
     public int getEcoCode() {

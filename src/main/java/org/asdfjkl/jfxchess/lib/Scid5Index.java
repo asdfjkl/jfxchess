@@ -33,16 +33,19 @@ public class Scid5Index {
 
     public static ArrayList<Scid5GameInfo> readAll(Path si5Path, Scid5Namebase namebase, ProgressListener listener)
             throws IOException {
-        ArrayList<Scid5GameInfo> entries = new ArrayList<>();
         if (!Files.exists(si5Path)) {
-            return entries;
+            return new ArrayList<>();
         }
 
         byte[] bytes = Files.readAllBytes(si5Path);
         int totalGames = bytes.length / INDEX_ENTRY_SIZE;
+        ArrayList<Scid5GameInfo> entries = new ArrayList<>(totalGames);
         ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
 
         for (int i = 0; i < totalGames; i++) {
+            if (listener != null && listener.isCancelled()) {
+                break;
+            }
             if (listener != null && i % 1000 == 0 && totalGames > 0) {
                 listener.onProgress((int) ((long) i * 100 / totalGames));
             }
@@ -105,8 +108,7 @@ public class Scid5Index {
         int resultCode = (w11 >>> 16) & 0x03;
         int ecoCode = w11 & 0xFFFF;
 
-        Scid5GameInfo info = new Scid5GameInfo();
-        info.setGameNumber(gameNumber);
+        Scid5GameInfo info = new Scid5GameInfo(gameNumber);
 
         info.setCommentRating(commentRating);
         info.setWhiteId(whiteId);
