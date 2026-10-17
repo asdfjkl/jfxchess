@@ -268,4 +268,32 @@ public class GameSession {
         this.currentEngineInfo = currentEngineInfo;
         propertyChangeSupport.firePropertyChange("engineInfo", oldEngineInfo, currentEngineInfo);
     }
+
+    private Engine activeEngine;
+    private int previousPlayMode = -1;
+
+    public Engine getActiveEngine() {
+        if (activeEngine != null) {
+            return activeEngine;
+        } else if (engineSession != null) {
+            return engineSession.getActiveEngine();
+        } else {
+            return null;
+        }
+    }
+
+    public void setActiveEngine(Engine activeEngine) {
+        Engine oldEngine = this.activeEngine;
+        this.activeEngine = activeEngine;
+        getEngineSession().setActiveEngine(activeEngine);
+        propertyChangeSupport.firePropertyChange("activeEngineChanged", oldEngine, activeEngine);
+    }
+
+    public int getPreviousPlayMode() {
+        return previousPlayMode;
+    }
+
+    public void setPreviousPlayMode(int previousPlayMode) {
+        this.previousPlayMode = previousPlayMode;
+    }
 }

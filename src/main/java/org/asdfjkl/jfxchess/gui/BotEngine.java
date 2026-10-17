@@ -72,4 +72,19 @@ public class BotEngine extends Engine {
         return image;
     }
 
+    @Override
+    public BotEngine makeCopy() {
+        BotEngine copy = new BotEngine();
+        copy.setName(this.getName());
+        copy.setPath(this.getPath());
+        copy.setInternal(this.isInternal());
+        copy.setElo(this.getElo());
+        copy.setBio(this.getBio());
+        copy.setImageResource(this.imageResource);
+        for (EngineOption option : options) {
+            copy.addEngineOption(option.makeCopy());
+        }
+        return copy;
+    }
+
 }

@@ -255,11 +255,16 @@ public class BrowserTabBar extends JPanel {
             boolean overflow = totalRequiredWidth > viewportW && viewportW > 0;
 
             if (overflow != btnScrollLeft.isVisible()) {
-                btnScrollLeft.setVisible(overflow);
-                btnScrollRight.setVisible(overflow);
-                if (!overflow) {
-                    viewport.setViewPosition(new Point(0, 0));
-                }
+                SwingUtilities.invokeLater(() -> {
+                    if (overflow != btnScrollLeft.isVisible()) {
+                        btnScrollLeft.setVisible(overflow);
+                        btnScrollRight.setVisible(overflow);
+                        if (!overflow) {
+                            viewport.setViewPosition(new Point(0, 0));
+                        }
+                        revalidate();
+                    }
+                });
             }
 
             int x = 0;
@@ -270,9 +275,7 @@ public class BrowserTabBar extends JPanel {
 
             int plusY = Math.max(0, (tabHeight - plusHeight) / 2);
             btnPlus.setBounds(x + (int) Math.round(2 * scale), plusY, plusWidth, plusHeight);
-            x += plusWidth + (int) Math.round(4 * scale);
 
-            tabStripPanel.setSize(new Dimension(x, tabHeight));
             updateScrollButtonsState();
         }
 

@@ -42,6 +42,7 @@ public class Engine implements Comparator<Engine>{
     public void setPath(String path) { this.path = path; }
 
     public void setInternal(boolean internal) { this.isInternal = internal; }
+    public boolean isInternal() { return isInternal; }
 
     public void addEngineOption(EngineOption option) {
         // Special case for MultiPV.

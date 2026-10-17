@@ -29,9 +29,9 @@ REM build jar
 cd %SRC_DIR%
 call %MAVEN_BIN% clean package
 REM copy output
-copy target\jfxchess-5.0-jar-with-dependencies.jar %JAR_DIR%
+copy target\jfxchess-jar-with-dependencies.jar %JAR_DIR%
 cd %BUILD_DIR%
-jpackage --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i jar --main-jar jfxchess-5.0-jar-with-dependencies.jar -d output --icon jfxchess.ico
+jpackage --java-options '-splash:$APPDIR/splash.png' --type app-image -n jfxchess -i jar --main-jar jfxchess-jar-with-dependencies.jar -d output --icon jfxchess.ico
 copy jfxchess.ico %OUTPUT_DIR%
 xcopy engine /s /i %OUTPUT_ENGINE_DIR%
 xcopy book /s /i %OUTPUT_BOOK_DIR%

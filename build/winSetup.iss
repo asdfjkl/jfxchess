@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "JFXChess"
-#define MyAppVersion "5.0.0"
+#define MyAppVersion "26.10.0"
 #define MyAppPublisher "org.asdfjkl"
 #define MyAppURL "https://github.com/asdfjkl/jfxchess"
 #define MyAppExeName "jfxchess.exe"
@@ -27,7 +27,7 @@ OutputBaseFilename=SetupJFXChess
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x86compatible
 SetupIconFile="C:\MyFiles\workspace\jfxchess\build\build_win\jfxchess.ico"
 OutputDir="C:\MyFiles\workspace\jfxchess\build\build_win\JFXChessSetup"
 UninstallDisplayIcon="C:\MyFiles\workspace\jfxchess\build\build_win\jfxchess.ico"

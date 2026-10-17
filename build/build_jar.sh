@@ -18,7 +18,7 @@ cd $BUILD_DIR
 cd ..
 mvn clean package
 # copy fat jar and platform dependent jfx modules to build dir
-cp target/jfxchess-5.0-jar-with-dependencies.jar build/build_jar/jfxchess
+cp target/jfxchess-jar-with-dependencies.jar build/build_jar/jfxchess
 # assemble with jpackage
 cd $BUILD_DIR
 cd build_jar

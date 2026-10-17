@@ -32,6 +32,7 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>jfxchess</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

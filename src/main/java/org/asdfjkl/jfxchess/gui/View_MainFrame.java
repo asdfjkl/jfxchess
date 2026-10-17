@@ -570,6 +570,7 @@ public class View_MainFrame extends JFrame
                     model.getHorizontalDividerLocation(),
                     model.getVerticalDividerLocation()
             );
+            tabView.refreshActiveTab();
         }
     }
 
@@ -587,7 +588,12 @@ public class View_MainFrame extends JFrame
             return;
         }
 
-        GameSession targetSession = (index > 0) ? sessions.get(index - 1) : sessions.get(1);
+        GameSession targetSession;
+        if (index > 0) {
+            targetSession = sessions.get(index - 1);
+        } else {
+            targetSession = sessions.get(1);
+        }
         workspace.setActiveSession(targetSession);
         workspace.closeSession(session);
     }

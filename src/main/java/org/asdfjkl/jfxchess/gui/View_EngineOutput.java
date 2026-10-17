@@ -26,72 +26,30 @@ import java.beans.PropertyChangeListener;
 public class View_EngineOutput extends JEditorPane implements PropertyChangeListener {
 
     Model_JFXChess model;
+    GameSession gameSession;
 
     String cachedInfo = "";
 
     public View_EngineOutput(Model_JFXChess model) {
+        this(model, model.getGameSession());
+    }
+
+    public View_EngineOutput(Model_JFXChess model, GameSession gameSession) {
         this.model = model;
+        this.gameSession = gameSession;
 
         putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
         setContentType("text/html");
         setEditable(false);
         setFocusable(false);
 
+        if (gameSession != null) {
+            gameSession.addPropertyChangeListener(this);
+        }
+
         if (model.isUseCustomFontSizeEngineOutput()) {
             updateFontSize(model.getFontSizeEngineOutput());
         }
-
-        /*
-        htmlTest = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\" width=\"100%\">" +
-                "  <tr>" +
-                "    <td>" +
-                "      <table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">" +
-                "        <tr>" +
-                "          <td>Stockfish (internal)</td>" +
-                "          <td>e2e4 (depth 37/53)</td>" +
-                "          <td>554.0 kn/s</td>" +
-                "          <td>hashfull 1000</td>" +
-                "          <td>tbhits 0</td>" +
-                "        </tr>" +
-                "      </table>" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>&nbsp;</td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.18) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.19) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.19) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.19) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.19) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "  <tr>" +
-                "    <td>" +
-                "      (0.19) 1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 Nf6 5. Nc3 Nc6 6. Bg5 Bf5 9. Bf4 Ng6 10. Bg3" +
-                "    </td>" +
-                "  </tr>" +
-                "</table>";
-        setText(htmlTest);
-         */
     }
 
     public void updateFontSize(int fontSize) {
@@ -135,33 +93,45 @@ public class View_EngineOutput extends JEditorPane implements PropertyChangeList
         }
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void refresh() {
+        updateEngineOutputText();
+    }
 
-        if(evt.getPropertyName().equals("engineInfo")) {
-            String info = model.getCurrentEngineInfo();
-            if (info != null && info.length() > 5) {
-                String engineName = "";
-                if(model.activeEngine!=null) {
-                    engineName = model.activeEngine.getName();
-                    if(model.getMode() == Model_JFXChess.MODE_PLAY_WHITE || model.getMode() == Model_JFXChess.MODE_PLAY_BLACK) {
-                        engineName += " (" + model.activeEngine.getUciElo() + ")";
-                    }
-                }
-                String s = info.substring(5, info.length()).replace("ENGINE_ID", engineName);
-                // we only set text on this widget if there is really
-                // an update - in order to avoid flickering
-                if(!s.equals(cachedInfo)) {
-                    cachedInfo = s;
-                    setText(s);
+    public void updateEngineOutputText() {
+        if (gameSession == null) {
+            return;
+        }
+        String info = gameSession.getCurrentEngineInfo();
+        if (info != null && info.length() > 5) {
+            String engineName = "";
+            Engine activeEngine = gameSession.getActiveEngine();
+            if (activeEngine != null) {
+                engineName = activeEngine.getName();
+                int mode = gameSession.getMode();
+                if (mode == Model_JFXChess.MODE_PLAY_WHITE || mode == Model_JFXChess.MODE_PLAY_BLACK) {
+                    engineName += " (" + activeEngine.getUciElo() + ")";
                 }
             }
+            String s = info.substring(5, info.length()).replace("ENGINE_ID", engineName);
+            if (!s.equals(cachedInfo)) {
+                cachedInfo = s;
+                setText(s);
+            }
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        String prop = evt.getPropertyName();
+
+        if (prop.equals("engineInfo") || prop.equals("modeChanged") || prop.equals("activeEngineChanged")) {
+            updateEngineOutputText();
         }
 
-        if(evt.getPropertyName().equals("setFontSizeEngineOutput")) {
+        if (prop.equals("setFontSizeEngineOutput")) {
             updateFontSize(model.getFontSizeEngineOutput());
         }
-        if(evt.getPropertyName().equals("resetFontSizeEngineOutput")) {
+        if (prop.equals("resetFontSizeEngineOutput")) {
             resetFontSize();
         }
     }

@@ -30,7 +30,9 @@ import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class View_GameTab extends JPanel implements PropertyChangeListener {
 
@@ -46,6 +48,13 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
     private final JSplitPane verticalSplit;
     private final JLabel gameHeader;
     private JToggleButton engineSwitch;
+    private JButton addLineBtn;
+    private JButton removeLineBtn;
+    private JButton threadsBtn;
+    private JButton enginesBtn;
+    private final List<JButton> navigationButtons = new ArrayList<>();
+    private View_EngineOutput engineOutput;
+    private View_Eval viewEval;
     private final View_Moves viewMoves;
     private final View_Chessboard chessboard;
 
@@ -105,7 +114,7 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
         model.addListener(this);
         gameSession.addPropertyChangeListener(this);
         updateGameView();
-        updateEngineSwitch();
+        updateEngineControls();
     }
 
     public GameSession getGameSession() {
@@ -145,8 +154,9 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
                 model, gameSession, controllerBoard);
         JScrollPane bookScroll = new JScrollPane(viewBook);
 
-        View_Eval viewEval = new View_Eval(model, 6.0f);
+        viewEval = new View_Eval(model, gameSession, 6.0f);
         model.addListener(viewEval);
+        gameSession.addPropertyChangeListener(viewEval);
 
         JTabbedPane detailTabs = new JTabbedPane();
         detailTabs.addTab("Moves", movesScroll);
@@ -170,26 +180,35 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
 
     private JPanel createNavigationPanel() {
         JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        navigationPanel.add(createNavigationButton(
+        JButton btnStart = createNavigationButton(
                 "icons/fast_rewind.svg",
                 "Seek To Beginning",
                 controllerBoard.seekToBeginning()
-        ));
-        navigationPanel.add(createNavigationButton(
+        );
+        JButton btnBack = createNavigationButton(
                 "icons/arrow_back.svg",
                 "Move Back",
                 controllerBoard.moveBack()
-        ));
-        navigationPanel.add(createNavigationButton(
+        );
+        JButton btnForward = createNavigationButton(
                 "icons/play_arrow.svg",
                 "Move Forward",
                 controllerBoard.moveForward()
-        ));
-        navigationPanel.add(createNavigationButton(
+        );
+        JButton btnEnd = createNavigationButton(
                 "icons/fast_forward.svg",
                 "Seek to End",
                 controllerBoard.seekToEnd()
-        ));
+        );
+        navigationButtons.add(btnStart);
+        navigationButtons.add(btnBack);
+        navigationButtons.add(btnForward);
+        navigationButtons.add(btnEnd);
+
+        navigationPanel.add(btnStart);
+        navigationPanel.add(btnBack);
+        navigationPanel.add(btnForward);
+        navigationPanel.add(btnEnd);
         return navigationPanel;
     }
 
@@ -210,44 +229,39 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
         JPanel leftGroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
 
         engineSwitch = new JToggleButton("Start Engine");
-        engineSwitch.addActionListener(e -> {
-            if (!engineSwitch.isSelected()) {
-                controllerEngine.activateEnterMovesMode();
-            } else {
-                controllerEngine.activateAnalysisMode();
-            }
-        });
+        engineSwitch.addActionListener(controllerEngine.toggleEngine(gameSession));
 
-        JButton addLine = new JButton("+");
-        addLine.addActionListener(controllerEngine.incMultiPV());
-        JButton removeLine = new JButton("-");
-        removeLine.addActionListener(controllerEngine.decMultiPV());
-        JButton threads = new JButton("Set # Threads");
-        threads.addActionListener(controllerEngine.changeNrThreads());
+        addLineBtn = new JButton("+");
+        addLineBtn.addActionListener(controllerEngine.incMultiPV(gameSession));
+        removeLineBtn = new JButton("-");
+        removeLineBtn.addActionListener(controllerEngine.decMultiPV(gameSession));
+        threadsBtn = new JButton("Set # Threads");
+        threadsBtn.addActionListener(controllerEngine.changeNrThreads(gameSession));
 
         engineSwitch.setFocusable(false);
-        addLine.setFocusable(false);
-        removeLine.setFocusable(false);
-        threads.setFocusable(false);
+        addLineBtn.setFocusable(false);
+        removeLineBtn.setFocusable(false);
+        threadsBtn.setFocusable(false);
 
         leftGroup.add(engineSwitch);
-        leftGroup.add(addLine);
-        leftGroup.add(removeLine);
-        leftGroup.add(threads);
+        leftGroup.add(addLineBtn);
+        leftGroup.add(removeLineBtn);
+        leftGroup.add(threadsBtn);
 
         JPanel rightGroup = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-        JButton engines = new JButton();
-        engines.setIcon(new FlatSVGIcon("icons/engine_18px.svg"));
-        engines.setToolTipText("Select Engine");
-        engines.setFocusable(false);
-        engines.addActionListener(controllerEngine.editEngines());
-        rightGroup.add(engines);
+        enginesBtn = new JButton();
+        enginesBtn.setIcon(new FlatSVGIcon("icons/engine_18px.svg"));
+        enginesBtn.setToolTipText("Select Engine");
+        enginesBtn.setFocusable(false);
+        enginesBtn.addActionListener(controllerEngine.editEngines());
+        rightGroup.add(enginesBtn);
 
         bottomControlBar.add(leftGroup, BorderLayout.WEST);
         bottomControlBar.add(rightGroup, BorderLayout.EAST);
 
-        View_EngineOutput engineOutput = new View_EngineOutput(model);
+        engineOutput = new View_EngineOutput(model, gameSession);
         model.addListener(engineOutput);
+        gameSession.addPropertyChangeListener(engineOutput);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(bottomControlBar, BorderLayout.NORTH);
@@ -358,6 +372,72 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
         }
     }
 
+    public void updateEngineControls() {
+        updateEngineSwitch();
+        boolean isThinking = gameSession.isBlockGui();
+        int mode = gameSession.getMode();
+        boolean isPlayMode = (mode == Model_JFXChess.MODE_PLAY_WHITE
+                || mode == Model_JFXChess.MODE_PLAY_BLACK
+                || mode == Model_JFXChess.MODE_PLAYOUT_POSITION
+                || mode == Model_JFXChess.MODE_GAME_ANALYSIS);
+
+        for (JButton btn : navigationButtons) {
+            btn.setEnabled(!isThinking);
+        }
+
+        if (isThinking) {
+            if (addLineBtn != null) {
+                addLineBtn.setEnabled(false);
+            }
+            if (removeLineBtn != null) {
+                removeLineBtn.setEnabled(false);
+            }
+            if (threadsBtn != null) {
+                threadsBtn.setEnabled(false);
+            }
+            if (enginesBtn != null) {
+                enginesBtn.setEnabled(false);
+            }
+        } else if (isPlayMode) {
+            if (addLineBtn != null) {
+                addLineBtn.setEnabled(false);
+            }
+            if (removeLineBtn != null) {
+                removeLineBtn.setEnabled(false);
+            }
+            if (threadsBtn != null) {
+                threadsBtn.setEnabled(false);
+            }
+            if (enginesBtn != null) {
+                enginesBtn.setEnabled(false);
+            }
+        } else {
+            if (addLineBtn != null) {
+                addLineBtn.setEnabled(true);
+            }
+            if (removeLineBtn != null) {
+                removeLineBtn.setEnabled(true);
+            }
+            if (threadsBtn != null) {
+                threadsBtn.setEnabled(true);
+            }
+            if (enginesBtn != null) {
+                enginesBtn.setEnabled(true);
+            }
+        }
+    }
+
+    public void refreshActiveTab() {
+        updateGameView();
+        updateEngineControls();
+        if (engineOutput != null) {
+            engineOutput.refresh();
+        }
+        if (viewEval != null) {
+            viewEval.repaint();
+        }
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
@@ -390,8 +470,8 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
         if ("gameChanged".equals(propertyName) || "treeChanged".equals(propertyName)) {
             updateGameView();
         }
-        if ("modeChanged".equals(propertyName)) {
-            updateEngineSwitch();
+        if ("blockGUI".equals(propertyName) || "modeChanged".equals(propertyName) || "activeEngineChanged".equals(propertyName)) {
+            updateEngineControls();
         }
     }
 }

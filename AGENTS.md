@@ -5,7 +5,7 @@
 JFXChess is a GPL-2.0-or-later cross-platform chess GUI. It is a Java 21
 Swing application built with Maven. The runnable application entry point is
 `org.asdfjkl.jfxchess.gui.App`; Maven packages an executable fat JAR at
-`target/jfxchess-5.0-jar-with-dependencies.jar`.
+`target/jfxchess-jar-with-dependencies.jar`.
 
 The application supports tabbed game sessions, UCI engine integration
 (bundled Stockfish 18 and Stockfish 5 bots), opening book exploration
@@ -92,10 +92,10 @@ The GUI is structured around a clean, tabbed session and workspace architecture:
   ```powershell
   mvn clean package
   ```
-  Produces `target/jfxchess-5.0.jar` and `target/jfxchess-5.0-jar-with-dependencies.jar`.
+  Produces `target/jfxchess.jar` and `target/jfxchess-jar-with-dependencies.jar`.
 - **Launch GUI**:
   ```powershell
-  java -jar target/jfxchess-5.0-jar-with-dependencies.jar
+  java -jar target/jfxchess-jar-with-dependencies.jar
   ```
 - **Windows development note**: If Maven is not installed in the system PATH,
   the IntelliJ IDEA bundled Maven binary can be used:
@@ -153,30 +153,30 @@ workspace, PGN, SCID5, or controller logic:
 
 ```powershell
 # Verify database lifecycle, detachment, and modified timestamp tracking (PGN & SCID5)
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-lifecycle-test
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-lifecycle-test
 
 # Verify session isolation, dirty tracking, and engine shutdown
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main workspace-session-isolation-test
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main workspace-session-isolation-test
 
 # Verify transactional PGN document reloading, stale tracking, and cross-session sync
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-document-session-synchronization-test
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-document-session-synchronization-test
 
 # Verify browser-like tab context switching, left-tab selection, and single tab protection
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main browser-tab-behavior-test
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main browser-tab-behavior-test
 
 # Verify PGN player surname extraction and versus title formatting
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-game-info-surname-test
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-game-info-surname-test
 
 # Run all session tests in one suite
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
 
 # Run SCID5 tests in one suite
-java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --scid-tests
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --scid-tests
 ```
 
 ### Full / legacy test suite
 
-- Run `java -cp "target/test-classes;target/classes;target/jfxchess-5.0-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --all-tests`
+- Run `java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --all-tests`
   when validating core chess domain changes (FEN parsing, deep perft move generation,
   SAN, Zobrist hashing, and large PGN database scanning).
 - For GUI and theme modifications, manually test the workflow (tab opening/switching,

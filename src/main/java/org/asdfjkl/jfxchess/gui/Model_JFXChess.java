@@ -327,6 +327,10 @@ public class Model_JFXChess {
         if (workspace != null && workspace.getActiveSession() != gameSession) {
             workspace.setActiveSession(gameSession);
         }
+        Engine sessionEngine = gameSession.getActiveEngine();
+        if (sessionEngine != null) {
+            this.activeEngine = sessionEngine;
+        }
         pcs.firePropertyChange("gameChanged", null, null);
     }
 

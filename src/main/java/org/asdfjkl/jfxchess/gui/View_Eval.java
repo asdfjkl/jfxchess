@@ -30,15 +30,20 @@ import java.util.List;
 
 public class View_Eval extends JPanel implements PropertyChangeListener {
 
-    // min nr of moves (so that we don't get oddly wide bar charts)
     private List<Float> evals = new ArrayList<>(30);
     private final float maxEval; // defines range [-maxEval, +maxEval]
     private final Model_JFXChess model;
+    private final GameSession gameSession;
     private final HashMap<Integer, Integer> idPos = new HashMap<>();
 
     public View_Eval(Model_JFXChess model, float maxEval) {
+        this(model, model.getGameSession(), maxEval);
+    }
+
+    public View_Eval(Model_JFXChess model, GameSession gameSession, float maxEval) {
         this.maxEval = maxEval;
         this.model = model;
+        this.gameSession = gameSession;
         //setBackground(Color.DARK_GRAY);
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         for (int i = 0; i < 30; i++) {
@@ -116,10 +121,13 @@ public class View_Eval extends JPanel implements PropertyChangeListener {
     }
 
     public void updateHashmap() {
-        GameNode node = model.getGame().getRootNode();
+        if (gameSession == null) {
+            return;
+        }
+        GameNode node = gameSession.getGame().getRootNode();
         idPos.put(node.getId(), 0);
         int pos = 1;
-        while(node.hasChild()) {
+        while (node.hasChild()) {
             node = node.getVariation(0);
             idPos.put(node.getId(), pos);
             pos++;
@@ -127,19 +135,27 @@ public class View_Eval extends JPanel implements PropertyChangeListener {
     }
 
     public void resetEvals() {
-        int nGame = model.getGame().countHalfmoves();
+        if (gameSession == null) {
+            return;
+        }
+        int nGame = gameSession.getGame().countHalfmoves();
         ArrayList<Float> newEval = new ArrayList<Float>();
-        for(int i = 0; i < Math.max(30, nGame); i++) {
+        int count = Math.max(30, nGame);
+        for (int i = 0; i < count; i++) {
             newEval.add(0.0f);
         }
         evals = newEval;
     }
 
     public void adjustEvalLength() {
-        int nGame = model.getGame().countHalfmoves();
+        if (gameSession == null) {
+            return;
+        }
+        int nGame = gameSession.getGame().countHalfmoves();
         ArrayList<Float> newEval = new ArrayList<Float>();
-        for(int i = 0; i < Math.max(30, nGame); i++) {
-            if(i < evals.size()) {
+        int count = Math.max(30, nGame);
+        for (int i = 0; i < count; i++) {
+            if (i < evals.size()) {
                 newEval.add(evals.get(i));
             } else {
                 newEval.add(0.0f);
@@ -151,29 +167,31 @@ public class View_Eval extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if("gameChanged".equals(evt.getPropertyName())) {
+        String prop = evt.getPropertyName();
+        if ("gameChanged".equals(prop)) {
             resetEvals();
             updateHashmap();
             repaint();
         }
-        if("treeChanged".equals(evt.getPropertyName())) {
+        if ("treeChanged".equals(prop)) {
             adjustEvalLength();
             updateHashmap();
             repaint();
         }
-        if(evt.getPropertyName().equals("engineInfo")) {
-
-            // slightly ugly, but working
-            float evalValue = extractFloat(model.getCurrentEngineInfo());
-            int id = model.getGame().getCurrentNode().getId();
-            if(model.getMode() == Model_JFXChess.MODE_ANALYSIS ||
-                    model.getMode() == Model_JFXChess.MODE_GAME_ANALYSIS ||
-                    model.getMode() == Model_JFXChess.MODE_PLAYOUT_POSITION) {
+        if ("engineInfo".equals(prop)) {
+            if (gameSession == null) {
+                return;
+            }
+            float evalValue = extractFloat(gameSession.getCurrentEngineInfo());
+            int id = gameSession.getGame().getCurrentNode().getId();
+            int mode = gameSession.getMode();
+            if (mode == Model_JFXChess.MODE_ANALYSIS ||
+                    mode == Model_JFXChess.MODE_GAME_ANALYSIS ||
+                    mode == Model_JFXChess.MODE_PLAYOUT_POSITION) {
                 if (idPos.get(id) != null) {
                     int pos = idPos.get(id);
-                    if(pos < evals.size() && pos > 0) {
-                        // "shift" to left, as we don't need an evaluation of the initial position
-                        evals.set(idPos.get(id)-1, evalValue);
+                    if (pos < evals.size() && pos > 0) {
+                        evals.set(pos - 1, evalValue);
                         repaint();
                     }
                 }

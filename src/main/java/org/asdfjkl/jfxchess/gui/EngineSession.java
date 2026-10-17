@@ -61,6 +61,10 @@ public class EngineSession {
         engineThread.removePropertyChangeListener(listener);
     }
 
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return engineThread.getPropertyChangeListeners();
+    }
+
     public void stop() {
         shutdownRequested = true;
         engineThread.terminate();

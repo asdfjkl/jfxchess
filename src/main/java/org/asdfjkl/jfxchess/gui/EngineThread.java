@@ -78,6 +78,10 @@ public class EngineThread extends Thread {
         support.removePropertyChangeListener(listener);
     }
 
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return support.getPropertyChangeListeners();
+    }
+
     public void engineInfoSetPVLines(int n)
     {
         engineInfo.nrPvLines = n;
