@@ -47,6 +47,15 @@ public class View_MainFrame extends JFrame
     private final Map<GameSession, View_GameTab> gameTabViews =
             new IdentityHashMap<>();
 
+    private JMenuItem jmiDbClose;
+    private JMenuItem jmiBrowseGames;
+    private JMenuItem jmiNextGameinDatabase;
+    private JMenuItem jmiPreviousGameinDatabase;
+
+    private JButton btnTbBrowseDatabase;
+    private JButton btnTbDatabasePrevGame;
+    private JButton btnTbDatabaseNextGame;
+
     KeyStroke pasteKey = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
     KeyStroke copyKey = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
     KeyStroke openKey = KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
@@ -140,6 +149,7 @@ public class View_MainFrame extends JFrame
         topPanel.add(mainContent, BorderLayout.CENTER);
 
         setContentPane(topPanel);
+        updateDatabaseActionsState();
     }
 
     public void updateWindowTitle() {
@@ -375,21 +385,21 @@ public class View_MainFrame extends JFrame
         jmiDbOpen.setAccelerator(openKey);
         databaseMenu.add(jmiDbOpen);
 
-        JMenuItem jmiDbClose = new JMenuItem("Close");
+        jmiDbClose = new JMenuItem("Close");
         jmiDbClose.addActionListener(controller_Pgn.closeDatabase());
         databaseMenu.add(jmiDbClose);
 
         databaseMenu.addSeparator();
 
-        JMenuItem jmiBrowseGames = new JMenuItem("Browse Games");
+        jmiBrowseGames = new JMenuItem("Browse Games");
         jmiBrowseGames.addActionListener(controller_Pgn.showDatabase());
         databaseMenu.add(jmiBrowseGames);
 
-        JMenuItem jmiNextGameinDatabase = new JMenuItem("Next Game");
+        jmiNextGameinDatabase = new JMenuItem("Next Game");
         databaseMenu.add(jmiNextGameinDatabase);
         jmiNextGameinDatabase.addActionListener(controller_Pgn.goToNextGameInDatabase());
 
-        JMenuItem jmiPreviousGameinDatabase = new JMenuItem("Previous Game");
+        jmiPreviousGameinDatabase = new JMenuItem("Previous Game");
         databaseMenu.add(jmiPreviousGameinDatabase);
         jmiPreviousGameinDatabase.addActionListener(controller_Pgn.goToPrevGameInDatabase());
 
@@ -462,13 +472,13 @@ public class View_MainFrame extends JFrame
 
         toolBar.addSeparator();
 
-        JButton btnTbBrowseDatabase = createToolButton("Browse Database", "database.svg");
+        btnTbBrowseDatabase = createToolButton("Browse Database", "database.svg");
         toolBar.add(btnTbBrowseDatabase);
         btnTbBrowseDatabase.addActionListener(controller_Pgn.showDatabase());
-        JButton btnTbDatabasePrevGame = createToolButton("Previous Game", "arrow_left_alt.svg");
+        btnTbDatabasePrevGame = createToolButton("Previous Game", "arrow_left_alt.svg");
         toolBar.add(btnTbDatabasePrevGame);
         btnTbDatabasePrevGame.addActionListener(controller_Pgn.goToPrevGameInDatabase());
-        JButton btnTbDatabaseNextGame = createToolButton("Next Game", "arrow_right_alt.svg");
+        btnTbDatabaseNextGame = createToolButton("Next Game", "arrow_right_alt.svg");
         toolBar.add(btnTbDatabaseNextGame);
         btnTbDatabaseNextGame.addActionListener(controller_Pgn.goToNextGameInDatabase());
 
@@ -765,6 +775,10 @@ public class View_MainFrame extends JFrame
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> propertyChange(evt));
+            return;
+        }
         if ("switchLaf".equals(evt.getPropertyName())) {
             setLookAndFeel(model.getLookAndFeel());
         }
@@ -776,7 +790,37 @@ public class View_MainFrame extends JFrame
         }
         if ("activeDatabaseChanged".equals(evt.getPropertyName())) {
             updateWindowTitle();
+            updateDatabaseActionsState();
         }
+    }
+
+    public void updateDatabaseActionsState() {
+        boolean hasDb = model.isDatabaseOpen();
+        if (jmiDbClose != null) {
+            jmiDbClose.setEnabled(hasDb);
+        }
+        if (jmiBrowseGames != null) {
+            jmiBrowseGames.setEnabled(hasDb);
+        }
+        if (jmiNextGameinDatabase != null) {
+            jmiNextGameinDatabase.setEnabled(hasDb);
+        }
+        if (jmiPreviousGameinDatabase != null) {
+            jmiPreviousGameinDatabase.setEnabled(hasDb);
+        }
+        if (btnTbBrowseDatabase != null) {
+            btnTbBrowseDatabase.setEnabled(hasDb);
+        }
+        if (btnTbDatabasePrevGame != null) {
+            btnTbDatabasePrevGame.setEnabled(hasDb);
+        }
+        if (btnTbDatabaseNextGame != null) {
+            btnTbDatabaseNextGame.setEnabled(hasDb);
+        }
+    }
+
+    public boolean isDatabaseActionsEnabled() {
+        return jmiDbClose != null && jmiDbClose.isEnabled();
     }
 
 }

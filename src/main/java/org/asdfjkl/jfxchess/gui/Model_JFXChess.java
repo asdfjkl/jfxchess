@@ -662,6 +662,10 @@ public class Model_JFXChess {
         return activeDatabase;
     }
 
+    public boolean isDatabaseOpen() {
+        return activeDatabase != null && activeDatabase.isOpen();
+    }
+
     public void setActiveDatabase(ChessDatabase activeDatabase) {
         ChessDatabase oldDatabase = this.activeDatabase;
         this.activeDatabase = activeDatabase;
