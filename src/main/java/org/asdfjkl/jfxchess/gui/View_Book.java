@@ -23,6 +23,7 @@ import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -59,7 +60,6 @@ public class View_Book extends JTable implements PropertyChangeListener {
 
         // Appearance
         setFillsViewportHeight(true);
-        setRowHeight(24);
 
         // Optional: hand cursor
         setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -73,7 +73,9 @@ public class View_Book extends JTable implements PropertyChangeListener {
         });
 
         getColumnModel().getColumn(2).setCellRenderer(new WinDrawLossRenderer());
-        setRowHeight(28);
+
+        double scale = HighDPIHelper.getUIScaleFactor();
+        setRowHeight((int) Math.round(28 * scale));
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -84,12 +86,31 @@ public class View_Book extends JTable implements PropertyChangeListener {
         getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         getColumnModel().getColumn(3).setHeaderRenderer(centerRenderer);
 
-        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        getColumnModel().getColumn(0).setPreferredWidth(50);
-        getColumnModel().getColumn(1).setPreferredWidth(50);
-        getColumnModel().getColumn(2).setPreferredWidth(250);
+        // Move column: compact minimum and preferred width, does not expand further
+        TableColumn colMove = getColumnModel().getColumn(0);
+        colMove.setMinWidth((int) Math.round(50 * scale));
+        colMove.setPreferredWidth((int) Math.round(65 * scale));
+        colMove.setMaxWidth((int) Math.round(65 * scale));
+
+        // Count column: compact minimum and preferred width, does not expand further
+        TableColumn colCount = getColumnModel().getColumn(1);
+        colCount.setMinWidth((int) Math.round(50 * scale));
+        colCount.setPreferredWidth((int) Math.round(65 * scale));
+        colCount.setMaxWidth((int) Math.round(65 * scale));
+
+        // Win/Draw/Loss column: expands to absorb remaining table width
+        TableColumn colWdl = getColumnModel().getColumn(2);
+        colWdl.setMinWidth((int) Math.round(140 * scale));
+        colWdl.setPreferredWidth((int) Math.round(260 * scale));
+        colWdl.setMaxWidth(Integer.MAX_VALUE);
+
+        // Elo column: compact minimum and preferred width, does not expand further
+        TableColumn colElo = getColumnModel().getColumn(3);
+        colElo.setMinWidth((int) Math.round(50 * scale));
+        colElo.setPreferredWidth((int) Math.round(60 * scale));
+        colElo.setMaxWidth((int) Math.round(60 * scale));
 
 
     }

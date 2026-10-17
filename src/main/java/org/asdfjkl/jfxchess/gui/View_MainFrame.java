@@ -579,6 +579,11 @@ public class View_MainFrame extends JFrame
             controller_Engine.startNewGame().actionPerformed(
                     new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "newGame")
             );
+            if (workspace.getActiveSession() != null
+                    && workspace.getActiveSession() != session
+                    && workspace.getSessions().contains(session)) {
+                workspace.closeSession(session);
+            }
             return;
         }
 
