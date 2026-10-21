@@ -11,6 +11,7 @@ JFXChess is a cross-platform chess graphical user interface.
 * enter, edit and analyse games
 * fully automatic game analysis
 * read and save games in standard PGN format
+* read and save games in SCID5 chess database format
 * copy and paste FEN positions and pgn games from clipboard
 * cross-platform: modern look on Linux and Windows
 * handle large (i.e. 1 GB) PGN files
