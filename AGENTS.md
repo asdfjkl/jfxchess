@@ -167,6 +167,18 @@ java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependenci
 # Verify PGN player surname extraction and versus title formatting
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main pgn-game-info-surname-test
 
+# Verify game tree variations, promotions, deletions, and comment clearing
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main game-tree-variation-test
+
+# Verify multi-session database event synchronization and stale/clean semantics
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main workspace-cross-session-sync-test
+
+# Verify database sequential navigation (next / previous game)
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-sequential-nav-test
+
+# Verify UCI position command string formatting for custom FEN positions
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main uci-position-custom-fen-test
+
 # Run all session tests in one suite
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
 
@@ -179,5 +191,6 @@ java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependenci
 - Run `java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --all-tests`
   when validating core chess domain changes (FEN parsing, deep perft move generation,
   SAN, Zobrist hashing, and large PGN database scanning).
-- For GUI and theme modifications, manually test the workflow (tab opening/switching,
-  engine analysis, and preference saving).
+- For GUI and pre-release verification, execute the structured manual test protocol
+  documented in `gui_test_protocol.txt` (covers tab switching, engine analysis,
+  database operations, theme contrast, and preference persistence).

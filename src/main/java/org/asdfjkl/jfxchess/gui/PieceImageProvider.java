@@ -50,6 +50,9 @@ public class PieceImageProvider {
     final HashMap<Integer, BufferedImage> whiteKingsMerida = new HashMap<>();
     final HashMap<Integer, BufferedImage> blackKingsMerida = new HashMap<>();
 
+    final HashMap<Integer, BufferedImage> whiteAnyPieceMerida = new HashMap<>();
+    final HashMap<Integer, BufferedImage> blackAnyPieceMerida = new HashMap<>();
+
     final HashMap<Integer, BufferedImage> whitePawnsOld = new HashMap<>();
     final HashMap<Integer, BufferedImage> blackPawnsOld = new HashMap<>();
 
@@ -68,6 +71,9 @@ public class PieceImageProvider {
     final HashMap<Integer, BufferedImage> whiteKingsOld = new HashMap<>();
     final HashMap<Integer, BufferedImage> blackKingsOld = new HashMap<>();
 
+    final HashMap<Integer, BufferedImage> whiteAnyPieceOld = new HashMap<>();
+    final HashMap<Integer, BufferedImage> blackAnyPieceOld = new HashMap<>();
+
     final HashMap<Integer, BufferedImage> whitePawnsUscf = new HashMap<>();
     final HashMap<Integer, BufferedImage> blackPawnsUscf = new HashMap<>();
 
@@ -85,6 +91,9 @@ public class PieceImageProvider {
 
     final HashMap<Integer, BufferedImage> whiteKingsUscf = new HashMap<>();
     final HashMap<Integer, BufferedImage> blackKingsUscf = new HashMap<>();
+
+    final HashMap<Integer, BufferedImage> whiteAnyPieceUscf = new HashMap<>();
+    final HashMap<Integer, BufferedImage> blackAnyPieceUscf = new HashMap<>();
 
     private BufferedImage renderSVG(URL urlPieceSVG, int width, int height) {
 
@@ -239,6 +248,28 @@ public class PieceImageProvider {
                 return blackKingsUscf;
             }
         }
+        if(pieceType == CONSTANTS.WHITE_ANY_PIECE) {
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return whiteAnyPieceMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return whiteAnyPieceOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return whiteAnyPieceUscf;
+            }
+        }
+        if(pieceType == CONSTANTS.BLACK_ANY_PIECE) {
+            if(pieceStyle == PIECE_STYLE_MERIDA) {
+                return blackAnyPieceMerida;
+            }
+            if(pieceStyle == PIECE_STYLE_OLD) {
+                return blackAnyPieceOld;
+            }
+            if(pieceStyle == PIECE_STYLE_USCF) {
+                return blackAnyPieceUscf;
+            }
+        }
         throw  new IllegalArgumentException("called with, but there is no such piece: "+pieceType);
     }
 
@@ -280,6 +311,12 @@ public class PieceImageProvider {
         if(pieceType == CONSTANTS.BLACK_KING) {
             return "bk.svg";
         }
+        if(pieceType == CONSTANTS.WHITE_ANY_PIECE) {
+            return "wc.svg";
+        }
+        if(pieceType == CONSTANTS.BLACK_ANY_PIECE) {
+            return "bc.svg";
+        }
         throw  new IllegalArgumentException("called with, but there is no such piece: "+pieceType);
     }
 
@@ -304,7 +341,9 @@ public class PieceImageProvider {
             }
             fn += svgPieceName;
             URL urlSVG = getClass().getClassLoader().getResource(fn);
-            return renderSVG(urlSVG, squareSize, squareSize);
+            BufferedImage bi = renderSVG(urlSVG, squareSize, squareSize);
+            pieceHashMap.put(squareSize, bi);
+            return bi;
         }
     }
 }
