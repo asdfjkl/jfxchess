@@ -270,10 +270,24 @@ public class PgnChessDatabase implements ChessDatabase {
                 break;
             }
             PgnGameInfo entry = entries.get(i);
-            if (pattern.matchesHeader(entry)) {
-                searchResults.add(entry);
+            if (!pattern.isSearchGameData() && !pattern.isSearchPosition()) {
+                continue;
             }
-            if (listener != null && i % 10000 == 0 && !entries.isEmpty()) {
+            if (pattern.isSearchGameData() && !pattern.matchesHeader(entry)) {
+                continue;
+            }
+            if (pattern.isSearchPosition()) {
+                try {
+                    Game g = loadGame(entry);
+                    if (g == null || !pattern.matchesPositionInGame(g)) {
+                        continue;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            searchResults.add(entry);
+            if (listener != null && (pattern.isSearchPosition() ? (i % 50 == 0) : (i % 10000 == 0)) && !entries.isEmpty()) {
                 int percent = (int) ((long) i * 100 / entries.size());
                 listener.onProgress(percent);
             }

@@ -1,6 +1,6 @@
 
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,12 +19,26 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import java.util.ArrayList;
+import java.util.ArrayDeque;
+import static org.asdfjkl.jfxchess.lib.CONSTANTS.*;
+
 public class SearchPattern {
 
     public static final int SEARCH_IGNORE_ELO = 0;
     public static final int SEARCH_ONE_ELO = 1;
     public static final int SEARCH_BOTH_ELO = 2;
     public static final int SEARCH_AVG_ELO = 3;
+
+    public static final int TURN_ANY = 0;
+    public static final int TURN_WHITE = 1;
+    public static final int TURN_BLACK = 2;
+
+    private boolean searchGameData = true;
+    private boolean searchPosition = false;
+
+    private Board searchBoard = null;
+    private int searchTurn = TURN_ANY;
 
     private String whiteName = "";
     private String blackName = "";
@@ -166,6 +180,38 @@ public class SearchPattern {
         return resultBlackWins;
     }
 
+    public boolean isSearchGameData() {
+        return searchGameData;
+    }
+
+    public void setSearchGameData(boolean searchGameData) {
+        this.searchGameData = searchGameData;
+    }
+
+    public boolean isSearchPosition() {
+        return searchPosition;
+    }
+
+    public void setSearchPosition(boolean searchPosition) {
+        this.searchPosition = searchPosition;
+    }
+
+    public Board getSearchBoard() {
+        return searchBoard;
+    }
+
+    public void setSearchBoard(Board searchBoard) {
+        this.searchBoard = searchBoard;
+    }
+
+    public int getSearchTurn() {
+        return searchTurn;
+    }
+
+    public void setSearchTurn(int searchTurn) {
+        this.searchTurn = searchTurn;
+    }
+
     public SearchPattern makeCopy() {
 
         SearchPattern copy = new SearchPattern();
@@ -189,6 +235,12 @@ public class SearchPattern {
         copy.resultDraw = resultDraw;
         copy.resultWhiteWins = resultWhiteWins;
         copy.resultBlackWins = resultBlackWins;
+        copy.searchGameData = searchGameData;
+        copy.searchPosition = searchPosition;
+        copy.searchTurn = searchTurn;
+        if (searchBoard != null) {
+            copy.searchBoard = searchBoard.makeCopy();
+        }
 
         return copy;
 
@@ -325,6 +377,164 @@ public class SearchPattern {
                 return false;
             }
         }
+        return true;
+    }
+
+    public boolean matchesBoard(Board candidate) {
+        if (candidate == null || searchBoard == null) {
+            return false;
+        }
+        if (searchTurn == TURN_WHITE && candidate.turn != CONSTANTS.WHITE) {
+            return false;
+        }
+        if (searchTurn == TURN_BLACK && candidate.turn != CONSTANTS.BLACK) {
+            return false;
+        }
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                int target = searchBoard.getPieceAt(x, y);
+                int cand = candidate.getPieceAt(x, y);
+                if (target == CONSTANTS.EMPTY) {
+                    if (cand != CONSTANTS.EMPTY) {
+                        return false;
+                    }
+                } else if (target == CONSTANTS.WHITE_ANY_PIECE) {
+                    if (cand < CONSTANTS.WHITE_PAWN || cand > CONSTANTS.WHITE_KING) {
+                        return false;
+                    }
+                } else if (target == CONSTANTS.BLACK_ANY_PIECE) {
+                    if (cand < CONSTANTS.BLACK_PAWN || cand > CONSTANTS.BLACK_KING) {
+                        return false;
+                    }
+                } else {
+                    if (cand != target) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean matchesPositionInGame(Game game) {
+        if (!searchPosition || searchBoard == null) {
+            return true;
+        }
+        if (game == null || game.getRootNode() == null) {
+            return false;
+        }
+        ArrayDeque<GameNode> stack = new ArrayDeque<>();
+        stack.push(game.getRootNode());
+        while (!stack.isEmpty()) {
+            GameNode node = stack.pop();
+            Board b = node.getBoard();
+            if (b != null && matchesBoard(b)) {
+                return true;
+            }
+            ArrayList<GameNode> variations = node.getVariations();
+            for (int i = variations.size() - 1; i >= 0; i--) {
+                stack.push(variations.get(i));
+            }
+        }
+        return false;
+    }
+
+    public boolean matchesScidPreFilter(Scid5GameInfo info) {
+        if (!searchPosition || searchBoard == null || info == null) {
+            return true;
+        }
+        // Custom start positions might not have standard pawn layouts
+        if ((info.getFlags() & Scid5GameInfo.FLAG_CUSTOM_START) != 0) {
+            return true;
+        }
+
+        // 1. Home Pawn Pre-Filter
+        int hpCount = Math.min(info.getHomePawnCount(), 16);
+        byte[] hpData = info.getHomePawnData();
+        int departedMask = 0;
+        for (int i = 0; i < hpCount; i++) {
+            int byteIdx = i / 2;
+            int nibble = (i % 2 == 0) ? ((hpData[byteIdx] >> 4) & 0x0F) : (hpData[byteIdx] & 0x0F);
+            departedMask |= (1 << nibble);
+        }
+
+        for (int nibble = 0; nibble < 16; nibble++) {
+            if ((departedMask & (1 << nibble)) == 0) {
+                // Pawn never departed during the game
+                if (nibble < 8) {
+                    // Black pawn on rank 7 (row 6), col = 7 - nibble
+                    int col = 7 - nibble;
+                    int targetPiece = searchBoard.getPieceAt(col, 6);
+                    if (targetPiece != CONSTANTS.BLACK_PAWN && targetPiece != CONSTANTS.BLACK_ANY_PIECE) {
+                        return false;
+                    }
+                } else {
+                    // White pawn on rank 2 (row 1), col = 15 - nibble
+                    int col = 15 - nibble;
+                    int targetPiece = searchBoard.getPieceAt(col, 1);
+                    if (targetPiece != CONSTANTS.WHITE_PAWN && targetPiece != CONSTANTS.WHITE_ANY_PIECE) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // 2. Final Material Signature Pre-Filter
+        int finalMatSig = info.getFinalMatSig();
+        int finalBp = finalMatSig & 0x0F;
+        int finalWp = (finalMatSig >> 12) & 0x0F;
+
+        int targetWp = 0, targetWn = 0, targetWb = 0, targetWr = 0, targetWq = 0, targetWAny = 0;
+        int targetBp = 0, targetBn = 0, targetBb = 0, targetBr = 0, targetBq = 0, targetBAny = 0;
+
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                int p = searchBoard.getPieceAt(x, y);
+                switch (p) {
+                    case WHITE_PAWN -> targetWp++;
+                    case WHITE_KNIGHT -> targetWn++;
+                    case WHITE_BISHOP -> targetWb++;
+                    case WHITE_ROOK -> targetWr++;
+                    case WHITE_QUEEN -> targetWq++;
+                    case WHITE_ANY_PIECE -> targetWAny++;
+                    case BLACK_PAWN -> targetBp++;
+                    case BLACK_KNIGHT -> targetBn++;
+                    case BLACK_BISHOP -> targetBb++;
+                    case BLACK_ROOK -> targetBr++;
+                    case BLACK_QUEEN -> targetBq++;
+                    case BLACK_ANY_PIECE -> targetBAny++;
+                }
+            }
+        }
+
+        if (targetWp + targetWAny < finalWp) {
+            return false;
+        }
+        if (targetBp + targetBAny < finalBp) {
+            return false;
+        }
+
+        boolean hasPromo = (info.getFlags() & (Scid5GameInfo.FLAG_PROMO | Scid5GameInfo.FLAG_UNDER_PROMO)) != 0;
+        if (!hasPromo) {
+            int finalBn = (finalMatSig >> 4) & 0x03;
+            int finalBb = (finalMatSig >> 6) & 0x03;
+            int finalBr = (finalMatSig >> 8) & 0x03;
+            int finalBq = (finalMatSig >> 10) & 0x03;
+            int finalWn = (finalMatSig >> 16) & 0x03;
+            int finalWb = (finalMatSig >> 18) & 0x03;
+            int finalWr = (finalMatSig >> 20) & 0x03;
+            int finalWq = (finalMatSig >> 22) & 0x03;
+
+            if (targetWn + targetWAny < finalWn) return false;
+            if (targetWb + targetWAny < finalWb) return false;
+            if (targetWr + targetWAny < finalWr) return false;
+            if (targetWq + targetWAny < finalWq) return false;
+            if (targetBn + targetBAny < finalBn) return false;
+            if (targetBb + targetBAny < finalBb) return false;
+            if (targetBr + targetBAny < finalBr) return false;
+            if (targetBq + targetBAny < finalBq) return false;
+        }
+
         return true;
     }
 

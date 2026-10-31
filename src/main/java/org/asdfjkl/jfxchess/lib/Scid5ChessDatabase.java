@@ -574,10 +574,27 @@ public class Scid5ChessDatabase implements ChessDatabase {
                 break;
             }
             Scid5GameInfo entry = entries.get(i);
-            if (pattern.matchesHeader(entry)) {
-                searchResults.add(entry);
+            if (!pattern.isSearchGameData() && !pattern.isSearchPosition()) {
+                continue;
             }
-            if (listener != null && i % 1000 == 0 && !entries.isEmpty()) {
+            if (pattern.isSearchGameData() && !pattern.matchesHeader(entry)) {
+                continue;
+            }
+            if (pattern.isSearchPosition()) {
+                if (!pattern.matchesScidPreFilter(entry)) {
+                    continue;
+                }
+                try {
+                    Game g = loadGame(entry);
+                    if (g == null || !pattern.matchesPositionInGame(g)) {
+                        continue;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            searchResults.add(entry);
+            if (listener != null && (pattern.isSearchPosition() ? (i % 50 == 0) : (i % 1000 == 0)) && !entries.isEmpty()) {
                 int percent = (int) ((long) i * 100 / entries.size());
                 listener.onProgress(percent);
             }

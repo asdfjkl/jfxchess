@@ -24,6 +24,9 @@ import java.awt.geom.AffineTransform;
 public class HighDPIHelper {
 
     public static double getUIScaleFactor() {
+        if (GraphicsEnvironment.isHeadless()) {
+            return 1.0;
+        }
         GraphicsConfiguration gc =
                 GraphicsEnvironment.getLocalGraphicsEnvironment()
                         .getDefaultScreenDevice()

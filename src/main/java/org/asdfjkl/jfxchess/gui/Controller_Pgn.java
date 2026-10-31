@@ -42,6 +42,10 @@ public class Controller_Pgn {
         this.model = model;
     }
 
+    public Model_JFXChess getModel() {
+        return model;
+    }
+
     // === Opening a PGN via Database -> Open Menu
     public ActionListener openFile() {
         return e -> openAndScanPgn();

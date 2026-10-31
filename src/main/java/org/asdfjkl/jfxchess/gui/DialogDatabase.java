@@ -246,7 +246,7 @@ public class DialogDatabase extends JDialog {
     }
 
     private void onBtnSearch() {
-        DialogSearchGames dlgSearch = new DialogSearchGames(this, pattern);
+        DialogSearchGames dlgSearch = new DialogSearchGames(this, pattern, controller_Pgn.getModel());
         dlgSearch.setVisible(true);
         pattern = dlgSearch.getSearchPattern();
         if (dlgSearch.isConfirmed()) {

@@ -179,6 +179,9 @@ java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependenci
 # Verify UCI position command string formatting for custom FEN positions
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main uci-position-custom-fen-test
 
+# Verify database position search, wildcards, and SCID5 pre-filtering
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-position-search-test
+
 # Run all session tests in one suite
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main --run-session-tests
 

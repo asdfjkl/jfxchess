@@ -1,5 +1,5 @@
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -103,7 +103,7 @@ public class Board {
         if(startingPosition) {
             this.board = new int[120];
             this.oldBoard = new int[120];
-            this.pieceList = new int[2][7][10];
+            this.pieceList = new int[2][8][10];
 
             this.turn = CONSTANTS.WHITE;
             for (int i = 0; i < 120; i++) {
@@ -130,7 +130,7 @@ public class Board {
         } else {  // initialize empty board
             this.board = new int[120];
             this.oldBoard = new int[120];
-            this.pieceList = new int[2][7][10];
+            this.pieceList = new int[2][8][10];
 
             this.turn = CONSTANTS.WHITE;
             for(int i=0;i<120;i++) {
@@ -210,7 +210,7 @@ public class Board {
 
         this.board = new int[120];
         this.oldBoard = new int[120];
-        this.pieceList = new int[2][7][10];
+        this.pieceList = new int[2][8][10];
 
         for(int i=0;i<120;i++) {
             this.board[i] = CONSTANTS.EMPTY_POS[i];
@@ -371,7 +371,7 @@ public class Board {
 
         this.board = new int[120];
         this.oldBoard = new int[120];
-        this.pieceList = new int[2][7][10];
+        this.pieceList = new int[2][8][10];
 
         this.turn = CONSTANTS.WHITE;
         for(int i=0;i<120;i++) {
@@ -401,7 +401,7 @@ public class Board {
     public void clear() {
         this.board = new int[120];
         this.oldBoard = new int[120];
-        this.pieceList = new int[2][7][10];
+        this.pieceList = new int[2][8][10];
         this.turn = CONSTANTS.WHITE;
         for(int i=0;i<120;i++) {
             this.board[i] = CONSTANTS.EMPTY_POS[i];
@@ -2223,7 +2223,7 @@ public class Board {
 
     private void initPieceList() {
 
-        for(int i=0;i<7;i++) {
+        for(int i=0;i<8;i++) {
             for(int j=0;j<10;j++) {
                 this.pieceList[CONSTANTS.IWHITE][i][j] = CONSTANTS.EMPTY;
                 this.pieceList[CONSTANTS.IBLACK][i][j] = CONSTANTS.EMPTY;
