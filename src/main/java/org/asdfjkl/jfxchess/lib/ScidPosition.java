@@ -202,6 +202,17 @@ public class ScidPosition {
         toMove = enemy;
     }
 
+    public void copyFrom(ScidPosition other) {
+        System.arraycopy(other.board, 0, this.board, 0, 64);
+        System.arraycopy(other.color, 0, this.color, 0, 64);
+        System.arraycopy(other.listPos, 0, this.listPos, 0, 64);
+        System.arraycopy(other.list[0], 0, this.list[0], 0, 16);
+        System.arraycopy(other.list[1], 0, this.list[1], 0, 16);
+        this.count[0] = other.count[0];
+        this.count[1] = other.count[1];
+        this.toMove = other.toMove;
+    }
+
     public ScidPosition copy() {
         ScidPosition cp = new ScidPosition();
         System.arraycopy(this.board, 0, cp.board, 0, 64);

@@ -21,6 +21,7 @@ package org.asdfjkl.jfxchess.lib;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -29,6 +30,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Scid5ChessDatabase implements ChessDatabase {
 
@@ -569,36 +575,267 @@ public class Scid5ChessDatabase implements ChessDatabase {
     public void search(SearchPattern pattern, ProgressListener listener) {
         Objects.requireNonNull(pattern, "pattern");
         searchResults.clear();
-        for (int i = 0; i < entries.size(); i++) {
-            if (listener != null && listener.isCancelled()) {
-                break;
-            }
-            Scid5GameInfo entry = entries.get(i);
-            if (!pattern.isSearchGameData() && !pattern.isSearchPosition()) {
-                continue;
-            }
-            if (pattern.isSearchGameData() && !pattern.matchesHeader(entry)) {
-                continue;
-            }
-            if (pattern.isSearchPosition()) {
-                if (!pattern.matchesScidPreFilter(entry)) {
-                    continue;
+
+        if (!pattern.isSearchGameData() && !pattern.isSearchPosition()) {
+            searchActive = true;
+            return;
+        }
+
+        final int total = entries.size();
+        if (total == 0) {
+            if (listener != null) listener.onProgress(100);
+            searchActive = true;
+            return;
+        }
+
+        // Fast Header-Only Search
+        if (!pattern.isSearchPosition()) {
+            int numThreads = Math.min(Runtime.getRuntime().availableProcessors(), Math.max(1, total / 5000));
+            if (numThreads <= 1) {
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) break;
+                    Scid5GameInfo entry = entries.get(i);
+                    if (pattern.matchesHeader(entry)) {
+                        searchResults.add(entry);
+                    }
+                    if (listener != null && (i % 1000 == 0)) {
+                        listener.onProgress((int) ((long) i * 100 / total));
+                    }
                 }
+            } else {
+                int chunkSize = (total + numThreads - 1) / numThreads;
+                List<Callable<List<GameInfo>>> tasks = new ArrayList<>(numThreads);
+                AtomicInteger processed = new AtomicInteger(0);
+
+                for (int t = 0; t < numThreads; t++) {
+                    final int start = t * chunkSize;
+                    final int end = Math.min(start + chunkSize, total);
+                    if (start >= end) break;
+
+                    tasks.add(() -> {
+                        List<GameInfo> localHits = new ArrayList<>();
+                        int localCount = 0;
+                        for (int i = start; i < end; i++) {
+                            if (listener != null && listener.isCancelled()) break;
+                            Scid5GameInfo entry = entries.get(i);
+                            if (pattern.matchesHeader(entry)) {
+                                localHits.add(entry);
+                            }
+                            localCount++;
+                            if (localCount >= 1000) {
+                                if (listener != null) {
+                                    int curr = processed.addAndGet(localCount);
+                                    listener.onProgress((int) ((long) curr * 100 / total));
+                                }
+                                localCount = 0;
+                            }
+                        }
+                        if (localCount > 0 && listener != null) {
+                            int curr = processed.addAndGet(localCount);
+                            listener.onProgress((int) ((long) curr * 100 / total));
+                        }
+                        return localHits;
+                    });
+                }
+
+                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
                 try {
-                    Game g = loadGame(entry);
-                    if (g == null || !pattern.matchesPositionInGame(g)) {
+                    List<Future<List<GameInfo>>> futures = executor.invokeAll(tasks);
+                    for (Future<List<GameInfo>> f : futures) {
+                        searchResults.addAll(f.get());
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    executor.shutdown();
+                }
+            }
+
+            if (listener != null && !listener.isCancelled()) {
+                listener.onProgress(100);
+            }
+            searchActive = true;
+            return;
+        }
+
+        // Fast Position Search with Stored Lines, Pre-filters & Parallel Move Scanner
+        final Scid5StoredLine storedMatcher = pattern.getStoredLineMatcher();
+        final boolean searchGameData = pattern.isSearchGameData();
+        final Path targetSg5Path = sg5Path;
+
+        int numThreads = Math.min(Runtime.getRuntime().availableProcessors(), Math.max(1, total / 1000));
+        if (numThreads <= 1) {
+            FileChannel sg5Channel = null;
+            try {
+                if (targetSg5Path != null && Files.exists(targetSg5Path)) {
+                    sg5Channel = FileChannel.open(targetSg5Path, StandardOpenOption.READ);
+                }
+            } catch (IOException ignored) {}
+
+            try {
+                Scid5FastSearchScanner fastScanner = new Scid5FastSearchScanner(pattern);
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) break;
+                    Scid5GameInfo entry = entries.get(i);
+
+                    if (searchGameData && !pattern.matchesHeader(entry)) {
                         continue;
                     }
-                } catch (Exception e) {
-                    continue;
+
+                    if (storedMatcher != null && (entry.getFlags() & Scid5GameInfo.FLAG_CUSTOM_START) == 0) {
+                        int sm = storedMatcher.match(entry.getStoredLineCode());
+                        if (sm >= 0) {
+                            searchResults.add(entry);
+                            if (listener != null && (i % 1000 == 0)) {
+                                listener.onProgress((int) ((long) i * 100 / total));
+                            }
+                            continue;
+                        }
+                        if (sm == -2) {
+                            continue;
+                        }
+                    }
+
+                    if (!pattern.matchesScidPreFilter(entry)) {
+                        continue;
+                    }
+
+                    if (entry.isModified() && entry.getModifiedGame() != null) {
+                        if (pattern.matchesPositionInGame(entry.getModifiedGame())) {
+                            searchResults.add(entry);
+                        }
+                        continue;
+                    }
+
+                    if (sg5Channel != null) {
+                        if (fastScanner.scanGame(sg5Channel, entry)) {
+                            searchResults.add(entry);
+                        }
+                    } else {
+                        try {
+                            Game g = loadGame(entry);
+                            if (g != null && pattern.matchesPositionInGame(g)) {
+                                searchResults.add(entry);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    if (listener != null && (i % 1000 == 0)) {
+                        listener.onProgress((int) ((long) i * 100 / total));
+                    }
+                }
+            } finally {
+                if (sg5Channel != null) {
+                    try {
+                        sg5Channel.close();
+                    } catch (IOException ignored) {}
                 }
             }
-            searchResults.add(entry);
-            if (listener != null && (pattern.isSearchPosition() ? (i % 50 == 0) : (i % 1000 == 0)) && !entries.isEmpty()) {
-                int percent = (int) ((long) i * 100 / entries.size());
-                listener.onProgress(percent);
+        } else {
+            int chunkSize = (total + numThreads - 1) / numThreads;
+            List<Callable<List<GameInfo>>> tasks = new ArrayList<>(numThreads);
+            AtomicInteger processed = new AtomicInteger(0);
+
+            for (int t = 0; t < numThreads; t++) {
+                final int start = t * chunkSize;
+                final int end = Math.min(start + chunkSize, total);
+                if (start >= end) break;
+
+                tasks.add(() -> {
+                    List<GameInfo> localHits = new ArrayList<>();
+                    Scid5FastSearchScanner fastScanner = new Scid5FastSearchScanner(pattern);
+                    FileChannel myChannel = null;
+                    try {
+                        if (targetSg5Path != null && Files.exists(targetSg5Path)) {
+                            myChannel = FileChannel.open(targetSg5Path, StandardOpenOption.READ);
+                        }
+                    } catch (IOException ignored) {}
+
+                    try {
+                        int localCount = 0;
+                        for (int i = start; i < end; i++) {
+                            if (listener != null && listener.isCancelled()) break;
+                            Scid5GameInfo entry = entries.get(i);
+
+                            if (searchGameData && !pattern.matchesHeader(entry)) {
+                                localCount++;
+                                continue;
+                            }
+
+                            if (storedMatcher != null && (entry.getFlags() & Scid5GameInfo.FLAG_CUSTOM_START) == 0) {
+                                int sm = storedMatcher.match(entry.getStoredLineCode());
+                                if (sm >= 0) {
+                                    localHits.add(entry);
+                                    localCount++;
+                                    continue;
+                                }
+                                if (sm == -2) {
+                                    localCount++;
+                                    continue;
+                                }
+                            }
+
+                            if (!pattern.matchesScidPreFilter(entry)) {
+                                localCount++;
+                                continue;
+                            }
+
+                            if (entry.isModified() && entry.getModifiedGame() != null) {
+                                if (pattern.matchesPositionInGame(entry.getModifiedGame())) {
+                                    localHits.add(entry);
+                                }
+                                localCount++;
+                                continue;
+                            }
+
+                            if (myChannel != null) {
+                                if (fastScanner.scanGame(myChannel, entry)) {
+                                    localHits.add(entry);
+                                }
+                            } else {
+                                try {
+                                    Game g = loadGame(entry);
+                                    if (g != null && pattern.matchesPositionInGame(g)) {
+                                        localHits.add(entry);
+                                    }
+                                } catch (Exception ignored) {}
+                            }
+
+                            localCount++;
+                            if (localCount >= 1000) {
+                                if (listener != null) {
+                                    int curr = processed.addAndGet(localCount);
+                                    listener.onProgress((int) ((long) curr * 100 / total));
+                                }
+                                localCount = 0;
+                            }
+                        }
+                        if (localCount > 0 && listener != null) {
+                            int curr = processed.addAndGet(localCount);
+                            listener.onProgress((int) ((long) curr * 100 / total));
+                        }
+                    } finally {
+                        if (myChannel != null) {
+                            try {
+                                myChannel.close();
+                            } catch (IOException ignored) {}
+                        }
+                    }
+                    return localHits;
+                });
+            }
+
+            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+            try {
+                List<Future<List<GameInfo>>> futures = executor.invokeAll(tasks);
+                for (Future<List<GameInfo>> f : futures) {
+                    searchResults.addAll(f.get());
+                }
+            } catch (Exception ignored) {
+            } finally {
+                executor.shutdown();
             }
         }
+
         if (listener != null && !listener.isCancelled()) {
             listener.onProgress(100);
         }
