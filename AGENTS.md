@@ -179,6 +179,15 @@ java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependenci
 # Verify UCI position command string formatting for custom FEN positions
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main uci-position-custom-fen-test
 
+# Verify targeted SAN disambiguation (file, rank, 3-queen coordinate, 3-knight, pin exemptions, promotions, LAN)
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main targeted-san-test
+
+# Verify SAN resolver robustness, fuzzing, and crash immunity
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main san-robustness-test
+
+# Verify corrupted and ill-formatted PGN safe recovery without crash
+java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main corrupted-pgn-test
+
 # Verify database position search, wildcards, and SCID5 pre-filtering
 java -cp "target/test-classes;target/classes;target/jfxchess-jar-with-dependencies.jar" org.asdfjkl.jfxchess.lib.Main database-position-search-test
 

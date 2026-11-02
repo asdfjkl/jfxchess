@@ -55,6 +55,18 @@ public class Board {
 
     private int prevHalfmoveClock;
 
+    int[][][] getPieceList() {
+        return this.pieceList;
+    }
+
+    int getInternalPieceAt(int internalSq) {
+        return this.board[internalSq];
+    }
+
+    public Move parseSan(String san) {
+        return SanResolver.parseSan(this, san);
+    }
+
     public static int alphaToPos(char alpha) {
         if (alpha == 'A') {
             return 0;

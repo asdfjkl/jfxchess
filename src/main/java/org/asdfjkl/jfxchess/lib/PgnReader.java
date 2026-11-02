@@ -128,6 +128,39 @@ public class PgnReader {
         }
     }
 
+    private void parseMoveToken() {
+        int start = currentIdx;
+        int len = currentLine.length();
+        while (currentIdx < len) {
+            char c = currentLine.charAt(currentIdx);
+            if (c == ' ' || c == '\t' || c == '\r' || c == '\n' ||
+                    c == '(' || c == ')' || c == '{' || c == '$' || c == '*' || c == ';') {
+                break;
+            }
+            currentIdx++;
+        }
+        if (currentIdx > start) {
+            String token = currentLine.substring(start, currentIdx);
+            Move m = SanResolver.parseSan(currentNode.getBoard(), token);
+            if (m != null) {
+                addMove(m);
+                if (token.contains("??")) {
+                    currentNode.addNag(CONSTANTS.NAG_BLUNDER);
+                } else if (token.contains("!!")) {
+                    currentNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
+                } else if (token.contains("!?")) {
+                    currentNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
+                } else if (token.contains("?!")) {
+                    currentNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
+                } else if (token.contains("?")) {
+                    currentNode.addNag(CONSTANTS.NAG_MISTAKE);
+                } else if (token.contains("!")) {
+                    currentNode.addNag(CONSTANTS.NAG_GOOD_MOVE);
+                }
+            }
+        }
+    }
+
     private void parsePawnMove() {
 
         int col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx)));
@@ -704,26 +737,14 @@ public class PgnReader {
                         g.setResult(CONSTANTS.RES_DRAW);
                         currentIdx += 8;
                     }
-                    if (tkn == CONSTANTS.TKN_PAWN_MOVE) {
-                        parsePawnMove();
-                    }
-                    if (tkn == CONSTANTS.TKN_CASTLE) {
-                        parseCastleMove();
-                    }
-                    if (tkn == CONSTANTS.TKN_ROOK_MOVE) {
-                        parsePieceMove(CONSTANTS.ROOK);
-                    }
-                    if (tkn == CONSTANTS.TKN_KNIGHT_MOVE) {
-                        parsePieceMove(CONSTANTS.KNIGHT);
-                    }
-                    if (tkn == CONSTANTS.TKN_BISHOP_MOVE) {
-                        parsePieceMove(CONSTANTS.BISHOP);
-                    }
-                    if (tkn == CONSTANTS.TKN_QUEEN_MOVE) {
-                        parsePieceMove(CONSTANTS.QUEEN);
-                    }
-                    if (tkn == CONSTANTS.TKN_KING_MOVE) {
-                        parsePieceMove(CONSTANTS.KING);
+                    if (tkn == CONSTANTS.TKN_PAWN_MOVE ||
+                            tkn == CONSTANTS.TKN_CASTLE ||
+                            tkn == CONSTANTS.TKN_ROOK_MOVE ||
+                            tkn == CONSTANTS.TKN_KNIGHT_MOVE ||
+                            tkn == CONSTANTS.TKN_BISHOP_MOVE ||
+                            tkn == CONSTANTS.TKN_QUEEN_MOVE ||
+                            tkn == CONSTANTS.TKN_KING_MOVE) {
+                        parseMoveToken();
                     }
                     if (tkn == CONSTANTS.TKN_CHECK) {
                         currentIdx += 1;
@@ -943,26 +964,14 @@ public class PgnReader {
                         g.setResult(CONSTANTS.RES_DRAW);
                         currentIdx += 8;
                     }
-                    if (tkn == CONSTANTS.TKN_PAWN_MOVE) {
-                        parsePawnMove();
-                    }
-                    if (tkn == CONSTANTS.TKN_CASTLE) {
-                        parseCastleMove();
-                    }
-                    if (tkn == CONSTANTS.TKN_ROOK_MOVE) {
-                        parsePieceMove(CONSTANTS.ROOK);
-                    }
-                    if (tkn == CONSTANTS.TKN_KNIGHT_MOVE) {
-                        parsePieceMove(CONSTANTS.KNIGHT);
-                    }
-                    if (tkn == CONSTANTS.TKN_BISHOP_MOVE) {
-                        parsePieceMove(CONSTANTS.BISHOP);
-                    }
-                    if (tkn == CONSTANTS.TKN_QUEEN_MOVE) {
-                        parsePieceMove(CONSTANTS.QUEEN);
-                    }
-                    if (tkn == CONSTANTS.TKN_KING_MOVE) {
-                        parsePieceMove(CONSTANTS.KING);
+                    if (tkn == CONSTANTS.TKN_PAWN_MOVE ||
+                            tkn == CONSTANTS.TKN_CASTLE ||
+                            tkn == CONSTANTS.TKN_ROOK_MOVE ||
+                            tkn == CONSTANTS.TKN_KNIGHT_MOVE ||
+                            tkn == CONSTANTS.TKN_BISHOP_MOVE ||
+                            tkn == CONSTANTS.TKN_QUEEN_MOVE ||
+                            tkn == CONSTANTS.TKN_KING_MOVE) {
+                        parseMoveToken();
                     }
                     if (tkn == CONSTANTS.TKN_CHECK) {
                         currentIdx += 1;
