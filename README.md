@@ -27,7 +27,9 @@ Current Version: 26.12.0
   - Zip [Folder](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
   - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
-  - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases) 
+  - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases)
+ 
+JFXChess supports [Lumbra's Gigabase](https://lumbrasgigabase.com/en/) - download `.si5`
 
 ## Blog
 
@@ -36,9 +38,9 @@ Once in a while I blog about the development of JFXChess at my [blog](https://bu
 ## Changelog
 
 Version 26.12.0 (December 2026)
- * fast positions search in large databases
- * improved .pgn read/write/search speed
+ * fast position search in large databases
  * improved .si5 read/write/search speed
+ * improved .pgn read/write/search speed
  * support for .cbh and .2cbh files (read/import only)
  * bugfixes
 
