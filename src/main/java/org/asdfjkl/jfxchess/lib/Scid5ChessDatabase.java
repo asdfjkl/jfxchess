@@ -18,8 +18,11 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -27,7 +30,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -302,22 +307,30 @@ public class Scid5ChessDatabase implements ChessDatabase {
     @Override
     public GameInfo appendGame(Game game) throws IOException {
         Objects.requireNonNull(game, "game");
+        Scid5EncodeResult enc = Scid5MoveEncoder.encode(game);
+        return appendEncodedGame(game.getPgnHeaders(), enc);
+    }
+
+    public GameInfo appendEncodedGame(Map<String, String> headers, Scid5EncodeResult enc) throws IOException {
         if (!open) {
             throw new IOException("SCID5 database is not open");
         }
+        if (headers == null) {
+            headers = Collections.emptyMap();
+        }
 
         // 1. Resolve names in namebase and append to .sn5 if new
-        String white = Objects.toString(game.getHeader("White"), "");
-        String black = Objects.toString(game.getHeader("Black"), "");
-        String event = Objects.toString(game.getHeader("Event"), "");
-        String site = Objects.toString(game.getHeader("Site"), "");
-        String round = Objects.toString(game.getHeader("Round"), "");
-        String date = game.getHeader("Date");
-        String eventDate = game.getHeader("EventDate");
-        String result = game.getHeader("Result");
-        String eco = game.getHeader("ECO");
-        String whiteElo = game.getHeader("WhiteElo");
-        String blackElo = game.getHeader("BlackElo");
+        String white = Objects.toString(headers.get("White"), "");
+        String black = Objects.toString(headers.get("Black"), "");
+        String event = Objects.toString(headers.get("Event"), "");
+        String site = Objects.toString(headers.get("Site"), "");
+        String round = Objects.toString(headers.get("Round"), "");
+        String date = headers.get("Date");
+        String eventDate = headers.get("EventDate");
+        String result = headers.get("Result");
+        String eco = headers.get("ECO");
+        String whiteElo = headers.get("WhiteElo");
+        String blackElo = headers.get("BlackElo");
 
         int whiteId = namebase.findOrAdd(sn5Path, white, Scid5Namebase.NAME_PLAYER);
         int blackId = namebase.findOrAdd(sn5Path, black, Scid5Namebase.NAME_PLAYER);
@@ -325,8 +338,7 @@ public class Scid5ChessDatabase implements ChessDatabase {
         int siteId = namebase.findOrAdd(sn5Path, site, Scid5Namebase.NAME_SITE);
         int roundId = namebase.findOrAdd(sn5Path, round, Scid5Namebase.NAME_ROUND);
 
-        // 2. Encode game moves, tags, variations, and comments to .sg5 blob
-        Scid5EncodeResult enc = Scid5MoveEncoder.encode(game);
+        // 2. Write encoded game moves, tags, variations, and comments to .sg5 blob
         byte[] blob = enc.data;
         int dataSize = enc.dataSize;
 
@@ -391,6 +403,347 @@ public class Scid5ChessDatabase implements ChessDatabase {
 
         publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_APPENDED, this, revision, List.of(info)));
         return info;
+    }
+
+    public void importPgn(Path pgnPath, ProgressListener listener) throws IOException {
+        Objects.requireNonNull(pgnPath, "pgnPath");
+        if (!open) {
+            throw new IOException("SCID5 database is not open");
+        }
+        File file = pgnPath.toFile();
+        long fileSize = file.length();
+        PgnReader reader = new PgnReader();
+        Scid5MoveEncoder.Scid5StreamEncoder encoder = new Scid5MoveEncoder.Scid5StreamEncoder();
+
+        try (PgnByteLexer lexer = new PgnByteLexer(file)) {
+            long gamesCount = 0;
+            while (true) {
+                if (listener != null && listener.isCancelled()) {
+                    break;
+                }
+                encoder.reset();
+                boolean read = reader.scanGame(lexer, encoder);
+                if (!read) {
+                    break;
+                }
+                appendEncodedGame(encoder.getHeaders(), encoder.getResult());
+                gamesCount++;
+                if (listener != null && fileSize > 0 && gamesCount % 100 == 0) {
+                    int percent = (int) (lexer.getOffset() * 100 / fileSize);
+                    listener.onProgress(percent);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void importGames(ChessDatabase sourceDatabase, List<GameInfo> gamesToImport, ProgressListener listener) throws IOException {
+        Objects.requireNonNull(sourceDatabase, "sourceDatabase");
+        Objects.requireNonNull(gamesToImport, "gamesToImport");
+        if (!open) {
+            throw new IOException("SCID5 database is not open");
+        }
+        if (gamesToImport.isEmpty()) {
+            if (listener != null) {
+                listener.onProgress(100);
+            }
+            return;
+        }
+
+        int total = gamesToImport.size();
+        ArrayList<GameInfo> importedEntries = new ArrayList<>(total);
+        long currentSg5Offset;
+        if (Files.exists(sg5Path)) {
+            currentSg5Offset = Files.size(sg5Path);
+        } else {
+            currentSg5Offset = 0;
+        }
+
+        try (OutputStream sn5FileOut = Files.newOutputStream(sn5Path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+             BufferedOutputStream sn5Out = new BufferedOutputStream(sn5FileOut, 65536);
+             OutputStream sg5FileOut = Files.newOutputStream(sg5Path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+             BufferedOutputStream sg5Out = new BufferedOutputStream(sg5FileOut, 65536);
+             OutputStream si5FileOut = Files.newOutputStream(si5Path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+             BufferedOutputStream si5Out = new BufferedOutputStream(si5FileOut, 65536)) {
+
+            if (sourceDatabase instanceof PgnChessDatabase pgnSource) {
+                Path sourcePath = pgnSource.getPath();
+                if (sourcePath == null || !pgnSource.isOpen()) {
+                    throw new IOException("Source PGN database is not open");
+                }
+                PgnReader reader = new PgnReader();
+                Scid5MoveEncoder.Scid5StreamEncoder encoder = new Scid5MoveEncoder.Scid5StreamEncoder();
+                try (PgnByteLexer lexer = new PgnByteLexer(sourcePath.toFile())) {
+                    for (int i = 0; i < total; i++) {
+                        if (listener != null && listener.isCancelled()) {
+                            break;
+                        }
+                        GameInfo info = gamesToImport.get(i);
+                        if (info instanceof PgnGameInfo pgnInfo) {
+                            lexer.seek(pgnInfo.getOffset());
+                            encoder.reset();
+                            boolean read = reader.scanGame(lexer, encoder);
+                            if (read && encoder.getResult() != null) {
+                                currentSg5Offset = appendEncodedToStreams(
+                                        encoder.getHeaders(),
+                                        encoder.getResult(),
+                                        currentSg5Offset,
+                                        sn5Out,
+                                        sg5Out,
+                                        si5Out,
+                                        importedEntries
+                                );
+                            }
+                        } else {
+                            Game g = sourceDatabase.loadGame(info);
+                            if (g != null) {
+                                Scid5EncodeResult enc = Scid5MoveEncoder.encode(g);
+                                currentSg5Offset = appendEncodedToStreams(
+                                        g.getPgnHeaders(),
+                                        enc,
+                                        currentSg5Offset,
+                                        sn5Out,
+                                        sg5Out,
+                                        si5Out,
+                                        importedEntries
+                                );
+                            }
+                        }
+                        if (listener != null && (i % 50 == 0 || i == total - 1)) {
+                            int percent = (int) (((long) (i + 1) * 100) / total);
+                            listener.onProgress(percent);
+                        }
+                    }
+                }
+            } else if (sourceDatabase instanceof Scid5ChessDatabase scidSource) {
+                Path srcSg5 = scidSource.getSg5Path();
+                if (srcSg5 == null || !scidSource.isOpen() || !Files.exists(srcSg5)) {
+                    throw new IOException("Source SCID5 database is not open");
+                }
+                try (RandomAccessFile srcRaf = new RandomAccessFile(srcSg5.toFile(), "r")) {
+                    for (int i = 0; i < total; i++) {
+                        if (listener != null && listener.isCancelled()) {
+                            break;
+                        }
+                        GameInfo info = gamesToImport.get(i);
+                        if (info instanceof Scid5GameInfo srcInfo && !srcInfo.isModified()) {
+                            int dataSize = srcInfo.getSg5Length();
+                            byte[] blob = new byte[dataSize];
+                            srcRaf.seek(srcInfo.getSg5Offset());
+                            srcRaf.readFully(blob);
+
+                            int whiteId = namebase.findOrAdd(sn5Out, srcInfo.getWhite(), Scid5Namebase.NAME_PLAYER);
+                            int blackId = namebase.findOrAdd(sn5Out, srcInfo.getBlack(), Scid5Namebase.NAME_PLAYER);
+                            int eventId = namebase.findOrAdd(sn5Out, srcInfo.getEvent(), Scid5Namebase.NAME_EVENT);
+                            int siteId = namebase.findOrAdd(sn5Out, srcInfo.getSite(), Scid5Namebase.NAME_SITE);
+                            int roundId = namebase.findOrAdd(sn5Out, srcInfo.getRound(), Scid5Namebase.NAME_ROUND);
+
+                            long currentBlock = currentSg5Offset / 131072L;
+                            long endBlock = (currentSg5Offset + dataSize - 1) / 131072L;
+                            long actualOffset = currentSg5Offset;
+                            if (endBlock != currentBlock) {
+                                long nextBlockOffset = (currentBlock + 1) * 131072L;
+                                int pad = (int) (nextBlockOffset - currentSg5Offset);
+                                byte[] padBytes = new byte[pad];
+                                sg5Out.write(padBytes);
+                                actualOffset = nextBlockOffset;
+                            }
+                            sg5Out.write(blob, 0, dataSize);
+                            currentSg5Offset = actualOffset + dataSize;
+
+                            int newGameNumber = allEntries.size();
+                            Scid5GameInfo newInfo = new Scid5GameInfo(newGameNumber);
+                            newInfo.setSg5Offset(actualOffset);
+                            newInfo.setSg5Length(dataSize);
+                            newInfo.setWhiteId(whiteId);
+                            newInfo.setWhite(srcInfo.getWhite());
+                            newInfo.setBlackId(blackId);
+                            newInfo.setBlack(srcInfo.getBlack());
+                            newInfo.setEventId(eventId);
+                            newInfo.setEvent(srcInfo.getEvent());
+                            newInfo.setSiteId(siteId);
+                            newInfo.setSite(srcInfo.getSite());
+                            newInfo.setRoundId(roundId);
+                            newInfo.setRound(srcInfo.getRound());
+                            newInfo.setWhiteEloVal(srcInfo.getWhiteEloVal());
+                            newInfo.setBlackEloVal(srcInfo.getBlackEloVal());
+                            newInfo.setGameDatePacked(srcInfo.getGameDatePacked());
+                            newInfo.setEventDatePacked(srcInfo.getEventDatePacked());
+                            newInfo.setResult(srcInfo.getResult());
+                            newInfo.setEcoCode(srcInfo.getEcoCode());
+                            newInfo.setHalfMoves(srcInfo.getHalfMoves());
+                            newInfo.setFlags(srcInfo.getFlags());
+                            newInfo.setCommentRating(srcInfo.getCommentRating());
+                            newInfo.setVariationRating(srcInfo.getVariationRating());
+                            newInfo.setNagRating(srcInfo.getNagRating());
+                            newInfo.setFinalMatSig(srcInfo.getFinalMatSig());
+                            newInfo.setStoredLineCode(srcInfo.getStoredLineCode());
+                            newInfo.setHomePawnCount(srcInfo.getHomePawnCount());
+                            newInfo.setHomePawnData(srcInfo.getHomePawnData());
+                            newInfo.setWhiteRatingType(srcInfo.getWhiteRatingType());
+                            newInfo.setBlackRatingType(srcInfo.getBlackRatingType());
+                            newInfo.setVariant(srcInfo.getVariant());
+                            newInfo.markValid();
+
+                            byte[] indexBytes = Scid5Index.encodeEntryToBytes(newInfo);
+                            si5Out.write(indexBytes);
+
+                            allEntries.add(newInfo);
+                            entries.add(newInfo);
+                            importedEntries.add(newInfo);
+                        } else {
+                            Game g = sourceDatabase.loadGame(info);
+                            if (g != null) {
+                                Scid5EncodeResult enc = Scid5MoveEncoder.encode(g);
+                                currentSg5Offset = appendEncodedToStreams(
+                                        g.getPgnHeaders(),
+                                        enc,
+                                        currentSg5Offset,
+                                        sn5Out,
+                                        sg5Out,
+                                        si5Out,
+                                        importedEntries
+                                );
+                            }
+                        }
+                        if (listener != null && (i % 50 == 0 || i == total - 1)) {
+                            int percent = (int) (((long) (i + 1) * 100) / total);
+                            listener.onProgress(percent);
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) {
+                        break;
+                    }
+                    GameInfo info = gamesToImport.get(i);
+                    Game g = sourceDatabase.loadGame(info);
+                    if (g != null) {
+                        Scid5EncodeResult enc = Scid5MoveEncoder.encode(g);
+                        currentSg5Offset = appendEncodedToStreams(
+                                g.getPgnHeaders(),
+                                enc,
+                                currentSg5Offset,
+                                sn5Out,
+                                sg5Out,
+                                si5Out,
+                                importedEntries
+                        );
+                    }
+                    if (listener != null && (i % 50 == 0 || i == total - 1)) {
+                        int percent = (int) (((long) (i + 1) * 100) / total);
+                        listener.onProgress(percent);
+                    }
+                }
+            }
+
+            sn5Out.flush();
+            sg5Out.flush();
+            si5Out.flush();
+        }
+
+        if (!importedEntries.isEmpty()) {
+            revision++;
+            publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_APPENDED, this, revision, importedEntries));
+        }
+    }
+
+    private long appendEncodedToStreams(Map<String, String> headers,
+                                        Scid5EncodeResult enc,
+                                        long currentSg5Offset,
+                                        OutputStream sn5Out,
+                                        OutputStream sg5Out,
+                                        OutputStream si5Out,
+                                        List<GameInfo> importedEntries) throws IOException {
+        Map<String, String> safeHeaders;
+        if (headers != null) {
+            safeHeaders = headers;
+        } else {
+            safeHeaders = Collections.emptyMap();
+        }
+
+        String white = Objects.toString(safeHeaders.get("White"), "");
+        String black = Objects.toString(safeHeaders.get("Black"), "");
+        String event = Objects.toString(safeHeaders.get("Event"), "");
+        String site = Objects.toString(safeHeaders.get("Site"), "");
+        String round = Objects.toString(safeHeaders.get("Round"), "");
+        String date = safeHeaders.get("Date");
+        String eventDate = safeHeaders.get("EventDate");
+        String result = safeHeaders.get("Result");
+        String eco = safeHeaders.get("ECO");
+        String whiteElo = safeHeaders.get("WhiteElo");
+        String blackElo = safeHeaders.get("BlackElo");
+
+        int whiteId = namebase.findOrAdd(sn5Out, white, Scid5Namebase.NAME_PLAYER);
+        int blackId = namebase.findOrAdd(sn5Out, black, Scid5Namebase.NAME_PLAYER);
+        int eventId = namebase.findOrAdd(sn5Out, event, Scid5Namebase.NAME_EVENT);
+        int siteId = namebase.findOrAdd(sn5Out, site, Scid5Namebase.NAME_SITE);
+        int roundId = namebase.findOrAdd(sn5Out, round, Scid5Namebase.NAME_ROUND);
+
+        byte[] blob = enc.data;
+        int dataSize = enc.dataSize;
+
+        long currentBlock = currentSg5Offset / 131072L;
+        long endBlock = (currentSg5Offset + dataSize - 1) / 131072L;
+        long actualOffset = currentSg5Offset;
+
+        if (endBlock != currentBlock) {
+            long nextBlockOffset = (currentBlock + 1) * 131072L;
+            int pad = (int) (nextBlockOffset - currentSg5Offset);
+            byte[] padBytes = new byte[pad];
+            sg5Out.write(padBytes);
+            actualOffset = nextBlockOffset;
+        }
+
+        sg5Out.write(blob, 0, dataSize);
+
+        int newGameNumber = allEntries.size();
+        Scid5GameInfo info = new Scid5GameInfo(newGameNumber);
+        info.setSg5Offset(actualOffset);
+        info.setSg5Length(dataSize);
+
+        info.setWhiteId(whiteId);
+        info.setWhite(white);
+        info.setBlackId(blackId);
+        info.setBlack(black);
+        info.setEventId(eventId);
+        info.setEvent(event);
+        info.setSiteId(siteId);
+        info.setSite(site);
+        info.setRoundId(roundId);
+        info.setRound(round);
+
+        info.setWhiteEloVal(parseElo(whiteElo));
+        info.setBlackEloVal(parseElo(blackElo));
+        info.setGameDatePacked(Scid5GameInfo.encodeDate(date));
+        info.setEventDatePacked(Scid5GameInfo.encodeDate(eventDate));
+
+        if (result != null) {
+            info.setResult(result);
+        } else {
+            info.setResult("*");
+        }
+        info.setEcoCode(Scid5GameInfo.encodeEco(eco));
+
+        info.setHalfMoves(enc.halfMoves);
+        info.setFlags(enc.flags);
+        info.setCommentRating(enc.commentRating);
+        info.setVariationRating(enc.variationRating);
+        info.setNagRating(enc.nagRating);
+        info.setFinalMatSig(enc.finalMatSig);
+        info.setHomePawnCount(enc.homePawnCount);
+        info.setHomePawnData(enc.homePawnData);
+        info.markValid();
+
+        byte[] indexBytes = Scid5Index.encodeEntryToBytes(info);
+        si5Out.write(indexBytes);
+
+        allEntries.add(info);
+        entries.add(info);
+        importedEntries.add(info);
+
+        return actualOffset + dataSize;
     }
 
     public GameInfo writeSingleGame(Game game) throws IOException {

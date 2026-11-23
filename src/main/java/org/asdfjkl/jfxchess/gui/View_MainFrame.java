@@ -48,6 +48,7 @@ public class View_MainFrame extends JFrame
             new IdentityHashMap<>();
 
     private JMenuItem jmiDbClose;
+    private JMenuItem jmiImportGames;
     private JMenuItem jmiBrowseGames;
     private JMenuItem jmiNextGameinDatabase;
     private JMenuItem jmiPreviousGameinDatabase;
@@ -156,7 +157,11 @@ public class View_MainFrame extends JFrame
         org.asdfjkl.jfxchess.lib.ChessDatabase db = model.getActiveDatabase();
         if (db != null && db.isOpen() && db.getFilename() != null && !db.getFilename().isBlank()) {
             String name = new java.io.File(db.getFilename()).getName();
-            setTitle("JFXChess - " + name);
+            if (db.isReadOnly()) {
+                setTitle("JFXChess - " + name + " [Read-Only]");
+            } else {
+                setTitle("JFXChess - " + name);
+            }
         } else {
             setTitle("JFXChess");
         }
@@ -388,6 +393,12 @@ public class View_MainFrame extends JFrame
         jmiDbClose = new JMenuItem("Close");
         jmiDbClose.addActionListener(controller_Pgn.closeDatabase());
         databaseMenu.add(jmiDbClose);
+
+        databaseMenu.addSeparator();
+
+        jmiImportGames = new JMenuItem("Import Games...");
+        jmiImportGames.addActionListener(controller_Pgn.importGames());
+        databaseMenu.add(jmiImportGames);
 
         databaseMenu.addSeparator();
 
@@ -796,8 +807,13 @@ public class View_MainFrame extends JFrame
 
     public void updateDatabaseActionsState() {
         boolean hasDb = model.isDatabaseOpen();
+        org.asdfjkl.jfxchess.lib.ChessDatabase activeDb = model.getActiveDatabase();
+        boolean writableDb = hasDb && activeDb != null && !activeDb.isReadOnly();
         if (jmiDbClose != null) {
             jmiDbClose.setEnabled(hasDb);
+        }
+        if (jmiImportGames != null) {
+            jmiImportGames.setEnabled(writableDb);
         }
         if (jmiBrowseGames != null) {
             jmiBrowseGames.setEnabled(hasDb);

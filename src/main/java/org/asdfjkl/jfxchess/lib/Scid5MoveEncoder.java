@@ -208,7 +208,10 @@ public class Scid5MoveEncoder {
     }
 
     private static void encodeExtraTags(Game game, ByteArrayOutputStream out) {
-        HashMap<String, String> headers = game.getPgnHeaders();
+        encodeExtraTagsFromMap(game.getPgnHeaders(), out);
+    }
+
+    public static void encodeExtraTagsFromMap(Map<String, String> headers, ByteArrayOutputStream out) {
         if (headers == null || headers.isEmpty()) {
             out.write(0x00);
             return;
@@ -310,6 +313,32 @@ public class Scid5MoveEncoder {
             boolean isMainline) {
 
         Move m = node.getMove();
+        encodeMove(m, scidPos, movesStream, hpDepartures, homePawnMask, flagsHolder, isMainline);
+
+        // NAGs on this node
+        for (int nag : node.getNags()) {
+            movesStream.write(0x0B);
+            movesStream.write(nag & 0xFF);
+            stats[2]++; // nag count
+        }
+
+        // Comment on this node
+        if (node.getComment() != null && !node.getComment().isEmpty()) {
+            movesStream.write(0x0C);
+            comments.add(node.getComment());
+            stats[0]++; // comment count
+        }
+    }
+
+    public static void encodeMove(
+            Move m,
+            ScidPosition scidPos,
+            ByteArrayOutputStream movesStream,
+            List<Integer> hpDepartures,
+            int[] homePawnMask,
+            int[] flagsHolder,
+            boolean isMainline) {
+
         if (m == null || m.isNullMove) {
             movesStream.write(0x00);
             scidPos.toMove = 1 - scidPos.toMove;
@@ -473,19 +502,179 @@ public class Scid5MoveEncoder {
                 }
             }
         }
+    }
 
-        // NAGs on this node
-        for (int nag : node.getNags()) {
-            movesStream.write(0x0B);
-            movesStream.write(nag & 0xFF);
-            stats[2]++; // nag count
+    /**
+     * High-speed streaming consumer that converts PGN games directly into SCID5
+     * binary blobs and index metadata without creating intermediate {@link Game} ASTs.
+     */
+    public static class Scid5StreamEncoder implements PgnGameConsumer {
+        private final Map<String, String> headers = new HashMap<>();
+        private final ByteArrayOutputStream tagsStream = new ByteArrayOutputStream();
+        private final ByteArrayOutputStream movesStream = new ByteArrayOutputStream();
+        private final List<String> comments = new ArrayList<>();
+        private final List<Integer> hpDepartures = new ArrayList<>();
+        private final int[] stats = new int[4]; // [0]=commentCount, [1]=variationCount, [2]=nagCount, [3]=mainlinePlies
+        private final int[] flagsHolder = new int[1];
+        private final int[] homePawnMask = new int[]{0xFFFF};
+        private final ScidPosition scidPos = new ScidPosition();
+        private final ArrayDeque<ScidPosition> varStack = new ArrayDeque<>();
+        private boolean hasCustomStart = false;
+        private String customFen = null;
+        private ScidPosition endPos = null;
+        private Scid5EncodeResult result = null;
+
+        public void reset() {
+            headers.clear();
+            tagsStream.reset();
+            movesStream.reset();
+            comments.clear();
+            hpDepartures.clear();
+            Arrays.fill(stats, 0);
+            flagsHolder[0] = 0;
+            homePawnMask[0] = 0xFFFF;
+            scidPos.stdStart();
+            varStack.clear();
+            hasCustomStart = false;
+            customFen = null;
+            endPos = null;
+            result = null;
         }
 
-        // Comment on this node
-        if (node.getComment() != null && !node.getComment().isEmpty()) {
+        public Map<String, String> getHeaders() {
+            return headers;
+        }
+
+        public Scid5EncodeResult getResult() {
+            return result;
+        }
+
+        @Override
+        public void onTag(String key, String value) {
+            headers.put(key, value);
+        }
+
+        @Override
+        public boolean onGameStart(Board rootBoard) {
+            if (rootBoard != null && !rootBoard.isInitialPosition()) {
+                hasCustomStart = true;
+                customFen = rootBoard.fen();
+            } else {
+                String fenHeader = headers.get("FEN");
+                if (fenHeader != null && !fenHeader.isBlank() && !fenHeader.trim().startsWith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq")) {
+                    hasCustomStart = true;
+                    customFen = fenHeader.trim();
+                } else if ("1".equals(headers.get("SetUp")) || "1".equals(headers.get("Setup"))) {
+                    hasCustomStart = true;
+                    customFen = (rootBoard != null) ? rootBoard.fen() : null;
+                }
+            }
+
+            if (hasCustomStart) {
+                flagsHolder[0] |= Scid5GameInfo.FLAG_CUSTOM_START;
+                scidPos.setupFen(customFen);
+            } else {
+                scidPos.stdStart();
+            }
+
+            encodeExtraTagsFromMap(headers, tagsStream);
+            return true;
+        }
+
+        @Override
+        public boolean onMove(Board board, Move move, int ply, boolean isMainline) {
+            encodeMove(move, scidPos, movesStream, hpDepartures, homePawnMask, flagsHolder, isMainline);
+            if (isMainline) {
+                stats[3]++; // mainline plies
+                endPos = scidPos.copy();
+            }
+            return true;
+        }
+
+        @Override
+        public void onStartVariation() {
+            stats[1]++; // variation count
+            movesStream.write(0x0D);
+            varStack.push(scidPos.copy());
+        }
+
+        @Override
+        public void onEndVariation() {
+            movesStream.write(0x0E);
+            if (!varStack.isEmpty()) {
+                scidPos.copyFrom(varStack.pop());
+            }
+        }
+
+        @Override
+        public void onComment(String comment) {
             movesStream.write(0x0C);
-            comments.add(node.getComment());
-            stats[0]++; // comment count
+            comments.add(comment != null ? comment : "");
+            stats[0]++;
+        }
+
+        @Override
+        public void onNag(int nag) {
+            movesStream.write(0x0B);
+            movesStream.write(nag & 0xFF);
+            stats[2]++;
+        }
+
+        @Override
+        public void onResult(int res) {
+            // result is handled via header
+        }
+
+        @Override
+        public void onGameEnd() {
+            movesStream.write(0x0F);
+
+            result = new Scid5EncodeResult();
+            result.flags = flagsHolder[0];
+
+            ByteArrayOutputStream startBoardStream = new ByteArrayOutputStream();
+            int startFlags = 0;
+            if (hasCustomStart) startFlags |= 1;
+            if ((result.flags & Scid5GameInfo.FLAG_PROMO) != 0) startFlags |= 2;
+            if ((result.flags & Scid5GameInfo.FLAG_UNDER_PROMO) != 0) startFlags |= 4;
+            startBoardStream.write(startFlags);
+            if (hasCustomStart && customFen != null) {
+                startBoardStream.writeBytes(customFen.getBytes(StandardCharsets.US_ASCII));
+                startBoardStream.write(0x00);
+            }
+
+            ByteArrayOutputStream commentsStream = new ByteArrayOutputStream();
+            for (String c : comments) {
+                commentsStream.writeBytes(c.getBytes(StandardCharsets.UTF_8));
+                commentsStream.write(0x00);
+            }
+
+            ByteArrayOutputStream fullBlob = new ByteArrayOutputStream();
+            fullBlob.writeBytes(tagsStream.toByteArray());
+            fullBlob.writeBytes(startBoardStream.toByteArray());
+            fullBlob.writeBytes(movesStream.toByteArray());
+            fullBlob.writeBytes(commentsStream.toByteArray());
+
+            result.data = fullBlob.toByteArray();
+            result.dataSize = result.data.length;
+
+            result.halfMoves = Math.min(stats[3], 1023);
+            result.commentRating = encodeRating(stats[0]);
+            result.variationRating = encodeRating(stats[1]);
+            result.nagRating = encodeRating(stats[2]);
+
+            result.homePawnCount = Math.min(hpDepartures.size(), 16);
+            for (int i = 0; i < result.homePawnCount; i++) {
+                int byteIdx = i / 2;
+                int nibble = hpDepartures.get(i);
+                if (i % 2 == 0) {
+                    result.homePawnData[byteIdx] |= (byte) ((nibble & 0x0F) << 4);
+                } else {
+                    result.homePawnData[byteIdx] |= (byte) (nibble & 0x0F);
+                }
+            }
+
+            result.finalMatSig = computeFinalMatSig(endPos != null ? endPos : scidPos);
         }
     }
 

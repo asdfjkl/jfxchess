@@ -424,8 +424,10 @@ public class Controller_Engine implements PropertyChangeListener {
                     activateEnterMovesMode(newSession);
                 }
                 if(result == DialogNewGame.PLAY_BOT) {
+                    model.setShortcutsEnabled(false);
                     DialogPlayBot dlgPlayBot = new DialogPlayBot(model.mainFrameRef, model.botEngines);
                     dlgPlayBot.setVisible(true);
+                    model.setShortcutsEnabled(true);
                     if(dlgPlayBot.isConfirmed()) {
                         model.wasSaved = false;
                         Game g = new Game();
@@ -464,8 +466,10 @@ public class Controller_Engine implements PropertyChangeListener {
                     }
                 }
                 if(result == DialogNewGame.PLAY_UCI) {
+                    model.setShortcutsEnabled(false);
                     DialogPlayEngine dlgUci = new DialogPlayEngine(model.mainFrameRef, model.engines);
                     dlgUci.setVisible(true);
+                    model.setShortcutsEnabled(true);
                     boolean uciAccepted = dlgUci.isConfirmed();
                     if(uciAccepted) {
                         model.wasSaved = false;

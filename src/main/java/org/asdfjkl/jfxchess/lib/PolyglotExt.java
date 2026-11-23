@@ -1,5 +1,5 @@
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@ package org.asdfjkl.jfxchess.lib;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -31,24 +32,11 @@ public class PolyglotExt {
     final char[] promotionPieces = { ' ', 'n', 'b', 'r', 'q'};
 
     public void loadBook(File file) {
-
-        OptimizedRandomAccessFile raf = null;
         try {
-            long fileLength = file.length();
-            raf = new OptimizedRandomAccessFile(file, "r");
-            book = new byte[(int) fileLength];
-            raf.readFully(book, 0, (int) fileLength);
+            book = Files.readAllBytes(file.toPath());
             readFile = true;
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -251,4 +239,3 @@ public class PolyglotExt {
     }
 
 }
-

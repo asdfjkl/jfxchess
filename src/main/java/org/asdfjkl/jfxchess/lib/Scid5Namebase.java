@@ -20,6 +20,7 @@ package org.asdfjkl.jfxchess.lib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -276,9 +277,74 @@ public class Scid5Namebase {
         return id;
     }
 
+    public synchronized int findOrAdd(OutputStream sn5Out, String name, int type) throws IOException {
+        ensureLookups();
+        String cleanName;
+        if (name != null) {
+            cleanName = name;
+        } else {
+            cleanName = "";
+        }
+        Integer existing = switch (type) {
+            case NAME_PLAYER -> playerLookup.get(cleanName);
+            case NAME_EVENT -> eventLookup.get(cleanName);
+            case NAME_SITE -> siteLookup.get(cleanName);
+            case NAME_ROUND -> roundLookup.get(cleanName);
+            default -> null;
+        };
+        if (existing != null) {
+            return existing;
+        }
+
+        int id = switch (type) {
+            case NAME_PLAYER -> players.size();
+            case NAME_EVENT -> events.size();
+            case NAME_SITE -> sites.size();
+            case NAME_ROUND -> rounds.size();
+            default -> 0;
+        };
+
+        byte[] strBytes = cleanName.getBytes(StandardCharsets.UTF_8);
+        long v = (((long) strBytes.length) << 3) | (type & 0x07);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        long temp = v;
+        while ((temp & ~0x7FL) != 0) {
+            baos.write((int) ((temp & 0x7F) | 0x80));
+            temp >>>= 7;
+        }
+        baos.write((int) (temp & 0x7F));
+        baos.write(strBytes);
+        byte[] recordBytes = baos.toByteArray();
+
+        if (sn5Out != null) {
+            sn5Out.write(recordBytes);
+        }
+
+        switch (type) {
+            case NAME_PLAYER -> {
+                playerLookup.put(cleanName, id);
+                players.add(cleanName);
+            }
+            case NAME_EVENT -> {
+                eventLookup.put(cleanName, id);
+                events.add(cleanName);
+            }
+            case NAME_SITE -> {
+                siteLookup.put(cleanName, id);
+                sites.add(cleanName);
+            }
+            case NAME_ROUND -> {
+                roundLookup.put(cleanName, id);
+                rounds.add(cleanName);
+            }
+        }
+
+        return id;
+    }
+
     public synchronized int findOrAdd(String name, int type) {
         try {
-            return findOrAdd(null, name, type);
+            return findOrAdd((Path) null, name, type);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

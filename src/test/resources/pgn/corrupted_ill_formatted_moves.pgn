@@ -1,0 +1,34 @@
+[Event "Corrupted Moves Test Suite"]
+[Site "Crash Prevention"]
+[Date "2026.11.02"]
+[Round "1"]
+[White "CorruptWhite"]
+[Black "CorruptBlack"]
+[Result "*"]
+
+{ Game 1: Illegal piece move, moving into check, out-of-bounds squares }
+1. e4 e5 2. Nf3 Nc6 3. Nxe5 Nxe5 4. Bc4 Nf99 5. d4 d5 *
+
+[Event "Truncated Tokens"]
+[Site "Crash Prevention"]
+[Date "2026.11.02"]
+[Round "2"]
+[White "CorruptWhite"]
+[Black "CorruptBlack"]
+[Result "*"]
+
+{ Game 2: Truncated piece letters and dangling symbols }
+1. e4 e5 2. N 3. Q 4. e 5. cxd 6. O- 7. ?? *
+
+[Event "Pinned Piece Moving Illegally"]
+[Site "Crash Prevention"]
+[Date "2026.11.02"]
+[Round "3"]
+[White "CorruptWhite"]
+[Black "CorruptBlack"]
+[Result "*"]
+[SetUp "1"]
+[FEN "3r3k/8/8/8/8/3N4/8/3K4 w - - 0 1"]
+
+{ White knight on d3 is pinned to d1 king by d8 rook. Ne5 is illegal! }
+1. Ne5 *

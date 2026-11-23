@@ -18,9 +18,12 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -161,12 +164,9 @@ public class PgnChessDatabase implements ChessDatabase {
         if (pgnInfo == null) {
             throw new IllegalArgumentException("Game not found in database: " + info.getId());
         }
-        OptimizedRandomAccessFile raf = new OptimizedRandomAccessFile(path.toString(), "r");
-        try {
-            raf.seek(pgnInfo.getOffset());
-            return new PgnReader().readGame(raf);
-        } finally {
-            raf.close();
+        try (PgnByteLexer lexer = new PgnByteLexer(path.toFile())) {
+            lexer.seek(pgnInfo.getOffset());
+            return new PgnReader().readGame(lexer);
         }
     }
 
@@ -186,6 +186,180 @@ public class PgnChessDatabase implements ChessDatabase {
             throw new IOException("Appended game could not be found while rescanning " + path);
         }
         return entries.get(entries.size() - 1);
+    }
+
+    @Override
+    public void importGames(ChessDatabase sourceDatabase, List<GameInfo> gamesToImport, ProgressListener listener) throws IOException {
+        Objects.requireNonNull(sourceDatabase, "sourceDatabase");
+        Objects.requireNonNull(gamesToImport, "gamesToImport");
+        if (path == null || !open) {
+            throw new IOException("PGN database is not open");
+        }
+        if (gamesToImport.isEmpty()) {
+            if (listener != null) {
+                listener.onProgress(100);
+            }
+            return;
+        }
+
+        ArrayList<GameInfo> importedEntries = new ArrayList<>();
+        int total = gamesToImport.size();
+        long currentTargetOffset;
+        if (Files.exists(path)) {
+            currentTargetOffset = Files.size(path);
+        } else {
+            currentTargetOffset = 0;
+        }
+
+        if (sourceDatabase instanceof PgnChessDatabase pgnSource) {
+            Path sourcePath = pgnSource.getPath();
+            if (sourcePath == null || !pgnSource.isOpen()) {
+                throw new IOException("Source PGN database is not open");
+            }
+            long sourceFileSize = Files.size(sourcePath);
+            ArrayList<GameInfo> sourceEntries = pgnSource.getIndex();
+            Map<UUID, Long> endOffsets = new HashMap<>();
+            for (int i = 0; i < sourceEntries.size(); i++) {
+                GameInfo current = sourceEntries.get(i);
+                long endOffset;
+                if (i + 1 < sourceEntries.size() && sourceEntries.get(i + 1) instanceof PgnGameInfo nextPgn) {
+                    endOffset = nextPgn.getOffset();
+                } else {
+                    endOffset = sourceFileSize;
+                }
+                endOffsets.put(current.getId(), endOffset);
+            }
+
+            byte[] buffer = new byte[65536];
+            try (RandomAccessFile raf = new RandomAccessFile(sourcePath.toFile(), "r");
+                 OutputStream fileOut = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                 BufferedOutputStream out = new BufferedOutputStream(fileOut, 65536)) {
+
+                if (currentTargetOffset > 0) {
+                    out.write('\n');
+                    currentTargetOffset += 1;
+                }
+
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) {
+                        break;
+                    }
+                    GameInfo info = gamesToImport.get(i);
+                    if (info instanceof PgnGameInfo srcPgn) {
+                        long startOffset = srcPgn.getOffset();
+                        Long endOffsetObj = endOffsets.get(srcPgn.getId());
+                        long endOffset;
+                        if (endOffsetObj != null) {
+                            endOffset = endOffsetObj;
+                        } else {
+                            endOffset = sourceFileSize;
+                        }
+                        long remaining = endOffset - startOffset;
+                        if (remaining > 0) {
+                            long gameTargetOffset = currentTargetOffset;
+                            raf.seek(startOffset);
+                            byte lastByte = '\n';
+                            while (remaining > 0) {
+                                int toRead = (int) Math.min(buffer.length, remaining);
+                                int read = raf.read(buffer, 0, toRead);
+                                if (read <= 0) {
+                                    break;
+                                }
+                                out.write(buffer, 0, read);
+                                lastByte = buffer[read - 1];
+                                currentTargetOffset += read;
+                                remaining -= read;
+                            }
+                            if (lastByte != '\n') {
+                                out.write('\n');
+                                currentTargetOffset += 1;
+                            }
+                            out.write('\n');
+                            currentTargetOffset += 1;
+
+                            PgnGameInfo newEntry = new PgnGameInfo(UUID.randomUUID());
+                            newEntry.setOffset(gameTargetOffset);
+                            newEntry.setEvent(srcPgn.getEvent());
+                            newEntry.setSite(srcPgn.getSite());
+                            newEntry.setDate(srcPgn.getDate());
+                            newEntry.setRound(srcPgn.getRound());
+                            newEntry.setWhite(srcPgn.getWhite());
+                            newEntry.setBlack(srcPgn.getBlack());
+                            newEntry.setResult(srcPgn.getResult());
+                            newEntry.setEco(srcPgn.getEco());
+                            newEntry.setWhiteElo(srcPgn.getWhiteElo());
+                            newEntry.setBlackElo(srcPgn.getBlackElo());
+                            newEntry.markValid();
+
+                            entries.add(newEntry);
+                            fingerprints.put(newEntry.getId(), headerSignature(newEntry));
+                            importedEntries.add(newEntry);
+                        }
+                    }
+                    if (listener != null && (i % 50 == 0 || i == total - 1)) {
+                        int percent = (int) (((long) (i + 1) * 100) / total);
+                        listener.onProgress(percent);
+                    }
+                }
+                out.flush();
+            }
+        } else {
+            PgnPrinter printer = new PgnPrinter();
+            byte[] doubleNewline = "\n\n".getBytes(StandardCharsets.UTF_8);
+            try (OutputStream fileOut = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                 BufferedOutputStream out = new BufferedOutputStream(fileOut, 65536)) {
+
+                if (currentTargetOffset > 0) {
+                    out.write('\n');
+                    currentTargetOffset += 1;
+                }
+
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) {
+                        break;
+                    }
+                    GameInfo info = gamesToImport.get(i);
+                    Game game = sourceDatabase.loadGame(info);
+                    if (game != null) {
+                        String gamePgn = printer.printGame(game);
+                        byte[] pgnBytes = gamePgn.getBytes(StandardCharsets.UTF_8);
+                        long gameTargetOffset = currentTargetOffset;
+
+                        out.write(pgnBytes);
+                        out.write(doubleNewline);
+                        currentTargetOffset += pgnBytes.length + doubleNewline.length;
+
+                        PgnGameInfo newEntry = new PgnGameInfo(UUID.randomUUID());
+                        newEntry.setOffset(gameTargetOffset);
+                        newEntry.setEvent(info.getEvent());
+                        newEntry.setSite(info.getSite());
+                        newEntry.setDate(info.getDate());
+                        newEntry.setRound(info.getRound());
+                        newEntry.setWhite(info.getWhite());
+                        newEntry.setBlack(info.getBlack());
+                        newEntry.setResult(info.getResult());
+                        newEntry.setEco(info.getEco());
+                        newEntry.setWhiteElo(info.getWhiteElo());
+                        newEntry.setBlackElo(info.getBlackElo());
+                        newEntry.markValid();
+
+                        entries.add(newEntry);
+                        fingerprints.put(newEntry.getId(), gamePgn);
+                        importedEntries.add(newEntry);
+                    }
+                    if (listener != null && (i % 50 == 0 || i == total - 1)) {
+                        int percent = (int) (((long) (i + 1) * 100) / total);
+                        listener.onProgress(percent);
+                    }
+                }
+                out.flush();
+            }
+        }
+
+        if (!importedEntries.isEmpty()) {
+            revision++;
+            publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_APPENDED, this, revision, importedEntries));
+        }
     }
 
     public GameInfo writeSingleGame(Game game) throws IOException {
@@ -265,32 +439,89 @@ public class PgnChessDatabase implements ChessDatabase {
     public void search(SearchPattern pattern, ProgressListener listener) {
         Objects.requireNonNull(pattern, "pattern");
         searchResults.clear();
-        for (int i = 0; i < entries.size(); i++) {
-            if (listener != null && listener.isCancelled()) {
-                break;
+        if (entries.isEmpty() || (!pattern.isSearchGameData() && !pattern.isSearchPosition())) {
+            searchActive = true;
+            return;
+        }
+
+        if (!pattern.isSearchPosition()) {
+            // Header-only search: fast in-memory scan
+            for (int i = 0; i < entries.size(); i++) {
+                if (listener != null && listener.isCancelled()) {
+                    break;
+                }
+                PgnGameInfo entry = entries.get(i);
+                if (pattern.matchesHeader(entry)) {
+                    searchResults.add(entry);
+                }
+                if (listener != null && (i % 10000 == 0)) {
+                    listener.onProgress((int) ((long) i * 100 / entries.size()));
+                }
             }
-            PgnGameInfo entry = entries.get(i);
-            if (!pattern.isSearchGameData() && !pattern.isSearchPosition()) {
-                continue;
+            searchActive = true;
+            return;
+        }
+
+        // Position search: use streaming scanGame with persistent lexer and early-exit consumer
+        if (path == null) {
+            searchActive = true;
+            return;
+        }
+
+        PgnReader reader = new PgnReader();
+        final class PosConsumer implements PgnGameConsumer {
+            boolean matched = false;
+
+            void reset() {
+                matched = false;
             }
-            if (pattern.isSearchGameData() && !pattern.matchesHeader(entry)) {
-                continue;
+
+            @Override
+            public boolean onGameStart(Board rootBoard) {
+                if (pattern.matchesBoard(rootBoard)) {
+                    matched = true;
+                    return false; // Early exit!
+                }
+                return true;
             }
-            if (pattern.isSearchPosition()) {
+
+            @Override
+            public boolean onMove(Board board, Move move, int ply, boolean isMainline) {
+                if (pattern.matchesBoard(board)) {
+                    matched = true;
+                    return false; // Early exit!
+                }
+                return true;
+            }
+        }
+
+        PosConsumer consumer = new PosConsumer();
+        try (PgnByteLexer lexer = new PgnByteLexer(path.toFile())) {
+            for (int i = 0; i < entries.size(); i++) {
+                if (listener != null && listener.isCancelled()) {
+                    break;
+                }
+                PgnGameInfo entry = entries.get(i);
+                if (pattern.isSearchGameData() && !pattern.matchesHeader(entry)) {
+                    continue;
+                }
                 try {
-                    Game g = loadGame(entry);
-                    if (g == null || !pattern.matchesPositionInGame(g)) {
+                    lexer.seek(entry.getOffset());
+                    consumer.reset();
+                    reader.scanGame(lexer, consumer);
+                    if (!consumer.matched) {
                         continue;
                     }
                 } catch (Exception e) {
                     continue;
                 }
+                searchResults.add(entry);
+                if (listener != null && (i % 50 == 0)) {
+                    listener.onProgress((int) ((long) i * 100 / entries.size()));
+                }
             }
-            searchResults.add(entry);
-            if (listener != null && (pattern.isSearchPosition() ? (i % 50 == 0) : (i % 10000 == 0)) && !entries.isEmpty()) {
-                int percent = (int) ((long) i * 100 / entries.size());
-                listener.onProgress(percent);
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         searchActive = true;
     }
@@ -318,106 +549,87 @@ public class PgnChessDatabase implements ChessDatabase {
         }
 
         ArrayList<PgnGameInfo> scannedEntries = new ArrayList<>();
-        boolean inComment = false;
-        long game_pos = -1;
-        PgnGameInfo current = null;
-        long last_pos = 0;
-        String currentLine;
-        OptimizedRandomAccessFile raf = null;
-
         File file = path.toFile();
         long fileSize = file.length();
         long gamesRead = 0;
 
-        try {
-            raf = new OptimizedRandomAccessFile(path.toString(), "r");
-            while ((currentLine = raf.readLine()) != null) {
+        try (PgnByteLexer lexer = new PgnByteLexer(file)) {
+            int tkn;
+            PgnGameInfo current = null;
+
+            while ((tkn = lexer.nextToken()) != PgnByteLexer.TOKEN_EOF) {
                 if (listener != null && listener.isCancelled()) {
                     break;
                 }
-                if (currentLine.startsWith("%")) {
-                    continue;
-                }
-                if (!inComment && currentLine.startsWith("[")) {
-                    if (game_pos == -1) {
-                        game_pos = last_pos;
+
+                if (tkn == PgnByteLexer.TOKEN_TAG) {
+                    if (current == null) {
                         current = new PgnGameInfo();
+                        current.setOffset(lexer.getTagStartOffset());
                     }
-                    last_pos = raf.getFilePointer();
-                    if (currentLine.length() > 4) {
-                        int spaceOffset = currentLine.indexOf(' ');
-                        int firstQuote = currentLine.indexOf('"');
-                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                        if (spaceOffset > 1 && secondQuote > firstQuote) {
-                            String tag = currentLine.substring(1, spaceOffset);
-                            String value = currentLine.substring(firstQuote + 1, secondQuote);
-                            String valueEncoded = new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-                            if (tag.equals("Event")) {
-                                current.setEvent(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("Site")) {
-                                current.setSite(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("Round")) {
-                                current.setRound(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("White")) {
-                                current.setWhite(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("Black")) {
-                                current.setBlack(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("Result")) {
-                                current.setResult(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("Date")) {
-                                current.setDate(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("ECO")) {
-                                current.setEco(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("WhiteElo")) {
-                                current.setWhiteElo(valueEncoded);
-                                current.markValid();
-                            } else if (tag.equals("BlackElo")) {
-                                current.setBlackElo(valueEncoded);
-                                current.markValid();
+                    String tag = lexer.getTagName();
+                    String value = lexer.getTagValue();
+                    if (tag.equals("Event")) {
+                        current.setEvent(value);
+                        current.markValid();
+                    } else if (tag.equals("Site")) {
+                        current.setSite(value);
+                        current.markValid();
+                    } else if (tag.equals("Round")) {
+                        current.setRound(value);
+                        current.markValid();
+                    } else if (tag.equals("White")) {
+                        current.setWhite(value);
+                        current.markValid();
+                    } else if (tag.equals("Black")) {
+                        current.setBlack(value);
+                        current.markValid();
+                    } else if (tag.equals("Result")) {
+                        current.setResult(value);
+                        current.markValid();
+                    } else if (tag.equals("Date")) {
+                        current.setDate(value);
+                        current.markValid();
+                    } else if (tag.equals("ECO")) {
+                        current.setEco(value);
+                        current.markValid();
+                    } else if (tag.equals("WhiteElo")) {
+                        current.setWhiteElo(value);
+                        current.markValid();
+                    } else if (tag.equals("BlackElo")) {
+                        current.setBlackElo(value);
+                        current.markValid();
+                    }
+                } else {
+                    // Non-tag token encountered: header block is complete!
+                    if (current != null) {
+                        gamesRead++;
+                        if (gamesRead > 10000) {
+                            if (listener != null && fileSize > 0) {
+                                int percent = (int) (current.getOffset() * 100 / fileSize);
+                                listener.onProgress(percent);
                             }
+                            gamesRead = 0;
                         }
-                    }
-                    continue;
-                }
-                if ((!inComment && currentLine.contains("{"))
-                        || (inComment && currentLine.contains("}"))) {
-                    inComment = currentLine.lastIndexOf("{") > currentLine.lastIndexOf("}");
-                }
-                if (game_pos != -1) {
-                    current.setOffset(game_pos);
-                    gamesRead++;
-                    if (gamesRead > 10000) {
-                        if (listener != null && fileSize > 0) {
-                            int percent = (int) (game_pos * 100 / fileSize);
-                            listener.onProgress(percent);
+                        if (current.isValid()) {
+                            scannedEntries.add(current);
                         }
-                        gamesRead = 0;
+                        current = null;
                     }
-                    if (current.isValid()) {
-                        scannedEntries.add(current);
+
+                    // Fast-skip movetext straight to the next game's first tag!
+                    int nextTkn = lexer.skipToNextTag();
+                    if (nextTkn == PgnByteLexer.TOKEN_TAG) {
+                        lexer.pushBackToken();
                     }
-                    game_pos = -1;
                 }
-                last_pos = raf.getFilePointer();
+            }
+
+            if (current != null && current.isValid()) {
+                scannedEntries.add(current);
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         rebuildEntries(scannedEntries, eventType, forcedAffectedId, knownUnchangedGames);

@@ -97,6 +97,9 @@ public class DialogDatabase extends JDialog {
         JButton btnSearch = new JButton("Search");
         btnReset = new JButton("Reset Search");
         JButton btnDelete = new JButton("Delete Game");
+        if (database != null && database.isReadOnly()) {
+            btnDelete.setEnabled(false);
+        }
 
         leftButtons.add(btnSearch);
         leftButtons.add(btnReset);
@@ -285,7 +288,11 @@ public class DialogDatabase extends JDialog {
 
     private static String getDatabaseTitle(ChessDatabase database) {
         if (database != null && database.getFilename() != null && !database.getFilename().isBlank()) {
-            return "Database - " + new java.io.File(database.getFilename()).getName();
+            String title = "Database - " + new java.io.File(database.getFilename()).getName();
+            if (database.isReadOnly()) {
+                title = title + " [Read-Only]";
+            }
+            return title;
         }
         return "Database";
     }

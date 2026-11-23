@@ -20,7 +20,7 @@ package org.asdfjkl.jfxchess.gui;
 
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameInfo;
-import org.asdfjkl.jfxchess.lib.OptimizedRandomAccessFile;
+import org.asdfjkl.jfxchess.lib.PgnByteLexer;
 import org.asdfjkl.jfxchess.lib.PgnChessDatabase;
 import org.asdfjkl.jfxchess.lib.PgnGameInfo;
 import org.asdfjkl.jfxchess.lib.PgnPrinter;
@@ -168,13 +168,9 @@ public class PgnDocument {
     }
 
     private Game loadGame(PgnGameInfo entry) throws IOException {
-        OptimizedRandomAccessFile file =
-                new OptimizedRandomAccessFile(path.toString(), "r");
-        try {
+        try (PgnByteLexer file = new PgnByteLexer(path.toFile())) {
             file.seek(entry.getOffset());
-            return new PgnReader().readGame(file);
-        } finally {
-            file.close();
+            return reader.readGame(file);
         }
     }
 
@@ -322,15 +318,15 @@ public class PgnDocument {
 
     private String headerSignature(PgnGameInfo entry) {
         return String.join("\u0000",
-                entry.getEvent(),
-                entry.getSite(),
-                entry.getDate(),
-                entry.getRound(),
-                entry.getWhite(),
-                entry.getWhiteElo(),
-                entry.getBlack(),
-                entry.getBlackElo(),
-                entry.getResult()
+            entry.getEvent(),
+            entry.getSite(),
+            entry.getDate(),
+            entry.getRound(),
+            entry.getWhite(),
+            entry.getWhiteElo(),
+            entry.getBlack(),
+            entry.getBlackElo(),
+            entry.getResult()
         );
     }
 

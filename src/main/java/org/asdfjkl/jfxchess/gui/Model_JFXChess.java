@@ -110,7 +110,7 @@ public class Model_JFXChess {
     private String lookAndFeel;
     public View_MainFrame mainFrameRef;
 
-    private boolean shortcutsEnabled = true;
+private boolean shortcutsEnabled = true;
 
     private int fontSizeMoveView = 12;
     private int fontSizeEngineOutput = 12;

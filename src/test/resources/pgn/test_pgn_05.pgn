@@ -1,0 +1,21 @@
+[Event "チェス世界選手権 1997 ★ Deep Blue vs Kasparov"]
+[Site "Köln & München, Deutschland Übersee-Halle № 42"]
+[Date "1997.05.11"]
+[Round "6"]
+[White "Deep Blue (IBM 计算机)"]
+[Black "Каспаров, Гарри Кимович"]
+[Result "1-0"]
+[ECO "B17"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Nd7 { 【重要局】Каспаров выбирает надёжную защиту Каро-Канн. } 5. Ng5 Ngf6 { Ein scharfer Eröffnungszweig mit typischer Figurenentwicklung! } 6. Bd3 e6 7. N1f3 { ★ N1f3! Der Springer springt von g1 nach f3: Wunderschöne Springer-Disambiguierung! } h6 8. Nxe6 { ⚡ Жертва коня! Ein spektakuläres Figurenopfer erschüttert die schwarze Königsstellung. } Qe7 9. O-O fxe6 10. Bg6+ Kd8 11. Bf4 b5 12. a4 Bb7 13. Re1 Nd5 14. Bg3 Kc8 15. axb5 cxb5 16. Qd3 Bc6 17. Bf5 exf5 18. Rxe7 Bxe7 19. c4 { 【終局】Белые побеждают в матче! Großartiger Sieg für den Schachcomputer. 1-0 } 1-0
+
+[Event "Матч за звание чемпиона мира по шахматам 1972 ⚡"]
+[Site "Рейкьявик, Исландия — Laugardalshöll № 6"]
+[Date "1972.07.23"]
+[Round "6"]
+[White "Фишер, Роберт Джеймс"]
+[Black "Спасский, Борис Васильевич"]
+[Result "1-0"]
+[ECO "D59"]
+
+1. c4 e6 2. Nf3 d5 3. d4 Nf6 4. Nc3 Be7 5. Bg5 O-O 6. e3 h6 7. Bh4 b6 8. cxd5 Nxd5 9. Bxe7 Qxe7 10. Nxd5 exd5 11. Rc1 Be6 12. Qa4 c5 13. Qa3 Rc8 14. Bb5 a6 15. dxc5 bxc5 16. O-O Ra7 17. Be2 Nd7 18. Nd4 Qf8 19. Nxe6 fxe6 20. e4 d4 21. f4 Qe7 22. e5 Rb8 23. Bc4 Kh8 24. Qh3 Nf8 25. b3 a5 26. f5 exf5 27. Rxf5 Nh7 28. Rcf1 { ⚡ Doppelung auf der f-Linie: Rcf1! } Qd8 29. Qg3 Re7 30. h4 Rbb7 { ♜ Ладья b8 переходит на b7 для защиты: Rbb7. } 31. e6 Rbc7 32. Qe5 Qe8 33. a4 Qd8 34. R1f2 { ★ Turmmanöver auf der ersten Reihe: R1f2! } Qe8 35. R2f3 { ➜ Und weiter: R2f3! Weiße Schwerfiguren dominieren das Brett. } Qd8 36. Bd3 Qe8 37. Qe4 Nf6 38. Rxf6 gxf6 39. Rxf6 Kg8 40. Bc4 Kh8 41. Qf4 { 【名局】Победа белых! Boris Spassky klatschte Beifall für diesen Meisterstreich. 1-0 } 1-0

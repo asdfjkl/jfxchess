@@ -439,64 +439,19 @@ public class Board {
     }
 
     public Board makeCopy() {
-
         Board b = new Board();
-
-        for(int i=0;i<120;i++) {
-            b.board[i] = this.board[i];
-            b.oldBoard[i] = this.oldBoard[i];
-        }
-        for(int i=0;i<2;i++) {
-            for(int j=0;j<7;j++) {
-                for(int k=0;k<10;k++) {
-                    b.pieceList[i][j][k] = this.pieceList[i][j][k];
-                }
-            }
-        }
-
-        b.turn = this.turn;
-        b.halfmoveClock = this.halfmoveClock;
-        b.fullmoveNumber = this.fullmoveNumber;
-
-        b.zobristHash = this.zobristHash;
-        b.positionHash = this.positionHash;
-
-        b.undoAvailable = this.undoAvailable;
-        b.zobristInitialized = this.zobristInitialized;
-        b.posHashInitialized = this.posHashInitialized;
-        b.lastMoveWasNull = this.lastMoveWasNull;
-
-        b.castleWkingOk = this.castleWkingOk;
-        b.castleWqueenOk = this.castleWqueenOk;
-        b.castleBkingOk = this.castleBkingOk;
-        b.castleBqueenOk = this.castleBqueenOk;
-
-        b.prevCastleWkingOk = this.prevCastleWkingOk;
-        b.prevCastleWqueenOk = this.prevCastleWqueenOk;
-        b.prevCastleBkingOk = this.prevCastleBkingOk;
-        b.prevCastleBqueenOk = this.prevCastleBqueenOk;
-
-        b.enPassentTarget = this.enPassentTarget;
-        b.prevEnPassentTarget = this.prevEnPassentTarget;
-
-        b.prevHalfmoveClock = this.prevHalfmoveClock;
-
+        b.copy(this);
         return b;
-
     }
-    
+
     // Copies b into this current Board instance, without making a new one.
     // (equivalent to assignment operator = , in C++)
     public void copy(Board b) {
-        for(int i=0;i<120;i++) {
-            this.board[i] = b.board[i];
-            this.oldBoard[i] = b.oldBoard[i];
-        }
-        for(int i=0;i<2;i++) {
-            for(int j=0;j<7;j++) {
-                for(int k=0;k<10;k++) {
-                    this.pieceList[i][j][k] = b.pieceList[i][j][k];
-                }
+        System.arraycopy(b.board, 0, this.board, 0, 120);
+        System.arraycopy(b.oldBoard, 0, this.oldBoard, 0, 120);
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 7; j++) {
+                System.arraycopy(b.pieceList[i][j], 0, this.pieceList[i][j], 0, 10);
             }
         }
 
@@ -526,6 +481,10 @@ public class Board {
         this.prevEnPassentTarget = b.prevEnPassentTarget;
 
         this.prevHalfmoveClock = b.prevHalfmoveClock;
+    }
+
+    public void copyFrom(Board b) {
+        copy(b);
     }
 
     public String fen() {

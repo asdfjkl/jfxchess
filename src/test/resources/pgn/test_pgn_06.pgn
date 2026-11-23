@@ -1,0 +1,72 @@
+[Event "01"]
+[Site "Paris"]
+[Date "1859.??.??"]
+[Round "1"]
+[White "Morphy"]
+[Black "NN"]
+[Result "1-0"]
+[ECO "C56"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d4 exd4 5. O-O Nxe4 6. Re1 d5 7. Bxd5 Qxd5 8.
+Nc3 Qh5 9. Nxe4 Be6 10. Neg5 Bb4 11. Rxe6+ fxe6 12. Nxe6 Qf7 13. Nfg5 Qe7 14.
+Qe2 Bd6 15. Nxg7+ Kd7 16. Qg4+ Kd8 17. Nf7+ Qxf7 18. Bg5+ Be7 19. Ne6+ Kc8 20.
+Nc5+ Kb8 21. Nd7+ Kc8 22. Nb6+ Kb8 23. Qc8+ Rxc8 24. Nd7# 1-0 
+
+[Event "02"]
+[Site "London"]
+[Date "1851.??.??"]
+[Round "2"]
+[White "Anderssen"]
+[Black "Kieseritzky"]
+[Result "1-0"]
+[ECO "C33"]
+
+1. e4 e5 2. f4 exf4 3. Bc4 Qh4+ 4. Kf1 b5 5. Bxb5 Nf6 6. Nf3 Qh6 7. d3 Nh5
+8. Nh4 Qg5 9. Nf5 c6 10. g4 Nf6 11. Rg1 cxb5 12. h4 Qg6 13. h5 Qg5 14. Qf3
+Ng8 15. Bxf4 Qf6 16. Nc3 Bc5 17. Nd5 Qxb2 18. Bd6 Bxg1 19. e5 Qxa1+ 20. 
+Ke2 Na6 21. Nxg7+ Kd8 22. Qf6+ Nxf6 23. Be7# 1-0
+
+[Event "03"]
+[Site "London"]
+[Date "1883.??.??"]
+[Round "3"]
+[White "Zukertort"]
+[Black "Blackburne"]
+[Result "1-0"]
+[ECO "A13"]
+
+1. c4 e6 2. e3 Nf6 3. Nf3 b6 4. Be2 Bb7 5. O-O d5 6. d4 Bd6 7. Nc3 O-O 8. 
+b3 Nbd7 9. Bb2 Qe7 10. Nb5 Ne4 11. Nxd6 cxd6 12. Nd2 Ndf6 13. f3 Nxd2 14. 
+Qxd2 dxc4 15. Bxc4 d5 16. Bd3 Rfc8 17. Rae1 Rc7 18. e4 Rac8 19. e5 Ne8 20.
+ f4 g6 21. Re3 f5 22. exf6 Nxf6 23. f5 Ne4 24. Bxe4 dxe4 25. fxg6 Rc2 26. 
+gxh7+ Kh8 27. d5+ e5 28. Qb4 R8c5 29. Rf8+ Kxh7 30. Qxe4+ Kg7 31. Bxe5+ 
+Kxf8 32. Bg7+ Kg8 33. Qxe7 1-0
+
+[Event "04"]
+[Site "?"]
+[Date "1865.??.??"]
+[Round "4"]
+[White "Minckwitz"]
+[Black "Von Schmidt"]
+[Result "0-1"]
+[ECO "C33"]
+
+1. e4 e5 2. f4 exf4 3. Bc4 Qh4+ 4. Kf1 Nc6 5. d4 g5 6. Nc3 Nge7 7. Nb5 Kd8
+8. Bxf7 Bg7 9. Nf3 Qh6 10. c3 a6 11. Na3 Rf8 12. Bc4 g4 13. Ne1 d6 14. Be2
+Qh5 15. Nac2 f3 16. gxf3 gxf3 17. Nxf3 Bh3+ 18. Kf2 Qh4+ 19. Ke3 Bh6+ 20. 
+Ng5 Bxg5+ 21. Kd3 Qxe4+ 22. Kxe4 d5+ 23. Kd3 Bf5# 0-1
+
+[Event "05"]
+[Site "Hastings"]
+[Date "1895.??.??"]
+[Round "5"]
+[White "Steinitz"]
+[Black "Von Bardeleben"]
+[Result "1-0"]
+[ECO "C54"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d4 exd4 6. cxd4 Bb4+ 7. Nc3 d5
+8. exd5 Nxd5 9. O-O Be6 10. Bg5 Be7 11. Bxd5 Bxd5 12. Nxd5 Qxd5 13. Bxe7 
+Nxe7 14. Re1 f6 15. Qe2 Qd7 16. Rac1 c6 17. d5 cxd5 18. Nd4 Kf7 19. Ne6 
+Rhc8 20. Qg4 g6 21. Ng5+ Ke8 22. Rxe7+ Kf8 23. Rf7+ Kg8 24. Rg7+ Kh8 25. 
+Rxh7+ 1-0

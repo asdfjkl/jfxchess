@@ -103,14 +103,7 @@ public class Workspace {
     }
 
     public ChessDatabase getOrCreateDatabase(Path path) {
-        Path canonicalPath = Objects.requireNonNull(path, "path")
-                .toAbsolutePath()
-                .normalize();
-        String filename = canonicalPath.toString();
-        String lower = filename.toLowerCase();
-        if (lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
-            canonicalPath = Path.of(filename.substring(0, filename.length() - 4) + ".si5");
-        }
+        Path canonicalPath = normalizeDatabasePath(path);
         ChessDatabase database = databases.get(canonicalPath);
         if (database == null) {
             try {
@@ -126,6 +119,38 @@ public class Workspace {
             databases.put(canonicalPath, database);
         }
         return database;
+    }
+
+    public void closeAndRemoveDatabase(Path path) {
+        if (path == null) {
+            return;
+        }
+        Path canonicalPath = normalizeDatabasePath(path);
+        ChessDatabase existing = databases.remove(canonicalPath);
+        if (existing != null) {
+            try {
+                existing.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private static Path normalizeDatabasePath(Path path) {
+        Path canonicalPath = Objects.requireNonNull(path, "path")
+                .toAbsolutePath()
+                .normalize();
+        String filename = canonicalPath.toString();
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
+            return Path.of(filename.substring(0, filename.length() - 4) + ".si5");
+        } else if (lower.endsWith(".cbg") || lower.endsWith(".cba")
+                || lower.endsWith(".cbp") || lower.endsWith(".cbt")
+                || lower.endsWith(".cbc") || lower.endsWith(".cbs")) {
+            return Path.of(filename.substring(0, filename.length() - 4) + ".cbh");
+        } else if (lower.endsWith(".2cbg") || lower.endsWith(".2cba") || lower.endsWith(".2lid")) {
+            return Path.of(filename.substring(0, filename.length() - 5) + ".2cbh");
+        }
+        return canonicalPath;
     }
 
     public List<ChessDatabase> getDatabases() {

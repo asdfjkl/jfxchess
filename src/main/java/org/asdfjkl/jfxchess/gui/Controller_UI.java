@@ -502,12 +502,14 @@ public class Controller_UI {
 
     public ActionListener changeFontSize() {
         return e -> {
+            model.setShortcutsEnabled(false);
             DialogFontSize dialog = new DialogFontSize(model.mainFrameRef,
                     model.getFontSizeMoveView(),
                     model.isUseCustomFontSizeMoveView(),
                     model.getFontSizeEngineOutput(),
                     model.isUseCustomFontSizeEngineOutput());
             dialog.setVisible(true);
+            model.setShortcutsEnabled(true);
             if(dialog.isConfirmed()) {
                 if(dialog.useCustomMoveFont()) {
                     model.setFontSizeMoveView(dialog.getFontSizeMoveView());
@@ -527,10 +529,10 @@ public class Controller_UI {
         return e -> {
             model.setShortcutsEnabled(false);
             DialogEditComment dlgComment = new DialogEditComment(model.mainFrameRef, "Edit Comment");
-            model.setShortcutsEnabled(true);
             GameNode currentNode = model.getGame().getCurrentNode();
             dlgComment.setText(currentNode.getComment());
             dlgComment.setVisible(true);
+            model.setShortcutsEnabled(true);
             if(dlgComment.isConfirmed()) {
                 // filter text elements that must not appear in PGN comment, like { } etc.
                 String newComment = dlgComment.getText();

@@ -77,15 +77,15 @@ public class GameInfo {
     }
 
     public String getWhiteSurname() {
-        return extractSurname(this.white);
+        return extractSurname(getWhite());
     }
 
     public String getBlackSurname() {
-        return extractSurname(this.black);
+        return extractSurname(getBlack());
     }
 
     public String getVersusTitle() {
-        return formatVersusTitle(this.white, this.black);
+        return formatVersusTitle(getWhite(), getBlack());
     }
 
     public String getEvent() {

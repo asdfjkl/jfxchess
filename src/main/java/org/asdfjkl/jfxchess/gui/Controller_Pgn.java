@@ -18,16 +18,19 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import org.asdfjkl.jfxchess.lib.CbhToScid5Converter;
 import org.asdfjkl.jfxchess.lib.ChessDatabase;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameInfo;
 import org.asdfjkl.jfxchess.lib.PgnReader;
+import org.asdfjkl.jfxchess.lib.ProgressListener;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -120,7 +123,24 @@ public class Controller_Pgn {
         };
     }
 
-    private void openAndScanPgn() {
+    public ActionListener importGames() {
+        return e -> {
+            ChessDatabase targetDatabase = getCurrentDatabase();
+            if (targetDatabase == null || !targetDatabase.isOpen()) {
+                return;
+            }
+            openAndScanForImport(targetDatabase);
+        };
+    }
+
+    private void openAndScanForImport(ChessDatabase targetDatabase) {
+        if (targetDatabase == null || targetDatabase.isReadOnly()) {
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Cannot import games into a read-only database.",
+                    "Read-Only Database",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         File lastDir = model.getLastOpenedDirPath();
         JFileChooser chooser;
         if (lastDir != null && lastDir.exists() && lastDir.isDirectory()) {
@@ -128,36 +148,58 @@ public class Controller_Pgn {
         } else {
             chooser = new JFileChooser();
         }
-        FileNameExtensionFilter allDbsFilter = new FileNameExtensionFilter("Chess Databases (*.pgn, *.si5)", "pgn", "si5");
+        FileNameExtensionFilter allDbsFilter = new FileNameExtensionFilter(
+                "Chess Databases (*.pgn, *.si5, *.cbh, *.2cbh)", "pgn", "si5", "cbh", "2cbh");
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
         FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        FileNameExtensionFilter cbFilter = new FileNameExtensionFilter("ChessBase Databases (*.cbh, *.2cbh)", "cbh", "2cbh");
         chooser.addChoosableFileFilter(allDbsFilter);
         chooser.addChoosableFileFilter(pgnFilter);
         chooser.addChoosableFileFilter(scidFilter);
+        chooser.addChoosableFileFilter(cbFilter);
         chooser.setFileFilter(allDbsFilter);
         chooser.setAcceptAllFileFilterUsed(true);
+
         try {
+            model.setShortcutsEnabled(false);
             int result = chooser.showOpenDialog(model.mainFrameRef);
+            model.setShortcutsEnabled(true);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = chooser.getSelectedFile();
                 model.setLastOpenedDirPath(chooser.getCurrentDirectory());
                 if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
                     String filename = selectedFile.getAbsolutePath();
                     String lower = filename.toLowerCase();
-                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5") && !lower.endsWith(".sn5") && !lower.endsWith(".sg5")) {
+                    if (!isSupportedDatabaseExtension(lower)) {
                         JOptionPane.showMessageDialog(model.mainFrameRef,
-                                "Unsupported database format. Please select a .pgn or .si5 file.",
+                                "Unsupported database format. Please select a .pgn, .si5, .cbh, or .2cbh file.",
                                 "Error",
                                 JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    ChessDatabase database = getDatabase(filename);
-                    ChessScanWorker worker = new ChessScanWorker(database,
-                            entriesFromWorker -> onScanPgnCompletion(database)
+                    ChessDatabase sourceDatabase = ChessDatabase.openDatabase(filename);
+                    if (sourceDatabase.getPath() != null && sourceDatabase.getPath().equals(targetDatabase.getPath())) {
+                        sourceDatabase.close();
+                        JOptionPane.showMessageDialog(model.mainFrameRef,
+                                "Cannot import a database into itself.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    ChessScanWorker worker = new ChessScanWorker(sourceDatabase,
+                            entriesFromWorker -> onScanImportSourceCompletion(sourceDatabase, targetDatabase)
                     );
                     DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning Database");
+                    model.setShortcutsEnabled(false);
                     worker.execute();
                     dlgProgress.setVisible(true);
+                    model.setShortcutsEnabled(true);
+                    if (worker.isCancelled()) {
+                        try {
+                            sourceDatabase.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
                 } else {
                     JOptionPane.showMessageDialog(model.mainFrameRef,
                             "Error reading file.",
@@ -166,12 +208,277 @@ public class Controller_Pgn {
                 }
             }
         } catch (Exception e) {
+            model.setShortcutsEnabled(true);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Error opening source database: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void onScanImportSourceCompletion(ChessDatabase sourceDatabase, ChessDatabase targetDatabase) {
+        model.setShortcutsEnabled(false);
+        DialogImportGames dlgImport = new DialogImportGames(model.mainFrameRef, sourceDatabase, targetDatabase);
+        dlgImport.setVisible(true);
+        model.setShortcutsEnabled(true);
+
+        if (dlgImport.isConfirmed()) {
+            ArrayList<GameInfo> selectedGames = dlgImport.getSelectedGames();
+            ChessImportGamesWorker importWorker = new ChessImportGamesWorker(
+                    sourceDatabase,
+                    targetDatabase,
+                    selectedGames
+            );
+            DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, importWorker, "Importing Games");
+            model.setShortcutsEnabled(false);
+            importWorker.execute();
+            dlgProgress.setVisible(true);
+            model.setShortcutsEnabled(true);
+        } else {
+            try {
+                sourceDatabase.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private static boolean isSupportedDatabaseExtension(String lowerFilename) {
+        return lowerFilename.endsWith(".pgn")
+                || lowerFilename.endsWith(".si5")
+                || lowerFilename.endsWith(".sn5")
+                || lowerFilename.endsWith(".sg5")
+                || isChessBaseExtension(lowerFilename);
+    }
+
+    private static boolean isChessBaseExtension(String lowerFilename) {
+        return lowerFilename.endsWith(".cbh")
+                || lowerFilename.endsWith(".cbg")
+                || lowerFilename.endsWith(".cba")
+                || lowerFilename.endsWith(".cbp")
+                || lowerFilename.endsWith(".cbt")
+                || lowerFilename.endsWith(".cbc")
+                || lowerFilename.endsWith(".cbs")
+                || lowerFilename.endsWith(".2cbh")
+                || lowerFilename.endsWith(".2cbg")
+                || lowerFilename.endsWith(".2cba")
+                || lowerFilename.endsWith(".2lid");
+    }
+
+    private void openAndScanPgn() {
+        File lastDir = model.getLastOpenedDirPath();
+        JFileChooser chooser;
+        if (lastDir != null && lastDir.exists() && lastDir.isDirectory()) {
+            chooser = new JFileChooser(lastDir);
+        } else {
+            chooser = new JFileChooser();
+        }
+        FileNameExtensionFilter allDbsFilter = new FileNameExtensionFilter(
+                "Chess Databases (*.pgn, *.si5, *.cbh, *.2cbh)", "pgn", "si5", "cbh", "2cbh");
+        FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
+        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        FileNameExtensionFilter cbFilter = new FileNameExtensionFilter("ChessBase Databases (*.cbh, *.2cbh)", "cbh", "2cbh");
+        chooser.addChoosableFileFilter(allDbsFilter);
+        chooser.addChoosableFileFilter(pgnFilter);
+        chooser.addChoosableFileFilter(scidFilter);
+        chooser.addChoosableFileFilter(cbFilter);
+        chooser.setFileFilter(allDbsFilter);
+        chooser.setAcceptAllFileFilterUsed(true);
+        try {
+            model.setShortcutsEnabled(false);
+            int result = chooser.showOpenDialog(model.mainFrameRef);
+            model.setShortcutsEnabled(true);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                model.setLastOpenedDirPath(chooser.getCurrentDirectory());
+                if (selectedFile != null && selectedFile.exists() && selectedFile.canRead()) {
+                    String filename = selectedFile.getAbsolutePath();
+                    String lower = filename.toLowerCase();
+                    if (!isSupportedDatabaseExtension(lower)) {
+                        JOptionPane.showMessageDialog(model.mainFrameRef,
+                                "Unsupported database format. Please select a .pgn, .si5, .cbh, or .2cbh file.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if (isChessBaseExtension(lower)) {
+                        model.setShortcutsEnabled(false);
+                        Object[] options = new Object[]{"Convert to SCID5", "Open Read-Only"};
+                        int choice = JOptionPane.showOptionDialog(
+                                model.mainFrameRef,
+                                "ChessBase databases are opened read-only.\nWould you like to convert this database to SCID5 format?",
+                                "Open ChessBase Database",
+                                JOptionPane.DEFAULT_OPTION,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                options,
+                                options[0]
+                        );
+                        model.setShortcutsEnabled(true);
+                        if (choice == 0) {
+                            convertChessBaseAndOpen(selectedFile);
+                            return;
+                        } else if (choice != 1) {
+                            return;
+                        }
+                    }
+                    ChessDatabase database = getDatabase(filename);
+                    ChessScanWorker worker = new ChessScanWorker(database,
+                            entriesFromWorker -> onScanPgnCompletion(database)
+                    );
+                    DialogProgress dlgProgress = new DialogProgress(model.mainFrameRef, worker, "Scanning Database");
+                    model.setShortcutsEnabled(false);
+                    worker.execute();
+                    dlgProgress.setVisible(true);
+                    model.setShortcutsEnabled(true);
+                } else {
+                    JOptionPane.showMessageDialog(model.mainFrameRef,
+                            "Error reading file.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            model.setShortcutsEnabled(true);
             e.printStackTrace();
             JOptionPane.showMessageDialog(model.mainFrameRef,
                     "Error opening database: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void convertChessBaseAndOpen(File sourceFile) {
+        File lastSaveDir = model.getLastSaveDirPath();
+        JFileChooser saveChooser;
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+            saveChooser = new JFileChooser(lastSaveDir);
+        } else {
+            saveChooser = new JFileChooser(sourceFile.getParentFile());
+        }
+        String srcName = sourceFile.getName();
+        String stem = srcName;
+        int dot = srcName.lastIndexOf('.');
+        if (dot > 0) {
+            stem = srcName.substring(0, dot);
+        }
+        File initialDir;
+        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
+            initialDir = lastSaveDir;
+        } else {
+            initialDir = sourceFile.getParentFile();
+        }
+        saveChooser.setSelectedFile(new File(initialDir, stem + ".si5"));
+        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        saveChooser.addChoosableFileFilter(scidFilter);
+        saveChooser.setFileFilter(scidFilter);
+        saveChooser.setAcceptAllFileFilterUsed(false);
+
+        model.setShortcutsEnabled(false);
+        int saveRes = saveChooser.showSaveDialog(model.mainFrameRef);
+        model.setShortcutsEnabled(true);
+        if (saveRes != JFileChooser.APPROVE_OPTION || saveChooser.getSelectedFile() == null) {
+            return;
+        }
+        model.setLastSaveDirPath(saveChooser.getCurrentDirectory());
+        String targetFilename = saveChooser.getSelectedFile().getAbsolutePath();
+        String lowerTarget = targetFilename.toLowerCase();
+        if (lowerTarget.endsWith(".sn5") || lowerTarget.endsWith(".sg5")) {
+            targetFilename = targetFilename.substring(0, targetFilename.length() - 4) + ".si5";
+        } else if (!lowerTarget.endsWith(".si5")) {
+            targetFilename = targetFilename + ".si5";
+        }
+
+        Path targetSi5 = Path.of(targetFilename).toAbsolutePath().normalize();
+        String targetStem = targetSi5.toString().substring(0, targetSi5.toString().length() - 4);
+        Path targetSn5 = Path.of(targetStem + ".sn5");
+        Path targetSg5 = Path.of(targetStem + ".sg5");
+
+        if (Files.exists(targetSi5) || Files.exists(targetSn5) || Files.exists(targetSg5)) {
+            model.setShortcutsEnabled(false);
+            int confirm = JOptionPane.showConfirmDialog(
+                    model.mainFrameRef,
+                    "SCID5 database files already exist at:\n" + targetSi5 + "\nOverwrite existing files?",
+                    "Confirm Overwrite",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+            model.setShortcutsEnabled(true);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
+        ChessDatabase activeDb = getCurrentDatabase();
+        if (activeDb != null && targetSi5.equals(activeDb.getPath())) {
+            try {
+                model.closeActiveDatabase();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        model.getWorkspace().closeAndRemoveDatabase(targetSi5);
+
+        final Exception[] convertError = new Exception[1];
+        SwingWorker<Integer, Void> convertWorker = new SwingWorker<>() {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                return CbhToScid5Converter.convert(sourceFile.toPath(), targetSi5, new ProgressListener() {
+                    @Override
+                    public void onProgress(int percent) {
+                        setProgress(Math.max(0, Math.min(100, percent)));
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return isCancelledFlag();
+                    }
+                });
+            }
+
+            private boolean isCancelledFlag() {
+                return super.isCancelled();
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled()) {
+                    return;
+                }
+                try {
+                    get();
+                } catch (Exception ex) {
+                    convertError[0] = ex;
+                }
+            }
+        };
+
+        DialogProgress dlgConvert = new DialogProgress(model.mainFrameRef, convertWorker, "Converting to SCID5");
+        model.setShortcutsEnabled(false);
+        convertWorker.execute();
+        dlgConvert.setVisible(true);
+        model.setShortcutsEnabled(true);
+
+        if (convertWorker.isCancelled()) {
+            return;
+        }
+        if (convertError[0] != null) {
+            convertError[0].printStackTrace();
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Error converting database: " + convertError[0].getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ChessDatabase scidDb = getDatabase(targetSi5.toString());
+        ChessScanWorker scanWorker = new ChessScanWorker(scidDb,
+                entriesFromWorker -> onScanPgnCompletion(scidDb));
+        DialogProgress dlgScan = new DialogProgress(model.mainFrameRef, scanWorker, "Scanning Database");
+        model.setShortcutsEnabled(false);
+        scanWorker.execute();
+        dlgScan.setVisible(true);
+        model.setShortcutsEnabled(true);
     }
 
     private void onScanPgnCompletion(ChessDatabase database) {
@@ -208,10 +515,11 @@ public class Controller_Pgn {
     private void saveGame(GameSession gameSession) {
         ChessDatabase database = getCurrentDatabase();
         boolean isDbOpen = (database != null && database.isOpen());
+        boolean isReadOnly = (isDbOpen && database.isReadOnly());
         PgnSourceReference source = gameSession.getPgnSourceReference();
         GameInfo currentGameInfo = null;
 
-        if (isDbOpen && source != null && source.getDocumentPath().equals(database.getPath())) {
+        if (isDbOpen && !isReadOnly && source != null && source.getDocumentPath().equals(database.getPath())) {
             for (GameInfo info : database.getIndex()) {
                 if (info.getId().equals(source.getGameId().getValue())) {
                     currentGameInfo = info;
@@ -220,14 +528,18 @@ public class Controller_Pgn {
             }
         }
 
-        boolean replaceAllowed = (isDbOpen && currentGameInfo != null);
+        boolean appendAllowed = !isReadOnly;
+        boolean replaceAllowed = (isDbOpen && !isReadOnly && currentGameInfo != null);
 
         // show dialog
         model.setShortcutsEnabled(false);
-        DialogSave dlgSave = new DialogSave(model.mainFrameRef, replaceAllowed);
+        DialogSave dlgSave = new DialogSave(model.mainFrameRef, appendAllowed, replaceAllowed);
         dlgSave.setVisible(true);
         model.setShortcutsEnabled(true);
         int res = dlgSave.getResult();
+        if (isReadOnly) {
+            return;
+        }
         if (res == DialogSave.SAVE_REPLACE && currentGameInfo != null) {
             replaceCurrentPgn(gameSession, database, currentGameInfo);
         } else if (res == DialogSave.SAVE_NEW_APPEND) {
@@ -314,6 +626,13 @@ public class Controller_Pgn {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (database.isReadOnly()) {
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Cannot save to a read-only database.",
+                    "Read-Only Database",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         ChessSaveGameWorker worker = new ChessSaveGameWorker(database, g, (savedInfo, error) -> {
             if (error != null) {
                 JOptionPane.showMessageDialog(model.mainFrameRef,
@@ -336,6 +655,13 @@ public class Controller_Pgn {
     private void replaceCurrentPgn(GameSession gameSession,
                                    ChessDatabase database,
                                    GameInfo currentGameInfo) {
+        if (database == null || database.isReadOnly()) {
+            JOptionPane.showMessageDialog(model.mainFrameRef,
+                    "Cannot save to a read-only database.",
+                    "Read-Only Database",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         ChessReplaceGameWorker worker = new ChessReplaceGameWorker(database, gameSession.getGame(), currentGameInfo,
                 resultString -> onReplaceCurrentPgnFinished(
                         gameSession, database, currentGameInfo, resultString));
@@ -406,8 +732,8 @@ public class Controller_Pgn {
             model.setShortcutsEnabled(false);
             GameInfo currentInfo = getCurrentSessionGameInfo(database);
             DialogDatabase dlgDatabase = new DialogDatabase(model.mainFrameRef, database, this, currentInfo);
-            model.setShortcutsEnabled(true);
             dlgDatabase.setVisible(true);
+            model.setShortcutsEnabled(true);
             if (dlgDatabase.isConfirmed()) {
                 GameInfo gameInfo = dlgDatabase.getSelectedGame();
                 try {
@@ -423,6 +749,9 @@ public class Controller_Pgn {
         ChessDatabase database = getCurrentDatabase();
         if (database == null) {
             throw new IllegalStateException("No chess database is open");
+        }
+        if (database.isReadOnly()) {
+            throw new UnsupportedOperationException("Cannot delete games from a read-only database");
         }
         try {
             database.deleteGame(gameInfo);

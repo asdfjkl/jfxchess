@@ -1,5 +1,5 @@
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,73 +18,61 @@
 
 package org.asdfjkl.jfxchess.lib;
 
-//import org.asdfjkl.jfxchess.gui.PgnDatabaseEntry;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+/**
+ * Fast PGN reader powered by {@link PgnByteLexer} and {@link SanResolver}.
+ * Bypasses line-by-line String decoding and regex, operating directly on
+ * sliding 64 KB byte blocks.
+ */
 public class PgnReader {
 
-    GameNode currentNode = null;
-    String currentLine;  // current line
-    int currentIdx = 0; // current index
-    final Stack<GameNode> gameStack;
+    private static final Board STANDARD_ROOT = new Board(true);
+
+    private static final class VariationFrame {
+        final Board savedCurrent = new Board();
+        final Board savedPrev = new Board();
+        int savedPly;
+    }
+
+    private GameNode currentNode = null;
+    private final Stack<GameNode> gameStack;
+    private final VariationFrame[] varStack;
+    private final Board scanCurrentBoard;
+    private final Board scanPrevBoard;
 
     public PgnReader() {
         gameStack = new Stack<>();
+        varStack = new VariationFrame[64];
+        for (int i = 0; i < varStack.length; i++) {
+            varStack[i] = new VariationFrame();
+        }
+        scanCurrentBoard = new Board();
+        scanPrevBoard = new Board();
     }
 
     public HashMap<String, String> readSingleHeader(String filename, long offset) {
-        OptimizedRandomAccessFile raf = null;
-        HashMap<String, String> header = null;
-        try {
-            raf = new OptimizedRandomAccessFile(filename, "r");
-            header = readSingleHeader(raf, offset);
+        try (RandomAccessFile raf = new RandomAccessFile(filename, "r")) {
+            return readSingleHeader(raf, offset);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (header == null) {
             return new HashMap<>();
-        } else {
-            return header;
         }
     }
 
-    public HashMap<String, String> readSingleHeader(OptimizedRandomAccessFile raf, long offset) {
+    public HashMap<String, String> readSingleHeader(RandomAccessFile raf, long offset) {
         HashMap<String, String> header = new HashMap<>();
-        String currentLine = "";
-        boolean foundHeader = false;
         try {
-            raf.seek(offset);
-            while ((currentLine = raf.readLine()) != null) {
-                if (currentLine.startsWith("%")) {
-                    continue;
-                }
-                if (currentLine.startsWith("[")) {
-                    foundHeader = true;
-                    if (currentLine.length() > 4) {
-                        int spaceOffset = currentLine.indexOf(' ');
-                        int firstQuote = currentLine.indexOf('"');
-                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                        String tag = currentLine.substring(1, spaceOffset);
-                        String value = currentLine.substring(firstQuote + 1, secondQuote);
-                        header.put(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
-                    }
-                } else {
-                    if (foundHeader) {
-                        break;
-                    }
-                }
+            PgnByteLexer lexer = new PgnByteLexer(raf);
+            lexer.seek(offset);
+            int tkn;
+            while ((tkn = lexer.nextToken()) == PgnByteLexer.TOKEN_TAG) {
+                header.put(lexer.getTagName(), lexer.getTagValue());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,28 +80,8 @@ public class PgnReader {
         return header;
     }
 
-
-    private boolean isCol(char c) {
-        if(c >= 'a' && c <= 'h') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isRow(char c) {
-        int row = Character.getNumericValue(c) - 1;
-        if(row >= 0 && row <= 7) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void addMove(Move m) {
-
         GameNode next = new GameNode();
-
         Board currentBoard = this.currentNode.getBoard();
         try {
             Board childBoard = currentBoard.makeCopy();
@@ -123,541 +91,99 @@ public class PgnReader {
             next.setParent(this.currentNode);
             this.currentNode.addVariation(next);
             this.currentNode = next;
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
 
-    private void parseMoveToken() {
-        int start = currentIdx;
-        int len = currentLine.length();
-        while (currentIdx < len) {
-            char c = currentLine.charAt(currentIdx);
-            if (c == ' ' || c == '\t' || c == '\r' || c == '\n' ||
-                    c == '(' || c == ')' || c == '{' || c == '$' || c == '*' || c == ';') {
-                break;
-            }
-            currentIdx++;
-        }
-        if (currentIdx > start) {
-            String token = currentLine.substring(start, currentIdx);
-            Move m = SanResolver.parseSan(currentNode.getBoard(), token);
-            if (m != null) {
-                addMove(m);
-                if (token.contains("??")) {
-                    currentNode.addNag(CONSTANTS.NAG_BLUNDER);
-                } else if (token.contains("!!")) {
-                    currentNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
-                } else if (token.contains("!?")) {
-                    currentNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
-                } else if (token.contains("?!")) {
-                    currentNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
-                } else if (token.contains("?")) {
-                    currentNode.addNag(CONSTANTS.NAG_MISTAKE);
-                } else if (token.contains("!")) {
-                    currentNode.addNag(CONSTANTS.NAG_GOOD_MOVE);
+    private static int extractNagFromMoveToken(byte[] buf, int off, int len) {
+        boolean hasDoubleQ = false;
+        boolean hasDoubleE = false;
+        boolean hasQE = false;
+        boolean hasEQ = false;
+        boolean hasQ = false;
+        boolean hasE = false;
+
+        for (int i = 0; i < len; i++) {
+            byte b = buf[off + i];
+            if (b == '?' || b == '!') {
+                if (i + 1 < len) {
+                    byte b2 = buf[off + i + 1];
+                    if (b == '?' && b2 == '?') { hasDoubleQ = true; break; }
+                    if (b == '!' && b2 == '!') { hasDoubleE = true; break; }
+                    if (b == '!' && b2 == '?') { hasEQ = true; break; }
+                    if (b == '?' && b2 == '!') { hasQE = true; break; }
                 }
+                if (b == '?') hasQ = true;
+                if (b == '!') hasE = true;
             }
+        }
+
+        if (hasDoubleQ) {
+            return CONSTANTS.NAG_BLUNDER;
+        } else if (hasDoubleE) {
+            return CONSTANTS.NAG_BRILLIANT_MOVE;
+        } else if (hasEQ) {
+            return CONSTANTS.NAG_SPECULATIVE_MOVE;
+        } else if (hasQE) {
+            return CONSTANTS.NAG_DUBIOUS_MOVE;
+        } else if (hasQ) {
+            return CONSTANTS.NAG_MISTAKE;
+        } else if (hasE) {
+            return CONSTANTS.NAG_GOOD_MOVE;
+        }
+        return 0;
+    }
+
+    private void extractTrailingNag(byte[] buf, int off, int len) {
+        int nag = extractNagFromMoveToken(buf, off, len);
+        if (nag != 0) {
+            currentNode.addNag(nag);
         }
     }
 
-    private void parsePawnMove() {
-
-        int col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx)));
-        Board board = currentNode.getBoard();
-        if(currentIdx +1 < currentLine.length()) {
-            if(currentLine.charAt(currentIdx+1) == 'x') {
-                // after x, next one must be letter denoting column
-                // and then digit representing row, like exd4 (white)
-                // then parse d, 4, and check whether there is a pawn
-                // on e(4-1) = e3
-                if(currentIdx+3 < currentLine.length()) {
-                    if(this.isCol(currentLine.charAt(currentIdx+2))
-                            && this.isRow(currentLine.charAt(currentIdx+3)))
-                    {
-                        int col_to = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+2)));
-                        int row_to = Character.getNumericValue(currentLine.charAt(currentIdx+3)) - 1;
-                        int row_from = -1;
-                        if(board.turn == CONSTANTS.WHITE && row_to - 1 >= 0
-                                && board.isPieceAt(col, row_to - 1)
-                            && board.getPieceAt(col, row_to - 1) == CONSTANTS.WHITE_PAWN) {
-                            row_from = row_to - 1;
-                        } else if(board.turn == CONSTANTS.BLACK && row_to + 1 <= 7
-                                && board.isPieceAt(col, row_to + 1)
-                                && board.getPieceAt(col, row_to + 1) == CONSTANTS.BLACK_PAWN) {
-                            row_from = row_to + 1;
-                        }
-                        if(row_from >= 0 && row_from <= 7) {
-                            // check whether this is a promotion, i.e. exd8=Q
-                            if(currentIdx+5 < currentLine.length() && currentLine.charAt(currentIdx+4) == '=' &&
-                                    (currentLine.charAt(currentIdx+5) == 'R' ||
-                                    currentLine.charAt(currentIdx+5) == 'B' ||
-                                    currentLine.charAt(currentIdx+5) == 'N' ||
-                                    currentLine.charAt(currentIdx+5) == 'Q')) {
-                                Move m = new Move(col, row_from, col_to, row_to, currentLine.charAt(currentIdx+5));
-                                this.addMove(m);
-                                currentIdx += 6;
-                                return;
-                            } else { // just a normal move, like exd4
-                                Move m = new Move(col, row_from, col_to, row_to);
-                                this.addMove(m);
-                                currentIdx += 4;
-                                return;
-                            }
-                        } else {
-                            currentIdx += 4;
-                            return;
-                        }
-                    } else {
-                        currentIdx += 4;
-                        return;
-                    }
-                } else {
-                    currentIdx += 2;
-                    return;
-                }
-            } else { // only other case: must be a number
-                if(this.isRow(currentLine.charAt(currentIdx+1))) {
-                    int row = Character.getNumericValue(currentLine.charAt(currentIdx+1)) - 1;
-                    int from_row = -1;
-                    if(board.turn == CONSTANTS.WHITE) {
-                        for(int row_i = row - 1;row_i>= 1;row_i--) {
-                            if(board.isPieceAt(col, row_i) && board.getPieceAt(col,row_i) == CONSTANTS.WHITE_PAWN) {
-                                from_row = row_i;
-                                break;
-                            }
-                        }
-                    } else {
-                        for(int row_i = row + 1;row_i<= 7;row_i++) {
-                            if(board.isPieceAt(col, row_i) && board.getPieceAt(col,row_i) == CONSTANTS.BLACK_PAWN) {
-                                from_row = row_i;
-                                break;
-                            }
-                        }
-                    }
-                    if(from_row >= 0) { // means we found a from square
-                        // check whether this is a promotion
-                        if(currentIdx+3 < currentLine.length() && currentLine.charAt(currentIdx+2) == '=' &&
-                                (currentLine.charAt(currentIdx+3) == 'R' ||
-                                currentLine.charAt(currentIdx+3) == 'B' ||
-                                currentLine.charAt(currentIdx+3) == 'N' ||
-                                currentLine.charAt(currentIdx+3) == 'Q')) {
-                            Move m = new Move(col, from_row, col, row, currentLine.charAt(currentIdx+3));
-                            this.addMove(m);
-                            currentIdx += 4;
-                            return;
-                        } else { // not a promotion, just a standard pawn move
-                            Move m = new Move(col, from_row, col, row);
-                            this.addMove(m);
-                            currentIdx += 2;
-                            return;
-                        }
-                    } else {
-                        currentIdx+=2;
-                        return;
-                    }
-                } else {
-                    currentIdx+=2;
-                    return;
-                }
-            }
-        }
-        currentIdx += 2;
-        return;
-    }
-
-    private void createPieceMove(int pieceType, int to_col, int to_row) {
-
-        Board board = currentNode.getBoard();
-        int to_internal = board.xyToInternal(to_col, to_row);
-        ArrayList<Move> pseudos = board.pseudoLegalMoves(CONSTANTS.ANY_SQUARE, to_internal, pieceType, false, board.turn);
-        if (pseudos.size() == 1) {
-            Move m = pseudos.get(0);
-            this.addMove(m);
-        } else {
-            ArrayList<Move> legals = board.legalsFromPseudos(pseudos);
-            if (legals.size() == 1) {
-                Move m = legals.get(0);
-                this.addMove(m);
-            }
+    private void parseMoveToken(PgnByteLexer lexer) {
+        byte[] buf = lexer.getBuffer();
+        int off = lexer.getTokenOffset();
+        int len = lexer.getTokenLength();
+        Move m = SanResolver.parseSan(currentNode.getBoard(), buf, off, len);
+        if (m != null) {
+            addMove(m);
+            extractTrailingNag(buf, off, len);
         }
     }
 
-    private void createPieceMove(int pieceType, int to_col, int to_row, char qc_from_col) {
-
-        Board board = currentNode.getBoard();
-        int from_col = Board.alphaToPos(Character.toUpperCase(qc_from_col));
-        int to_internal = board.xyToInternal(to_col, to_row);
-        ArrayList<Move> pseudos = board.pseudoLegalMoves(CONSTANTS.ANY_SQUARE, to_internal, pieceType, false, board.turn);
-        ArrayList<Move> filter = new ArrayList<>();
-        for(int i=0;i<pseudos.size();i++) {
-            Move m = pseudos.get(i);
-            if((m.from % 10) - 1 == from_col) {
-                filter.add(m);
-            }
-        }
-        if(filter.size() == 1) {
-            Move m = filter.get(0);
-            this.addMove(m);
-        } else {
-            ArrayList<Move> legals = board.legalsFromPseudos(pseudos);
-            if(legals.size() == 1) {
-                Move m = legals.get(0);
-                this.addMove(m);
-            }
-        }
-    }
-
-    private void createPieceMove(int pieceType, int to_col, int to_row, int from_row) {
-
-        Board board = currentNode.getBoard();
-        int to_internal = board.xyToInternal(to_col, to_row);
-        ArrayList<Move> pseudos = board.pseudoLegalMoves(CONSTANTS.ANY_SQUARE, to_internal, pieceType, false, board.turn);
-        ArrayList<Move> filter = new ArrayList<>();
-        for(int i=0;i<pseudos.size();i++) {
-            Move m = pseudos.get(i);
-            if((m.from / 10) - 2 == from_row) {
-                filter.add(m);
-            }
-        }
-        if(filter.size() == 1) {
-            Move m = filter.get(0);
-            this.addMove(m);
-        } else {
-            ArrayList<Move> legals = board.legalsFromPseudos(pseudos);
-            if(legals.size() == 1) {
-                Move m = legals.get(0);
-                this.addMove(m);
-            }
-        }
-    }
-
-    private void parsePieceMove(int pieceType) {
-
-        // we have a piece move like "Qxe4" where index points to Q
-        // First move idx after piece symbol, i.e. to ">x<e4"
-        currentIdx+=1;
-        if(currentIdx < currentLine.length() && currentLine.charAt(currentIdx) == 'x') {
-            currentIdx+=1;
-        }
-        if(currentIdx < currentLine.length()) {
-            if(this.isCol(currentLine.charAt(currentIdx))) {
-                //Qe? or Qxe?, now either digit must follow (Qe4 / Qxe4)
-                //or we have a disambiguation (Qee5, Qexe5)
-                if(currentIdx+1 < currentLine.length()) {
-                    if(this.isRow(currentLine.charAt(currentIdx+1))) {
-                        int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx)));
-                        int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+1)) - 1;
-                        currentIdx+=2;
-                        // standard move, i.e. Qe4
-                        try {
-                            createPieceMove(pieceType, to_col, to_row);
-                        } catch (IllegalArgumentException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        // fix: skip x if we have Qexe5
-                        int skipForTake = 0;
-                        if(currentLine.charAt(currentIdx+1) == 'x' && currentIdx + 2 < currentLine.length()) {
-                            skipForTake = 1;
-                            currentIdx+=1;
-                        }
-                        // fix end
-                        if(this.isCol(currentLine.charAt(currentIdx+1))) {
-                            // we have a disambiguation, that should be resolved by
-                            // the column denoted in the san, here in @line[idx]
-                            int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
-                            if(currentIdx+2 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx+2))) {
-                                int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+2)) - 1;
-                                // move w/ disambiguate on col, i.e. Qee4
-                                // provide line[idx] to cratePieceMove to resolve disamb.
-                                currentIdx+=3;
-                                try {
-                                    createPieceMove(pieceType, to_col, to_row, currentLine.charAt(currentIdx - (3 + skipForTake)));
-                                } catch (IllegalArgumentException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                currentIdx+=4;
-                                return;
-                            }
-                        } else {
-                            currentIdx+=3;
-                            return;
-                        }
-                    }
-                } else {
-                    currentIdx+=2;
-                    return;
-                }
-            } else {
-                if(currentIdx+1 < currentLine.length() && this.isRow(currentLine.charAt(currentIdx))) {
-                    // we have a move with disamb, e.g. Q4xe5 or Q4e5
-                    int from_row = Character.getNumericValue(currentLine.charAt(currentIdx))- 1;
-                    if(currentLine.charAt(currentIdx+1) == 'x') {
-                        currentIdx+=1;
-                    }
-                    if(currentIdx+2 < currentLine.length() && this.isCol(currentLine.charAt(currentIdx+1))
-                            && this.isRow(currentLine.charAt(currentIdx+2)))
-                    {
-                        int to_col = Board.alphaToPos(Character.toUpperCase(currentLine.charAt(currentIdx+1)));
-                        int to_row = Character.getNumericValue(currentLine.charAt(currentIdx+2)) - 1;
-                        // parse the ambig move
-                        currentIdx+=3;
-                        try {
-                            createPieceMove(pieceType, to_col, to_row, from_row);
-                        } catch (IllegalArgumentException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        currentIdx+=3;
-                        return;
-                    }
-                } else {
-                    currentIdx+=2;
-                    return;
-                }
-            }
-        } else {
-            currentIdx+=2;
-            return;
-        }
-    }
-
-
-    private void parseCastleMove() {
-
-        int lineSize = currentLine.length();
-        if(currentIdx+4 < lineSize && ( currentLine.substring(currentIdx,currentIdx+5).equals("O-O-O")
-                || currentLine.substring(currentIdx,currentIdx+5).equals("0-0-0")) )
-        {
-            if(currentNode.getBoard().turn == CONSTANTS.WHITE) {
-                Move m = new Move(CONSTANTS.E1,CONSTANTS.C1);
-                this.addMove(m);
-                currentIdx += 5;
-                return;
-            } else {
-                Move m = new Move(CONSTANTS.E8,CONSTANTS.C8);
-                this.addMove(m);
-                currentIdx += 5;
-                return;
-            }
-        }
-        if(currentIdx+2 < lineSize && ( currentLine.substring(currentIdx,currentIdx+3).equals("O-O"))) {  // || line.mid(idx,3) == QString::fromLatin1("0-0"))) {
-            if(currentNode.getBoard().turn == CONSTANTS.WHITE) {
-                Move m = new Move(CONSTANTS.E1,CONSTANTS.G1);
-                this.addMove(m);
-                currentIdx += 3;
-                return;
-            } else {
-                Move m = new Move(CONSTANTS.E8,CONSTANTS.G8);
-                this.addMove(m);
-                currentIdx += 3;
-                return;
-            }
-        }
-        currentIdx+=1;
-        return;
-    }
-
-
-    private void parseNAG() {
-
-        int lineSize = currentLine.length();
-
-        if(currentLine.charAt(currentIdx) == '$') {
-            int idx_end = currentIdx;
-            //while(idx_end < lineSize && currentLine.charAt(idx_end) != ' ') {
-            while(idx_end < lineSize && (currentLine.charAt(idx_end) == '$'
-                    || (currentLine.charAt(idx_end) >= '0' && currentLine.charAt(idx_end) <= '9'))) {
-                idx_end++;
-            }
-            if(idx_end+1 > currentIdx) {
-                boolean ok;
-                try {
-                    int nr = Integer.parseInt(currentLine.substring(currentIdx + 1, idx_end));
-                    currentNode.addNag(nr);
-                    currentIdx = idx_end;
-                } catch(NumberFormatException e) {
-                    currentIdx += 1;
-                }
-            } else {
-                currentIdx += 1;
-            }
-            return;
-        }
-        if(currentLine.startsWith("??", currentIdx)) {
-            currentNode.addNag(CONSTANTS.NAG_BLUNDER);
-            currentIdx += 3;
-            return;
-        }
-        if(currentLine.startsWith("!!", currentIdx)) {
-            currentNode.addNag(CONSTANTS.NAG_BRILLIANT_MOVE);
-            currentIdx += 3;
-            return;
-        }
-        if(currentLine.startsWith("!?", currentIdx)) {
-            currentNode.addNag(CONSTANTS.NAG_SPECULATIVE_MOVE);
-            currentIdx += 3;
-            return;
-        }
-        if(currentLine.startsWith("?!", currentIdx)) {
-            currentNode.addNag(CONSTANTS.NAG_DUBIOUS_MOVE);
-            currentIdx += 3;
-            return;
-        }
-        if(currentLine.charAt(currentIdx) == '?') {
-            currentNode.addNag(CONSTANTS.NAG_MISTAKE);
-            currentIdx += 2;
-            return;
-        }
-        if(currentLine.charAt(currentIdx) == '!') {
-            currentNode.addNag(CONSTANTS.NAG_GOOD_MOVE);
-            currentIdx += 2;
-            return;
-        }
-    }
-
-    private int getNetxtToken() {
-
-        int lineSize = currentLine.length();
-        while(currentIdx < lineSize) {
-            char ci = currentLine.charAt(currentIdx);
-            if(ci == ' ' || ci == '.') {
-                currentIdx += 1;
-                continue;
-            }
-            if(ci >= '0' && ci <= '9') {
-                if(ci == '1') {
-                    if(currentIdx+1 < lineSize) {
-                        if(currentLine.charAt(currentIdx+1) == '-') {
-                            if(currentIdx+2 < lineSize && currentLine.charAt(currentIdx+2) == '0') {
-                                return CONSTANTS.TKN_RES_WHITE_WIN;
-                            }
-                        }
-                        if(currentIdx+1 < lineSize && currentLine.charAt(currentIdx+1) == '/') {
-                            if(currentIdx+6 < lineSize && currentLine.substring(currentIdx,currentIdx+7).equals("1/2-1/2")) {
-                                return CONSTANTS.TKN_RES_DRAW;
-                            }
-                        }
-                    }
-                }
-                // irregular castling like 0-0 or 0-0-0
-                if(ci == '0') {
-                    if(currentIdx+1 < lineSize && currentLine.charAt(currentIdx+1) == '-') {
-                        if(currentIdx+2 < lineSize && currentLine.charAt(currentIdx+2) == '1') {
-                            return CONSTANTS.TKN_RES_BLACK_WIN;
-                        } else {
-                            if(currentIdx+2 < lineSize && currentLine.charAt(currentIdx+2) == '0') {
-                                return CONSTANTS.TKN_CASTLE;
-                            }
-                        }
-                    }
-                }
-                // none of the above -> move number, just continue
-                currentIdx += 1;
-                continue;
-            }
-            if(ci >= 'a' && ci <= 'h') {
-                return CONSTANTS.TKN_PAWN_MOVE;
-            }
-            if(ci == 'O') {
-                return CONSTANTS.TKN_CASTLE;
-            }
-            if(ci == 'R') {
-                return CONSTANTS.TKN_ROOK_MOVE;
-            }
-            if(ci == 'N') {
-                return CONSTANTS.TKN_KNIGHT_MOVE;
-            }
-            if(ci == 'B') {
-                return CONSTANTS.TKN_BISHOP_MOVE;
-            }
-            if(ci == 'Q') {
-                return CONSTANTS.TKN_QUEEN_MOVE;
-            }
-            if(ci == 'K') {
-                return CONSTANTS.TKN_KING_MOVE;
-            }
-            if(ci == '+') {
-                return CONSTANTS.TKN_CHECK;
-            }
-            if(ci == '(') {
-                return CONSTANTS.TKN_OPEN_VARIATION;
-            }
-            if(ci == ')') {
-                return CONSTANTS.TKN_CLOSE_VARIATION;
-            }
-            if(ci == '$' || ci == '!' || ci == '?') {
-                return CONSTANTS.TKN_NAG;
-            }
-            if(ci == '{') {
-                return CONSTANTS.TKN_OPEN_COMMENT;
-            }
-            if(ci == '*') {
-                return CONSTANTS.TKN_RES_UNDEFINED;
-            }
-            if(ci == '-') {
-                if(currentIdx + 1 < lineSize && currentLine.charAt(currentIdx+1) == '-') {
-                    return CONSTANTS.TKN_NULL_MOVE;
-                }
-            }
-            // if none of the above match, try to continue until we
-            // find another usable token
-            currentIdx += 1;
-        }
-        return CONSTANTS.TKN_EOL;
-    }
-
-    public Game readGame(OptimizedRandomAccessFile raf) {
-
-        currentLine = "";
-        currentIdx = 0;
-
-        String startingFen = "";
-
+    /**
+     * Reads a game from a streaming {@link PgnByteLexer}.
+     *
+     * @param lexer the byte lexer
+     * @return the parsed Game, or null if EOF was reached without content
+     */
+    public Game readGame(PgnByteLexer lexer) throws IOException {
         Game g = new Game();
-
         gameStack.clear();
         gameStack.push(g.getRootNode());
         currentNode = g.getRootNode();
         Board rootBoard = new Board(true);
         currentNode.setBoard(rootBoard);
 
-        currentLine = null;
+        String startingFen = "";
+        int tkn;
+        boolean hasContent = false;
 
-        try {
-            while ((currentLine = raf.readLine()) != null) {
-                if (currentLine.startsWith("%") || currentLine.isEmpty()) {
-                    continue;
-                }
-
-                if (currentLine.startsWith("[")) {
-                    if (currentLine.length() > 4) {
-                        int spaceOffset = currentLine.indexOf(' ');
-                        int firstQuote = currentLine.indexOf('"');
-                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                        if(spaceOffset > 1 && firstQuote >= 0 && secondQuote >= 0 && secondQuote > (firstQuote+1)) {
-                            String tag = currentLine.substring(1, spaceOffset);
-                            String value = currentLine.substring(firstQuote + 1, secondQuote);
-                            if (tag.equals("FEN")) {
-                                startingFen = value;
-                            } else {
-                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
-                            }
-                        }
-                    }
-                    continue;
-                } else {
-                    break; // finished reading header
-                }
+        // 1. Parse tag headers
+        while ((tkn = lexer.nextToken()) == PgnByteLexer.TOKEN_TAG) {
+            hasContent = true;
+            String tag = lexer.getTagName();
+            String value = lexer.getTagValue();
+            if ("FEN".equals(tag)) {
+                startingFen = value;
+            } else {
+                g.setHeader(tag, value);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return g;
         }
-        // now the actual game should start.
-        // try to set the starting fen, if it exists
+
+        // Set starting FEN if present
         if (!startingFen.isEmpty()) {
             try {
                 Board boardFen = new Board(startingFen);
@@ -671,384 +197,245 @@ public class PgnReader {
             }
         }
 
-        // we should now have a header, seek first non-empty line
-        // if we already reached it, just skip this part
-        if(currentLine.trim().isEmpty()) {
-            try {
-                while (true) {
-                    currentLine = raf.readLine();
-                    if (currentLine == null) { //reached eof
-                        return g;
-                    }
-                    if (currentLine.trim().isEmpty()) {
-                        continue;
+        // 2. Movetext loop
+        while (tkn != PgnByteLexer.TOKEN_EOF) {
+            hasContent = true;
+            if (tkn == PgnByteLexer.TOKEN_TAG) {
+                // Next game encountered!
+                lexer.pushBackToken();
+                break;
+            } else if (tkn == PgnByteLexer.TOKEN_RESULT) {
+                g.setResult(lexer.getResult());
+                // Look ahead for optional trailing comment or next game
+                while ((tkn = lexer.nextToken()) != PgnByteLexer.TOKEN_EOF) {
+                    if (tkn == PgnByteLexer.TOKEN_COMMENT) {
+                        currentNode.setComment(lexer.getComment());
+                    } else if (tkn == PgnByteLexer.TOKEN_TAG) {
+                        lexer.pushBackToken();
+                        break;
                     } else {
+                        lexer.pushBackToken();
                         break;
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return g;
+                break;
+            } else if (tkn == PgnByteLexer.TOKEN_MOVE) {
+                parseMoveToken(lexer);
+            } else if (tkn == PgnByteLexer.TOKEN_NULL_MOVE) {
+                Move m = new Move();
+                m.isNullMove = true;
+                addMove(m);
+            } else if (tkn == PgnByteLexer.TOKEN_OPEN_VARIATION) {
+                if (currentNode != g.getRootNode()) {
+                    gameStack.push(currentNode);
+                    currentNode = currentNode.getParent();
+                }
+            } else if (tkn == PgnByteLexer.TOKEN_CLOSE_VARIATION) {
+                if (gameStack.size() > 1) {
+                    currentNode = gameStack.pop();
+                }
+            } else if (tkn == PgnByteLexer.TOKEN_NAG) {
+                currentNode.addNag(lexer.getNag());
+            } else if (tkn == PgnByteLexer.TOKEN_COMMENT) {
+                currentNode.setComment(lexer.getComment());
             }
+
+            tkn = lexer.nextToken();
         }
 
-        boolean firstLine = true;
-
-        try {
-            while (true) {
-                // if we are at the first line after skipping
-                // all the empty ones, don't read another line
-                // otherwise, call readLine
-                if (!firstLine) {
-                    currentLine = raf.readLine();
-                } else {
-                    firstLine = false;
-                }
-                if (currentLine == null || currentLine.isEmpty()) {
-                    return g;
-                }
-                if (currentLine.startsWith("%")) {
-                    continue;
-                }
-
-                currentIdx = 0;
-                while (currentIdx < currentLine.length()) {
-                    int tkn = getNetxtToken();
-                    if (tkn == CONSTANTS.TKN_EOL) {
-                        break;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_WHITE_WIN) {
-                        // 1-0
-                        g.setResult(CONSTANTS.RES_WHITE_WINS);
-                        currentIdx += 4;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_BLACK_WIN) {
-                        // 0-1
-                        g.setResult(CONSTANTS.RES_BLACK_WINS);
-                        currentIdx += 4;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_UNDEFINED) {
-                        // *
-                        g.setResult(CONSTANTS.RES_UNDEF);
-                        currentIdx += 2;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_DRAW) {
-                        // 1/2-1/2
-                        g.setResult(CONSTANTS.RES_DRAW);
-                        currentIdx += 8;
-                    }
-                    if (tkn == CONSTANTS.TKN_PAWN_MOVE ||
-                            tkn == CONSTANTS.TKN_CASTLE ||
-                            tkn == CONSTANTS.TKN_ROOK_MOVE ||
-                            tkn == CONSTANTS.TKN_KNIGHT_MOVE ||
-                            tkn == CONSTANTS.TKN_BISHOP_MOVE ||
-                            tkn == CONSTANTS.TKN_QUEEN_MOVE ||
-                            tkn == CONSTANTS.TKN_KING_MOVE) {
-                        parseMoveToken();
-                    }
-                    if (tkn == CONSTANTS.TKN_CHECK) {
-                        currentIdx += 1;
-                    }
-                    if (tkn == CONSTANTS.TKN_NULL_MOVE) {
-                        Move m = new Move();
-                        m.isNullMove = true;
-                        addMove(m);
-                        currentIdx += 2;
-                    }
-                    if (tkn == CONSTANTS.TKN_OPEN_VARIATION) {
-                        // put current node on stack, so that we don't forget it.
-                        // however if we are at the root node, something
-                        // is wrong in the PGN. Silently ignore "(" then
-                        if(currentNode != g.getRootNode()) {
-                            gameStack.push(currentNode);
-                            currentNode = currentNode.getParent();
-                        }
-                        currentIdx += 1;
-                    }
-                    if (tkn == CONSTANTS.TKN_CLOSE_VARIATION) {
-                        // pop from stack. but always leave root
-                        if (gameStack.size() > 1) {
-                            currentNode = gameStack.pop();
-                        }
-                        currentIdx += 1;
-                    }
-                    if (tkn == CONSTANTS.TKN_NAG) {
-                        parseNAG();
-                    }
-                    if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
-                        //String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
-                        String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
-                        int end = rest_of_line.indexOf("}");
-                        if (end >= 0) {
-                            String comment_line = rest_of_line.substring(0, end);
-                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
-                            currentIdx = currentIdx + end + 1;
-                        } else {
-                            // get comment over multiple lines
-                            StringBuilder comment_lines = new StringBuilder();
-                            //String comment_line = currentLine.substring(currentIdx + 1, currentLine.length() - (currentIdx + 1));
-                            String comment_line = currentLine.substring(currentIdx + 1);
-                            comment_lines.append(comment_line).append("\n");
-                            // we already have the comment part of the current line,
-                            // so read-in the next line, and then loop until we find
-                            // the end marker "}"
-                            //currentLine = raf.readLine();
-                            int linesRead = 0;
-                            int end_index = -1;
-                            while (linesRead < 500) { // what if we never find "}" ??? -> stop after 500 lines
-                                currentLine = raf.readLine();
-                                if(currentLine == null) {
-                                    currentLine = "";
-                                    end_index = -1;
-                                    break;
-                                }
-                                linesRead += 1;
-                                if (currentLine.contains("}")) {
-                                    end_index = currentLine.indexOf("}");
-                                    break;
-                                } else {
-                                    comment_lines.append(currentLine).append("\n");
-                                }
-                            }
-                            if (end_index >= 0) {
-                                comment_lines.append(currentLine, 0, end_index);
-                                comment_lines.append("\n");
-                                currentIdx = end_index + 1;
-                            }
-                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
-                        }
-                    }
-                }
-
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!hasContent && tkn == PgnByteLexer.TOKEN_EOF) {
+            return null;
         }
-
         return g;
     }
 
+    public Game readGame(RandomAccessFile raf) {
+        try {
+            return readGame(new PgnByteLexer(raf));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Game();
+        }
+    }
+
+    public Game readGame(File file) {
+        try (PgnByteLexer lexer = new PgnByteLexer(file)) {
+            return readGame(lexer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Game();
+        }
+    }
 
     public Game readGame(String gameString) {
+        if (gameString == null || gameString.isEmpty()) {
+            return new Game();
+        }
+        try {
+            PgnByteLexer lexer = new PgnByteLexer(gameString.getBytes(StandardCharsets.UTF_8));
+            Game g = readGame(lexer);
+            return g != null ? g : new Game();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Game();
+        }
+    }
 
-        String[] lines = gameString.split("\n");
-
-        currentLine = "";
-        currentIdx = 0;
-
+    /**
+     * Streams a single PGN game to a {@link PgnGameConsumer} with zero AST allocations
+     * and in-place {@link Board} mutation.
+     *
+     * @param lexer the byte lexer
+     * @param consumer the game event consumer
+     * @return true if a game was processed (or aborted early), false if EOF reached without content
+     */
+    public boolean scanGame(PgnByteLexer lexer, PgnGameConsumer consumer) throws IOException {
+        int tkn;
+        boolean hasContent = false;
         String startingFen = "";
 
-        Game g = new Game();
-
-        gameStack.clear();
-        gameStack.push(g.getRootNode());
-        currentNode = g.getRootNode();
-        Board rootBoard = new Board(true);
-        currentNode.setBoard(rootBoard);
-
-        currentLine = null;
-
-        int lineIndex = 0;
-
-            while (lineIndex < lines.length) {
-                currentLine = lines[lineIndex];
-
-                if (currentLine.startsWith("%") || currentLine.isEmpty()) {
-                    lineIndex += 1;
-                    continue;
-                }
-
-                if (currentLine.startsWith("[")) {
-                    if (currentLine.length() > 4) {
-                        int spaceOffset = currentLine.indexOf(' ');
-                        int firstQuote = currentLine.indexOf('"');
-                        int secondQuote = currentLine.indexOf('"', firstQuote + 1);
-                        if(spaceOffset > 1 && firstQuote >= 0 && secondQuote >= 0 && secondQuote > (firstQuote+1)) {
-                            String tag = currentLine.substring(1, spaceOffset);
-                            String value = currentLine.substring(firstQuote + 1, secondQuote);
-                            if (tag.equals("FEN")) {
-                                startingFen = value;
-                            } else {
-                                g.setHeader(tag, new String(value.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                            }
-                        }
-                    }
-                    lineIndex += 1;
-                    continue;
-                } else {
-                    break; // finished reading header
-                }
+        // 1. Parse tag headers
+        while ((tkn = lexer.nextToken()) == PgnByteLexer.TOKEN_TAG) {
+            hasContent = true;
+            String tag = lexer.getTagName();
+            String value = lexer.getTagValue();
+            if ("FEN".equals(tag)) {
+                startingFen = value;
             }
+            consumer.onTag(tag, value);
+        }
 
-
-        // now the actual game should start.
-        // try to set the starting fen, if it exists
+        // Set starting board
         if (!startingFen.isEmpty()) {
             try {
                 Board boardFen = new Board(startingFen);
                 if (!boardFen.isConsistent()) {
-                    return g;
-                } else {
-                    currentNode.setBoard(boardFen);
+                    return hasContent;
                 }
+                scanCurrentBoard.copy(boardFen);
             } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+                scanCurrentBoard.copy(STANDARD_ROOT);
             }
+        } else {
+            scanCurrentBoard.copy(STANDARD_ROOT);
         }
+        scanPrevBoard.copy(scanCurrentBoard);
 
-        // we should now have a header, seek first non-empty line
-        // if we already reached it, just skip this part
-        if(currentLine.trim().isEmpty()) {
-            while (lineIndex < lines.length - 1) {
-                lineIndex += 1;
-                currentLine = lines[lineIndex];
-                if (currentLine.trim().isEmpty()) {
-                    continue;
-                } else {
-                    break;
-                }
+        // Notify game start with root board. If consumer returns false, early exit immediately!
+        if (!consumer.onGameStart(scanCurrentBoard)) {
+            int next = lexer.skipToNextTag();
+            if (next == PgnByteLexer.TOKEN_TAG) {
+                lexer.pushBackToken();
             }
+            return true;
         }
 
-        if(lineIndex >= lines.length) {
-            return g;
-        }
+        int varDepth = 0;
+        int ply = 0;
 
-        boolean firstLine = true;
-
-            while (true) {
-                // if we are at the first line after skipping
-                // all the empty ones, don't read another line
-                // otherwise, call readLine
-                if (!firstLine) {
-                    lineIndex += 1;
-                } else {
-                    firstLine = false;
-                }
-                if (lineIndex >= lines.length) {
-                    return g;
-                }
-                currentLine = lines[lineIndex];
-                if(currentLine.isEmpty()) {
-                    return g;
-                }
-                if (currentLine.startsWith("%")) {
-                    lineIndex += 1;
-                    continue;
-                }
-
-                currentIdx = 0;
-                while (currentIdx < currentLine.length()) {
-                    int tkn = getNetxtToken();
-                    if (tkn == CONSTANTS.TKN_EOL) {
+        // 2. Movetext loop
+        while (tkn != PgnByteLexer.TOKEN_EOF) {
+            hasContent = true;
+            if (tkn == PgnByteLexer.TOKEN_TAG) {
+                // Next game encountered!
+                lexer.pushBackToken();
+                break;
+            } else if (tkn == PgnByteLexer.TOKEN_RESULT) {
+                consumer.onResult(lexer.getResult());
+                // Look ahead for optional trailing comment or next game
+                while ((tkn = lexer.nextToken()) != PgnByteLexer.TOKEN_EOF) {
+                    if (tkn == PgnByteLexer.TOKEN_COMMENT) {
+                        consumer.onComment(lexer.getComment());
+                    } else if (tkn == PgnByteLexer.TOKEN_TAG) {
+                        lexer.pushBackToken();
+                        break;
+                    } else {
+                        lexer.pushBackToken();
                         break;
                     }
-                    if (tkn == CONSTANTS.TKN_RES_WHITE_WIN) {
-                        // 1-0
-                        g.setResult(CONSTANTS.RES_WHITE_WINS);
-                        currentIdx += 4;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_BLACK_WIN) {
-                        // 0-1
-                        g.setResult(CONSTANTS.RES_BLACK_WINS);
-                        currentIdx += 4;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_UNDEFINED) {
-                        // *
-                        g.setResult(CONSTANTS.RES_UNDEF);
-                        currentIdx += 2;
-                    }
-                    if (tkn == CONSTANTS.TKN_RES_DRAW) {
-                        // 1/2-1/2
-                        g.setResult(CONSTANTS.RES_DRAW);
-                        currentIdx += 8;
-                    }
-                    if (tkn == CONSTANTS.TKN_PAWN_MOVE ||
-                            tkn == CONSTANTS.TKN_CASTLE ||
-                            tkn == CONSTANTS.TKN_ROOK_MOVE ||
-                            tkn == CONSTANTS.TKN_KNIGHT_MOVE ||
-                            tkn == CONSTANTS.TKN_BISHOP_MOVE ||
-                            tkn == CONSTANTS.TKN_QUEEN_MOVE ||
-                            tkn == CONSTANTS.TKN_KING_MOVE) {
-                        parseMoveToken();
-                    }
-                    if (tkn == CONSTANTS.TKN_CHECK) {
-                        currentIdx += 1;
-                    }
-                    if (tkn == CONSTANTS.TKN_NULL_MOVE) {
-                        Move m = new Move();
-                        m.isNullMove = true;
-                        addMove(m);
-                        currentIdx += 2;
-                    }
-                    if (tkn == CONSTANTS.TKN_OPEN_VARIATION) {
-                        // put current node on stack, so that we don't forget it.
-                        // however if we are at the root node, something
-                        // is wrong in the PGN. Silently ignore "(" then
-                        if(currentNode != g.getRootNode()) {
-                            gameStack.push(currentNode);
-                            currentNode = currentNode.getParent();
+                }
+                break;
+            } else if (tkn == PgnByteLexer.TOKEN_MOVE) {
+                byte[] buf = lexer.getBuffer();
+                int off = lexer.getTokenOffset();
+                int len = lexer.getTokenLength();
+                Move m = SanResolver.parseSan(scanCurrentBoard, buf, off, len);
+                if (m != null) {
+                    scanPrevBoard.copy(scanCurrentBoard);
+                    scanCurrentBoard.apply(m);
+                    ply++;
+                    boolean isMainline = (varDepth == 0);
+                    if (!consumer.onMove(scanCurrentBoard, m, ply, isMainline)) {
+                        // Early exit requested!
+                        int next = lexer.skipToNextTag();
+                        if (next == PgnByteLexer.TOKEN_TAG) {
+                            lexer.pushBackToken();
                         }
-                        currentIdx += 1;
+                        return true;
                     }
-                    if (tkn == CONSTANTS.TKN_CLOSE_VARIATION) {
-                        // pop from stack. but always leave root
-                        if (gameStack.size() > 1) {
-                            currentNode = gameStack.pop();
-                        }
-                        currentIdx += 1;
-                    }
-                    if (tkn == CONSTANTS.TKN_NAG) {
-                        parseNAG();
-                    }
-                    if (tkn == CONSTANTS.TKN_OPEN_COMMENT) {
-                        String rest_of_line = currentLine.substring(currentIdx + 1, currentLine.length());
-                        int end = rest_of_line.indexOf("}");
-                        if (end >= 0) {
-                            String comment_line = rest_of_line.substring(0, end+1);
-                            // should this be raw (ISO 85...) to UTF-8?!
-                            currentNode.setComment(new String(comment_line.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                            currentIdx = currentIdx + end + 1;
-                        } else {
-                            // get comment over multiple lines
-                            StringBuilder comment_lines = new StringBuilder();
-                            String comment_line = currentLine.substring(currentIdx + 1);
-                            comment_lines.append(comment_line).append("\n");
-                            // we already have the comment part of the current line,
-                            // so read-in the next line, and then loop until we find
-                            // the end marker "}"
-                            int linesRead = 0;
-                            int end_index = -1;
-                            while (linesRead < 500) { // what if we never find "}" ??? -> stop after 500 lines
-                                lineIndex += 1;
-                                if(lineIndex >= lines.length) {
-                                    currentLine = "";
-                                    end_index = -1;
-                                    break;
-                                }
-                                currentLine = lines[lineIndex];
-                                linesRead += 1;
-                                if (currentLine.contains("}")) {
-                                    end_index = currentLine.indexOf("}");
-                                    break;
-                                } else {
-                                    comment_lines.append(currentLine).append("\n");
-                                }
-                            }
-                            if (end_index >= 0) {
-                                comment_lines.append(currentLine, 0, end_index);
-                                comment_lines.append("\n");
-                                currentIdx = end_index + 1;
-                            }
-                            // same here - decode from UTF-8 or raw chars?!
-                            currentNode.setComment(new String(comment_lines.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                        }
+                    int nag = extractNagFromMoveToken(buf, off, len);
+                    if (nag != 0) {
+                        consumer.onNag(nag);
                     }
                 }
+            } else if (tkn == PgnByteLexer.TOKEN_NULL_MOVE) {
+                Move m = new Move();
+                m.isNullMove = true;
+                scanPrevBoard.copy(scanCurrentBoard);
+                scanCurrentBoard.apply(m);
+                ply++;
+                boolean isMainline = (varDepth == 0);
+                if (!consumer.onMove(scanCurrentBoard, m, ply, isMainline)) {
+                    int next = lexer.skipToNextTag();
+                    if (next == PgnByteLexer.TOKEN_TAG) {
+                        lexer.pushBackToken();
+                    }
+                    return true;
+                }
+            } else if (tkn == PgnByteLexer.TOKEN_OPEN_VARIATION) {
+                if (varDepth < varStack.length) {
+                    varStack[varDepth].savedCurrent.copy(scanCurrentBoard);
+                    varStack[varDepth].savedPrev.copy(scanPrevBoard);
+                    varStack[varDepth].savedPly = ply;
+                    varDepth++;
+                }
+                scanCurrentBoard.copy(scanPrevBoard);
+                ply = (varDepth > 0) ? varStack[varDepth - 1].savedPly - 1 : ply;
+                consumer.onStartVariation();
+            } else if (tkn == PgnByteLexer.TOKEN_CLOSE_VARIATION) {
+                if (varDepth > 0) {
+                    varDepth--;
+                    scanCurrentBoard.copy(varStack[varDepth].savedCurrent);
+                    scanPrevBoard.copy(varStack[varDepth].savedPrev);
+                    ply = varStack[varDepth].savedPly;
+                }
+                consumer.onEndVariation();
+            } else if (tkn == PgnByteLexer.TOKEN_NAG) {
+                consumer.onNag(lexer.getNag());
+            } else if (tkn == PgnByteLexer.TOKEN_COMMENT) {
+                consumer.onComment(lexer.getComment());
             }
+
+            tkn = lexer.nextToken();
+        }
+
+        if (!hasContent && tkn == PgnByteLexer.TOKEN_EOF) {
+            return false;
+        }
+
+        consumer.onGameEnd();
+        return true;
     }
 
+    public void scanAllGames(PgnByteLexer lexer, PgnGameConsumer consumer) throws IOException {
+        while (scanGame(lexer, consumer)) {
+            // Continues until EOF
+        }
+    }
 
+    public void scanAllGames(File file, PgnGameConsumer consumer) throws IOException {
+        try (PgnByteLexer lexer = new PgnByteLexer(file)) {
+            scanAllGames(lexer, consumer);
+        }
+    }
 }
-

@@ -1,0 +1,106 @@
+[Event "SAN Disambiguation Edge Cases Test Suite"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "1"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "r1bqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1"]
+
+{ Game 1: Standard File Disambiguation (Rooks on a1 and h1) }
+1. Rad1 d6 2. Rhf1 *
+
+[Event "Rank Disambiguation"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "2"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "R7/4k3/8/8/8/8/8/R3K3 w - - 0 1"]
+
+{ Game 2: Rank Disambiguation (Rooks on a1 and a8) }
+1. R1a4 Kd7 2. R8a6 *
+
+[Event "Three Queens Both File and Rank Disambiguation"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "3"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "4k3/8/8/8/7Q/8/8/K2Q3Q w - - 0 1"]
+
+{ Game 3: Queens on h4, h1, d1 targeting e1. Qh4e1 must disambiguate via both h and 4. }
+1. Qh4e1+ Kf7 2. Qde2 *
+
+[Event "Three Knights Disambiguation"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "4"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "N3k2N/8/8/3N4/N4N1N/2R5/1R6/4K3 w - - 0 1"]
+
+{ Game 4: Knights on a4, f4, h8 from python-chess. Target g6. }
+1. Nh4g6 Kd8 2. Ne7 Kxe7 3. N8g6+ Ke8 4. N4b6 *
+
+[Event "Absolute Pin Disambiguation Exemption"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "5"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "3r3k/8/8/8/8/3N1N2/8/3K4 w - - 0 1"]
+
+{ Game 5: Knights on d3 and f3 both target e5. Knight on d3 is pinned to King on d1 by Rook on d8.
+  Only f3 can move to e5. Disambiguation Ne5 without 'f' is legal. }
+1. Ne5 Kg7 2. Ke2 *
+
+[Event "Pinned Piece Moving Along Pin Ray"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "6"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "4q1k1/8/8/8/R7/4R3/8/4K3 w - - 0 1"]
+
+{ Game 6: Rook on e3 pinned to King on e1 by Queen on e8.
+  Rooks on a4 and e3 can both move to e4.
+  R3e4 is legal along the pin ray! }
+1. R3e4 Qxa4 *
+
+[Event "Pawn Promotion with Disambiguated Capture and Check"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "7"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "1n5k/P1P5/8/8/8/8/8/7K w - - 0 1"]
+
+{ Game 7: White pawns on a7 and c7. Black knight on b8. axb8=Q+ }
+1. axb8=Q+ Kh7 2. c8=N *
+
+[Event "Sloppy and LAN Moves"]
+[Site "JFXChess Verification"]
+[Date "2026.11.02"]
+[Round "8"]
+[White "Tester"]
+[Black "Solver"]
+[Result "*"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+
+{ Game 8: Coordinate/LAN moves and zero-zero castling }
+1. e2e4 e7e5 2. g1f3 b8c6 3. f1c4 g8f6 4. 0-0 f8c5 5. d2d3 0-0 *

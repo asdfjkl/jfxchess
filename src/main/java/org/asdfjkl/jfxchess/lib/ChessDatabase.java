@@ -21,6 +21,7 @@ package org.asdfjkl.jfxchess.lib;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public interface ChessDatabase {
@@ -61,6 +62,8 @@ public interface ChessDatabase {
 
     GameInfo appendGame(Game game) throws IOException;
 
+    void importGames(ChessDatabase sourceDatabase, List<GameInfo> gamesToImport, ProgressListener listener) throws IOException;
+
     void replaceGame(Game newGame, GameInfo currentGameInfo, ProgressListener listener) throws IOException;
 
     void replaceGame(Game newGame, GameInfo currentGameInfo) throws IOException;
@@ -83,6 +86,10 @@ public interface ChessDatabase {
 
     long getRevision();
 
+    default boolean isReadOnly() {
+        return false;
+    }
+
     static ChessDatabase openDatabase(String filename) throws IOException {
         Objects.requireNonNull(filename, "filename");
         String lower = filename.toLowerCase();
@@ -92,6 +99,17 @@ public interface ChessDatabase {
             return db;
         } else if (lower.endsWith(".si5") || lower.endsWith(".sn5") || lower.endsWith(".sg5")) {
             Scid5ChessDatabase db = new Scid5ChessDatabase();
+            db.open(filename);
+            return db;
+        } else if (lower.endsWith(".cbh") || lower.endsWith(".cbg") || lower.endsWith(".cba")
+                || lower.endsWith(".cbp") || lower.endsWith(".cbt") || lower.endsWith(".cbc")
+                || lower.endsWith(".cbs")) {
+            CbhChessDatabase db = new CbhChessDatabase();
+            db.open(filename);
+            return db;
+        } else if (lower.endsWith(".2cbh") || lower.endsWith(".2cbg")
+                || lower.endsWith(".2cba") || lower.endsWith(".2lid")) {
+            TwoCbhChessDatabase db = new TwoCbhChessDatabase();
             db.open(filename);
             return db;
         } else {
