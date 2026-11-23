@@ -20,7 +20,7 @@ JFXChess is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 26.10.0
+Current Version: 26.12.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
@@ -28,13 +28,19 @@ Current Version: 26.10.0
 * Linux
   - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
   - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases) 
-  - or [SNAP](https://snapcraft.io/jfxchess)
 
 ## Blog
 
 Once in a while I blog about the development of JFXChess at my [blog](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 26.12.0 (December 2026)
+ * fast positions search in large databases
+ * improved .pgn read/write/search speed
+ * improved .si5 read/write/search speed
+ * support for .cbh and .2cbh files (read/import only)
+ * bugfixes
 
 Version 26.10.0 (October 2026)
  * read & write support for SCID5 database files (yes, you can use Lumbras Gigabase)
