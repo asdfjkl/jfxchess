@@ -11,6 +11,7 @@ JFXChess is a cross-platform chess graphical user interface.
 * enter, edit and analyse games
 * fully automatic game analysis
 * read and save games in standard PGN format
+* read and save games in SCID5 chess database format
 * copy and paste FEN positions and pgn games from clipboard
 * cross-platform: modern look on Linux and Windows
 * handle large (i.e. 1 GB) PGN files
@@ -19,7 +20,7 @@ JFXChess is a cross-platform chess graphical user interface.
 
 ## Download
 
-Current Version: 5.0.0
+Current Version: 26.10.0
 
 * Windows
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
@@ -34,6 +35,13 @@ Current Version: 5.0.0
 Once in a while I blog about the development of JFXChess at my [blog](https://buildingjerry.wordpress.com).
 
 ## Changelog
+
+Version 26.10.0 (October 2026)
+ * read & write support for SCID5 database files (yes, you can use Lumbras Gigabase)
+ * tab-support: Open & edit multiple games at once
+ * faster startup
+ * adjustable font sizes
+ * various bugfixes
 
 Version 5.0.0 (April 2026)
  * faster startup
