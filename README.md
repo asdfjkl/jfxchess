@@ -30,7 +30,7 @@ Current Version: 26.12.0
   - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
   - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases)
  
-JFXChess supports [Lumbra's Gigabase](https://lumbrasgigabase.com/en/) - download `.si5`
+JFXChess works with [Lumbra's Gigabase](https://lumbrasgigabase.com/en/) - download `.si5`
 
 ## Blog
 
