@@ -27,8 +27,8 @@ Current Version: 26.12.0
   - Exe [Installer](https://github.com/asdfjkl/jfxchess/releases)
   - Zip [Folder](https://github.com/asdfjkl/jfxchess/releases)
 * Linux
-  - install [.deb](https://github.com/asdfjkl/jfxchess/releases) 
-  - or [generic Java .jar](https://github.com/asdfjkl/jfxchess/releases)
+  - install Ubuntu [.deb](https://github.com/asdfjkl/jfxchess/releases) 
+  - or [generic Linux installer](https://github.com/asdfjkl/jfxchess/releases)
  
 JFXChess works with [Lumbra's Gigabase](https://lumbrasgigabase.com/en/) - download `.si5`
 
