@@ -25,6 +25,11 @@ import java.util.List;
 
 public class ExtPolyglotTableModel extends AbstractTableModel {
 
+    private static final int COL_MOVE = 0;
+    private static final int COL_COUNT = 1;
+    private static final int COL_WDL = 2;
+    private static final int COL_ELO = 3;
+
     private final String[] columns = {
             "Move", "Count", "Win/Draw/Loss", "Elo"
     };
@@ -62,10 +67,10 @@ public class ExtPolyglotTableModel extends AbstractTableModel {
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> String.class;   // Move
-            case 1 -> Long.class;     // Count
-            //case 2 -> Integer.class; // percentages
-            case 3 -> Integer.class;  // Elo
+            case COL_MOVE -> String.class;   // Move
+            case COL_COUNT -> Long.class;    // Count
+            //case COL_WDL -> Integer.class; // percentages
+            case COL_ELO -> Integer.class;   // Elo
             default -> Object.class;
         };
     }
@@ -75,10 +80,13 @@ public class ExtPolyglotTableModel extends AbstractTableModel {
         PolyglotExtEntry entry = data.get(rowIndex);
 
         return switch (columnIndex) {
-            case 0 -> entry.getMove();
-            case 1 -> entry.getPosCount();
-            case 2 -> entry;
-            case 3 -> entry.getAvgELO();
+            case COL_MOVE -> {
+                String san = entry.getSan();
+                yield (san != null && !san.isEmpty()) ? san : entry.getMove();
+            }
+            case COL_COUNT -> entry.getPosCount();
+            case COL_WDL -> entry;
+            case COL_ELO -> entry.getAvgELO();
             default -> null;
         };
     }

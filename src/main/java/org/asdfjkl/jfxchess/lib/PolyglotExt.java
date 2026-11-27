@@ -121,9 +121,35 @@ public class PolyglotExt {
     }
 
     public ArrayList<PolyglotExtEntry> findEntries(Board board) {
+        if (board == null) {
+            return new ArrayList<>();
+        }
 
         long zobrist = board.getZobrist();
-        return findEntries(zobrist);
+        ArrayList<PolyglotExtEntry> entries = findEntries(zobrist);
+
+        // Resolve SAN once per lookup (e.g., e2e4 -> e4, e1g1 -> O-O).
+        for (PolyglotExtEntry entry : entries) {
+            entry.setSan(resolveSan(board, entry.getMove()));
+        }
+
+        return entries;
+    }
+
+    private String resolveSan(Board board, String uci) {
+        if (uci == null || uci.isEmpty()) {
+            return "";
+        }
+
+        try {
+            Move move = new Move(uci);
+            if (!board.isLegal(move)) {
+                return uci;
+            }
+            return board.san(move);
+        } catch (IllegalArgumentException e) {
+            return uci;
+        }
     }
 
     public ArrayList<PolyglotExtEntry> findEntries(long zobrist) {

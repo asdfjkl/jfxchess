@@ -55,6 +55,7 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
     private final List<JButton> navigationButtons = new ArrayList<>();
     private View_EngineOutput engineOutput;
     private View_Eval viewEval;
+    private View_Book viewBook;
     private final View_Moves viewMoves;
     private final View_Chessboard chessboard;
 
@@ -150,7 +151,7 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
 
         JScrollPane movesScroll = new JScrollPane(viewMoves);
 
-        View_Book viewBook = new View_Book(
+        viewBook = new View_Book(
                 model, gameSession, controllerBoard);
         JScrollPane bookScroll = new JScrollPane(viewBook);
 
@@ -435,6 +436,9 @@ public class View_GameTab extends JPanel implements PropertyChangeListener {
         }
         if (viewEval != null) {
             viewEval.repaint();
+        }
+        if (viewBook != null) {
+            viewBook.refresh();
         }
     }
 

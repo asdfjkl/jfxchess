@@ -18,6 +18,7 @@
 
 package org.asdfjkl.jfxchess.gui;
 
+import org.asdfjkl.jfxchess.lib.Board;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameNode;
 import org.asdfjkl.jfxchess.lib.Move;
@@ -67,6 +68,13 @@ public class GameSession {
 
     public Game getGame() {
         return game;
+    }
+
+    public Board getCurrentBoard() {
+        if (game == null || game.getCurrentNode() == null) {
+            return null;
+        }
+        return game.getCurrentNode().getBoard();
     }
 
     public void setGame(Game game) {

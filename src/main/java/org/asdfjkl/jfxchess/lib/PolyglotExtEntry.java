@@ -1,5 +1,5 @@
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,12 +47,21 @@ public class PolyglotExtEntry {
     int drawPerc;
     int avgElo;
     String uci;
+    private String san = "";
 
     public long getPosCount() { return count; }
     public void setPosCount(long count) { this.count = count; }
 
     public String getMove() { return uci; }
     public void setMove(String uci) { this.uci = uci; }
+
+    public String getSan() {
+        return san;
+    }
+
+    public void setSan(String san) {
+        this.san = (san != null) ? san : "";
+    }
 
     public Integer getWins() { return whiteWinPerc; }
     public void setWins(Integer whiteWinPerc) { this.whiteWinPerc = whiteWinPerc; }

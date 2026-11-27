@@ -198,6 +198,24 @@ private boolean shortcutsEnabled = true;
         pcs.firePropertyChange("bookChanged", null, null);
     }
 
+    // Lookup opening book entries with SAN resolved for the session's current board.
+    public List<PolyglotExtEntry> findBookEntries(GameSession session) {
+        if (session == null) {
+            return new ArrayList<>();
+        }
+
+        Board board = session.getCurrentBoard();
+        if (board == null) {
+            return new ArrayList<>();
+        }
+
+        return extBook.findEntries(board);
+    }
+
+    public List<PolyglotExtEntry> findBookEntries() {
+        return findBookEntries(gameSession);
+    }
+
     public Path getJarPath() {
         try {
             Path jarPath = Paths.get(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());

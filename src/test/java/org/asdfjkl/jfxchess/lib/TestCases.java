@@ -1,5 +1,5 @@
 /* JFXChess - A Chess Graphical User Interface
- * Copyright (C) 2020-2025 Dominik Klein
+ * Copyright (C) 2020-2026 Dominik Klein
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,11 +18,14 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import org.asdfjkl.jfxchess.gui.Controller_Board;
 import org.asdfjkl.jfxchess.gui.Controller_Pgn;
 import org.asdfjkl.jfxchess.gui.DialogSave;
+import org.asdfjkl.jfxchess.gui.ExtPolyglotTableModel;
 import org.asdfjkl.jfxchess.gui.GameSession;
 import org.asdfjkl.jfxchess.gui.Model_JFXChess;
 import org.asdfjkl.jfxchess.gui.PgnSourceReference;
+import org.asdfjkl.jfxchess.gui.View_Book;
 import org.asdfjkl.jfxchess.gui.View_MainFrame;
 import org.asdfjkl.jfxchess.gui.Workspace;
 
@@ -30,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -3305,6 +3309,204 @@ public class TestCases {
                 }
             }
         }
+    }
+
+    public void bookSanDisplayTest() {
+        System.out.println("TEST: Book tab SAN notation and MVC tab isolation");
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("jfxchess-book-san-test-");
+            Path bookPath = tempDir.resolve("test_extbook.bin");
+            Path bookPath2 = tempDir.resolve("test_extbook_alt.bin");
+
+            Board startBoard = new Board(true);
+
+            Board afterE4 = startBoard.makeCopy();
+            afterE4.apply(new Move("e2e4"));
+
+            Board tacticBoard = new Board(
+                    "r1bqk2r/ppp2ppp/2n2n2/2bpp3/4P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 5"
+            );
+            Board promoBoard = new Board("8/4P1k1/8/8/8/8/8/4K3 w - - 0 1");
+
+            List<long[]> records = new ArrayList<>();
+            records.add(new long[]{startBoard.getZobrist(), encodeBookMove("e2e4"), 500});
+            records.add(new long[]{startBoard.getZobrist(), encodeBookMove("g1f3"), 300});
+            records.add(new long[]{startBoard.getZobrist(), encodeBookMove("e1e8"), 100});
+            records.add(new long[]{afterE4.getZobrist(), encodeBookMove("c7c5"), 400});
+            records.add(new long[]{afterE4.getZobrist(), encodeBookMove("e7e5"), 200});
+            records.add(new long[]{tacticBoard.getZobrist(), encodeBookMove("e1h1"), 350});
+            records.add(new long[]{tacticBoard.getZobrist(), encodeBookMove("b1d2"), 250});
+            records.add(new long[]{tacticBoard.getZobrist(), encodeBookMove("e4d5"), 150});
+            records.add(new long[]{promoBoard.getZobrist(), encodeBookMove("e7e8q"), 180});
+            writeExtBookFile(bookPath, records);
+
+            List<long[]> altRecords = new ArrayList<>();
+            altRecords.add(new long[]{startBoard.getZobrist(), encodeBookMove("d2d4"), 700});
+            altRecords.add(new long[]{afterE4.getZobrist(), encodeBookMove("e7e6"), 600});
+            writeExtBookFile(bookPath2, altRecords);
+
+            // 1. Domain layer: PolyglotExt.findEntries(Board) resolves SAN and preserves UCI.
+            PolyglotExt book = new PolyglotExt();
+            book.loadBook(bookPath.toFile());
+
+            ArrayList<PolyglotExtEntry> startEntries = book.findEntries(startBoard);
+            assertBookEntry(startEntries, 0, "e4", "e2e4");
+            assertBookEntry(startEntries, 1, "Nf3", "g1f3");
+            assertBookEntry(startEntries, 2, "e1e8", "e1e8");
+
+            ArrayList<PolyglotExtEntry> tacticEntries = book.findEntries(tacticBoard);
+            assertBookEntry(tacticEntries, 0, "O-O", "e1g1");
+            assertBookEntry(tacticEntries, 1, "Nbd2", "b1d2");
+            assertBookEntry(tacticEntries, 2, "exd5", "e4d5");
+
+            ArrayList<PolyglotExtEntry> promoEntries = book.findEntries(promoBoard);
+            assertBookEntry(promoEntries, 0, "e8=Q", "e7e8q");
+
+            // 2. Table model: displays SAN in column 0, falls back to UCI if SAN empty.
+            ExtPolyglotTableModel tableModel = new ExtPolyglotTableModel(startEntries);
+            if (!"e4".equals(tableModel.getValueAt(0, 0))) {
+                throw new AssertionError("Expected SAN 'e4', got " + tableModel.getValueAt(0, 0));
+            }
+            if (!"e2e4".equals(tableModel.getEntry(0).getMove())) {
+                throw new AssertionError("Expected UCI 'e2e4', got " + tableModel.getEntry(0).getMove());
+            }
+
+            PolyglotExtEntry rawEntry = new PolyglotExtEntry();
+            rawEntry.setMove("c2c4");
+            ExtPolyglotTableModel fallbackModel = new ExtPolyglotTableModel(List.of(rawEntry));
+            if (!"c2c4".equals(fallbackModel.getValueAt(0, 0))) {
+                throw new AssertionError("Expected UCI fallback 'c2c4', got " + fallbackModel.getValueAt(0, 0));
+            }
+
+            // 3. Multi-tab MVC: Model_JFXChess + GameSession + Controller_Board + View_Book.
+            Model_JFXChess model = new Model_JFXChess();
+            Workspace workspace = new Workspace();
+            model.setWorkspace(workspace);
+            model.setBook(bookPath.toFile());
+
+            Game gameA = new Game();
+            gameA.getRootNode().setBoard(new Board(true));
+            Game gameB = new Game();
+            gameB.getRootNode().setBoard(new Board(true));
+
+            GameSession sessionA = workspace.createSession(gameA);
+            GameSession sessionB = workspace.createSession(gameB);
+            model.setGameSession(sessionA);
+
+            Controller_Board ctrlA = new Controller_Board(model, sessionA);
+            Controller_Board ctrlB = new Controller_Board(model, sessionB);
+            View_Book viewBookA = new View_Book(model, sessionA, ctrlA);
+            View_Book viewBookB = new View_Book(model, sessionB, ctrlB);
+
+            // Initial load on construction.
+            if (!"e4".equals(viewBookA.getValueAt(0, 0)) || !"e4".equals(viewBookB.getValueAt(0, 0))) {
+                throw new AssertionError("Expected initial SAN 'e4' in both tabs");
+            }
+
+            // Active tab move updates only active tab's View_Book.
+            ctrlA.applyMove(new Move("e2e4"));
+            if (!"c5".equals(viewBookA.getValueAt(0, 0)) || !"e5".equals(viewBookA.getValueAt(1, 0))) {
+                throw new AssertionError("Expected Black SAN replies 'c5','e5' in tab A");
+            }
+            if (!"e4".equals(viewBookB.getValueAt(0, 0)) || !"Nf3".equals(viewBookB.getValueAt(1, 0))) {
+                throw new AssertionError("Tab B book was unexpectedly modified by tab A move");
+            }
+
+            // Active session facade returns the active tab's SAN entries.
+            model.setGameSession(sessionB);
+            List<PolyglotExtEntry> activeEntries = model.findBookEntries();
+            assertBookEntry(activeEntries, 0, "e4", "e2e4");
+
+            // Global bookChanged event refreshes all open tabs for their own boards.
+            model.setBook(bookPath2.toFile());
+            if (!"e6".equals(viewBookA.getValueAt(0, 0))) {
+                throw new AssertionError("Expected 'e6' in tab A after bookChanged, got " + viewBookA.getValueAt(0, 0));
+            }
+            if (!"d4".equals(viewBookB.getValueAt(0, 0))) {
+                throw new AssertionError("Expected 'd4' in tab B after bookChanged, got " + viewBookB.getValueAt(0, 0));
+            }
+
+            System.out.println("testing Book tab SAN notation and MVC tab isolation ... pass");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (tempDir != null) {
+                try {
+                    Files.walk(tempDir)
+                            .sorted(java.util.Comparator.reverseOrder())
+                            .forEach(p -> {
+                                try {
+                                    Files.deleteIfExists(p);
+                                } catch (IOException ignored) {
+                                }
+                            });
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private void assertBookEntry(List<PolyglotExtEntry> entries,
+                                 int idx,
+                                 String expectedSan,
+                                 String expectedUci) {
+        if (entries.size() <= idx) {
+            throw new AssertionError("Missing book entry at index " + idx);
+        }
+        PolyglotExtEntry entry = entries.get(idx);
+        if (!expectedSan.equals(entry.getSan())) {
+            throw new AssertionError("Index " + idx + ": expected SAN '" + expectedSan
+                    + "', got '" + entry.getSan() + "'");
+        }
+        if (!expectedUci.equals(entry.getMove())) {
+            throw new AssertionError("Index " + idx + ": expected UCI '" + expectedUci
+                    + "', got '" + entry.getMove() + "'");
+        }
+    }
+
+    // Encode UCI (e.g., "e2e4", "e1h1", "e7e8q") into 16-bit Polyglot move format.
+    private int encodeBookMove(String uci) {
+        int fromFile = uci.charAt(0) - 'a';
+        int fromRank = uci.charAt(1) - '1';
+        int toFile = uci.charAt(2) - 'a';
+        int toRank = uci.charAt(3) - '1';
+
+        int promo = 0;
+        if (uci.length() == 5) {
+            char p = uci.charAt(4);
+            if (p == 'n') {
+                promo = 1;
+            } else if (p == 'b') {
+                promo = 2;
+            } else if (p == 'r') {
+                promo = 3;
+            } else if (p == 'q') {
+                promo = 4;
+            }
+        }
+
+        int from = (fromRank << 3) | fromFile;
+        int to = (toRank << 3) | toFile;
+        return (promo << 12) | (from << 6) | to;
+    }
+
+    // Write sorted 18-byte PolyglotExt records: key(8), move(2), count(4), wWin(1), bWin(1), elo(2).
+    private void writeExtBookFile(Path path, List<long[]> records) throws IOException {
+        records.sort((a, b) -> Long.compareUnsigned(a[0], b[0]));
+
+        final int recordBytes = 18;
+        ByteBuffer buf = ByteBuffer.allocate(records.size() * recordBytes);
+        for (long[] rec : records) {
+            buf.putLong(rec[0]);
+            buf.putShort((short) rec[1]);
+            buf.putInt((int) rec[2]);
+            buf.put((byte) 40);
+            buf.put((byte) 30);
+            buf.putShort((short) 2400);
+        }
+
+        Files.write(path, buf.array());
     }
 }
 

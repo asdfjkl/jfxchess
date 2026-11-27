@@ -33,6 +33,10 @@ import java.util.ArrayList;
 
 public class View_Book extends JTable implements PropertyChangeListener {
 
+    private static final String EVT_NODE_CHANGED = "currentGameNodeChanged";
+    private static final String EVT_GAME_CHANGED = "gameChanged";
+    private static final String EVT_BOOK_CHANGED = "bookChanged";
+
     private final ExtPolyglotTableModel tableModel;
     private final Model_JFXChess model;
     private final GameSession gameSession;
@@ -112,7 +116,7 @@ public class View_Book extends JTable implements PropertyChangeListener {
         colElo.setPreferredWidth((int) Math.round(60 * scale));
         colElo.setMaxWidth((int) Math.round(60 * scale));
 
-
+        refresh();
     }
 
     private void handleClick(MouseEvent e) {
@@ -144,16 +148,37 @@ public class View_Book extends JTable implements PropertyChangeListener {
         return null;
     }
 
+    public void refresh() {
+        tableModel.setData(model.findBookEntries(gameSession));
+    }
+
+    // Filter out model-level position events that belong to other tabs.
+    private boolean isRelevantEvent(PropertyChangeEvent evt) {
+        String name = evt.getPropertyName();
+
+        if (EVT_BOOK_CHANGED.equals(name)) {
+            return true;
+        }
+
+        boolean isPosEvent = EVT_NODE_CHANGED.equals(name)
+                || EVT_GAME_CHANGED.equals(name);
+        if (!isPosEvent) {
+            return false;
+        }
+
+        if (evt.getSource() == model && model.getGameSession() != gameSession) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if ("currentGameNodeChanged".equals(evt.getPropertyName())
-                || "gameChanged".equals(evt.getPropertyName())
-                || "bookChanged".equals(evt.getPropertyName()))
-        {
-            ArrayList<PolyglotExtEntry> moves = model.extBook.findEntries(
-                    gameSession.getGame().getCurrentNode().getBoard());
-            tableModel.setData(moves);
-
+        if (!isRelevantEvent(evt)) {
+            return;
         }
+
+        refresh();
     }
 }

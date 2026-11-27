@@ -113,6 +113,7 @@ public class Main {
                 selectedTests.put("databaseMenuActionStateTest", cases::databaseMenuActionStateTest);
                 selectedTests.put("databaseSequentialNavigationTest", cases::databaseSequentialNavigationTest);
                 selectedTests.put("databasePositionSearchTest", SearchPositionTest::runAll);
+                selectedTests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
             }
 
             if (runAll || runScid) {
@@ -215,6 +216,9 @@ public class Main {
         } else if ("cbh-tests".equals(firstArg)) {
             TestCbhSupport.runAll();
             System.exit(0);
+        } else if ("book-san-test".equals(firstArg)) {
+            new TestCases().bookSanDisplayTest();
+            System.exit(0);
         } else {
             boolean printOutput = true;
             if (args.length > 1 && "noout".equals(args[1])) {
@@ -286,6 +290,7 @@ public class Main {
         tests.put("databaseMenuActionStateTest", cases::databaseMenuActionStateTest);
         tests.put("databaseSequentialNavigationTest", cases::databaseSequentialNavigationTest);
         tests.put("databasePositionSearchTest", SearchPositionTest::runAll);
+        tests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
 
         // CBH / 2CBH tests
         tests.put("syntheticCbhStandardAndFeaturesTest", TestCbhSupport::syntheticCbhStandardAndFeaturesTest);
