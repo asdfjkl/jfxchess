@@ -18,19 +18,31 @@
 
 package org.asdfjkl.jfxchess.lib;
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.util.UIScale;
 import org.asdfjkl.jfxchess.gui.Controller_Board;
 import org.asdfjkl.jfxchess.gui.Controller_Pgn;
 import org.asdfjkl.jfxchess.gui.DialogSave;
 import org.asdfjkl.jfxchess.gui.ExtPolyglotTableModel;
 import org.asdfjkl.jfxchess.gui.GameSession;
+import org.asdfjkl.jfxchess.gui.HighDPIHelper;
 import org.asdfjkl.jfxchess.gui.Model_JFXChess;
 import org.asdfjkl.jfxchess.gui.PgnSourceReference;
 import org.asdfjkl.jfxchess.gui.View_Book;
 import org.asdfjkl.jfxchess.gui.View_MainFrame;
+import org.asdfjkl.jfxchess.gui.WinDrawLossRenderer;
 import org.asdfjkl.jfxchess.gui.Workspace;
 
 import javax.swing.JButton;
+import javax.swing.JTable;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -3507,6 +3519,148 @@ public class TestCases {
         }
 
         Files.write(path, buf.array());
+    }
+
+    // Verify logical UI scale tracks FlatLaf UIScale independently of device transform.
+    public void highDpiScaleSplitTest() {
+        System.out.println("TEST: HighDPIHelper device vs logical UI scale split");
+
+        final float eps = 1e-4f;
+        final int samplePx = 28;
+        final float sampleStroke = 1.4f;
+        final int scaledFontPx = 24;
+
+        LookAndFeel prevLaf = UIManager.getLookAndFeel();
+        Object prevDefaultFont = UIManager.get("defaultFont");
+
+        try {
+            UIManager.setLookAndFeel(new FlatIntelliJLaf());
+
+            // Simulate Linux fractional DPI where FlatLaf enlarges defaultFont above baseline.
+            UIManager.put("defaultFont", new FontUIResource("SansSerif", Font.PLAIN, scaledFontPx));
+
+            float expectedScale = UIScale.getUserScaleFactor();
+            float actualScale = HighDPIHelper.getLogicalScale();
+
+            if (expectedScale <= 1.0f) {
+                throw new AssertionError("Expected FlatLaf user scale > 1.0 for 24px font, got " + expectedScale);
+            }
+            if (Math.abs(actualScale - expectedScale) > eps) {
+                throw new AssertionError("Expected logical scale " + expectedScale + ", got " + actualScale);
+            }
+
+            int expectedPx = Math.round(samplePx * expectedScale);
+            int actualPx = HighDPIHelper.scaleUI(samplePx);
+            if (actualPx != expectedPx) {
+                throw new AssertionError("Expected scaleUI(" + samplePx + ") == " + expectedPx + ", got " + actualPx);
+            }
+
+            float expectedStroke = sampleStroke * expectedScale;
+            float actualStroke = HighDPIHelper.scaleUI(sampleStroke);
+            if (Math.abs(actualStroke - expectedStroke) > eps) {
+                throw new AssertionError("Expected scaleUI(" + sampleStroke + ") == " + expectedStroke + ", got " + actualStroke);
+            }
+
+            if (HighDPIHelper.scaleUI(0) != 0) {
+                throw new AssertionError("Expected scaleUI(0) == 0");
+            }
+            if (HighDPIHelper.getUIScaleFactor() < 1.0) {
+                throw new AssertionError("Expected device scale >= 1.0");
+            }
+
+            System.out.println("  logicalScale=" + actualScale
+                    + ", deviceScale=" + HighDPIHelper.getUIScaleFactor()
+                    + ", scaleUI(28)=" + actualPx + " ... pass");
+        } catch (Exception e) {
+            throw new RuntimeException("highDpiScaleSplitTest failed", e);
+        } finally {
+            UIManager.put("defaultFont", prevDefaultFont);
+            if (prevLaf != null) {
+                try {
+                    UIManager.setLookAndFeel(prevLaf);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    // Verify WinDrawLossRenderer inherits table font, antialiases text, and avoids bar overflow.
+    public void wdlRendererTest() {
+        System.out.println("TEST: WinDrawLossRenderer font inheritance, text AA, and overflow guard");
+
+        final int imgW = 240;
+        final int imgH = 32;
+        final int winBarRgb = new Color(197, 197, 197).getRGB();
+        final int drawBarRgb = new Color(107, 107, 107).getRGB();
+        final int blackRgb = Color.BLACK.getRGB();
+
+        JTable table = new JTable();
+        Font scaledFont = new Font("SansSerif", Font.PLAIN, 19);
+        table.setFont(scaledFont);
+
+        WinDrawLossRenderer renderer = new WinDrawLossRenderer();
+        renderer.setSize(imgW, imgH);
+
+        // 1. Font inheritance check
+        PolyglotExtEntry fullWin = new PolyglotExtEntry();
+        fullWin.setWins(100);
+        fullWin.setDraws(0);
+        fullWin.setLosses(0);
+        renderer.getTableCellRendererComponent(table, fullWin, false, false, 0, 2);
+
+        if (!scaledFont.equals(renderer.getFont())) {
+            throw new AssertionError("Expected renderer font " + scaledFont + ", got " + renderer.getFont());
+        }
+
+        // 2. Text antialiasing check: blended pixels must appear between bar gray and black text.
+        BufferedImage aaImg = new BufferedImage(imgW, imgH, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gAa = aaImg.createGraphics();
+        try {
+            renderer.paint(gAa);
+        } finally {
+            gAa.dispose();
+        }
+
+        int blendedPixels = 0;
+        for (int y = 4; y < imgH - 4; y++) {
+            for (int x = 4; x < imgW - 4; x++) {
+                int rgb = aaImg.getRGB(x, y);
+                if (rgb != winBarRgb && rgb != blackRgb) {
+                    blendedPixels++;
+                }
+            }
+        }
+        if (blendedPixels == 0) {
+            throw new AssertionError("Expected antialiased text pixels in WinDrawLossRenderer, found 0 blended pixels");
+        }
+
+        // 3. Overflow guard check: narrow 5% win bar must not bleed black text into adjacent draw bar.
+        PolyglotExtEntry narrowWin = new PolyglotExtEntry();
+        narrowWin.setWins(5);
+        narrowWin.setDraws(95);
+        narrowWin.setLosses(0);
+        renderer.getTableCellRendererComponent(table, narrowWin, false, false, 0, 2);
+
+        BufferedImage overflowImg = new BufferedImage(imgW, imgH, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gOv = overflowImg.createGraphics();
+        try {
+            renderer.paint(gOv);
+        } finally {
+            gOv.dispose();
+        }
+
+        int winWidth = (int) (imgW * (5 / 100.0));
+        int probeEnd = winWidth + 16;
+        for (int y = 4; y < imgH - 4; y++) {
+            for (int x = winWidth; x < probeEnd; x++) {
+                if (overflowImg.getRGB(x, y) != drawBarRgb) {
+                    throw new AssertionError("Overflow detected in draw segment at (" + x + "," + y + ")");
+                }
+            }
+        }
+
+        System.out.println("  font=" + renderer.getFont().getSize()
+                + "px, blendedPixels=" + blendedPixels + ", noOverflow ... pass");
     }
 }
 

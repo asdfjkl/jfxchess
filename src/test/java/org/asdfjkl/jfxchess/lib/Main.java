@@ -114,6 +114,8 @@ public class Main {
                 selectedTests.put("databaseSequentialNavigationTest", cases::databaseSequentialNavigationTest);
                 selectedTests.put("databasePositionSearchTest", SearchPositionTest::runAll);
                 selectedTests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
+                selectedTests.put("highDpiScaleSplitTest", cases::highDpiScaleSplitTest);
+                selectedTests.put("wdlRendererTest", cases::wdlRendererTest);
             }
 
             if (runAll || runScid) {
@@ -219,6 +221,12 @@ public class Main {
         } else if ("book-san-test".equals(firstArg)) {
             new TestCases().bookSanDisplayTest();
             System.exit(0);
+        } else if ("high-dpi-scale-split-test".equals(firstArg)) {
+            new TestCases().highDpiScaleSplitTest();
+            System.exit(0);
+        } else if ("wdl-renderer-test".equals(firstArg)) {
+            new TestCases().wdlRendererTest();
+            System.exit(0);
         } else {
             boolean printOutput = true;
             if (args.length > 1 && "noout".equals(args[1])) {
@@ -291,6 +299,8 @@ public class Main {
         tests.put("databaseSequentialNavigationTest", cases::databaseSequentialNavigationTest);
         tests.put("databasePositionSearchTest", SearchPositionTest::runAll);
         tests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
+        tests.put("highDpiScaleSplitTest", cases::highDpiScaleSplitTest);
+        tests.put("wdlRendererTest", cases::wdlRendererTest);
 
         // CBH / 2CBH tests
         tests.put("syntheticCbhStandardAndFeaturesTest", TestCbhSupport::syntheticCbhStandardAndFeaturesTest);

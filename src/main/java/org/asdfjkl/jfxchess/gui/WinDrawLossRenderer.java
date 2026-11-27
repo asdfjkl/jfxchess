@@ -23,8 +23,18 @@ import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.Map;
 
 public class WinDrawLossRenderer extends JPanel implements TableCellRenderer {
+
+    private static final int BAR_V_MARGIN = 2;
+    private static final int TEXT_H_PADDING = 4;
+    private static final double PERCENT_DIVISOR = 100.0;
+    private static final String DESKTOP_HINTS_KEY = "awt.font.desktophints";
+
+    private static final Color COLOR_WIN = new Color(197, 197, 197);
+    private static final Color COLOR_DRAW = new Color(107, 107, 107);
+    private static final Color COLOR_LOSS = new Color(58, 58, 58);
 
     private int win;
     private int draw;
@@ -38,6 +48,9 @@ public class WinDrawLossRenderer extends JPanel implements TableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
+        if (table != null && table.getFont() != null) {
+            setFont(table.getFont());
+        }
 
         if (value instanceof PolyglotExtEntry entry) {
             this.win = entry.getWins();
@@ -54,53 +67,78 @@ public class WinDrawLossRenderer extends JPanel implements TableCellRenderer {
 
         int width = getWidth();
         int height = getHeight();
+        int barHeight = Math.max(0, height - (2 * BAR_V_MARGIN));
 
-        // Calculate widths
-        int winWidth = (int) (width * (win / 100.0));
-        int drawWidth = (int) (width * (draw / 100.0));
+        // Calculate bar widths in pixels
+        int winWidth = (int) (width * (win / PERCENT_DIVISOR));
+        int drawWidth = (int) (width * (draw / PERCENT_DIVISOR));
         int lossWidth = width - winWidth - drawWidth;
 
-        // Colors
-        //Color winColor = new Color(120, 200, 120);   // green
-        //Color drawColor = new Color(200, 200, 200);  // gray
-        //Color lossColor = new Color(200, 100, 100);  // red
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            // Draw W/D/L bars
+            int x = 0;
 
-        Color winColor = new Color(197, 197, 197);   // light gray
-        Color drawColor = new Color(107, 107, 107);  // gray
-        Color lossColor = new Color(58, 58, 58);  // dark gray
+            g2.setColor(COLOR_WIN);
+            g2.fillRect(x, BAR_V_MARGIN, winWidth, barHeight);
+            x += winWidth;
 
-        // Draw bars
-        int x = 0;
+            g2.setColor(COLOR_DRAW);
+            g2.fillRect(x, BAR_V_MARGIN, drawWidth, barHeight);
+            x += drawWidth;
 
-        g.setColor(winColor);
-        g.fillRect(x, 2, winWidth, height - 4);
-        x += winWidth;
+            g2.setColor(COLOR_LOSS);
+            g2.fillRect(x, BAR_V_MARGIN, lossWidth, barHeight);
 
-        g.setColor(drawColor);
-        g.fillRect(x, 2, drawWidth, height - 4);
-        x += drawWidth;
+            // Match desktop text antialiasing used by Swing labels and table cells
+            applyTextHints(g2);
+            g2.setFont(getFont());
+            FontMetrics fm = g2.getFontMetrics();
 
-        g.setColor(lossColor);
-        g.fillRect(x, 2, lossWidth, height - 4);
+            g2.setColor(Color.BLACK);
+            drawCenteredText(g2, win + "%", 0, winWidth, height, fm);
 
-        // Draw text (centered in each segment)
-        g.setColor(Color.BLACK);
-        FontMetrics fm = g.getFontMetrics();
-
-        drawCenteredText(g, win + "%", 0, winWidth, height, fm);
-
-        g.setColor(Color.LIGHT_GRAY);
-        drawCenteredText(g, draw + "%", winWidth, drawWidth, height, fm);
-        drawCenteredText(g, loss + "%", winWidth + drawWidth, lossWidth, height, fm);
+            g2.setColor(Color.LIGHT_GRAY);
+            drawCenteredText(g2, draw + "%", winWidth, drawWidth, height, fm);
+            drawCenteredText(g2, loss + "%", winWidth + drawWidth, lossWidth, height, fm);
+        } finally {
+            g2.dispose();
+        }
     }
 
-    private void drawCenteredText(Graphics g, String text, int startX, int width, int height, FontMetrics fm) {
-        if (width <= 0) return;
+    // Apply OS font smoothing hints (e.g., LCD/grayscale AA) with AA_ON fallback.
+    private void applyTextHints(Graphics2D g2) {
+        Object desktopHints = Toolkit.getDefaultToolkit().getDesktopProperty(DESKTOP_HINTS_KEY);
+        if (desktopHints instanceof Map<?, ?> hints && !hints.isEmpty()) {
+            g2.addRenderingHints(hints);
+        }
+
+        Object textAa = g2.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+        boolean aaDisabled = textAa == null
+                || textAa == RenderingHints.VALUE_TEXT_ANTIALIAS_OFF
+                || textAa == RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT;
+        if (aaDisabled) {
+            g2.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+            );
+        }
+    }
+
+    // Draw percentage centered in its bar segment; skip when it would overflow adjacent bars.
+    private void drawCenteredText(Graphics2D g2, String text, int startX, int width, int height, FontMetrics fm) {
+        if (width <= 0) {
+            return;
+        }
 
         int textWidth = fm.stringWidth(text);
+        if (textWidth + TEXT_H_PADDING > width) {
+            return;
+        }
+
         int x = startX + (width - textWidth) / 2;
         int y = (height + fm.getAscent() - fm.getDescent()) / 2;
 
-        g.drawString(text, x, y);
+        g2.drawString(text, x, y);
     }
 }
