@@ -41,11 +41,10 @@ ACTION="install"
 if [[ "${SCRIPT_NAME}" == "uninstall.sh" ]]; then
     ACTION="uninstall"
 fi
-UI_PREFERENCE="auto" # auto | gui | cli
-UI_MODE="cli"        # zenity | kdialog | cli
 ASSUME_YES=0
 CUSTOM_PREFIX=""
 PREFS_POLICY="ask"   # ask | remove | keep
+UI_DIVIDER="======================================================================="
 
 # Java check results
 JAVA_OK=0
@@ -70,8 +69,6 @@ Actions:
 
 Options:
   --prefix DIR          Installation directory (default: ${DEFAULT_INSTALL_DIR})
-  --gui                 Prefer graphical dialogs (zenity/kdialog) when a display is active (default)
-  --cli                 Force interactive terminal mode
   -y, --yes             Non-interactive mode; accept defaults (default install path,
                         overwrite existing installation, remove preferences on uninstall
                         unless --keep-prefs is specified)
@@ -86,7 +83,7 @@ Paths:
 
 Examples:
   ./install.sh
-  ./install.sh --cli --prefix ~/apps/jfxchess
+  ./install.sh --prefix ~/apps/jfxchess
   ./install.sh --uninstall
   ~/jfxchess/uninstall.sh
 EOF
@@ -119,14 +116,6 @@ parse_args() {
                 fi
                 shift
                 ;;
-            --cli)
-                UI_PREFERENCE="cli"
-                shift
-                ;;
-            --gui)
-                UI_PREFERENCE="gui"
-                shift
-                ;;
             -y|--yes)
                 ASSUME_YES=1
                 shift
@@ -148,206 +137,58 @@ parse_args() {
 }
 
 # ---------------------------------------------------------------------------
-# UI Layer (zenity / kdialog / CLI fallback)
+# Terminal UI Layer
 # ---------------------------------------------------------------------------
-detect_ui_mode() {
-    if [[ "${ASSUME_YES}" -eq 1 || "${UI_PREFERENCE}" == "cli" ]]; then
-        UI_MODE="cli"
-        return
-    fi
-
-    if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
-        if command -v zenity >/dev/null 2>&1; then
-            UI_MODE="zenity"
-            return
-        elif command -v kdialog >/dev/null 2>&1; then
-            UI_MODE="kdialog"
-            return
-        fi
-    fi
-
-    UI_MODE="cli"
+ui_header() {
+    local title="$1"
+    printf "\n%s\n%s\n%s\n" "${UI_DIVIDER}" "${title}" "${UI_DIVIDER}"
 }
 
 ui_info() {
     local title="$1"
     local msg="$2"
-    echo "${msg}"
-    case "${UI_MODE}" in
-        zenity)
-            zenity --info --title="${title}" --text="${msg}" --no-markup 2>/dev/null || true
-            ;;
-        kdialog)
-            kdialog --msgbox "${msg}" --title "${title}" 2>/dev/null || true
-            ;;
-    esac
+    ui_header "${title}"
+    printf "%s\n\n" "${msg}"
 }
 
 ui_error() {
-    local title="$1"
-    local msg="$2"
+    local msg="$1"
     echo "Error: ${msg}" >&2
-    case "${UI_MODE}" in
-        zenity)
-            zenity --error --title="${title}" --text="${msg}" --no-markup 2>/dev/null || true
-            ;;
-        kdialog)
-            kdialog --error "${msg}" --title "${title}" 2>/dev/null || true
-            ;;
-    esac
-}
-
-ui_summary() {
-    local title="$1"
-    local msg="$2"
-    printf "\n%s\n\n" "${msg}"
-    case "${UI_MODE}" in
-        zenity)
-            printf "%s\n" "${msg}" | zenity --text-info \
-                --title="${title}" \
-                --width=680 \
-                --height=420 \
-                --font="Monospace 10" 2>/dev/null || true
-            ;;
-        kdialog)
-            local tmp_file
-            tmp_file="$(mktemp)"
-            printf "%s\n" "${msg}" > "${tmp_file}"
-            kdialog --textbox "${tmp_file}" 680 420 --title "${title}" 2>/dev/null || true
-            rm -f "${tmp_file}"
-            ;;
-    esac
 }
 
 # Returns 0 for Yes, 1 for No. Default is Yes.
 ui_confirm_yes_default() {
-    local title="$1"
-    local msg="$2"
+    local msg="$1"
 
     if [[ "${ASSUME_YES}" -eq 1 ]]; then
         return 0
     fi
 
-    case "${UI_MODE}" in
-        zenity)
-            local rc=0
-            set +e
-            zenity --question --title="${title}" --text="${msg}" --no-markup 2>/dev/null
-            rc=$?
-            set -e
-            [[ "${rc}" -eq 0 ]]
-            return
-            ;;
-        kdialog)
-            local rc=0
-            set +e
-            kdialog --yesno "${msg}" --title "${title}" 2>/dev/null
-            rc=$?
-            set -e
-            [[ "${rc}" -eq 0 ]]
-            return
-            ;;
-        cli)
-            local reply=""
-            read -r -p "${msg} [Y/n]: " reply || true
-            case "${reply}" in
-                ""|[Yy]|[Yy][Ee][Ss]) return 0 ;;
-                *) return 1 ;;
-            esac
-            ;;
+    local reply=""
+    read -r -p "${msg} [Y/n]: " reply || true
+    case "${reply}" in
+        ""|[Yy]|[Yy][Ee][Ss]) return 0 ;;
+        *) return 1 ;;
     esac
 }
 
-# Returns 0 for Yes, 1 for No. Default is No.
-ui_confirm_no_default() {
-    local title="$1"
-    local msg="$2"
-
-    if [[ "${ASSUME_YES}" -eq 1 ]]; then
-        return 0
-    fi
-
-    case "${UI_MODE}" in
-        zenity)
-            local rc=0
-            set +e
-            zenity --question --default-cancel --title="${title}" --text="${msg}" --no-markup 2>/dev/null
-            rc=$?
-            # Older zenity versions may not support --default-cancel
-            if [[ "${rc}" -eq 255 ]]; then
-                zenity --question --title="${title}" --text="${msg}" --no-markup 2>/dev/null
-                rc=$?
-            fi
-            set -e
-            [[ "${rc}" -eq 0 ]]
-            return
-            ;;
-        kdialog)
-            local rc=0
-            set +e
-            kdialog --yesno "${msg}" --title "${title}" 2>/dev/null
-            rc=$?
-            set -e
-            [[ "${rc}" -eq 0 ]]
-            return
-            ;;
-        cli)
-            local reply=""
-            read -r -p "${msg} [y/N]: " reply || true
-            case "${reply}" in
-                [Yy]|[Yy][Ee][Ss]) return 0 ;;
-                *) return 1 ;;
-            esac
-            ;;
-    esac
-}
-
-# Prints selected path to stdout; returns non-zero if user cancels.
+# Prints selected path to stdout; returns non-zero on EOF cancellation.
 ui_prompt_dir() {
-    local title="$1"
-    local prompt_text="$2"
-    local default_val="$3"
+    local prompt_text="$1"
+    local default_val="$2"
 
     if [[ "${ASSUME_YES}" -eq 1 ]]; then
         printf "%s\n" "${default_val}"
         return 0
     fi
 
-    case "${UI_MODE}" in
-        zenity)
-            local out=""
-            local rc=0
-            set +e
-            out="$(zenity --entry \
-                --title="${title}" \
-                --text="${prompt_text}" \
-                --entry-text="${default_val}" \
-                --width=520 2>/dev/null)"
-            rc=$?
-            set -e
-            if [[ "${rc}" -ne 0 ]]; then
-                return 1
-            fi
-            printf "%s\n" "${out:-${default_val}}"
-            ;;
-        kdialog)
-            local out=""
-            local rc=0
-            set +e
-            out="$(kdialog --inputbox "${prompt_text}" "${default_val}" --title "${title}" 2>/dev/null)"
-            rc=$?
-            set -e
-            if [[ "${rc}" -ne 0 ]]; then
-                return 1
-            fi
-            printf "%s\n" "${out:-${default_val}}"
-            ;;
-        cli)
-            local reply=""
-            read -r -p "${prompt_text} [${default_val}]: " reply || true
-            printf "%s\n" "${reply:-${default_val}}"
-            ;;
-    esac
+    local reply=""
+    if ! read -r -p "${prompt_text} [${default_val}]: " reply && [[ -z "${reply}" ]]; then
+        printf "\n" >&2
+        return 1
+    fi
+
+    printf "%s\n" "${reply:-${default_val}}"
 }
 
 # ---------------------------------------------------------------------------
@@ -546,9 +387,10 @@ check_java() {
 # Install Action
 # ---------------------------------------------------------------------------
 do_install() {
+    ui_header "${APP_NAME} Installer"
+
     if [[ ! -d "${PAYLOAD_DIR}" || ! -f "${PAYLOAD_DIR}/${JAR_NAME}" ]]; then
-        ui_error "${APP_NAME} Installer" \
-            "Application payload not found at '${PAYLOAD_DIR}'. Please run install.sh from the extracted installer archive."
+        ui_error "Application payload not found at '${PAYLOAD_DIR}'. Please run install.sh from the extracted installer archive."
         exit 1
     fi
 
@@ -559,7 +401,6 @@ do_install() {
         chosen_dir="${CUSTOM_PREFIX}"
     else
         if ! chosen_dir="$(ui_prompt_dir \
-            "${APP_NAME} Installer" \
             "Enter the installation directory for ${APP_NAME}:" \
             "${DEFAULT_INSTALL_DIR}")"; then
             echo "Installation cancelled."
@@ -571,14 +412,12 @@ do_install() {
     install_dir="$(normalize_path "${chosen_dir}")"
 
     if is_unsafe_dir "${install_dir}"; then
-        ui_error "${APP_NAME} Installer" \
-            "Refusing to install directly into '${install_dir}'. Please choose a dedicated folder (e.g., ${DEFAULT_INSTALL_DIR})."
+        ui_error "Refusing to install directly into '${install_dir}'. Please choose a dedicated folder (e.g., ${DEFAULT_INSTALL_DIR})."
         exit 1
     fi
 
     if [[ -e "${install_dir}" ]]; then
         if ! ui_confirm_yes_default \
-            "${APP_NAME} Installer" \
             "The directory '${install_dir}' already exists. Overwrite/update files in this directory?"; then
             echo "Installation cancelled."
             exit 1
@@ -655,20 +494,20 @@ Uninstallation:
 
 Java check:
   ${JAVA_STATUS_MSG}"
-        ui_summary "${APP_NAME} Installation Complete" "${summary}"
+        ui_info "${APP_NAME} Installation Complete" "${summary}"
     else
         summary="${summary}
 
-=======================================================================
+${UI_DIVIDER}
 ACTION REQUIRED: Java >= ${MIN_JAVA_VERSION} (OpenJDK ${MIN_JAVA_VERSION} JRE)
-=======================================================================
+${UI_DIVIDER}
 ${JAVA_STATUS_MSG}
 
 ${APP_NAME} has been installed, but requires OpenJDK ${MIN_JAVA_VERSION} (non-headless JRE)
 before it can be launched.
 
 ${JAVA_INSTALL_HELP}"
-        ui_summary "${APP_NAME} Installed (Java ${MIN_JAVA_VERSION} Required)" "${summary}"
+        ui_info "${APP_NAME} Installed (Java ${MIN_JAVA_VERSION} Required)" "${summary}"
     fi
 }
 
@@ -720,29 +559,27 @@ resolve_install_dir_from_desktop() {
 }
 
 do_uninstall() {
+    ui_header "${APP_NAME} Uninstaller"
+
     local install_dir=""
     install_dir="$(resolve_install_dir_from_desktop "${DESKTOP_FILE}")"
 
     if [[ -z "${install_dir}" ]]; then
-        ui_error "${APP_NAME} Uninstaller" \
-            "Could not determine the ${APP_NAME} installation directory (desktop entry '${DESKTOP_FILE}' not found or unrecognized)."
+        ui_error "Could not determine the ${APP_NAME} installation directory (desktop entry '${DESKTOP_FILE}' not found or unrecognized)."
         exit 1
     fi
 
     if is_unsafe_dir "${install_dir}"; then
-        ui_error "${APP_NAME} Uninstaller" \
-            "Refusing to remove unsafe path '${install_dir}'."
+        ui_error "Refusing to remove unsafe path '${install_dir}'."
         exit 1
     fi
 
     if [[ ! -d "${install_dir}" || ! -f "${install_dir}/${JAR_NAME}" ]]; then
-        ui_error "${APP_NAME} Uninstaller" \
-            "Expected ${APP_NAME} installation at '${install_dir}', but '${JAR_NAME}' was not found there. Aborting for safety."
+        ui_error "Expected ${APP_NAME} installation at '${install_dir}', but '${JAR_NAME}' was not found there. Aborting for safety."
         exit 1
     fi
 
     if ! ui_confirm_yes_default \
-        "${APP_NAME} Uninstaller" \
         "Uninstall ${APP_NAME} from '${install_dir}' and remove '${DESKTOP_FILE}'?"; then
         echo "Uninstallation cancelled."
         exit 0
@@ -759,7 +596,6 @@ do_uninstall() {
                 ;;
             ask)
                 if ui_confirm_yes_default \
-                    "${APP_NAME} Uninstaller" \
                     "Also remove ${APP_NAME} user preferences (${PREFS_DIR})?"; then
                     remove_prefs=1
                 else
@@ -802,7 +638,6 @@ Preferences    : ${prefs_msg}"
 # ---------------------------------------------------------------------------
 main() {
     parse_args "$@"
-    detect_ui_mode
 
     case "${ACTION}" in
         install)
