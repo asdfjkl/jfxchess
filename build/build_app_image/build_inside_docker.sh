@@ -82,6 +82,7 @@ build_jpackage_image() {
 
     cp "${SRC_DIR}/target/jfxchess-jar-with-dependencies.jar" "${INPUT_DIR}/"
     cp /workspace/build/build_app_image/assets/splash.png "${INPUT_DIR}/splash.png"
+    cp /workspace/build/build_app_image/assets/splash@2x.png "${INPUT_DIR}/splash@2x.png"
     cp /workspace/build/build_app_image/assets/book/extbook.bin "${INPUT_DIR}/book/extbook.bin"
     cp /workspace/build/build_app_image/assets/engine/stockfish_x64 "${INPUT_DIR}/engine/stockfish_x64"
     cp /workspace/build/build_app_image/assets/engine/stockfish5_x64 "${INPUT_DIR}/engine/stockfish5_x64"

@@ -23,8 +23,10 @@ import org.asdfjkl.jfxchess.lib.PolyglotExtEntry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -36,6 +38,30 @@ public class View_Book extends JTable implements PropertyChangeListener {
     private static final String EVT_NODE_CHANGED = "currentGameNodeChanged";
     private static final String EVT_GAME_CHANGED = "gameChanged";
     private static final String EVT_BOOK_CHANGED = "bookChanged";
+
+    private static final int COL_MOVE = 0;
+    private static final int COL_COUNT = 1;
+    private static final int COL_WDL = 2;
+    private static final int COL_ELO = 3;
+    private static final int COLUMN_COUNT = 4;
+
+    private static final int BASE_ROW_HEIGHT = 28;
+    private static final int ROW_V_PADDING = 8;
+
+    private static final int MOVE_MIN_W = 55;
+    private static final int MOVE_PREF_W = 72;
+    private static final int MOVE_MAX_W = 160;
+
+    private static final int COUNT_MIN_W = 55;
+    private static final int COUNT_PREF_W = 75;
+    private static final int COUNT_MAX_W = 160;
+
+    private static final int WDL_MIN_W = 140;
+    private static final int WDL_PREF_W = 260;
+
+    private static final int ELO_MIN_W = 50;
+    private static final int ELO_PREF_W = 65;
+    private static final int ELO_MAX_W = 140;
 
     private final ExtPolyglotTableModel tableModel;
     private final Model_JFXChess model;
@@ -76,47 +102,100 @@ public class View_Book extends JTable implements PropertyChangeListener {
             }
         });
 
-        getColumnModel().getColumn(2).setCellRenderer(new WinDrawLossRenderer());
+        getColumnModel().getColumn(COL_WDL).setCellRenderer(new WinDrawLossRenderer());
 
-        double scale = HighDPIHelper.getUIScaleFactor();
-        setRowHeight((int) Math.round(28 * scale));
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        // total count is centered
-        getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-        getColumnModel().getColumn(1).setHeaderRenderer(centerRenderer);
-        // average elo centered
-        getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-        getColumnModel().getColumn(3).setHeaderRenderer(centerRenderer);
+        DefaultTableCellRenderer centerCellRenderer = new DefaultTableCellRenderer();
+        centerCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        getColumnModel().getColumn(COL_COUNT).setCellRenderer(centerCellRenderer);
+        getColumnModel().getColumn(COL_ELO).setCellRenderer(centerCellRenderer);
 
         setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        // Move column: compact minimum and preferred width, does not expand further
-        TableColumn colMove = getColumnModel().getColumn(0);
-        colMove.setMinWidth((int) Math.round(50 * scale));
-        colMove.setPreferredWidth((int) Math.round(65 * scale));
-        colMove.setMaxWidth((int) Math.round(65 * scale));
-
-        // Count column: compact minimum and preferred width, does not expand further
-        TableColumn colCount = getColumnModel().getColumn(1);
-        colCount.setMinWidth((int) Math.round(50 * scale));
-        colCount.setPreferredWidth((int) Math.round(65 * scale));
-        colCount.setMaxWidth((int) Math.round(65 * scale));
-
-        // Win/Draw/Loss column: expands to absorb remaining table width
-        TableColumn colWdl = getColumnModel().getColumn(2);
-        colWdl.setMinWidth((int) Math.round(140 * scale));
-        colWdl.setPreferredWidth((int) Math.round(260 * scale));
-        colWdl.setMaxWidth(Integer.MAX_VALUE);
-
-        // Elo column: compact minimum and preferred width, does not expand further
-        TableColumn colElo = getColumnModel().getColumn(3);
-        colElo.setMinWidth((int) Math.round(50 * scale));
-        colElo.setPreferredWidth((int) Math.round(60 * scale));
-        colElo.setMaxWidth((int) Math.round(60 * scale));
+        applyHeaderRenderers();
+        applyScaledLayout();
 
         refresh();
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        applyScaledLayout();
+    }
+
+    // Wrap the LaF default header renderer so alignment never drops FlatLaf header styling.
+    private void applyHeaderRenderers() {
+        if (getColumnModel() == null || getColumnModel().getColumnCount() < COLUMN_COUNT) {
+            return;
+        }
+
+        TableCellRenderer leadingHeader = buildHeaderRenderer(SwingConstants.LEADING);
+        TableCellRenderer centerHeader = buildHeaderRenderer(SwingConstants.CENTER);
+
+        getColumnModel().getColumn(COL_MOVE).setHeaderRenderer(leadingHeader);
+        getColumnModel().getColumn(COL_COUNT).setHeaderRenderer(centerHeader);
+        getColumnModel().getColumn(COL_WDL).setHeaderRenderer(leadingHeader);
+        getColumnModel().getColumn(COL_ELO).setHeaderRenderer(centerHeader);
+    }
+
+    private TableCellRenderer buildHeaderRenderer(int alignment) {
+        return (table, value, isSelected, hasFocus, row, column) -> {
+            TableCellRenderer base = table.getTableHeader().getDefaultRenderer();
+            Component comp = base.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column
+            );
+            if (comp instanceof JLabel label) {
+                label.setHorizontalAlignment(alignment);
+            }
+            return comp;
+        };
+    }
+
+    // Scale row height and column bounds with FlatLaf logical UI scale and font metrics.
+    private void applyScaledLayout() {
+        int scaledRow = HighDPIHelper.scaleUI(BASE_ROW_HEIGHT);
+        if (getFont() != null) {
+            int fontRow = getFontMetrics(getFont()).getHeight() + HighDPIHelper.scaleUI(ROW_V_PADDING);
+            scaledRow = Math.max(scaledRow, fontRow);
+        }
+        setRowHeight(scaledRow);
+
+        if (getColumnModel() == null || getColumnModel().getColumnCount() < COLUMN_COUNT) {
+            return;
+        }
+
+        setColBounds(
+                getColumnModel().getColumn(COL_MOVE),
+                HighDPIHelper.scaleUI(MOVE_MIN_W),
+                HighDPIHelper.scaleUI(MOVE_PREF_W),
+                HighDPIHelper.scaleUI(MOVE_MAX_W)
+        );
+        setColBounds(
+                getColumnModel().getColumn(COL_COUNT),
+                HighDPIHelper.scaleUI(COUNT_MIN_W),
+                HighDPIHelper.scaleUI(COUNT_PREF_W),
+                HighDPIHelper.scaleUI(COUNT_MAX_W)
+        );
+        setColBounds(
+                getColumnModel().getColumn(COL_WDL),
+                HighDPIHelper.scaleUI(WDL_MIN_W),
+                HighDPIHelper.scaleUI(WDL_PREF_W),
+                Integer.MAX_VALUE
+        );
+        setColBounds(
+                getColumnModel().getColumn(COL_ELO),
+                HighDPIHelper.scaleUI(ELO_MIN_W),
+                HighDPIHelper.scaleUI(ELO_PREF_W),
+                HighDPIHelper.scaleUI(ELO_MAX_W)
+        );
+    }
+
+    // Lift maxWidth first so resizing across scale changes never clamps min/preferred widths.
+    private void setColBounds(TableColumn col, int minW, int prefW, int maxW) {
+        col.setMaxWidth(Integer.MAX_VALUE);
+        col.setMinWidth(minW);
+        col.setPreferredWidth(prefW);
+        col.setMaxWidth(maxW);
     }
 
     private void handleClick(MouseEvent e) {

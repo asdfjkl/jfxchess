@@ -116,6 +116,9 @@ public class Main {
                 selectedTests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
                 selectedTests.put("highDpiScaleSplitTest", cases::highDpiScaleSplitTest);
                 selectedTests.put("wdlRendererTest", cases::wdlRendererTest);
+                selectedTests.put("bookViewLayoutTest", cases::bookViewLayoutTest);
+                selectedTests.put("tabBarScalingAndIconTest", cases::tabBarScalingAndIconTest);
+                selectedTests.put("splashAssetPackagingTest", cases::splashAssetPackagingTest);
             }
 
             if (runAll || runScid) {
@@ -227,6 +230,15 @@ public class Main {
         } else if ("wdl-renderer-test".equals(firstArg)) {
             new TestCases().wdlRendererTest();
             System.exit(0);
+        } else if ("book-view-layout-test".equals(firstArg)) {
+            new TestCases().bookViewLayoutTest();
+            System.exit(0);
+        } else if ("tab-bar-scaling-test".equals(firstArg)) {
+            new TestCases().tabBarScalingAndIconTest();
+            System.exit(0);
+        } else if ("splash-asset-packaging-test".equals(firstArg)) {
+            new TestCases().splashAssetPackagingTest();
+            System.exit(0);
         } else {
             boolean printOutput = true;
             if (args.length > 1 && "noout".equals(args[1])) {
@@ -301,6 +313,9 @@ public class Main {
         tests.put("bookSanDisplayTest", cases::bookSanDisplayTest);
         tests.put("highDpiScaleSplitTest", cases::highDpiScaleSplitTest);
         tests.put("wdlRendererTest", cases::wdlRendererTest);
+        tests.put("bookViewLayoutTest", cases::bookViewLayoutTest);
+        tests.put("tabBarScalingAndIconTest", cases::tabBarScalingAndIconTest);
+        tests.put("splashAssetPackagingTest", cases::splashAssetPackagingTest);
 
         // CBH / 2CBH tests
         tests.put("syntheticCbhStandardAndFeaturesTest", TestCbhSupport::syntheticCbhStandardAndFeaturesTest);

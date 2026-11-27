@@ -13,6 +13,7 @@ cd ..
 set SRC_DIR=%CD%
 set BUILD_TOOL_DIR=%SRC_DIR%\build
 set SPLASH_ICON_PATH=%SRC_DIR%\src\main\resources\icons\splash.png
+set SPLASH_2X_ICON_PATH=%SRC_DIR%\src\main\resources\icons\splash@2x.png
 set MAVEN_BIN="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.2.1\plugins\maven\lib\maven3\bin\mvn.cmd"
 set BUILD_DIR=%CD%\build\build_win
 set JAR_DIR=%BUILD_DIR%\jar
@@ -38,6 +39,7 @@ copy jfxchess.ico %OUTPUT_DIR%
 xcopy engine /s /i %OUTPUT_ENGINE_DIR%
 xcopy book /s /i %OUTPUT_BOOK_DIR%
 copy %SPLASH_ICON_PATH% %OUTPUT_APP_DIR%
+copy %SPLASH_2X_ICON_PATH% %OUTPUT_APP_DIR%
 cd %SRC_DIR%\src\main\java\org\asdfjkl\jfxchess\gui
 powershell -Command "(Get-Content DialogEngines.java) -replace 'btnAdd.setEnabled\(false\)', '//btnAdd.setEnabled(false)' | Set-Content DialogEngines.java"
 cd %BUILD_TOOL_DIR%

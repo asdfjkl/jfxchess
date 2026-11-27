@@ -38,6 +38,7 @@ check_assets() {
         "${ASSETS_DIR}/engine/stockfish_x64" \
         "${ASSETS_DIR}/engine/stockfish5_x64" \
         "${ASSETS_DIR}/splash.png" \
+        "${ASSETS_DIR}/splash@2x.png" \
         "../jfxchess_icon_256.png"
     do
         if [ ! -f "${required_asset}" ]; then

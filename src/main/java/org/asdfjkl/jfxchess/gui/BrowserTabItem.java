@@ -26,6 +26,14 @@ import java.util.function.Consumer;
 
 public class BrowserTabItem extends JPanel {
 
+    private static final int HGAP_BASE = 4;
+    private static final int PAD_V_BASE = 2;
+    private static final int PAD_LEFT_BASE = 8;
+    private static final int PAD_RIGHT_BASE = 4;
+    private static final float UNDERLINE_BASE = 2.5f;
+    private static final int MIN_UNDERLINE_PX = 2;
+    private static final int DIVIDER_MARGIN_BASE = 5;
+
     private final GameSession session;
     private final JLabel titleLabel;
     private final TabIconButton closeButton;
@@ -38,19 +46,13 @@ public class BrowserTabItem extends JPanel {
     public BrowserTabItem(GameSession session,
                           Consumer<GameSession> onSelect,
                           Consumer<GameSession> onClose) {
-        super(new BorderLayout(4, 0));
+        super(new BorderLayout(HighDPIHelper.scaleUI(HGAP_BASE), 0));
         this.session = session;
         this.onSelect = onSelect;
         this.onClose = onClose;
 
         setOpaque(false);
-        double scale = HighDPIHelper.getUIScaleFactor();
-        setBorder(BorderFactory.createEmptyBorder(
-                (int) Math.round(2 * scale),
-                (int) Math.round(8 * scale),
-                (int) Math.round(2 * scale),
-                (int) Math.round(4 * scale)
-        ));
+        applyScaledBorder();
 
         titleLabel = new JLabel();
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -58,7 +60,12 @@ public class BrowserTabItem extends JPanel {
 
         closeButton = new TabIconButton(TabIconButton.Type.CLOSE, "Close tab");
         closeButton.addActionListener(e -> onClose.accept(session));
-        add(closeButton, BorderLayout.EAST);
+
+        // Center closeButton vertically so BorderLayout.EAST does not stretch it out of square.
+        JPanel closeWrapper = new JPanel(new GridBagLayout());
+        closeWrapper.setOpaque(false);
+        closeWrapper.add(closeButton);
+        add(closeWrapper, BorderLayout.EAST);
 
         MouseAdapter mouseHandler = new MouseAdapter() {
             @Override
@@ -159,9 +166,19 @@ public class BrowserTabItem extends JPanel {
         }
     }
 
+    private void applyScaledBorder() {
+        setBorder(BorderFactory.createEmptyBorder(
+                HighDPIHelper.scaleUI(PAD_V_BASE),
+                HighDPIHelper.scaleUI(PAD_LEFT_BASE),
+                HighDPIHelper.scaleUI(PAD_V_BASE),
+                HighDPIHelper.scaleUI(PAD_RIGHT_BASE)
+        ));
+    }
+
     @Override
     public void updateUI() {
         super.updateUI();
+        applyScaledBorder();
         updateFontAndColor();
     }
 
@@ -172,7 +189,6 @@ public class BrowserTabItem extends JPanel {
 
         int w = getWidth();
         int h = getHeight();
-        double scale = HighDPIHelper.getUIScaleFactor();
 
         if (active) {
             Color selBg = UIManager.getColor("TabbedPane.selectedBackground");
@@ -191,7 +207,7 @@ public class BrowserTabItem extends JPanel {
             if (underline == null) {
                 underline = new Color(50, 120, 220);
             }
-            int barHeight = (int) Math.max(2, Math.round(2.5 * scale));
+            int barHeight = Math.max(MIN_UNDERLINE_PX, Math.round(HighDPIHelper.scaleUI(UNDERLINE_BASE)));
             g2.setColor(underline);
             g2.fillRect(0, h - barHeight, w, barHeight);
 
@@ -218,7 +234,7 @@ public class BrowserTabItem extends JPanel {
             divColor = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 30);
         }
         g2.setColor(divColor);
-        int margin = (int) Math.round(5 * scale);
+        int margin = HighDPIHelper.scaleUI(DIVIDER_MARGIN_BASE);
         g2.drawLine(w - 1, margin, w - 1, h - margin);
 
         g2.dispose();

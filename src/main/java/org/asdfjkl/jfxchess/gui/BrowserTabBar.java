@@ -29,6 +29,14 @@ import java.util.function.Consumer;
 
 public class BrowserTabBar extends JPanel {
 
+    private static final int SCROLL_STEP_BASE = 100;
+    private static final int TAB_HEIGHT_BASE = 32;
+    private static final int TAB_V_PADDING_BASE = 10;
+    private static final int DEFAULT_TAB_W_BASE = 190;
+    private static final int MIN_TAB_W_BASE = 88;
+    private static final int STRIP_PAD_BASE = 6;
+    private static final int PLUS_GAP_BASE = 2;
+
     private final List<BrowserTabItem> tabItems = new ArrayList<>();
     private final TabIconButton btnPlus;
     private final TabIconButton btnScrollLeft;
@@ -153,8 +161,21 @@ public class BrowserTabBar extends JPanel {
     }
 
     private int getScrollStep() {
-        double scale = HighDPIHelper.getUIScaleFactor();
-        return (int) Math.round(100 * scale);
+        return HighDPIHelper.scaleUI(SCROLL_STEP_BASE);
+    }
+
+    private int getScaledTabHeight() {
+        int scaledHeight = HighDPIHelper.scaleUI(TAB_HEIGHT_BASE);
+        Font labelFont = UIManager.getFont("TabbedPane.font");
+        if (labelFont == null) {
+            labelFont = UIManager.getFont("Label.font");
+        }
+        if (labelFont != null) {
+            int fontHeight = getFontMetrics(labelFont).getHeight()
+                    + HighDPIHelper.scaleUI(TAB_V_PADDING_BASE);
+            scaledHeight = Math.max(scaledHeight, fontHeight);
+        }
+        return scaledHeight;
     }
 
     private void scrollBy(int delta) {
@@ -187,6 +208,10 @@ public class BrowserTabBar extends JPanel {
     public void updateUI() {
         super.updateUI();
         updateColors();
+        if (tabStripPanel != null) {
+            tabStripPanel.revalidate();
+            tabStripPanel.repaint();
+        }
     }
 
     @Override
@@ -216,11 +241,10 @@ public class BrowserTabBar extends JPanel {
 
         @Override
         public Dimension preferredLayoutSize(Container parent) {
-            double scale = HighDPIHelper.getUIScaleFactor();
-            int tabHeight = (int) Math.round(32 * scale);
+            int tabHeight = getScaledTabHeight();
             int tabWidth = calculateCurrentTabWidth();
             int plusWidth = btnPlus.getPreferredSize().width;
-            int totalWidth = tabItems.size() * tabWidth + plusWidth + (int) Math.round(6 * scale);
+            int totalWidth = tabItems.size() * tabWidth + plusWidth + HighDPIHelper.scaleUI(STRIP_PAD_BASE);
             return new Dimension(totalWidth, tabHeight);
         }
 
@@ -231,10 +255,10 @@ public class BrowserTabBar extends JPanel {
 
         @Override
         public void layoutContainer(Container parent) {
-            double scale = HighDPIHelper.getUIScaleFactor();
-            int tabHeight = (int) Math.round(32 * scale);
-            int defaultTabWidth = (int) Math.round(190 * scale);
-            int minTabWidth = (int) Math.round(88 * scale);
+            int tabHeight = getScaledTabHeight();
+            int defaultTabWidth = HighDPIHelper.scaleUI(DEFAULT_TAB_W_BASE);
+            int minTabWidth = HighDPIHelper.scaleUI(MIN_TAB_W_BASE);
+            int stripPad = HighDPIHelper.scaleUI(STRIP_PAD_BASE);
             int plusWidth = btnPlus.getPreferredSize().width;
             int plusHeight = btnPlus.getPreferredSize().height;
 
@@ -244,14 +268,14 @@ public class BrowserTabBar extends JPanel {
             // Calculate tab width based on viewport width
             int tabWidth;
             if (count > 0 && viewportW > 0) {
-                int availableForTabs = viewportW - plusWidth - (int) Math.round(6 * scale);
+                int availableForTabs = viewportW - plusWidth - stripPad;
                 int calculated = availableForTabs / count;
                 tabWidth = Math.max(minTabWidth, Math.min(defaultTabWidth, calculated));
             } else {
                 tabWidth = defaultTabWidth;
             }
 
-            int totalRequiredWidth = count * tabWidth + plusWidth + (int) Math.round(6 * scale);
+            int totalRequiredWidth = count * tabWidth + plusWidth + stripPad;
             boolean overflow = totalRequiredWidth > viewportW && viewportW > 0;
 
             if (overflow != btnScrollLeft.isVisible()) {
@@ -274,21 +298,20 @@ public class BrowserTabBar extends JPanel {
             }
 
             int plusY = Math.max(0, (tabHeight - plusHeight) / 2);
-            btnPlus.setBounds(x + (int) Math.round(2 * scale), plusY, plusWidth, plusHeight);
+            btnPlus.setBounds(x + HighDPIHelper.scaleUI(PLUS_GAP_BASE), plusY, plusWidth, plusHeight);
 
             updateScrollButtonsState();
         }
 
         private int calculateCurrentTabWidth() {
-            double scale = HighDPIHelper.getUIScaleFactor();
-            int defaultTabWidth = (int) Math.round(190 * scale);
-            int minTabWidth = (int) Math.round(88 * scale);
+            int defaultTabWidth = HighDPIHelper.scaleUI(DEFAULT_TAB_W_BASE);
+            int minTabWidth = HighDPIHelper.scaleUI(MIN_TAB_W_BASE);
             int plusWidth = btnPlus.getPreferredSize().width;
 
             int viewportW = viewport.getWidth();
             int count = tabItems.size();
             if (count > 0 && viewportW > 0) {
-                int availableForTabs = viewportW - plusWidth - (int) Math.round(6 * scale);
+                int availableForTabs = viewportW - plusWidth - HighDPIHelper.scaleUI(STRIP_PAD_BASE);
                 int calculated = availableForTabs / count;
                 return Math.max(minTabWidth, Math.min(defaultTabWidth, calculated));
             }

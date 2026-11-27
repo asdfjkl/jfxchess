@@ -19,7 +19,10 @@
 package org.asdfjkl.jfxchess.lib;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
+import org.asdfjkl.jfxchess.gui.BrowserTabBar;
+import org.asdfjkl.jfxchess.gui.BrowserTabItem;
 import org.asdfjkl.jfxchess.gui.Controller_Board;
 import org.asdfjkl.jfxchess.gui.Controller_Pgn;
 import org.asdfjkl.jfxchess.gui.DialogSave;
@@ -28,18 +31,28 @@ import org.asdfjkl.jfxchess.gui.GameSession;
 import org.asdfjkl.jfxchess.gui.HighDPIHelper;
 import org.asdfjkl.jfxchess.gui.Model_JFXChess;
 import org.asdfjkl.jfxchess.gui.PgnSourceReference;
+import org.asdfjkl.jfxchess.gui.TabIconButton;
 import org.asdfjkl.jfxchess.gui.View_Book;
 import org.asdfjkl.jfxchess.gui.View_MainFrame;
 import org.asdfjkl.jfxchess.gui.WinDrawLossRenderer;
 import org.asdfjkl.jfxchess.gui.Workspace;
 
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.LookAndFeel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -3661,6 +3674,307 @@ public class TestCases {
 
         System.out.println("  font=" + renderer.getFont().getSize()
                 + "px, blendedPixels=" + blendedPixels + ", noOverflow ... pass");
+    }
+
+    // Verify View_Book scales row height and columns via logical UI scale, allows resizing,
+    // and keeps header renderers distinct from cell renderers.
+    public void bookViewLayoutTest() {
+        System.out.println("TEST: View_Book logical UI scaling, resizable columns, and header renderers");
+
+        final int scaledFontPx = 24;
+        final int baseRowHeight = 28;
+        final int baseMovePref = 72;
+        final int baseCountPref = 75;
+        final int baseEloPref = 65;
+
+        LookAndFeel prevLaf = UIManager.getLookAndFeel();
+        Object prevDefaultFont = UIManager.get("defaultFont");
+
+        try {
+            UIManager.setLookAndFeel(new FlatIntelliJLaf());
+            UIManager.put("defaultFont", new FontUIResource("SansSerif", Font.PLAIN, scaledFontPx));
+
+            Model_JFXChess model = new Model_JFXChess();
+            Workspace workspace = new Workspace();
+            model.setWorkspace(workspace);
+
+            Game game = new Game();
+            game.getRootNode().setBoard(new Board(true));
+            GameSession session = workspace.createSession(game);
+            model.setGameSession(session);
+
+            Controller_Board ctrl = new Controller_Board(model, session);
+            View_Book viewBook = new View_Book(model, session, ctrl);
+
+            int minExpectedRow = HighDPIHelper.scaleUI(baseRowHeight);
+            if (viewBook.getRowHeight() < minExpectedRow) {
+                throw new AssertionError("Expected rowHeight >= " + minExpectedRow + ", got " + viewBook.getRowHeight());
+            }
+
+            TableColumn colMove = viewBook.getColumnModel().getColumn(0);
+            TableColumn colCount = viewBook.getColumnModel().getColumn(1);
+            TableColumn colElo = viewBook.getColumnModel().getColumn(3);
+
+            int minMovePref = HighDPIHelper.scaleUI(baseMovePref);
+            int minCountPref = HighDPIHelper.scaleUI(baseCountPref);
+            int minEloPref = HighDPIHelper.scaleUI(baseEloPref);
+
+            if (colMove.getPreferredWidth() < minMovePref) {
+                throw new AssertionError("Expected Move pref >= " + minMovePref + ", got " + colMove.getPreferredWidth());
+            }
+            if (colCount.getPreferredWidth() < minCountPref) {
+                throw new AssertionError("Expected Count pref >= " + minCountPref + ", got " + colCount.getPreferredWidth());
+            }
+            if (colElo.getPreferredWidth() < minEloPref) {
+                throw new AssertionError("Expected Elo pref >= " + minEloPref + ", got " + colElo.getPreferredWidth());
+            }
+
+            // Columns must allow manual widening above preferred width.
+            if (colMove.getMaxWidth() <= colMove.getPreferredWidth()) {
+                throw new AssertionError("Move column maxWidth blocks resizing: " + colMove.getMaxWidth());
+            }
+            if (colCount.getMaxWidth() <= colCount.getPreferredWidth()) {
+                throw new AssertionError("Count column maxWidth blocks resizing: " + colCount.getMaxWidth());
+            }
+            if (colElo.getMaxWidth() <= colElo.getPreferredWidth()) {
+                throw new AssertionError("Elo column maxWidth blocks resizing: " + colElo.getMaxWidth());
+            }
+
+            // Header renderers must not reuse cell renderer instances.
+            if (colCount.getHeaderRenderer() == colCount.getCellRenderer()) {
+                throw new AssertionError("Count column reuses cell renderer as header renderer");
+            }
+            if (colElo.getHeaderRenderer() == colElo.getCellRenderer()) {
+                throw new AssertionError("Elo column reuses cell renderer as header renderer");
+            }
+
+            // Count and Elo headers centered; Move header remains non-centered (leading/left).
+            TableCellRenderer countHdr = colCount.getHeaderRenderer();
+            Component countComp = countHdr.getTableCellRendererComponent(viewBook, "Count", false, false, -1, 1);
+            if (!(countComp instanceof JLabel countLbl) || countLbl.getHorizontalAlignment() != SwingConstants.CENTER) {
+                throw new AssertionError("Expected Count header centered");
+            }
+
+            TableCellRenderer moveHdr = colMove.getHeaderRenderer();
+            if (moveHdr == null) {
+                moveHdr = viewBook.getTableHeader().getDefaultRenderer();
+            }
+            Component moveComp = moveHdr.getTableCellRendererComponent(viewBook, "Move", false, false, -1, 0);
+            if (moveComp instanceof JLabel moveLbl && moveLbl.getHorizontalAlignment() == SwingConstants.CENTER) {
+                throw new AssertionError("Move header alignment was polluted to CENTER");
+            }
+
+            System.out.println("  rowH=" + viewBook.getRowHeight()
+                    + ", move=" + colMove.getPreferredWidth() + "/" + colMove.getMaxWidth()
+                    + ", count=" + colCount.getPreferredWidth() + "/" + colCount.getMaxWidth()
+                    + ", elo=" + colElo.getPreferredWidth() + "/" + colElo.getMaxWidth()
+                    + " ... pass");
+        } catch (Exception e) {
+            throw new RuntimeException("bookViewLayoutTest failed", e);
+        } finally {
+            UIManager.put("defaultFont", prevDefaultFont);
+            if (prevLaf != null) {
+                try {
+                    UIManager.setLookAndFeel(prevLaf);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    // Verify tab buttons use FlatSVGIcon assets, scale via logical UI scale, and keep square close bounds.
+    public void tabBarScalingAndIconTest() {
+        System.out.println("TEST: TabIconButton FlatSVGIcon assets, logical UI scale, and square close button");
+
+        final int scaledFontPx = 24;
+        final int baseCloseSize = 18;
+        final int baseOtherSize = 22;
+        final int baseTabHeight = 32;
+
+        LookAndFeel prevLaf = UIManager.getLookAndFeel();
+        Object prevDefaultFont = UIManager.get("defaultFont");
+
+        try {
+            UIManager.setLookAndFeel(new FlatIntelliJLaf());
+            UIManager.put("defaultFont", new FontUIResource("SansSerif", Font.PLAIN, scaledFontPx));
+
+            int expectedClose = HighDPIHelper.scaleUI(baseCloseSize);
+            int expectedOther = HighDPIHelper.scaleUI(baseOtherSize);
+
+            for (TabIconButton.Type type : TabIconButton.Type.values()) {
+                TabIconButton btn = new TabIconButton(type, type.name());
+                Icon icon = btn.getIcon();
+                if (!(icon instanceof FlatSVGIcon svgIcon) || !svgIcon.hasFound()) {
+                    throw new AssertionError("Expected loaded FlatSVGIcon for " + type + ", got " + icon);
+                }
+
+                int expectedSize = (type == TabIconButton.Type.CLOSE) ? expectedClose : expectedOther;
+                Dimension pref = btn.getPreferredSize();
+                if (pref.width != expectedSize || pref.height != expectedSize) {
+                    throw new AssertionError("Expected " + type + " size " + expectedSize + "x" + expectedSize
+                            + ", got " + pref.width + "x" + pref.height);
+                }
+
+                // Render icon to verify visible vector pixels.
+                btn.setSize(pref);
+                BufferedImage img = new BufferedImage(pref.width, pref.height, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2 = img.createGraphics();
+                try {
+                    btn.paint(g2);
+                } finally {
+                    g2.dispose();
+                }
+
+                int opaquePixels = 0;
+                for (int y = 0; y < pref.height; y++) {
+                    for (int x = 0; x < pref.width; x++) {
+                        int alpha = (img.getRGB(x, y) >>> 24) & 0xFF;
+                        if (alpha > 0) {
+                            opaquePixels++;
+                        }
+                    }
+                }
+                if (opaquePixels == 0) {
+                    throw new AssertionError("Rendered 0 visible pixels for TabIconButton " + type);
+                }
+            }
+
+            // Verify tab bar scales height and keeps close button square inside BrowserTabItem.
+            Workspace workspace = new Workspace();
+            Game game = new Game();
+            game.getRootNode().setBoard(new Board(true));
+            GameSession session = workspace.createSession(game);
+
+            BrowserTabBar tabBar = new BrowserTabBar(() -> {
+            });
+            tabBar.addTab(session, s -> {
+            }, s -> {
+            });
+
+            int minExpectedTabH = HighDPIHelper.scaleUI(baseTabHeight);
+            Dimension barPref = tabBar.getPreferredSize();
+            if (barPref.height < minExpectedTabH) {
+                throw new AssertionError("Expected tabBar height >= " + minExpectedTabH + ", got " + barPref.height);
+            }
+
+            tabBar.setSize(600, barPref.height);
+            layoutTree(tabBar);
+
+            BrowserTabItem tabItem = findFirstComponent(tabBar, BrowserTabItem.class);
+            if (tabItem == null) {
+                throw new AssertionError("Missing BrowserTabItem inside BrowserTabBar");
+            }
+            TabIconButton closeBtn = findFirstComponent(tabItem, TabIconButton.class);
+            if (closeBtn == null) {
+                throw new AssertionError("Missing TabIconButton inside BrowserTabItem");
+            }
+            if (closeBtn.getWidth() != expectedClose || closeBtn.getHeight() != expectedClose) {
+                throw new AssertionError("Expected square close button " + expectedClose + "x" + expectedClose
+                        + ", got " + closeBtn.getWidth() + "x" + closeBtn.getHeight());
+            }
+
+            System.out.println("  tabH=" + barPref.height
+                    + ", closeBtn=" + closeBtn.getWidth() + "x" + closeBtn.getHeight()
+                    + " ... pass");
+        } catch (Exception e) {
+            throw new RuntimeException("tabBarScalingAndIconTest failed", e);
+        } finally {
+            UIManager.put("defaultFont", prevDefaultFont);
+            if (prevLaf != null) {
+                try {
+                    UIManager.setLookAndFeel(prevLaf);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    private void layoutTree(Container root) {
+        root.doLayout();
+        for (Component child : root.getComponents()) {
+            if (child instanceof Container container) {
+                layoutTree(container);
+            }
+        }
+    }
+
+    private <T extends Component> T findFirstComponent(Container root, Class<T> type) {
+        for (Component child : root.getComponents()) {
+            if (type.isInstance(child)) {
+                return type.cast(child);
+            }
+            if (child instanceof Container container) {
+                T nested = findFirstComponent(container, type);
+                if (nested != null) {
+                    return nested;
+                }
+            }
+        }
+        return null;
+    }
+
+    // Verify splash@2x.png matches exact 2x dimensions of splash.png and is bundled in all packaging targets.
+    public void splashAssetPackagingTest() {
+        System.out.println("TEST: HiDPI splash@2x.png dimensions and packaging alignment");
+
+        final String splash1xRes = "icons/splash.png";
+        final String splash2xRes = "icons/splash@2x.png";
+
+        try {
+            URL url1x = TestCases.class.getClassLoader().getResource(splash1xRes);
+            URL url2x = TestCases.class.getClassLoader().getResource(splash2xRes);
+            if (url1x == null || url2x == null) {
+                throw new AssertionError("Missing classpath splash resources: 1x=" + url1x + ", 2x=" + url2x);
+            }
+
+            BufferedImage img1x = ImageIO.read(url1x);
+            BufferedImage img2x = ImageIO.read(url2x);
+            if (img1x == null || img2x == null) {
+                throw new AssertionError("Unable to decode splash PNG resources");
+            }
+            if (img2x.getWidth() != img1x.getWidth() * 2 || img2x.getHeight() != img1x.getHeight() * 2) {
+                throw new AssertionError("Expected splash@2x.png to be "
+                        + (img1x.getWidth() * 2) + "x" + (img1x.getHeight() * 2)
+                        + ", got " + img2x.getWidth() + "x" + img2x.getHeight());
+            }
+
+            // When executed from repo root, verify every packaging directory and script ships splash@2x.png.
+            Path buildRoot = Path.of("build");
+            if (Files.isDirectory(buildRoot)) {
+                String[] siblingAssets = {
+                        "build/build_linux/build/jar/splash@2x.png",
+                        "build/build_app_image/assets/splash@2x.png",
+                        "build/build_linux_installer/jfxchess/splash@2x.png",
+                        "build/build_jar/jfxchess/splash@2x.png",
+                        "build/build_snap/snap/local/splash/splash@2x.png"
+                };
+                for (String asset : siblingAssets) {
+                    Path p = Path.of(asset);
+                    if (!Files.isRegularFile(p)) {
+                        throw new AssertionError("Missing packaged HiDPI splash asset: " + asset);
+                    }
+                }
+
+                String[] scriptsRequiring2x = {
+                        "build/build_app_image.sh",
+                        "build/build_app_image/build_inside_docker.sh",
+                        "build/build_win.bat",
+                        "build/build_msix.bat"
+                };
+                for (String script : scriptsRequiring2x) {
+                    String content = Files.readString(Path.of(script), StandardCharsets.UTF_8);
+                    if (!content.contains("splash@2x.png")) {
+                        throw new AssertionError("Packaging script does not bundle splash@2x.png: " + script);
+                    }
+                }
+            }
+
+            System.out.println("  1x=" + img1x.getWidth() + "x" + img1x.getHeight()
+                    + ", 2x=" + img2x.getWidth() + "x" + img2x.getHeight()
+                    + ", all packaging targets aligned ... pass");
+        } catch (IOException e) {
+            throw new RuntimeException("splashAssetPackagingTest failed", e);
+        }
     }
 }
 

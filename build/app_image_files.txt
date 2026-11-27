@@ -2,4 +2,5 @@
 2) add "stockfish_x64" to "build/build_app_image/assets/engine/stockfish_x64"    <- internal engine
 3) add "stockfish5_x64" to "build/build_app_image/assets/engine/stockfish5_x64"  <- engine for bots
 4) add "splash.png" to "build/build_app_image/assets/splash.png"                 <- startup splash image
-5) ensure 256x256 icon exists at "jfxchess_icon_256.png" in repository root
+5) add "splash@2x.png" to "build/build_app_image/assets/splash@2x.png"           <- HiDPI 2x startup splash image
+6) ensure 256x256 icon exists at "jfxchess_icon_256.png" in repository root
