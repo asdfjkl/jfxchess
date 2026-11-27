@@ -50,6 +50,8 @@ final class CbhCrypto {
     static final int[] OP_DY = new int[256];
 
     static final int[] SBOX_INV = new int[256];
+    static final int[] SBOX_FWD = new int[256];
+    private static final int[][][][] MOVE_ENCODE_TABLE = new int[6][8][8][8];
 
     private static final int[] KNIGHT_DELTAS = {
         2, 1, 1, 2, -1, 2, -2, 1, -2, -1, -1, -2, 1, -2, 2, -1
@@ -58,6 +60,14 @@ final class CbhCrypto {
     static {
         Arrays.fill(OP_KIND, OP_UNMAPPED);
         Arrays.fill(SBOX_INV, -1);
+        Arrays.fill(SBOX_FWD, -1);
+        for (int t = 0; t < 6; t++) {
+            for (int s = 0; s < 8; s++) {
+                for (int dx = 0; dx < 8; dx++) {
+                    Arrays.fill(MOVE_ENCODE_TABLE[t][s][dx], -1);
+                }
+            }
+        }
 
         OP_KIND[0xDC] = OP_PUSH;
         OP_KIND[0x0C] = OP_POP;
@@ -181,6 +191,13 @@ final class CbhCrypto {
         SBOX_INV[0xC7] = 238;
         SBOX_INV[0x8A] = 246;
         SBOX_INV[0xDC] = 254;
+
+        for (int d = 0; d < 256; d++) {
+            int val = SBOX_INV[d];
+            if (val >= 0 && val < 256) {
+                SBOX_FWD[val] = d;
+            }
+        }
     }
 
     private CbhCrypto() {
@@ -195,6 +212,14 @@ final class CbhCrypto {
         OP_SLOT[op] = slot;
         OP_DX[op] = dx;
         OP_DY[op] = dy;
+        MOVE_ENCODE_TABLE[type][slot][dx & 7][dy & 7] = op;
+    }
+
+    static int encodeMoveOpcode(int pieceType, int slot, int dxMod8, int dyMod8) {
+        if (pieceType < 0 || pieceType >= 6 || slot < 0 || slot >= 8) {
+            return -1;
+        }
+        return MOVE_ENCODE_TABLE[pieceType][slot][dxMod8 & 7][dyMod8 & 7];
     }
 
     static int promoCodeToConstant(int promoIdx) {
@@ -208,6 +233,36 @@ final class CbhCrypto {
             return CONSTANTS.ROOK;
         }
         return CONSTANTS.EMPTY;
+    }
+
+    static int constantToPromoCode(int promoConst) {
+        if (promoConst == CONSTANTS.QUEEN) {
+            return 0;
+        } else if (promoConst == CONSTANTS.KNIGHT) {
+            return 1;
+        } else if (promoConst == CONSTANTS.BISHOP) {
+            return 2;
+        } else if (promoConst == CONSTANTS.ROOK) {
+            return 3;
+        }
+        return -1;
+    }
+
+    static int toRosterType(int constPieceType) {
+        if (constPieceType == CONSTANTS.KING) {
+            return ROSTER_KING;
+        } else if (constPieceType == CONSTANTS.QUEEN) {
+            return ROSTER_QUEEN;
+        } else if (constPieceType == CONSTANTS.ROOK) {
+            return ROSTER_ROOK;
+        } else if (constPieceType == CONSTANTS.BISHOP) {
+            return ROSTER_BISHOP;
+        } else if (constPieceType == CONSTANTS.KNIGHT) {
+            return ROSTER_KNIGHT;
+        } else if (constPieceType == CONSTANTS.PAWN) {
+            return ROSTER_PAWN;
+        }
+        return -1;
     }
 
     /**
@@ -239,6 +294,53 @@ final class CbhCrypto {
             }
             toMove = 0;
             rebuildRostersColumnMajor();
+        }
+
+        void initFromBoard(Board b) {
+            Arrays.fill(board, CONSTANTS.EMPTY);
+            for (int rank = 0; rank < 8; rank++) {
+                for (int file = 0; file < 8; file++) {
+                    int p = b.getPieceAt(file, rank);
+                    if (p != CONSTANTS.EMPTY && p != CONSTANTS.FRINGE) {
+                        board[(rank << 3) | file] = p;
+                    }
+                }
+            }
+            if (b.turn == CONSTANTS.BLACK) {
+                toMove = 1;
+            } else {
+                toMove = 0;
+            }
+            rebuildRostersColumnMajor();
+        }
+
+        int findPieceSlot(int pieceType, int sq) {
+            if (pieceType == ROSTER_KING) {
+                if (kingSq[toMove] == sq) {
+                    return 0;
+                }
+                return -1;
+            } else if (pieceType == ROSTER_QUEEN) {
+                return findInList(queens[toMove], queenCount[toMove], sq);
+            } else if (pieceType == ROSTER_ROOK) {
+                return findInList(rooks[toMove], rookCount[toMove], sq);
+            } else if (pieceType == ROSTER_BISHOP) {
+                return findInList(bishops[toMove], bishopCount[toMove], sq);
+            } else if (pieceType == ROSTER_KNIGHT) {
+                return findInList(knights[toMove], knightCount[toMove], sq);
+            } else if (pieceType == ROSTER_PAWN) {
+                return findInList(pawns[toMove], pawnCount[toMove], sq);
+            }
+            return -1;
+        }
+
+        private static int findInList(int[] list, int count, int sq) {
+            for (int i = 0; i < count; i++) {
+                if (list[i] == sq) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private static int initialBackRank(int f, boolean black) {
@@ -706,5 +808,87 @@ final class CbhCrypto {
             return type | 0x80;
         }
         return type;
+    }
+
+    /**
+     * Encodes {@code rootBoard} into a 28-byte classic CBH custom setup block and
+     * initializes {@code state} to match.
+     */
+    static byte[] encodeCustomSetup(Board rootBoard, RosterState state) {
+        state.initFromBoard(rootBoard);
+        byte[] buf = new byte[28];
+        buf[0] = 0x01;
+        int epFile = CbCommon.parseEpFile(rootBoard);
+        int flagsByte = epFile & 0x0F;
+        if (rootBoard.turn == CONSTANTS.BLACK) {
+            flagsByte |= 0x10;
+        }
+        buf[1] = (byte) flagsByte;
+        buf[2] = (byte) (CbCommon.extractCastlingMask(rootBoard) & 0x0F);
+        int fullmove = rootBoard.fullmoveNumber;
+        if (fullmove <= 0) {
+            fullmove = 1;
+        } else if (fullmove > 255) {
+            fullmove = 255;
+        }
+        buf[3] = (byte) fullmove;
+
+        int bitOff = 0;
+        for (int cmSq = 0; cmSq < 64; cmSq++) {
+            int file = cmSq >> 3;
+            int rank = cmSq & 7;
+            int piece = state.board[(rank << 3) | file];
+            int code = encodeSetupCode(piece);
+            if (code == 0) {
+                bitOff++;
+            } else {
+                writeBit(buf, 4, bitOff++, 1);
+                writeBit(buf, 4, bitOff++, (code >>> 3) & 1);
+                writeBit(buf, 4, bitOff++, (code >>> 2) & 1);
+                writeBit(buf, 4, bitOff++, (code >>> 1) & 1);
+                writeBit(buf, 4, bitOff++, code & 1);
+            }
+        }
+        return buf;
+    }
+
+    private static void writeBit(byte[] buf, int baseOff, int bitIdx, int val) {
+        if (val == 0) {
+            return;
+        }
+        int byteIdx = baseOff + (bitIdx >>> 3);
+        if (byteIdx >= buf.length) {
+            return;
+        }
+        int shift = 7 - (bitIdx & 7);
+        buf[byteIdx] |= (byte) (1 << shift);
+    }
+
+    private static int encodeSetupCode(int piece) {
+        if (piece == CONSTANTS.EMPTY) {
+            return 0;
+        }
+        boolean black = (piece & 0x80) != 0;
+        int type = piece & 0x07;
+        int p;
+        if (type == CONSTANTS.KING) {
+            p = 1;
+        } else if (type == CONSTANTS.QUEEN) {
+            p = 2;
+        } else if (type == CONSTANTS.KNIGHT) {
+            p = 3;
+        } else if (type == CONSTANTS.BISHOP) {
+            p = 4;
+        } else if (type == CONSTANTS.ROOK) {
+            p = 5;
+        } else if (type == CONSTANTS.PAWN) {
+            p = 6;
+        } else {
+            return 0;
+        }
+        if (black) {
+            return p | 0x08;
+        }
+        return p;
     }
 }

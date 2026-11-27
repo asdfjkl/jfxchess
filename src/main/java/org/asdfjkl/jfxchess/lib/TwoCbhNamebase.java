@@ -21,16 +21,19 @@ package org.asdfjkl.jfxchess.lib;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * Channel-backed, bounds-clamped, LRU-cached reader for ChessBase `.2lid`
- * fixed-stride unified entity stores. Never loads the full `.2lid` file into RAM.
+ * Channel-backed, bounds-clamped, LRU-cached reader and deduplicating writer for
+ * ChessBase `.2lid` fixed-stride unified entity stores. Never loads the full `.2lid`
+ * file into RAM on open.
  */
 final class TwoCbhNamebase implements AutoCloseable {
 
@@ -38,7 +41,13 @@ final class TwoCbhNamebase implements AutoCloseable {
     private static final int EVENT_CACHE_LIMIT = 32768;
     private static final int MISC_CACHE_LIMIT = 8192;
 
+    static final int DEFAULT_HEADER_SIZE = 184;
+    static final int DEFAULT_SLOT_COUNT = 6;
+    static final int[] DEFAULT_SLOT_SIZES = {1024, 1120, 220, 1024, 314, 532};
+
+    private Path lidPath;
     private FileChannel channel;
+    private boolean readOnly;
     private long fileSize;
     private int headerSize;
     private int slotCount;
@@ -54,6 +63,14 @@ final class TwoCbhNamebase implements AutoCloseable {
     private final Map<Integer, String> sourceCache = createLru(MISC_CACHE_LIMIT);
     private final Map<Integer, String> annotatorCache = createLru(MISC_CACHE_LIMIT);
 
+    private final Map<String, Integer> playerLookup = new HashMap<>();
+    private final Map<String, Integer> tournamentLookup = new HashMap<>();
+    private final Map<String, Integer> sourceLookup = new HashMap<>();
+    private final Map<String, Integer> annotatorLookup = new HashMap<>();
+    private boolean lookupsPopulated = false;
+    private boolean batchMode = false;
+    private boolean headerDirty = false;
+
     private static Map<Integer, String> createLru(int capacity) {
         return new LinkedHashMap<>(Math.min(capacity, 1024), 0.75f, true) {
             @Override
@@ -63,16 +80,28 @@ final class TwoCbhNamebase implements AutoCloseable {
         };
     }
 
-    synchronized void open(Path lidPath) throws IOException {
+    synchronized boolean isReadOnly() {
+        return readOnly;
+    }
+
+    synchronized void open(Path path) throws IOException {
         close();
-        if (lidPath == null || !Files.exists(lidPath)) {
+        this.lidPath = path;
+        if (path == null || !Files.exists(path)) {
             return;
         }
-        fileSize = Files.size(lidPath);
+        fileSize = Files.size(path);
         if (fileSize < 28L) {
             return;
         }
-        channel = FileChannel.open(lidPath, StandardOpenOption.READ);
+        boolean ro = false;
+        try {
+            channel = FileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            channel = FileChannel.open(path, StandardOpenOption.READ);
+            ro = true;
+        }
+        readOnly = ro;
         byte[] hdr = new byte[(int) Math.min(184L, fileSize)];
         readFullyAt(channel, 0L, hdr, 0, hdr.length);
         if (hdr.length < 28) {
@@ -100,24 +129,293 @@ final class TwoCbhNamebase implements AutoCloseable {
         bucketStride = off;
     }
 
+    synchronized void createNew(Path path) throws IOException {
+        close();
+        this.lidPath = path;
+        byte[] hdr = new byte[DEFAULT_HEADER_SIZE];
+        CbCommon.writeI32BE(hdr, 0, DEFAULT_HEADER_SIZE);
+        CbCommon.writeI32BE(hdr, 4, DEFAULT_SLOT_COUNT);
+        long off = 0L;
+        for (int s = 0; s < DEFAULT_SLOT_COUNT; s++) {
+            int descOff = 8 + s * 20;
+            CbCommon.writeI32BE(hdr, descOff, DEFAULT_SLOT_SIZES[s]);
+            CbCommon.writeI64BE(hdr, descOff + 4, 0L);
+            CbCommon.writeI64BE(hdr, descOff + 12, -1L);
+            slotSizes[s] = DEFAULT_SLOT_SIZES[s];
+            slotOffsets[s] = off;
+            entryCounts[s] = 0L;
+            off += DEFAULT_SLOT_SIZES[s];
+        }
+        Files.write(path, hdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        channel = FileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        readOnly = false;
+        fileSize = DEFAULT_HEADER_SIZE;
+        headerSize = DEFAULT_HEADER_SIZE;
+        slotCount = DEFAULT_SLOT_COUNT;
+        bucketStride = off;
+        lookupsPopulated = true;
+    }
+
     @Override
     public synchronized void close() throws IOException {
         if (channel != null) {
             try {
+                if (headerDirty && !readOnly) {
+                    writeHeaderEntryCounts();
+                }
                 channel.close();
             } finally {
                 channel = null;
             }
         }
+        readOnly = false;
         fileSize = 0L;
         headerSize = 0;
         slotCount = 0;
         bucketStride = 0L;
+        for (int i = 0; i < 8; i++) {
+            slotSizes[i] = 0;
+            slotOffsets[i] = 0L;
+            entryCounts[i] = 0L;
+        }
         playerCache.clear();
         eventCache.clear();
         siteCache.clear();
         sourceCache.clear();
         annotatorCache.clear();
+        playerLookup.clear();
+        tournamentLookup.clear();
+        sourceLookup.clear();
+        annotatorLookup.clear();
+        lookupsPopulated = false;
+        batchMode = false;
+        headerDirty = false;
+    }
+
+    synchronized void beginBatch() {
+        batchMode = true;
+    }
+
+    synchronized void flushBatch() throws IOException {
+        batchMode = false;
+        if (headerDirty && channel != null && !readOnly) {
+            writeHeaderEntryCounts();
+            headerDirty = false;
+        }
+    }
+
+    private void ensureWritableChannel() throws IOException {
+        if (readOnly) {
+            throw new UnsupportedOperationException("2CBH namebase (.2lid) is read-only");
+        }
+        if (channel == null || bucketStride <= 0 || slotCount < 4) {
+            if (lidPath == null) {
+                throw new IOException("2CBH namebase path not initialized");
+            }
+            createNew(lidPath);
+        }
+    }
+
+    private void ensureLookups() throws IOException {
+        if (lookupsPopulated) {
+            return;
+        }
+        scanSlotIntoLookup(0);
+        scanSlotIntoLookup(1);
+        scanSlotIntoLookup(2);
+        scanSlotIntoLookup(3);
+        lookupsPopulated = true;
+    }
+
+    private void scanSlotIntoLookup(int slotIdx) throws IOException {
+        if (channel == null || bucketStride <= 0 || slotIdx >= slotCount) {
+            return;
+        }
+        long countLong = entryCounts[slotIdx];
+        if (countLong <= 0L) {
+            return;
+        }
+        int count = (int) Math.min(countLong, Integer.MAX_VALUE);
+        int chunkRecords = 512;
+        long chunkSpan = chunkRecords * bucketStride;
+        byte[] chunk = new byte[(int) Math.min(chunkSpan, Math.max(fileSize, 1L))];
+        for (int startId = 0; startId < count; startId += chunkRecords) {
+            int batch = Math.min(chunkRecords, count - startId);
+            long batchStart = (long) headerSize + ((long) startId * bucketStride);
+            if (batchStart >= fileSize) {
+                break;
+            }
+            int bytesToRead = (int) Math.min((long) batch * bucketStride, fileSize - batchStart);
+            int read = readUpToAt(channel, batchStart, chunk, 0, bytesToRead);
+            for (int i = 0; i < batch; i++) {
+                long rel = (long) i * bucketStride + slotOffsets[slotIdx];
+                if (rel + 8 > read) {
+                    break;
+                }
+                int avail = (int) Math.min(slotSizes[slotIdx], read - rel);
+                int id = startId + i;
+                if (slotIdx == 0) {
+                    String name = decodePlayerFromSlot(chunk, (int) rel, avail);
+                    playerLookup.putIfAbsent(name, id);
+                } else if (slotIdx == 1) {
+                    String[] pair = decodeTournamentFromSlot(chunk, (int) rel, avail);
+                    tournamentLookup.putIfAbsent(pair[1] + "\u0000" + pair[0], id);
+                } else if (slotIdx == 2) {
+                    int[] cursor = new int[]{(int) rel + 4};
+                    String title = readLenString(chunk, cursor, (int) rel + avail);
+                    sourceLookup.putIfAbsent(title, id);
+                } else if (slotIdx == 3) {
+                    int[] cursor = new int[]{(int) rel + 4};
+                    String name = readLenString(chunk, cursor, (int) rel + avail);
+                    annotatorLookup.putIfAbsent(name, id);
+                }
+            }
+        }
+    }
+
+    synchronized int findOrAddPlayer(String fullName) throws IOException {
+        ensureWritableChannel();
+        ensureLookups();
+        String[] parts = CbCommon.splitPlayerName(fullName);
+        String key = CbCommon.formatPlayerName(parts[0], parts[1]);
+        Integer existing = playerLookup.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        int id = writeSlotStrings(0, parts[0], parts[1]);
+        playerLookup.put(key, id);
+        synchronized (playerCache) {
+            playerCache.put(id, key);
+        }
+        return id;
+    }
+
+    synchronized int findOrAddTournament(String event, String site) throws IOException {
+        ensureWritableChannel();
+        ensureLookups();
+        String safeEvent = (event != null) ? event.trim() : "";
+        String safeSite = (site != null) ? site.trim() : "";
+        String key = safeEvent + "\u0000" + safeSite;
+        Integer existing = tournamentLookup.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        // In .2lid Slot 1 (Tournaments), Place (Site) comes BEFORE Title (Event).
+        int id = writeSlotStrings(1, safeSite, safeEvent);
+        tournamentLookup.put(key, id);
+        synchronized (eventCache) {
+            eventCache.put(id, safeEvent);
+        }
+        synchronized (siteCache) {
+            siteCache.put(id, safeSite);
+        }
+        return id;
+    }
+
+    synchronized int findOrAddSource(String source) throws IOException {
+        if (source == null || source.trim().isEmpty()) {
+            return -1;
+        }
+        ensureWritableChannel();
+        ensureLookups();
+        String safe = source.trim();
+        Integer existing = sourceLookup.get(safe);
+        if (existing != null) {
+            return existing;
+        }
+        int id = writeSlotStrings(2, safe, "");
+        sourceLookup.put(safe, id);
+        synchronized (sourceCache) {
+            sourceCache.put(id, safe);
+        }
+        return id;
+    }
+
+    synchronized int findOrAddAnnotator(String annotator, boolean useSlot0Fallback) throws IOException {
+        if (annotator == null || annotator.trim().isEmpty()) {
+            return -1;
+        }
+        if (useSlot0Fallback) {
+            return findOrAddPlayer(annotator);
+        }
+        ensureWritableChannel();
+        ensureLookups();
+        String safe = annotator.trim();
+        Integer existing = annotatorLookup.get(safe);
+        if (existing != null) {
+            return existing;
+        }
+        int id = writeSlotStrings(3, safe, "");
+        annotatorLookup.put(safe, id);
+        synchronized (annotatorCache) {
+            annotatorCache.put(id, safe);
+        }
+        return id;
+    }
+
+    private int writeSlotStrings(int slotIdx, String s1, String s2) throws IOException {
+        int id = (int) entryCounts[slotIdx];
+        int slotSize = slotSizes[slotIdx];
+        byte[] rec = new byte[slotSize];
+        int pos = 4; // 4-byte record header prefix
+        pos = writeLenString(rec, pos, slotSize, s1);
+        writeLenString(rec, pos, slotSize, s2);
+
+        long recordStart = (long) headerSize + ((long) id * bucketStride) + slotOffsets[slotIdx];
+        writeAllAt(channel, recordStart, rec);
+        long endOfRec = recordStart + slotSize;
+        if (endOfRec > fileSize) {
+            fileSize = endOfRec;
+        }
+        entryCounts[slotIdx] = id + 1L;
+        if (batchMode) {
+            headerDirty = true;
+        } else {
+            byte[] cntBytes = new byte[8];
+            CbCommon.writeI64BE(cntBytes, 0, entryCounts[slotIdx]);
+            writeAllAt(channel, 8L + (slotIdx * 20L) + 4L, cntBytes);
+        }
+        return id;
+    }
+
+    private void writeHeaderEntryCounts() throws IOException {
+        int slots = Math.min(slotCount, 8);
+        byte[] cntBytes = new byte[8];
+        for (int s = 0; s < slots; s++) {
+            CbCommon.writeI64BE(cntBytes, 0, entryCounts[s]);
+            writeAllAt(channel, 8L + (s * 20L) + 4L, cntBytes);
+        }
+    }
+
+    private static int writeLenString(byte[] buf, int pos, int limit, String s) {
+        if (pos + 4 > limit) {
+            return limit;
+        }
+        if (s == null || s.isEmpty()) {
+            CbCommon.writeI32LE(buf, pos, 0);
+            return pos + 4;
+        }
+        byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
+        int maxBytes = limit - (pos + 4);
+        int len = Math.min(utf8.length, Math.max(0, maxBytes));
+        // Avoid splitting a multi-byte UTF-8 sequence when clamping
+        while (len > 0 && len < utf8.length && (utf8[len] & 0xC0) == 0x80) {
+            len--;
+        }
+        CbCommon.writeI32LE(buf, pos, len);
+        if (len > 0) {
+            System.arraycopy(utf8, 0, buf, pos + 4, len);
+        }
+        return pos + 4 + len;
+    }
+
+    private static void writeAllAt(FileChannel ch, long offset, byte[] src) throws IOException {
+        ByteBuffer bb = ByteBuffer.wrap(src);
+        long pos = offset;
+        while (bb.hasRemaining()) {
+            int n = ch.write(bb, pos);
+            pos += n;
+        }
     }
 
     long getEntryCount(int slotIdx) {

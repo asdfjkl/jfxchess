@@ -28,11 +28,22 @@ final class TwoCbhMoveTable {
 
     static final int TABLE_SIZE = 45356;
 
+    static final int CASTLE_WQ = 45353;
+    static final int CASTLE_WK = 45354;
+    static final int CASTLE_BQ = 45355;
+    static final int CASTLE_BK = 45356;
+
     /**
      * Packed move word entry at index {@code 1..45356}:
      * bits 0..5 = fromSq64, bits 6..11 = toSq64, bits 12..15 = promo ({@link CONSTANTS}).
      */
     static final int[] MOVES = new int[TABLE_SIZE + 1];
+
+    // Reverse O(1) lookup tables:
+    // PIECE_WORD[color 0=W,1=B][pieceIdx 0=K,1=Q,2=N,3=B,4=R,5=P][(fromSq64 << 6) | toSq64]
+    private static final int[][][] PIECE_WORD = new int[2][6][4096];
+    // PROMO_WORD[promoIdx 0=Q,1=R,2=B,3=N][(fromSq64 << 6) | toSq64]
+    private static final int[][] PROMO_WORD = new int[4][4096];
 
     private static final int[] K_DX = {-1, -1, -1, 0, 0, 1, 1, 1};
     private static final int[] K_DY = {-1, 0, 1, -1, 1, -1, 0, 1};
@@ -66,6 +77,7 @@ final class TwoCbhMoveTable {
                         int ty = fy + K_DY[d];
                         if (tx >= 0 && tx < 8 && ty >= 0 && ty < 8) {
                             int packed = packMove(fx, fy, tx, ty, CONSTANTS.EMPTY);
+                            regPieceWord(color, 0, packed, idx);
                             for (int r = 0; r < 6; r++) {
                                 MOVES[idx++] = packed;
                             }
@@ -82,6 +94,7 @@ final class TwoCbhMoveTable {
                             int ty = fy + Q_DY[d] * step;
                             if (tx >= 0 && tx < 8 && ty >= 0 && ty < 8) {
                                 int packed = packMove(fx, fy, tx, ty, CONSTANTS.EMPTY);
+                                regPieceWord(color, 1, packed, idx);
                                 for (int r = 0; r < 6; r++) {
                                     MOVES[idx++] = packed;
                                 }
@@ -98,6 +111,7 @@ final class TwoCbhMoveTable {
                         int ty = fy + N_DY[d];
                         if (tx >= 0 && tx < 8 && ty >= 0 && ty < 8) {
                             int packed = packMove(fx, fy, tx, ty, CONSTANTS.EMPTY);
+                            regPieceWord(color, 2, packed, idx);
                             for (int r = 0; r < 6; r++) {
                                 MOVES[idx++] = packed;
                             }
@@ -114,6 +128,7 @@ final class TwoCbhMoveTable {
                             int ty = fy + DIAG_DY[d] * step;
                             if (tx >= 0 && tx < 8 && ty >= 0 && ty < 8) {
                                 int packed = packMove(fx, fy, tx, ty, CONSTANTS.EMPTY);
+                                regPieceWord(color, 3, packed, idx);
                                 for (int r = 0; r < 6; r++) {
                                     MOVES[idx++] = packed;
                                 }
@@ -131,6 +146,7 @@ final class TwoCbhMoveTable {
                             int ty = fy + ORTHO_DY[d] * step;
                             if (tx >= 0 && tx < 8 && ty >= 0 && ty < 8) {
                                 int packed = packMove(fx, fy, tx, ty, CONSTANTS.EMPTY);
+                                regPieceWord(color, 4, packed, idx);
                                 for (int r = 0; r < 6; r++) {
                                     MOVES[idx++] = packed;
                                 }
@@ -145,22 +161,30 @@ final class TwoCbhMoveTable {
         for (int fx = 0; fx < 8; fx++) {
             for (int fy = 1; fy <= 6; fy++) {
                 if (fy == 1) {
-                    MOVES[idx++] = packMove(fx, fy, fx, fy + 2, CONSTANTS.EMPTY);
-                    MOVES[idx++] = packMove(fx, fy, fx, fy + 1, CONSTANTS.EMPTY);
+                    int p2 = packMove(fx, fy, fx, fy + 2, CONSTANTS.EMPTY);
+                    regPieceWord(0, 5, p2, idx);
+                    MOVES[idx++] = p2;
+                    int p1 = packMove(fx, fy, fx, fy + 1, CONSTANTS.EMPTY);
+                    regPieceWord(0, 5, p1, idx);
+                    MOVES[idx++] = p1;
                     if (fx > 0) {
                         int capL = packMove(fx, fy, fx - 1, fy + 1, CONSTANTS.EMPTY);
+                        regPieceWord(0, 5, capL, idx);
                         for (int r = 0; r < 5; r++) {
                             MOVES[idx++] = capL;
                         }
                     }
                     if (fx < 7) {
                         int capR = packMove(fx, fy, fx + 1, fy + 1, CONSTANTS.EMPTY);
+                        regPieceWord(0, 5, capR, idx);
                         for (int r = 0; r < 5; r++) {
                             MOVES[idx++] = capR;
                         }
                     }
                 } else if (fy <= 5) {
-                    MOVES[idx++] = packMove(fx, fy, fx, fy + 1, CONSTANTS.EMPTY);
+                    int p1 = packMove(fx, fy, fx, fy + 1, CONSTANTS.EMPTY);
+                    regPieceWord(0, 5, p1, idx);
+                    MOVES[idx++] = p1;
                     int caps;
                     if (fy == 4) {
                         caps = 6;
@@ -169,31 +193,42 @@ final class TwoCbhMoveTable {
                     }
                     if (fx > 0) {
                         int capL = packMove(fx, fy, fx - 1, fy + 1, CONSTANTS.EMPTY);
+                        regPieceWord(0, 5, capL, idx);
                         for (int r = 0; r < caps; r++) {
                             MOVES[idx++] = capL;
                         }
                     }
                     if (fx < 7) {
                         int capR = packMove(fx, fy, fx + 1, fy + 1, CONSTANTS.EMPTY);
+                        regPieceWord(0, 5, capR, idx);
                         for (int r = 0; r < caps; r++) {
                             MOVES[idx++] = capR;
                         }
                     }
                 } else {
-                    for (int pr : PROMO_ORDER) {
-                        MOVES[idx++] = packMove(fx, fy, fx, fy + 1, pr);
+                    for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                        int pr = PROMO_ORDER[pi];
+                        int pm = packMove(fx, fy, fx, fy + 1, pr);
+                        regPromoWord(pi, pm, idx);
+                        MOVES[idx++] = pm;
                     }
                     if (fx > 0) {
                         for (int cap = 0; cap < 4; cap++) {
-                            for (int pr : PROMO_ORDER) {
-                                MOVES[idx++] = packMove(fx, fy, fx - 1, fy + 1, pr);
+                            for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                                int pr = PROMO_ORDER[pi];
+                                int pm = packMove(fx, fy, fx - 1, fy + 1, pr);
+                                regPromoWord(pi, pm, idx);
+                                MOVES[idx++] = pm;
                             }
                         }
                     }
                     if (fx < 7) {
                         for (int cap = 0; cap < 4; cap++) {
-                            for (int pr : PROMO_ORDER) {
-                                MOVES[idx++] = packMove(fx, fy, fx + 1, fy + 1, pr);
+                            for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                                int pr = PROMO_ORDER[pi];
+                                int pm = packMove(fx, fy, fx + 1, fy + 1, pr);
+                                regPromoWord(pi, pm, idx);
+                                MOVES[idx++] = pm;
                             }
                         }
                     }
@@ -205,22 +240,30 @@ final class TwoCbhMoveTable {
         for (int fx = 0; fx < 8; fx++) {
             for (int fy = 1; fy <= 6; fy++) {
                 if (fy == 6) {
-                    MOVES[idx++] = packMove(fx, fy, fx, fy - 2, CONSTANTS.EMPTY);
-                    MOVES[idx++] = packMove(fx, fy, fx, fy - 1, CONSTANTS.EMPTY);
+                    int p2 = packMove(fx, fy, fx, fy - 2, CONSTANTS.EMPTY);
+                    regPieceWord(1, 5, p2, idx);
+                    MOVES[idx++] = p2;
+                    int p1 = packMove(fx, fy, fx, fy - 1, CONSTANTS.EMPTY);
+                    regPieceWord(1, 5, p1, idx);
+                    MOVES[idx++] = p1;
                     if (fx > 0) {
                         int capL = packMove(fx, fy, fx - 1, fy - 1, CONSTANTS.EMPTY);
+                        regPieceWord(1, 5, capL, idx);
                         for (int r = 0; r < 5; r++) {
                             MOVES[idx++] = capL;
                         }
                     }
                     if (fx < 7) {
                         int capR = packMove(fx, fy, fx + 1, fy - 1, CONSTANTS.EMPTY);
+                        regPieceWord(1, 5, capR, idx);
                         for (int r = 0; r < 5; r++) {
                             MOVES[idx++] = capR;
                         }
                     }
                 } else if (fy >= 2) {
-                    MOVES[idx++] = packMove(fx, fy, fx, fy - 1, CONSTANTS.EMPTY);
+                    int p1 = packMove(fx, fy, fx, fy - 1, CONSTANTS.EMPTY);
+                    regPieceWord(1, 5, p1, idx);
+                    MOVES[idx++] = p1;
                     int caps;
                     if (fy == 3) {
                         caps = 6;
@@ -229,31 +272,42 @@ final class TwoCbhMoveTable {
                     }
                     if (fx > 0) {
                         int capL = packMove(fx, fy, fx - 1, fy - 1, CONSTANTS.EMPTY);
+                        regPieceWord(1, 5, capL, idx);
                         for (int r = 0; r < caps; r++) {
                             MOVES[idx++] = capL;
                         }
                     }
                     if (fx < 7) {
                         int capR = packMove(fx, fy, fx + 1, fy - 1, CONSTANTS.EMPTY);
+                        regPieceWord(1, 5, capR, idx);
                         for (int r = 0; r < caps; r++) {
                             MOVES[idx++] = capR;
                         }
                     }
                 } else {
-                    for (int pr : PROMO_ORDER) {
-                        MOVES[idx++] = packMove(fx, fy, fx, fy - 1, pr);
+                    for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                        int pr = PROMO_ORDER[pi];
+                        int pm = packMove(fx, fy, fx, fy - 1, pr);
+                        regPromoWord(pi, pm, idx);
+                        MOVES[idx++] = pm;
                     }
                     if (fx > 0) {
                         for (int cap = 0; cap < 4; cap++) {
-                            for (int pr : PROMO_ORDER) {
-                                MOVES[idx++] = packMove(fx, fy, fx - 1, fy - 1, pr);
+                            for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                                int pr = PROMO_ORDER[pi];
+                                int pm = packMove(fx, fy, fx - 1, fy - 1, pr);
+                                regPromoWord(pi, pm, idx);
+                                MOVES[idx++] = pm;
                             }
                         }
                     }
                     if (fx < 7) {
                         for (int cap = 0; cap < 4; cap++) {
-                            for (int pr : PROMO_ORDER) {
-                                MOVES[idx++] = packMove(fx, fy, fx + 1, fy - 1, pr);
+                            for (int pi = 0; pi < PROMO_ORDER.length; pi++) {
+                                int pr = PROMO_ORDER[pi];
+                                int pm = packMove(fx, fy, fx + 1, fy - 1, pr);
+                                regPromoWord(pi, pm, idx);
+                                MOVES[idx++] = pm;
                             }
                         }
                     }
@@ -273,6 +327,160 @@ final class TwoCbhMoveTable {
     }
 
     private TwoCbhMoveTable() {
+    }
+
+    private static void regPieceWord(int color, int pieceIdx, int packed, int wordIdx) {
+        int key = (fromSq64(packed) << 6) | toSq64(packed);
+        if (PIECE_WORD[color][pieceIdx][key] == 0) {
+            PIECE_WORD[color][pieceIdx][key] = wordIdx;
+        }
+    }
+
+    private static void regPromoWord(int promoIdx, int packed, int wordIdx) {
+        int key = (fromSq64(packed) << 6) | toSq64(packed);
+        if (PROMO_WORD[promoIdx][key] == 0) {
+            PROMO_WORD[promoIdx][key] = wordIdx;
+        }
+    }
+
+    static int encodeMoveWord(
+            int color,
+            int constPieceType,
+            int fromSq64,
+            int toSq64,
+            int promoConst,
+            boolean isCastleK,
+            boolean isCastleQ) {
+        if (isCastleK) {
+            return (color == 0) ? CASTLE_WK : CASTLE_BK;
+        }
+        if (isCastleQ) {
+            return (color == 0) ? CASTLE_WQ : CASTLE_BQ;
+        }
+        int key = ((fromSq64 & 0x3F) << 6) | (toSq64 & 0x3F);
+        if (promoConst != CONSTANTS.EMPTY) {
+            int promoIdx = -1;
+            if (promoConst == CONSTANTS.QUEEN) {
+                promoIdx = 0;
+            } else if (promoConst == CONSTANTS.ROOK) {
+                promoIdx = 1;
+            } else if (promoConst == CONSTANTS.BISHOP) {
+                promoIdx = 2;
+            } else if (promoConst == CONSTANTS.KNIGHT) {
+                promoIdx = 3;
+            }
+            if (promoIdx >= 0) {
+                int w = PROMO_WORD[promoIdx][key];
+                if (w > 0) {
+                    return w;
+                }
+            }
+        } else {
+            int pieceIdx = constPieceTypeToTableIdx(constPieceType);
+            if (color >= 0 && color <= 1 && pieceIdx >= 0) {
+                int w = PIECE_WORD[color][pieceIdx][key];
+                if (w > 0) {
+                    return w;
+                }
+            }
+        }
+        // Fallback linear scan if board state didn't match standard piece slot
+        int wantPacked = (fromSq64 & 0x3F) | ((toSq64 & 0x3F) << 6) | ((promoConst & 0x0F) << 12);
+        for (int i = 1; i <= TABLE_SIZE; i++) {
+            if (MOVES[i] == wantPacked) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int constPieceTypeToTableIdx(int constPieceType) {
+        if (constPieceType == CONSTANTS.KING) {
+            return 0;
+        } else if (constPieceType == CONSTANTS.QUEEN) {
+            return 1;
+        } else if (constPieceType == CONSTANTS.KNIGHT) {
+            return 2;
+        } else if (constPieceType == CONSTANTS.BISHOP) {
+            return 3;
+        } else if (constPieceType == CONSTANTS.ROOK) {
+            return 4;
+        } else if (constPieceType == CONSTANTS.PAWN) {
+            return 5;
+        }
+        return -1;
+    }
+
+    /**
+     * Encodes {@code rootBoard} into `.2cbg` custom setup 16-bit words starting with
+     * {@code 0x0001, 0xFFFB} and ending with {@code 0xFFFC}.
+     */
+    static int[] encodeSetup(Board rootBoard) {
+        int[] tmp = new int[72];
+        int n = 0;
+        tmp[n++] = 0x0001;
+        tmp[n++] = 0xFFFB;
+        int fullmove = rootBoard.fullmoveNumber;
+        if (fullmove <= 0) {
+            fullmove = 1;
+        } else if (fullmove > 65535) {
+            fullmove = 65535;
+        }
+        tmp[n++] = fullmove;
+        int sideToMove = (rootBoard.turn == CONSTANTS.BLACK) ? 1 : 0;
+        int castlingMask = CbCommon.extractCastlingMask(rootBoard) & 0x0F;
+        tmp[n++] = (castlingMask << 8) | sideToMove;
+        tmp[n++] = CbCommon.parseEpFile(rootBoard);
+
+        for (int file = 0; file < 8; file++) {
+            for (int rank = 0; rank < 8; rank++) {
+                int p = rootBoard.getPieceAt(file, rank);
+                if (p == CONSTANTS.EMPTY || p == CONSTANTS.FRINGE) {
+                    continue;
+                }
+                if (p == CONSTANTS.WHITE_PAWN) {
+                    if (rank >= 1 && rank <= 6) {
+                        tmp[n++] = 0xC000 + 685 + (file * 6) + (rank - 1);
+                    }
+                } else if (p == CONSTANTS.BLACK_PAWN) {
+                    if (rank >= 1 && rank <= 6) {
+                        tmp[n++] = 0xC000 + 733 + (file * 6) + (rank - 1);
+                    }
+                } else {
+                    int typeIdx = encodePieceType(p);
+                    if (typeIdx >= 0) {
+                        tmp[n++] = 0xC000 + 45 + (typeIdx * 64) + (file * 8 + rank);
+                    }
+                }
+            }
+        }
+        tmp[n++] = 0xFFFC;
+        return Arrays.copyOf(tmp, n);
+    }
+
+    private static int encodePieceType(int piece) {
+        if (piece == CONSTANTS.WHITE_KING) {
+            return 0;
+        } else if (piece == CONSTANTS.WHITE_QUEEN) {
+            return 1;
+        } else if (piece == CONSTANTS.WHITE_KNIGHT) {
+            return 2;
+        } else if (piece == CONSTANTS.WHITE_BISHOP) {
+            return 3;
+        } else if (piece == CONSTANTS.WHITE_ROOK) {
+            return 4;
+        } else if (piece == CONSTANTS.BLACK_KING) {
+            return 5;
+        } else if (piece == CONSTANTS.BLACK_QUEEN) {
+            return 6;
+        } else if (piece == CONSTANTS.BLACK_KNIGHT) {
+            return 7;
+        } else if (piece == CONSTANTS.BLACK_BISHOP) {
+            return 8;
+        } else if (piece == CONSTANTS.BLACK_ROOK) {
+            return 9;
+        }
+        return -1;
     }
 
     private static int packMove(int fx, int fy, int tx, int ty, int promo) {

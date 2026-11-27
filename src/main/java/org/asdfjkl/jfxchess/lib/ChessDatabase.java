@@ -125,6 +125,13 @@ public interface ChessDatabase {
             db = new Scid5ChessDatabase();
         } else if (lower.endsWith(".pgn")) {
             db = new PgnChessDatabase();
+        } else if (lower.endsWith(".cbh") || lower.endsWith(".cbg") || lower.endsWith(".cba")
+                || lower.endsWith(".cbp") || lower.endsWith(".cbt") || lower.endsWith(".cbc")
+                || lower.endsWith(".cbs")) {
+            db = new CbhChessDatabase();
+        } else if (lower.endsWith(".2cbh") || lower.endsWith(".2cbg")
+                || lower.endsWith(".2cba") || lower.endsWith(".2lid")) {
+            db = new TwoCbhChessDatabase();
         } else {
             throw new IllegalArgumentException("Unsupported database format: " + filename);
         }

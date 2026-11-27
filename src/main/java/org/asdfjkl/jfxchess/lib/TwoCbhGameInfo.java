@@ -28,15 +28,15 @@ public final class TwoCbhGameInfo extends GameInfo {
 
     private final TwoCbhNamebase namebase;
     private final int rawIndex;
-    private final long cbgOffset;
-    private final long cbaOffset;
-    private final int whiteId;
-    private final int blackId;
-    private final int tournamentId;
-    private final int packedDate;
-    private final int elos;
-    private final int ecoRaw;
-    private final int roundAndResult;
+    private long cbgOffset;
+    private long cbaOffset;
+    private int whiteId;
+    private int blackId;
+    private int tournamentId;
+    private int packedDate;
+    private int elos;
+    private int ecoRaw;
+    private int roundAndResult;
 
     TwoCbhGameInfo(
             TwoCbhNamebase namebase,
@@ -70,6 +70,30 @@ public final class TwoCbhGameInfo extends GameInfo {
 
     int getRawIndex() {
         return rawIndex;
+    }
+
+    void update(
+            long cbgOffset,
+            long cbaOffset,
+            int whiteId,
+            int blackId,
+            int tournamentId,
+            int packedDate,
+            int resultByte,
+            int round,
+            int subround,
+            int whiteElo,
+            int blackElo,
+            int ecoRaw) {
+        this.cbgOffset = cbgOffset;
+        this.cbaOffset = cbaOffset;
+        this.whiteId = whiteId;
+        this.blackId = blackId;
+        this.tournamentId = tournamentId;
+        this.packedDate = packedDate;
+        this.elos = ((whiteElo & 0xFFFF) << 16) | (blackElo & 0xFFFF);
+        this.ecoRaw = ecoRaw & 0xFFFF;
+        this.roundAndResult = ((round & 0xFF) << 16) | ((subround & 0xFF) << 8) | (resultByte & 0xFF);
     }
 
     long getCbgOffset() {

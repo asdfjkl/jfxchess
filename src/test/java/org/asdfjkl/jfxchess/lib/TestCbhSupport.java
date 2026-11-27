@@ -20,9 +20,12 @@ package org.asdfjkl.jfxchess.lib;
 
 import org.asdfjkl.jfxchess.gui.DialogDatabase;
 import org.asdfjkl.jfxchess.gui.DialogSave;
+import org.asdfjkl.jfxchess.gui.GameSession;
+import org.asdfjkl.jfxchess.gui.PgnSourceReference;
 import org.asdfjkl.jfxchess.gui.Workspace;
 
 import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.ByteArrayOutputStream;
@@ -52,6 +55,10 @@ public final class TestCbhSupport {
         syntheticTwoCbhAnd2LidEdgeCasesTest();
         syntheticCbhAndTwoCbhToScid5RoundTripTest();
         readOnlyGuiGuardsAndWorkspaceTest();
+        cbhWriteOperationsAndRoundTripTest();
+        twoCbhWriteOperationsAndRoundTripTest();
+        cbhAndTwoCbhCrossFormatImportTest();
+        cbhAndTwoCbhWorkspaceSessionSyncTest();
     }
 
     public static void syntheticCbhStandardAndFeaturesTest() {
@@ -85,7 +92,7 @@ public final class TestCbhSupport {
         CbhChessDatabase db = new CbhChessDatabase();
         try {
             db.open(openPath);
-            assertTrue(db.isReadOnly(), "CBH database must be read-only");
+            assertTrue(!db.isReadOnly(), "CBH database should be writable");
             assertTrue(db.isOpen(), "CBH database should report open");
             db.scanGames();
 
@@ -156,13 +163,6 @@ public final class TestCbhSupport {
             assertEquals(1, g1.getRootNode().getVariations().size(), "Custom game has 1 move");
             assertEquals("h6", g1.getRootNode().getVariation(0).getSan(), "Lone h5 pawn uses slot 0 (Pa)");
 
-            // Verify read-only guards throw UnsupportedOperationException
-            assertThrowsUnsupported(() -> db.createNew("ignored.cbh"), "createNew");
-            assertThrowsUnsupported(() -> db.appendGame(new Game()), "appendGame");
-            assertThrowsUnsupported(() -> db.importGames(db, index, null), "importGames");
-            assertThrowsUnsupported(() -> db.replaceGame(new Game(), g0Info), "replaceGame");
-            assertThrowsUnsupported(() -> db.deleteGame(g0Info), "deleteGame");
-
             // Header search
             SearchPattern hp = new SearchPattern();
             hp.setSearchGameData(true);
@@ -196,7 +196,7 @@ public final class TestCbhSupport {
 
             TwoCbhChessDatabase db = new TwoCbhChessDatabase(baseA.toString() + ".2cbh");
             try {
-                assertTrue(db.isReadOnly(), "2CBH must be read-only");
+                assertTrue(!db.isReadOnly(), "2CBH should be writable");
                 db.scanGames();
                 ArrayList<GameInfo> idx = db.getIndex();
                 assertEquals(2, idx.size(), "Guiding text & deleted records skipped in 2CBH");
@@ -252,10 +252,6 @@ public final class TestCbhSupport {
                 posPat.setSearchBoard(varBc4.getBoard().makeCopy());
                 db.search(posPat);
                 assertEquals(1, db.getSearchResults().size(), "2CBH position search finds variation move");
-
-                assertThrowsUnsupported(() -> db.createNew("x.2cbh"), "2CBH createNew");
-                assertThrowsUnsupported(() -> db.appendGame(loaded0), "2CBH appendGame");
-                assertThrowsUnsupported(() -> db.deleteGame(g0), "2CBH deleteGame");
             } finally {
                 db.close();
             }
@@ -400,7 +396,7 @@ public final class TestCbhSupport {
     }
 
     public static void readOnlyGuiGuardsAndWorkspaceTest() {
-        System.out.println("Testing DialogSave, DialogDatabase, and Workspace read-only integration...");
+        System.out.println("Testing DialogSave, DialogDatabase, and Workspace integration...");
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("jfxchess_ro_gui_test_");
@@ -413,7 +409,7 @@ public final class TestCbhSupport {
             ChessDatabase viaCbp = ws.getOrCreateDatabase(Path.of(cbhBase.toString() + ".cbp"));
             assertTrue(viaCbh == viaCbg && viaCbh == viaCbp,
                     "Workspace must normalize .cbg/.cbp to the canonical .cbh instance");
-            assertTrue(viaCbh.isReadOnly(), "Workspace database must be read-only");
+            assertTrue(!viaCbh.isReadOnly(), "Writable CBH database should report isReadOnly() == false");
             viaCbh.scanGames();
 
             // 1. DialogSave enablement tests
@@ -432,12 +428,35 @@ public final class TestCbhSupport {
             assertButtonEnabled(dlgReadOnly, "Save as New (Append)", false);
             dlgReadOnly.dispose();
 
-            // 2. DialogDatabase title + Delete disabled for read-only DB
-            DialogDatabase dlgDb = new DialogDatabase(null, viaCbh, null, null);
-            assertTrue(dlgDb.getTitle().endsWith("[Read-Only]"),
-                    "DialogDatabase title must show [Read-Only]: " + dlgDb.getTitle());
-            assertButtonEnabled(dlgDb, "Delete Game", false);
-            dlgDb.dispose();
+            // 2. DialogDatabase title + Delete enabled for writable CBH DB
+            DialogDatabase dlgWritableDb = new DialogDatabase(null, viaCbh, null, null);
+            assertTrue(!dlgWritableDb.getTitle().endsWith("[Read-Only]"),
+                    "Writable CBH DialogDatabase title must not show [Read-Only]: " + dlgWritableDb.getTitle());
+            assertButtonEnabled(dlgWritableDb, "Delete Game", true);
+            dlgWritableDb.dispose();
+
+            // 3. DialogDatabase read-only guard verified with a read-only ChessDatabase stub
+            ChessDatabase roStub = new CbhChessDatabase() {
+                @Override
+                public boolean isReadOnly() {
+                    return true;
+                }
+
+                @Override
+                public String getFilename() {
+                    return viaCbh.getFilename();
+                }
+
+                @Override
+                public ArrayList<GameInfo> getIndex() {
+                    return viaCbh.getIndex();
+                }
+            };
+            DialogDatabase dlgRoDb = new DialogDatabase(null, roStub, null, null);
+            assertTrue(dlgRoDb.getTitle().endsWith("[Read-Only]"),
+                    "Read-only DialogDatabase title must show [Read-Only]: " + dlgRoDb.getTitle());
+            assertButtonEnabled(dlgRoDb, "Delete Game", false);
+            dlgRoDb.dispose();
 
             viaCbh.close();
             System.out.println("  readOnlyGuiGuardsAndWorkspaceTest PASSED.");
@@ -446,6 +465,607 @@ public final class TestCbhSupport {
         } finally {
             deleteDirRecursive(tempDir);
         }
+    }
+
+    public static void cbhWriteOperationsAndRoundTripTest() {
+        System.out.println("Testing classic CBH write operations (createNew, append, replace, delete, persistence)...");
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("jfxchess_cbh_write_");
+            Path dbPath = tempDir.resolve("created_classic.cbh");
+
+            // 1. Create via ChessDatabase.createDatabase factory
+            ChessDatabase factoryDb = ChessDatabase.createDatabase(dbPath.toString());
+            assertTrue(factoryDb instanceof CbhChessDatabase, "Factory must return CbhChessDatabase for .cbh");
+            CbhChessDatabase db = (CbhChessDatabase) factoryDb;
+            assertTrue(db.isOpen(), "Created CBH DB must be open");
+            assertTrue(!db.isReadOnly(), "Created CBH DB must be writable");
+
+            ArrayList<ChessDatabaseEvent> events = new ArrayList<>();
+            db.addListener(events::add);
+
+            // 2. Append rich game 0 (7 tags, Elo, ECO, Annotator, Source, castling, EP, promo/underpromo, null move, variations, comments, NAGs, colored squares, arrows)
+            Game g0 = buildRichStandardGame(false);
+            GameInfo info0 = db.appendGame(g0);
+            assertTrue(info0 != null, "appendGame returned null");
+            assertEquals(1, db.getIndex().size(), "1 game after first append");
+            assertEquals(ChessDatabaseEvent.Type.GAME_APPENDED, events.get(events.size() - 1).getType(), "GAME_APPENDED event");
+
+            // 3. Append custom-setup game 1 (custom FEN, castling, EP, Black to move, fullmove=12)
+            Game g1 = buildRichCustomSetupGame();
+            GameInfo info1 = db.appendGame(g1);
+            assertEquals(2, db.getIndex().size(), "2 games after second append");
+
+            // Verify immediate reload of both games
+            verifyRichStandardGame(db.loadGame(info0), false, "CBH immediate load g0");
+            verifyRichCustomSetupGame(db.loadGame(info1), "CBH immediate load g1");
+
+            // 4. Replace game 0 with a smaller game (in-place .cbg/.cba reuse branch) preserving UUID
+            Game g0Small = buildSmallGame("Small Event", "Vienna", "2026.05.01", "2", "Alpha, One", "Beta, Two", "1/2-1/2");
+            db.replaceGame(g0Small, info0);
+            assertEquals(ChessDatabaseEvent.Type.GAME_REPLACED, events.get(events.size() - 1).getType(), "GAME_REPLACED event");
+            assertEquals("Small Event", db.getIndex().get(0).getEvent(), "In-place replace updated Event in index");
+            assertEquals(info0.getId(), db.getIndex().get(0).getId(), "replaceGame must preserve GameInfo UUID");
+            Game loadedSmall = db.loadGame(info0);
+            assertEquals("Small Event", loadedSmall.getHeader("Event"), "Loaded small Event");
+            assertEquals("Vienna", loadedSmall.getHeader("Site"), "Loaded small Site");
+            assertEquals("1/2-1/2", loadedSmall.getHeader("Result"), "Loaded small Result");
+
+            // 5. Replace game 0 again with a LARGER game (append .cbg/.cba branch)
+            Game g0Large = buildRichStandardGame(false);
+            g0Large.setHeader("Event", "Updated Championship");
+            g0Large.setHeader("Annotator", "Second Annotator");
+            db.replaceGame(g0Large, info0);
+            assertEquals(info0.getId(), db.getIndex().get(0).getId(), "Larger replace must preserve UUID");
+            Game loadedLarge = db.loadGame(info0);
+            assertEquals("Updated Championship", loadedLarge.getHeader("Event"), "Larger replace Event");
+            assertEquals("Second Annotator", loadedLarge.getHeader("Annotator"), "Larger replace Annotator");
+            verifyRichStandardGame(loadedLarge, false, "CBH after large replace");
+
+            // 6. Delete game 1
+            db.deleteGame(info1);
+            assertEquals(ChessDatabaseEvent.Type.GAME_DELETED, events.get(events.size() - 1).getType(), "GAME_DELETED event");
+            assertEquals(1, db.getIndex().size(), "1 active game after delete");
+            db.close();
+
+            // 7. Reopen from disk, re-scan, verify persistence & search
+            CbhChessDatabase reopened = new CbhChessDatabase(dbPath.toString());
+            try {
+                reopened.scanGames();
+                assertEquals(1, reopened.getIndex().size(), "Deleted game stays deleted after reopen");
+                GameInfo reInfo = reopened.getIndex().get(0);
+                assertEquals("Updated Championship", reInfo.getEvent(), "Persisted Event");
+                assertEquals("Fischer, Bobby", reInfo.getWhite(), "Persisted White");
+                assertEquals("2750", reInfo.getWhiteElo(), "Persisted WhiteElo");
+                assertEquals("C50", reInfo.getEco(), "Persisted ECO");
+                verifyRichStandardGame(reopened.loadGame(reInfo), false, "CBH reopened g0");
+
+                SearchPattern hp = new SearchPattern();
+                hp.setSearchGameData(true);
+                hp.setEvent("Updated Championship");
+                reopened.search(hp);
+                assertEquals(1, reopened.getSearchResults().size(), "Header search hits written CBH game");
+
+                SearchPattern pp = new SearchPattern();
+                pp.setSearchGameData(false);
+                pp.setSearchPosition(true);
+                pp.setSearchTurn(SearchPattern.TURN_ANY);
+                pp.setSearchBoard(reopened.loadGame(reInfo).getEndNode().getBoard().makeCopy());
+                reopened.search(pp);
+                assertEquals(1, reopened.getSearchResults().size(), "Position search hits written CBH game");
+            } finally {
+                reopened.close();
+            }
+
+            // 8. Append/replace/delete on a pre-existing CBH with guiding text (0x03) and deleted (0x81) records
+            Path mixedBase = tempDir.resolve("mixed_cbh");
+            writeSyntheticCbhDatabase(mixedBase, 32, 26);
+            CbhChessDatabase mixedDb = new CbhChessDatabase(mixedBase.toString() + ".cbh");
+            try {
+                mixedDb.scanGames();
+                assertEquals(2, mixedDb.getIndex().size(), "Mixed CBH starts with 2 active games (4 raw records)");
+                GameInfo appended = mixedDb.appendGame(buildSmallGame("Extra Event", "Berlin", "2026.06.01", "5", "New, White", "New, Black", "1-0"));
+                assertEquals(3, mixedDb.getIndex().size(), "Mixed CBH has 3 active games after append");
+                assertEquals(4, ((CbhGameInfo) appended).getRawIndex(), "New rawIndex must follow all 4 raw records");
+            } finally {
+                mixedDb.close();
+            }
+            CbhChessDatabase mixedReopened = new CbhChessDatabase(mixedBase.toString() + ".cbh");
+            try {
+                mixedReopened.scanGames();
+                assertEquals(3, mixedReopened.getIndex().size(), "Mixed CBH persists 3 active games");
+                assertEquals("Extra Event", mixedReopened.getIndex().get(2).getEvent(), "Appended game persisted at end");
+            } finally {
+                mixedReopened.close();
+            }
+
+            System.out.println("  cbhWriteOperationsAndRoundTripTest PASSED.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            deleteDirRecursive(tempDir);
+        }
+    }
+
+    public static void twoCbhWriteOperationsAndRoundTripTest() {
+        System.out.println("Testing modern 2CBH write operations (createNew, append, replace, delete, persistence)...");
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("jfxchess_2cbh_write_");
+            Path dbPath = tempDir.resolve("created_modern.2cbh");
+
+            // 1. Create via ChessDatabase.createDatabase factory
+            ChessDatabase factoryDb = ChessDatabase.createDatabase(dbPath.toString());
+            assertTrue(factoryDb instanceof TwoCbhChessDatabase, "Factory must return TwoCbhChessDatabase for .2cbh");
+            TwoCbhChessDatabase db = (TwoCbhChessDatabase) factoryDb;
+            assertTrue(db.isOpen(), "Created 2CBH DB must be open");
+            assertTrue(!db.isReadOnly(), "Created 2CBH DB must be writable");
+
+            ArrayList<ChessDatabaseEvent> events = new ArrayList<>();
+            db.addListener(events::add);
+
+            // 2. Append rich game 0 (including UTF-8 comments, root variations, multiple sibling & nested variations)
+            Game g0 = buildRichStandardGame(true);
+            GameInfo info0 = db.appendGame(g0);
+            assertEquals(1, db.getIndex().size(), "1 game after first append");
+            assertEquals(ChessDatabaseEvent.Type.GAME_APPENDED, events.get(events.size() - 1).getType(), "GAME_APPENDED event");
+
+            // 3. Append custom-setup game 1 + game 2 without Annotator/Source (testing -1L sentinel)
+            Game g1 = buildRichCustomSetupGame();
+            GameInfo info1 = db.appendGame(g1);
+            Game g2 = buildSmallGame("No Anno Event", "Prague", "2026.07.07", "1", "Solo, One", "Solo, Two", "*");
+            GameInfo info2 = db.appendGame(g2);
+            assertEquals(3, db.getIndex().size(), "3 games after appends");
+
+            verifyRichStandardGame(db.loadGame(info0), true, "2CBH immediate load g0");
+            verifyRichCustomSetupGame(db.loadGame(info1), "2CBH immediate load g1");
+            Game loaded2 = db.loadGame(info2);
+            assertEquals("", loaded2.getHeader("Annotator"), "Absent annotator must stay empty");
+            assertEquals("", loaded2.getHeader("Source"), "Absent source must stay empty");
+
+            // 4. Replace game 0 smaller (in-place) then larger (append) preserving UUID
+            Game g0Small = buildSmallGame("Mini 2CBH", "Oslo", "2026.08.01", "4.1", "Carlsen, Magnus", "Nakamura, Hikaru", "1-0");
+            db.replaceGame(g0Small, info0);
+            assertEquals(ChessDatabaseEvent.Type.GAME_REPLACED, events.get(events.size() - 1).getType(), "GAME_REPLACED");
+            assertEquals(info0.getId(), db.getIndex().get(0).getId(), "2CBH replace preserves UUID");
+            assertEquals("Mini 2CBH", db.loadGame(info0).getHeader("Event"), "In-place replaced Event");
+            assertEquals("4.1", db.loadGame(info0).getHeader("Round"), "In-place replaced Round.Subround");
+
+            Game g0Large = buildRichStandardGame(true);
+            g0Large.setHeader("Event", "2CBH Updated Event");
+            db.replaceGame(g0Large, info0);
+            assertEquals(info0.getId(), db.getIndex().get(0).getId(), "2CBH large replace preserves UUID");
+            verifyRichStandardGame(db.loadGame(info0), true, "2CBH after large replace");
+
+            // 5. Delete game 1
+            db.deleteGame(info1);
+            assertEquals(ChessDatabaseEvent.Type.GAME_DELETED, events.get(events.size() - 1).getType(), "GAME_DELETED");
+            assertEquals(2, db.getIndex().size(), "2 active games after delete");
+            db.close();
+
+            // 6. Reopen, re-scan, verify persistence & search
+            TwoCbhChessDatabase reopened = new TwoCbhChessDatabase(dbPath.toString());
+            try {
+                reopened.scanGames();
+                assertEquals(2, reopened.getIndex().size(), "2 active games persisted in 2CBH");
+                assertEquals("2CBH Updated Event", reopened.getIndex().get(0).getEvent(), "Persisted Event");
+                verifyRichStandardGame(reopened.loadGame(reopened.getIndex().get(0)), true, "2CBH reopened g0");
+                assertEquals("", reopened.loadGame(reopened.getIndex().get(1)).getHeader("Annotator"), "Persisted empty annotator");
+
+                SearchPattern pp = new SearchPattern();
+                pp.setSearchGameData(false);
+                pp.setSearchPosition(true);
+                pp.setSearchTurn(SearchPattern.TURN_ANY);
+                pp.setSearchBoard(reopened.loadGame(reopened.getIndex().get(0)).getEndNode().getBoard().makeCopy());
+                reopened.search(pp);
+                assertEquals(1, reopened.getSearchResults().size(), "Position search hits written 2CBH game");
+            } finally {
+                reopened.close();
+            }
+
+            // 7. Existing 2CBH with Slot 3 empty (Slot 0 annotator fallback) AND truncated last .2lid bucket
+            Path legacyTwo = tempDir.resolve("legacy_slot0_fallback");
+            writeSyntheticTwoCbhDatabase(legacyTwo, false, true);
+            TwoCbhChessDatabase legacyDb = new TwoCbhChessDatabase(legacyTwo.toString() + ".2cbh");
+            try {
+                legacyDb.scanGames();
+                Game extra = buildSmallGame("Followup Cup", "Paris", "2026.09.09", "2", "Delta, Dan", "Epsilon, Eve", "0-1");
+                extra.setHeader("Annotator", "Zeta, Zoe");
+                extra.setHeader("Source", "New Press");
+                legacyDb.appendGame(extra);
+            } finally {
+                legacyDb.close();
+            }
+            TwoCbhChessDatabase legacyReopened = new TwoCbhChessDatabase(legacyTwo.toString() + ".2cbh");
+            try {
+                legacyReopened.scanGames();
+                assertEquals(3, legacyReopened.getIndex().size(), "3 active games after appending to legacy 2CBH");
+                Game orig0 = legacyReopened.loadGame(legacyReopened.getIndex().get(0));
+                assertEquals("Gamma, Greg", orig0.getHeader("Annotator"),
+                        "Existing Slot 0 annotator pointer must remain intact after appending new annotated game");
+                Game added2 = legacyReopened.loadGame(legacyReopened.getIndex().get(2));
+                assertEquals("Zeta, Zoe", added2.getHeader("Annotator"), "New annotator stored cleanly via Slot 0 fallback");
+                assertEquals("New Press", added2.getHeader("Source"), "New source persisted after extending truncated bucket");
+                assertEquals("Followup Cup", added2.getHeader("Event"), "New event persisted");
+                assertEquals("Paris", added2.getHeader("Site"), "New site persisted");
+            } finally {
+                legacyReopened.close();
+            }
+
+            System.out.println("  twoCbhWriteOperationsAndRoundTripTest PASSED.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            deleteDirRecursive(tempDir);
+        }
+    }
+
+    public static void cbhAndTwoCbhCrossFormatImportTest() {
+        System.out.println("Testing cross-format importGames across PGN, SCID5, CBH, and 2CBH...");
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("jfxchess_cbh_import_");
+            PgnPrinter printer = new PgnPrinter();
+
+            // Build source PGN with 2 games (standard + custom FEN + variations + comments + NAGs)
+            Path srcPgnPath = tempDir.resolve("src.pgn");
+            PgnChessDatabase srcPgn = new PgnChessDatabase();
+            srcPgn.createNew(srcPgnPath.toString());
+            srcPgn.appendGame(buildRichStandardGame(false));
+            srcPgn.appendGame(buildRichCustomSetupGame());
+
+            // 1. PGN -> CBH
+            CbhChessDatabase cbh1 = (CbhChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("db1.cbh").toString());
+            cbh1.importGames(srcPgn, srcPgn.getIndex(), null);
+            assertEquals(2, cbh1.getIndex().size(), "PGN -> CBH count");
+
+            // 2. CBH -> CBH (fast path raw block copy)
+            CbhChessDatabase cbh2 = (CbhChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("db2.cbh").toString());
+            cbh2.importGames(cbh1, cbh1.getIndex(), null);
+            assertEquals(2, cbh2.getIndex().size(), "CBH -> CBH count");
+
+            // 3. CBH -> 2CBH
+            TwoCbhChessDatabase two1 = (TwoCbhChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("db1.2cbh").toString());
+            two1.importGames(cbh2, cbh2.getIndex(), null);
+            assertEquals(2, two1.getIndex().size(), "CBH -> 2CBH count");
+
+            // 4. 2CBH -> 2CBH (fast path raw block copy)
+            TwoCbhChessDatabase two2 = (TwoCbhChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("db2.2cbh").toString());
+            two2.importGames(two1, two1.getIndex(), null);
+            assertEquals(2, two2.getIndex().size(), "2CBH -> 2CBH count");
+
+            // 5. 2CBH -> SCID5 -> CBH
+            Scid5ChessDatabase scid = (Scid5ChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("mid.si5").toString());
+            scid.importGames(two2, two2.getIndex(), null);
+            assertEquals(2, scid.getIndex().size(), "2CBH -> SCID5 count");
+
+            CbhChessDatabase cbhFromScid = (CbhChessDatabase) ChessDatabase.createDatabase(tempDir.resolve("from_scid.cbh").toString());
+            cbhFromScid.importGames(scid, scid.getIndex(), null);
+            assertEquals(2, cbhFromScid.getIndex().size(), "SCID5 -> CBH count");
+
+            // 6. Verify full PGN tree equivalence after reopen on CBH2, 2CBH2, and CBH-from-SCID
+            srcPgn.close();
+            cbh1.close();
+            cbh2.close();
+            two1.close();
+            two2.close();
+            scid.close();
+            cbhFromScid.close();
+
+            PgnChessDatabase srcCheck = new PgnChessDatabase(srcPgnPath.toString());
+            srcCheck.scanGames();
+            CbhChessDatabase cbhCheck = new CbhChessDatabase(tempDir.resolve("db2.cbh").toString());
+            cbhCheck.scanGames();
+            TwoCbhChessDatabase twoCheck = new TwoCbhChessDatabase(tempDir.resolve("db2.2cbh").toString());
+            twoCheck.scanGames();
+            CbhChessDatabase scidRoundCheck = new CbhChessDatabase(tempDir.resolve("from_scid.cbh").toString());
+            scidRoundCheck.scanGames();
+            try {
+                for (int i = 0; i < 2; i++) {
+                    String expectedPgn = printer.printGame(srcCheck.loadGame(srcCheck.getIndex().get(i)));
+                    String cbhPgn = printer.printGame(cbhCheck.loadGame(cbhCheck.getIndex().get(i)));
+                    String twoPgn = printer.printGame(twoCheck.loadGame(twoCheck.getIndex().get(i)));
+                    String scidCbhPgn = printer.printGame(scidRoundCheck.loadGame(scidRoundCheck.getIndex().get(i)));
+                    assertEquals(expectedPgn, cbhPgn, "PGN -> CBH -> CBH equivalence game " + i);
+                    assertEquals(expectedPgn, twoPgn, "CBH -> 2CBH -> 2CBH equivalence game " + i);
+                    assertEquals(expectedPgn, scidCbhPgn, "2CBH -> SCID5 -> CBH equivalence game " + i);
+                }
+            } finally {
+                srcCheck.close();
+                cbhCheck.close();
+                twoCheck.close();
+                scidRoundCheck.close();
+            }
+
+            System.out.println("  cbhAndTwoCbhCrossFormatImportTest PASSED.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            deleteDirRecursive(tempDir);
+        }
+    }
+
+    public static void cbhAndTwoCbhWorkspaceSessionSyncTest() {
+        System.out.println("Testing Workspace multi-session sync (clean reload / dirty stale) for CBH and 2CBH...");
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("jfxchess_cbh_ws_sync_");
+            verifyWorkspaceSyncForFormat(tempDir.resolve("sync_test.cbh"));
+            verifyWorkspaceSyncForFormat(tempDir.resolve("sync_test.2cbh"));
+            System.out.println("  cbhAndTwoCbhWorkspaceSessionSyncTest PASSED.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            deleteDirRecursive(tempDir);
+        }
+    }
+
+    private static void verifyWorkspaceSyncForFormat(Path dbPath) throws Exception {
+        Workspace ws = new Workspace();
+        ChessDatabase db = ws.getOrCreateDatabase(dbPath);
+        Game initial = buildSmallGame("Sync Event V1", "Munich", "2026.01.01", "1", "White, A", "Black, B", "1-0");
+        GameInfo info = db.appendGame(initial);
+
+        GameSession cleanSession = ws.createSession(db.loadGame(info));
+        cleanSession.setPgnSourceReference(new PgnSourceReference(db.getPath(), info.getId(), db.getRevision()));
+        cleanSession.markClean();
+
+        GameSession dirtySession = ws.createSession(db.loadGame(info));
+        dirtySession.setPgnSourceReference(new PgnSourceReference(db.getPath(), info.getId(), db.getRevision()));
+        dirtySession.markDirty();
+
+        // Replace game -> clean session reloads automatically, dirty session becomes stale
+        Game updated = buildSmallGame("Sync Event V2", "Munich", "2026.01.02", "2", "White, A", "Black, B", "0-1");
+        db.replaceGame(updated, info);
+        flushEdt();
+
+        assertEquals("Sync Event V2", cleanSession.getGame().getHeader("Event"),
+                "Clean session must auto-reload updated game for " + dbPath.getFileName());
+        assertTrue(!cleanSession.isStale(), "Clean session should not be stale after reload");
+        assertTrue(dirtySession.isStale(), "Dirty session must be marked stale on replaceGame");
+        assertEquals("Sync Event V1", dirtySession.getGame().getHeader("Event"),
+                "Dirty session must keep local edits");
+
+        // Delete game -> clean session becomes stale
+        db.deleteGame(info);
+        flushEdt();
+        assertTrue(cleanSession.isStale(), "Session must be marked stale when game is deleted");
+
+        db.close();
+    }
+
+    private static void flushEdt() throws Exception {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeAndWait(() -> {
+            });
+        }
+    }
+
+    private static Game buildSmallGame(
+            String event, String site, String date, String round, String white, String black, String result) {
+        Game g = new Game();
+        g.setHeader("Event", event);
+        g.setHeader("Site", site);
+        g.setHeader("Date", date);
+        g.setHeader("Round", round);
+        g.setHeader("White", white);
+        g.setHeader("Black", black);
+        g.setHeader("Result", result);
+        g.setResult(CbCommon.decodeResultConstant(CbCommon.encodeResult(result, CONSTANTS.RES_UNDEF)));
+        g.getRootNode().setBoard(new Board(true));
+        g.applyMove(new Move("e2e4"));
+        g.applyMove(new Move("e7e5"));
+        return g;
+    }
+
+    private static Game buildRichStandardGame(boolean includeUtf8AndExtraVars) {
+        Game g = new Game();
+        g.setHeader("Event", "Grand Tournament");
+        g.setHeader("Site", "Zurich");
+        g.setHeader("Date", "2025.03.14");
+        g.setHeader("Round", "3.2");
+        g.setHeader("White", "Fischer, Bobby");
+        g.setHeader("Black", "Spassky, Boris");
+        g.setHeader("Result", "1-0");
+        g.setHeader("ECO", "C50");
+        g.setHeader("WhiteElo", "2750");
+        g.setHeader("BlackElo", "2690");
+        g.setHeader("Annotator", "GM Annotator");
+        g.setHeader("Source", "Chess Press");
+        g.setResult(CONSTANTS.RES_WHITE_WINS);
+
+        Board start = new Board(true);
+        g.getRootNode().setBoard(start);
+        if (includeUtf8AndExtraVars) {
+            g.getRootNode().setComment("Root UTF-8: café π ♞");
+        } else {
+            g.getRootNode().setComment("Opening note");
+        }
+
+        // Mainline: 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. O-O Nf6 5. d4 exd4 6. e5 d5 7. exf6 dxc4 8. fxg7 Rg8
+        //           9. -- (null move) 9... Bf5 10. g8=Q+ (promo Q) ...
+        // Plus sideline at 1... e5 -> (1... c5 2. Nf3 d6) and nested sideline
+        g.applyMove(new Move("e2e4"));
+        GameNode n1 = g.getCurrentNode();
+        n1.setComment(includeUtf8AndExtraVars ? "Best by test — naïve" : "Best by test");
+        n1.addNag(CONSTANTS.NAG_GOOD_MOVE);       // $1
+        n1.addNag(CONSTANTS.NAG_DRAWISH_POSITION); // $10 -> 0x0B -> $10
+        ColoredField cf = new ColoredField();
+        cf.x = 4;
+        cf.y = 3; // e4
+        n1.addOrRemoveColoredField(cf);
+        Arrow arrow = new Arrow();
+        arrow.xFrom = 4;
+        arrow.yFrom = 1;
+        arrow.xTo = 4;
+        arrow.yTo = 3;
+        n1.addOrRemoveArrow(arrow);
+
+        if (includeUtf8AndExtraVars) {
+            // Root sideline: 1. d4 d5
+            g.setCurrent(g.getRootNode());
+            g.applyMove(new Move("d2d4"));
+            g.getCurrentNode().setComment("Queen pawn alt");
+            g.applyMove(new Move("d7d5"));
+            g.setCurrent(n1);
+        }
+
+        // Mainline 1... e5
+        g.applyMove(new Move("e7e5"));
+        GameNode n1b = g.getCurrentNode();
+        g.applyMove(new Move("g1f3"));
+        GameNode n2w = g.getCurrentNode();
+        n2w.addNag(CONSTANTS.NAG_FORCED_MOVE); // $7 -> 8 -> $7
+        g.applyMove(new Move("b8c6"));
+        g.applyMove(new Move("f1c4"));
+        g.applyMove(new Move("f8c5"));
+        g.applyMove(new Move("e1g1")); // O-O
+        g.applyMove(new Move("g8f6"));
+        g.applyMove(new Move("d2d4"));
+        g.applyMove(new Move("e5d4"));
+        g.applyMove(new Move("e4e5"));
+        g.applyMove(new Move("d7d5"));
+        g.applyMove(new Move("e5f6"));
+        g.applyMove(new Move("d5c4"));
+        g.applyMove(new Move("f6g7"));
+        g.applyMove(new Move("h8g8"));
+        g.applyMove(new Move()); // Null move --
+        g.applyMove(new Move("c8f5"));
+        g.applyMove(new Move("g7g8q")); // Promotion to Queen!
+        g.getCurrentNode().setComment("Queen promotion");
+        g.applyMove(new Move("e8d7"));
+        g.applyMove(new Move("c2c3"));
+        g.applyMove(new Move("d4c3"));
+        g.applyMove(new Move("b1a3"));
+        g.applyMove(new Move("c3b2"));
+        g.applyMove(new Move("c1b2"));
+        g.applyMove(new Move("c4c3"));
+        g.applyMove(new Move("b2c1"));
+        g.applyMove(new Move("c3c2"));
+        g.applyMove(new Move("f1e1"));
+        g.applyMove(new Move("c2c1n")); // Underpromotion to Knight!
+        g.getCurrentNode().setComment("Knight underpromotion");
+
+        // Sideline 1: 1... c5 2. Nf3 d6 (comment on first move, NOT colliding with 1... e5)
+        g.setCurrent(n1);
+        g.applyMove(new Move("c7c5"));
+        g.getCurrentNode().setComment("Sicilian defense");
+        g.applyMove(new Move("g1f3"));
+        g.applyMove(new Move("d7d6"));
+
+        if (includeUtf8AndExtraVars) {
+            // Second sibling sideline at 1. e4: 1... e6 2. d4
+            g.setCurrent(n1);
+            g.applyMove(new Move("e7e6"));
+            g.getCurrentNode().setComment("French defense");
+            g.applyMove(new Move("d2d4"));
+            // Nested sideline at 2. d4: 2. Nf3
+            g.setCurrent(n1.getVariation(2));
+            g.applyMove(new Move("g1f3"));
+            g.getCurrentNode().setComment("Nested French sideline");
+        }
+
+        g.setCurrent(g.getRootNode());
+        return g;
+    }
+
+    private static Game buildRichCustomSetupGame() {
+        // Custom FEN with Black to move, castling WQ + BK, en passant target e3, fullmove 12
+        String fen = "r3k2r/8/8/8/4Pp2/8/8/R3K2R b KQkq e3 0 12";
+        Game g = new Game();
+        g.setHeader("Event", "Endgame Study");
+        g.setHeader("Site", "London");
+        g.setHeader("Date", "2024.??.??");
+        g.setHeader("Round", "1");
+        g.setHeader("White", "StudyAuthor");
+        g.setHeader("Black", "Opponent, Test");
+        g.setHeader("Result", "0-1");
+        g.setHeader("SetUp", "1");
+        g.setResult(CONSTANTS.RES_BLACK_WINS);
+
+        Board b = new Board(fen);
+        g.getRootNode().setBoard(b);
+        g.getRootNode().setComment("Custom setup root");
+        g.applyMove(new Move("f4e3")); // En passant capture!
+        g.applyMove(new Move("e1c1")); // White O-O-O!
+        g.applyMove(new Move("e8g8")); // Black O-O!
+        g.getCurrentNode().setComment("Both sides castled");
+        g.setCurrent(g.getRootNode());
+        return g;
+    }
+
+    private static void verifyRichStandardGame(Game loaded, boolean includeUtf8AndExtraVars, String label) {
+        assertEquals("Fischer, Bobby", loaded.getHeader("White"), label + " White");
+        assertEquals("Spassky, Boris", loaded.getHeader("Black"), label + " Black");
+        assertEquals("Zurich", loaded.getHeader("Site"), label + " Site");
+        assertEquals("2025.03.14", loaded.getHeader("Date"), label + " Date");
+        assertEquals("3.2", loaded.getHeader("Round"), label + " Round");
+        assertEquals("1-0", loaded.getHeader("Result"), label + " Result");
+        assertEquals("C50", loaded.getHeader("ECO"), label + " ECO");
+        assertEquals("2750", loaded.getHeader("WhiteElo"), label + " WhiteElo");
+        assertEquals("2690", loaded.getHeader("BlackElo"), label + " BlackElo");
+        assertEquals("Chess Press", loaded.getHeader("Source"), label + " Source");
+
+        GameNode root = loaded.getRootNode();
+        if (includeUtf8AndExtraVars) {
+            assertEquals("Root UTF-8: café π ♞", root.getComment(), label + " root UTF-8 comment");
+            assertEquals(2, root.getVariations().size(), label + " root has mainline + sideline");
+            assertEquals("d4", root.getVariation(1).getSan(), label + " root sideline 1.d4");
+            assertEquals("Queen pawn alt", root.getVariation(1).getComment(), label + " root sideline comment");
+        } else {
+            assertEquals("Opening note", root.getComment(), label + " root comment");
+        }
+
+        GameNode n1 = root.getVariation(0);
+        assertEquals("e4", n1.getSan(), label + " 1.e4");
+        assertEquals(includeUtf8AndExtraVars ? "Best by test — naïve" : "Best by test", n1.getComment(), label + " 1.e4 comment");
+        assertTrue(n1.getNags().contains(CONSTANTS.NAG_GOOD_MOVE), label + " 1.e4 NAG $1");
+        assertTrue(n1.getNags().contains(CONSTANTS.NAG_DRAWISH_POSITION), label + " 1.e4 NAG $10");
+        assertEquals(1, n1.getColoredFields().size(), label + " 1.e4 colored square");
+        assertEquals(4, n1.getColoredFields().get(0).x, label + " colored square x");
+        assertEquals(3, n1.getColoredFields().get(0).y, label + " colored square y");
+        assertEquals(1, n1.getArrows().size(), label + " 1.e4 arrow");
+
+        assertEquals("e5", n1.getVariation(0).getSan(), label + " mainline 1...e5");
+        assertEquals("c5", n1.getVariation(1).getSan(), label + " sideline 1...c5");
+        assertEquals("Sicilian defense", n1.getVariation(1).getComment(), label + " sideline comment");
+        if (includeUtf8AndExtraVars) {
+            assertEquals(3, n1.getVariations().size(), label + " 3 variations after 1.e4");
+            GameNode french = n1.getVariation(2);
+            assertEquals("e6", french.getSan(), label + " 2nd sideline 1...e6");
+            assertEquals("French defense", french.getComment(), label + " French comment");
+            assertEquals(2, french.getVariations().size(), label + " nested variation under French");
+            assertEquals("Nested French sideline", french.getVariation(1).getComment(), label + " nested comment");
+        }
+
+        GameNode n2w = n1.getVariation(0).getVariation(0);
+        assertTrue(n2w.getNags().contains(CONSTANTS.NAG_FORCED_MOVE), label + " 2.Nf3 NAG $7");
+
+        GameNode end = loaded.getEndNode();
+        assertEquals("Knight underpromotion", end.getComment(), label + " end underpromotion comment");
+        assertTrue(end.getSan().contains("=N"), label + " end move is underpromotion to N: " + end.getSan());
+    }
+
+    private static void verifyRichCustomSetupGame(Game loaded, String label) {
+        assertEquals("Endgame Study", loaded.getHeader("Event"), label + " Event");
+        assertEquals("London", loaded.getHeader("Site"), label + " Site");
+        assertEquals("2024.??.??", loaded.getHeader("Date"), label + " partial Date");
+        assertEquals("StudyAuthor", loaded.getHeader("White"), label + " single-word White");
+        assertEquals("Opponent, Test", loaded.getHeader("Black"), label + " comma Black");
+        assertEquals("0-1", loaded.getHeader("Result"), label + " Result");
+
+        GameNode root = loaded.getRootNode();
+        assertEquals("Custom setup root", root.getComment(), label + " root comment");
+        String fen = root.getBoard().fen();
+        assertTrue(fen.contains(" b KQkq e3 0 12"), label + " custom FEN state preserved: " + fen);
+
+        GameNode m1 = root.getVariation(0);
+        assertEquals("fxe3", m1.getSan(), label + " EP capture from custom FEN");
+        GameNode m2 = m1.getVariation(0);
+        assertEquals("O-O-O", m2.getSan(), label + " White O-O-O");
+        GameNode m3 = m2.getVariation(0);
+        assertEquals("O-O", m3.getSan(), label + " Black O-O");
+        assertEquals("Both sides castled", m3.getComment(), label + " final comment");
     }
 
     // -------------------------------------------------------------------------

@@ -28,15 +28,15 @@ public final class CbhGameInfo extends GameInfo {
 
     private final CbhNamebase namebase;
     private final int rawIndex;
-    private final int cbgOffset; // unsigned 32-bit
-    private final int cbaOffset; // unsigned 32-bit
-    private final int whiteId;
-    private final int blackId;
-    private final int tournamentId;
-    private final int packedDate;
-    private final int elos;      // (whiteElo << 16) | blackElo
-    private final int ecoRaw;    // u16 raw eco
-    private final int roundAndResult; // (round << 16) | (subround << 8) | (result & 0xFF)
+    private int cbgOffset; // unsigned 32-bit
+    private int cbaOffset; // unsigned 32-bit
+    private int whiteId;
+    private int blackId;
+    private int tournamentId;
+    private int packedDate;
+    private int elos;      // (whiteElo << 16) | blackElo
+    private int ecoRaw;    // u16 raw eco
+    private int roundAndResult; // (round << 16) | (subround << 8) | (result & 0xFF)
 
     CbhGameInfo(
             CbhNamebase namebase,
@@ -70,6 +70,30 @@ public final class CbhGameInfo extends GameInfo {
 
     int getRawIndex() {
         return rawIndex;
+    }
+
+    void update(
+            int cbgOffset,
+            int cbaOffset,
+            int whiteId,
+            int blackId,
+            int tournamentId,
+            int packedDate,
+            int resultByte,
+            int round,
+            int subround,
+            int whiteElo,
+            int blackElo,
+            int ecoRaw) {
+        this.cbgOffset = cbgOffset;
+        this.cbaOffset = cbaOffset;
+        this.whiteId = whiteId;
+        this.blackId = blackId;
+        this.tournamentId = tournamentId;
+        this.packedDate = packedDate;
+        this.elos = ((whiteElo & 0xFFFF) << 16) | (blackElo & 0xFFFF);
+        this.ecoRaw = ecoRaw & 0xFFFF;
+        this.roundAndResult = ((round & 0xFF) << 16) | ((subround & 0xFF) << 8) | (resultByte & 0xFF);
     }
 
     long getCbgOffset() {

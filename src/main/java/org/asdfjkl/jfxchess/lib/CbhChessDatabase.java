@@ -41,13 +41,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Read-only {@link ChessDatabase} implementation for classic ChessBase
+ * Read/write {@link ChessDatabase} implementation for classic ChessBase
  * databases (`.cbh`, `.cbg`, `.cba`, `.cbp`, `.cbt`, `.cbc`, `.cbs`).
  */
 public class CbhChessDatabase implements ChessDatabase {
 
     static final int CBH_HEADER_SIZE = 46;
     static final int CBH_RECORD_SIZE = 46;
+    static final int CBG_HEADER_SIZE = 26;
+    static final int CBA_HEADER_SIZE = 26;
     private static final int SCAN_BATCH_RECORDS = 4096;
 
     private Path basePath;
@@ -58,6 +60,8 @@ public class CbhChessDatabase implements ChessDatabase {
     private FileChannel cbgChannel;
     private FileChannel cbaChannel;
     private boolean open;
+    private boolean readOnly;
+    private int totalRawRecords;
 
     private final CbhNamebase namebase = new CbhNamebase();
     private final ArrayList<CbhGameInfo> entries = new ArrayList<>();
@@ -109,7 +113,7 @@ public class CbhChessDatabase implements ChessDatabase {
 
     @Override
     public boolean isReadOnly() {
-        return true;
+        return readOnly;
     }
 
     @Override
@@ -129,12 +133,43 @@ public class CbhChessDatabase implements ChessDatabase {
         this.cbaPath = cba;
 
         this.namebase.load(base);
-        this.cbhChannel = FileChannel.open(cbh, StandardOpenOption.READ);
+        boolean ro = false;
+        try {
+            this.cbhChannel = FileChannel.open(cbh, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            this.cbhChannel = FileChannel.open(cbh, StandardOpenOption.READ);
+            ro = true;
+        }
         if (Files.exists(cbg)) {
-            this.cbgChannel = FileChannel.open(cbg, StandardOpenOption.READ);
+            if (!ro) {
+                try {
+                    this.cbgChannel = FileChannel.open(cbg, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                } catch (IOException e) {
+                    this.cbgChannel = FileChannel.open(cbg, StandardOpenOption.READ);
+                    ro = true;
+                }
+            } else {
+                this.cbgChannel = FileChannel.open(cbg, StandardOpenOption.READ);
+            }
         }
         if (Files.exists(cba)) {
-            this.cbaChannel = FileChannel.open(cba, StandardOpenOption.READ);
+            if (!ro) {
+                try {
+                    this.cbaChannel = FileChannel.open(cba, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                } catch (IOException e) {
+                    this.cbaChannel = FileChannel.open(cba, StandardOpenOption.READ);
+                    ro = true;
+                }
+            } else {
+                this.cbaChannel = FileChannel.open(cba, StandardOpenOption.READ);
+            }
+        }
+        this.readOnly = ro;
+        long cbhSize = this.cbhChannel.size();
+        if (cbhSize > CBH_HEADER_SIZE) {
+            this.totalRawRecords = (int) ((cbhSize - CBH_HEADER_SIZE) / CBH_RECORD_SIZE);
+        } else {
+            this.totalRawRecords = 0;
         }
         this.open = true;
         this.entries.clear();
@@ -147,7 +182,50 @@ public class CbhChessDatabase implements ChessDatabase {
 
     @Override
     public void createNew(String filename) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+        close();
+        Path base = resolveBasePath(filename);
+        Path parent = base.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
+        Path cbh = Path.of(base.toString() + ".cbh");
+        Path cbg = Path.of(base.toString() + ".cbg");
+        Path cba = Path.of(base.toString() + ".cba");
+
+        byte[] cbhHdr = new byte[CBH_HEADER_SIZE];
+        cbhHdr[2] = 0x2C;
+        cbhHdr[4] = CBH_RECORD_SIZE;
+        cbhHdr[5] = 0x01;
+        CbCommon.writeI32BE(cbhHdr, 6, 1); // totalRecords + 1
+        Files.write(cbh, cbhHdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+
+        byte[] cbgHdr = new byte[CBG_HEADER_SIZE];
+        CbCommon.writeU16BE(cbgHdr, 0, CBG_HEADER_SIZE);
+        Files.write(cbg, cbgHdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+
+        byte[] cbaHdr = new byte[CBA_HEADER_SIZE];
+        CbCommon.writeU16BE(cbaHdr, 0, CBA_HEADER_SIZE);
+        Files.write(cba, cbaHdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+
+        this.namebase.createEmpty(base);
+
+        this.basePath = base;
+        this.cbhPath = cbh;
+        this.cbgPath = cbg;
+        this.cbaPath = cba;
+        this.cbhChannel = FileChannel.open(cbh, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        this.cbgChannel = FileChannel.open(cbg, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        this.cbaChannel = FileChannel.open(cba, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        this.open = true;
+        this.readOnly = false;
+        this.totalRawRecords = 0;
+        this.entries.clear();
+        this.searchResults.clear();
+        this.searchActive = false;
+        this.revision = 0;
+
+        publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.DATABASE_OPENED, this, revision, null));
     }
 
     @Override
@@ -233,6 +311,7 @@ public class CbhChessDatabase implements ChessDatabase {
         try {
             long fileSize = cbhChannel.size();
             if (fileSize <= CBH_HEADER_SIZE) {
+                this.totalRawRecords = 0;
                 if (listener != null && !listener.isCancelled()) {
                     listener.onProgress(100);
                 }
@@ -241,6 +320,7 @@ public class CbhChessDatabase implements ChessDatabase {
                 return;
             }
             int totalRecords = (int) ((fileSize - CBH_HEADER_SIZE) / CBH_RECORD_SIZE);
+            this.totalRawRecords = totalRecords;
             entries.ensureCapacity(totalRecords);
 
             byte[] buf = new byte[SCAN_BATCH_RECORDS * CBH_RECORD_SIZE];
@@ -832,33 +912,609 @@ public class CbhChessDatabase implements ChessDatabase {
 
     @Override
     public GameInfo appendGame(Game game) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+        Objects.requireNonNull(game, "game");
+        ensureWritable();
+
+        int rawIndex = nextRawIndex();
+        CbhMoveEncoder.EncodeResult enc = CbhMoveEncoder.encode(game, rawIndex + 1);
+
+        int whiteId = namebase.findOrAddPlayer(game.getHeader("White"));
+        int blackId = namebase.findOrAddPlayer(game.getHeader("Black"));
+        int tournamentId = namebase.findOrAddTournament(game.getHeader("Event"), game.getHeader("Site"));
+        int annotatorId = namebase.findOrAddAnnotator(game.getHeader("Annotator"));
+        int sourceId = namebase.findOrAddSource(game.getHeader("Source"));
+
+        long cbgOffset = appendCbgBlock(enc.cbgBlock);
+        long cbaOffset = 0L;
+        if (enc.cbaBlock != null) {
+            cbaOffset = appendCbaBlock(enc.cbaBlock);
+        }
+
+        int packedDate = CbCommon.encodeDate(game.getHeader("Date"));
+        int resultByte = CbCommon.encodeResult(game.getHeader("Result"), game.getResult());
+        int[] rs = CbCommon.parseRoundAndSubround(game.getHeader("Round"));
+        int whiteElo = CbCommon.parseElo(game.getHeader("WhiteElo"));
+        int blackElo = CbCommon.parseElo(game.getHeader("BlackElo"));
+        int ecoRaw = CbCommon.encodeEco(game.getHeader("ECO"));
+
+        byte[] rec = buildCbhRecord(
+                0x01,
+                cbgOffset,
+                cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                annotatorId,
+                sourceId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw,
+                enc.mainlinePlies
+        );
+
+        long recOffset = CBH_HEADER_SIZE + ((long) rawIndex * CBH_RECORD_SIZE);
+        writeAllAt(cbhChannel, recOffset, rec);
+        totalRawRecords = rawIndex + 1;
+        updateCbhHeaderRecordCount();
+
+        CbhGameInfo info = new CbhGameInfo(
+                namebase,
+                rawIndex,
+                (int) cbgOffset,
+                (int) cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw
+        );
+        entries.add(info);
+        revision++;
+        publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_APPENDED, this, revision, List.of(info)));
+        return info;
     }
 
     @Override
     public void importGames(ChessDatabase sourceDatabase, List<GameInfo> gamesToImport, ProgressListener listener)
             throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
-    }
+        Objects.requireNonNull(sourceDatabase, "sourceDatabase");
+        Objects.requireNonNull(gamesToImport, "gamesToImport");
+        ensureWritable();
+        if (gamesToImport.isEmpty()) {
+            if (listener != null) {
+                listener.onProgress(100);
+            }
+            return;
+        }
 
-    @Override
-    public void replaceGame(Game newGame, GameInfo currentGameInfo, ProgressListener listener) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+        int total = gamesToImport.size();
+        ArrayList<GameInfo> importedEntries = new ArrayList<>(total);
+        int rawIndex = nextRawIndex();
+        ensureCbgWritableChannel();
+
+        namebase.beginBatch();
+        try {
+            if (sourceDatabase instanceof CbhChessDatabase srcCbh && srcCbh.isOpen()) {
+                FileChannel srcCbhCh = srcCbh.cbhChannel;
+                FileChannel srcCbgCh = srcCbh.cbgChannel;
+                FileChannel srcCbaCh = srcCbh.cbaChannel;
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) {
+                        break;
+                    }
+                    GameInfo info = gamesToImport.get(i);
+                    if (info instanceof CbhGameInfo srcInfo && srcCbgCh != null && srcInfo.getCbgOffset() >= CBG_HEADER_SIZE) {
+                        byte[] rawCbg = readRawCbgBlock(srcCbgCh, srcInfo.getCbgOffset());
+                        if (rawCbg != null) {
+                            int whiteId = namebase.findOrAddPlayer(srcInfo.getWhite());
+                            int blackId = namebase.findOrAddPlayer(srcInfo.getBlack());
+                            int tournamentId = namebase.findOrAddTournament(srcInfo.getEvent(), srcInfo.getSite());
+                            String annotator = "";
+                            String source = "";
+                            int halfMoves = 0;
+                            if (srcCbhCh != null) {
+                                long srcRecOff = CBH_HEADER_SIZE + ((long) srcInfo.getRawIndex() * CBH_RECORD_SIZE);
+                                byte[] srcRec = new byte[CBH_RECORD_SIZE];
+                                if (readUpToAt(srcCbhCh, srcRecOff, srcRec, CBH_RECORD_SIZE) == CBH_RECORD_SIZE) {
+                                    int srcAnnoId = CbCommon.readU24BE(srcRec, 0x12);
+                                    int srcSrcId = CbCommon.readU24BE(srcRec, 0x15);
+                                    annotator = srcCbh.namebase.getAnnotator(srcAnnoId);
+                                    source = srcCbh.namebase.getSource(srcSrcId);
+                                    halfMoves = srcRec[0x2B] & 0xFF;
+                                }
+                            }
+                            int annotatorId = namebase.findOrAddAnnotator(annotator);
+                            int sourceId = namebase.findOrAddSource(source);
+
+                            long cbgOffset = appendCbgBlock(rawCbg);
+                            long cbaOffset = 0L;
+                            if (srcCbaCh != null && srcInfo.getCbaOffset() > 0L) {
+                                byte[] rawCba = readRawCbaBlock(srcCbaCh, srcInfo.getCbaOffset());
+                                if (rawCba != null) {
+                                    CbCommon.writeI32BE(rawCba, 0, rawIndex + 1);
+                                    cbaOffset = appendCbaBlock(rawCba);
+                                }
+                            }
+
+                            byte[] rec = buildCbhRecord(
+                                    0x01,
+                                    cbgOffset,
+                                    cbaOffset,
+                                    whiteId,
+                                    blackId,
+                                    tournamentId,
+                                    annotatorId,
+                                    sourceId,
+                                    srcInfo.getPackedDate(),
+                                    srcInfo.getResultByte(),
+                                    srcInfo.getRoundNumber(),
+                                    srcInfo.getSubroundNumber(),
+                                    srcInfo.getWhiteEloVal(),
+                                    srcInfo.getBlackEloVal(),
+                                    srcInfo.getEcoRaw(),
+                                    halfMoves
+                            );
+                            long recOffset = CBH_HEADER_SIZE + ((long) rawIndex * CBH_RECORD_SIZE);
+                            writeAllAt(cbhChannel, recOffset, rec);
+
+                            CbhGameInfo newInfo = new CbhGameInfo(
+                                    namebase,
+                                    rawIndex,
+                                    (int) cbgOffset,
+                                    (int) cbaOffset,
+                                    whiteId,
+                                    blackId,
+                                    tournamentId,
+                                    srcInfo.getPackedDate(),
+                                    srcInfo.getResultByte(),
+                                    srcInfo.getRoundNumber(),
+                                    srcInfo.getSubroundNumber(),
+                                    srcInfo.getWhiteEloVal(),
+                                    srcInfo.getBlackEloVal(),
+                                    srcInfo.getEcoRaw()
+                            );
+                            entries.add(newInfo);
+                            importedEntries.add(newInfo);
+                            rawIndex++;
+                            reportImportProgress(listener, i, total);
+                            continue;
+                        }
+                    }
+                    Game g = sourceDatabase.loadGame(info);
+                    if (g != null) {
+                        CbhGameInfo newInfo = writeEncodedGameAt(g, rawIndex);
+                        entries.add(newInfo);
+                        importedEntries.add(newInfo);
+                        rawIndex++;
+                    }
+                    reportImportProgress(listener, i, total);
+                }
+            } else {
+                for (int i = 0; i < total; i++) {
+                    if (listener != null && listener.isCancelled()) {
+                        break;
+                    }
+                    GameInfo info = gamesToImport.get(i);
+                    Game g = sourceDatabase.loadGame(info);
+                    if (g != null) {
+                        CbhGameInfo newInfo = writeEncodedGameAt(g, rawIndex);
+                        entries.add(newInfo);
+                        importedEntries.add(newInfo);
+                        rawIndex++;
+                    }
+                    reportImportProgress(listener, i, total);
+                }
+            }
+        } finally {
+            namebase.flushBatch();
+            if (rawIndex > totalRawRecords) {
+                totalRawRecords = rawIndex;
+                updateCbhHeaderRecordCount();
+            }
+        }
+
+        if (!importedEntries.isEmpty()) {
+            revision++;
+            publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_APPENDED, this, revision, importedEntries));
+        }
     }
 
     @Override
     public void replaceGame(Game newGame, GameInfo currentGameInfo) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+        replaceGame(newGame, currentGameInfo, null);
     }
 
     @Override
-    public void deleteGame(GameInfo info, ProgressListener listener) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+    public void replaceGame(Game newGame, GameInfo currentGameInfo, ProgressListener listener) throws IOException {
+        Objects.requireNonNull(newGame, "newGame");
+        Objects.requireNonNull(currentGameInfo, "currentGameInfo");
+        ensureWritable();
+
+        CbhGameInfo target;
+        if (currentGameInfo instanceof CbhGameInfo cgi && entries.contains(cgi)) {
+            target = cgi;
+        } else {
+            target = findEntryById(currentGameInfo.getId());
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("Game not found in CBH database: " + currentGameInfo.getId());
+        }
+
+        int rawIndex = target.getRawIndex();
+        CbhMoveEncoder.EncodeResult enc = CbhMoveEncoder.encode(newGame, rawIndex + 1);
+
+        int whiteId = namebase.findOrAddPlayer(newGame.getHeader("White"));
+        int blackId = namebase.findOrAddPlayer(newGame.getHeader("Black"));
+        int tournamentId = namebase.findOrAddTournament(newGame.getHeader("Event"), newGame.getHeader("Site"));
+        int annotatorId = namebase.findOrAddAnnotator(newGame.getHeader("Annotator"));
+        int sourceId = namebase.findOrAddSource(newGame.getHeader("Source"));
+
+        long cbgOffset = writeOrReplaceCbgBlock(target.getCbgOffset(), enc.cbgBlock);
+        long cbaOffset = 0L;
+        if (enc.cbaBlock != null) {
+            cbaOffset = writeOrReplaceCbaBlock(target.getCbaOffset(), enc.cbaBlock);
+        }
+
+        int packedDate = CbCommon.encodeDate(newGame.getHeader("Date"));
+        int resultByte = CbCommon.encodeResult(newGame.getHeader("Result"), newGame.getResult());
+        int[] rs = CbCommon.parseRoundAndSubround(newGame.getHeader("Round"));
+        int whiteElo = CbCommon.parseElo(newGame.getHeader("WhiteElo"));
+        int blackElo = CbCommon.parseElo(newGame.getHeader("BlackElo"));
+        int ecoRaw = CbCommon.encodeEco(newGame.getHeader("ECO"));
+
+        byte[] rec = buildCbhRecord(
+                0x01,
+                cbgOffset,
+                cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                annotatorId,
+                sourceId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw,
+                enc.mainlinePlies
+        );
+
+        long recOffset = CBH_HEADER_SIZE + ((long) rawIndex * CBH_RECORD_SIZE);
+        writeAllAt(cbhChannel, recOffset, rec);
+
+        target.update(
+                (int) cbgOffset,
+                (int) cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw
+        );
+
+        revision++;
+        if (listener != null) {
+            listener.onProgress(100);
+        }
+        publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_REPLACED, this, revision, List.of(target)));
     }
 
     @Override
     public void deleteGame(GameInfo info) throws IOException {
-        throw new UnsupportedOperationException("CBH databases are read-only");
+        deleteGame(info, null);
+    }
+
+    @Override
+    public void deleteGame(GameInfo info, ProgressListener listener) throws IOException {
+        Objects.requireNonNull(info, "info");
+        ensureWritable();
+
+        CbhGameInfo target;
+        if (info instanceof CbhGameInfo cgi && entries.contains(cgi)) {
+            target = cgi;
+        } else {
+            target = findEntryById(info.getId());
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("Game not found in CBH database: " + info.getId());
+        }
+
+        long recOffset = CBH_HEADER_SIZE + ((long) target.getRawIndex() * CBH_RECORD_SIZE);
+        byte[] flagBuf = new byte[1];
+        if (readUpToAt(cbhChannel, recOffset, flagBuf, 1) == 1) {
+            flagBuf[0] = (byte) ((flagBuf[0] & 0xFF) | 0x80);
+        } else {
+            flagBuf[0] = (byte) 0x81;
+        }
+        writeAllAt(cbhChannel, recOffset, flagBuf);
+
+        entries.remove(target);
+        searchResults.remove(target);
+        revision++;
+        if (listener != null) {
+            listener.onProgress(100);
+        }
+        publish(new ChessDatabaseEvent(ChessDatabaseEvent.Type.GAME_DELETED, this, revision, List.of(target)));
+    }
+
+    private void ensureWritable() throws IOException {
+        if (!open || cbhChannel == null) {
+            throw new IOException("CBH database is not open");
+        }
+        if (readOnly) {
+            throw new UnsupportedOperationException("CBH database is read-only");
+        }
+    }
+
+    private int nextRawIndex() throws IOException {
+        long cbhSize = cbhChannel.size();
+        if (cbhSize <= CBH_HEADER_SIZE) {
+            return 0;
+        }
+        int onDisk = (int) ((cbhSize - CBH_HEADER_SIZE) / CBH_RECORD_SIZE);
+        return Math.max(totalRawRecords, onDisk);
+    }
+
+    private void updateCbhHeaderRecordCount() throws IOException {
+        byte[] cnt = new byte[4];
+        CbCommon.writeI32BE(cnt, 0, totalRawRecords + 1);
+        writeAllAt(cbhChannel, 6L, cnt);
+    }
+
+    private void ensureCbgWritableChannel() throws IOException {
+        if (cbgChannel == null) {
+            if (cbgPath == null) {
+                cbgPath = Path.of(basePath.toString() + ".cbg");
+            }
+            if (!Files.exists(cbgPath) || Files.size(cbgPath) < CBG_HEADER_SIZE) {
+                byte[] cbgHdr = new byte[CBG_HEADER_SIZE];
+                CbCommon.writeU16BE(cbgHdr, 0, CBG_HEADER_SIZE);
+                Files.write(cbgPath, cbgHdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            }
+            cbgChannel = FileChannel.open(cbgPath, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        } else if (cbgChannel.size() < CBG_HEADER_SIZE) {
+            byte[] cbgHdr = new byte[CBG_HEADER_SIZE];
+            CbCommon.writeU16BE(cbgHdr, 0, CBG_HEADER_SIZE);
+            writeAllAt(cbgChannel, 0L, cbgHdr);
+        }
+    }
+
+    private void ensureCbaWritableChannel() throws IOException {
+        if (cbaChannel == null) {
+            if (cbaPath == null) {
+                cbaPath = Path.of(basePath.toString() + ".cba");
+            }
+            if (!Files.exists(cbaPath) || Files.size(cbaPath) < CBA_HEADER_SIZE) {
+                byte[] cbaHdr = new byte[CBA_HEADER_SIZE];
+                CbCommon.writeU16BE(cbaHdr, 0, CBA_HEADER_SIZE);
+                Files.write(cbaPath, cbaHdr, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            }
+            cbaChannel = FileChannel.open(cbaPath, StandardOpenOption.READ, StandardOpenOption.WRITE);
+        } else if (cbaChannel.size() < 10L) {
+            byte[] cbaHdr = new byte[CBA_HEADER_SIZE];
+            CbCommon.writeU16BE(cbaHdr, 0, CBA_HEADER_SIZE);
+            writeAllAt(cbaChannel, 0L, cbaHdr);
+        }
+    }
+
+    private long appendCbgBlock(byte[] block) throws IOException {
+        ensureCbgWritableChannel();
+        long offset = Math.max(CBG_HEADER_SIZE, cbgChannel.size());
+        writeAllAt(cbgChannel, offset, block);
+        return offset;
+    }
+
+    private long appendCbaBlock(byte[] block) throws IOException {
+        ensureCbaWritableChannel();
+        long offset = Math.max(CBA_HEADER_SIZE, cbaChannel.size());
+        writeAllAt(cbaChannel, offset, block);
+        return offset;
+    }
+
+    private long writeOrReplaceCbgBlock(long oldOffset, byte[] newBlock) throws IOException {
+        ensureCbgWritableChannel();
+        if (oldOffset >= CBG_HEADER_SIZE && oldOffset + 4L <= cbgChannel.size()) {
+            byte[] hdr4 = new byte[4];
+            if (readUpToAt(cbgChannel, oldOffset, hdr4, 4) == 4) {
+                int hdr1 = CbCommon.readI32BE(hdr4, 0);
+                if ((hdr1 & 0x80000000) == 0) {
+                    int oldLen = hdr1 & 0x00FFFFFF;
+                    if (newBlock.length <= oldLen) {
+                        writeAllAt(cbgChannel, oldOffset, newBlock);
+                        return oldOffset;
+                    }
+                }
+            }
+        }
+        return appendCbgBlock(newBlock);
+    }
+
+    private long writeOrReplaceCbaBlock(long oldOffset, byte[] newBlock) throws IOException {
+        ensureCbaWritableChannel();
+        if (oldOffset >= 10L && oldOffset + 14L <= cbaChannel.size()) {
+            byte[] hdr14 = new byte[14];
+            if (readUpToAt(cbaChannel, oldOffset, hdr14, 14) == 14) {
+                int oldLen = CbCommon.readI32BE(hdr14, 10);
+                if (oldLen >= 14 && newBlock.length <= oldLen) {
+                    writeAllAt(cbaChannel, oldOffset, newBlock);
+                    return oldOffset;
+                }
+            }
+        }
+        return appendCbaBlock(newBlock);
+    }
+
+    private CbhGameInfo writeEncodedGameAt(Game game, int rawIndex) throws IOException {
+        CbhMoveEncoder.EncodeResult enc = CbhMoveEncoder.encode(game, rawIndex + 1);
+        int whiteId = namebase.findOrAddPlayer(game.getHeader("White"));
+        int blackId = namebase.findOrAddPlayer(game.getHeader("Black"));
+        int tournamentId = namebase.findOrAddTournament(game.getHeader("Event"), game.getHeader("Site"));
+        int annotatorId = namebase.findOrAddAnnotator(game.getHeader("Annotator"));
+        int sourceId = namebase.findOrAddSource(game.getHeader("Source"));
+
+        long cbgOffset = appendCbgBlock(enc.cbgBlock);
+        long cbaOffset = 0L;
+        if (enc.cbaBlock != null) {
+            cbaOffset = appendCbaBlock(enc.cbaBlock);
+        }
+
+        int packedDate = CbCommon.encodeDate(game.getHeader("Date"));
+        int resultByte = CbCommon.encodeResult(game.getHeader("Result"), game.getResult());
+        int[] rs = CbCommon.parseRoundAndSubround(game.getHeader("Round"));
+        int whiteElo = CbCommon.parseElo(game.getHeader("WhiteElo"));
+        int blackElo = CbCommon.parseElo(game.getHeader("BlackElo"));
+        int ecoRaw = CbCommon.encodeEco(game.getHeader("ECO"));
+
+        byte[] rec = buildCbhRecord(
+                0x01,
+                cbgOffset,
+                cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                annotatorId,
+                sourceId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw,
+                enc.mainlinePlies
+        );
+        long recOffset = CBH_HEADER_SIZE + ((long) rawIndex * CBH_RECORD_SIZE);
+        writeAllAt(cbhChannel, recOffset, rec);
+
+        return new CbhGameInfo(
+                namebase,
+                rawIndex,
+                (int) cbgOffset,
+                (int) cbaOffset,
+                whiteId,
+                blackId,
+                tournamentId,
+                packedDate,
+                resultByte,
+                rs[0],
+                rs[1],
+                whiteElo,
+                blackElo,
+                ecoRaw
+        );
+    }
+
+    private static byte[] buildCbhRecord(
+            int flags,
+            long cbgOffset,
+            long cbaOffset,
+            int whiteId,
+            int blackId,
+            int tournamentId,
+            int annotatorId,
+            int sourceId,
+            int packedDate,
+            int resultByte,
+            int round,
+            int subround,
+            int whiteElo,
+            int blackElo,
+            int ecoRaw,
+            int mainlinePlies) {
+        byte[] rec = new byte[CBH_RECORD_SIZE];
+        rec[0x00] = (byte) flags;
+        CbCommon.writeI32BE(rec, 0x01, (int) cbgOffset);
+        CbCommon.writeI32BE(rec, 0x05, (int) cbaOffset);
+        CbCommon.writeU24BE(rec, 0x09, whiteId);
+        CbCommon.writeU24BE(rec, 0x0C, blackId);
+        CbCommon.writeU24BE(rec, 0x0F, tournamentId);
+        CbCommon.writeU24BE(rec, 0x12, annotatorId);
+        CbCommon.writeU24BE(rec, 0x15, sourceId);
+        CbCommon.writeU24BE(rec, 0x18, packedDate);
+        rec[0x1B] = (byte) resultByte;
+        rec[0x1D] = (byte) (round & 0xFF);
+        rec[0x1E] = (byte) (subround & 0xFF);
+        CbCommon.writeU16BE(rec, 0x1F, whiteElo);
+        CbCommon.writeU16BE(rec, 0x21, blackElo);
+        CbCommon.writeU16BE(rec, 0x23, ecoRaw);
+        rec[0x2B] = (byte) Math.min(Math.max(mainlinePlies, 0), 255);
+        return rec;
+    }
+
+    private static byte[] readRawCbgBlock(FileChannel ch, long offset) throws IOException {
+        long size = ch.size();
+        if (offset < CBG_HEADER_SIZE || offset + 4L > size) {
+            return null;
+        }
+        byte[] hdr4 = new byte[4];
+        if (readUpToAt(ch, offset, hdr4, 4) < 4) {
+            return null;
+        }
+        int hdr1 = CbCommon.readI32BE(hdr4, 0);
+        if ((hdr1 & 0x80000000) != 0) {
+            return null;
+        }
+        int blockLen = hdr1 & 0x00FFFFFF;
+        if (blockLen < 4 || blockLen > 16_777_216 || offset + blockLen > size) {
+            return null;
+        }
+        byte[] full = new byte[blockLen];
+        if (readUpToAt(ch, offset, full, blockLen) < blockLen) {
+            return null;
+        }
+        return full;
+    }
+
+    private static byte[] readRawCbaBlock(FileChannel ch, long offset) throws IOException {
+        long size = ch.size();
+        if (offset < 10L || offset + 14L > size) {
+            return null;
+        }
+        byte[] hdr14 = new byte[14];
+        if (readUpToAt(ch, offset, hdr14, 14) < 14) {
+            return null;
+        }
+        int totalLen = CbCommon.readI32BE(hdr14, 10);
+        if (totalLen <= 14 || totalLen > 16_777_216 || offset + totalLen > size) {
+            return null;
+        }
+        byte[] full = new byte[totalLen];
+        if (readUpToAt(ch, offset, full, totalLen) < totalLen) {
+            return null;
+        }
+        return full;
+    }
+
+    private static void reportImportProgress(ProgressListener listener, int index, int total) {
+        if (listener != null && (index % 50 == 0 || index == total - 1)) {
+            int pct = (int) (((long) (index + 1) * 100L) / total);
+            listener.onProgress(pct);
+        }
+    }
+
+    private static void writeAllAt(FileChannel ch, long offset, byte[] src) throws IOException {
+        ByteBuffer bb = ByteBuffer.wrap(src);
+        long pos = offset;
+        while (bb.hasRemaining()) {
+            int n = ch.write(bb, pos);
+            pos += n;
+        }
     }
 
     @Override

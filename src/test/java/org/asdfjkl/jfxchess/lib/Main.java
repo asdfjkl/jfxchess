@@ -129,6 +129,10 @@ public class Main {
                 selectedTests.put("syntheticTwoCbhAnd2LidEdgeCasesTest", TestCbhSupport::syntheticTwoCbhAnd2LidEdgeCasesTest);
                 selectedTests.put("syntheticCbhAndTwoCbhToScid5RoundTripTest", TestCbhSupport::syntheticCbhAndTwoCbhToScid5RoundTripTest);
                 selectedTests.put("readOnlyGuiGuardsAndWorkspaceTest", TestCbhSupport::readOnlyGuiGuardsAndWorkspaceTest);
+                selectedTests.put("cbhWriteOperationsAndRoundTripTest", TestCbhSupport::cbhWriteOperationsAndRoundTripTest);
+                selectedTests.put("twoCbhWriteOperationsAndRoundTripTest", TestCbhSupport::twoCbhWriteOperationsAndRoundTripTest);
+                selectedTests.put("cbhAndTwoCbhCrossFormatImportTest", TestCbhSupport::cbhAndTwoCbhCrossFormatImportTest);
+                selectedTests.put("cbhAndTwoCbhWorkspaceSessionSyncTest", TestCbhSupport::cbhAndTwoCbhWorkspaceSessionSyncTest);
             }
 
             if (runAll || runPerft) {
@@ -288,6 +292,10 @@ public class Main {
         tests.put("syntheticTwoCbhAnd2LidEdgeCasesTest", TestCbhSupport::syntheticTwoCbhAnd2LidEdgeCasesTest);
         tests.put("syntheticCbhAndTwoCbhToScid5RoundTripTest", TestCbhSupport::syntheticCbhAndTwoCbhToScid5RoundTripTest);
         tests.put("readOnlyGuiGuardsAndWorkspaceTest", TestCbhSupport::readOnlyGuiGuardsAndWorkspaceTest);
+        tests.put("cbhWriteOperationsAndRoundTripTest", TestCbhSupport::cbhWriteOperationsAndRoundTripTest);
+        tests.put("twoCbhWriteOperationsAndRoundTripTest", TestCbhSupport::twoCbhWriteOperationsAndRoundTripTest);
+        tests.put("cbhAndTwoCbhCrossFormatImportTest", TestCbhSupport::cbhAndTwoCbhCrossFormatImportTest);
+        tests.put("cbhAndTwoCbhWorkspaceSessionSyncTest", TestCbhSupport::cbhAndTwoCbhWorkspaceSessionSyncTest);
 
         // Perft tests
         tests.put("runPerfT", cases::runPerfT);

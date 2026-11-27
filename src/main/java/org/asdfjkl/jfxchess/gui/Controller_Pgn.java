@@ -18,19 +18,16 @@
 
 package org.asdfjkl.jfxchess.gui;
 
-import org.asdfjkl.jfxchess.lib.CbhToScid5Converter;
 import org.asdfjkl.jfxchess.lib.ChessDatabase;
 import org.asdfjkl.jfxchess.lib.Game;
 import org.asdfjkl.jfxchess.lib.GameInfo;
 import org.asdfjkl.jfxchess.lib.PgnReader;
-import org.asdfjkl.jfxchess.lib.ProgressListener;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -72,8 +69,12 @@ public class Controller_Pgn {
         }
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
         FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        FileNameExtensionFilter cbhFilter = new FileNameExtensionFilter("ChessBase Classic Databases (*.cbh)", "cbh");
+        FileNameExtensionFilter twoCbhFilter = new FileNameExtensionFilter("ChessBase Modern Databases (*.2cbh)", "2cbh");
         chooser.addChoosableFileFilter(pgnFilter);
         chooser.addChoosableFileFilter(scidFilter);
+        chooser.addChoosableFileFilter(cbhFilter);
+        chooser.addChoosableFileFilter(twoCbhFilter);
         chooser.setFileFilter(pgnFilter);
         chooser.setAcceptAllFileFilterUsed(false);
 
@@ -85,9 +86,14 @@ public class Controller_Pgn {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     String filename = selectedFile.getAbsolutePath();
                     String lower = filename.toLowerCase();
-                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")) {
+                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")
+                            && !lower.endsWith(".cbh") && !lower.endsWith(".2cbh")) {
                         if (chooser.getFileFilter() == scidFilter) {
                             filename += ".si5";
+                        } else if (chooser.getFileFilter() == cbhFilter) {
+                            filename += ".cbh";
+                        } else if (chooser.getFileFilter() == twoCbhFilter) {
+                            filename += ".2cbh";
                         } else {
                             filename += ".pgn";
                         }
@@ -301,27 +307,6 @@ public class Controller_Pgn {
                                 JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if (isChessBaseExtension(lower)) {
-                        model.setShortcutsEnabled(false);
-                        Object[] options = new Object[]{"Convert to SCID5", "Open Read-Only"};
-                        int choice = JOptionPane.showOptionDialog(
-                                model.mainFrameRef,
-                                "ChessBase databases are opened read-only.\nWould you like to convert this database to SCID5 format?",
-                                "Open ChessBase Database",
-                                JOptionPane.DEFAULT_OPTION,
-                                JOptionPane.QUESTION_MESSAGE,
-                                null,
-                                options,
-                                options[0]
-                        );
-                        model.setShortcutsEnabled(true);
-                        if (choice == 0) {
-                            convertChessBaseAndOpen(selectedFile);
-                            return;
-                        } else if (choice != 1) {
-                            return;
-                        }
-                    }
                     ChessDatabase database = getDatabase(filename);
                     ChessScanWorker worker = new ChessScanWorker(database,
                             entriesFromWorker -> onScanPgnCompletion(database)
@@ -346,139 +331,6 @@ public class Controller_Pgn {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private void convertChessBaseAndOpen(File sourceFile) {
-        File lastSaveDir = model.getLastSaveDirPath();
-        JFileChooser saveChooser;
-        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
-            saveChooser = new JFileChooser(lastSaveDir);
-        } else {
-            saveChooser = new JFileChooser(sourceFile.getParentFile());
-        }
-        String srcName = sourceFile.getName();
-        String stem = srcName;
-        int dot = srcName.lastIndexOf('.');
-        if (dot > 0) {
-            stem = srcName.substring(0, dot);
-        }
-        File initialDir;
-        if (lastSaveDir != null && lastSaveDir.exists() && lastSaveDir.isDirectory()) {
-            initialDir = lastSaveDir;
-        } else {
-            initialDir = sourceFile.getParentFile();
-        }
-        saveChooser.setSelectedFile(new File(initialDir, stem + ".si5"));
-        FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
-        saveChooser.addChoosableFileFilter(scidFilter);
-        saveChooser.setFileFilter(scidFilter);
-        saveChooser.setAcceptAllFileFilterUsed(false);
-
-        model.setShortcutsEnabled(false);
-        int saveRes = saveChooser.showSaveDialog(model.mainFrameRef);
-        model.setShortcutsEnabled(true);
-        if (saveRes != JFileChooser.APPROVE_OPTION || saveChooser.getSelectedFile() == null) {
-            return;
-        }
-        model.setLastSaveDirPath(saveChooser.getCurrentDirectory());
-        String targetFilename = saveChooser.getSelectedFile().getAbsolutePath();
-        String lowerTarget = targetFilename.toLowerCase();
-        if (lowerTarget.endsWith(".sn5") || lowerTarget.endsWith(".sg5")) {
-            targetFilename = targetFilename.substring(0, targetFilename.length() - 4) + ".si5";
-        } else if (!lowerTarget.endsWith(".si5")) {
-            targetFilename = targetFilename + ".si5";
-        }
-
-        Path targetSi5 = Path.of(targetFilename).toAbsolutePath().normalize();
-        String targetStem = targetSi5.toString().substring(0, targetSi5.toString().length() - 4);
-        Path targetSn5 = Path.of(targetStem + ".sn5");
-        Path targetSg5 = Path.of(targetStem + ".sg5");
-
-        if (Files.exists(targetSi5) || Files.exists(targetSn5) || Files.exists(targetSg5)) {
-            model.setShortcutsEnabled(false);
-            int confirm = JOptionPane.showConfirmDialog(
-                    model.mainFrameRef,
-                    "SCID5 database files already exist at:\n" + targetSi5 + "\nOverwrite existing files?",
-                    "Confirm Overwrite",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-            );
-            model.setShortcutsEnabled(true);
-            if (confirm != JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-
-        ChessDatabase activeDb = getCurrentDatabase();
-        if (activeDb != null && targetSi5.equals(activeDb.getPath())) {
-            try {
-                model.closeActiveDatabase();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        model.getWorkspace().closeAndRemoveDatabase(targetSi5);
-
-        final Exception[] convertError = new Exception[1];
-        SwingWorker<Integer, Void> convertWorker = new SwingWorker<>() {
-            @Override
-            protected Integer doInBackground() throws Exception {
-                return CbhToScid5Converter.convert(sourceFile.toPath(), targetSi5, new ProgressListener() {
-                    @Override
-                    public void onProgress(int percent) {
-                        setProgress(Math.max(0, Math.min(100, percent)));
-                    }
-
-                    @Override
-                    public boolean isCancelled() {
-                        return isCancelledFlag();
-                    }
-                });
-            }
-
-            private boolean isCancelledFlag() {
-                return super.isCancelled();
-            }
-
-            @Override
-            protected void done() {
-                if (isCancelled()) {
-                    return;
-                }
-                try {
-                    get();
-                } catch (Exception ex) {
-                    convertError[0] = ex;
-                }
-            }
-        };
-
-        DialogProgress dlgConvert = new DialogProgress(model.mainFrameRef, convertWorker, "Converting to SCID5");
-        model.setShortcutsEnabled(false);
-        convertWorker.execute();
-        dlgConvert.setVisible(true);
-        model.setShortcutsEnabled(true);
-
-        if (convertWorker.isCancelled()) {
-            return;
-        }
-        if (convertError[0] != null) {
-            convertError[0].printStackTrace();
-            JOptionPane.showMessageDialog(model.mainFrameRef,
-                    "Error converting database: " + convertError[0].getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        ChessDatabase scidDb = getDatabase(targetSi5.toString());
-        ChessScanWorker scanWorker = new ChessScanWorker(scidDb,
-                entriesFromWorker -> onScanPgnCompletion(scidDb));
-        DialogProgress dlgScan = new DialogProgress(model.mainFrameRef, scanWorker, "Scanning Database");
-        model.setShortcutsEnabled(false);
-        scanWorker.execute();
-        dlgScan.setVisible(true);
-        model.setShortcutsEnabled(true);
     }
 
     private void onScanPgnCompletion(ChessDatabase database) {
@@ -561,8 +413,12 @@ public class Controller_Pgn {
         }
         FileNameExtensionFilter pgnFilter = new FileNameExtensionFilter("PGN Files (*.pgn)", "pgn");
         FileNameExtensionFilter scidFilter = new FileNameExtensionFilter("SCID5 Databases (*.si5)", "si5");
+        FileNameExtensionFilter cbhFilter = new FileNameExtensionFilter("ChessBase Classic Databases (*.cbh)", "cbh");
+        FileNameExtensionFilter twoCbhFilter = new FileNameExtensionFilter("ChessBase Modern Databases (*.2cbh)", "2cbh");
         chooser.addChoosableFileFilter(pgnFilter);
         chooser.addChoosableFileFilter(scidFilter);
+        chooser.addChoosableFileFilter(cbhFilter);
+        chooser.addChoosableFileFilter(twoCbhFilter);
         chooser.setFileFilter(pgnFilter);
         chooser.setAcceptAllFileFilterUsed(false);
 
@@ -574,9 +430,14 @@ public class Controller_Pgn {
                     model.setLastSaveDirPath(chooser.getCurrentDirectory());
                     String filename = selectedFile.getAbsolutePath();
                     String lower = filename.toLowerCase();
-                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")) {
+                    if (!lower.endsWith(".pgn") && !lower.endsWith(".si5")
+                            && !lower.endsWith(".cbh") && !lower.endsWith(".2cbh")) {
                         if (chooser.getFileFilter() == scidFilter) {
                             filename += ".si5";
+                        } else if (chooser.getFileFilter() == cbhFilter) {
+                            filename += ".cbh";
+                        } else if (chooser.getFileFilter() == twoCbhFilter) {
+                            filename += ".2cbh";
                         } else {
                             filename += ".pgn";
                         }
